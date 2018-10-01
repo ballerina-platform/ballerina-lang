@@ -30,7 +30,6 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -46,7 +45,18 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
 
+import static org.wso2.transport.http.netty.contract.Constants.CHNL_HNDLR_CTX;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
+import static org.wso2.transport.http.netty.contract.Constants.LISTENER_INTERFACE_ID;
+import static org.wso2.transport.http.netty.contract.Constants.LISTENER_PORT;
+import static org.wso2.transport.http.netty.contract.Constants.LOCAL_ADDRESS;
+import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.contract.Constants.REQUEST_URL;
+import static org.wso2.transport.http.netty.contract.Constants.TO;
 
 /**
  * HTTP/2 utility functions for states.
@@ -92,25 +102,24 @@ public class Http2StateUtil {
     public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, ChannelHandlerContext ctx,
                                                        String interfaceId) {
         HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new DefaultListener(ctx));
-        sourceReqCMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
-        sourceReqCMsg.setProperty(Constants.CHNL_HNDLR_CTX, ctx);
+        sourceReqCMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+        sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
-        sourceReqCMsg.setProperty(Constants.HTTP_VERSION,
-                protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
-        sourceReqCMsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
+        sourceReqCMsg.setProperty(HTTP_VERSION, protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+        sourceReqCMsg.setProperty(HTTP_METHOD, httpRequest.method().name());
 
         InetSocketAddress localAddress = null;
         //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
         if (ctx.channel().localAddress() instanceof InetSocketAddress) {
             localAddress = (InetSocketAddress) ctx.channel().localAddress();
         }
-        sourceReqCMsg.setProperty(Constants.LOCAL_ADDRESS, localAddress);
-        sourceReqCMsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
-        sourceReqCMsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
-        sourceReqCMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
+        sourceReqCMsg.setProperty(LOCAL_ADDRESS, localAddress);
+        sourceReqCMsg.setProperty(LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
+        sourceReqCMsg.setProperty(LISTENER_INTERFACE_ID, interfaceId);
+        sourceReqCMsg.setProperty(PROTOCOL, HTTP_SCHEME);
         String uri = httpRequest.uri();
-        sourceReqCMsg.setProperty(Constants.REQUEST_URL, uri);
-        sourceReqCMsg.setProperty(Constants.TO, uri);
+        sourceReqCMsg.setProperty(REQUEST_URL, uri);
+        sourceReqCMsg.setProperty(TO, uri);
         return sourceReqCMsg;
     }
 
@@ -157,7 +166,7 @@ public class Http2StateUtil {
         pushPromise.setStreamId(originalStreamId);
         // Construct http request
         HttpRequest httpRequest = pushPromise.getHttpRequest();
-        httpRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
+        httpRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), HTTP_SCHEME);
         // A push promise is a server initiated request, hence it should contain request headers
         Http2Headers http2Headers =
                 HttpConversionUtil.toHttp2Headers(httpRequest, true);

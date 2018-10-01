@@ -28,7 +28,6 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
@@ -38,6 +37,8 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.contract.Constants.HTTP2_VERSION;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseDataFrame;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
@@ -108,9 +109,9 @@ public class SendingHeaders implements ListenerState {
 
     private void writeHeaders(HttpCarbonMessage outboundResponseMsg, int streamId) throws Http2Exception {
         outboundResponseMsg.getHeaders().
-                add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
+                add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), HTTP_SCHEME);
         HttpMessage httpMessage =
-                Util.createHttpResponse(outboundResponseMsg, Constants.HTTP2_VERSION, serverName, true);
+                Util.createHttpResponse(outboundResponseMsg, HTTP2_VERSION, serverName, true);
         // Construct Http2 headers
         Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
         validatePromisedStreamState(originalStreamId, streamId, conn, inboundRequestMsg);

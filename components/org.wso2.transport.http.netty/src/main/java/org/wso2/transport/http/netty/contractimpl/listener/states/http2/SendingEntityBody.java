@@ -35,7 +35,6 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
@@ -48,6 +47,12 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Calendar;
 
+import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG;
+import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG_FORMAT;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_X_FORWARDED_FOR;
+import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseDataFrame;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
@@ -58,7 +63,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 public class SendingEntityBody implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
-    private static final InternalLogger accessLogger = InternalLoggerFactory.getInstance(Constants.ACCESS_LOG);
+    private static final InternalLogger accessLogger = InternalLoggerFactory.getInstance(ACCESS_LOG);
 
     private final Http2MessageStateContext http2MessageStateContext;
     private final ChannelHandlerContext ctx;
@@ -162,8 +167,8 @@ public class SendingEntityBody implements ListenerState {
             return;
         }
         HttpHeaders headers = inboundRequestMsg.getHeaders();
-        if (headers.contains(Constants.HTTP_X_FORWARDED_FOR)) {
-            String forwardedHops = headers.get(Constants.HTTP_X_FORWARDED_FOR);
+        if (headers.contains(HTTP_X_FORWARDED_FOR)) {
+            String forwardedHops = headers.get(HTTP_X_FORWARDED_FOR);
             // If multiple IPs available, the first ip is the client
             int firstCommaIndex = forwardedHops.indexOf(',');
             remoteAddress = firstCommaIndex != -1 ? forwardedHops.substring(0, firstCommaIndex) : forwardedHops;
@@ -178,21 +183,21 @@ public class SendingEntityBody implements ListenerState {
         if (headers.contains(HttpHeaderNames.REFERER)) {
             referrer = headers.get(HttpHeaderNames.REFERER);
         }
-        String method = (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD);
-        String uri = (String) inboundRequestMsg.getProperty(Constants.TO);
+        String method = (String) inboundRequestMsg.getProperty(HTTP_METHOD);
+        String uri = (String) inboundRequestMsg.getProperty(TO);
         HttpMessage request = inboundRequestMsg.getNettyHttpRequest();
         String protocol;
         if (request != null) {
             protocol = request.protocolVersion().toString();
         } else {
-            protocol = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+            protocol = (String) inboundRequestMsg.getProperty(HTTP_VERSION);
         }
 
         // Populate response parameters
         int statusCode = Util.getHttpResponseStatus(outboundResponseMsg).code();
 
         accessLogger.log(InternalLogLevel.INFO, String.format(
-                Constants.ACCESS_LOG_FORMAT, remoteAddress, inboundRequestArrivalTime, method, uri, protocol,
+                ACCESS_LOG_FORMAT, remoteAddress, inboundRequestArrivalTime, method, uri, protocol,
                 statusCode, contentLength, referrer, userAgent));
     }
 }

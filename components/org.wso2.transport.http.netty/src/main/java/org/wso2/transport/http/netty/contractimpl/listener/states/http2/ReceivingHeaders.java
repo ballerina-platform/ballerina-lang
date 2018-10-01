@@ -28,7 +28,6 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
@@ -38,6 +37,8 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
 
@@ -65,7 +66,7 @@ public class ReceivingHeaders implements ListenerState {
             if (sourceReqCMsg != null) {
                 readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
                 http2SourceHandler.getStreamIdRequestMap().remove(streamId);
-            } else if (headersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
+            } else if (headersFrame.getHeaders().contains(HTTP2_METHOD)) {
                 // if the header frame is an initial header frame and also it has endOfStream
                 sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
                 // Add empty last http content if no data frames available in the http request
@@ -110,7 +111,7 @@ public class ReceivingHeaders implements ListenerState {
 
     private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage responseMessage)
             throws Http2Exception {
-        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+        HttpVersion version = new HttpVersion(HTTP_VERSION_2_0, true);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         HttpHeaders trailers = lastHttpContent.trailingHeaders();
         HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, false);
