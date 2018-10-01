@@ -3477,30 +3477,10 @@ public class CPU {
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             String key = fieldInfo.getName();
             BType fieldType = fieldInfo.getFieldType();
-            BValue mapVal = null;
 
             boolean containsField = bMap.hasKey(key);
-            DefaultValueAttributeInfo defaultValAttrInfo = null;
-            if (containsField) {
-                mapVal = bMap.get(key);
-                if (mapVal == null && BTypes.isValueType(fieldType)) {
-                    throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
-                }
-
-                if (mapVal != null) {
-                    if (mapVal.getType().getTag() == TypeTags.MAP_TAG) {
-                        bStruct.put(key, convertMap(ctx, (BMap<String, BValue>) mapVal, fieldType, key));
-                        continue;
-                    }
-
-                    if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
-                        throw BLangExceptionHelper.getRuntimeException(
-                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
-                    }
-                }
-            } else {
-                defaultValAttrInfo = (DefaultValueAttributeInfo)
+            if (!containsField) {
+                DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo)
                         getAttributeInfo(fieldInfo, AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
                 if (defaultValAttrInfo != null) {
                     switch (fieldType.getTag()) {
@@ -3521,6 +3501,25 @@ public class CPU {
                             continue;
                     }
                 }
+                bStruct.put(key, fieldType.getZeroValue());
+                continue;
+            }
+
+            BValue mapVal = bMap.get(key);
+            if (mapVal == null && BTypes.isValueType(fieldType)) {
+                throw BLangExceptionHelper.getRuntimeException(
+                        RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
+            }
+
+            if (mapVal != null && mapVal.getType().getTag() == TypeTags.MAP_TAG) {
+                bStruct.put(key, convertMap(ctx, (BMap<String, BValue>) mapVal, fieldType, key));
+                continue;
+            }
+
+            if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING,
+                                                               key, fieldType,
+                                                               mapVal == null ? null : mapVal.getType());
             }
             bStruct.put(key, mapVal);
         }
