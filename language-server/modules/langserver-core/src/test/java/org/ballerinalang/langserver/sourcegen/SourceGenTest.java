@@ -85,7 +85,7 @@ public class SourceGenTest {
         } catch (Exception e) {
             // This error being catch to print failing source-gen file.
             Assert.fail("Exception occurred while processing file: " + file.getName() + "\nException:" +
-                                e.toString(), e);
+                    e.toString(), e);
         }
     }
 
@@ -121,7 +121,7 @@ public class SourceGenTest {
         @Override
         public FileVisitResult visitFile(Path filePath,
                                          BasicFileAttributes attr) {
-            if (attr.isRegularFile()) {
+            if (attr.isRegularFile() && !filePath.getFileName().toString().contains("negative")) {
                 File file = new File(filePath.toString());
                 if (file.getName().endsWith(".bal") && !isIgnoredFile(file.getName())) {
                     this.files.add(file);
@@ -133,7 +133,7 @@ public class SourceGenTest {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-            if (attrs.isSymbolicLink()) {
+            if (attrs.isSymbolicLink() || dir.getFileName().toString().contains("negative")) {
                 return SKIP_SUBTREE;
             }
             return CONTINUE;
