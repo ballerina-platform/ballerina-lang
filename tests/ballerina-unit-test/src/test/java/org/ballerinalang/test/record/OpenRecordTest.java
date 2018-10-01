@@ -190,9 +190,15 @@ public class OpenRecordTest {
     }
 
     @Test(description = "Test non-existent any rest field RHS access", expectedExceptions = BLangRuntimeException.class,
-          enabled = false)
+          expectedExceptionsMessageRegExp = ".*cannot find key 'firstName'.*")
     public void testAnyRestFieldRHSAccess() {
         BRunUtil.invoke(compileResult, "testAnyRestFieldRHSAccess");
+    }
+
+    @Test(description = "Test non-existent any rest field RHS index-based access")
+    public void testAnyRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRestFieldRHSIndexAccess");
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test string constrained rest field")
@@ -215,6 +221,14 @@ public class OpenRecordTest {
         BRunUtil.invoke(compileResult, "testStringRestFieldRHSAccess");
     }
 
+    @Test(description = "Test non-existent String rest field RHS index-based access")
+    public void testStringRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertNull(returns[1]);
+    }
+
     @Test(description = "Test int constrained rest field")
     public void testIntRestField() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIntRestField");
@@ -230,6 +244,14 @@ public class OpenRecordTest {
             BLangRuntimeException.class)
     public void testIntRestFieldRHSAccess() {
         BRunUtil.invoke(compileResult, "testIntRestFieldRHSAccess");
+    }
+
+    @Test(description = "Test non-existent int rest field RHS index-based access")
+    public void testIntRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0L);
+        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test float constrained rest field")
@@ -249,6 +271,14 @@ public class OpenRecordTest {
         BRunUtil.invoke(compileResult, "testFloatRestFieldRHSAccess");
     }
 
+    @Test(description = "Test non-existent float rest field RHS index-based access")
+    public void testFloatRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 61.5);
+        Assert.assertNull(returns[1]);
+    }
+
     @Test(description = "Test boolean constrained rest field")
     public void testBooleanRestField() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanRestField");
@@ -266,6 +296,14 @@ public class OpenRecordTest {
         BRunUtil.invoke(compileResult, "testBooleanRestFieldRHSAccess");
     }
 
+    @Test(description = "Test non-existent boolean rest field RHS access")
+    public void testBooleanRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertNull(returns[1]);
+    }
+
     @Test(description = "Test map constrained rest field")
     public void testMapRestField() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapRestField");
@@ -280,9 +318,17 @@ public class OpenRecordTest {
     }
 
     @Test(description = "Test non-existent map rest field RHS access", expectedExceptions =
-            BLangRuntimeException.class, enabled = false)
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*cannot find key 'misc'.*")
     public void testMapRestFieldRHSAccess() {
         BRunUtil.invoke(compileResult, "testMapRestFieldRHSAccess");
+    }
+
+    @Test(description = "Test non-existent map rest field RHS index-based access")
+    public void testMapRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BMap) returns[0]).size(), 0);
+        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test union constrained rest field")
@@ -299,9 +345,17 @@ public class OpenRecordTest {
     }
 
     @Test(description = "Test non-existent union rest field RHS access", expectedExceptions =
-            BLangRuntimeException.class, enabled = false)
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*cannot find key 'misc'.*")
     public void testUnionRestFieldRHSAccess() {
         BRunUtil.invoke(compileResult, "testUnionRestFieldRHSAccess");
+    }
+
+    @Test(description = "Test non-existent union rest field RHS access")
+    public void testUnionRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnionRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Foo");
+        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test nil constrained rest field")
@@ -327,9 +381,16 @@ public class OpenRecordTest {
     }
 
     @Test(description = "Test non-existent record rest field RHS access", expectedExceptions =
-            BLangRuntimeException.class, enabled = false)
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*cannot find key 'department'.*")
     public void testRecordRestFieldRHSAccess() {
         BRunUtil.invoke(compileResult, "testRecordRestFieldRHSAccess");
+    }
+
+    @Test(description = "Test non-existent record rest field RHS access")
+    public void testRecordRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRecordRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test object constrained rest field")
@@ -344,9 +405,19 @@ public class OpenRecordTest {
     }
 
     @Test(description = "Test non-existent object rest field RHS access", expectedExceptions =
-            BLangRuntimeException.class, enabled = false)
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*cannot find key 'pet'.*")
     public void testObjectRestFieldRHSAccess() {
         BRunUtil.invoke(compileResult, "testObjectRestFieldRHSAccess");
+    }
+
+    @Test(description = "Test non-existent object rest field RHS index-based access")
+    public void testObjectRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].getType().getName(), "Animal");
+        Assert.assertEquals(((BMap) returns[0]).get("kind").stringValue(), "Dog");
+        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Rocky");
+        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test tuple constrained rest field")
@@ -366,9 +437,22 @@ public class OpenRecordTest {
     }
 
     @Test(description = "Test non-existent tuple rest field RHS access", expectedExceptions =
-            BLangRuntimeException.class, enabled = false)
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*cannot find key 'tupType'.*")
     public void testTupleRestFieldRHSAccess() {
         BRunUtil.invoke(compileResult, "testTupleRestFieldRHSAccess");
+    }
+
+    @Test(description = "Test non-existent tuple rest field RHS index-based access")
+    public void testTupleRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRestFieldRHSIndexAccess");
+        Assert.assertNotNull(returns[0]);
+
+        BRefValueArray tup = (BRefValueArray) returns[0];
+        Assert.assertEquals(((BFloat) tup.get(0)).floatValue(), 4.5);
+        Assert.assertEquals(tup.get(1).stringValue(), "foo");
+        Assert.assertEquals(((BMap) tup.get(2)).getType().getName(), "Animal");
+
+        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Test function pointer as a record field")
