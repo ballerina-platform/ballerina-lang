@@ -3,24 +3,24 @@ import ballerina/io;
 import ballerina/runtime;
 
 type ResultCount record {
-    int COUNTVAL,
+    int COUNTVAL;
 };
 
 type CustomersTrx record {
-    string firstName,
-    string lastName,
-    int registrationID,
-    float creditLimit,
-    string country,
+    string firstName;
+    string lastName;
+    int registrationID;
+    float creditLimit;
+    string country;
 };
 
 type CustomersTrx2 record {
-    int customerId,
-    string firstName,
-    string lastName,
-    int registrationID,
-    float creditLimit,
-    string country,
+    int customerId;
+    string firstName;
+    string lastName;
+    int registrationID;
+    float creditLimit;
+    string country;
 };
 
 function testLocalTransacton() returns (int, int) {

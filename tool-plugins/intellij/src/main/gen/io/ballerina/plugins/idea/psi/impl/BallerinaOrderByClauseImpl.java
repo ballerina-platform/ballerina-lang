@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaOrderByClauseImpl extends BallerinaCompositeElementImpl implements BallerinaOrderByClause {
 
-  public BallerinaOrderByClauseImpl(ASTNode node) {
+  public BallerinaOrderByClauseImpl(@NotNull ASTNode node) {
     super(node);
   }
 

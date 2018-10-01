@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDocumentationTemplateInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaDocumentationTemplateInlineCode {
 
-  public BallerinaDocumentationTemplateInlineCodeImpl(ASTNode node) {
+  public BallerinaDocumentationTemplateInlineCodeImpl(@NotNull ASTNode node) {
     super(node);
   }
 

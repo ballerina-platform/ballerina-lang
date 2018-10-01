@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlQualifiedNameImpl extends BallerinaCompositeElementImpl implements BallerinaXmlQualifiedName {
 
-  public BallerinaXmlQualifiedNameImpl(ASTNode node) {
+  public BallerinaXmlQualifiedNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

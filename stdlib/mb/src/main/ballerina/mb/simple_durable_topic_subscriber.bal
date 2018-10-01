@@ -76,6 +76,7 @@ public type SimpleDurableTopicSubscriber object {
     # Creates a text message that can be sent through any JMS message producer to a queue or topic.
     #
     # + message - text content of the message
+    # + return - the `Message` object created using the `string` message. or `error` on failure
     public function createTextMessage(string message) returns Message|error {
         var result = self.subscriber.createTextMessage(message);
         match (result) {
@@ -93,23 +94,25 @@ public type SimpleDurableTopicSubscriber object {
 # + port - Hostname of the Ballerina message broker
 # + clientID - Used to identify the JMS client
 # + virtualHost - Name of the virtual host where the virtual host is a path that acts as a namespace
+# + secureSocket - Configuration for the TLS options to be used
 # + connectionFactoryName - JNDI name of the connection factory
 # + acknowledgementMode - JMS session acknowledgement mode. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 # + messageSelector - Message selector condition to filter messages
+# + identifier - the identifier of the SimpleDurableTopicSubscriber
 # + properties - JMS message properties
 # + topicPattern - Topic name pattern
 public type SimpleDurableTopicSubscriberEndpointConfiguration record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string identifier,
+    string identifier;
     map properties;
     string messageSelector;
     string topicPattern;
@@ -126,6 +129,10 @@ public type DurableTopicSubscriberActions object {
         return self.helper.acknowledge(message.getJMSMessage());
     }
 
+    # Synchronously receive a message
+    #
+    # + timeoutInMilliSeconds - time to wait until a message is received
+    # + return - Returns a message or nil if the timeout exceededs. Returns an error on jms provider internal error.
     public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
         var result = self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {
@@ -136,6 +143,8 @@ public type DurableTopicSubscriberActions object {
     }
 
     # Unsubscribes the durable subscriber from topic
+    #
+    # + return - `error` on failure to subscribe
     public function unsubscribe() returns error? {
         return self.helper.unsubscribe();
     }

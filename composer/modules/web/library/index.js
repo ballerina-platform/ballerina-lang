@@ -24,10 +24,13 @@ import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import { Dimmer, Loader } from 'semantic-ui-react';
+import SamplesList from './samples/List';
 
 import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
 import DesignView from 'plugins/ballerina/views/design-view.jsx';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder.js';
+import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
 import '../src/ballerina-theme/semantic.less';
 
 const BalDiagram = DragDropContext(HTML5Backend)(Diagram);
@@ -43,6 +46,7 @@ function renderStaticDiagram(target, modelJson, props = {}) {
         height: 300,
         width: 300,
     };
+    target.classList.add('composer-library');
     Object.assign(defaultProps, props);
     const el = createElement(BalDiagram, defaultProps);
     target.innerHTML = renderToStaticMarkup(el);
@@ -55,6 +59,17 @@ class BallerinaDiagram extends React.Component {
             currentAST: undefined,
             editMode: true,
             diagramMode: 'action',
+        };
+        if (props.parseFragment) {
+            FragmentUtils.setParseFragmentFn(props.parseFragment);
+        }
+    }
+
+    getChildContext() {
+        return {
+            getEndpoints: this.props.getEndpoints,
+            astRoot: this.state.currentAST,
+            goToSource: this.props.goToSource,
         };
     }
 
@@ -78,11 +93,11 @@ class BallerinaDiagram extends React.Component {
         this.props.getAST(docUri)
                 .then((parserReply) => {
                     const { currentAST } = this.state;
-                    if (parserReply.model) {
+                    if (parserReply.ast) {
                         if (currentAST) {
                             currentAST.off(TREE_MODIFIED, this.onModelUpdate);
                         }
-                        const newAST = TreeBuilder.build(parserReply.model);
+                        const newAST = TreeBuilder.build(parserReply.ast);
                         if (newAST) {
                             newAST.on(TREE_MODIFIED, this.onModelUpdate.bind(this));
                         }
@@ -91,7 +106,6 @@ class BallerinaDiagram extends React.Component {
                         });
                     }
                 });
-        this.forceUpdate();
     }
 
     render() {
@@ -99,9 +113,9 @@ class BallerinaDiagram extends React.Component {
         const { width, height } = this.props;
         if (!currentAST) {
             return (
-                <div className='spinnerContainer'>
-                    <div className='fa fa-spinner fa-pulse fa-3x fa-fw' style={{ color: 'grey' }} />
-                </div>
+                <Dimmer active inverted>
+                    <Loader size='large'></Loader>
+                </Dimmer>
             );
         }
         return (
@@ -129,31 +143,59 @@ class BallerinaDiagram extends React.Component {
     }
 }
 
+BallerinaDiagram.childContextTypes = {
+    getEndpoints: PropTypes.func,
+    astRoot: PropTypes.instanceOf(Object).isRequired,
+    goToSource: PropTypes.func.isRequired,
+};
+
 BallerinaDiagram.propTypes = {
     getAST: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     docUri: PropTypes.string.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+    getEndpoints: PropTypes.func,
+    parseFragment: PropTypes.func,
+    goToSource: PropTypes.func.isRequired,
 };
 
 function renderEditableDiagram(target, docUri, width, height,
     getAST = () => Promise.resolve({}),
-    onChange = () => {}) {
+    onChange = () => {},
+    getEndpoints,
+    parseFragment,
+    goToSource) {
     const props = {
         getAST,
         onChange,
         docUri,
         width,
         height,
+        getEndpoints,
+        parseFragment,
+        goToSource,
     };
+    target.classList.add('composer-library');
     const BalDiagramElement = createElement(BallerinaDiagram, props);
     ReactDOM.render(BalDiagramElement, target);
+}
+
+function renderSamplesList(target, getSamples, openSample, openLink) {
+    const props = {
+        getSamples,
+        openSample,
+        openLink,
+    };
+    target.classList.add('composer-library');
+    const SamplesListElement = createElement(SamplesList, props);
+    ReactDOM.render(SamplesListElement, target);
 }
 
 export {
     renderStaticDiagram,
     renderEditableDiagram,
+    renderSamplesList,
     TreeBuilder,
     BallerinaDesignView,
     BallerinaDiagram,
