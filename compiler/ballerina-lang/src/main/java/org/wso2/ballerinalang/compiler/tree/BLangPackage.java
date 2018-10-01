@@ -62,6 +62,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<CompilerPhase> completedPhases;
     public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
+    // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
 
     public PackageID packageID;
