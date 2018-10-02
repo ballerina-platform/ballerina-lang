@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 0,
-    "character": 1
+    "character": 7
   },
-  "source": "toplevel/source/topLevelNonEmptyFirstLine.bal",
+  "source": "toplevel/source/topLevelFirstLineWithPublicKeyword.bal",
   "items": [
     {
       "label":"import",
