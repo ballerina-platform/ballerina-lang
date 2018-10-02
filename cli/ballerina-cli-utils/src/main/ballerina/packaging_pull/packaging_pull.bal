@@ -107,7 +107,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
                 }
             }
 
-            io:WritableByteChannel wch = io:openFileForWriting(untaint destArchivePath);
+            io:WritableByteChannel wch = io:openWritableFile(untaint destArchivePath);
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
@@ -328,8 +328,17 @@ function createDirectories(string directoryPath) returns (boolean) {
 # + byteChannel - Byte channel to be closed
 function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel) {
     match byteChannel {
-        object { public function close() returns error?; } ch => {
-            match ch.close() {
+        io:ReadableByteChannel rc => {
+            match rc.close() {
+                error channelCloseError => {
+                    io:println(logger.formatLog("Error occured while closing the channel: " +
+                                channelCloseError.message));
+                }
+                () => return;
+            }
+        }
+        io:WritableByteChannel wc => {
+            match wc.close() {
                 error channelCloseError => {
                     io:println(logger.formatLog("Error occured while closing the channel: " +
                                 channelCloseError.message));
@@ -338,6 +347,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
             }
         }
     }
+
 }
 
 # This function sets the proxy configurations for the endpoint.

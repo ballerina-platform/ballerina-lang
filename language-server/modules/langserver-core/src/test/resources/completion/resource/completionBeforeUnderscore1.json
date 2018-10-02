@@ -6,19 +6,19 @@
   "source": "resource/source/completionBeforeUnderscore1.bal",
   "items": [
     {
-      "label": "openFileForReading(string path)(ballerina/io:ReadableByteChannel)",
+      "label": "openReadableFile(string path)(ballerina/io:ReadableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "openFileForReading(${1:path})",
+      "insertText": "openReadableFile(${1:path})",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "openFileForWriting(string path, boolean append = false)(ballerina/io:WritableByteChannel)",
+      "label": "openWritableFile(string path, boolean append = false)(ballerina/io:WritableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "openFileForWriting(${1:path}, append = ${2:false})",
+      "insertText": "openWritableFile(${1:path}, append = ${2:false})",
       "insertTextFormat": "Snippet"
     },
     {

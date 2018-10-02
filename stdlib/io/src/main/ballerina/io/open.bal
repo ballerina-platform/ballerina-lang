@@ -30,13 +30,13 @@ public type Mode "r"|"w"|"rw"|"a";
 #
 # + path - Relative/absolute path string to locate the file
 # + return - ByteChannel representation of the file resource
-public extern function openFileForReading(@sensitive string path) returns @tainted ReadableByteChannel;
+public extern function openReadableFile(@sensitive string path) returns @tainted ReadableByteChannel;
 
 # Retrieves a WritableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
 # + return - ByteChannel representation of the file resource
-public extern function openFileForWriting(@sensitive string path, boolean append = false)
+public extern function openWritableFile(@sensitive string path, boolean append = false)
     returns @tainted WritableByteChannel;
 
 # Opens a secure socket connection with a remote server.

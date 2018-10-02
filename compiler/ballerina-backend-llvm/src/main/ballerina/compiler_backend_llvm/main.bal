@@ -3,7 +3,7 @@ import ballerina/bir;
 
 public function main(string... args) {
     var (srcFilePath, destFilePath) = parseArgs(args);
-    genObjectFileFromChannel(openFileForReading(srcFilePath), destFilePath, true);
+    genObjectFileFromChannel(openReadableFile(srcFilePath), destFilePath, true);
 }
 
 function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR) {
@@ -54,8 +54,8 @@ function checkVersion(bir:ChannelReader reader) {
 }
 
 
-function openFileForReading(string filePath) returns io:ReadableByteChannel {
-    io:ReadableByteChannel byteChannel = io:openFileForReading(filePath);
+function openReadableFile(string filePath) returns io:ReadableByteChannel {
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     return byteChannel;
 }
 

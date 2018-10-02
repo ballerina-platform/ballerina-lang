@@ -41,7 +41,7 @@ import java.nio.file.Paths;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "openFileForReading",
+        functionName = "openReadableFile",
         args = {@Argument(name = "path", type = TypeKind.STRING)},
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage = "ballerina/io")

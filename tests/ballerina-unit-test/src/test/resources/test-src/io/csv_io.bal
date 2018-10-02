@@ -10,19 +10,19 @@ io:ReadableCSVChannel? rch;
 io:WritableCSVChannel? wch;
 
 function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
-    io:ReadableByteChannel byteChannel = untaint io:openFileForReading(filePath);
+    io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
     io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
     rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
 }
 
 function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
-    io:WritableByteChannel byteChannel = untaint io:openFileForWriting(filePath);
+    io:WritableByteChannel byteChannel = untaint io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
     wch = new io:WritableCSVChannel(charChannel, fs = fieldSeparator);
 }
 
 function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) {
-    io:ReadableByteChannel byteChannel = untaint io:openFileForReading(filePath);
+    io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
     io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
     rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = nHeaders);
 }
@@ -58,7 +58,7 @@ function hasNextRecord() returns boolean? {
 }
 
 function getTable(string filePath, string encoding, io:Separator fieldSeperator) returns float|error {
-    io:ReadableByteChannel byteChannel = io:openFileForReading(filePath);
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
     io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fs = fieldSeperator);
     float total;
