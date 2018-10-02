@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
@@ -1471,6 +1472,10 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.INVOKABLE);
         }
 
+        // If the resolved symbol kind is a resource, we need to resolve the symbol again with a variable tag.
+        if (funcSymbol.kind == SymbolKind.RESOURCE) {
+            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        }
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             resultType = symTable.errType;
