@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import jdk.nashorn.internal.runtime.regexp.joni.constants.NodeType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
@@ -24,6 +25,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -658,6 +660,10 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.functionPointerInvocation = true;
             resultType = iExpr.expr.type.getReturnType();
             checkFunctionPointerInvocationExpr(iExpr);
+            return;
+        }
+        if( iExpr.expr.symbol.tag == SymTag.VARIABLE && iExpr.getKind() == NodeKind.INVOCATION){
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION_SYNTAX, iExpr.expr.type);
             return;
         }
         if (iExpr.actionInvocation) {
@@ -1446,7 +1452,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         // Set the resolved function symbol in the invocation expression.
         // This is used in the code generation phase.
-        iExpr.symbol = funcSymbol;
+        iExpr.symbol = new BInvokableSymbol(SymTag.VARIABLE, funcSymbol.flags, funcSymbol.name,
+                env.enclPkg.symbol.pkgID, funcSymbol.type, env.scope.owner);
         checkInvocationParamAndReturnType(iExpr);
     }
 
@@ -1462,13 +1469,13 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
                     env.enclTypeDefinition.symbol.type.tsymbol);
             if (funcSymbol != symTable.notFoundSymbol) {
-                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
+                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.INVOKABLE);
             }
         }
 
         // if no such function found, then try resolving in package
         if (funcSymbol == symTable.notFoundSymbol) {
-            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.INVOKABLE);
         }
 
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
@@ -1562,7 +1569,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!iExpr.name.value.equals("call")) {
             return false;
         }
-        return iExpr.expr.type.tag == TypeTags.INVOKABLE;
+        return iExpr.expr.symbol.tag == SymTag.VARIABLE;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {

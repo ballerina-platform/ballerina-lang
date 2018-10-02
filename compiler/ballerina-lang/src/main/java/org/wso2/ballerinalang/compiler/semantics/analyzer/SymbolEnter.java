@@ -981,13 +981,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
         BVarSymbol varSymbol;
-        if (varType.tag == TypeTags.INVOKABLE) {
-            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
-                    env.enclPkg.symbol.pkgID, varType, env.scope.owner);
-        } else {
+//        if (varType.tag == TypeTags.INVOKABLE) {
+//            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
+//                    env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+//        } else {
             varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
-        }
+//        }
         return varSymbol;
     }
 
