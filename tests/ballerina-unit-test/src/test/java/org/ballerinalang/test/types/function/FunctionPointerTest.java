@@ -36,24 +36,24 @@ public class FunctionPointerTest {
     }
 
     @Test
-    public void test1() {
-        BValue[] returns = BRunUtil.invoke(result, "test1");
+    public void testFPInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testFPInvocation");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10 * 20);
     }
 
     @Test
-    public void test2() {
-        BValue[] returns = BRunUtil.invoke(result, "test2");
+    public void testFPInObjectField() {
+        BValue[] returns = BRunUtil.invoke(result, "testFPInObjectField");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10 * 20);
     }
 
     @Test
-    public void test3() {
-        BValue[] returns = BRunUtil.invoke(result, "test3");
+    public void testFPInNestedObjectField() {
+        BValue[] returns = BRunUtil.invoke(result, "testFPInNestedObjectField");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10 * 20);
