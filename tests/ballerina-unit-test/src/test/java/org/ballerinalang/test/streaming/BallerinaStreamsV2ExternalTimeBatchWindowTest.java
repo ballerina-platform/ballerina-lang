@@ -12,18 +12,33 @@ import org.testng.annotations.Test;
 
 public class BallerinaStreamsV2ExternalTimeBatchWindowTest {
 
-    private CompileResult result;
+    private CompileResult result1, result2, result3, result4, result5, result6;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test.bal");
+        result1 = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test.bal");
+
+        System.setProperty("enable.siddhiRuntime", "false");
+        result2 = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test2.bal");
+
+        System.setProperty("enable.siddhiRuntime", "false");
+        result3 = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test3.bal");
+
+        System.setProperty("enable.siddhiRuntime", "false");
+        result4 = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test4.bal");
+
+        System.setProperty("enable.siddhiRuntime", "false");
+        result5 = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test5.bal");
+
+        System.setProperty("enable.siddhiRuntime", "false");
+        result6 = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test6.bal");
     }
 
     @Test(description = "Test externalTimeBatch query")
     public void testExternalTimeBatchQuery1() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startExternalTimeBatchwindowTest1");
         System.setProperty("enable.siddhiRuntime", "true");
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startExternalTimeBatchwindowTest1");
 
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -41,10 +56,7 @@ public class BallerinaStreamsV2ExternalTimeBatchWindowTest {
 
     @Test(description = "Test externalTimeBatch query")
     public void testExternalTimeBatchQuery2() {
-        System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test2.bal");
-
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startExternalTimeBatchwindowTest2");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startExternalTimeBatchwindowTest2");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -62,10 +74,7 @@ public class BallerinaStreamsV2ExternalTimeBatchWindowTest {
 
     @Test(description = "Test externalTimeBatch query")
     public void testExternalTimeBatchQuery3() {
-        System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test3.bal");
-
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startExternalTimeBatchwindowTest3");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result3, "startExternalTimeBatchwindowTest3");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -79,10 +88,7 @@ public class BallerinaStreamsV2ExternalTimeBatchWindowTest {
 
     @Test(description = "Test externalTimeBatch query")
     public void testExternalTimeBatchQuery4() {
-        System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test4.bal");
-
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startExternalTimeBatchwindowTest4");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result4, "startExternalTimeBatchwindowTest4");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -100,10 +106,7 @@ public class BallerinaStreamsV2ExternalTimeBatchWindowTest {
 
     @Test(description = "Test externalTimeBatch query")
     public void testExternalTimeBatchQuery5() {
-        System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test5.bal");
-
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startExternalTimeBatchwindowTest5");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result5, "startExternalTimeBatchwindowTest5");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -121,10 +124,7 @@ public class BallerinaStreamsV2ExternalTimeBatchWindowTest {
 
     @Test(description = "Test externalTimeBatch query")
     public void testExternalTimeBatchQuery6() {
-        System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-external-time-batch-window-test6.bal");
-
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startExternalTimeBatchwindowTest6");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result6, "startExternalTimeBatchwindowTest6");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 

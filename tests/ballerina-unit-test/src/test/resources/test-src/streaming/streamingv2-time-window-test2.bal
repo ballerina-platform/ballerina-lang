@@ -19,33 +19,28 @@ import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
-    int timestamp;
     string name;
     int age;
     string status;
     string school;
-};
-
-type TeacherOutput record{
-    int timestamp;
-    string name;
     int count;
 };
 
 int index = 0;
 stream<Teacher> inputStream;
-stream<TeacherOutput > outputStream;
-TeacherOutput[] globalEmployeeArray = [];
+stream<Teacher > outputStream;
+Teacher[] globalEmployeeArray = [];
 
-function startExternalTimeBatchwindowTest1() returns (TeacherOutput[]) {
+function startTimeWindowTest2() returns (Teacher[]) {
 
     Teacher[] teachers = [];
-    Teacher t1 = { timestamp: 1366335804341, name: "Mohan", age: 30, status: "single", school: "Hindu College" };
-    Teacher t2 = { timestamp: 1366335804342, name: "Raja", age: 45, status: "single", school: "Hindu College" };
-    Teacher t3 = { timestamp: 1366335805340, name: "Naveen", age: 35, status: "single", school: "Hindu College" };
-    Teacher t4 = { timestamp: 1366335805345, name: "Amal", age: 50, status: "married", school: "Hindu College" };
-    Teacher t5 = { timestamp: 1366335814345, name: "Nimal", age: 55, status: "married", school: "Hindu College" };
-    Teacher t6 = { timestamp: 1366335824341, name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
+    Teacher t1 = { name: "Mohan", age: 30, status: "single", school: "Hindu College" };
+    Teacher t2 = { name: "Raja", age: 45, status: "single", school: "Hindu College" };
+    Teacher t3 = { name: "Naveen", age: 35, status: "single", school: "Hindu College" };
+    Teacher t4 = { name: "Amal", age: 50, status: "married", school: "Hindu College" };
+    Teacher t5 = { name: "Nimal", age: 55, status: "married", school: "Hindu College" };
+    Teacher t6 = { name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
+
 
     teachers[0] = t1;
     teachers[1] = t2;
@@ -54,35 +49,35 @@ function startExternalTimeBatchwindowTest1() returns (TeacherOutput[]) {
     teachers[4] = t5;
     teachers[5] = t6;
 
-    testExternalTimeBatchwindow1();
+    testTimeWindow();
 
     outputStream.subscribe(printTeachers);
     foreach t in teachers {
         inputStream.publish(t);
+        runtime:sleep(1200);
     }
 
-    runtime:sleep(1000);
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
-function testExternalTimeBatchwindow1() {
+function testTimeWindow() {
 
     forever {
-        from inputStream window externalTimeBatchWindow("inputStream.timestamp", 1000)
-        select inputStream.timestamp, inputStream.name, count() as count
+        from inputStream window timeWindow(2000)
+        select inputStream.name, inputStream.age, inputStream.status, inputStream.school, count() as count
         group by inputStream.school
-        => (TeacherOutput [] emp) {
+        => (Teacher [] emp) {
             outputStream.publish(emp);
         }
     }
 }
 
-function printTeachers(TeacherOutput e) {
+function printTeachers(Teacher e) {
     addToGlobalEmployeeArray(e);
 }
 
-function addToGlobalEmployeeArray(TeacherOutput e) {
+function addToGlobalEmployeeArray(Teacher e) {
     globalEmployeeArray[index] = e;
     index = index + 1;
 }

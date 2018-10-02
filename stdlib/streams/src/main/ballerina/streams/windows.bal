@@ -582,7 +582,7 @@ public type ExternalTimeBatchWindow object {
                     continue;
                 }
 
-                int currentEventTime = getInt(currStreamEvent.data[timeStamp]);
+                int currentEventTime = getTimestamp(currStreamEvent.data[timeStamp]);
                 if (lastCurrentEventTime < currentEventTime) {
                     lastCurrentEventTime = currentEventTime;
                 }
@@ -778,7 +778,7 @@ public type ExternalTimeBatchWindow object {
             if (isStartTimeEnabled) {
                 endTime = startTime + timeToKeep;
             } else {
-                startTime = getInt(firstStreamEvent.data[timeStamp]);
+                startTime = getTimestamp(firstStreamEvent.data[timeStamp]);
                 endTime = startTime + timeToKeep;
             }
             if (schedulerTimeout > 0) {
@@ -789,7 +789,7 @@ public type ExternalTimeBatchWindow object {
         }
     }
 
-    public function getInt(any val) returns (int){
+    public function getTimestamp(any val) returns (int){
         match val {
             int value => return value;
             any => {
@@ -800,10 +800,10 @@ public type ExternalTimeBatchWindow object {
     }
 };
 
-public function externalTimeBatchWindow(function(StreamEvent[]) nextProcessPointer, string timeStamp, int time, int
+public function externalTimeBatchWindow(function(StreamEvent[]) nextProcessPointer, string timestamp, int time, int
     startTime = -1, int timeOut = -1, boolean replaceTimestampWithBatchEndTime = false)
                     returns ExternalTimeBatchWindow {
-    ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, time, timeStamp, startTime, timeOut,
+    ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, time, timestamp, startTime, timeOut,
         replaceTimestampWithBatchEndTime);
     return timeWindow1;
 }

@@ -19,7 +19,6 @@ import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
-    int timestamp;
     string name;
     int age;
     string status;
@@ -27,7 +26,6 @@ type Teacher record {
 };
 
 type TeacherOutput record{
-    int timestamp;
     string name;
     int count;
 };
@@ -37,40 +35,32 @@ stream<Teacher> inputStream;
 stream<TeacherOutput > outputStream;
 TeacherOutput[] globalEmployeeArray = [];
 
-function startExternalTimeBatchwindowTest1() returns (TeacherOutput[]) {
+function startTimeBatchwindowTest1() returns (TeacherOutput[]) {
 
     Teacher[] teachers = [];
-    Teacher t1 = { timestamp: 1366335804341, name: "Mohan", age: 30, status: "single", school: "Hindu College" };
-    Teacher t2 = { timestamp: 1366335804342, name: "Raja", age: 45, status: "single", school: "Hindu College" };
-    Teacher t3 = { timestamp: 1366335805340, name: "Naveen", age: 35, status: "single", school: "Hindu College" };
-    Teacher t4 = { timestamp: 1366335805345, name: "Amal", age: 50, status: "married", school: "Hindu College" };
-    Teacher t5 = { timestamp: 1366335814345, name: "Nimal", age: 55, status: "married", school: "Hindu College" };
-    Teacher t6 = { timestamp: 1366335824341, name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
+    Teacher t1 = { name: "Mohan", age: 30, status: "single", school: "Hindu College" };
+    Teacher t2 = { name: "Raja", age: 45, status: "single", school: "Hindu College" };
 
     teachers[0] = t1;
     teachers[1] = t2;
-    teachers[2] = t3;
-    teachers[3] = t4;
-    teachers[4] = t5;
-    teachers[5] = t6;
 
-    testExternalTimeBatchwindow1();
+    testTimeBatchwindow();
 
     outputStream.subscribe(printTeachers);
     foreach t in teachers {
         inputStream.publish(t);
     }
 
-    runtime:sleep(1000);
+    runtime:sleep(1500);
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
-function testExternalTimeBatchwindow1() {
+function testTimeBatchwindow() {
 
     forever {
-        from inputStream window externalTimeBatchWindow("inputStream.timestamp", 1000)
-        select inputStream.timestamp, inputStream.name, count() as count
+        from inputStream window timeBatchWindow(1000)
+        select inputStream.name, count() as count
         group by inputStream.school
         => (TeacherOutput [] emp) {
             outputStream.publish(emp);
