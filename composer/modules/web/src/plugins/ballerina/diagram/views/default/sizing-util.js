@@ -51,7 +51,7 @@ class SizingUtil {
      * @return {object} {width,text}
      * */
     getTextWidth(text, minWidth = this.config ? this.config.statement.width : 0,
-                                                        maxWidth = this.config ? this.config.statement.maxWidth : 0) {
+        maxWidth = this.config ? this.config.statement.maxWidth : 0) {
         this.textElement.innerHTML = _.escape(text);
         let width = this.config.statement.padding.left +
             this.textElement.getComputedTextLength() + this.config.statement.padding.right;
@@ -66,8 +66,8 @@ class SizingUtil {
             const ellipses = '...';
             let possibleCharactersCount = 0;
             for (let i = (text.length - 1); i > 1; i--) {
-                if ((this.config.statement.padding.left + this.textElement.getSubStringLength(0, i)
-                    + this.config.statement.padding.right) < maxWidth) {
+                if ((this.config.statement.padding.left + this.textElement.getSubStringLength(0, i) +
+                        this.config.statement.padding.right) < maxWidth) {
                     possibleCharactersCount = i;
                     break;
                 }
@@ -84,13 +84,13 @@ class SizingUtil {
     }
 
     /**
-    * Returns the width of a given string when rendered as svg text according to given options
-    * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
-    * @param {string} text - The string of which the length is measured
-    * @param {Object} options - Options to be used for the rendering
-    * @param {number} options.fontSize - Font size the text should be rendered for measuring width
-    * @return {number} Width of the text in pixels
-    * */
+     * Returns the width of a given string when rendered as svg text according to given options
+     * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
+     * @param {string} text - The string of which the length is measured
+     * @param {Object} options - Options to be used for the rendering
+     * @param {number} options.fontSize - Font size the text should be rendered for measuring width
+     * @return {number} Width of the text in pixels
+     * */
     getOnlyTextWidth(text, options = {}) {
         const { fontSize } = options;
         this.textElement.innerHTML = _.escape(text);
@@ -231,7 +231,7 @@ class SizingUtil {
 
         // flow chart if width and height is different to normal block node width and height
         nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.compoundStatement.width) ?
-                                    this.config.compoundStatement.width : nodeBodyViewState.bBox.w;
+            this.config.compoundStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
 
         components.body = new SimpleBBox();
@@ -245,16 +245,16 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.compoundStatement.heading.height
-                                        + this.config.compoundStatement.padding.top;
+        components['block-header'].h = this.config.compoundStatement.heading.height +
+            this.config.compoundStatement.padding.top;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = viewState.components['statement-box'].h
-                            + viewState.components['drop-zone'].h
-                            + components['block-header'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h +
+            viewState.components['drop-zone'].h +
+            components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
@@ -264,7 +264,7 @@ class SizingUtil {
         const expression = node.getParameter();
         if (expression) {
             components.expression = this.getTextWidth(expression.getSource(true, true), 0,
-                                        this.config.compoundStatement.heading.width);
+                this.config.compoundStatement.heading.width);
         }
     }
 
@@ -273,8 +273,7 @@ class SizingUtil {
      *
      * @param {object} node - finally node
      */
-    sizeFinallyNode(node) {
-    }
+    sizeFinallyNode(node) {}
 
     /**
      * Calculate dimention of CompilationUnit nodes.
@@ -334,8 +333,8 @@ class SizingUtil {
         const functionBodyViewState = node.body.viewState;
         const cmp = viewState.components;
         const workers = node.workers;
-        const defaultWorkerHeight = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2)
-            + (this.config.statement.height * 2);
+        const defaultWorkerHeight = functionBodyViewState.bBox.h + (this.config.lifeLine.head.height * 2) +
+            (this.config.statement.height * 2);
         let maxWorkerHeight = workers.length > 0 ? this.getWorkerMaxHeight(workers) : -1;
         maxWorkerHeight = Math.max(maxWorkerHeight, defaultWorkerHeight);
 
@@ -422,16 +421,16 @@ class SizingUtil {
         let workersWidth = 0;
         workers.forEach((worker) => {
             worker.viewState.bBox.h = maxWorkerHeight;
-            worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height
-                                             - (this.config.lifeLine.footer.height * 2);
+            worker.body.viewState.bBox.h = maxWorkerHeight - this.config.lifeLine.head.height -
+                (this.config.lifeLine.footer.height * 2);
             worker.viewState.components.lifeLine.h = maxWorkerHeight;
             // now add the worker width to panelBody width.
             workersWidth += this.config.lifeLine.gutter.h + worker.viewState.bBox.w;
         });
 
         // calculate panel body
-        cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top
-            + this.config.panel.body.padding.bottom;
+        cmp.panelBody.h = cmp.defaultWorker.h + this.config.panel.body.padding.top +
+            this.config.panel.body.padding.bottom;
         // if function is collapsed set the body height to 0.
         cmp.panelBody.h = (viewState.collapsed) ? 0 : cmp.panelBody.h;
         // calculate parameters
@@ -440,8 +439,8 @@ class SizingUtil {
         viewState.bBox.h = cmp.heading.h + cmp.panelBody.h;
 
         const textWidth = this.getTextWidth(node.getName().value);
-        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right
-            + this.config.panelHeading.iconSize.width;
+        viewState.titleWidth = textWidth.w + this.config.panel.heading.title.margin.right +
+            this.config.panelHeading.iconSize.width;
 
         // here we add the public/private falg, remove and hide button width to the header.
         cmp.heading.w += viewState.titleWidth + (this.config.panel.buttonWidth * 3);
@@ -466,9 +465,9 @@ class SizingUtil {
             }
         }
         // add panel gutter to panelBody
-        cmp.panelBody.w = this.config.panel.body.padding.left + cmp.client.w + defaultWorkerWidth
-                        + workersWidth + endpointWidth
-                        + this.config.panel.body.padding.right;
+        cmp.panelBody.w = this.config.panel.body.padding.left + cmp.client.w + defaultWorkerWidth +
+            workersWidth + endpointWidth +
+            this.config.panel.body.padding.right;
 
         // Get the largest among component heading width and component body width.
         if (cmp.heading.w > cmp.panelBody.w) {
@@ -681,22 +680,22 @@ class SizingUtil {
         cmp.body.h = height;
         cmp.body.w = width;
         let connectorHeight = 0;
-            // If there are connector declarations add them to service width.
+        // If there are connector declarations add them to service width.
         const statements = variables;
         let connectorWidth = 0;
-        connectorHeight = endpoints.length > 0
-            ? (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
+        connectorHeight = endpoints.length > 0 ?
+            (this.config.connectorDeclaration.gutter.v + this.config.panel.heading.height) : 0;
         if (statements instanceof Array) {
             statements.forEach((statement) => {
                 if (TreeUtil.isEndpointTypeVariableDef(statement)) {
                     statement.viewState.bBox.w = this.config.lifeLine.width;
-                        // add the connector width to body width.
+                    // add the connector width to body width.
                     connectorWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                     statement.viewState.bBox.h = cmp.body.h - 60;
                 }
             });
         }
-            // add the connector to width
+        // add the connector to width
         width += connectorWidth;
         cmp.connectors.w = connectorWidth;
         // calculate header related components.
@@ -745,7 +744,7 @@ class SizingUtil {
         paramViewState.w = this.getTextWidth(node.getSource(true, true), 0).w;
         paramViewState.h = this.config.panelHeading.heading.height - 7;
 
-            // Creating component for delete icon.
+        // Creating component for delete icon.
         paramViewState.components.deleteIcon = {};
         paramViewState.components.deleteIcon.w = this.config.panelHeading.heading.height - 7;
         paramViewState.components.deleteIcon.h = this.config.panelHeading.heading.height - 7;
@@ -759,8 +758,8 @@ class SizingUtil {
     sizeWorkerNode(node) {
         const bBox = node.viewState.bBox;
         const workerBody = node.body;
-        bBox.h = workerBody.viewState.bBox.h
-            + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
+        bBox.h = workerBody.viewState.bBox.h +
+            this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
 
         if (node.parent && !TreeUtil.isForkJoin(node.parent)) {
             bBox.h += (this.config.statement.height * 2); // Top gap for client invoke line
@@ -1284,7 +1283,7 @@ class SizingUtil {
 
         // flow chart if width and height is different to normal block node width and height
         nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.flowChartControlStatement.width) ?
-                                    this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
+            this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
 
         components.body = new SimpleBBox();
@@ -1298,9 +1297,9 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height
-                                        + this.config.flowChartControlStatement.padding.top
-                                        + this.config.flowChartControlStatement.heading.gap;
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height +
+            this.config.flowChartControlStatement.padding.top +
+            this.config.flowChartControlStatement.heading.gap;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
@@ -1344,8 +1343,8 @@ class SizingUtil {
         //     while (true) {
         //     }
         // }
-        if ((node.body.statements.length > 0 && TreeUtil.isWhile(_.last(node.body.statements)))
-                && (!elseStmt || (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0))) {
+        if ((node.body.statements.length > 0 && TreeUtil.isWhile(_.last(node.body.statements))) &&
+            (!elseStmt || (TreeUtil.isBlock(elseStmt) && elseStmt.statements.length === 0))) {
             node.viewState.isLastPathLine = true;
         }
     }
@@ -1463,7 +1462,7 @@ class SizingUtil {
 
         // flow chart if width and height is different to normal block node width and height
         nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.compoundStatement.width) ?
-                                    this.config.compoundStatement.width : nodeBodyViewState.bBox.w;
+            this.config.compoundStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
 
         components.body = new SimpleBBox();
@@ -1484,9 +1483,9 @@ class SizingUtil {
         viewState.components['statement-box'].h = bodyHeight;
         viewState.components['statement-box'].w = bodyWidth;
 
-        viewState.bBox.h = viewState.components['statement-box'].h
-                            + viewState.components['drop-zone'].h
-                            + components['block-header'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h +
+            viewState.components['drop-zone'].h +
+            components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
@@ -1537,7 +1536,7 @@ class SizingUtil {
 
         // flow chart if width and height is different to normal block node width and height
         nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.compoundStatement.width) ?
-                                    this.config.compoundStatement.width : nodeBodyViewState.bBox.w;
+            this.config.compoundStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
 
         components.body = new SimpleBBox();
@@ -1565,9 +1564,9 @@ class SizingUtil {
             bodyWidth += this.config.compoundStatement.gap.left;
         }
 
-        viewState.bBox.h = viewState.components['statement-box'].h
-                            + viewState.components['drop-zone'].h
-                            + components['block-header'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h +
+            viewState.components['drop-zone'].h +
+            components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
@@ -1601,7 +1600,7 @@ class SizingUtil {
             finallyViewState.components['statement-box'] = finallyBody.viewState.bBox;
             finallyViewState.w = finallyBody.viewState.bBox.w;
             finallyViewState.h = finallyViewState.components['block-header'].h +
-                                    finallyViewState.components['statement-box'].h;
+                finallyViewState.components['statement-box'].h;
 
             // calculate left margin from the lifeline centre
             this.calcLeftMargin(finallyViewState, finallyBody.statements);
@@ -1668,6 +1667,7 @@ class SizingUtil {
             if (TreeUtil.statementIsASync(node)) {
                 viewState.async = true;
             }
+            viewState.parameterText = TreeUtil.getParameterText(node);
         }
     }
 
@@ -1697,45 +1697,9 @@ class SizingUtil {
             viewState.bBox.w = this.config.actionInvocationStatement.width;
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
             viewState.alias = 'ClientResponderNode';
-            if (TreeUtil.isReturn(node)) {
-                const paramText = node.expression.getSource(true, true);
-                const displayText = this.getTextWidth(paramText, 0,
-                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
-                viewState.displayText = displayText.text;
-            }
-            if (TreeUtil.isAssignment(node)) {
-                let exp = node.getExpression();
-                if (TreeUtil.isMatchExpression(exp)) {
-                    exp = exp.getExpression();
-                }
-                const argExpSource = exp.getArgumentExpressions().map((arg) => {
-                    return arg.getSource(true, true);
-                }).join(', ');
-                const displayText = this.getTextWidth(argExpSource, 0,
-                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
-                viewState.displayText = displayText.text;
-            }
-            if (TreeUtil.isVariableDef(node)) {
-                const exp = node.variable.getInitialExpression();
-                const argExpSource = exp.getArgumentExpressions().map((arg) => {
-                    return arg.getSource(true, true);
-                }).join(', ');
-                const displayText = this.getTextWidth(argExpSource, 0,
-                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
-                viewState.displayText = displayText.text;
-            }
-            if (TreeUtil.isExpressionStatement(node)) {
-                let exp2 = node.getExpression();
-                if (TreeUtil.isMatchExpression(exp2)) {
-                    exp2 = exp2.expression;
-                }
-                const argExpSource = exp2.argumentExpressions.map((arg) => {
-                    return arg.getSource(true, true);
-                }).join(', ');
-                const displayText = this.getTextWidth(argExpSource, 0,
-                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
-                viewState.displayText = displayText.text;
-            }
+            viewState.parameterText = TreeUtil.getParameterText(node);
+            viewState.displayParameterText = this.getTextWidth(TreeUtil.getParameterText(node), 0,
+                (this.config.clientLine.width + this.config.lifeLine.gutter.h)).text;
         }
     }
 
@@ -1755,7 +1719,7 @@ class SizingUtil {
 
         // flow chart while width and height is different to normal block node width and height
         nodeBodyViewState.bBox.w = (nodeBodyViewState.bBox.w < this.config.flowChartControlStatement.width) ?
-                                    this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
+            this.config.flowChartControlStatement.width : nodeBodyViewState.bBox.w;
         nodeBodyViewState.bBox.h += this.config.statement.gutter.v;
 
         components.body = new SimpleBBox();
@@ -1769,18 +1733,19 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.flowChartControlStatement.heading.height
-                                        + this.config.flowChartControlStatement.padding.top
-                                        + this.config.flowChartControlStatement.heading.gap;
+        components['block-header'].h = this.config.flowChartControlStatement.heading.height +
+            this.config.flowChartControlStatement.padding.top +
+            this.config.flowChartControlStatement.heading.gap;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = viewState.components['statement-box'].h
-                            + viewState.components['drop-zone'].h
-                            + this.config.flowChartControlStatement.gutter.h // for the lower separator line
-                            + viewState.components['block-header'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h +
+            viewState.components['drop-zone'].h +
+            this.config.flowChartControlStatement.gutter.h // for the lower separator line
+            +
+            viewState.components['block-header'].h;
         viewState.bBox.w = bodyWidth;
 
         // calculate left margin from the lifeline centre
@@ -1816,8 +1781,8 @@ class SizingUtil {
     }
 
     getActualWidth(bBox) {
-        return ((bBox.leftMargin === 0) ? this.config.flowChartControlStatement.gap.left : bBox.leftMargin)
-            + bBox.w;
+        return ((bBox.leftMargin === 0) ? this.config.flowChartControlStatement.gap.left : bBox.leftMargin) +
+            bBox.w;
     }
 
     /**
@@ -1960,15 +1925,15 @@ class SizingUtil {
         const bodyWidth = nodeBodyViewState.bBox.w;
         const bodyHeight = nodeBodyViewState.bBox.h;
 
-        components['block-header'].h = this.config.compoundStatement.heading.height
-                                        + this.config.compoundStatement.heading.gap;
+        components['block-header'].h = this.config.compoundStatement.heading.height +
+            this.config.compoundStatement.heading.gap;
 
         viewState.components['drop-zone'].h = dropZoneHeight + (viewState.offSet || 0);
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight + components['block-header'].h;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h
-                            + this.config.statement.gutter.h;
+        viewState.bBox.h = viewState.components['statement-box'].h + viewState.components['drop-zone'].h +
+            this.config.statement.gutter.h;
         viewState.bBox.w = bodyWidth;
         components.body.w = bodyWidth;
 
