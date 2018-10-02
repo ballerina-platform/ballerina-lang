@@ -371,6 +371,12 @@ compoundOperator
     |   COMPOUND_SUB
     |   COMPOUND_MUL
     |   COMPOUND_DIV
+    |   COMPOUND_BIT_AND
+    |   COMPOUND_BIT_OR
+    |   COMPOUND_BIT_XOR
+    |   COMPOUND_LEFT_SHIFT
+    |   COMPOUND_RIGHT_SHIFT
+    |   COMPOUND_LOGICAL_SHIFT
     ;
 
 postIncrementStatement
@@ -923,8 +929,8 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   expression whereClause? functionInvocation* windowClause? functionInvocation* whereClause? (AS
-    alias=Identifier)?
+    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
+        whereClause? (AS alias=Identifier)?
     ;
 
 joinStreamingInput

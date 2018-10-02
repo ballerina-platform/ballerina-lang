@@ -337,6 +337,17 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     /**
+     * Returns a flag indicating whether this table is an in-memory one.
+     * TODO: This is a hack to get the table to JSON conversion works
+     * with in-memory tables. Fix this ASAP. Issue: #10615
+     *
+     * @return Flag indicating whether this table is an in-memory one.
+     */
+    public boolean isInMemoryTable() {
+        return true;
+    }
+
+    /**
      * Provides iterator implementation for table values.
      *
      * @since 0.961.0
