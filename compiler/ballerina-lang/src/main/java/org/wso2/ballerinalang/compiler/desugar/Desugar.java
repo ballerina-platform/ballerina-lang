@@ -1885,9 +1885,9 @@ public class Desugar extends BLangNodeVisitor {
 
                 iExpr.symbol = expr.symbol;
                 iExpr.expr = null;
-                iExpr.requiredArgs = new ArrayList<>(iExpr.argExprs);
-                iExpr.namedArgs = new ArrayList<>(iExpr.namedArgs);
-                iExpr.restArgs = new ArrayList<>(iExpr.restArgs);
+                iExpr.requiredArgs = rewriteExprs(iExpr.argExprs);
+                iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
+                iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
 
                 if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     expr = new BLangSimpleVarRef();

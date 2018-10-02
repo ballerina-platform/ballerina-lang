@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import jdk.nashorn.internal.runtime.regexp.joni.constants.NodeType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
@@ -25,7 +24,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -135,6 +133,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -660,10 +659,6 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.functionPointerInvocation = true;
             resultType = iExpr.expr.type.getReturnType();
             checkFunctionPointerInvocationExpr(iExpr);
-            return;
-        }
-        if( iExpr.expr.symbol.tag == SymTag.VARIABLE && iExpr.getKind() == NodeKind.INVOCATION){
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION_SYNTAX, iExpr.expr.type);
             return;
         }
         if (iExpr.actionInvocation) {
@@ -1469,7 +1464,7 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
                     env.enclTypeDefinition.symbol.type.tsymbol);
             if (funcSymbol != symTable.notFoundSymbol) {
-                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.INVOKABLE);
+                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
             }
         }
 
@@ -1495,22 +1490,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr, BStructureType structType) {
         // check for same object attached function
-        Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType
-                .tsymbol.name.value, iExpr.name.value));
+        Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
+                iExpr.name.value));
         BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName, structType.tsymbol);
 
         if (funcSymbol == symTable.notFoundSymbol) {
-            // Check, any function pointer in struct field with given name.
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
-                    structType.tsymbol);
-            if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
-                resultType = symTable.errType;
-                return;
-            }
-            if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
-                iExpr.functionPointerInvocation = true;
-            }
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
+            resultType = symTable.errType;
+            return;
         } else {
             // Attached function found
             // Check for the explicit initializer function invocation
