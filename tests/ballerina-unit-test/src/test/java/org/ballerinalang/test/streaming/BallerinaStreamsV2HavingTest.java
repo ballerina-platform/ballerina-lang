@@ -36,12 +36,16 @@ public class BallerinaStreamsV2HavingTest {
 
     private CompileResult result;
     private CompileResult result2;
+    private CompileResult resultWithAlias;
+    private CompileResult result2WithAlias;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-having-test.bal");
-        result2 = BCompileUtil.compile("test-src/streaming/streamingv2-having-test.bal");
+        result2 = BCompileUtil.compile("test-src/streaming/streamingv2-having-test2.bal");
+        resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-having-test.bal");
+        result2WithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-having-test2.bal");
     }
 
     @Test(description = "Test `having` clause within streaming query")
@@ -64,6 +68,40 @@ public class BallerinaStreamsV2HavingTest {
     @Test(description = "Test `having` clause within streaming query with functions")
     public void testFilterQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startFilterQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+
+        Assert.assertNotNull(outputEmployeeEvents);
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee3 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee1.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(employee2.get("name").stringValue(), "Gimantha");
+        Assert.assertEquals(employee3.get("name").stringValue(), "Grainier");
+    }
+
+    @Test(description = "Test `having` clause within streaming query with stream alias")
+    public void testFilterQueryWithAlias() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startFilterQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+
+        Assert.assertNotNull(outputEmployeeEvents);
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee3 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee1.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(employee2.get("name").stringValue(), "Gimantha");
+        Assert.assertEquals(employee3.get("name").stringValue(), "Grainier");
+    }
+
+    @Test(description = "Test `having` clause within streaming query with functions with stream alias")
+    public void testFilterQuery2WithAlias() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result2WithAlias, "startFilterQuery");
         System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);

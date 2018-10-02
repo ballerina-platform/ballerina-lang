@@ -80,7 +80,8 @@
                     "attach": {
                         "required": [
                             "port",
-                            "host"
+                            "host",
+                            "script"
                         ],
                         "properties": {
                             "host": {
@@ -92,14 +93,18 @@
                                 "type": "integer",
                                 "description": "Remote debug server port",
                                 "default": 5000
+                            },
+                            "script": {
+                                "type": "string",
+                                "default": "${file}"
                             }
                         }
                     },
                     "launch": {
+                        "required": [
+                            "script"
+                        ],
                         "properties": {
-                            "required": [
-                                "script"
-                            ],
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
@@ -163,6 +168,7 @@
         "package": "npm run compile && vsce package"
     },
     "dependencies": {
+        "compare-versions": "^3.4.0",
         "glob": "^7.1.2",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
@@ -172,6 +178,7 @@
         "vscode-debugadapter": "^1.31.0",
         "vscode-debugprotocol": "^1.31.0",
         "vscode-languageclient": "^5.1.0",
+        "ps-node": "^0.1.6",
         "ws": "^4.0.0"
     },
     "devDependencies": {
@@ -181,7 +188,6 @@
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
         "mocha": "^5.2.0",
-        "ps-node": "^0.1.6",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.36.2"
