@@ -19,13 +19,15 @@ package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.spi.EmbeddedExecutor;
+import org.ballerinalang.util.EmbeddedExecutorError;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Optional;
 
 import static org.ballerinalang.util.BLangConstants.COLON;
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
@@ -37,12 +39,18 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
  */
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public long execute(String programArg, boolean isFunction, String... args) {
+    public Optional<EmbeddedExecutorError> executeFunction(String programArg, String functionName, String... args) {
+        if (functionName == null) {
+            functionName = MAIN_FUNCTION_NAME;
+        }
         String balxPath = programArg;
-        String functionName = MAIN_FUNCTION_NAME;
-
-        if (isFunction && programArg.contains(COLON)) {
+        
+        if (programArg.contains(COLON)) {
             String[] programArgConstituents = programArg.split(COLON);
             functionName = programArgConstituents[programArgConstituents.length - 1];
             if (functionName.isEmpty() || programArg.endsWith(COLON)) {
@@ -50,23 +58,56 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
             }
             balxPath = programArg.replace(COLON.concat(functionName), "");
         }
-
-        URL resource = BVMEmbeddedExecutor.class.getClassLoader()
-                                                .getResource("META-INF/ballerina/" + balxPath);
+        
+        URL resource = BVMEmbeddedExecutor.class.getClassLoader().getResource("META-INF/ballerina/" + balxPath);
         if (resource == null) {
-            throw new BLangCompilerException("Missing internal modules when retrieving remote package");
+            throw new BLangCompilerException("missing internal modules when executing");
         }
         
         try {
             URI balxResource = resource.toURI();
-            BValue[] returns = ExecutorUtils.execute(balxResource, isFunction, isFunction ? functionName : null, args);
-            if (returns.length == 1 && returns[0] instanceof BInteger) {
-                return ((BInteger) returns[0]).intValue();
+            BValue[] returns = ExecutorUtils.executeFunction(balxResource, functionName, args);
+            if (returns.length == 1 && returns[0] instanceof BMap) {
+                BMap<String, BValue> errorRecord = (BMap<String, BValue>) returns[0];
+                return Optional.of(createEmbeddedExecutorError(errorRecord));
             } else {
-                return 0L;
+                return Optional.empty();
             }
         } catch (URISyntaxException e) {
-            throw new BLangCompilerException("Error reading balx path in internal executor.");
+            throw new BLangCompilerException("error reading balx path in executor.");
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void executeService(String balxPath) {
+        URL resource = BVMEmbeddedExecutor.class.getClassLoader().getResource("META-INF/ballerina/" + balxPath);
+        if (resource == null) {
+            throw new BLangCompilerException("missing internal modules when executing");
+        }
+        
+        try {
+            URI balxResource = resource.toURI();
+            ExecutorUtils.executeService(balxResource);
+        } catch (URISyntaxException e) {
+            throw new BLangCompilerException("error reading balx path in executor.");
+        }
+    }
+    
+    /**
+     * Creates an error object for the embedded executor.
+     * @param errorRecord The error record from the execution.
+     * @return Created embedded executor error.
+     */
+    private EmbeddedExecutorError createEmbeddedExecutorError(BMap<String, BValue> errorRecord) {
+        EmbeddedExecutorError error = new EmbeddedExecutorError();
+        error.setMessage(errorRecord.get("message").stringValue());
+        if (errorRecord.get("cause") != null) {
+            BMap<String, BValue> innerError = (BMap<String, BValue>) errorRecord.get("cause");
+            error.setCause(createEmbeddedExecutorError(innerError));
+        }
+        return error;
     }
 }

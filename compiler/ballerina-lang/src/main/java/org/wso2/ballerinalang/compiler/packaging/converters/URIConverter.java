@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Proxy;
+import org.ballerinalang.util.EmbeddedExecutorError;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
@@ -37,6 +38,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -115,12 +117,16 @@ public class URIConverter implements Converter<URI> {
             String supportedVersionRange = "?supported-version-range=" + ProgramFileConstants.MIN_SUPPORTED_VERSION +
                     "," + ProgramFileConstants.MAX_SUPPORTED_VERSION;
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            long execute = executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(),
-                    destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(), proxy.getPort(),
-                    proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(), supportedVersionRange,
-                    String.valueOf(isBuild));
-            if (execute == 1) {
-                // Package not found
+            Optional<EmbeddedExecutorError> execute = executor.executeFunction("packaging_pull/packaging_pull.balx",
+                    "invokePull", u.toString(), destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(),
+                    proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
+                    supportedVersionRange, String.valueOf(isBuild));
+            // Check if error has occurred or not.
+            if (execute.isPresent()) {
+                String errorMessage = getInnerErrorMessage(execute.get());
+                if (!errorMessage.trim().equals("")) {
+                    outStream.println(errorMessage);
+                }
                 return Stream.of();
             } else {
                 Patten patten = binaryRepo.calculate(packageID);
@@ -130,6 +136,19 @@ public class URIConverter implements Converter<URI> {
             outStream.println(e.getMessage());
         }
         return Stream.of();
+    }
+    
+    /**
+     * Get nested error message.
+     * @param embeddedExecutorError The execution error.
+     * @return Error message.
+     */
+    private String getInnerErrorMessage(EmbeddedExecutorError embeddedExecutorError) {
+        if (embeddedExecutorError.getCause() == null) {
+            return embeddedExecutorError.getMessage();
+        } else {
+            return getInnerErrorMessage(embeddedExecutorError.getCause());
+        }
     }
 
     @Override

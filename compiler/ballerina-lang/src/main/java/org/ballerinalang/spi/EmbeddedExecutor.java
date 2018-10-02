@@ -17,13 +17,28 @@
 */
 package org.ballerinalang.spi;
 
+import org.ballerinalang.util.EmbeddedExecutorError;
+
+import java.util.Optional;
+
 /**
  * This represents the Java SPI interface for the resource runner.
  *
  * @since 0.964
  */
 public interface EmbeddedExecutor {
-
-    long execute(String balxPath, boolean isFunction, String... args);
-
+    /**
+     * Executes a function of a balx file.
+     * @param programArg Path of the balx.
+     * @param functionName The name of the function.
+     * @param args The arguments for the function.
+     * @return Program execution output.
+     */
+    Optional<EmbeddedExecutorError> executeFunction(String programArg, String functionName, String... args);
+    
+    /**
+     * Executes a service of a balx file.
+     * @param balxPath Path of the balx.
+     */
+    void executeService(String balxPath);
 }
