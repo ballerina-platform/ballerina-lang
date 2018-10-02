@@ -130,6 +130,12 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
             ballerinaTraceListener.startListener();
         }
 
+        // Set AST provider and examples provider capabilities
+        HashMap<String, Boolean> experimentalServerCapabilities = new HashMap<String, Boolean>();
+        experimentalServerCapabilities.put("astProvider", true);
+        experimentalServerCapabilities.put("examplesProvider", true);
+        res.getCapabilities().setExperimental(experimentalServerCapabilities);
+
         return CompletableFuture.supplyAsync(() -> res);
     }
 

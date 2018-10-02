@@ -24,7 +24,10 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaTriggerWorker extends BallerinaCompositeElement {
 
   @NotNull
-  BallerinaExpression getExpression();
+  List<BallerinaExpression> getExpressionList();
+
+  @Nullable
+  PsiElement getComma();
 
   @NotNull
   PsiElement getRarrow();

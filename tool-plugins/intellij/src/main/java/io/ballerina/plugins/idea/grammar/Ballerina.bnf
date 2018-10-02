@@ -36,7 +36,6 @@
 
     tokens = [
 
-        DOCUMENTATION       = 'documentation';
         DEPRECATED          = 'deprecated';
 
         // Separators
@@ -115,7 +114,7 @@
 
     extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|AwaitExpression)Reference") = VariableReference
 
-    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|TypeInit|Type(Casting|Conversion|Access)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|typeAccess|IntegerRange)Expression") = Expression
+    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|TypeInit|Type(Casting|Conversion|Access)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|typeAccess|IntegerRange)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
 
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
@@ -151,9 +150,9 @@
 
 CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
 
-DefinitionWithMultipleAnnotationAttachments ::=  (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
-DefinitionWithSingleAnnotationAttachment ::= (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
-DefinitionWithoutAnnotationAttachments ::= (documentationAttachment | documentationString)? deprecatedAttachment? Definition {elementType=Definition}
+DefinitionWithMultipleAnnotationAttachments ::=  documentationString? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
+DefinitionWithSingleAnnotationAttachment ::= documentationString? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
+DefinitionWithoutAnnotationAttachments ::= documentationString? deprecatedAttachment? Definition {elementType=Definition}
 
 //PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
 //    pin=1
@@ -191,7 +190,7 @@ Alias ::= as identifier {
 
 // Note - Global variable definition should be the first definition since it can contain identifier as type.
 Definition ::= ( TypeDefinition
-               | GlobalVariableDefinition
+               | GlobalVariable
                | ServiceDefinition
                | FunctionDefinition
                | AnnotationDefinition
@@ -200,7 +199,7 @@ Definition ::= ( TypeDefinition
     recoverWhile=TopLevelDefinitionRecover
 }
 
-private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|channel|future|identifier|'{')
 
 ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
 ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | RecordLiteral) {pin=1}
@@ -208,7 +207,7 @@ ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ Resource
 
 // Note - Always sync with VariableDefinitionStatement
 VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
-ResourceDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
+ResourceDefinition ::=  documentationString? AnnotationAttachment* deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
 resourceParameterList ::= endpointParameter | ParameterList
 endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
 
@@ -233,7 +232,14 @@ private FunctionWithoutReceiver ::= AttachedObject DOUBLE_COLON CallableUnitSign
 
 AttachedObject ::= identifier
 
-LambdaFunction ::= LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS EQUAL_GT LambdaReturnParameter? CallableUnitBody {pin=4}
+LambdaFunction ::= function LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS (returns LambdaReturnParameter)? CallableUnitBody {pin(".*")=1}
+
+ArrowFunction ::= ArrowFunctionWithoutParenthesis | ArrowFunctionWithParenthesis
+
+private ArrowFunctionWithoutParenthesis ::= ArrowParam EQUAL_GT Expression {pin=2}
+private ArrowFunctionWithParenthesis ::= LEFT_PARENTHESIS ArrowParam (COMMA ArrowParam)* RIGHT_PARENTHESIS EQUAL_GT Expression {pin=5}
+
+ArrowParam ::= identifier
 
 // Todo - cache and add Signature owner?
 CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
@@ -244,17 +250,17 @@ TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
     stubClass="io.ballerina.plugins.idea.stubs.BallerinaTypeDefinitionStub"
 }
 
-ObjectBody ::= ObjectFieldDefinition* ObjectInitializer? ObjectFunctions?
+ObjectBody ::= ObjectMember* ObjectInitializer? ObjectMember*
 
-ObjectInitializer ::= AnnotationAttachment* (documentationAttachment | documentationString)? (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
+ObjectMember ::= ObjectFieldDefinition | ObjectFunctionDefinition
+
+ObjectInitializer ::= documentationString? AnnotationAttachment* (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
 
 ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_PARENTHESIS {pin=1}
 
-ObjectFunctions ::= ObjectFunctionDefinition+
+ObjectFieldDefinition ::= AnnotationAttachment* deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
 
-ObjectFieldDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
-
-FieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=3}
+FieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? SEMICOLON {pin=3}
 
 RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS | SealedLiteral
 
@@ -267,11 +273,10 @@ ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
 
 ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
-ObjectFunctionDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
+ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecatedAttachment? (public)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
 
 //TODO merge with callableUnitSignature later
 ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
-
 
 AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier UserDefineTypeName? SEMICOLON {
     pin=2
@@ -280,10 +285,15 @@ AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA Attachm
 
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
+GlobalVariable ::= GlobalVariableDefinition | ChannelDefinition
+
 GlobalVariableDefinition ::= (public)? TypeName identifier (ASSIGN  Expression)? SEMICOLON {
-    pin=2
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
+   pin=2
+   stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
 }
+
+ChannelDefinition ::= ChannelType identifier SEMICOLON
+ChannelType ::= channel (LT TypeName GT) {pin=1}
 
 // Todo - Need to update the service?
 // Note - "parameter" is treated differently here because there is a parser rule named "parameter" as well.
@@ -346,7 +356,7 @@ NullableTypeName ::= TypeName QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
 TupleTypeName ::= LEFT_PARENTHESIS TypeName (COMMA TypeName)* RIGHT_PARENTHESIS
-ObjectTypeName ::= object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=1}
+ObjectTypeName ::= abstract? object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=2}
 RecordTypeName ::= record? LEFT_BRACE RecordFieldDefinitionList RIGHT_BRACE
 
 RecordFieldDefinitionList ::= FieldDefinition* RecordRestFieldDefinition?
@@ -558,10 +568,10 @@ WorkerInteractionStatement ::= TriggerWorker | WorkerReply
 
 // below left identifier is of type TYPE_MESSAGE and the right identifier is of type WORKER
 // Note - Cannot pin rarrow since it will mess up action invocation in statementexpr - client -> invoke1(a, a);
-TriggerWorker ::=  Expression RARROW (fork | identifier) SEMICOLON /*{pin=2}*/
+TriggerWorker ::=  Expression RARROW (fork | identifier (COMMA Expression)?) SEMICOLON /*{pin=2}*/
 
 // below left identifier is of type WORKER and the right identifier is of type message
-WorkerReply ::= Expression LARROW identifier SEMICOLON {pin=2}
+WorkerReply ::= Expression LARROW identifier (COMMA Expression)? SEMICOLON {pin=2}
 
 // Note - Order of 'simpleVariableReference' and 'functionInvocationReference' because otherwise all function
 // invocations will match simpleVariableReference first.
@@ -643,6 +653,7 @@ NamespaceDeclaration ::= xmlns QUOTED_STRING_LITERAL (as identifier)? SEMICOLON 
 Expression
     ::=
         LambdaFunctionExpression
+    |   ArrowFunctionExpression
     |   SimpleLiteralExpression
     |   StringTemplateLiteralExpression
     |   XmlLiteralExpression
@@ -703,7 +714,7 @@ VariableReferenceExpression ::= start? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
 TypeInitExpression ::= TypeInitExpr
 TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}
-UnaryExpression ::= (ADD | SUB | NOT | lengthof | untaint) Expression {pin=1}
+UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | lengthof | untaint) Expression {pin=1}
 BracedOrTupleExpression ::= LEFT_PARENTHESIS Expression (COMMA Expression)* RIGHT_PARENTHESIS
 BinaryDivMulModExpression ::= Expression (DIV | MUL | MOD) Expression
 BinaryAddSubExpression ::= Expression (ADD | SUB) Expression
@@ -719,6 +730,7 @@ IntegerRangeExpression ::= Expression (ELLIPSIS | HALF_OPEN_RANGE) Expression
 BitwiseExpression ::= Expression (BITAND | PIPE | BITXOR) Expression
 BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
 matchExpression ::= but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE) {pin(".*")=1}
+ArrowFunctionExpression ::= ArrowFunction
 
 ShiftExpression ::= GT <<shiftExprPredicate>> GT
     | LT <<shiftExprPredicate>> LT
@@ -772,7 +784,7 @@ RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=3}
 FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultableParameter | Parameter))* (COMMA RestParameter)? | RestParameter
 
 SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
-                  | (ADD|SUB)? FLOATING_POINT_LITERAL
+                  | (ADD|SUB)? FloatingPointLiteral
                   | QUOTED_STRING_LITERAL
                   | BOOLEAN_LITERAL
                   | EmptyTupleLiteral
@@ -780,7 +792,9 @@ SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
                   | NULL_LITERAL
 
 // §3.10.1 Integer Literals
-IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL | OCTAL_INTEGER_LITERAL | BINARY_INTEGER_LITERAL
+IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL | BINARY_INTEGER_LITERAL
+
+FloatingPointLiteral ::= DECIMAL_FLOATING_POINT_NUMBER | HEXADECIMAL_FLOATING_POINT_LITERAL
 
 EmptyTupleLiteral ::= LEFT_PARENTHESIS RIGHT_PARENTHESIS
 
