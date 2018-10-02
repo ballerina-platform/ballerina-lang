@@ -1411,12 +1411,11 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkFunctionPointerInvocationExpr(BLangInvocation iExpr) {
         Name funcName = iExpr.expr.symbol.name;
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-
         BSymbol funcSymbol = symTable.notFoundSymbol;
-        // if no package alias, check for same object attached function
+        // If no package alias, check for same object attached function.
         if (pkgAlias == Names.EMPTY && env.enclTypeDefinition != null) {
-            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                    env.enclTypeDefinition.name.value, iExpr.name.value));
+            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(env.enclTypeDefinition.name.value,
+                    iExpr.name.value));
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
                     env.enclTypeDefinition.symbol.type.tsymbol);
             if (funcSymbol != symTable.notFoundSymbol) {
@@ -1424,12 +1423,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // if no such function found, then try resolving in package
+        // If no such function found, then try resolving in package.
         if (funcSymbol == symTable.notFoundSymbol) {
             funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
         }
 
-        // Get the function symbol from a field.
+        // Get the variable symbol from a field.
         if (funcSymbol == symTable.notFoundSymbol && iExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
             BLangFieldBasedAccess expr = (BLangFieldBasedAccess) iExpr.expr;
             funcSymbol = symResolver.resolveObjectField(iExpr.pos, env, names.fromIdNode(expr.field),
@@ -1445,8 +1444,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Check for function pointer.
             iExpr.functionPointerInvocation = true;
         }
-        // Set the resolved function symbol in the invocation expression.
-        // This is used in the code generation phase.
+        // Set the resolved function symbol in the invocation expression. This is used in the code generation phase.
         iExpr.symbol = new BInvokableSymbol(SymTag.VARIABLE, funcSymbol.flags, funcSymbol.name,
                 env.enclPkg.symbol.pkgID, funcSymbol.type, env.scope.owner);
         checkInvocationParamAndReturnType(iExpr);
