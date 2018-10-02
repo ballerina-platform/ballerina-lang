@@ -27,12 +27,12 @@ public type SimpleSelect object {
         StreamEvent[] newStreamEventArr = [];
         int index = 0;
         foreach event in streamEvents {
-            StreamEvent streamEvent = new((OUTPUT, selectFunc(event)), event.eventType, event.timestamp);
+            StreamEvent streamEvent = new((OUTPUT, selectFunc.call(event)), event.eventType, event.timestamp);
             newStreamEventArr[index] = streamEvent;
             index += 1;
         }
         if (index > 0) {
-            nextProcessorPointer(newStreamEventArr);
+            nextProcessorPointer.call(newStreamEventArr);
         }
 
     }

@@ -37,10 +37,10 @@ public type GroupBy object {
 
             foreach arr in groupedStreamEvents.values() {
                 StreamEvent[] eventArr = check <StreamEvent[]>arr;
-                nextProcessorPointer(eventArr);
+                nextProcessorPointer.call(eventArr);
             }
         } else {
-            nextProcessorPointer(streamEvents);
+            nextProcessorPointer.call(streamEvents);
         }
     }
 

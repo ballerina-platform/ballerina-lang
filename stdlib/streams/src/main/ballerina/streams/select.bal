@@ -37,7 +37,7 @@ public type Select object {
                 }
 
                 string groupbyKey = groupbyFunc but {
-                    (function(StreamEvent o) returns string) groupbyFunction => groupbyFunction(event),
+                    (function(StreamEvent o) returns string) groupbyFunction => groupbyFunction.call(event),
                     () => DEFAULT
                 };
                 Aggregator[] aggregatorsClone;
@@ -54,7 +54,7 @@ public type Select object {
                         aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                     }
                 }
-                StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorsClone)), event.eventType, event.timestamp);
+                StreamEvent e = new ((OUTPUT, selectFunc.call(event, aggregatorsClone)), event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
             foreach key in groupedEvents.keys() {
@@ -67,12 +67,12 @@ public type Select object {
             }
         } else {
             foreach event in streamEvents {
-                StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorArr)), event.eventType, event.timestamp);
+                StreamEvent e = new ((OUTPUT, selectFunc.call(event, aggregatorArr)), event.eventType, event.timestamp);
                 outputStreamEvents[lengthof outputStreamEvents] = e;
             }
         }
         if (lengthof outputStreamEvents > 0) {
-            nextProcessorPointer(outputStreamEvents);
+            nextProcessorPointer.call(outputStreamEvents);
         }
     }
 };
