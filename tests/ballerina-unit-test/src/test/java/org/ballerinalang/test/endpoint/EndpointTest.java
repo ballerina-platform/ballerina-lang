@@ -37,17 +37,17 @@ public class EndpointTest {
         CompileResult testEndpointsInFunction = BCompileUtil.compile("test-src/endpoint/testEndpointInFunction.bal");
 
         BValue[] returns = BRunUtil.invoke(testEndpointsInFunction, "test1");
-        Assert.assertTrue(returns.length == 1);
+        Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "init:DummyEndpoint;start:DummyEndpoint;" +
                 "getClient:DummyEndpoint;invoke1:DummyClient;getClient:DummyEndpoint;invoke2:DummyClient;t2");
 
         returns = BRunUtil.invoke(testEndpointsInFunction, "test2");
-        Assert.assertTrue(returns.length == 1);
+        Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "init:DummyEndpoint;start:DummyEndpoint;<test2Caller>" +
                 "getClient:DummyEndpoint;invoke1:DummyClient;getClient:DummyEndpoint;invoke2:DummyClient;t2");
 
         returns = BRunUtil.invoke(testEndpointsInFunction, "test3");
-        Assert.assertTrue(returns.length == 1);
+        Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "<test3>init:DummyEndpoint;start:DummyEndpoint;" +
                 "getClient:DummyEndpoint;invoke1:DummyClient;getClient:DummyEndpoint;invoke2:DummyClient;t2");
 
@@ -63,7 +63,7 @@ public class EndpointTest {
         CompileResult testEndpointsInFunction = BCompileUtil.compile("test-src/endpoint/testEndpointWithService.bal");
 
         BValue[] returns = BRunUtil.invoke(testEndpointsInFunction, "test1");
-        Assert.assertTrue(returns.length == 1);
+        Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "init:DummyEndpoint;register:DummyEndpoint;start:DummyEndpoint;" +
                 "<test1>");
     }
@@ -73,7 +73,7 @@ public class EndpointTest {
         CompileResult testEndpointsInFunction = BCompileUtil.compile("test-src/endpoint/test_anonymous_endpoint.bal");
 
         BValue[] returns = BRunUtil.invoke(testEndpointsInFunction, "test1");
-        Assert.assertTrue(returns.length == 1);
+        Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "init:DummyEndpoint;register:DummyEndpoint;start:DummyEndpoint;" +
                 "<test1>");
     }
@@ -120,5 +120,4 @@ public class EndpointTest {
         BAssertUtil.validateError(compileResult, 0, "action invocation as an expression not allowed here", 25, 9);
         BAssertUtil.validateError(compileResult, 1, "action invocation as an expression not allowed here", 27, 17);
     }
-
 }
