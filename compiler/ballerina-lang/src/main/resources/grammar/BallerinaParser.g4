@@ -923,7 +923,7 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   (variableReference | functionInvocation)  whereClause? functionInvocation* windowClause? functionInvocation*
+    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
         whereClause? (AS alias=Identifier)?
     ;
 
