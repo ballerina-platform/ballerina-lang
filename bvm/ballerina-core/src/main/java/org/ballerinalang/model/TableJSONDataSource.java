@@ -92,7 +92,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
     @Override
     public BRefType<?> build() {
-        BRefValueArray values = new BRefValueArray();
+        BRefValueArray values = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         while (this.hasNext()) {
             values.append(this.next());
         }
