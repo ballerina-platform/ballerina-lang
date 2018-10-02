@@ -23,6 +23,9 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test class for function pointers negative tests.
+ */
 public class FunctionPointerNegativeTest {
 
     @Test

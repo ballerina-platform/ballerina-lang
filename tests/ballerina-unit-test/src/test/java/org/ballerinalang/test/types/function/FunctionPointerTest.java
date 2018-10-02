@@ -26,6 +26,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test class for function pointers.
+ */
 public class FunctionPointerTest {
 
     private CompileResult result;
