@@ -13,6 +13,11 @@ function testFPInNestedObjectField() returns int {
     return t2.t1.pow.call(10, 20);
 }
 
+//function testCallMethodInObject() returns int {
+//    Test3 t3 = new;
+//    return t3.call().call(10, 20);
+//}
+
 function calculatePow(int i, int j) returns int {
     return i * j;
 }
@@ -24,3 +29,9 @@ type Test1 object {
 type Test2 object {
     Test1 t1 = new;
 };
+
+//type Test3 object {
+//    function call() returns function (int, int) returns int {
+//        return calculatePow;
+//    }
+//};

@@ -10,6 +10,6 @@ function test1 () returns (string) {
 function test2(any a) returns (string){
    var fp2 =? (function (string,int) returns (string)) a;
 
-   return fp2("test", 1);
+   return fp2.call("test", 1);
 }
 

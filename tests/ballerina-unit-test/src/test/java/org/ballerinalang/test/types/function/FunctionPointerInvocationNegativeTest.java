@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for function pointers negative tests.
  */
-public class FunctionPointerNegativeTest {
+public class FunctionPointerInvocationNegativeTest {
 
     @Test
     public void testFPNegative() {

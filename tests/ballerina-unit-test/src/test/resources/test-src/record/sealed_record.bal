@@ -168,5 +168,5 @@ function testFuncPtrAsRecordField() returns string {
         return p.lname + ", " + p.fname;
     };
 
-    return p.fullName();
+    return p.fullName.call();
 }

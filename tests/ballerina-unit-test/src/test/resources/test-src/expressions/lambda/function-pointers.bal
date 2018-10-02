@@ -1,6 +1,6 @@
 function test1() returns (int){
     function (int, int) returns (int) addFunction = func1;
-    return addFunction(1, 2);
+    return addFunction.call(1, 2);
 }
 
 function func1 (int a, int b) returns (int) {
@@ -13,7 +13,7 @@ function test2 () returns (string) {
                                        int value =  a + b;
                                        return "sum is " + value;
                                    };
-    return sumFunction(1,2);
+    return sumFunction.call(1,2);
 }
 
 function test3() returns (int){
@@ -22,13 +22,13 @@ function test3() returns (int){
 }
 
 function test3Callee(int a, function (int x, int y) returns (int) func ) returns (int){
-    int x = a + func(1, 2);
+    int x = a + func.call(1, 2);
     return x;
 }
 
 function test4() returns (string){
     function (string a, string b) returns (string) foo = test4Callee();
-    string v = foo("hello ", "world.");
+    string v = foo.call("hello ", "world.");
     return v;
 }
 
@@ -41,7 +41,7 @@ function test4Callee() returns (function (string a, string b) returns (string)){
 
 function test5() returns (string){
     function (string, float) returns (string) bar = test5Callee();
-    return "test5 " + bar("string", 1.0);
+    return "test5 " + bar.call("string", 1.0);
 }
 
 function test5Callee() returns (function (string, float) returns (string)){
@@ -55,7 +55,7 @@ function test5Ref(string a, float b) returns (string){
 
 function test6() returns (string){
     function (string, function (string, float) returns (string)) returns (string) foo = test6Callee();
-    return foo("test6 ", test5Ref);
+    return foo.call("test6 ", test5Ref);
 }
 
 function test6Callee() returns (function (string, function (string, float) returns (string)) returns (string)){
@@ -63,14 +63,14 @@ function test6Callee() returns (function (string, function (string, float) retur
 }
 
 function test6Ref(string a, function (string, float) returns (string) b) returns (string){
-    string c = a + b(a , 1.0);
+    string c = a + b.call(a , 1.0);
     return c;
 }
 
 function testFuncWithArrayParams () returns (int){
     string[] s = ["me", "myself"];
     function (string[])  returns (int) x = funcWithArrayParams;
-    return x(s);
+    return x.call(s);
 }
 
 function funcWithArrayParams (string[] a) returns (int) {
@@ -78,7 +78,7 @@ function funcWithArrayParams (string[] a) returns (int) {
 }
 
 public function getCount(function (int , int ) returns (int) sumFunction, string first, string last) returns string {
-    return first + ": " + sumFunction(4, 2) + " " + last;
+    return first + ": " + sumFunction.call(4, 2) + " " + last;
 }
 
 function testFunctionPointerAsFuncParam() returns (int, string) {
@@ -88,7 +88,7 @@ function testFunctionPointerAsFuncParam() returns (int, string) {
                            };
 
     string s = getCount(sumFunction, "Total", "USD");
-    return (sumFunction(5, 8), s);
+    return (sumFunction.call(5, 8), s);
 }
 
 function testAnyToFuncPointerConversion_1() returns (int) {
@@ -98,7 +98,7 @@ function testAnyToFuncPointerConversion_1() returns (int) {
             };
 
     function (int , int ) returns (int) sumFunction = check <function (int , int ) returns (int)> anyFunc;
-    return sumFunction(3, 2);
+    return sumFunction.call(3, 2);
 }
 
 type Person object {
@@ -128,7 +128,7 @@ function testFuncPointerConversion() returns (int) {
 
     function (Person) returns (int) personFunc = studentFunc;
     Person p = new Person(20);
-    return personFunc(p);
+    return personFunc.call(p);
 }
 
 function testAnyToFuncPointerConversion_2() returns (int) {
@@ -138,5 +138,5 @@ function testAnyToFuncPointerConversion_2() returns (int) {
 
     function (Person) returns (int) personFunc = check <function (Person) returns (int)> anyFunc;
     Person p = new Person(23);
-    return personFunc(p);
+    return personFunc.call(p);
 }

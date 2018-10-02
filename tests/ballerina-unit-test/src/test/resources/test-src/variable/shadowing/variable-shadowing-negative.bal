@@ -15,7 +15,7 @@ function printName(any name) {
             string name = "Ballerina";
             return "";
         };
-        name = getName();
+        name = getName.call();
     }
 
     xmlns "http://sample.com/wso2/a3" as ns;

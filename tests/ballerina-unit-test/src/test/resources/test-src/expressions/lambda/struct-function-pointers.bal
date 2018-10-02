@@ -15,15 +15,15 @@ function test1() returns (string, string){
                                                           }};
     Person tom = {fname:"tom", lname:"smith", getName: getFullName};
 
-    string x = bob.getName(bob.fname, bob.lname );
-    string y = tom.getName(tom.fname, tom.lname );
+    string x = bob.getName.call(bob.fname, bob.lname );
+    string y = tom.getName.call(tom.fname, tom.lname );
     return (x, y);
 }
 
 function test2() returns (string){
     Person bob = {fname:"bob", lname:"white"};
 
-    string x = bob.getName(bob.fname, bob.lname );
+    string x = bob.getName.call(bob.fname, bob.lname );
     return x;
 }
 
@@ -33,6 +33,6 @@ function getPersonNameFullName (Person p) returns (string){
 
 function test3() returns (string){
     Person bob = {fname:"bob", lname:"white", getPersonName : getPersonNameFullName };
-    string x = bob.getPersonName(bob);
+    string x = bob.getPersonName.call(bob);
     return x;
 }

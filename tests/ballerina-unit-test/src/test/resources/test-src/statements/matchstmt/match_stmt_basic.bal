@@ -26,7 +26,7 @@ function testMatchStatementBasics3() returns (string) {
 
 function openFile(function (string) returns(File | error) fp) returns (string) {
 
-    File | error k = fp("/tmp/foo.txt");
+    File | error k = fp.call("/tmp/foo.txt");
 
     match k {
         File f =>  {

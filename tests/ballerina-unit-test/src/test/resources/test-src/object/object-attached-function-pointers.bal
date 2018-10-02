@@ -32,12 +32,12 @@ type Person object {
 
     function attachedFn6(int a, float b) returns (int) {
         var foo = self.attachedFn3;
-        return a + <int>b + foo(43, 10.8);
+        return a + <int>b + foo.call(43, 10.8);
     }
 
     function attachedFn7(int a, float b) returns (int) {
         var foo = self.attachedFn3;
-        return a + <int>b + foo(43, 10.8);
+        return a + <int>b + foo.call(43, 10.8);
     }
 };
 
@@ -56,47 +56,47 @@ function Person::attachedFn4() returns (function (int, float) returns (int)) {
 function test1() returns (int) {
     Person p = new;
     var foo = p.attachedFn1;
-    return foo(43, 10.8);
+    return foo.call(43, 10.8);
 }
 
 function test2() returns (int) {
     Person p = new;
     var foo = p.attachedFn2;
-    var bar = foo();
-    return bar(43, 10.8);
+    var bar = foo.call();
+    return bar.call(43, 10.8);
 }
 
 function test3() returns (int) {
     Person p = new;
     var foo = p.attachedFn3;
-    return foo(43, 10.8);
+    return foo.call(43, 10.8);
 }
 
 function test4() returns (int) {
     Person p = new;
     var foo = p.attachedFn4;
-    var bar = foo();
-    return bar(43, 10.8);
+    var bar = foo.call();
+    return bar.call(43, 10.8);
 }
 
 function test5() returns (int) {
     Person p = new;
     var foo = p.attachedFn5;
-    var bar = foo(43, 10.8);
-    var baz = bar(5.8);
-    return baz(true);
+    var bar = foo.call(43, 10.8);
+    var baz = bar.call(5.8);
+    return baz.call(true);
 }
 
 function test6() returns (int) {
     Person p = new;
     var foo = p.attachedFn6;
-    return foo(43, 10.8);
+    return foo.call(43, 10.8);
 }
 
 function test7() returns (int) {
     Person p = new;
     var foo = p.attachedFn7;
-    return foo(43, 10.8);
+    return foo.call(43, 10.8);
 }
 
 public type FooObj object {
@@ -106,16 +106,16 @@ public type FooObj object {
     new (fp1, fp2){
         string[] s = ["abc", "afg"];
         int[] i = [1,2,3,4,5];
-        string a = fp1(s);
-        int b = fp2(i);
+        string a = fp1.call(s);
+        int b = fp2.call(i);
     }
 
     public function processStrArray(string[] vals) returns string{
-        return fp1(vals);
+        return fp1.call(vals);
     }
 
     public function processIntArray(int[] vals) returns int{
-        return fp2(vals);
+        return fp2.call(vals);
     }
 };
 
@@ -128,12 +128,12 @@ function test8() returns (string, int) {
     FooObj fooObj = new (foo, bar);
     _ = fooObj.processStrArray(s);
     var x = fooObj.processStrArray;
-    string q = x(s);
+    string q = x.call(s);
     _ = fooObj.processIntArray(i);
     var y = fooObj.processIntArray;
-    int r = y(i);
+    int r = y.call(i);
 
-    return(q, r);
+    return (q, r);
 }
 
 function test9() returns string {
@@ -153,7 +153,7 @@ public type O1 object {
     }
 
     public function process(string[] vals) returns string{
-        return fpO1(vals);
+        return fpO1.call(vals);
     }
 };
 
@@ -163,7 +163,7 @@ public type O2 object {
     new (fpO2){}
 
     public function process(string[] vals) returns string{
-        return fpO2(vals);
+        return fpO2.call(vals);
     }
 };
 
@@ -173,7 +173,7 @@ public type O3 object {
     new (fpO3){}
 
     public function process(string[] vals) returns string{
-        return fpO3(vals);
+        return fpO3.call(vals);
     }
 };
 
@@ -183,7 +183,7 @@ public type O4 object {
     new (fpO4){}
 
     public function process(string[] vals) returns string{
-        return fpO4(vals);
+        return fpO4.call(vals);
     }
 };
 
@@ -193,6 +193,6 @@ public type O5 object {
     new (fpO5){}
 
     public function process(string[] vals) returns string{
-        return fpO5(vals);
+        return fpO5.call(vals);
     }
 };

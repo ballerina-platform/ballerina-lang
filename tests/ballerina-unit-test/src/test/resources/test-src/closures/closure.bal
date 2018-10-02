@@ -11,7 +11,7 @@ function basicTest() returns (function (int) returns (int)) {
 
 function test1() returns int {
     var foo = basicTest();
-    return foo(7);
+    return foo.call(7);
 }
 
 function twoLevelTest() returns (function (int) returns (int)) {
@@ -21,14 +21,14 @@ function twoLevelTest() returns (function (int) returns (int)) {
         var addFunc2 = function (int funcInt2) returns (int) {
             return funcInt2 + methodInt1 + methodInt2;
         };
-        return addFunc2(5) + funcInt1;
+        return addFunc2.call(5) + funcInt1;
     };
     return addFunc1;
 }
 
 function test2() returns int {
     var foo = twoLevelTest();
-    return foo(6);
+    return foo.call(6);
 }
 
 function threeLevelTest() returns (function (int) returns (int)) {
@@ -40,16 +40,16 @@ function threeLevelTest() returns (function (int) returns (int)) {
             var addFunc3 = function (int funcInt3) returns (int) {
                 return funcInt3 + methodInt1 + methodInt2 + methodInt3;
             };
-            return addFunc3(8) + funcInt2;
+            return addFunc3.call(8) + funcInt2;
         };
-        return addFunc2(4) + funcInt1;
+        return addFunc2.call(4) + funcInt1;
     };
     return addFunc1;
 }
 
 function test3() returns int {
     var foo = threeLevelTest();
-    return foo(6);
+    return foo.call(6);
 }
 
 function closureWithIfBlock() returns (function (int) returns (int)) {
@@ -67,7 +67,7 @@ function closureWithIfBlock() returns (function (int) returns (int)) {
 
 function test4() returns int {
     var foo = closureWithIfBlock();
-    return foo(3);
+    return foo.call(3);
 }
 
 
@@ -81,8 +81,8 @@ function getFunc1(int functionIntX) returns (function (int) returns (function (i
 
 function test5() returns (int){
     var getFunc2 = getFunc1(1);
-    var getFunc3 = getFunc2(5);
-    return getFunc3(4);
+    var getFunc3 = getFunc2.call(5);
+    return getFunc3.call(4);
 }
 
 function getIncFunc(int x) returns (function (int) returns (int)) {
@@ -96,7 +96,7 @@ function test6() returns (int){
     var incBy5 = getIncFunc(5);
     var incBy10 = getIncFunc(10);
 
-    return (incBy1(100) + incBy5(100) + incBy10(100));
+    return (incBy1.call(100) + incBy5.call(100) + incBy10.call(100));
 }
 
 
@@ -110,14 +110,14 @@ function out2ndFunc(int out2ndParam) returns (function (int) returns int) {
                 int h = out1stParam + inner1Param;
                 return g + h;
             };
-        return  inner1Func(3);
+        return  inner1Func.call(3);
     };
     return out1stFunc;
 }
 
 function test7() returns int {
     var foo = out2ndFunc(4);
-    return foo(7);
+    return foo.call(7);
 }
 
 function testMultiLevelFunction() returns (int) {
@@ -126,11 +126,11 @@ function testMultiLevelFunction() returns (int) {
             var addFunc3 =  function (int methodInt3, int methodInt2, int methodInt1, int funcInt3) returns (int) {
                 return funcInt3 + methodInt1 + methodInt2 + methodInt3;
             };
-            return addFunc3(7, 23, 2, 8) + funcInt2;
+            return addFunc3.call(7, 23, 2, 8) + funcInt2;
         };
-        return addFunc2(4) + funcInt1;
+        return addFunc2.call(4) + funcInt1;
     };
-    return addFunc1(6);
+    return addFunc1.call(6);
 }
 
 function test8() returns int {
@@ -148,7 +148,7 @@ function globalVarAccessTest() returns (function (int) returns (int)) {
 
 function test9() returns int {
     var foo = globalVarAccessTest();
-    return foo(7);
+    return foo.call(7);
 }
 
 function testDifferentTypeArgs1() returns (function (int, float) returns (int)) {
@@ -163,7 +163,7 @@ function testDifferentTypeArgs1() returns (function (int, float) returns (int)) 
 
 function test10() returns int {
     var foo = testDifferentTypeArgs1();
-    return foo(7, 2.3);
+    return foo.call(7, 2.3);
 }
 
 function testDifferentTypeArgs2(int functionIntX) returns (function (float) returns (function (boolean) returns (int))) {
@@ -179,8 +179,8 @@ function testDifferentTypeArgs2(int functionIntX) returns (function (float) retu
 
 function test11() returns int {
     var f1 = testDifferentTypeArgs2(7);
-    var f2 = f1(2.6);
-    return f2(true);
+    var f2 = f1.call(2.6);
+    return f2.call(true);
 }
 
 
@@ -198,14 +198,14 @@ function testDifferentTypeArgs3(int a1, float a2) returns (function (boolean, fl
 
 function test12() returns int {
     var f1 = testDifferentTypeArgs3(7, 3.2);
-    var f2 = f1(true, 2.3);
-    return f2();
+    var f2 = f1.call(true, 2.3);
+    return f2.call();
 }
 
 function test13() returns int {
     var f1 = testDifferentTypeArgs3(7, 3.2);
-    var f2 = f1(false, 2.3);
-    return f2();
+    var f2 = f1.call(false, 2.3);
+    return f2.call();
 }
 
 function getStringFunc1(string functionX) returns (function (string) returns (function (string) returns (string))) {
@@ -218,8 +218,8 @@ function getStringFunc1(string functionX) returns (function (string) returns (fu
 
 function test14() returns (string){
     var getStringFunc2 = getStringFunc1("Hello");
-    var getStringFunc3 = getStringFunc2("Ballerina");
-    return getStringFunc3("World!!!");
+    var getStringFunc3 = getStringFunc2.call("Ballerina");
+    return getStringFunc3.call("World!!!");
 }
 
 function testWithVarArgs() returns (function (int) returns (int)) {
@@ -233,7 +233,7 @@ function testWithVarArgs() returns (function (int) returns (int)) {
 
 function test15() returns int {
     var foo = basicTest();
-    return foo(7);
+    return foo.call(7);
 }
 
 function testClosureWithTupleTypes((string, float, string) g) returns (function (string, (string, float, string)) returns (string)){
@@ -252,7 +252,7 @@ function test16() returns string {
     string i = "Ballerina";
     float j = 15.0;
     string k = "Program !!!";
-    return foo("Im", (i, j, k));
+    return foo.call("Im", (i, j, k));
 }
 
 function testClosureWithTupleTypesOrder((string, float, string) g) returns (function ((string, float, string), string) returns (string)){
@@ -280,7 +280,7 @@ function test17() returns string {
     string c = "World !!!";
 
     var foo = testClosureWithTupleTypesOrder((a, b, c));
-    return foo((d, e, f), "I'm");
+    return foo.call((d, e, f), "I'm");
 }
 
 function globalVarAccessAndModifyTest() returns (int) {
@@ -290,7 +290,7 @@ function globalVarAccessAndModifyTest() returns (int) {
     var addFunc = function (int b) returns (int) {
         return b + globalA + a;
     };
-    return addFunc(3);
+    return addFunc.call(3);
 }
 
 function test18() returns int {
@@ -309,7 +309,7 @@ type Person object {
         var foo = function (float w) returns (string) {
            return name + w + "K" + b + self.age;
         };
-        return foo(7.4);
+        return foo.call(7.4);
     }
 
     function getAttachedFP() returns function (float) returns (string) {
@@ -342,13 +342,13 @@ function test19() returns (string) {
 function test20() returns (string) {
     Person p = new;
     var foo = p.getAttachedFP();
-    return foo(7.3);
+    return foo.call(7.3);
 }
 
 public function test21() returns (string) {
     Person p = new;
     var foo = p.externalAttachedFP();
-    return foo(7.3);
+    return foo.call(7.3);
 }
 
 function testDifferentArgs() returns (function (float) returns (function (float) returns (string))) {
@@ -371,8 +371,8 @@ function testDifferentArgs() returns (function (float) returns (function (float)
 
 function test22() returns (string) {
     var fooOut = testDifferentArgs();
-    var fooIn = fooOut(1.2);
-    return fooIn(4.5);
+    var fooIn = fooOut.call(1.2);
+    return fooIn.call(4.5);
 }
 
 function testVariableShadowingInClosure1(int a) returns function (float) returns (string){
@@ -395,7 +395,7 @@ function testVariableShadowingInClosure1(int a) returns function (float) returns
 
 function test23() returns string {
     var foo = testVariableShadowingInClosure1(9);
-    string a = foo(3.4);
+    string a = foo.call(3.4);
     return a;
 }
 
@@ -428,8 +428,8 @@ function testVariableShadowingInClosure2(int a) returns function (float) returns
 
 function test24() returns string {
     var foo = testVariableShadowingInClosure2(9);
-    var bar = foo(3.4);
-    string s = bar(24.6, false);
+    var bar = foo.call(3.4);
+    string s = bar.call(24.6, false);
     return s;
 }
 
@@ -470,9 +470,9 @@ function testVariableShadowingInClosure3(int a) returns (function (float) return
 
 function test25() returns string {
     var foo = testVariableShadowingInClosure3(9);
-    var bar = foo(3.4);
-    var baz = bar(5.7);
-    string s = baz(24.6, false);
+    var bar = foo.call(3.4);
+    var baz = bar.call(5.7);
+    string s = baz.call(24.6, false);
     return s;
 }
 
@@ -503,9 +503,9 @@ function testVariableShadowingInClosure4() returns (function (float) returns (fu
 
 function test26() returns string {
     var foo = testVariableShadowingInClosure4();
-    var bar = foo(3.4);
-    var baz = bar(5.7);
-    string s = baz(24.6, false);
+    var bar = foo.call(3.4);
+    var baz = bar.call(5.7);
+    string s = baz.call(24.6, false);
     return s;
 }
 
@@ -544,8 +544,8 @@ function testByteAndBoolean() returns (function (int, byte) returns
 
 function test27() returns byte[][] {
     var foo = testByteAndBoolean();
-    var bar = foo(34, 7);
-    return bar(13, 3, false);
+    var bar = foo.call(34, 7);
+    return bar.call(13, 3, false);
 }
 
 function testMultiLevelBlockStatements1() returns (function () returns (function(int) returns int)) {
@@ -589,12 +589,12 @@ function testMultiLevelBlockStatements2() returns (function(int[], int[], int[])
 
 function test28() returns (int, int) {
     var foo = testMultiLevelBlockStatements1();
-    var baz = foo();
+    var baz = foo.call();
     var bar = testMultiLevelBlockStatements2();
     int[] i = [1,2];
     int[] j = [1,2,3];
     int[] k = [1,2,3,4];
-    return (baz(4), bar(i,j,k));
+    return (baz.call(4), bar.call(i,j,k));
 }
 
 
@@ -626,20 +626,20 @@ function function4(string firstParameter) returns (function (string) returns boo
 
 function test29() returns (boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean) {
     var a1 = function1("ABC");
-    boolean b10 = a1("ABC");
-    boolean b11 = a1("GHJ");
+    boolean b10 = a1.call("ABC");
+    boolean b11 = a1.call("GHJ");
 
     var a2 = function2("ABC");
-    boolean b20 = a2("ABC");
-    boolean b21 = a2("WER");
+    boolean b20 = a2.call("ABC");
+    boolean b21 = a2.call("WER");
 
     var a3 = function3("ABC");
-    boolean b30 = a3("ABC");
-    boolean b31 = a3("MKJ");
+    boolean b30 = a3.call("ABC");
+    boolean b31 = a3.call("MKJ");
 
     var a4 = function4("ABC");
-    boolean b40 = a4("ABC");
-    boolean b41 = a4("ERWWS");
+    boolean b40 = a4.call("ABC");
+    boolean b41 = a4.call("ERWWS");
 
     return (b10, b11, b20, b21, b30, b31, b40, b41);
 }
