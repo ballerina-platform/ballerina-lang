@@ -110,12 +110,12 @@
       "insertText":"channel"
     },
     {
-      "label":"bar(int a, string b)(float)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"bar(${1:a}, ${2:b})",
-      "insertTextFormat":"Snippet"
+      "label":"bar",
+      "kind":"Unit",
+      "detail":"function (int,string) returns (float)",
+      "sortText":"110",
+      "insertText":"bar",
+      "insertTextFormat":"null"
     },
     {
       "label":"xml",
