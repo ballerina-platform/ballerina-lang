@@ -17,108 +17,63 @@
 import ballerina/http;
 
 @http:ServiceConfig {
-    basePath:"/code"
+    basePath: "/code"
 }
-service<http:Service> differentStatusCodes bind {port : 9223} {
+service<http:Service> differentStatusCodes bind { port: 9223 } {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/okWithBody"
+        methods: ["GET"],
+        path: "/okWithBody"
     }
-    sendOKWithBody (endpoint caller, http:Request req) {
+    sendOKWithBody(endpoint caller, http:Request req) {
         _ = caller->ok("OK Response");
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/okWithoutBody"
+        methods: ["GET"],
+        path: "/okWithoutBody"
     }
-    sendOKWithoutBody (endpoint caller, http:Request req) {
+    sendOKWithoutBody(endpoint caller, http:Request req) {
         _ = caller->ok(());
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/createdWithBody"
+        methods: ["GET"],
+        path: "/createdWithBody"
     }
-    sendCreatedWithBody (endpoint caller, http:Request req) {
-        _ = caller -> created(message = "Created Response");
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/createdWithoutBody"
-    }
-    sendCreatedWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> created();
+    sendCreatedWithBody(endpoint caller, http:Request req) {
+        _ = caller->created("/newResourceURI", message = "Created Response");
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/acceptedWithBody"
+        methods: ["GET"],
+        path: "/createdWithoutBody"
     }
-    sendAcceptedWithBody (endpoint caller, http:Request req) {
-        _ = caller -> accepted(message = {msg : "accepted response"});
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/acceptedWithoutBody"
-    }
-    sendAcceptedWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> accepted();
+    sendCreatedWithoutBody(endpoint caller, http:Request req) {
+        _ = caller->created("/newResourceURI");
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/noContentWithBody"
+        methods: ["GET"],
+        path: "/createdWithEmptyURI"
     }
-    sendNoContentWithBody (endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setHeader("x-custom-header", "custom-header-value");
-        res.setPayload(xml `<test>No Content</test>`);
-        _ = caller -> noContent(message = res); //Body will be removed
+    sendCreatedWithEmptyURI(endpoint caller, http:Request req) {
+        _ = caller->created("");
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/noContentWithoutBody"
+        methods: ["GET"],
+        path: "/acceptedWithBody"
     }
-    sendNoContentWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> noContent();
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/badRequestWithBody"
-    }
-    sendBadRequestWithBody (endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload(xml `<test>Bad Request</test>`);
-        _ = caller -> badRequest(message = res);
+    sendAcceptedWithBody(endpoint caller, http:Request req) {
+        _ = caller->accepted(message = { msg: "accepted response" });
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/badRequestWithoutBody"
+        methods: ["GET"],
+        path: "/acceptedWithoutBody"
     }
-    sendBadRequestWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> badRequest();
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/serverErrWithBody"
-    }
-    sendServerErrWithBody (endpoint caller, http:Request req) {
-        _ = caller -> internalServerError(message = xml `<test>Internal Server Error Occurred</test>`);
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/serverErrWithoutBody"
-    }
-    sendServerErrWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> internalServerError();
+    sendAcceptedWithoutBody(endpoint caller, http:Request req) {
+        _ = caller->accepted();
     }
 }

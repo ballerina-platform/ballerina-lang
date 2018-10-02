@@ -91,4 +91,33 @@ public class ExpectContinueTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "Result = Key:person Value: engineer Key:team Value: ballerina");
     }
+
+    @Test
+    public void test100ContinuePassthrough() {
+        HttpClient httpClient = new HttpClient("localhost", servicePort);
+
+        DefaultHttpRequest reqHeaders = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST,
+                                                               "/continue/testPassthrough");
+        DefaultLastHttpContent reqPayload = new DefaultLastHttpContent(
+                Unpooled.wrappedBuffer(TestUtils.LARGE_ENTITY.getBytes()));
+
+        reqHeaders.headers().set(HttpHeaderNames.CONTENT_LENGTH, TestUtils.LARGE_ENTITY.getBytes().length);
+        reqHeaders.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
+
+        List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(reqHeaders, reqPayload);
+
+        Assert.assertFalse(httpClient.waitForChannelClose());
+
+        // 100-continue response
+        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.CONTINUE);
+        Assert.assertEquals(Integer.parseInt(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH)), 0);
+
+        // Actual response
+        String responsePayload = TestUtils.getEntityBodyFrom(responses.get(1));
+        Assert.assertEquals(responses.get(1).status(), HttpResponseStatus.OK);
+        Assert.assertEquals(responsePayload, TestUtils.LARGE_ENTITY);
+        Assert.assertEquals(responsePayload.getBytes().length, TestUtils.LARGE_ENTITY.getBytes().length);
+        Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
+                            TestUtils.LARGE_ENTITY.getBytes().length);
+    }
 }
