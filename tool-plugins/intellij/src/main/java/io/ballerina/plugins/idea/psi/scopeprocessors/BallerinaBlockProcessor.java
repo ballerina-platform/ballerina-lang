@@ -40,6 +40,7 @@ import io.ballerina.plugins.idea.psi.BallerinaObjectDefaultableParameter;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
+import io.ballerina.plugins.idea.psi.BallerinaObjectMember;
 import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
 import io.ballerina.plugins.idea.psi.BallerinaObjectParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaParameter;
@@ -61,6 +62,7 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -397,8 +399,15 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             return;
         }
 
-        List<BallerinaObjectFieldDefinition> objectFieldDefinitionList =
-                ballerinaObjectBody.getObjectFieldDefinitionList();
+        List<BallerinaObjectFieldDefinition> objectFieldDefinitionList = new LinkedList<>();
+        List<BallerinaObjectMember> objectMemberList = ballerinaObjectBody.getObjectMemberList();
+        for (BallerinaObjectMember ballerinaObjectMember : objectMemberList) {
+            BallerinaObjectFieldDefinition objectFieldDefinition = ballerinaObjectMember.getObjectFieldDefinition();
+            if (objectFieldDefinition != null) {
+                objectFieldDefinitionList.add(objectFieldDefinition);
+            }
+        }
+
         processObjectFields(ballerinaTypeDefinition.getIdentifier(), objectFieldDefinitionList);
     }
 
