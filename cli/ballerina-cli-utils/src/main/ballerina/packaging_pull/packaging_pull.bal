@@ -58,7 +58,7 @@ function createError (string errMessage) returns error {
 #
 # + args - Arguments for pulling a package
 # + return - 1 if package is not found, else 0 if package already exists or successfully pulled.
-function invokePull (string... args) returns error? {
+public function invokePull (string... args) returns error? {
     string url = args[0];
     string dirPath = args[1];
     string pkgPath = args[2];
