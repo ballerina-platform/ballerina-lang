@@ -105,17 +105,6 @@ public class H2ClientActionsTest {
     }
 
     @Test
-    public void testAddToProxyTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(result, "testAddToProxyTable");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(),
-                "{customerId:40, name:\"Manuri\", creditLimit:1000.0, country:\"Sri Lanka\"}");
-        Assert.assertEquals(returns[1].stringValue(),
-                "{customerId:41, name:\"Devni\", creditLimit:1000.0, country:\"Sri Lanka\"}");
-    }
-
-    @Test
     public void testUpdateInMemory() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
         Assert.assertEquals(returns.length, 2);

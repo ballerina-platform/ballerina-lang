@@ -62,7 +62,6 @@ public class SQLActionsTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
     private CompileResult resultNegative;
-    private CompileResult resultProxy;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
     private static final String DB_NAME_H2 = "TEST_SQL_CONNECTOR_H2";
     private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
@@ -107,7 +106,6 @@ public class SQLActionsTest {
 
         result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
-        resultProxy = BCompileUtil.compile("test-src/connectors/sql/sql_actions_proxytable_test.bal");
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -786,104 +784,6 @@ public class SQLActionsTest {
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
                 + "{message:\"Trying to perform hasNext operation over a closed table\", cause:null})");
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to proxy table")
-    public void testAddToProxyTableConstraintViolation() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTableConstraintViolation", connectionArgs);
-        String errorMessage;
-        if (dbType == MYSQL) {
-            errorMessage = "execute proxy table add failed: execute update failed: Duplicate entry '1' for key "
-                    + "'PRIMARY'";
-        } else if (dbType == POSTGRES) {
-            errorMessage = "execute proxy table add failed: execute update failed: ERROR: duplicate key value "
-                    + "violates unique constraint";
-        } else if (dbType == H2) {
-            errorMessage = "execute proxy table add failed: execute update failed: Unique index or primary key "
-                    + "violation: \"PRIMARY KEY ON PUBLIC.EMPLOYEEADDNEGATIVE(ID)";
-        } else {
-            errorMessage = "execute proxy table add failed: execute update failed: integrity constraint violation: "
-                    + "unique constraint or index violation";
-        }
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to proxy table")
-    public void testAddToProxyTableInvalidRecord() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTableInvalidRecord", connectionArgs);
-        String errorMessage;
-        if (dbType == MYSQL) {
-            errorMessage = "execute update failed: Unknown column 'age' in 'field list'";
-        } else if (dbType == POSTGRES) {
-            errorMessage = "execute update failed: ERROR: column \"age\" of relation \"employeeadd\" does not exist";
-        } else if (dbType == H2) {
-            errorMessage = "execute add failed: Column \"AGE\" not found; SQL statement:\n"
-                    + "INSERT INTO employeeAdd (id ,name ,address ,age ) values (?,?,?,?)";
-        } else {
-            errorMessage = "user lacks privilege or object not found: AGE in statement [INSERT INTO employeeAdd (id ,"
-                    + "name ,address ,age ) values (?,?,?,?)]";
-        }
-        Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Test adding data to proxy table")
-    public void testAddToProxyTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTable", connectionArgs);
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "{id:1, name:\"Manuri\", address:\"Sri Lanka\"}");
-        Assert.assertEquals(returns[1].stringValue(), "{id:2, name:\"Devni\", address:\"Sri Lanka\"}");
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Test deleting data from proxy table")
-    public void testDeleteFromProxyTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testDeleteFromProxyTable", connectionArgs);
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Test deleting data from proxy table within a transaction")
-    public void testDeleteFromProxyTableInTransaction() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testDeleteFromProxyTableInTransaction", connectionArgs);
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a proxy table multiple times")
-    public void testIterateProxyTable() throws Exception {
-        BValue[] returns = BRunUtil.invokeFunction(resultProxy, "testIterateProxyTable", connectionArgs);
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "("
-                + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}], "
-                + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}])");
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a proxy table after closing")
-    public void testIterateProxyTableAfterClose() throws Exception {
-        BValue[] returns = BRunUtil.invokeFunction(resultProxy, "testIterateProxyTableAfterClose", connectionArgs);
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "("
-                + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}], "
-                + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}], "
-                + "{message:\"Trying to perform hasNext operation over a closed table\", cause:null})");
-    }
-
-    @Test(groups = CONNECTOR_TEST, description = "Check whether printing of table variables is handled properly.")
-    public void testProxyTablePrintln() throws IOException {
-        PrintStream original = System.out;
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
-            System.setOut(new PrintStream(outContent));
-            final String expected = "\n";
-            BRunUtil.invoke(resultProxy, "testProxyTablePrintln", connectionArgs);
-            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
-        } finally {
-            outContent.close();
-            System.setOut(original);
-        }
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test re-init endpoint")
