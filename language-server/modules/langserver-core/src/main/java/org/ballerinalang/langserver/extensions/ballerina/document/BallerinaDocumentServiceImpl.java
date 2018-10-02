@@ -124,6 +124,14 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
+    public CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request) {
+        BallerinaServiceListResponse reply = new BallerinaServiceListResponse();
+        String[] services = {"Testing", "Testing1", "Testing2", "Testing3"};
+        reply.setServices(services);
+        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
     public CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request) {
         BallerinaASTResponse reply = new BallerinaASTResponse();
         String fileUri = request.getDocumentIdentifier().getUri();

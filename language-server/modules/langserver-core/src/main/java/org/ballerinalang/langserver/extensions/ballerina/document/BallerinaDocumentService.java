@@ -38,4 +38,7 @@ public interface BallerinaDocumentService {
 
     @JsonRequest
     CompletableFuture<BallerinaASTOASChangeResponse> astOasChange(BallerinaASTOASChangeRequest request);
+
+    @JsonRequest
+    CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request);
 }

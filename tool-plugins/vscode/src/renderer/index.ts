@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection } from 'vscode';
+import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection, QuickPickItem } from 'vscode';
 import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
@@ -108,6 +108,20 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 		if (oasEditorPanel && html) {
 			oasEditorPanel.webview.html = html;
 		}
+	});
+
+	commands.registerCommand('ballerina.showAPIEditorForService', ()=> {
+		const editor = window.activeTextEditor;
+		if(!editor) {
+			return "";
+		}
+		activeEditor = editor;
+
+		langClient.getAST(activeEditor.document.uri).then((resp)=>{
+			console.log(resp);
+			//window.showQuickPick(resp);
+		})
+		
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
