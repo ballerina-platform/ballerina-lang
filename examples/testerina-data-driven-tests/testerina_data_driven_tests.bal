@@ -1,5 +1,5 @@
-import ballerina/test;
 import ballerina/io;
+import ballerina/test;
 
 // The `dataProvider` attribute allows you to add a data provider function to the test-case. 
 @test:Config {

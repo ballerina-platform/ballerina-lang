@@ -1,6 +1,5 @@
-import ballerina/io;
 import ballerina/http;
-import ballerina/mime;
+import ballerina/io;
 import ballerina/log;
 
 @http:ServiceConfig {
@@ -23,7 +22,7 @@ service<http:Service> httpService bind { port: 9090 } {
             }
             string val => {
                 io:println(val);
-                resp.setPayload(string `Http POST received: {{untaint val}}\n`);
+                resp.setPayload(string `HTTP POST received: {{untaint val}}\n`);
             }
         }
 

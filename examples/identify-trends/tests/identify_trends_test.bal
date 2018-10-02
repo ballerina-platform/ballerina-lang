@@ -20,6 +20,7 @@ function testFunc() {
     main();
     string out1 = "printInitalAndPeakTemp function is invoked. InitialTemp : 20.0 and Peak temp : 23.0";
     string out2 = "printInitalAndPeakTemp function is invoked. InitialTemp : 21.0 and Peak temp : 24.0";
+    test:assertEquals(lengthof outputs, 2);
     test:assertEquals(outputs[0], out1);
     test:assertEquals(outputs[1], out2);
 }

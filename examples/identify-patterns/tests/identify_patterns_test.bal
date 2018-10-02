@@ -19,5 +19,6 @@ function testFunc() {
     // Invoke the main function. 
     main();
     string out = "alertRoomAction function invoked for Room : 2 and the action : stop";
+    test:assertEquals(lengthof outputs, 1);
     test:assertEquals(outputs[0], out);
 }

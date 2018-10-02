@@ -1,5 +1,5 @@
-import ballerina/test;
 import ballerina/io;
+import ballerina/test;
 
 // This is the mock function which will replace the real function.
 @test:Mock {

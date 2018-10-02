@@ -1,6 +1,6 @@
 import ballerina/http;
-import ballerina/log;
 import ballerina/io;
+import ballerina/log;
 import ballerina/observe;
 
 // Make sure you start the service with `--observe`, or metrics enabled.

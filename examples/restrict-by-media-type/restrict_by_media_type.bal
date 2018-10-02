@@ -1,6 +1,5 @@
 import ballerina/http;
 import ballerina/log;
-import ballerina/mime;
 
 // Consumes and produces annotations that contain MIME types as an array of strings.
 service<http:Service> infoService bind { port: 9092 } {

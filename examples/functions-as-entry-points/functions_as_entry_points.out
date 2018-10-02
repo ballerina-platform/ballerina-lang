@@ -1,0 +1,34 @@
+# At the command line, navigate to the directory that contains the `.bal` file and
+# use the ballerina `run` command with the `--printreturn` option set to print the
+# return value to the standard out stream.
+
+# Use the ballerina `run` command to invoke the `main` function, specifying `4` and
+# `8` as the integer arguments on which the operation is to be performed, and `add`
+# as the string argument for `op`.
+$ ballerina run --printreturn functions_as_entry_points.bal 4 8 add
+Operation: Addition
+12
+
+# Use the ballerina `run` command specifying `add` as the function to invoke and `14`
+# and `8` as the integer arguments to add.
+$ ballerina run --printreturn functions_as_entry_points.bal:add 14 8
+22
+
+# Use the ballerina `run` command specifying `performMathOp` as the function to invoke.
+# Since no argument is specified as a named argument, the default value `add`
+# would be used as the value for the defaultable param `op`. `12`, `13` and `14` would
+# be considered the integer arguments to add.
+$ ballerina run --printreturn functions_as_entry_points.bal:performMathOp 12 13 14
+39
+
+# Use the ballerina `run` command specifying `performMathOp` as the function to invoke.
+# The string value `subtract` is specified as a named argument for the defaultable parameter
+# `op` with the argument `-op=subtract`. `15` and `3` would be considered the integer
+# arguments for which subtraction is to be done.
+$ ballerina run --printreturn functions_as_entry_points.bal:performMathOp -op=subtract 15 3
+12
+
+# Use the ballerina `run` command specifying `isKnownOp` as the function to invoke,
+# where the return value is not an int.
+$ ballerina run --printreturn functions_as_entry_points.bal:isKnownOp multiplication
+false

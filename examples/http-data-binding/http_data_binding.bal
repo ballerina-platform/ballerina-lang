@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 
 type Student record {

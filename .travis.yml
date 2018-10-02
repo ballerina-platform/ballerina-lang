@@ -54,6 +54,8 @@ script:
 
 - ballerina init
 
+- ballerina test abstract-objects
+- ballerina test anonymous-functions
 - ballerina test any-type
 - ballerina test arrays
 - ballerina test async
@@ -63,6 +65,8 @@ script:
 - ballerina test byte-io
 - ballerina test byte-type
 - ballerina test cache
+- ballerina test channels-correlation
+- ballerina test channels-workers
 - ballerina test character-io
 - ballerina test check
 - ballerina test client-generation
@@ -85,6 +89,7 @@ script:
 - ballerina test function-pointers
 - ballerina test functional-iteration
 - ballerina test functions
+- ballerina test functions-as-entry-points
 - ballerina test functions-with-defaultable-parameters
 - ballerina test functions-with-rest-parameter
 - ballerina test grpc-bidirectional-streaming
@@ -100,16 +105,16 @@ script:
 - ballerina test hello-world-parallel
 - ballerina test hello-world-service
 - ballerina test hello-world-streams
-- ballerina test http-100-continue
 - ballerina test http-1.1-to-2.0-protocol-switch
 - ballerina test http-2.0-server-push
+- ballerina test http-100-continue
 - ballerina test http-access-logs
-- ballerina test http-disable-chunking
 - ballerina test http-caching-client
 - ballerina test http-circuit-breaker
 - ballerina test http-client-endpoint
 - ballerina test http-cors
 - ballerina test http-data-binding
+- ballerina test http-disable-chunking
 - ballerina test http-failover
 - ballerina test http-filters
 - ballerina test http-forwarded-extension
@@ -124,7 +129,10 @@ script:
 - ballerina test identify-trends
 - ballerina test if-else
 - ballerina test integer-ranges
-- ballerina test jdbc-client
+- ballerina test jdbc-client-batch-update
+- ballerina test jdbc-client-call-procedures
+- ballerina test jdbc-client-crud-operations
+- ballerina test jdbc-client-proxy-tables
 - ballerina test jms-durable-topic-message-subscriber
 - ballerina test jms-headers-and-properties
 - ballerina test jms-queue-message-producer
@@ -142,9 +150,8 @@ script:
 - ballerina test json
 - ballerina test json-arrays
 - ballerina test json-io
-- ballerina test json-struct-map-conversion
+- ballerina test json-record-map-conversion
 - ballerina test json-to-xml-conversion
-- ballerina test anonymous-functions
 - ballerina test lengthof
 - ballerina test local-transactions
 - ballerina test locks

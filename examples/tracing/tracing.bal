@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/observe;
+import ballerina/runtime;
 
 // Make sure you start the service with `--observe`, or tracing enabled.
 service<http:Service> hello bind { port: 9234 } {
