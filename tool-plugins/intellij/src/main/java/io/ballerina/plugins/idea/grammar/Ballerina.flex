@@ -20,7 +20,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inStringTemplate = false;
 
     private boolean inDeprecatedTemplate = false;
-    private boolean inDocTemplate = false;
 
     private boolean inSiddhi = false;
     private boolean inTableSqlQuery = false;
@@ -60,12 +59,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
         } else if (inStringTemplate) {
             yybegin(STRING_TEMPLATE_MODE);
             return EXPRESSION_END;
-        } else if (inDocTemplate) {
-            yybegin(DOCUMENTATION_TEMPLATE_MODE);
-            return DOCUMENTATION_TEMPLATE_ATTRIBUTE_END;
-        } else if (inDeprecatedTemplate) {
-            yybegin(DEPRECATED_TEMPLATE_MODE);
-            return DOCUMENTATION_TEMPLATE_ATTRIBUTE_END;
         } else {
             yypushback(1);
             return RIGHT_BRACE;
@@ -82,7 +75,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 
 DECIMAL_INTEGER_LITERAL = {DecimalNumeral}
 HEX_INTEGER_LITERAL = {HexNumeral}
-OCTAL_INTEGER_LITERAL = {OctalNumeral}
 BINARY_INTEGER_LITERAL = {BinaryNumeral}
 
 DecimalNumeral = 0 | {NonZeroDigit} {Digits}?
@@ -91,20 +83,23 @@ Digit = 0 | {NonZeroDigit}
 NonZeroDigit = [1-9]
 
 HexNumeral = 0 [xX] {HexDigits}
+
+DottedHexNumber = {HexDigits} "." {HexDigits} | "." {HexDigits}
+
+DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digit}+
+
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
-
-OctalNumeral = 0 {OctalDigits}
-OctalDigits = {OctalDigit}+
-OctalDigit = [0-7]
 
 BinaryNumeral = 0 [bB] {BinaryDigits}
 BinaryDigits = {BinaryDigit}+
 BinaryDigit = [01]
 
-// §3.10.2 Floating-Point Literals
+HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
 
-FLOATING_POINT_LITERAL = {DecimalFloatingPointLiteral} | {HexadecimalFloatingPointLiteral}
+DecimalFloatingPointNumber = {DecimalNumeral} {ExponentPart} | {DottedDecimalNumber} {ExponentPart}?
+
+// §3.10.2 Floating-Point Literals
 
 DecimalFloatingPointLiteral = {Digits} "." ({Digits} {ExponentPart}? | {Digits}? {ExponentPart})
     | "." {Digits} {ExponentPart}?
@@ -114,6 +109,9 @@ ExponentPart = {ExponentIndicator} {SignedInteger}
 ExponentIndicator = [eE]
 SignedInteger = {Sign}? {Digits}
 Sign = [+-]
+
+HexIndicator = 0 [xX]
+HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 
 HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent}
 HexSignificand = {HexNumeral} "."? | '0' [xX] {HexDigits}? "." {HexDigits}
@@ -169,9 +167,8 @@ XML_LITERAL_START = xml[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_START = string[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_END = "`"
 
-DOCUMENTATION = "documentation"
+
 DEPRECATED = "deprecated"
-DOCUMENTATION_TEMPLATE_START = {DOCUMENTATION} {WHITE_SPACE}* {LEFT_BRACE}
 DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
 
 // Todo - Need to add spaces between braces?
@@ -298,19 +295,6 @@ PARAMETER_NAME = {IDENTIFIER}
 DESCRIPTION_SEPARATOR = {DOCUMENTATION_SPACE}* {SUB} {DOCUMENTATION_SPACE}*
 PARAMETER_DOCUMENTATION_END = [\n]
 
-// DOCUMENTATION_TEMPLATE
-DOCUMENTATION_TEMPLATE_END = {RIGHT_BRACE}
-DOCUMENTATION_TEMPLATE_ATTRIBUTE_START = {ATTRIBUTE_PREFIX} {EXPRESSION_START}
-SB_DOC_INLINE_CODE_START = {ATTRIBUTE_PREFIX}? {DOC_BACK_TICK}
-DB_DOC_INLINE_CODE_START = {ATTRIBUTE_PREFIX}? {DOC_BACK_TICK} {DOC_BACK_TICK}
-TB_DOC_INLINE_CODE_START = {ATTRIBUTE_PREFIX}? {DOC_BACK_TICK} {DOC_BACK_TICK} {DOC_BACK_TICK}
-DOCUMENTATION_TEMPLATE_TEXT = {DOCUMENTATION_VALID_CHAR_SEQUENCE}? ({DOCUMENTATION_TEMPLATE_STRING_CHAR} {DOCUMENTATION_VALID_CHAR_SEQUENCE}?)+ | {DOCUMENTATION_VALID_CHAR_SEQUENCE} ({DOCUMENTATION_TEMPLATE_STRING_CHAR} {DOCUMENTATION_VALID_CHAR_SEQUENCE}?)*
-DOCUMENTATION_TEMPLATE_STRING_CHAR = [^`{}\\FPTRVE] | \\ [{}`] | {WHITE_SPACE} | {DOCUMENTATION_ESCAPED_SEQUENCE}
-ATTRIBUTE_PREFIX = [FPTRVE]
-DOC_BACK_TICK = "`"
-DOCUMENTATION_ESCAPED_SEQUENCE = \\\\
-DOCUMENTATION_VALID_CHAR_SEQUENCE = [FPTRVE] [^`{}\\] | [FPTRVE] \\ [{}`] | [FPTRVE] \\ [^{}`] | \\ [^\\]
-
 // TRIPLE_BACKTICK_INLINE_CODE
 TRIPLE_BACK_TICK_INLINE_CODE_END = {BACKTICK} {BACKTICK} {BACKTICK}
 TRIPLE_BACK_TICK_INLINE_CODE = {TRIPLE_BACK_TICK_INLINE_CODE_CHAR}+
@@ -358,7 +342,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 %state DOUBLE_BACKTICKED_MARKDOWN_MODE
 %state TRIPLE_BACKTICKED_MARKDOWN_MODE
 
-%state DOCUMENTATION_TEMPLATE_MODE
 %state SINGLE_BACKTICK_INLINE_CODE_MODE
 %state DOUBLE_BACKTICK_INLINE_CODE_MODE
 %state TRIPLE_BACKTICK_INLINE_CODE_MODE
@@ -369,6 +352,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 %%
 <YYINITIAL> {
     "abort"                                     { return ABORT; }
+    "abstract"                                  { return ABSTRACT; }
     "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
     "any"                                       { return ANY; }
@@ -383,12 +367,12 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "byte"                                      { return BYTE; }
 
     "catch"                                     { return CATCH; }
+    "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
     "compensation"                              { return COMPENSATION; }
     "compensate"                                { return COMPENSATE; }
     "continue"                                  { return CONTINUE; }
 
-    "documentation"                             { return DOCUMENTATION; }
     "done"                                      { return DONE; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
@@ -498,6 +482,8 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "&"                                         { return BITAND; }
     "^"                                         { return BITXOR; }
 
+    "~"                                         { return BIT_COMPLEMENT; }
+
     "->"                                        { return RARROW; }
     "<-"                                        { return LARROW; }
     "@"                                         { return AT; }
@@ -563,10 +549,12 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {BOOLEAN_LITERAL}                           { return BOOLEAN_LITERAL; }
     {DECIMAL_INTEGER_LITERAL}                   { return DECIMAL_INTEGER_LITERAL; }
     {HEX_INTEGER_LITERAL}                       { return HEX_INTEGER_LITERAL; }
-    {OCTAL_INTEGER_LITERAL}                     { return OCTAL_INTEGER_LITERAL; }
     {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
-    {FLOATING_POINT_LITERAL}                    { return FLOATING_POINT_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
+
+    {DecimalFloatingPointNumber}                { return DECIMAL_FLOATING_POINT_NUMBER; }
+    {HexadecimalFloatingPointLiteral}           { return HEXADECIMAL_FLOATING_POINT_LITERAL; }
+
 
     {BASE_16_BLOB_LITERAL}                      { return BASE_16_BLOB_LITERAL; }
     {BASE_64_BLOB_LITERAL}                      { return BASE_64_BLOB_LITERAL; }
@@ -582,7 +570,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {PARAMETER_DOCUMENTATION_START}             { yybegin(MARKDOWN_PARAMETER_DOCUMENTATION_MODE); return PARAMETER_DOCUMENTATION_START; }
     {MARKDOWN_DOCUMENTATION_LINE_START}         { yybegin(MARKDOWN_DOCUMENTATION_MODE); return MARKDOWN_DOCUMENTATION_LINE_START; }
 
-    {DOCUMENTATION_TEMPLATE_START}              { inDocTemplate = true; yybegin(DOCUMENTATION_TEMPLATE_MODE); return DOCUMENTATION_TEMPLATE_START; }
     {DEPRECATED_TEMPLATE_START}                 { inDeprecatedTemplate = true; yybegin(DEPRECATED_TEMPLATE_MODE); return DEPRECATED_TEMPLATE_START; }
     .                                           { return BAD_CHARACTER; }
 }
@@ -650,32 +637,22 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     .                                           { inStringTemplate = false; yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
 
-<DOCUMENTATION_TEMPLATE_MODE>{
-    {DOCUMENTATION_TEMPLATE_END}                { inDocTemplate = false; yybegin(YYINITIAL); return DOCUMENTATION_TEMPLATE_END; }
-    {SB_DOC_INLINE_CODE_START}                  { yybegin(SINGLE_BACKTICK_INLINE_CODE_MODE); return SB_DOC_INLINE_CODE_START; }
-    {DB_DOC_INLINE_CODE_START}                  { yybegin(DOUBLE_BACKTICK_INLINE_CODE_MODE); return DB_DOC_INLINE_CODE_START; }
-    {TB_DOC_INLINE_CODE_START}                  { yybegin(TRIPLE_BACKTICK_INLINE_CODE_MODE); return TB_DOC_INLINE_CODE_START; }
-    {DOCUMENTATION_TEMPLATE_ATTRIBUTE_START}    { yybegin(YYINITIAL); return DOCUMENTATION_TEMPLATE_ATTRIBUTE_START; }
-    {DOCUMENTATION_TEMPLATE_TEXT}               { return DOCUMENTATION_TEMPLATE_TEXT; }
-    .                                           { yybegin(YYINITIAL); return BAD_CHARACTER; }
-}
-
 <SINGLE_BACKTICK_INLINE_CODE_MODE>{
-    {SINGLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return SINGLE_BACK_TICK_INLINE_CODE_END; }
+    {SINGLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return SINGLE_BACK_TICK_INLINE_CODE_END; }
     {SINGLE_BACK_TICK_INLINE_CODE}              { return SINGLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
 }
 
 <DOUBLE_BACKTICK_INLINE_CODE_MODE>{
-    {DOUBLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return DOUBLE_BACK_TICK_INLINE_CODE_END; }
+    {DOUBLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return DOUBLE_BACK_TICK_INLINE_CODE_END; }
     {DOUBLE_BACK_TICK_INLINE_CODE}              { return DOUBLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
 }
 
 <TRIPLE_BACKTICK_INLINE_CODE_MODE>{
-    {TRIPLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return TRIPLE_BACK_TICK_INLINE_CODE_END; }
+    {TRIPLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return TRIPLE_BACK_TICK_INLINE_CODE_END; }
     {TRIPLE_BACK_TICK_INLINE_CODE}              { return TRIPLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
 }
 
 <DEPRECATED_TEMPLATE_MODE>{

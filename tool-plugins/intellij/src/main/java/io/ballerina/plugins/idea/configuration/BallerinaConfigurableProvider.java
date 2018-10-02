@@ -52,7 +52,6 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         Configurable semanticAnalyzerConfigurable = new BallerinaSemanticAnalyzerConfigurable(myProject, false);
         Configurable recursiveReferenceSearchConfigurable = new BallerinaRecursiveReferenceSearchConfigurable
                 (myProject, false);
-
         BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
                 librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable,
                 recursiveReferenceSearchConfigurable);
