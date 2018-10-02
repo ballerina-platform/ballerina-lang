@@ -313,16 +313,6 @@ DecimalFloatingPointNumber
     |   DottedDecimalNumber ExponentPart?
     ;
 
-DecimalFloatingPointLiteral
-    :   DecimalNumeral DecimalLiteralIndicator
-    |   DottedDecimalNumber DecimalLiteralIndicator
-    ;
-
-fragment
-DecimalLiteralIndicator
-    :   [dD]
-    ;
-
 fragment
 ExponentPart
     :   ExponentIndicator SignedInteger

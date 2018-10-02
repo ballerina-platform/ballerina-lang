@@ -723,7 +723,6 @@ formalParameterList
 simpleLiteral
     :   (SUB)? integerLiteral
     |   (SUB)? floatingPointLiteral
-    |   (SUB)? decimalFloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
@@ -734,10 +733,6 @@ simpleLiteral
 floatingPointLiteral
     :   DecimalFloatingPointNumber
     |   HexadecimalFloatingPointLiteral
-    ;
-
-decimalFloatingPointLiteral
-    :   DecimalFloatingPointLiteral
     ;
 
 // §3.10.1 Integer Literals
