@@ -109,6 +109,8 @@
                                 "type": "string",
                                 "default": "${file}"
                             },
+                            "scriptArguments": [],
+                            "commandOptions": [],
                             "debugServerTimeout": {
                                 "type": "integer",
                                 "default": 5000,
