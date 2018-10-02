@@ -335,6 +335,11 @@ public class GrpcCmd implements BLauncherCmd {
     public void setBalOutPath(String balOutPath) {
         this.balOutPath = balOutPath;
     }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
 }
 
 
