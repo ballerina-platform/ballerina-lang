@@ -107,7 +107,8 @@
                         "properties": {
                             "script": {
                                 "type": "string",
-                                "default": "${file}"
+                                "default": "${file}",
+                                "description": "Path of the script that need to be executed (e.g. ${workspaceRoot}/main.bal)"
                             },
                             "debugServerTimeout": {
                                 "type": "integer",

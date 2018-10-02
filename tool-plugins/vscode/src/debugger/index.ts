@@ -295,8 +295,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             });
 
             debugServer.stderr.on('data', (data) => {
-                if (`${data}`.indexOf('compilation contains errors') > -1) {
-                    this.terminate('Failed to compile.');
+                if (`${data}`.startsWith("error:")) {
+                    this.terminate(`${data}`);
                 } else {
                     this.sendEvent(new OutputEvent(`${data}`));
                 }
