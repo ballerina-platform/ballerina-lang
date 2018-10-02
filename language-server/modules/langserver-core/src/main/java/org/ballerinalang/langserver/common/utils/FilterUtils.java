@@ -112,7 +112,7 @@ public class FilterUtils {
                 }
             });
 
-            CommonUtil.populateIterableOperations(variable, resultList);
+            CommonUtil.populateIterableOperations(variable, resultList, context);
         } else if (delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
             SymbolInfo packageSymbol = symbolInfos.stream().filter(item -> {
                 Scope.ScopeEntry scopeEntry = item.getScopeEntry();

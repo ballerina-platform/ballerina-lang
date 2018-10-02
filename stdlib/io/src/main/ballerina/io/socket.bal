@@ -81,8 +81,8 @@ public type ServerSocket object {
 
     # Binds socket to a local port.
     #
-    # + port - port
-    # + interface -
+    # + port - The port number that server start.
+    # + interface - The interface that wish to bind.
     # + return - An error if could not bind to the port
     public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 

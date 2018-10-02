@@ -378,7 +378,7 @@ public type Entity object {
 
 function Entity::setFileAsEntityBody(@sensitive string filePath,
                                      @sensitive string contentType = "application/octet-stream") {
-    io:ReadableByteChannel byteChannel = io:openFileForReading(filePath);
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     self.setByteChannel(byteChannel, contentType = contentType);
 }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -40,7 +40,7 @@ describe('Ballerina Composer Test Suite', () => {
     }
 
     let backEndProcess;
-    
+
     before(function (beforeAllDone) {
         this.timeout(10000);
         const targetPath = path.join(global.targetPath, 'lib', `composer-server.jar`);
@@ -63,41 +63,50 @@ describe('Ballerina Composer Test Suite', () => {
         describe(path.basename(testFile), () => {
             let model;
             let content;
-            
+
             before(done => {
                 model = undefined;
                 content = undefined;
-                fs.readFile(testFile, 'utf8', (err, fileContent) => {
-                    parse(fileContent, testFile, parsedModel => {
-                        content = fileContent;
-                        model = parsedModel;
-                        let error;
-                        if (!model) {
-                            error = new Error('Could not parse!');
-                        }
-                        done(error);
-                    });
-                })
+
+                if (sourceGenSkip.includes(path.basename(testFile)) &&
+                    renderingSkip.includes(path.basename(testFile))) {
+                    done();
+                } else {
+                    fs.readFile(testFile, 'utf8', (err, fileContent) => {
+                        parse(fileContent, testFile, parsedModel => {
+                            content = fileContent;
+                            model = parsedModel;
+                            let error;
+
+                            if (!model) {
+                                error = new Error('Could not parse!');
+                            }
+                            done(error);
+                        });
+                    })
+                }
             });
 
             it('renders', function () {
-                if(renderingSkip.includes(path.basename(testFile))) {
+                if (renderingSkip.includes(path.basename(testFile))) {
                     this.skip();
+                    return;
                 }
 
                 testEnv.render(model)
             });
 
             it('generates source', function () {
-                if(sourceGenSkip.includes(path.basename(testFile))) {
+                if (sourceGenSkip.includes(path.basename(testFile))) {
                     this.skip();
+                    return;
                 }
 
                 const generatedSource = testEnv.generateSource(model);
                 expect(generatedSource).to.equal(content);
             });
 
-            if (process.env.DEBUG == "true") {
+            if (process.env.DEBUG === "true") {
                 it('debug print', () => {
                     const tree = testEnv.buildTree(model);
                     debugPrint(tree);

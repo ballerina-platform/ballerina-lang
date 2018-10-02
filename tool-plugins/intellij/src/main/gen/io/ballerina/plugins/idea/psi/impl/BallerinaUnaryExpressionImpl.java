@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaUnaryExpressionImpl extends BallerinaExpressionImpl implements BallerinaUnaryExpression {
 
-  public BallerinaUnaryExpressionImpl(ASTNode node) {
+  public BallerinaUnaryExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

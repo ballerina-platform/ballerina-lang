@@ -157,8 +157,8 @@ function testAnyRestFieldRHSAccess() returns any {
 }
 
 type Person2 record {
-    string name,
-    int age,
+    string name;
+    int age;
     string...
 };
 
@@ -174,8 +174,8 @@ function testStringRestFieldRHSAccess() returns string {
 }
 
 type Person3 record {
-    string name,
-    int age,
+    string name;
+    int age;
     int...
 };
 
@@ -191,8 +191,8 @@ function testIntRestFieldRHSAccess() returns int {
 }
 
 type Person4 record {
-    string name,
-    int age,
+    string name;
+    int age;
     float...
 };
 
@@ -208,8 +208,8 @@ function testFloatRestFieldRHSAccess() returns float {
 }
 
 type Person5 record {
-    string name,
-    int age,
+    string name;
+    int age;
     boolean...
 };
 
@@ -225,8 +225,8 @@ function testBooleanRestFieldRHSAccess() returns boolean {
 }
 
 type Person6 record {
-    string name,
-    int age,
+    string name;
+    int age;
     map...
 };
 
@@ -242,8 +242,8 @@ function testMapRestFieldRHSAccess() returns map {
 }
 
 type Person7 record {
-    string name,
-    int age,
+    string name;
+    int age;
     (float|string|boolean)...
 };
 
@@ -259,8 +259,8 @@ function testUnionRestFieldRHSAccess() returns float|string|boolean {
 }
 
 type Person8 record {
-    string name,
-    int age,
+    string name;
+    int age;
     ()...
 };
 
@@ -270,8 +270,8 @@ function testNilRestField() returns Person8 {
 }
 
 type Person9 record {
-    string name,
-    int age,
+    string name;
+    int age;
     Department...
 };
 
@@ -295,8 +295,8 @@ type Animal object {
 };
 
 type Person10 record {
-    string name,
-    int age,
+    string name;
+    int age;
     Animal...
 };
 
@@ -312,8 +312,8 @@ function testObjectRestFieldRHSAccess() returns Animal {
 }
 
 type Person11 record {
-    string name,
-    int age,
+    string name;
+    int age;
     (float, string, Animal)...
 };
 
@@ -329,9 +329,9 @@ function testTupleRestFieldRHSAccess() returns (float, string, Animal) {
 }
 
 type PersonA record {
-    string fname,
-    string lname,
-    function() returns string fullName,
+    string fname;
+    string lname;
+    function() returns string fullName;
 };
 
 function testFuncPtrAsRecordField() returns string {

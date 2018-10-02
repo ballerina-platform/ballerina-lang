@@ -22,7 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -140,9 +140,9 @@ public class CompiledPackageSymbolEnter {
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
-                                        PackageRepository packageRepository,
+                                        RepoHierarchy packageRepositoryHierarchy,
                                         byte[] packageBinaryContent) {
-        BPackageSymbol pkgSymbol = definePackage(packageId, packageRepository,
+        BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
                 new ByteArrayInputStream(packageBinaryContent));
 
         // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
@@ -156,24 +156,24 @@ public class CompiledPackageSymbolEnter {
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
-                                        PackageRepository packageRepository,
+                                        RepoHierarchy packageRepositoryHierarchy,
                                         InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
         try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             CompiledPackageSymbolEnv prevEnv = this.env;
             this.env = new CompiledPackageSymbolEnv();
             this.env.requestedPackageId = packageId;
-            this.env.loadedRepository = packageRepository;
+            this.env.repoHierarchy = packageRepositoryHierarchy;
             BPackageSymbol pkgSymbol = definePackage(dataInStream);
             this.env = prevEnv;
             return pkgSymbol;
         } catch (IOException e) {
             // TODO dlog.error();
-            throw new BLangCompilerException("io error: " + e.getMessage(), e);
+            throw new BLangCompilerException(e.getMessage(), e);
             //            return null;
         } catch (Throwable e) {
             // TODO format error
-            throw new BLangCompilerException("format error: " + e.getMessage(), e);
+            throw new BLangCompilerException(e.getMessage(), e);
             //            return null;
         }
     }
@@ -182,13 +182,13 @@ public class CompiledPackageSymbolEnter {
         int magicNumber = dataInStream.readInt();
         if (magicNumber != CompiledBinaryFile.PackageFile.MAGIC_VALUE) {
             // TODO dlog.error() with package name
-            throw new BLangCompilerException("ballerina: invalid magic number " + magicNumber);
+            throw new BLangCompilerException("invalid magic number " + magicNumber);
         }
 
         short version = dataInStream.readShort();
         if (version != CompiledBinaryFile.PackageFile.LANG_VERSION) {
             // TODO dlog.error() with package name
-            throw new BLangCompilerException("ballerina: unsupported program file version " + version);
+            throw new BLangCompilerException("unsupported program file version " + version);
         }
 
         // Read constant pool entries of the package info.
@@ -208,7 +208,6 @@ public class CompiledPackageSymbolEnter {
 
         PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
         this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable);
-        //        this.env.pkgSymbol.packageRepository = this.env.loadedRepository;
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
@@ -336,7 +335,7 @@ public class CompiledPackageSymbolEnter {
         String pkgVersion = getUTF8CPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
-                this.env.loadedRepository);
+                this.env.repoHierarchy);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -850,11 +849,12 @@ public class CompiledPackageSymbolEnter {
         invokableSymbol.taintTable = new HashMap<>();
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = taintTableDataInStream.readShort();
-            List<Boolean> retParamTaintedStatus = new ArrayList<>();
-            for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                retParamTaintedStatus.add(taintTableDataInStream.readBoolean());
+            Boolean returnTaintedStatus = taintTableDataInStream.readBoolean();
+            List<Boolean> parameterTaintedStatusList = new ArrayList<>();
+            for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
+                parameterTaintedStatusList.add(taintTableDataInStream.readBoolean());
             }
-            TaintRecord taintRecord = new TaintRecord(retParamTaintedStatus, null);
+            TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
             invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
     }
@@ -934,7 +934,7 @@ public class CompiledPackageSymbolEnter {
 
     private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
         if (orgName == null || orgName.isEmpty()) {
-            throw new BLangCompilerException("Invalid package name '" + pkgName + "' in compiled package file");
+            throw new BLangCompilerException("invalid package name '" + pkgName + "' in compiled package file");
         }
 
         return new PackageID(names.fromString(orgName),
@@ -958,9 +958,9 @@ public class CompiledPackageSymbolEnter {
 
         BSymbol symbol = lookupMemberSymbol(this.env.pkgSymbol.scope, pkgID.name, SymTag.PACKAGE);
         if (symbol == this.symTable.notFoundSymbol && pkgID.orgName.equals(Names.BUILTIN_ORG)) {
-            symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, env.loadedRepository);
+            symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, this.env.repoHierarchy);
             if (symbol == null) {
-                throw new BLangCompilerException("Unknown imported package: " + pkgID.name);
+                throw new BLangCompilerException("unknown imported package: " + pkgID.name);
             }
         }
 
@@ -990,7 +990,7 @@ public class CompiledPackageSymbolEnter {
     private BType lookupUserDefinedType(BPackageSymbol packageSymbol, String typeName) {
         BSymbol typeSymbol = lookupMemberSymbol(packageSymbol.scope, names.fromString(typeName), SymTag.TYPE);
         if (typeSymbol == this.symTable.notFoundSymbol) {
-            throw new BLangCompilerException("Unknown type name: " + typeName);
+            throw new BLangCompilerException("unknown type name: " + typeName);
         }
 
         return typeSymbol.type;
@@ -999,7 +999,7 @@ public class CompiledPackageSymbolEnter {
     private BType getBuiltinRefTypeFromName(String typeName) {
         BSymbol typeSymbol = lookupMemberSymbol(this.symTable.rootScope, names.fromString(typeName), SymTag.TYPE);
         if (typeSymbol == this.symTable.notFoundSymbol) {
-            throw new BLangCompilerException("Unknown type name: " + typeName);
+            throw new BLangCompilerException("unknown type name: " + typeName);
         }
 
         return typeSymbol.type;
@@ -1039,7 +1039,7 @@ public class CompiledPackageSymbolEnter {
      */
     private static class CompiledPackageSymbolEnv {
         PackageID requestedPackageId;
-        PackageRepository loadedRepository;
+        RepoHierarchy repoHierarchy;
         BPackageSymbol pkgSymbol;
         ConstantPoolEntry[] constantPool;
         List<UnresolvedType> unresolvedTypes;

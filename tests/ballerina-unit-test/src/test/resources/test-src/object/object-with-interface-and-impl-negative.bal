@@ -7,7 +7,7 @@ public function testObjectWithInterface () returns (int, string) {
 
 type Person object {
 
-    public int age = 10,
+    public int age = 10;
 
 
     string month = "february";
@@ -28,7 +28,7 @@ function Person::attachInterface(int add) returns int {
 
 type Employee object {
 
-    public int age = 10,
+    public int age = 10;
 
 
     private string month = "february";

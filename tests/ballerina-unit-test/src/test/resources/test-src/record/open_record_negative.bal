@@ -1,6 +1,6 @@
 type Person record {
-    string name,
-    int age,
+    string name;
+    int age;
     string...
 };
 
@@ -9,8 +9,8 @@ function invalidRestField() {
 }
 
 type PersonA record {
-    string name,
-    int age,
+    string name;
+    int age;
 };
 
 function emptyRecordForAnyRestField() {

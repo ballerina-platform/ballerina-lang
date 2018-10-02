@@ -3,8 +3,8 @@ import org.bar;
 @readonly public int globalInt = 10;
 
 public type Employee object {
-   @readonly public int age = 10,
-   public float salary = 50.5,
+   @readonly public int age = 10;
+   public float salary = 50.5;
    public string name = "john";
 
    private int id = 50;

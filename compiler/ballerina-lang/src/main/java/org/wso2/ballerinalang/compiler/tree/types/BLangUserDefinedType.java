@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -34,11 +35,13 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     public Set<Flag> flagSet;
 
     public BLangUserDefinedType() {
+        this.flagSet = new HashSet<>();
     }
 
     public BLangUserDefinedType(BLangIdentifier pkgAlias, BLangIdentifier typeName) {
         this.pkgAlias = pkgAlias;
         this.typeName = typeName;
+        this.flagSet = new HashSet<>();
     }
 
     @Override

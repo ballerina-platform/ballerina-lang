@@ -32,7 +32,6 @@ public class MutualSSLTestCase extends HttpBaseTest {
 
     private BMainInstance ballerinaClient;
 
-
     @Test(description = "Test mutual ssl")
     public void testMutualSSL() throws Exception {
         String serverMessage = "successful";
@@ -42,7 +41,7 @@ public class MutualSSLTestCase extends HttpBaseTest {
         serverInstance.addLogLeecher(serverLeecher);
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "mutualSSL" + File.separator + "mutualSSLClient.bal").getAbsolutePath();
+                + File.separator + "mutualSSL" + File.separator + "mutual_ssl_client.bal").getAbsolutePath();
 
         ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);

@@ -298,7 +298,7 @@ function test18() returns int {
 }
 
 type Person object {
-    public int age = 3,
+    public int age = 3;
     public string name = "Hello Ballerina";
 
     private int year = 5;

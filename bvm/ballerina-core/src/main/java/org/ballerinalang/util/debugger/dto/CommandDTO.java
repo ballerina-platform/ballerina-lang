@@ -31,6 +31,8 @@ public class CommandDTO {
 
     private String threadId;
 
+    private String variableName;
+
     private List<BreakPointDTO> points;
 
     public String getCommand() {
@@ -55,5 +57,13 @@ public class CommandDTO {
 
     public void setPoints(List<BreakPointDTO> points) {
         this.points = points;
+    }
+
+    public String getVariableName() {
+        return variableName;
+    }
+
+    public void setVariableName(String variableName) {
+        this.variableName = variableName;
     }
 }

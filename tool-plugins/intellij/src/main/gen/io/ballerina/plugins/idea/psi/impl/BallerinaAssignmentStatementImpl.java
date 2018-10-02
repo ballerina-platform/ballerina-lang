@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaAssignmentStatementImpl extends BallerinaCompositeElementImpl implements BallerinaAssignmentStatement {
 
-  public BallerinaAssignmentStatementImpl(ASTNode node) {
+  public BallerinaAssignmentStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 

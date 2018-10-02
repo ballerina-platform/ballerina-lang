@@ -40,7 +40,7 @@ import java.nio.file.Paths;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "openFileForWriting",
+        functionName = "openWritableFile",
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "append", type = TypeKind.BOOLEAN)},
         returnType = {

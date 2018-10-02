@@ -4,12 +4,12 @@ io:ReadableCharacterChannel? rch;
 io:WritableCharacterChannel? wch;
 
 function initReadableChannel(string filePath, string encoding) {
-    io:ReadableByteChannel byteChannel = io:openFileForReading(filePath);
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
 }
 
 function initWritableChannel(string filePath, string encoding) {
-    io:WritableByteChannel byteChannel = io:openFileForWriting(filePath);
+    io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
     wch = untaint new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
