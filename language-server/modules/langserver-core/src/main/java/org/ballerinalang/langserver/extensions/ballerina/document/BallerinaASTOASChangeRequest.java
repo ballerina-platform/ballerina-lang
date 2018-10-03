@@ -16,6 +16,12 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
+
+/**
+ * Represents a Ballerina swagger change request.
+ *
+ * @since 0.981.2
+ */
 public class BallerinaASTOASChangeRequest {
 
     private String oasDefinition;

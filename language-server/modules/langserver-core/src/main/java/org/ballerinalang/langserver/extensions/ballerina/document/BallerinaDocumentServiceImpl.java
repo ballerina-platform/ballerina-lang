@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
@@ -32,9 +32,11 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.swagger.utils.GeneratorConstants;
+import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.swagger.CodeGenerator;
 import org.ballerinalang.swagger.model.GenSrcFile;
+import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -49,13 +51,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.List;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
@@ -126,8 +129,41 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     @Override
     public CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request) {
         BallerinaServiceListResponse reply = new BallerinaServiceListResponse();
-        String[] services = {"Testing", "Testing1", "Testing2", "Testing3"};
-        reply.setServices(services);
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Path formattingFilePath = new LSDocument(fileUri).getPath();
+        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+
+        try {
+            String fileContent = documentManager.getFileContent(compilationPath);
+            BallerinaFile ballerinaFile = LSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
+            Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
+            ArrayList<String> services = new ArrayList<String>();
+
+            if (bLangPackage.isPresent() && bLangPackage.get().symbol != null) {
+                BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
+                        .findFirst()
+                        .orElse(null);
+                
+                List<TopLevelNode> servicePkgs = new ArrayList<>();
+                servicePkgs.addAll(compilationUnit.getTopLevelNodes().stream()
+                            .filter(topLevelNode -> topLevelNode instanceof ServiceNode)
+                            .collect(Collectors.toList()));
+
+                servicePkgs.forEach(servicepkg -> {
+                    if (servicepkg instanceof ServiceNode) {
+                        ServiceNode pkg = ((ServiceNode) servicepkg);
+                        services.add(pkg.getName().getValue());
+                    }
+                });
+            }
+            reply.setServices(services.toArray(new String[0]));
+        } catch (LSCompilerException | WorkspaceDocumentException  e) {
+            logger.error("error: while processing service definition at converter service: " + e.getMessage());
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
+
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
