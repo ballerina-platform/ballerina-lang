@@ -1772,8 +1772,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
+            indexExpr.type = symTable.errType;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
-            return symTable.errType;
+            return indexExpr.type;
         }
 
         return checkExpr(indexExpr, this.env, symTable.stringType);
@@ -1827,8 +1828,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
+            indexExpr.type = symTable.errType;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
-            return symTable.errType;
+            return indexExpr.type;
         }
 
         return checkExpr(indexExpr, this.env, symTable.intType);
