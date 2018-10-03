@@ -1,6 +1,7 @@
 ## Package overview
 
-The `ballerina/jms` package provides an API to connect to an external JMS provider like Ballerina Message Broker or ActiveMQ.
+The `ballerina/jms` package provides an API to connect to an external JMS provider like Ballerina Message Broker or
+ActiveMQ.
 
 The package provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
 supported by this package:
@@ -11,12 +12,10 @@ supported by this package:
 - SimpleQueueReceiver
 - SimpleTopicSubscriber
 - SimpleDurableTopicSubscriber
-- QueueReceiver
-- TopicSubscriber
-- DurableTopicSubscriber
-- SimpleQueueReceiver
-- SimpleTopicSubscriber
-- SimpleDurableTopicSubscriber
+- QueueSender
+- TopicPublisher
+- SimpleQueueSender
+- SimpleTopicPublisher
 
 The endpoints prefixed with `Simple` will automatically create a JMS connection and a JMS session when the endpoint is
 initialized. For other endpoints, the developer must explicitly provide a properly initialized JMS Session.

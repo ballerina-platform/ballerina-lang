@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 /**
- * Represents a Ballerina swagger change request.
+ * Represents a Ballerina service list reuqest.
  *
  * @since 0.981.2
  */
-public class BallerinaASTOASChangeRequest {
+public class BallerinaServiceListResponse {
 
-    private String oasDefinition;
+    private String[] services;
 
-    public String getOasDefinition() {
-        return this.oasDefinition;
+    public String[] getServices() {
+        return this.services;
     }
 
-    public void setOasDefinition(String oasDefinition) {
-        this.oasDefinition = oasDefinition;
+    public void setServices(String[] services) {
+        this.services = services;
     }
 
 }

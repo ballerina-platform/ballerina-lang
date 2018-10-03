@@ -66,6 +66,24 @@ export interface BallerinaOASRequest {
     ballerinaService?: string;
 }
 
+export interface BallerinaAstOasChangeRequest {
+    oasDefinition?: string
+}
+
+export interface BallerinaAstOasChangeResponse {
+    oasAST?: string
+}
+
+export interface BallerinaServiceListRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+}
+
+export interface BallerinaServiceListResponse {
+    services: string[];
+}
+
 export class ExtendedLangClient extends LanguageClient {
 
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
@@ -108,5 +126,21 @@ export class ExtendedLangClient extends LanguageClient {
             ballerinaService: oasService
         }
         return this.sendRequest("ballerinaDocument/swaggerDef", req);
+    }
+
+    getBallerinaASTforOas(oasJson: string): Thenable<BallerinaAstOasChangeResponse> {
+        const req: BallerinaAstOasChangeRequest = {
+            oasDefinition: oasJson
+        }
+        return this.sendRequest("ballerinaDocument/astOasChange", req)
+    }
+
+    getServiceListForActiveFile(uri: Uri): Thenable<BallerinaServiceListResponse> {
+        const req: BallerinaServiceListRequest = {
+            documentIdentifier: {
+                uri: uri.toString()
+            },
+        }
+        return this.sendRequest("ballerinaDocument/serviceList", req)
     }
 }

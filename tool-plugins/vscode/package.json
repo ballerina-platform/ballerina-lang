@@ -80,7 +80,8 @@
                     "attach": {
                         "required": [
                             "port",
-                            "host"
+                            "host",
+                            "script"
                         ],
                         "properties": {
                             "host": {
@@ -92,14 +93,18 @@
                                 "type": "integer",
                                 "description": "Remote debug server port",
                                 "default": 5000
+                            },
+                            "script": {
+                                "type": "string",
+                                "default": "${file}"
                             }
                         }
                     },
                     "launch": {
+                        "required": [
+                            "script"
+                        ],
                         "properties": {
-                            "required": [
-                                "script"
-                            ],
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
@@ -132,7 +137,8 @@
         "commands": [
             {
                 "command": "ballerina.showDiagram",
-                "title": "Ballerina: Show Diagram",
+                "title": "Show Diagram",
+                "category": "Ballerina",
                 "icon": {
                     "dark": "./resources/images/icons/design-view-white.svg",
                     "light": "./resources/images/icons/design-view.svg"
@@ -140,11 +146,13 @@
             },
             {
                 "command": "ballerina.showExamples",
-                "title": "Ballerina: Show Examples"
+                "title": "Show Examples",
+                "category": "Ballerina"
             },
             {
                 "command": "ballerina.showAPIEditor",
-                "title": "Ballerina: Show API Editor"
+                "title": "Show API Editor",
+                "category": "Ballerina"
             }
         ],
         "menus": {

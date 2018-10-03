@@ -79,15 +79,17 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 	});
 
 	commands.registerCommand('ballerina.showAPIEditor', () => {
-		oasEditorPanel = window.createWebviewPanel(
-            'ballerinaOASEditor',
-            "Ballerina API Editor",
-            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
-            {
-				enableScripts: true,
-				retainContextWhenHidden: true,
-			}
-		);
+		if(!oasEditorPanel) {
+			oasEditorPanel = window.createWebviewPanel(
+				'ballerinaOASEditor',
+				"Ballerina API Editor",
+				{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+				}
+			);
+		}
 		const editor = window.activeTextEditor;
 		if(!editor) {
             return "";
@@ -98,11 +100,26 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 			handler: (args: any[]) => {
 				return langClient.getBallerinaOASDef(args[0], args[1]);
 			}
+		},{
+			methodName: 'onOasChange',
+			handler: (args: any[]) => {
+				return langClient.getBallerinaASTforOas(args[0]);
+			}
 		}], oasEditorPanel.webview)
-		const html = apiEditorRender(context, langClient, editor.document.uri);
-		if (oasEditorPanel && html) {
-			oasEditorPanel.webview.html = html;
-		}
+
+		langClient.getServiceListForActiveFile(activeEditor.document.uri).then((resp) => {
+			if(resp.services) {
+				window.showQuickPick(resp.services).then((selected) => {
+					if(selected && activeEditor){
+						const html = apiEditorRender(context, langClient, editor.document.uri, selected);
+						if (oasEditorPanel && html) {
+							oasEditorPanel.webview.html = html;
+						}
+					}
+				});
+				
+			}
+		})
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {

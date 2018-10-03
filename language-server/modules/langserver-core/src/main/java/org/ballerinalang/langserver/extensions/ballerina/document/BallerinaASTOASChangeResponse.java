@@ -18,9 +18,23 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 
+/**
+ * Represents a Ballerina swagger change response.
+ *
+ * @since 0.981.2
+ */
 public class BallerinaASTOASChangeResponse {
 
     private JsonElement oasAST;
+    private Boolean isError;
+
+    public Boolean getIsError() {
+        return this.isError;
+    }
+
+    public void isIsError(Boolean isError) {
+        this.isError = isError;
+    }
 
     public JsonElement getOasAST() {
         return this.oasAST;
