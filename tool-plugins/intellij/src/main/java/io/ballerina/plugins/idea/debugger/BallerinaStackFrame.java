@@ -74,16 +74,24 @@ public class BallerinaStackFrame extends XStackFrame {
     @Nullable
     private VirtualFile findFile() {
         String fileName = myFrame.getFileName();
-        // First try to find the matching file locally.
-        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(fileName);
-        if (file != null) {
-            return file;
-        }
-        // If the file is not available locally, we use package path and file path to find the matching file in the
-        // project.
-        String packageName = myFrame.getPackageName();
         Project project = myProcess.getSession().getProject();
         String projectBasePath = project.getBaseDir().getPath();
+
+        // Removes package version.
+        String packageName = myFrame.getPackageName().split(":")[0];
+
+        // If package name is "." , file is in the ballerina project root level
+        if (packageName.equals(".")) {
+            return LocalFileSystem.getInstance().findFileByPath(projectBasePath + File.separator + fileName);
+        } else {
+            File file = searchFile(new File(projectBasePath + File.separator + packageName), fileName);
+            if (file != null) {
+                return LocalFileSystem.getInstance().findFileByPath(file.getAbsolutePath());
+            }
+        }
+
+        // If the file is not available locally, we use package path and file path to find the matching file in the
+        // project.
         // if the package path is ".", full path of the file will be sent as the file name.
         if (".".equals(packageName) && fileName.contains(File.separator)) {
             String filePath = constructFilePath(projectBasePath, "",
@@ -100,8 +108,27 @@ public class BallerinaStackFrame extends XStackFrame {
         }
     }
 
+    private File searchFile(File file, String search) {
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files!=null) {
+                for (File f : files) {
+                    File found = searchFile(f, search);
+                    if (found != null) {
+                        return found;
+                    }
+                }
+            }
+        } else {
+            if (file.getName().equals(search)) {
+                return file;
+            }
+        }
+        return null;
+    }
+
     private String constructFilePath(@NotNull String projectBasePath, @NotNull String packagePath,
-                                     @NotNull String fileName) {
+            @NotNull String fileName) {
         // Remove organization.
         int index = packagePath.indexOf("/");
         if (index != -1) {
@@ -113,8 +140,7 @@ public class BallerinaStackFrame extends XStackFrame {
             packagePath = packagePath.substring(0, index);
         }
         StringBuilder stringBuilder = new StringBuilder(projectBasePath).append(File.separator);
-        stringBuilder = stringBuilder.append(packagePath.replaceAll("\\.", File.separator))
-                .append(File.separator);
+        stringBuilder = stringBuilder.append(packagePath.replaceAll("\\.", File.separator)).append(File.separator);
         stringBuilder = stringBuilder.append(fileName);
         return stringBuilder.toString();
     }
