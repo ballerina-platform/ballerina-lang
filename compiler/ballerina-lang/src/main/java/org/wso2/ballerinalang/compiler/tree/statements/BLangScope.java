@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
 import java.util.Stack;
+import java.util.StringJoiner;
 
 /**
  * Implementation of the Scope block.
@@ -85,5 +86,10 @@ public class BLangScope extends BLangStatement implements ScopeNode {
 
     public void setCompensationFunction(BLangLambdaFunction compensationFunction) {
         this.compensationFunction = compensationFunction;
+    }
+
+    @Override
+    public String toString() {
+        return "scope " + this.name + " {" + this.scopeBody.toString() + "}";
     }
 }

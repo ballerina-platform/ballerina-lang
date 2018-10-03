@@ -325,22 +325,23 @@ public class Instruction {
     public static class InstructionCompensate extends Instruction {
         public String scopeName;
         public ArrayList<String> childScopes = new ArrayList<>();
+        public int retRegIndex;
 
-        InstructionCompensate(int opcode, String scopeName, ArrayList<String> childScopes) {
+        InstructionCompensate(int opcode, String scopeName, ArrayList<String> childScopes, int retRegIndex) {
             super(opcode);
             this.scopeName = scopeName;
             this.childScopes = childScopes;
+            this.retRegIndex = retRegIndex;
         }
 
         @Override
-
         public String toString() {
             StringJoiner sj = new StringJoiner(" ");
             sj.add(String.valueOf(scopeName));
             for (String child : childScopes) {
                 sj.add(child);
             }
-            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+            return Mnemonics.getMnem(opcode) + " " + sj.toString() + " " + retRegIndex;
         }
     }
 

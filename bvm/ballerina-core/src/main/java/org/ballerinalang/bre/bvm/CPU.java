@@ -751,7 +751,9 @@ public class CPU {
                         if (index >= 0 && (table.compensations.get(index).scope.equals(compIn
                                 .scopeName) || compIn.childScopes.contains(table.compensations.get(index).scope))) {
                             CompensationTable.CompensationEntry entry = table.compensations.get(index);
-                            ctx = invokeCompensate(ctx, entry.fPointer, entry.functionInfo, sf);
+
+                            int[] retRegsIndexes = {compIn.retRegIndex};
+                            ctx = invokeCompensate(ctx, entry.fPointer, entry.functionInfo, sf, retRegsIndexes);
                         }
                         if (ctx == null) {
                             return;
@@ -888,11 +890,11 @@ public class CPU {
     }
 
     private static WorkerExecutionContext invokeCompensate(WorkerExecutionContext ctx, BFunctionPointer fp,
-            FunctionInfo functionInfo, WorkerData sf) {
+                                                           FunctionInfo functionInfo, WorkerData sf, int[] retRegs) {
         List<BClosure> closureVars = fp.getClosureVars();
         if (closureVars.isEmpty()) {
-            //compensate functions has no args apart from closure vars, no return as well
-            return BLangFunctions.invokeCallable(functionInfo, ctx, new int[0], new int[1], false);
+            //compensate functions has no args apart from closure vars
+            return BLangFunctions.invokeCallable(functionInfo, ctx, new int[0], retRegs, false);
         }
 
         int[] newArgRegs = new int[closureVars.size()];
@@ -906,38 +908,38 @@ public class CPU {
 
         for (BClosure closure : closureVars) {
             switch (closure.getType().getTag()) {
-            case TypeTags.INT_TAG: {
-                sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
-                newArgRegs[argRegIndex++] = longIndex++;
-                break;
-            }
-            case TypeTags.BYTE_TAG: {
-                sf.intRegs[intIndex] = ((BByte) closure.value()).byteValue();
-                newArgRegs[argRegIndex++] = intIndex++;
-                break;
-            }
-            case TypeTags.FLOAT_TAG: {
-                sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
-                newArgRegs[argRegIndex++] = doubleIndex++;
-                break;
-            }
-            case TypeTags.BOOLEAN_TAG: {
-                sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
-                newArgRegs[argRegIndex++] = intIndex++;
-                break;
-            }
-            case TypeTags.STRING_TAG: {
-                sf.stringRegs[stringIndex] = (closure.value()).stringValue();
-                newArgRegs[argRegIndex++] = stringIndex++;
-                break;
-            }
-            default:
-                sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
-                newArgRegs[argRegIndex++] = refIndex++;
+                case TypeTags.INT_TAG: {
+                    sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
+                    newArgRegs[argRegIndex++] = longIndex++;
+                    break;
+                }
+                case TypeTags.BYTE_TAG: {
+                    sf.intRegs[intIndex] = ((BByte) closure.value()).byteValue();
+                    newArgRegs[argRegIndex++] = intIndex++;
+                    break;
+                }
+                case TypeTags.FLOAT_TAG: {
+                    sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
+                    newArgRegs[argRegIndex++] = doubleIndex++;
+                    break;
+                }
+                case TypeTags.BOOLEAN_TAG: {
+                    sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
+                    newArgRegs[argRegIndex++] = intIndex++;
+                    break;
+                }
+                case TypeTags.STRING_TAG: {
+                    sf.stringRegs[stringIndex] = (closure.value()).stringValue();
+                    newArgRegs[argRegIndex++] = stringIndex++;
+                    break;
+                }
+                default:
+                    sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
+                    newArgRegs[argRegIndex++] = refIndex++;
             }
         }
 
-        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, new int[1], false);
+        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, retRegs, false);
     }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
