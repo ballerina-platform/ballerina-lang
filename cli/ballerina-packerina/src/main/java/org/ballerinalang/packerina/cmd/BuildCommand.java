@@ -138,7 +138,7 @@ public class BuildCommand implements BLauncherCmd {
                     throw LauncherUtils.createLauncherException("did you mean to build the package ? If so build " +
                                                                         "from the project folder");
                 }
-                if (Files.isRegularFile(resolvedFullPath) && !sourcePath.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                     throw LauncherUtils.createLauncherException("only packages and " + BLANG_SRC_FILE_SUFFIX + " " +
                                                                 "files can be used with the 'ballerina build' " +
                                                                         "command.");
