@@ -19,9 +19,9 @@
 package org.ballerinalang.model.types;
 
 
-import org.ballerinalang.model.types.util.Decimal128;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BValue;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
 
 /**
  * {@code BDecimalType} represents decimal type in Ballerina.

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
 
 /**
  * {@code AnnotationAttributeValue} contains the default value of a Ballerina struct field.

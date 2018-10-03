@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
 
 /**
  * The {@code BValueType} represents a value type value in Ballerina.

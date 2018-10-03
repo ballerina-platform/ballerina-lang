@@ -1,4 +1,4 @@
-package org.ballerinalang.model.types.util;
+package org.wso2.ballerinalang.compiler.semantics.model.types.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
