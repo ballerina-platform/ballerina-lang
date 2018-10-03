@@ -57,7 +57,7 @@ function createError (string errMessage) returns error {
 # This function pulls a package from ballerina central.
 #
 # + args - Arguments for pulling a package
-# + return - 1 if package is not found, else 0 if package already exists or successfully pulled.
+# + return - nil if no error occurred, else error.
 public function invokePull (string... args) returns error? {
     string url = args[0];
     string dirPath = args[1];
@@ -101,7 +101,7 @@ public function invokePull (string... args) returns error? {
 # + versionRange - Balo version range
 # + fileSeparator - System file separator
 # + terminalWidth - Width of the terminal
-# + return - Error if occurred
+# + return - Error if occurred, else nil
 function pullPackage(http:Client httpEndpoint, string url, string pkgPath, string dirPath, string versionRange,
                      string fileSeparator, string terminalWidth) returns error? {
     endpoint http:Client centralEndpoint = httpEndpoint;
