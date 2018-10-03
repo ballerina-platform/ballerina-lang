@@ -43,10 +43,10 @@ type BuildLogFormatter object {
     }
 };
 
-# Handle errors when pulling a package. Build command will throw an error while non-build commands will print the error
-# and return 1.
+# Creates an error record.
+
 # + errMessage - The error message.
-# + return - 1 if from non-build commands else an error is thrown.
+# + return - Newly created error record.
 function createError (string errMessage) returns error {
     error endpointError = {
         message: logFormatter.formatLog(errMessage)
