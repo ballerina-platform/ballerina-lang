@@ -63,12 +63,20 @@ public interface WebSocketConnectorFuture {
     void notifyWebSocketListener(WebSocketControlMessage controlMessage) throws WebSocketConnectorException;
 
     /**
-     * Notify incoming WebSocket connection closure for the listener.
+     * Notify WebSocket close message to the user.
      *
      * @param closeMessage {@link WebSocketCloseMessage} to notify incoming WebSocket connection closure
      * @throws WebSocketConnectorException if any error occurred during the notification
      */
     void notifyWebSocketListener(WebSocketCloseMessage closeMessage) throws WebSocketConnectorException;
+
+    /**
+     * Notify incoming WebSocket connection closure for the listener.
+     *
+     * @param webSocketConnection {@link WebSocketConnection} to notify incoming WebSocket connection closure
+     * @throws WebSocketConnectorException if any error occurred during the notification
+     */
+    void notifyWebSocketListener(WebSocketConnection webSocketConnection) throws WebSocketConnectorException;
 
     /**
      * Notify any error occurred in transport for the listener.
