@@ -151,6 +151,9 @@ public class ASTBuilderUtil {
             case TypeTags.FLOAT:
                 opcode = InstructionCodes.F2ANY;
                 break;
+            case TypeTags.DECIMAL:
+                opcode = InstructionCodes.D2ANY;
+                break;
             case TypeTags.STRING:
                 opcode = InstructionCodes.S2ANY;
                 break;

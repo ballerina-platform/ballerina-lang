@@ -1185,6 +1185,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.INT:
             case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.MAP:
@@ -1274,6 +1275,18 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (binaryExpr.rhsExpr.type.tag == TypeTags.FLOAT) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
+                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+            return;
+        }
+
+        if (binaryExpr.lhsExpr.type.tag == TypeTags.DECIMAL) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+            return;
+        }
+
+        if (binaryExpr.rhsExpr.type.tag == TypeTags.DECIMAL) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
@@ -2347,6 +2360,8 @@ public class Desugar extends BLangNodeVisitor {
                 return getIntLiteral(0);
             case TypeTags.FLOAT:
                 return getFloatLiteral(0);
+            case TypeTags.DECIMAL:
+                return getDecimalLiteral(0);
             case TypeTags.BOOLEAN:
                 return getBooleanLiteral(false);
             case TypeTags.STRING:
@@ -2935,6 +2950,14 @@ public class Desugar extends BLangNodeVisitor {
         literal.value = value;
         literal.typeTag = TypeTags.FLOAT;
         literal.type = symTable.floatType;
+        return literal;
+    }
+
+    private BLangLiteral getDecimalLiteral(double value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.DECIMAL;
+        literal.type = symTable.decimalType;
         return literal;
     }
 
