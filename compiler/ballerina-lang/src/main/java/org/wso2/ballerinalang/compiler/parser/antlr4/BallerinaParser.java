@@ -14733,8 +14733,8 @@ public class BallerinaParser extends Parser {
 
 	public static class StreamingInputContext extends ParserRuleContext {
 		public Token alias;
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public VariableReferenceContext variableReference() {
+			return getRuleContext(VariableReferenceContext.class,0);
 		}
 		public List<WhereClauseContext> whereClause() {
 			return getRuleContexts(WhereClauseContext.class);
@@ -14775,7 +14775,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2293);
-			expression(0);
+			variableReference(0);
 			setState(2295);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,259,_ctx) ) {
@@ -18052,12 +18052,12 @@ public class BallerinaParser extends Parser {
 		"\3\2\2\2\u08ef\u08f2\3\2\2\2\u08f0\u08ee\3\2\2\2\u08f0\u08f1\3\2\2\2\u08f1"+
 		"\u0173\3\2\2\2\u08f2\u08f0\3\2\2\2\u08f3\u08f4\5\u00ceh\2\u08f4\u08f5"+
 		"\7\u008c\2\2\u08f5\u08f6\5\u00fe\u0080\2\u08f6\u0175\3\2\2\2\u08f7\u08f9"+
-		"\5\u00fe\u0080\2\u08f8\u08fa\5\u0180\u00c1\2\u08f9\u08f8\3\2\2\2\u08f9"+
-		"\u08fa\3\2\2\2\u08fa\u08fe\3\2\2\2\u08fb\u08fd\5\u00d6l\2\u08fc\u08fb"+
-		"\3\2\2\2\u08fd\u0900\3\2\2\2\u08fe\u08fc\3\2\2\2\u08fe\u08ff\3\2\2\2\u08ff"+
-		"\u0902\3\2\2\2\u0900\u08fe\3\2\2\2\u0901\u0903\5\u0182\u00c2\2\u0902\u0901"+
-		"\3\2\2\2\u0902\u0903\3\2\2\2\u0903\u0907\3\2\2\2\u0904\u0906\5\u00d6l"+
-		"\2\u0905\u0904\3\2\2\2\u0906\u0909\3\2\2\2\u0907\u0905\3\2\2\2\u0907\u0908"+
+		"\5\u00ceh\2\u08f8\u08fa\5\u0180\u00c1\2\u08f9\u08f8\3\2\2\2\u08f9\u08fa"+
+		"\3\2\2\2\u08fa\u08fe\3\2\2\2\u08fb\u08fd\5\u00d6l\2\u08fc\u08fb\3\2\2"+
+		"\2\u08fd\u0900\3\2\2\2\u08fe\u08fc\3\2\2\2\u08fe\u08ff\3\2\2\2\u08ff\u0902"+
+		"\3\2\2\2\u0900\u08fe\3\2\2\2\u0901\u0903\5\u0182\u00c2\2\u0902\u0901\3"+
+		"\2\2\2\u0902\u0903\3\2\2\2\u0903\u0907\3\2\2\2\u0904\u0906\5\u00d6l\2"+
+		"\u0905\u0904\3\2\2\2\u0906\u0909\3\2\2\2\u0907\u0905\3\2\2\2\u0907\u0908"+
 		"\3\2\2\2\u0908\u090b\3\2\2\2\u0909\u0907\3\2\2\2\u090a\u090c\5\u0180\u00c1"+
 		"\2\u090b\u090a\3\2\2\2\u090b\u090c\3\2\2\2\u090c\u090f\3\2\2\2\u090d\u090e"+
 		"\7\4\2\2\u090e\u0910\7\u00be\2\2\u090f\u090d\3\2\2\2\u090f\u0910\3\2\2"+
