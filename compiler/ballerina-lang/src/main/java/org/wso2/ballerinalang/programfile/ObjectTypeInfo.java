@@ -35,8 +35,6 @@ public class ObjectTypeInfo implements TypeInfo {
 
     public BObjectType objectType;
     public List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
-    public List<AttachedFunctionInfo> attachedFuncInfoEntries = new ArrayList<>();
-
     private Map<Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     public ObjectTypeInfo() {

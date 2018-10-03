@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -671,9 +672,9 @@ public class ASTBuilderUtil {
     }
 
     public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
-                                                            Name newName) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName,
-                invokableSymbol.pkgID, invokableSymbol.type, owner, invokableSymbol.bodyExist);
+                                                            Name newName, PackageID newPkgID) {
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
+                invokableSymbol.type, owner, invokableSymbol.bodyExist);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         
@@ -698,7 +699,7 @@ public class ASTBuilderUtil {
         return dupFuncSymbol;
     }
 
-    public static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
+    private static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
         BVarSymbol newParamSymbol =
                 new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID, paramSymbol.type, owner);
         newParamSymbol.tainted = paramSymbol.tainted;

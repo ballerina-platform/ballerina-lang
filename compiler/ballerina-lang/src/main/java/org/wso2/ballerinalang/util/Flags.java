@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.model.elements.Flag;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**

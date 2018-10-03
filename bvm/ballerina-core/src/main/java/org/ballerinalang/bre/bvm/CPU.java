@@ -72,7 +72,6 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.TransactionStatus;
-import org.ballerinalang.util.codegen.AttachedFunctionInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;

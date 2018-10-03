@@ -18,7 +18,7 @@ public type Manager1 object {
 
     *Employee1;
 
-    public function getBonus(float ratio, int months=6) returns float {
+    public function getBonus(float ratio, int months=8) returns float {
         return self.salary*ratio*months;
     }
 

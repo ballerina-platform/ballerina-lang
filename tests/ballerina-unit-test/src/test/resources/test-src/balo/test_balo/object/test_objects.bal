@@ -193,8 +193,8 @@ function Manager2::getName(string greeting = "Hello") returns string {
 }
 
 public function testObjectReferingTypeFromBalo_2() returns (string, float) {
-    Manager2 mgr = new("Jane");
-    return (mgr.getName(), mgr.getBonus(0.1));
+    Manager2 mgr2 = new("Jane");
+    return (mgr2.getName(), mgr2.getBonus(0.1));
 }
 
 // Test referring a type coming from a balo
@@ -221,11 +221,11 @@ type Manager3 object {
     }
 };
 
-function Manager3::getName(string greeting = "Good morning ") returns string {
+function Manager3::getName(string greeting = "Good morning") returns string {
     return greeting + " " + self.name;
 }
 
 public function testObjectReferingTypeFromBalo_3() returns (string, float) {
-    Manager3 mgr = new("Jane");
-    return (mgr.getName(), mgr.getBonus(0.1));
+    Manager3 mgr3 = new("Jane");
+    return (mgr3.getName(), mgr3.getBonus(0.1));
 }

@@ -1330,8 +1330,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // If not, define the function symbol within the object
-        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateInvokableSymbol(function.symbol, typeDef.symbol, funcName);
+        // If not, define the function symbol within the object.
+        // Take a copy of the symbol, with the new name, and the package ID same as the object type.
+        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateInvokableSymbol(function.symbol, typeDef.symbol, funcName,
+                typeDef.symbol.pkgID);
         defineSymbol(typeRef.pos, funcSymbol, objEnv);
 
         // Create and define the parameters and receiver. This should be done after defining the function symbol.

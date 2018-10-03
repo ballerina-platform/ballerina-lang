@@ -36,9 +36,6 @@ public class RecordTypeInfo implements TypeInfo {
     public int restFieldTypeSigCPIndex;
     public BRecordType recordType;
     public List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
-    //TODO remove below when init function is removed
-    public List<AttachedFunctionInfo> attachedFuncInfoEntries = new ArrayList<>();
-
     private Map<Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     public RecordTypeInfo() {

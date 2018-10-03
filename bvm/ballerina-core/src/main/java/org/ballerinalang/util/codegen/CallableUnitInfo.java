@@ -18,6 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -54,6 +55,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public int attachedToTypeCPIndex;
     public BType attachedToType;
+    public BFunctionType funcType;
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
     

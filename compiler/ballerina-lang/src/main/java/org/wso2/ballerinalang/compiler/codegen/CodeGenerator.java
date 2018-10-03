@@ -159,7 +159,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.AnnotationInfo;
-import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
@@ -1098,8 +1097,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
         Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        BLangLiteral sizeLiteral =
-                generateIntegerLiteralNode(bracedOrTupleExpr, (long) bracedOrTupleExpr.expressions.size());
+        BLangLiteral sizeLiteral = generateIntegerLiteralNode(bracedOrTupleExpr, bracedOrTupleExpr.expressions.size());
 
         emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
 
@@ -1381,7 +1379,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangCompensate compensate) {
         Operand jumpAddr = getOperand(nextIP());
         //Add child function refs
-        Stack children = childScopesMap.get(compensate.scopeName.getValue());
+        Stack<String> children = childScopesMap.get(compensate.scopeName.getValue());
 
         int i = 0;
         //scopeName, child count, children
@@ -1392,7 +1390,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         operands[i++] = getOperand(children.size());
         while (children != null && !children.isEmpty()) {
-            String childName = (String) children.pop();
+            String childName = children.pop();
             int childNameCP = currentPkgInfo.addCPEntry(new UTF8CPEntry(childName));
             operands[i++] = getOperand(childNameCP);
         }
@@ -2079,17 +2077,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
-        // Create attached function info entries
-//        for (BAttachedFunction attachedFunc : objectSymbol.attachedFuncs) {
-//            int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
-//
-//            // Remove the first type. The first type is always the type to which the function is attached to
-//            BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
-//            int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
-//                    generateFunctionSig(paramTypes, attachedFunc.type.retType));
-//            int flags = attachedFunc.symbol.flags;
-//            objInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
-//        }
         for (BAttachedFunction attachedFunc : objectSymbol.referencedFunctions) {
             createAttachedFunctionInfo(attachedFunc.funcName, attachedFunc.symbol, objectSymbol);
         }
@@ -2172,19 +2159,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
-
-        // ----- TODO remove below block once record init function removed ------------
-        BAttachedFunction attachedFunc = recordSymbol.initializerFunc;
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
-
-        // Remove the first type. The first type is always the type to which the function is attached to
-        BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
-        int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
-                generateFunctionSig(paramTypes, attachedFunc.type.retType));
-        int flags = attachedFunc.symbol.flags;
-        recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
-        // ------------- end of temp block--------------
-
         typeDefInfo.typeInfo = recordInfo;
     }
 

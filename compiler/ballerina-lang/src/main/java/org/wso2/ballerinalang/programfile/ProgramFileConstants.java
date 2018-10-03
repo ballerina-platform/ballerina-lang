@@ -23,9 +23,9 @@ package org.wso2.ballerinalang.programfile;
 public class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 22;
-    public static final short MIN_SUPPORTED_VERSION = 22;
-    public static final short MAX_SUPPORTED_VERSION = 22;
+    public static final short VERSION_NUMBER = 23;
+    public static final short MIN_SUPPORTED_VERSION = 23;
+    public static final short MAX_SUPPORTED_VERSION = 23;
     public static final int VERSION_BYTE = 6;
 
     // int, float, string, boolean, reference type

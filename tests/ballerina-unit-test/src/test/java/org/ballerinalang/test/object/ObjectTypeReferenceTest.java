@@ -38,7 +38,6 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-negative.bal");
-        System.out.println(negativeResult);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 16,
                 6);

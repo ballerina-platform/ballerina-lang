@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
-import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
@@ -49,10 +48,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -170,8 +167,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -199,7 +194,7 @@ import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
- 
+
 /**
  * @since 0.94
  */
@@ -366,14 +361,6 @@ public class Desugar extends BLangNodeVisitor {
         // Merge the fields defined within the object and the fields that 
         // get inherited via the type references.
         objectTypeNode.fields.addAll(objectTypeNode.referencedFields);
-
-//        for (BAttachedFunction referencedFunc : ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions) {
-//            BInvokableSymbol funcSymbol = referencedFunc.symbol;
-//            if (funcSymbol.receiverSymbol != null) {
-//                funcSymbol.params.add(0, funcSymbol.receiverSymbol);
-//                ((BInvokableType) funcSymbol.type).paramTypes.add(0, funcSymbol.receiverSymbol.type);
-//            }
-//        }
 
         if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
             result = objectTypeNode;

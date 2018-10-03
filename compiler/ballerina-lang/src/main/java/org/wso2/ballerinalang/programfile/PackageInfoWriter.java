@@ -600,13 +600,6 @@ public class PackageInfoWriter {
         writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
     }
 
-    private static void writeAttachedFunctionInfo(DataOutputStream dataOutStream,
-                                                  AttachedFunctionInfo attachedFuncInfo) throws IOException {
-        dataOutStream.writeInt(attachedFuncInfo.nameCPIndex);
-        dataOutStream.writeInt(attachedFuncInfo.signatureCPIndex);
-        dataOutStream.writeInt(attachedFuncInfo.flags);
-    }
-
     private static void writeLocalVariableInfo(DataOutputStream dataOutStream,
                                                LocalVariableInfo localVariableInfo) throws IOException {
         dataOutStream.writeInt(localVariableInfo.varNameCPIndex);

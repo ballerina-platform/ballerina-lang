@@ -529,17 +529,13 @@ public class ObjectInBaloTest {
     @Test
     public void testObjectReferingTypeFromBalo_1() {
         BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBalo_1");
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.length, 2);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BFloat.class);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
-        Assert.assertEquals(returns[1].stringValue(), "John from outer function");
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 2500.0);
-        Assert.assertEquals(returns[3].stringValue(), "HR");
+        Assert.assertEquals(returns[0].stringValue(), "Hello John");
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 800.0);
     }
 
     @Test
@@ -548,6 +544,16 @@ public class ObjectInBaloTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "Hello Jane");
+        Assert.assertSame(returns[1].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
+    }
+
+    @Test
+    public void testObjectReferingTypeFromBalo_3() {
+        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBalo_3");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Good morning Jane");
         Assert.assertSame(returns[1].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
     }

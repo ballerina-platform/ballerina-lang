@@ -88,6 +88,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 import org.wso2.ballerinalang.compiler.TypeCreater;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
@@ -337,12 +338,14 @@ public class PackageInfoReader {
         // Read resource info entries.
         readResourceInfoEntries(packageInfo);
 
-
         // Read global var info entries
         readGlobalVarInfoEntries(packageInfo);
 
         // Read function info entries in the package
         readFunctionInfoEntries(packageInfo);
+
+        // Attach the function to the respective types
+        setAttachedFunctions(packageInfo);
 
         // TODO Read annotation info entries
 
@@ -678,7 +681,7 @@ public class PackageInfoReader {
             functionInfo.attachedToTypeCPIndex = dataInStream.readInt();
             TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(functionInfo.attachedToTypeCPIndex);
             functionInfo.attachedToType = typeRefCPEntry.getType();
-            uniqueFuncName = AttachedFunctionInfo.getUniqueFuncName(typeRefCPEntry.getType().getName(), funcName);
+            uniqueFuncName = Symbols.getAttachedFuncSymbolName(typeRefCPEntry.getType().getName(), funcName);
             updateAttachFunctionInfo(packageInfo, typeRefCPEntry.getType(), funcName, functionInfo);
         } else {
             uniqueFuncName = funcName;
@@ -704,19 +707,28 @@ public class PackageInfoReader {
 
     private void readWorkerData(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
         int workerDataLength = dataInStream.readInt();
-        if (workerDataLength > 0) {
-            int workerDataChannelsLength = dataInStream.readShort();
-            for (int i = 0; i < workerDataChannelsLength; i++) {
-                readWorkerDataChannelEntries(packageInfo, callableUnitInfo);
-            }
-
-            // Read worker info entries
-            readWorkerInfoEntries(packageInfo, callableUnitInfo);
+        if (workerDataLength == 0) {
+            return;
         }
+
+        int workerDataChannelsLength = dataInStream.readShort();
+        for (int i = 0; i < workerDataChannelsLength; i++) {
+            readWorkerDataChannelEntries(packageInfo, callableUnitInfo);
+        }
+
+        // Read worker info entries
+        readWorkerInfoEntries(packageInfo, callableUnitInfo);
     }
 
-    private void updateAttachFunctionInfo(PackageInfo packageInfo, BType attachedType, String funcName, FunctionInfo functionInfo)
-            throws IOException {
+    private void updateAttachFunctionInfo(PackageInfo packageInfo, BType attachedType, String funcName,
+                                          FunctionInfo functionInfo) throws IOException {
+        // Append the receiver type to the parameter types. This is done because in the VM,
+        // first parameter will always be the attached type. These param types will be used
+        // to allocate worker local data.
+        // This is the only place where we append the receiver to the params.
+        List<BType> paramTypes = Lists.asList(functionInfo.attachedToType, functionInfo.getParamTypes());
+        functionInfo.setParamTypes(paramTypes.toArray(new BType[paramTypes.size()]));
+
         if (attachedType.getTag() != TypeTags.OBJECT_TYPE_TAG && attachedType.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
         }
@@ -736,13 +748,6 @@ public class PackageInfoReader {
         if (objectInit.equals(funcName)) {
             typeInfo.initializer = functionInfo;
         }
-
-        // Append the receiver type to the parameter types. This is done because in the VM,
-        // first parameter will always be the attached type. These param types will be used
-        // to allocate worker local data.
-        // This is the only place where we append the receiver to the params.
-        List<BType> paramTypes = Lists.asList(functionInfo.attachedToType, functionInfo.getParamTypes());
-        functionInfo.setParamTypes(paramTypes.toArray(new BType[paramTypes.size()]));
     }
 
     public void readWorkerDataChannelEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo)
@@ -764,9 +769,9 @@ public class PackageInfoReader {
     }
 
     private void setCallableUnitSignature(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, String sig) {
-        BFunctionType funcType = getFunctionType(packageInfo, sig);
-        callableUnitInfo.setParamTypes(funcType.paramTypes);
-        callableUnitInfo.setRetParamTypes(funcType.retParamTypes);
+        callableUnitInfo.funcType = getFunctionType(packageInfo, sig);
+        callableUnitInfo.setParamTypes(callableUnitInfo.funcType.paramTypes);
+        callableUnitInfo.setRetParamTypes(callableUnitInfo.funcType.retParamTypes);
     }
 
     private BFunctionType getFunctionType(PackageInfo packageInfo, String sig) {
@@ -1576,25 +1581,6 @@ public class PackageInfoReader {
                     structInfo.typeInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             structType.setFieldTypeCount(attributeInfo.getVarTypeCount());
             structType.setFields(structFields);
-
-            // Resolve attached function signature
-            if (structureTypeInfo.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
-                    || structureTypeInfo.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-                int attachedFuncCount = structureTypeInfo.funcInfoEntries.size();
-                BAttachedFunction[] attachedFunctions = new BAttachedFunction[attachedFuncCount];
-                int count = 0;
-                for (FunctionInfo attachedFuncInfo : structureTypeInfo.funcInfoEntries.values()) {
-                    BFunctionType funcType = getFunctionType(packageInfo, attachedFuncInfo.signature);
-
-                    BAttachedFunction attachedFunction = new BAttachedFunction(
-                            attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
-                    attachedFunctions[count++] = attachedFunction;
-                    if (structureTypeInfo.initializer == attachedFuncInfo) {
-                        structureTypeInfo.getType().initializer = attachedFunction;
-                    }
-                }
-                structureTypeInfo.getType().setAttachedFunctions(attachedFunctions);
-            }
         }
 
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
@@ -1608,6 +1594,35 @@ public class PackageInfoReader {
                 default:
                     break;
             }
+        }
+    }
+
+    private void setAttachedFunctions(PackageInfo packageInfo) {
+        TypeDefInfo[] structInfoEntries = packageInfo.getTypeDefInfoEntries();
+        for (TypeDefInfo structInfo : structInfoEntries) {
+            if (structInfo.typeTag == TypeTags.FINITE_TYPE_TAG) {
+                continue;
+            }
+            StructureTypeInfo structureTypeInfo = (StructureTypeInfo) structInfo.typeInfo;
+            BStructureType structType = structureTypeInfo.getType();
+
+            // Resolve attached function signature
+            if (structType.getTag() != TypeTags.OBJECT_TYPE_TAG && structType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+                continue;
+            }
+
+            int attachedFuncCount = structureTypeInfo.funcInfoEntries.size();
+            BAttachedFunction[] attachedFunctions = new BAttachedFunction[attachedFuncCount];
+            int count = 0;
+            for (FunctionInfo attachedFuncInfo : structureTypeInfo.funcInfoEntries.values()) {
+                BAttachedFunction attachedFunction =
+                        new BAttachedFunction(attachedFuncInfo.name, attachedFuncInfo.funcType, attachedFuncInfo.flags);
+                attachedFunctions[count++] = attachedFunction;
+                if (structureTypeInfo.initializer == attachedFuncInfo) {
+                    structureTypeInfo.getType().initializer = attachedFunction;
+                }
+            }
+            structureTypeInfo.getType().setAttachedFunctions(attachedFunctions);
         }
     }
 

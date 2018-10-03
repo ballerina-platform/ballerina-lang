@@ -466,14 +466,9 @@ public class CompiledPackageSymbolEnter {
         BObjectType type = new BObjectType(symbol);
         symbol.type = type;
 
-
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
-
-        // Define Object attached functions
-//        defineSymbols(dataInStream, rethrow(dataInputStream ->
-//                defineObjectAttachedFunction(dataInStream, symbol, type)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -499,11 +494,6 @@ public class CompiledPackageSymbolEnter {
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
-
-//        // TODO remove once record init function is removed
-//        // Define record attached functions
-//        defineSymbols(dataInStream, rethrow(dataInputStream ->
-//                defineObjectAttachedFunction(dataInStream, symbol, type)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -617,33 +607,6 @@ public class CompiledPackageSymbolEnter {
         setDocumentation(varSymbol, attrData);
 
         this.env.unresolvedTypes.add(unresolvedFieldType);
-    }
-
-    private void defineObjectAttachedFunction(DataInputStream dataInStream,
-                                              BTypeSymbol objectSymbol,
-                                              BStructureType objectType) throws IOException {
-        // Consider attached functions.. remove the first variable
-        String funcName = getUTF8CPEntryValue(dataInStream);
-        String typeSig = getUTF8CPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
-
-        Name attachedFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(objectSymbol.name.value, funcName));
-        BInvokableType funcType = createInvokableType(typeSig);
-        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, attachedFuncName,
-                this.env.pkgSymbol.pkgID, funcType, objectSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-
-//        List<BType> params = new ArrayList<>();
-//        params.addAll(funcType.paramTypes);
-//        // remove first parameter
-//        params.remove(0);
-//        funcType.paramTypes = params;
-
-        BAttachedFunction attachedFunc = new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
-        BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) objectSymbol;
-        structureTypeSymbol.attachedFuncs.add(attachedFunc);
-        if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName) || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-            structureTypeSymbol.initializerFunc = attachedFunc;
-        }
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
