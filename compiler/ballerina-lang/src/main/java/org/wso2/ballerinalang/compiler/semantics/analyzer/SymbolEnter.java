@@ -1205,6 +1205,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 && funcNode.receiver.type.tag != TypeTags.STRING
                 && funcNode.receiver.type.tag != TypeTags.INT
                 && funcNode.receiver.type.tag != TypeTags.FLOAT
+                && funcNode.receiver.type.tag != TypeTags.DECIMAL
                 && funcNode.receiver.type.tag != TypeTags.JSON
                 && funcNode.receiver.type.tag != TypeTags.XML
                 && funcNode.receiver.type.tag != TypeTags.MAP

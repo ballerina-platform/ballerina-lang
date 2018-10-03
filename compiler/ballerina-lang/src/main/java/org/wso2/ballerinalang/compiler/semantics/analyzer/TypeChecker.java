@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -243,6 +244,17 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             literalType = symTable.byteType;
             literalExpr.value = ((Long) literalValue).byteValue();
+        }
+
+        if (TypeTags.FLOAT == literalType.tag && literalValue instanceof String) {
+            // Check whether this belongs to decimal type or float type
+            if (TypeTags.DECIMAL == expType.tag) {
+                literalType = symTable.decimalType;
+                literalExpr.value = new Decimal128((String) literalValue);
+            } else if (TypeTags.FLOAT == expType.tag) {
+                literalType = symTable.floatType;
+                literalExpr.value = Double.parseDouble((String) literalValue);
+            }
         }
 
         // check whether this is a byte array
@@ -672,6 +684,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.INT:
             case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
             case TypeTags.XML:
                 checkFunctionInvocationExpr(iExpr, varRefType);
                 break;
