@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.util.codegen;
 
+import com.google.common.collect.Lists;
+
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
@@ -461,31 +463,6 @@ public class PackageInfoReader {
             readAttributeInfoEntries(packageInfo, packageInfo, fieldInfo);
         }
 
-//        String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
-//
-//        // Read attached function info entries
-//        int attachedFuncCount = dataInStream.readShort();
-//        for (int j = 0; j < attachedFuncCount; j++) {
-//            // Read function name
-//            int nameCPIndex = dataInStream.readInt();
-//            UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
-//            String attachedFuncName = nameUTF8Entry.getValue();
-//
-//            // Read function type signature
-//            int typeSigCPIndex = dataInStream.readInt();
-//            UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
-//
-//            int funcFlags = dataInStream.readInt();
-//            AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
-//                    typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
-//            objectInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
-//
-//            // Setting the object initializer
-//            if (objectInit.equals(attachedFuncName)) {
-//                objectInfo.initializer = functionInfo;
-//            }
-//        }
-
         // Read attributes of the struct info
         readAttributeInfoEntries(packageInfo, packageInfo, objectInfo);
         typeDefInfo.typeInfo = objectInfo;
@@ -529,32 +506,6 @@ public class PackageInfoReader {
 
             readAttributeInfoEntries(packageInfo, packageInfo, fieldInfo);
         }
-
-//        String defaultInit = typeDefInfo.name + INIT_FUNCTION_SUFFIX;
-//
-//        // Read attached function info entries
-//        int attachedFuncCount = dataInStream.readShort();
-//        for (int j = 0; j < attachedFuncCount; j++) {
-//            // Read function name
-//            int nameCPIndex = dataInStream.readInt();
-//            UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
-//            String attachedFuncName = nameUTF8Entry.getValue();
-//
-//            // Read function type signature
-//            int typeSigCPIndex = dataInStream.readInt();
-//            UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
-//
-//            int funcFlags = dataInStream.readInt();
-//            AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
-//                    typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
-//            recordInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
-//
-//            // TODO remove when removing struct
-//            // Setting the default initializer function info
-//            if (defaultInit.equals(attachedFuncName)) {
-//                recordInfo.initializer = functionInfo;
-//            }
-//        }
 
         // Read attributes of the struct info
         readAttributeInfoEntries(packageInfo, packageInfo, recordInfo);
@@ -634,15 +585,8 @@ public class PackageInfoReader {
                 resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
                 resourceInfo.setParamNames(paramNames);
 
-                // Read and ignore the workerData length
-                dataInStream.readInt();
-                int workerDataChannelsLength = dataInStream.readShort();
-                for (int i = 0; i < workerDataChannelsLength; i++) {
-                    readWorkerDataChannelEntries(packageInfo, resourceInfo);
-                }
-
                 // Read worker info entries
-                readWorkerInfoEntries(packageInfo, resourceInfo);
+                readWorkerData(packageInfo, resourceInfo);
 
                 // Read attributes of the struct info
                 readAttributeInfoEntries(packageInfo, packageInfo, resourceInfo);
@@ -742,15 +686,7 @@ public class PackageInfoReader {
 
         packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
 
-        // Read and ignore the workerData length
-        dataInStream.readInt();
-        int workerDataChannelsLength = dataInStream.readShort();
-        for (int i = 0; i < workerDataChannelsLength; i++) {
-            readWorkerDataChannelEntries(packageInfo, functionInfo);
-        }
-
-        // Read worker info entries
-        readWorkerInfoEntries(packageInfo, functionInfo);
+        readWorkerData(packageInfo, functionInfo);
 
         if (nativeFunc) {
             NativeCallableUnit nativeFunction = NativeUnitLoader.getInstance().loadNativeFunction(
@@ -764,6 +700,19 @@ public class PackageInfoReader {
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, packageInfo, functionInfo);
+    }
+
+    private void readWorkerData(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
+        int workerDataLength = dataInStream.readInt();
+        if (workerDataLength > 0) {
+            int workerDataChannelsLength = dataInStream.readShort();
+            for (int i = 0; i < workerDataChannelsLength; i++) {
+                readWorkerDataChannelEntries(packageInfo, callableUnitInfo);
+            }
+
+            // Read worker info entries
+            readWorkerInfoEntries(packageInfo, callableUnitInfo);
+        }
     }
 
     private void updateAttachFunctionInfo(PackageInfo packageInfo, BType attachedType, String funcName, FunctionInfo functionInfo)
@@ -787,6 +736,13 @@ public class PackageInfoReader {
         if (objectInit.equals(funcName)) {
             typeInfo.initializer = functionInfo;
         }
+
+        // Append the receiver type to the parameter types. This is done because in the VM,
+        // first parameter will always be the attached type. These param types will be used
+        // to allocate worker local data.
+        // This is the only place where we append the receiver to the params.
+        List<BType> paramTypes = Lists.asList(functionInfo.attachedToType, functionInfo.getParamTypes());
+        functionInfo.setParamTypes(paramTypes.toArray(new BType[paramTypes.size()]));
     }
 
     public void readWorkerDataChannelEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo)
@@ -831,8 +787,8 @@ public class PackageInfoReader {
         return typeStack.toArray(new BType[0]);
     }
 
-    private void readWorkerInfoEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
-
+    private void readWorkerInfoEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo)
+            throws IOException {
         int workerCount = dataInStream.readShort();
         // First worker is always the default worker.
         WorkerInfo defaultWorker = getWorkerInfo(packageInfo);

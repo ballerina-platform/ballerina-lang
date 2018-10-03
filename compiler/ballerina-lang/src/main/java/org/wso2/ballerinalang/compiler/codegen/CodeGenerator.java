@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -215,7 +216,6 @@ import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -234,7 +234,6 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.LOCAL;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.PACKAGE;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
@@ -1694,6 +1693,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,
                                           LocalVariableAttributeInfo localVarAttrInfo) {
 
+        // Visit the the receiver if this is an attached function
+        if (invokableSymbol.receiverSymbol != null) {
+            visitVarSymbol(invokableSymbol.receiverSymbol, lvIndexes, localVarAttrInfo);
+        }
+
         // TODO Read param and return param annotations
         invokableSymbol.params.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
         invokableSymbol.defaultableParams.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
@@ -2108,7 +2112,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         funcInfo.flags = funcSymbol.flags;
         funcInfo.attachedToTypeCPIndex = getTypeCPIndex(objectSymbol.type).value;
 
-        this.addWorkerInfoEntries(funcInfo, new ArrayList<>());
+        // Add local var attributes. This will not be added automatically since this attached
+        // function doesn't have a body, and wont get visited in the normal flow.
+        int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
+        LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
+        visitInvokableNodeParams(funcSymbol, funcInfo, localVarAttributeInfo);
 
         // Add parameter default value info
         addParameterAttributeInfo(funcSymbol, funcInfo);
@@ -3682,13 +3690,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETERS_ATTRIBUTE.value());
         ParameterAttributeInfo paramAttrInfo =
                 new ParameterAttributeInfo(paramAttrIndex);
-
         paramAttrInfo.requiredParamsCount = funcSymbol.params.size();
-        // Remove the receiver if the this is a attached function
-        if (Symbols.isFlagOn(funcSymbol.flags, Flags.ATTACHED)) {
-            paramAttrInfo.requiredParamsCount--;
-        }
-
         paramAttrInfo.defaultableParamsCount = funcSymbol.defaultableParams.size();
         paramAttrInfo.restParamCount = funcSymbol.restParam != null ? 1 : 0;
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE, paramAttrInfo);

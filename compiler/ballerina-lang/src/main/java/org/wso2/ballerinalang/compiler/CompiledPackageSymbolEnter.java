@@ -361,17 +361,9 @@ public class CompiledPackageSymbolEnter {
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
             BType attachedType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
 
-//            // Update the symbol by:
-//            //     1) Appending the type name in front of the function name
-//            //     2) Removing the first parameter from the param list
-//            invokableSymbol = Symbols.createFunctionSymbol(flags,
-//                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName)),
-//                    this.env.pkgSymbol.pkgID, null, attachedType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+            // Update the symbol by appending the type name in front of the function name
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
-            // remove first parameter
-            funcType.paramTypes.remove(0);
-
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 BAttachedFunction attachedFunc =
@@ -387,16 +379,16 @@ public class CompiledPackageSymbolEnter {
 
         // Read and ignore worker data
         int noOfWorkerDataBytes = dataInStream.readInt();
-        byte[] workerData = new byte[noOfWorkerDataBytes];
-        int bytesRead = dataInStream.read(workerData);
-        if (bytesRead != noOfWorkerDataBytes) {
-            // TODO throw an error
+        if (noOfWorkerDataBytes > 0) {
+            byte[] workerData = new byte[noOfWorkerDataBytes];
+            int bytesRead = dataInStream.read(workerData);
+            if (bytesRead != noOfWorkerDataBytes) {
+                // TODO throw an error
+            }
         }
 
         // Read attributes
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-
-        // TODO create function symbol and define..
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, attrDataMap);
@@ -508,10 +500,10 @@ public class CompiledPackageSymbolEnter {
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
 
-        // TODO remove once record init function is removed
-        // Define record attached functions
-        defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectAttachedFunction(dataInStream, symbol, type)));
+//        // TODO remove once record init function is removed
+//        // Define record attached functions
+//        defineSymbols(dataInStream, rethrow(dataInputStream ->
+//                defineObjectAttachedFunction(dataInStream, symbol, type)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);

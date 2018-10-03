@@ -464,14 +464,6 @@ public class Desugar extends BLangNodeVisitor {
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
-
-        // If the function has a receiver, we rewrite it's parameter list to have
-        // the struct variable as the first parameter
-        if (funcNode.receiver != null) {
-            dupFuncSymbol.params.add(0, funcNode.receiver.symbol);
-            dupFuncType.paramTypes.add(0, funcNode.receiver.type);
-        }
-
         result = funcNode;
     }
 
@@ -2981,6 +2973,7 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.symbol = Symbols.createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName,
                 env.enclPkg.symbol.pkgID, initFunction.type, env.scope.owner, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
+        initFunction.symbol.receiverSymbol = receiverSymbol;
 
         // Set the taint information to the constructed init function
         initFunction.symbol.taintTable = new HashMap<>();
