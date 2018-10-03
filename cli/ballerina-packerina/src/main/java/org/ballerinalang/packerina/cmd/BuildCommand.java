@@ -138,6 +138,11 @@ public class BuildCommand implements BLauncherCmd {
                     throw LauncherUtils.createLauncherException("did you mean to build the package ? If so build " +
                                                                         "from the project folder");
                 }
+                if (Files.isRegularFile(resolvedFullPath) && !sourcePath.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                    throw LauncherUtils.createLauncherException("only packages and " + BLANG_SRC_FILE_SUFFIX + " " +
+                                                                "files can be used with the 'ballerina build' " +
+                                                                        "command.");
+                }
                 // If we are trying to run a bal file inside a package from a project directory an error is thrown.
                 // To differentiate between top level bals and bals inside packages we need to check if the parent of
                 // the sourcePath given is null. If it is null then its a top level bal else its a bal inside a package

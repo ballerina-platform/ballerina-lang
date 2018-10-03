@@ -106,6 +106,11 @@ public class LauncherUtils {
                                               "folder or use --sourceroot to specify the project path and run the " +
                                               "package");
             }
+            if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                throw createLauncherException("only packages, " + BLANG_SRC_FILE_SUFFIX + " and " +
+                                                      BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
+                                                      "'ballerina run' command.");
+            }
             // If we are trying to run a bal file inside a package from inside a project directory an error is thrown.
             // To differentiate between top level bals and bals inside packages we need to check if the parent of the
             // sourcePath given is null. If it is null then its a top level bal else its a bal inside a package
