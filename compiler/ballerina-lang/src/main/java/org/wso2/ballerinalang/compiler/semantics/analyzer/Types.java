@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -41,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -145,7 +145,7 @@ public class Types {
                            BType expType,
                            DiagnosticCode diagCode) {
         expr.type = checkType(expr.pos, actualType, expType, diagCode);
-        if (expr.type.tag == TypeTags.ERROR) {
+        if (expr.type.tag == TypeTags.SEMANTIC_ERROR) {
             return expr.type;
         }
 
@@ -159,11 +159,11 @@ public class Types {
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
-        if (expType.tag == TypeTags.ERROR) {
+        if (expType.tag == TypeTags.SEMANTIC_ERROR) {
             return expType;
         } else if (expType.tag == TypeTags.NONE) {
             return actualType;
-        } else if (actualType.tag == TypeTags.ERROR) {
+        } else if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
             return actualType;
         } else if (isAssignable(actualType, expType)) {
             return actualType;
@@ -171,7 +171,7 @@ public class Types {
 
         // e.g. incompatible types: expected 'int', found 'string'
         dlog.error(pos, diagCode, expType, actualType);
-        return symTable.errType;
+        return symTable.semanticError;
     }
 
     public boolean isSameType(BType source, BType target) {
@@ -540,14 +540,14 @@ public class Types {
                     errorTypes = Lists.of(symTable.stringType, symTable.anyType);
                 }
                 break;
-            case TypeTags.ERROR:
-                return Collections.nCopies(variableSize, symTable.errType);
+            case TypeTags.SEMANTIC_ERROR:
+                return Collections.nCopies(variableSize, symTable.semanticError);
             default:
                 dlog.error(collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, collectionType);
-                return Collections.nCopies(variableSize, symTable.errType);
+                return Collections.nCopies(variableSize, symTable.semanticError);
         }
         dlog.error(collection.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, collectionType);
-        errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.errType));
+        errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.semanticError));
         return errorTypes;
     }
 
@@ -591,8 +591,7 @@ public class Types {
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
-        if (sourceType.tag == TypeTags.ERROR ||
-                targetType.tag == TypeTags.ERROR ||
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
@@ -1007,7 +1006,7 @@ public class Types {
         }
 
         @Override
-        public BSymbol visit(BErrorType t, BType s) {
+        public BSymbol visit(BSemanticErrorType t, BType s) {
             // TODO Implement. Not needed for now.
             throw new AssertionError();
         }
@@ -1154,7 +1153,7 @@ public class Types {
         }
 
         @Override
-        public Boolean visit(BErrorType t, BType s) {
+        public Boolean visit(BSemanticErrorType t, BType s) {
             return true;
         }
 

@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -40,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -105,7 +105,7 @@ public class SymbolTable {
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
 
     public final BTypeSymbol errSymbol;
-    public final BType errType;
+    public final BType semanticError;
 
     public BRecordType errStructType;
 
@@ -152,10 +152,10 @@ public class SymbolTable {
         initializeType(channelType, TypeKind.CHANNEL.typeName());
 
         // Initialize error type;
-        this.errType = new BErrorType(null);
-        this.errSymbol = new BTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.INVALID,
-                rootPkgSymbol.pkgID, errType, rootPkgSymbol);
-        defineType(errType, errSymbol);
+        this.semanticError = new BSemanticErrorType(null);
+        this.errSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID,
+                semanticError, rootPkgSymbol);
+        defineType(semanticError, errSymbol);
 
         // Initialize Ballerina error struct type temporally.
         BTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
@@ -194,7 +194,7 @@ public class SymbolTable {
             case TypeTags.NIL:
                 return nilType;
             default:
-                return errType;
+                return semanticError;
         }
     }
 

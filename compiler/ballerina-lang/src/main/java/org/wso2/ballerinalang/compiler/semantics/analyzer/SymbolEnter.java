@@ -973,7 +973,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add it to the enclosing scope
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            varSymbol.type = symTable.errType;
+            varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
@@ -1005,7 +1005,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Add it to the enclosing scope
         // Find duplicates
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            varSymbol.type = symTable.errType;
+            varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
@@ -1197,7 +1197,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver.type == null) {
             funcNode.receiver.type = symResolver.resolveTypeNode(funcNode.receiver.typeNode, env);
         }
-        if (funcNode.receiver.type.tag == TypeTags.ERROR) {
+        if (funcNode.receiver.type.tag == TypeTags.SEMANTIC_ERROR) {
             return true;
         }
 

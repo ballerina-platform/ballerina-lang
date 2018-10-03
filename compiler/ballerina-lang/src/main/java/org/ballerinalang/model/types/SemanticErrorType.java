@@ -15,23 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerinalang.compiler.semantics.model.types;
-
-import org.ballerinalang.model.types.ErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
+package org.ballerinalang.model.types;
 
 /**
  * @since 0.94
  */
-public class BErrorType extends BType implements ErrorType {
-
-    public BErrorType(BTypeSymbol tSymbol) {
-        super(TypeTags.ERROR, tSymbol);
-    }
-
-    @Override
-    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-        return visitor.visit(this, t);
-    }
+public interface SemanticErrorType extends Type {
 }

@@ -278,7 +278,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
-        if (expType.tag == symTable.errType.tag) {
+        if (expType.tag == symTable.semanticError.tag) {
             return;
         }
         BType tableConstraint = ((BTableType) expType).getConstraint();
@@ -292,7 +292,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void validateTableColumns(BType tableConstraint, BLangTableLiteral tableLiteral) {
-        if (tableConstraint.tag != TypeTags.ERROR) {
+        if (tableConstraint.tag != TypeTags.SEMANTIC_ERROR) {
             List<String> columnNames = new ArrayList<>();
             for (BField field : ((BRecordType) tableConstraint).fields) {
                 columnNames.add(field.getName().getValue());
@@ -310,11 +310,11 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangArrayLiteral arrayLiteral) {
         // Check whether the expected type is an array type
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
 
         if (expType.tag == TypeTags.ANY) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -331,13 +331,13 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != arrayLiteral.exprs.size()) {
                 dlog.error(arrayLiteral.pos,
                         DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, arrayLiteral.exprs.size());
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 return;
             }
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
             actualType = arrayType;
 
-        } else if (expTypeTag != TypeTags.ERROR) {
+        } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
             List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);
             Set<BType> arrayLitExprTypeSet = new HashSet<>(resTypes);
             BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
@@ -375,7 +375,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
         int expTypeTag = expType.tag;
         BType originalExpType = expType;
         if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.ANY) {
@@ -386,7 +386,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 || (expTypeTag == TypeTags.MAP && recordLiteral.keyValuePairs.isEmpty())
                 || expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -463,14 +463,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangSimpleVarRef varRefExpr) {
         // Set error type as the actual type.
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
 
         Name varName = names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
             if (varRefExpr.lhsVar) {
                 varRefExpr.type = this.symTable.noType;
             } else {
-                varRefExpr.type = this.symTable.errType;
+                varRefExpr.type = this.symTable.semanticError;
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
             }
             varRefExpr.symbol = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, actualType, env.scope.owner);
@@ -583,7 +583,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // error lifting on lhs is not supported
         if (fieldAccessExpr.lhsVar && fieldAccessExpr.safeNavigate) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ERROR_LIFTING_ON_LHS);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -694,16 +694,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 // allow map function for both constrained / un constrained maps
                 checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
                 break;
-            case TypeTags.ERROR:
+            case TypeTags.SEMANTIC_ERROR:
                 break;
             case TypeTags.INTERMEDIATE_COLLECTION:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION_WITH_NAME, iExpr.name,
                         iExpr.expr.type);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 break;
         }
 
@@ -718,7 +718,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if ((expType.tag == TypeTags.ANY && cIExpr.userDefinedType == null)
                 || expType.tag == TypeTags.RECORD) {
             dlog.error(cIExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
         BType actualType;
@@ -728,22 +728,22 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = expType;
         }
 
-        if (actualType == symTable.errType) {
+        if (actualType == symTable.semanticError) {
             //TODO dlog error?
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
         if (actualType.tag != TypeTags.OBJECT) {
             dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
         if ((actualType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
             dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT, actualType.tsymbol);
             cIExpr.objectInitInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -755,7 +755,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // pass any arguments.
             dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.objectInitInvocation.exprSymbol);
             cIExpr.objectInitInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -767,14 +767,15 @@ public class TypeChecker extends BLangNodeVisitor {
         BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
         BType thenType = checkExpr(ternaryExpr.thenExpr, env, expType);
         BType elseType = checkExpr(ternaryExpr.elseExpr, env, expType);
-        if (condExprType == symTable.errType || thenType == symTable.errType || elseType == symTable.errType) {
-            resultType = symTable.errType;
+        if (condExprType == symTable.semanticError || thenType == symTable.semanticError
+                || elseType == symTable.semanticError) {
+            resultType = symTable.semanticError;
         } else if (expType == symTable.noType) {
             if (thenType == elseType) {
                 resultType = thenType;
             } else {
                 dlog.error(ternaryExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, thenType, elseType);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
             }
         } else {
             resultType = expType;
@@ -784,8 +785,8 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangAwaitExpr awaitExpr) {
         BType actualType;
         BType expType = checkExpr(awaitExpr.expr, env, this.symTable.noType);
-        if (expType == symTable.errType) {
-            actualType = symTable.errType;
+        if (expType == symTable.semanticError) {
+            actualType = symTable.semanticError;
         } else if (expType.tag == TypeTags.FUTURE) {
             actualType = ((BFutureType) expType).constraint;
         } else {
@@ -800,10 +801,10 @@ public class TypeChecker extends BLangNodeVisitor {
         BType rhsType = checkExpr(binaryExpr.rhsExpr, env);
 
         // Set error type as the actual type.
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
 
         // Look up operator symbol if both rhs and lhs types are error types
-        if (lhsType != symTable.errType && rhsType != symTable.errType) {
+        if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
             if (opSymbol == symTable.notFoundSymbol) {
@@ -844,8 +845,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangElvisExpr elvisExpr) {
         BType lhsType = checkExpr(elvisExpr.lhsExpr, env);
-        BType actualType = symTable.errType;
-        if (lhsType != symTable.errType) {
+        BType actualType = symTable.semanticError;
+        if (lhsType != symTable.semanticError) {
             if (lhsType.tag == TypeTags.UNION && lhsType.isNullable()) {
                 BUnionType unionType = (BUnionType) lhsType;
                 HashSet<BType> memberTypes = new HashSet<BType>();
@@ -871,14 +872,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType rhsReturnType = checkExpr(elvisExpr.rhsExpr, env, expType);
         BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, actualType, expType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
-        if (rhsReturnType == symTable.errType || lhsReturnType == symTable.errType) {
-            resultType = symTable.errType;
+        if (rhsReturnType == symTable.semanticError || lhsReturnType == symTable.semanticError) {
+            resultType = symTable.semanticError;
         } else if (expType == symTable.noType) {
             if (types.isSameType(rhsReturnType, lhsReturnType)) {
                 resultType = lhsReturnType;
             } else {
                 dlog.error(elvisExpr.rhsExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsReturnType, rhsReturnType);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
             }
         } else {
             resultType = expType;
@@ -938,7 +939,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (expType.tag == TypeTags.ANY) {
                 dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 return;
             }
 
@@ -969,15 +970,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangUnaryExpr unaryExpr) {
         BType exprType;
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
         if (OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
             exprType = checkExpr(unaryExpr.expr, env);
-            if (exprType != symTable.errType) {
+            if (exprType != symTable.semanticError) {
                 actualType = exprType;
             }
         } else {
             exprType = checkExpr(unaryExpr.expr, env);
-            if (exprType != symTable.errType) {
+            if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
                     dlog.error(unaryExpr.pos, DiagnosticCode.UNARY_OP_INCOMPATIBLE_TYPES,
@@ -994,7 +995,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
         // Set error type as the actual type.
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         conversionExpr.targetType = targetType;
@@ -1027,7 +1028,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         if (expType.tag != TypeTags.INVOKABLE) {
             dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -1059,7 +1060,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             dlog.error(bLangXMLQName.pos, DiagnosticCode.INVALID_NAMESPACE_PREFIX, prefix);
-            bLangXMLQName.type = symTable.errType;
+            bLangXMLQName.type = symTable.semanticError;
             return;
         }
 
@@ -1070,7 +1071,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (!prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
             dlog.error(bLangXMLQName.pos, DiagnosticCode.UNDEFINED_SYMBOL, prefix);
-            bLangXMLQName.type = symTable.errType;
+            bLangXMLQName.type = symTable.semanticError;
             return;
         }
         bLangXMLQName.namespaceURI = ((BXMLNSSymbol) xmlnsSymbol).namespaceURI;
@@ -1146,7 +1147,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
 
         // First analyze the variable reference expression.
         checkExpr(xmlAttributeAccessExpr.expr, env, symTable.xmlType);
@@ -1187,12 +1188,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
         int expTypeTag = expType.tag;
 
         if (expTypeTag == TypeTags.TABLE) {
             actualType = expType;
-        } else if (expTypeTag != TypeTags.ERROR) {
+        } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
             dlog.error(tableQueryExpression.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, expType);
         }
 
@@ -1299,8 +1300,8 @@ public class TypeChecker extends BLangNodeVisitor {
         Set<BType> matchExprTypes = getMatchExpressionTypes(bLangMatchExpression);
 
         BType actualType;
-        if (matchExprTypes.contains(symTable.errType)) {
-            actualType = symTable.errType;
+        if (matchExprTypes.contains(symTable.semanticError)) {
+            actualType = symTable.semanticError;
         } else if (matchExprTypes.size() == 1) {
             actualType = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
         } else {
@@ -1319,7 +1320,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else {
                 dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
             }
-            checkedExpr.type = symTable.errType;
+            checkedExpr.type = symTable.semanticError;
             return;
         }
 
@@ -1334,7 +1335,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkedExpr.equivalentErrorTypeList.size() == 0) {
             // No member types in this union is equivalent to the error type
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
-            checkedExpr.type = symTable.errType;
+            checkedExpr.type = symTable.semanticError;
             return;
         }
 
@@ -1343,7 +1344,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // All member types in the union are equivalent to the error type.
             // Checked expression requires at least one type which is not equivalent to the error type.
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
-            checkedExpr.type = symTable.errType;
+            checkedExpr.type = symTable.semanticError;
             return;
         }
 
@@ -1370,8 +1371,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (paramTypes.size() != bLangArrowFunction.params.size()) {
             dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH,
                     paramTypes.size(), bLangArrowFunction.params.size());
-            resultType = symTable.errType;
-            bLangArrowFunction.params.forEach(param -> param.type = symTable.errType);
+            resultType = symTable.semanticError;
+            bLangArrowFunction.params.forEach(param -> param.type = symTable.semanticError);
             return;
         }
 
@@ -1394,7 +1395,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public List<BType> getListWithErrorTypes(int count) {
         List<BType> list = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            list.add(symTable.errType);
+            list.add(symTable.semanticError);
         }
 
         return list;
@@ -1423,7 +1424,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
         if (funcSymbol.tag == SymTag.VARIABLE) {
@@ -1448,7 +1449,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     structType.tsymbol);
             if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 return;
             }
             if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
@@ -1476,7 +1477,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 funcName, SymTag.FUNCTION);
         if (funcSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
         iExpr.symbol = funcSymbol;
@@ -1554,7 +1555,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, int requiredParamsCount,
                                       BLangExpression vararg) {
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
         BInvokableSymbol invocableSymbol = (BInvokableSymbol) iExpr.symbol;
 
         // Check whether the expected param count and the actual args counts are matching.
@@ -1626,8 +1627,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
-        BType actualType = symTable.errType;
-        if (conType == symTable.errType || conType.tag != TypeTags.OBJECT
+        BType actualType = symTable.semanticError;
+        if (conType == symTable.semanticError || conType.tag != TypeTags.OBJECT
                 || iExpr.expr.symbol.tag != SymTag.ENDPOINT) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
@@ -1671,7 +1672,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
-        BType fieldType = symTable.errType;
+        BType fieldType = symTable.semanticError;
         BLangExpression valueExpr = keyValuePair.valueExpr;
         switch (recType.tag) {
             case TypeTags.RECORD:
@@ -1716,7 +1717,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             // keys of the struct literal can only be a varRef (identifier)
             dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
-            return symTable.errType;
+            return symTable.semanticError;
         }
 
         // Check whether the struct field exists
@@ -1726,7 +1727,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (((BRecordType) recordType).sealed) {
                 dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
                         recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
-                return symTable.errType;
+                return symTable.semanticError;
             }
 
             return ((BRecordType) recordType).restFieldType;
@@ -1739,12 +1740,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BJSONType type = (BJSONType) recordType;
 
         // If the JSON is constrained with a struct, get the field type from the struct
-        if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.ERROR) {
+        if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.SEMANTIC_ERROR) {
             return checkStructLiteralKeyExpr(key, type.constraint);
         }
 
         if (checkRecLiteralKeyExpr(key.expr, recKind).tag != TypeTags.STRING) {
-            return symTable.errType;
+            return symTable.semanticError;
         }
 
         // If the JSON is not constrained, field type is always JSON.
@@ -1753,7 +1754,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkMapLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
         if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
-            return symTable.errType;
+            return symTable.semanticError;
         }
 
         return ((BMapType) recordType).constraint;
@@ -1773,7 +1774,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
-            return symTable.errType;
+            return symTable.semanticError;
         }
 
         return checkExpr(indexExpr, this.env, symTable.stringType);
@@ -1797,7 +1798,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldSymbol == symTable.notFoundSymbol) {
                 dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
                         structType.tsymbol.type.getKind().typeName(), structType.tsymbol);
-                return symTable.errType;
+                return symTable.semanticError;
             }
 
             // Setting the field symbol. This is used during the code generation phase
@@ -1809,7 +1810,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (((BRecordType) structType).sealed) {
             dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
                     structType.tsymbol.type.getKind().typeName(), structType.tsymbol);
-            return symTable.errType;
+            return symTable.semanticError;
         }
 
         return ((BRecordType) structType).restFieldType;
@@ -1820,7 +1821,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (indexValue < 0 || tupleTypes.size() <= indexValue) {
             dlog.error(indexBasedAccessExpr.pos,
                     DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tupleTypes.size());
-            return symTable.errType;
+            return symTable.semanticError;
         }
         return tupleTypes.get(indexValue);
     }
@@ -1828,7 +1829,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
-            return symTable.errType;
+            return symTable.semanticError;
         }
 
         return checkExpr(indexExpr, this.env, symTable.intType);
@@ -1869,7 +1870,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, expr.type);
-            if (opSymbol == symTable.notFoundSymbol && expr.type != symTable.errType) {
+            if (opSymbol == symTable.notFoundSymbol && expr.type != symTable.semanticError) {
                 dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
             }
 
@@ -1902,7 +1903,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, exprType);
-            if (opSymbol == symTable.notFoundSymbol && exprType != symTable.errType) {
+            if (opSymbol == symTable.notFoundSymbol && exprType != symTable.semanticError) {
                 dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.xmlType, exprType);
             }
 
@@ -1931,7 +1932,7 @@ public class TypeChecker extends BLangNodeVisitor {
             binaryExpressionNode.type = opSymbol.type.getReturnType();
             binaryExpressionNode.opSymbol = (BOperatorSymbol) opSymbol;
         } else {
-            binaryExpressionNode.type = symTable.errType;
+            binaryExpressionNode.type = symTable.semanticError;
         }
 
         types.checkType(binaryExpressionNode, binaryExpressionNode.type, symTable.stringType);
@@ -1968,8 +1969,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType parentType = accessExpr.expr.type;
-        if (accessExpr.safeNavigate && (parentType.tag == TypeTags.ERROR || (parentType.tag == TypeTags.UNION &&
-                ((BUnionType) parentType).memberTypes.contains(symTable.errStructType)))) {
+        if (accessExpr.safeNavigate && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
+                && ((BUnionType) parentType).memberTypes.contains(symTable.errStructType)))) {
             unionType.memberTypes.add(symTable.errStructType);
         }
 
@@ -2009,7 +2010,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
@@ -2044,7 +2045,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 actualType = symTable.xmlType;
                 break;
-            case TypeTags.ERROR:
+        case TypeTags.SEMANTIC_ERROR:
                 // Do nothing
                 break;
             default:
@@ -2057,7 +2058,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr, BType varRefType) {
         BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
-        BType actualType = symTable.errType;
+        BType actualType = symTable.semanticError;
         BType indexExprType;
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
@@ -2127,7 +2128,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = checkTupleFieldType(indexBasedAccessExpr, varRefType, indexValue);
                 }
                 break;
-            case TypeTags.ERROR:
+            case TypeTags.SEMANTIC_ERROR:
                 // Do nothing
                 break;
             default:
@@ -2141,7 +2142,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
         if (accessExpr.safeNavigate && type == symTable.errStructType) {
             dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-            return symTable.errType;
+            return symTable.semanticError;
         }
 
         if (type.tag != TypeTags.UNION) {
@@ -2156,7 +2157,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (accessExpr.safeNavigate) {
             if (!varRefMemberTypes.contains(symTable.errStructType)) {
                 dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-                return symTable.errType;
+                return symTable.semanticError;
             }
 
             lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
@@ -2165,7 +2166,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (lhsTypes.isEmpty()) {
                 dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-                return symTable.errType;
+                return symTable.semanticError;
             }
         } else {
             lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
@@ -2200,8 +2201,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 // Type of the pattern expression, becomes one of the types of the whole but expression
                 matchExprTypes.addAll(getTypesList(patternExprType));
 
-                if (type.tag == TypeTags.ERROR || patternExprType.tag == TypeTags.ERROR) {
-                    return new HashSet<>(Lists.of(symTable.errType));
+                if (type.tag == TypeTags.SEMANTIC_ERROR || patternExprType.tag == TypeTags.SEMANTIC_ERROR) {
+                    return new HashSet<>(Lists.of(symTable.semanticError));
                 }
 
                 assignable = this.types.isAssignable(type, pattern.variable.type);

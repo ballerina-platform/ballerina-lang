@@ -39,7 +39,7 @@ public class SymTag {
     public static final int IMPORT = 1 << 13;
     public static final int PACKAGE = 1 << 14 | IMPORT;
     public static final int XMLNS = 1 << 15 | IMPORT;
-    public static final int ERROR = 1 << 16;
+    public static final int SEMANTIC_ERROR = 1 << 16;
     public static final int ENDPOINT = 1 << 17 | VARIABLE;
     public static final int OBJECT = 1 << 18 | TYPE | VARIABLE_NAME | STRUCT;
     public static final int RECORD = 1 << 19 | TYPE | VARIABLE_NAME | STRUCT;

@@ -693,7 +693,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (type.tag == TypeTags.TABLE) {
             if (constraintType.tag == TypeTags.OBJECT) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.OBJECT_TYPE_NOT_ALLOWED);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 return;
             }
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
@@ -707,19 +707,19 @@ public class SymbolResolver extends BLangNodeVisitor {
             // only the simpleTypes, json and xml are allowed as channel data type.
             if (constraintType.tag > TypeTags.XML || constraintType.tag == TypeTags.TYPEDESC) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 return;
             }
             resultType = new BChannelType(TypeTags.CHANNEL, constraintType, type.tsymbol);
         } else {
-            if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
+            if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.semanticError) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 return;
             }
             if (constraintType.tag == TypeTags.RECORD && !((BRecordType) constraintType).sealed) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.OPEN_RECORD_CONSTRAINT_NOT_ALLOWED, type);
-                resultType = symTable.errType;
+                resultType = symTable.semanticError;
                 return;
             }
             resultType = new BJSONType(TypeTags.JSON, constraintType, type.tsymbol);
@@ -736,7 +736,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BSymbol pkgSymbol = resolvePkgSymbol(userDefinedTypeNode.pos, this.env,
                 names.fromIdNode(userDefinedTypeNode.pkgAlias));
         if (pkgSymbol == symTable.notFoundSymbol) {
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -764,7 +764,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
             dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
-            resultType = symTable.errType;
+            resultType = symTable.semanticError;
             return;
         }
 

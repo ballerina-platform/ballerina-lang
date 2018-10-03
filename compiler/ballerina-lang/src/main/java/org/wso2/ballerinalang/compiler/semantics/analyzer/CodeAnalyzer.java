@@ -495,7 +495,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             boolean assignable = false;
             for (BLangMatchStmtPatternClause pattern : matchStmt.patternClauses) {
                 BType patternType = pattern.variable.type;
-                if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
+                if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
                     return;
                 }
 
@@ -858,7 +858,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
 
-        if (indexAccessExpr.indexExpr.type == null || indexAccessExpr.indexExpr.type.tag == TypeTags.ERROR) {
+        if (indexAccessExpr.indexExpr.type == null || indexAccessExpr.indexExpr.type.tag == TypeTags.SEMANTIC_ERROR) {
             return;
         }
 
@@ -1078,7 +1078,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             boolean assignable = false;
             for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
                 BType patternType = pattern.variable.type;
-                if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
+                if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
                     return;
                 }
 
