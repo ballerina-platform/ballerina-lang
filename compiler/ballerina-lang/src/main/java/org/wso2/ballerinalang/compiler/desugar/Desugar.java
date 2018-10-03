@@ -1052,9 +1052,6 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // Local variable in a function/resource/action/worker
             genVarRefExpr = new BLangLocalVarRef((BVarSymbol) varRefExpr.symbol);
-        } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
-            // Field variable in a receiver
-            genVarRefExpr = new BLangFieldVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
             genVarRefExpr = new BLangFieldVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
