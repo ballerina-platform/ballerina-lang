@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection, QuickPickItem } from 'vscode';
+import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection } from 'vscode';
 import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
@@ -79,15 +79,17 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 	});
 
 	commands.registerCommand('ballerina.showAPIEditor', () => {
-		oasEditorPanel = window.createWebviewPanel(
-            'ballerinaOASEditor',
-            "Ballerina API Editor",
-            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
-            {
-				enableScripts: true,
-				retainContextWhenHidden: true,
-			}
-		);
+		if(!oasEditorPanel) {
+			oasEditorPanel = window.createWebviewPanel(
+				'ballerinaOASEditor',
+				"Ballerina API Editor",
+				{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+				}
+			);
+		}
 		const editor = window.activeTextEditor;
 		if(!editor) {
             return "";
@@ -104,24 +106,20 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 				return langClient.getBallerinaASTforOas(args[0]);
 			}
 		}], oasEditorPanel.webview)
-		const html = apiEditorRender(context, langClient, editor.document.uri);
-		if (oasEditorPanel && html) {
-			oasEditorPanel.webview.html = html;
-		}
-	});
 
-	commands.registerCommand('ballerina.showAPIEditorForService', ()=> {
-		const editor = window.activeTextEditor;
-		if(!editor) {
-			return "";
-		}
-		activeEditor = editor;
-
-		langClient.getAST(activeEditor.document.uri).then((resp)=>{
-			console.log(resp);
-			//window.showQuickPick(resp);
+		langClient.getServiceListForActiveFile(activeEditor.document.uri).then((resp) => {
+			if(resp.services) {
+				window.showQuickPick(resp.services).then((selected) => {
+					if(selected && activeEditor){
+						const html = apiEditorRender(context, langClient, editor.document.uri, selected);
+						if (oasEditorPanel && html) {
+							oasEditorPanel.webview.html = html;
+						}
+					}
+				});
+				
+			}
 		})
-		
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
