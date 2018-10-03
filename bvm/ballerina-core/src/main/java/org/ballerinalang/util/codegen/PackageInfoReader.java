@@ -461,30 +461,30 @@ public class PackageInfoReader {
             readAttributeInfoEntries(packageInfo, packageInfo, fieldInfo);
         }
 
-        String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
-
-        // Read attached function info entries
-        int attachedFuncCount = dataInStream.readShort();
-        for (int j = 0; j < attachedFuncCount; j++) {
-            // Read function name
-            int nameCPIndex = dataInStream.readInt();
-            UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
-            String attachedFuncName = nameUTF8Entry.getValue();
-
-            // Read function type signature
-            int typeSigCPIndex = dataInStream.readInt();
-            UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
-
-            int funcFlags = dataInStream.readInt();
-            AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
-                    typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
-            objectInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
-
-            // Setting the object initializer
-            if (objectInit.equals(attachedFuncName)) {
-                objectInfo.initializer = functionInfo;
-            }
-        }
+//        String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
+//
+//        // Read attached function info entries
+//        int attachedFuncCount = dataInStream.readShort();
+//        for (int j = 0; j < attachedFuncCount; j++) {
+//            // Read function name
+//            int nameCPIndex = dataInStream.readInt();
+//            UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
+//            String attachedFuncName = nameUTF8Entry.getValue();
+//
+//            // Read function type signature
+//            int typeSigCPIndex = dataInStream.readInt();
+//            UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
+//
+//            int funcFlags = dataInStream.readInt();
+//            AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
+//                    typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
+//            objectInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
+//
+//            // Setting the object initializer
+//            if (objectInit.equals(attachedFuncName)) {
+//                objectInfo.initializer = functionInfo;
+//            }
+//        }
 
         // Read attributes of the struct info
         readAttributeInfoEntries(packageInfo, packageInfo, objectInfo);
@@ -530,31 +530,31 @@ public class PackageInfoReader {
             readAttributeInfoEntries(packageInfo, packageInfo, fieldInfo);
         }
 
-        String defaultInit = typeDefInfo.name + INIT_FUNCTION_SUFFIX;
-
-        // Read attached function info entries
-        int attachedFuncCount = dataInStream.readShort();
-        for (int j = 0; j < attachedFuncCount; j++) {
-            // Read function name
-            int nameCPIndex = dataInStream.readInt();
-            UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
-            String attachedFuncName = nameUTF8Entry.getValue();
-
-            // Read function type signature
-            int typeSigCPIndex = dataInStream.readInt();
-            UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
-
-            int funcFlags = dataInStream.readInt();
-            AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
-                    typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
-            recordInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
-
-            // TODO remove when removing struct
-            // Setting the default initializer function info
-            if (defaultInit.equals(attachedFuncName)) {
-                recordInfo.initializer = functionInfo;
-            }
-        }
+//        String defaultInit = typeDefInfo.name + INIT_FUNCTION_SUFFIX;
+//
+//        // Read attached function info entries
+//        int attachedFuncCount = dataInStream.readShort();
+//        for (int j = 0; j < attachedFuncCount; j++) {
+//            // Read function name
+//            int nameCPIndex = dataInStream.readInt();
+//            UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
+//            String attachedFuncName = nameUTF8Entry.getValue();
+//
+//            // Read function type signature
+//            int typeSigCPIndex = dataInStream.readInt();
+//            UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
+//
+//            int funcFlags = dataInStream.readInt();
+//            AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
+//                    typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
+//            recordInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
+//
+//            // TODO remove when removing struct
+//            // Setting the default initializer function info
+//            if (defaultInit.equals(attachedFuncName)) {
+//                recordInfo.initializer = functionInfo;
+//            }
+//        }
 
         // Read attributes of the struct info
         readAttributeInfoEntries(packageInfo, packageInfo, recordInfo);
@@ -723,38 +723,24 @@ public class PackageInfoReader {
         UTF8CPEntry funcSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(funcSigCPIndex);
         setCallableUnitSignature(packageInfo, functionInfo, funcSigUTF8Entry.getValue());
 
-        int flags = dataInStream.readInt();
-        boolean nativeFunc = Flags.isFlagOn(flags, Flags.NATIVE);
+        functionInfo.flags = dataInStream.readInt();
+        boolean nativeFunc = Flags.isFlagOn(functionInfo.flags, Flags.NATIVE);
         functionInfo.setNative(nativeFunc);
-
-        functionInfo.setPublic(Flags.isFlagOn(flags, Flags.PUBLIC));
+        functionInfo.setPublic(Flags.isFlagOn(functionInfo.flags, Flags.PUBLIC));
 
         String uniqueFuncName;
-        boolean attached = Flags.isFlagOn(flags, Flags.ATTACHED);
+        boolean attached = Flags.isFlagOn(functionInfo.flags, Flags.ATTACHED);
         if (attached) {
-            int attachedToTypeCPIndex = dataInStream.readInt();
-            functionInfo.attachedToTypeCPIndex = attachedToTypeCPIndex;
-            TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(attachedToTypeCPIndex);
+            functionInfo.attachedToTypeCPIndex = dataInStream.readInt();
+            TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(functionInfo.attachedToTypeCPIndex);
             functionInfo.attachedToType = typeRefCPEntry.getType();
             uniqueFuncName = AttachedFunctionInfo.getUniqueFuncName(typeRefCPEntry.getType().getName(), funcName);
-            packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
-
-            //Update the attachedFunctionInfo
-            if (typeRefCPEntry.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                BObjectType structType = (BObjectType) typeRefCPEntry.getType();
-                AttachedFunctionInfo attachedFuncInfo = ((ObjectTypeInfo) structType
-                        .getTypeInfo()).funcInfoEntries.get(funcName);
-                attachedFuncInfo.functionInfo = functionInfo;
-            } else if (typeRefCPEntry.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-                BRecordType structType = (BRecordType) typeRefCPEntry.getType();
-                AttachedFunctionInfo attachedFuncInfo = ((RecordTypeInfo) structType
-                        .getTypeInfo()).funcInfoEntries.get(funcName);
-                attachedFuncInfo.functionInfo = functionInfo;
-            }
+            updateAttachFunctionInfo(packageInfo, typeRefCPEntry.getType(), funcName, functionInfo);
         } else {
             uniqueFuncName = funcName;
-            packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
         }
+
+        packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
 
         // Read and ignore the workerData length
         dataInStream.readInt();
@@ -778,6 +764,29 @@ public class PackageInfoReader {
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, packageInfo, functionInfo);
+    }
+
+    private void updateAttachFunctionInfo(PackageInfo packageInfo, BType attachedType, String funcName, FunctionInfo functionInfo)
+            throws IOException {
+        if (attachedType.getTag() != TypeTags.OBJECT_TYPE_TAG && attachedType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+            return;
+        }
+
+        //Update the attachedFunctionInfo
+        String objectInit;
+        BStructureType structType = (BStructureType) attachedType;
+        if (attachedType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
+        } else {
+            objectInit = structType.getName() + INIT_FUNCTION_SUFFIX;
+        }
+
+        StructureTypeInfo typeInfo = (StructureTypeInfo) structType.getTypeInfo();
+        typeInfo.funcInfoEntries.put(funcName, functionInfo);
+        // Setting the object initializer
+        if (objectInit.equals(funcName)) {
+            typeInfo.initializer = functionInfo;
+        }
     }
 
     public void readWorkerDataChannelEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo)
@@ -1618,8 +1627,8 @@ public class PackageInfoReader {
                 int attachedFuncCount = structureTypeInfo.funcInfoEntries.size();
                 BAttachedFunction[] attachedFunctions = new BAttachedFunction[attachedFuncCount];
                 int count = 0;
-                for (AttachedFunctionInfo attachedFuncInfo : structureTypeInfo.funcInfoEntries.values()) {
-                    BFunctionType funcType = getFunctionType(packageInfo, attachedFuncInfo.typeSignature);
+                for (FunctionInfo attachedFuncInfo : structureTypeInfo.funcInfoEntries.values()) {
+                    BFunctionType funcType = getFunctionType(packageInfo, attachedFuncInfo.signature);
 
                     BAttachedFunction attachedFunction = new BAttachedFunction(
                             attachedFuncInfo.name, funcType, attachedFuncInfo.flags);

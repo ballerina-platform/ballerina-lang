@@ -522,11 +522,10 @@ public class CPU {
 
                         StructureTypeInfo structInfo = (ObjectTypeInfo) ((BStructureType)
                                 structVal.getType()).getTypeInfo();
-                        AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries
+                        FunctionInfo attachedFuncInfo = structInfo.funcInfoEntries
                                 .get(funcRefCPEntry.getFunctionInfo().getName());
-                        FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
 
-                        BFunctionPointer fPointer = new BFunctionPointer(concreteFuncInfo, typeEntry.getType());
+                        BFunctionPointer fPointer = new BFunctionPointer(attachedFuncInfo, typeEntry.getType());
                         sf.refRegs[j] = fPointer;
                         findAndAddAdditionalVarRegIndexes(ctx, operands, fPointer);
                         break;
@@ -2687,9 +2686,8 @@ public class CPU {
 
         // TODO use ObjectTypeInfo once record init function is removed
         StructureTypeInfo structInfo = (StructureTypeInfo) ((BStructureType) structVal.getType()).getTypeInfo();
-        AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
-        FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
-        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
+        FunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
+        return BLangFunctions.invokeCallable(attachedFuncInfo, ctx, argRegs, retRegs, false, flags);
     }
 
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,

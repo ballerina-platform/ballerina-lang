@@ -332,10 +332,10 @@ public class PackageInfoWriter {
         }
 
         // Write attached function info entries
-        dataOutStream.writeShort(objectInfo.attachedFuncInfoEntries.size());
-        for (AttachedFunctionInfo attachedFuncInfo : objectInfo.attachedFuncInfoEntries) {
-            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
-        }
+//        dataOutStream.writeShort(objectInfo.attachedFuncInfoEntries.size());
+//        for (AttachedFunctionInfo attachedFuncInfo : objectInfo.attachedFuncInfoEntries) {
+//            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
+//        }
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, objectInfo.getAttributeInfoEntries());

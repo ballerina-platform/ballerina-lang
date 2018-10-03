@@ -351,7 +351,7 @@ public class CompiledPackageSymbolEnter {
         BInvokableType funcType = createInvokableType(funcSig);
 
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
-                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+                this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
@@ -361,17 +361,16 @@ public class CompiledPackageSymbolEnter {
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
             BType attachedType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
 
-            // Update the symbol by:
-            //     1) Appending the type name in front of the function name
-            //     2) Removing the first parameter from the param list
-            invokableSymbol = Symbols.createFunctionSymbol(flags,
-                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName)),
-                    this.env.pkgSymbol.pkgID, null, attachedType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-            List<BType> params = new ArrayList<>();
-            params.addAll(funcType.paramTypes);
+//            // Update the symbol by:
+//            //     1) Appending the type name in front of the function name
+//            //     2) Removing the first parameter from the param list
+//            invokableSymbol = Symbols.createFunctionSymbol(flags,
+//                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName)),
+//                    this.env.pkgSymbol.pkgID, null, attachedType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+            invokableSymbol.name =
+                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             // remove first parameter
-            params.remove(0);
-            funcType.paramTypes = params;
+            funcType.paramTypes.remove(0);
 
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
@@ -398,8 +397,6 @@ public class CompiledPackageSymbolEnter {
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
         // TODO create function symbol and define..
-
-        invokableSymbol.type = funcType;
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, attrDataMap);
@@ -483,8 +480,8 @@ public class CompiledPackageSymbolEnter {
                 defineStructureField(dataInStream, symbol, type)));
 
         // Define Object attached functions
-        defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectAttachedFunction(dataInStream)));
+//        defineSymbols(dataInStream, rethrow(dataInputStream ->
+//                defineObjectAttachedFunction(dataInStream, symbol, type)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -514,7 +511,7 @@ public class CompiledPackageSymbolEnter {
         // TODO remove once record init function is removed
         // Define record attached functions
         defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectAttachedFunction(dataInStream)));
+                defineObjectAttachedFunction(dataInStream, symbol, type)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -630,11 +627,31 @@ public class CompiledPackageSymbolEnter {
         this.env.unresolvedTypes.add(unresolvedFieldType);
     }
 
-    private void defineObjectAttachedFunction(DataInputStream dataInStream) throws IOException {
+    private void defineObjectAttachedFunction(DataInputStream dataInStream,
+                                              BTypeSymbol objectSymbol,
+                                              BStructureType objectType) throws IOException {
         // Consider attached functions.. remove the first variable
-        getUTF8CPEntryValue(dataInStream);
-        getUTF8CPEntryValue(dataInStream);
-        dataInStream.readInt();
+        String funcName = getUTF8CPEntryValue(dataInStream);
+        String typeSig = getUTF8CPEntryValue(dataInStream);
+        int flags = dataInStream.readInt();
+
+        Name attachedFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(objectSymbol.name.value, funcName));
+        BInvokableType funcType = createInvokableType(typeSig);
+        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, attachedFuncName,
+                this.env.pkgSymbol.pkgID, funcType, objectSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+
+//        List<BType> params = new ArrayList<>();
+//        params.addAll(funcType.paramTypes);
+//        // remove first parameter
+//        params.remove(0);
+//        funcType.paramTypes = params;
+
+        BAttachedFunction attachedFunc = new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
+        BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) objectSymbol;
+        structureTypeSymbol.attachedFuncs.add(attachedFunc);
+        if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName) || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
+            structureTypeSymbol.initializerFunc = attachedFunc;
+        }
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {

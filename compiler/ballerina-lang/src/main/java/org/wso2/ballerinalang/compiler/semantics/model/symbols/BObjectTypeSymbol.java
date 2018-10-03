@@ -34,7 +34,7 @@ import java.util.List;
 public class BObjectTypeSymbol extends BStructureTypeSymbol {
 
     // This is a cache of the functions referred through the type references
-    public List<BInvokableSymbol> referencedFunctions;
+    public List<BAttachedFunction> referencedFunctions;
 
     public BObjectTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type,
             BSymbol owner) {

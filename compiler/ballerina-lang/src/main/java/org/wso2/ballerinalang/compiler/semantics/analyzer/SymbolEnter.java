@@ -330,7 +330,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineNode(typeDef, env);
         }
         if (typeDefs.size() <= unresolvedTypes.size()) {
-            dlog.error(typeDefs.get(0).pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, unresolvedTypes);
+            dlog.error(typeDefs.get(0).pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+                    unresolvedTypes.stream().map(type -> type.name).collect(Collectors.toList()));
             // Create and define dummy symbols and continue. This done to keep the remaining compiler
             // phases running, and to make the semantic validations happen properly.
             unresolvedTypes.forEach(type -> createDummyTypeDefSymbol(type, env));
@@ -1347,6 +1348,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAttachedFunction attachedFunc =
                 new BAttachedFunction(function.funcName, funcSymbol, (BInvokableType) funcSymbol.type);
         ((BObjectTypeSymbol) typeDef.symbol).attachedFuncs.add(attachedFunc);
-        ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(funcSymbol);
+        ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(attachedFunc);
     }
 }

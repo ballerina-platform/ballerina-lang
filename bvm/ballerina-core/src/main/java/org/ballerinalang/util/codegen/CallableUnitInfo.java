@@ -40,6 +40,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     protected String name;
     protected boolean isNative;
     private boolean isPublic;
+    public int flags;
 
     // Index to the PackageCPEntry
     protected int pkgCPIndex;

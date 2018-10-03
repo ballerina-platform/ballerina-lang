@@ -363,6 +363,18 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        // Merge the fields defined within the object and the fields that 
+        // get inherited via the type references.
+        objectTypeNode.fields.addAll(objectTypeNode.referencedFields);
+
+//        for (BAttachedFunction referencedFunc : ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions) {
+//            BInvokableSymbol funcSymbol = referencedFunc.symbol;
+//            if (funcSymbol.receiverSymbol != null) {
+//                funcSymbol.params.add(0, funcSymbol.receiverSymbol);
+//                ((BInvokableType) funcSymbol.type).paramTypes.add(0, funcSymbol.receiverSymbol.type);
+//            }
+//        }
+
         if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
             result = objectTypeNode;
             return;
@@ -385,16 +397,6 @@ public class Desugar extends BLangNodeVisitor {
                         initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
                     }
                 });
-
-        // Create default value assign statements for all the fields that are
-        // inherited from the referenced types.
-        for (BLangVariable field : objectTypeNode.referencedFields) {
-            if (!initFunctionStmts.containsKey(field.symbol)) {
-                // Set the default values for the inherited fields
-                field.expr = getInitExpr(field);
-                initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
-            }
-        }
 
         // Adding init statements to the init function.
         BLangStatement[] initStmts = initFunctionStmts.values().toArray(new BLangStatement[0]);

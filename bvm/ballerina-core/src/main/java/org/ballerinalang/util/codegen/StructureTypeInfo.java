@@ -33,10 +33,10 @@ import java.util.Map;
 public abstract class StructureTypeInfo implements TypeInfo {
 
     private List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
-    public Map<String, AttachedFunctionInfo> funcInfoEntries = new HashMap<>();
+    public Map<String, FunctionInfo> funcInfoEntries = new HashMap<>();
     //TODO separate below when record init function is removed
-    public AttachedFunctionInfo initializer;
-    public AttachedFunctionInfo defaultsValuesInitFunc;
+    public FunctionInfo initializer;
+    public FunctionInfo defaultsValuesInitFunc;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 

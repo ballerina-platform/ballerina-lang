@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -524,6 +525,32 @@ public class ObjectInBaloTest {
 //        BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
 //        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
 //    }
+
+    @Test
+    public void testObjectReferingTypeFromBalo_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBalo_1");
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BFloat.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+        Assert.assertEquals(returns[1].stringValue(), "John from outer function");
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 2500.0);
+        Assert.assertEquals(returns[3].stringValue(), "HR");
+    }
+
+    @Test
+    public void testObjectReferingTypeFromBalo_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBalo_2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Hello Jane");
+        Assert.assertSame(returns[1].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
+    }
 
     @AfterClass
     public void tearDown() {

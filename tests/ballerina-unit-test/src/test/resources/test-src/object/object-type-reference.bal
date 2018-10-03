@@ -89,7 +89,7 @@ public function testObjectWithChainedTypeReferences() returns (int, string, floa
     return (mgr.age, mgr.getName(), mgr.getSalary(), mgr.dpt);
 }
 
-// Test abstract object function with default values
+// Test invoking object member method with default values
 type Manager4 object {
     string dpt = "HR";
 

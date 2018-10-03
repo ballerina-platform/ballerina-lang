@@ -43,12 +43,11 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 16,
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 32, 6);
-        i++;
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, A, B, C, D, E]'", 36, 1);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 80, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 80, 5);
-
     }
 
     @Test

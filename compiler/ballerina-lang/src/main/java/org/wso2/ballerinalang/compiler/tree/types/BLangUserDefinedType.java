@@ -71,6 +71,9 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
 
     @Override
     public String toString() {
-        return (pkgAlias != null ? pkgAlias.value : "") + typeName.value;
+        if (pkgAlias == null || pkgAlias.value.isEmpty()) {
+            return typeName.value;
+        }
+        return pkgAlias.value + ":" + typeName.value;
     }
 }
