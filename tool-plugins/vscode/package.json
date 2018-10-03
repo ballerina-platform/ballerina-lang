@@ -74,7 +74,7 @@
             {
                 "type": "ballerina",
                 "label": "Ballerina Debug",
-                "program": "./out/debugger/index.js",
+                "program": "./out/src/debugger/index.js",
                 "runtime": "node",
                 "configurationAttributes": {
                     "attach": {
@@ -158,35 +158,40 @@
             ]
         }
     },
-    "main": "./out/extension",
+    "main": "./out/src/extension",
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "test-coverage": "COVER_CONFIG=html npm run test",
         "package": "npm run compile && vsce package"
     },
     "dependencies": {
-        "glob": "^7.1.2",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
         "request-promise": "^4.2.2",
         "toml": "^2.3.3",
         "vscode": "^1.1.21",
         "vscode-debugadapter": "^1.31.0",
+        "vscode-debugadapter-testsupport": "^1.32.0",
         "vscode-debugprotocol": "^1.31.0",
         "vscode-languageclient": "^5.1.0",
         "ws": "^4.0.0"
     },
     "devDependencies": {
-        "@types/glob": "^5.0.35",
+        "@types/glob": "^5.0.36",
         "@types/lodash": "^4.14.116",
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
+        "decache": "^4.4.0",
+        "glob": "^7.1.3",
+        "istanbul": "^0.4.5",
         "mocha": "^5.2.0",
         "ps-node": "^0.1.6",
+        "remap-istanbul": "^0.12.0",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.36.2"

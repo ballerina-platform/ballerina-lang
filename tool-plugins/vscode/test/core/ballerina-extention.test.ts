@@ -23,7 +23,7 @@ import * as assert from 'assert';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
-import ballerinaExtention from '../../core/ballerina-extension';
+import ballerinaExtention from '../../src/core/ballerina-extension';
 import { getBallerinaVersion, getBallerinaHome} from '../test-util';
 
 // Ballerina tools distribution will be copied to following location by maven
@@ -48,7 +48,7 @@ suite("Ballerina Extension Core Tests", function () {
     });
 
     test("Test getBallerinaVersion", function () {
-        const ditected = ballerinaExtention.getBallerinaVersion(testBallerinaHome)
+        const ditected = ballerinaExtention.getBallerinaVersion(testBallerinaHome);
         assert.equal(ditected, testBallerinaVersion);
     });
 

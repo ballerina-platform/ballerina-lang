@@ -1,0 +1,19 @@
+{
+    "html": {
+        "enabled": true,
+        "relativeSourcePath": "../src",
+        "relativeCoverageDir": "../../coverage",
+        "ignorePatterns": [
+            "**/node_modules/**"
+        ],
+        "includePid": false,
+        "reports": [
+            "html",
+            "text"
+        ],
+        "verbose": true
+    },
+    "default": {
+        "enabled": false
+    }
+}
