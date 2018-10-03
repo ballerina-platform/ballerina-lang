@@ -153,11 +153,6 @@
                 "command": "ballerina.showAPIEditor",
                 "title": "Show API Editor",
                 "category": "Ballerina"
-            },
-            {
-                "command": "ballerina.showAPIEditorForService",
-                "title": "Show API Editor for Service",
-                "category": "Ballerina"
             }
         ],
         "menus": {

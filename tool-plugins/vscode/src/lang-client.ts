@@ -75,13 +75,13 @@ export interface BallerinaAstOasChangeResponse {
 }
 
 export interface BallerinaServiceListRequest {
-    ballerinaDocument: {
+    documentIdentifier: {
         uri: string;
     };
 }
 
 export interface BallerinaServiceListResponse {
-    services?: string;
+    services: string[];
 }
 
 export class ExtendedLangClient extends LanguageClient {
@@ -137,7 +137,7 @@ export class ExtendedLangClient extends LanguageClient {
 
     getServiceListForActiveFile(uri: Uri): Thenable<BallerinaServiceListResponse> {
         const req: BallerinaServiceListRequest = {
-            ballerinaDocument: {
+            documentIdentifier: {
                 uri: uri.toString()
             },
         }
