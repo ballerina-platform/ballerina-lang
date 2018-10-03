@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
 import java.util.Stack;
-import java.util.StringJoiner;
 
 /**
  * Implementation of the Scope block.
