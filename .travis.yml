@@ -132,7 +132,6 @@ script:
 - ballerina test jdbc-client-batch-update
 - ballerina test jdbc-client-call-procedures
 - ballerina test jdbc-client-crud-operations
-- ballerina test jdbc-client-proxy-tables
 - ballerina test jms-durable-topic-message-subscriber
 - ballerina test jms-headers-and-properties
 - ballerina test jms-queue-message-producer

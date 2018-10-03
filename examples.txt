@@ -58,7 +58,6 @@ Async
 JDBC Client CRUD Operations
 JDBC Client Batch Update
 JDBC Client Call Procedures
-JDBC Client Proxy Tables
 MYSQL Client
 H2 Client
 Local Transactions
