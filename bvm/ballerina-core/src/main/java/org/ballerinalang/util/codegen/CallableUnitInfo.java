@@ -211,7 +211,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void setDefaultWorkerInfo(WorkerInfo defaultWorkerInfo) {
         this.defaultWorkerInfo = defaultWorkerInfo;
-        this.pupulateWorkerSet();
+        this.populateWorkerSet();
     }
 
     public WorkerInfo getWorkerInfo(String workerName) {
@@ -220,14 +220,14 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void addWorkerInfo(String workerName, WorkerInfo workerInfo) {
         workerInfoMap.put(workerName, workerInfo);
-        this.pupulateWorkerSet();
+        this.populateWorkerSet();
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
         return workerInfoMap;
     }
     
-    private void pupulateWorkerSet() {
+    private void populateWorkerSet() {
         this.workerSet.generalWorkers = this.workerInfoMap.values().toArray(new WorkerInfo[0]);
         if (this.workerSet.generalWorkers.length == 0) {
             this.workerSet.generalWorkers = new WorkerInfo[] { this.getDefaultWorkerInfo() };

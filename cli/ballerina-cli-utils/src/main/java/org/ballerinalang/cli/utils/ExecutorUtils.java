@@ -38,28 +38,32 @@ import java.util.Map;
  * @since 0.964
  */
 public class ExecutorUtils {
-
+    
     /**
-     * Run balx that lives within jars.
+     * Run a function in a balx that lives within jars.
      *
      * @param balxResource URI of the balx resource
-     * @param isFunction   if a function or service is to be invoked
      * @param functionName the function name, if a function is to be invoked
      * @param args         arguments passed to the function
      * @return execution results
      */
-    public static BValue[] execute(URI balxResource, boolean isFunction, String functionName, String... args) {
-        // TODO: 8/3/18 check if we can unify isFunction and functionName
+    public static BValue[] executeFunction(URI balxResource, String functionName, String... args) {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
-
-        if (isFunction) {
-            return BLangProgramRunner.runEntryFunc(programFile, functionName, args);
-        } else {
-            BLangProgramRunner.runService(programFile);
-            return new BValue[]{};
-        }
+        return BLangProgramRunner.runEntryFunc(programFile, functionName, args);
+    }
+    
+    /**
+     * Run a service in a balx that lives within jars.
+     *
+     * @param balxResource URI of the balx resource
+     */
+    public static void executeService(URI balxResource) {
+        initFileSystem(balxResource);
+        Path baloFilePath = Paths.get(balxResource);
+        ProgramFile programFile = readExecutableProgram(baloFilePath);
+        BLangProgramRunner.runService(programFile);
     }
 
     /**

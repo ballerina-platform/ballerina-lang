@@ -35,6 +35,8 @@ const debugConfigResolver: DebugConfigurationProvider = {
 			const workspaceConfig: BallerinaPluginConfig = getPluginConfig();
 			if (workspaceConfig.home) {
 				config['ballerina.home'] = workspaceConfig.home;
+			} else {
+				config['ballerina.home'] = BallerinaExtension.getBallerinaHome();
 			}
 		}
 		return config;
@@ -54,10 +56,11 @@ export function activate(context: ExtensionContext): void {
 			if (!BallerinaExtension.isValidBallerinaHome()) {
 				rendererErrored(context);
 			}
+			BallerinaExtension.showPluginActivationError();
 		})
 		.catch(error => {
 			// unknown error
-			BallerinaExtension.showPluginActivationError()
+			BallerinaExtension.showPluginActivationError();
 		});
 
 	/*if (!config.debugLog) {

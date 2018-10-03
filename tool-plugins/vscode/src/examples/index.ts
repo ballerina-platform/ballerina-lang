@@ -20,11 +20,22 @@ import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, work
 import * as path from 'path';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../lang-client';
-import { getPluginConfig } from '../config';
+import { WebViewRPCHandler } from '../utils';
+import BallerinaExtension from '../core/ballerina-extension';
 
 let examplesPanel: WebviewPanel | undefined;
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
+    const { experimental } = langClient.initializeResult!.capabilities;
+    const serverProvidesExamples = experimental && experimental.examplesProvider;
+
+    if (!serverProvidesExamples) {
+        commands.registerCommand('ballerina.showExamples', () => {
+            BallerinaExtension.showMessageServerMissingCapability();
+        });
+        return;
+    }
+
 	const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
 		if (examplesPanel) {
 			return;
@@ -38,20 +49,27 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 				enableScripts: true,
 				retainContextWhenHidden: true,
 			}
-		);
-		render(context, langClient)
-			.then((html) => {
-				if (examplesPanel && html) {
-					examplesPanel.webview.html = html;
+        );
+        WebViewRPCHandler.create([
+			{
+				methodName: 'getExamples',
+				handler: (args: any[]) => {
+					return langClient.fetchExamples();
 				}
-            });
+            }], 
+            examplesPanel.webview
+        );
+        const html = render(context, langClient);
+		if (examplesPanel && html) {
+			examplesPanel.webview.html = html;
+		}
         
 		// Handle messages from the webview
         examplesPanel.webview.onDidReceiveMessage(message => {
             switch (message.command) {
                 case 'openExample':
                     const url = JSON.parse(message.url);
-                    const ballerinaHome = getPluginConfig().home;
+                    const ballerinaHome = BallerinaExtension.getBallerinaHome();
                     if (ballerinaHome) {
                         const folderPath = path.join(ballerinaHome, 'docs', 'examples', url);
                         const filePath = path.join(folderPath, `${url.replace(/-/g, '_')}.bal`);

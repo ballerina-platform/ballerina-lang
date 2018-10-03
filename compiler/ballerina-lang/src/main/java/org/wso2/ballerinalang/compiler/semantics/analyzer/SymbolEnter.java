@@ -987,7 +987,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+    public void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);

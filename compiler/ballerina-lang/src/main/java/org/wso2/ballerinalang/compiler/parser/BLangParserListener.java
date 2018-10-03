@@ -1123,8 +1123,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addCompoundAssignmentStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.compoundOperator().getText().substring(0, 1));
+        String compoundOperatorText = ctx.compoundOperator().getText();
+        String operator = compoundOperatorText.substring(0, compoundOperatorText.length() - 1);
+        this.pkgBuilder.addCompoundAssignmentStatement(getCurrentPos(ctx), getWS(ctx), operator);
     }
 
     /**

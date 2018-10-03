@@ -120,7 +120,7 @@ The sample given below calls the above service using the auto-generated Ballerin
 ```ballerina
 // Keep track of the message that were completely received.
 boolean isCompleted = false;
-function main (string... args) {
+public function main (string... args) {
    // Client endpoint configurations.
     endpoint ServerStreamingClient serverStreamingEp {
        host: "localhost",

@@ -175,7 +175,7 @@ public class WorkerExecutionContext {
     }
 
     public boolean getGlobalTransactionEnabled() {
-        return BLangVMUtils.getGlobalTransactionenabled(this);
+        return BLangVMUtils.getGlobalTransactionEnabled(this);
     }
 
     public boolean isRootContext() {

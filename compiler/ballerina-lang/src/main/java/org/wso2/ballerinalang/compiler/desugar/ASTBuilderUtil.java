@@ -627,6 +627,21 @@ public class ASTBuilderUtil {
         return receiver;
     }
 
+    public static BVarSymbol duplicateVarSymbol(BVarSymbol varSymbol) {
+        BVarSymbol dupVarSymbol = new BVarSymbol(varSymbol.flags, varSymbol.name,
+                varSymbol.pkgID, varSymbol.type, varSymbol.owner);
+        dupVarSymbol.varIndex = varSymbol.varIndex;
+        dupVarSymbol.docTag = varSymbol.docTag;
+        dupVarSymbol.tainted = varSymbol.tainted;
+        dupVarSymbol.closure = varSymbol.closure;
+        dupVarSymbol.markdownDocumentation = varSymbol.markdownDocumentation;
+        dupVarSymbol.scope = varSymbol.scope;
+        dupVarSymbol.type = varSymbol.type;
+        dupVarSymbol.kind = varSymbol.kind;
+
+        return dupVarSymbol;
+    }
+
     private static IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         if (value != null) {
