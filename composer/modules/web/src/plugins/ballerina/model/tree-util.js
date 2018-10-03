@@ -154,9 +154,9 @@ class TreeUtil extends AbstractTreeUtil {
 
             for (let itr = 0; itr < parentAssignmentStatements.length; itr++) {
                 const stmt = parentAssignmentStatements[itr];
-                if (_.get(stmt, 'expression')
-                    && this.isConnectorInitExpr(_.get(stmt, 'expression'))
-                    && stmt.variables[0].variableName.value === variableName) {
+                if (_.get(stmt, 'expression') &&
+                    this.isConnectorInitExpr(_.get(stmt, 'expression')) &&
+                    stmt.variables[0].variableName.value === variableName) {
                     return _.get(stmt, 'expression');
                 }
             }
@@ -181,8 +181,8 @@ class TreeUtil extends AbstractTreeUtil {
         if (invocationExpression && this.isCheckExpr(invocationExpression)) {
             invocationExpression = invocationExpression.expression;
         }
-        return (invocationExpression && this.isInvocation(invocationExpression)
-        && invocationExpression.actionInvocation);
+        return (invocationExpression && this.isInvocation(invocationExpression) &&
+            invocationExpression.actionInvocation);
     }
 
     getInvocation(node) {
@@ -196,8 +196,8 @@ class TreeUtil extends AbstractTreeUtil {
         if (invocationExpression && this.isCheckExpr(invocationExpression)) {
             invocationExpression = invocationExpression.expression;
         }
-        if (invocationExpression && this.isInvocation(invocationExpression)
-        && invocationExpression.actionInvocation) { return invocationExpression.actionInvocation; }
+        if (invocationExpression && this.isInvocation(invocationExpression) &&
+            invocationExpression.actionInvocation) { return invocationExpression.actionInvocation; }
         return undefined;
     }
 
@@ -284,6 +284,35 @@ class TreeUtil extends AbstractTreeUtil {
             invocationExpression = invocationExpression.expression;
         }
         return invocationExpression.getInvocationSignature();
+    }
+
+    /**
+     * Get parameter ref
+     * @param {object} node - variable def node object
+     * @returns {string} - parameter reference text
+     */
+    getParameterText(node) {
+        if (this.isReturn(node)) {
+            return node.expression.getSource(true, true);
+        }
+        if (this.isVariableDef(node) || this.isAssignment(node) || this.isExpressionStatement(node)) {
+            let exp;
+
+            if (this.isVariableDef(node)) {
+                exp = node.getVariable().getInitialExpression();
+            } else {
+                exp = node.getExpression();
+            }
+
+            if (this.isMatchExpression(exp) || this.isCheckExpr(exp)) {
+                exp = exp.getExpression();
+            }
+
+            return exp.getArgumentExpressions().map((arg) => {
+                return arg.getSource(true, true);
+            }).join(', ');
+        }
+        return false;
     }
 
     /**
@@ -493,9 +522,9 @@ class TreeUtil extends AbstractTreeUtil {
             // Get the parent node.
             const expressionParentNode = node.parent;
 
-            source = source.endsWith(';')
-                ? source.substr(0, source.length - 1)
-                : source;
+            source = source.endsWith(';') ?
+                source.substr(0, source.length - 1) :
+                source;
 
             // invoke the fragment util and get the new node.
             FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source))
@@ -513,8 +542,8 @@ class TreeUtil extends AbstractTreeUtil {
         } else {
             const parent = node.parent;
             source = source.replace(/;$/, '');
-            if (parent.filterParameters instanceof Function
-                && (parent.filterParameters(param => (param.id === node.id)).length > 0)) {
+            if (parent.filterParameters instanceof Function &&
+                (parent.filterParameters(param => (param.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing argument parameter.
                 FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source))
                     .then((parsedJson) => {
@@ -524,8 +553,8 @@ class TreeUtil extends AbstractTreeUtil {
                         // Replace the old parameter with the newly created parameter node.
                         parent.replaceParameters(node, newParameterNode, false);
                     });
-            } else if (parent.filterReturnParameters instanceof Function
-                && (parent.filterReturnParameters(returnParam => (returnParam.id === node.id)).length > 0)) {
+            } else if (parent.filterReturnParameters instanceof Function &&
+                (parent.filterReturnParameters(returnParam => (returnParam.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing return parameter.
                 FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source))
                     .then((parsedJson) => {
@@ -606,14 +635,14 @@ class TreeUtil extends AbstractTreeUtil {
      * @return {boolean} is given function is a main function.
      * */
     isMainFunction(node) {
-        return (node.kind === 'Function'
-            && (node.getName().value === 'main' || node.getName() === 'main')
-            && node.getParameters().length === 1
-            && ((node.getReturnParameters && node.getReturnParameters().length === 0) ||
-                (node.getReturnParams && node.getReturnParams().length === 0))
-            && ((node.getParameters()[0].typeNode && node.getParameters()[0].typeNode.kind === 'ArrayType'
-                && node.getParameters()[0].typeNode.elementType.typeKind === 'string')
-                || node.getParameters()[0].type === 'string[]'));
+        return (node.kind === 'Function' &&
+            (node.getName().value === 'main' || node.getName() === 'main') &&
+            node.getParameters().length === 1 &&
+            ((node.getReturnParameters && node.getReturnParameters().length === 0) ||
+                (node.getReturnParams && node.getReturnParams().length === 0)) &&
+            ((node.getParameters()[0].typeNode && node.getParameters()[0].typeNode.kind === 'ArrayType' &&
+                    node.getParameters()[0].typeNode.elementType.typeKind === 'string') ||
+                node.getParameters()[0].type === 'string[]'));
     }
 
 
@@ -646,7 +675,7 @@ class TreeUtil extends AbstractTreeUtil {
         return regex.test(node.name.value);
     }
 
-     /**
+    /**
      * Provides available endpoints for provided models scope
      * @param {object} model current model object
      * @return {array}  available endpoints
@@ -710,18 +739,18 @@ class TreeUtil extends AbstractTreeUtil {
      * @memberof TreeUtil
      */
     isElseBlock(node) {
-        if (this.isIf(node.parent)
-            && node.parent.elseStatement
-            && this.isBlock(node.parent.elseStatement)) {
+        if (this.isIf(node.parent) &&
+            node.parent.elseStatement &&
+            this.isBlock(node.parent.elseStatement)) {
             return node.parent.elseStatement.id === node.id;
         }
         return false;
     }
 
     isFinally(node) {
-        if (this.isTry(node.parent)
-            && node.parent.finallyBody
-            && node.parent.finallyBody.id === node.id) {
+        if (this.isTry(node.parent) &&
+            node.parent.finallyBody &&
+            node.parent.finallyBody.id === node.id) {
             return true;
         }
         return false;
@@ -777,8 +806,8 @@ class TreeUtil extends AbstractTreeUtil {
         const defaultName = 'ep';
         let defaultIndex = 0;
         const names = this.getCurrentEndpoints(parent)
-                        .map((endpoint) => { return endpoint.name.getValue(); })
-                        .sort();
+            .map((endpoint) => { return endpoint.name.getValue(); })
+            .sort();
         names.every((endpoint, i) => {
             if (names[i] !== defaultName + (i + 1)) {
                 defaultIndex = i + 1;
@@ -788,7 +817,7 @@ class TreeUtil extends AbstractTreeUtil {
             }
         });
         node.name
-        .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
+            .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
 
     /**

@@ -23,6 +23,7 @@ import { render } from './renderer';
 import { apiEditorRender } from './api-editor-renderer';
 import { BallerinaAST, ExtendedLangClient } from '../lang-client';
 import { WebViewRPCHandler } from '../utils';
+import BallerinaExtension from '../core/ballerina-extension';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -43,6 +44,16 @@ function updateWebView(ast: BallerinaAST, docUri: Uri, stale: boolean): void {
 }
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
+	const { experimental } = langClient.initializeResult!.capabilities;
+	const serverProvidesAST = experimental && experimental.astProvider;
+
+    if (!serverProvidesAST) {
+        commands.registerCommand('ballerina.showDiagram', () => {
+            BallerinaExtension.showMessageServerMissingCapability();
+        });
+        return;
+    }
+
 	workspace.onDidChangeTextDocument(_.debounce((e: TextDocumentChangeEvent) => {
         if (activeEditor && (e.document === activeEditor.document) &&
             e.document.fileName.endsWith('.bal')) {

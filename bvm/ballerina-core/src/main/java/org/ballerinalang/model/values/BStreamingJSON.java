@@ -25,6 +25,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 
 /**
  * {@link BStreamingJSON} represent a JSON array generated from a {@link JSONDataSource}.
@@ -72,14 +73,12 @@ public class BStreamingJSON extends BRefValueArray {
         return super.get(index);
     }
 
-    @Override
-    public void serialize(OutputStream outputStream) {
+    public void serialize(JsonGenerator gen) {
         /*
          * Below order is important, where if the value is generated from a streaming data source,
          * it should be able to serialize the data out again using the value
          */
         try {
-            JsonGenerator gen = new JsonGenerator(outputStream);
             gen.writeStartArray();
 
             // First serialize the values loaded to memory
@@ -96,6 +95,15 @@ public class BStreamingJSON extends BRefValueArray {
         } catch (IOException e) {
             throw new BallerinaException("error occurred while serializing data", e);
         }
+    }
+
+    public void serialize(Writer writer) {
+        serialize(new JsonGenerator(writer));
+    }
+
+    @Override
+    public void serialize(OutputStream outputStream) {
+        serialize(new JsonGenerator(outputStream));
     }
 
     @Override
@@ -118,6 +126,14 @@ public class BStreamingJSON extends BRefValueArray {
     @Override
     public BIterator newIterator() {
         return new BStreamingJSONIterator(this);
+    }
+
+    @Override
+    public long size() {
+        if (datasource.hasNext()) {
+            buildDatasource();
+        }
+        return size;
     }
 
     void appendToCache(BRefType<?> value) {
