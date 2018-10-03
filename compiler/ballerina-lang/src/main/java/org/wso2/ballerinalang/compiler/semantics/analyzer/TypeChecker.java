@@ -246,8 +246,13 @@ public class TypeChecker extends BLangNodeVisitor {
             literalExpr.value = ((Long) literalValue).byteValue();
         }
 
+        // check whether this is a byte array
+        if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) {
+            literalType = new BArrayType(symTable.byteType);
+        }
+
+        // Check whether this belongs to decimal type or float type
         if (TypeTags.FLOAT == literalType.tag && literalValue instanceof String) {
-            // Check whether this belongs to decimal type or float type
             if (TypeTags.DECIMAL == expType.tag) {
                 literalType = symTable.decimalType;
                 literalExpr.value = new Decimal128((String) literalValue);
@@ -255,11 +260,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalType = symTable.floatType;
                 literalExpr.value = Double.parseDouble((String) literalValue);
             }
-        }
-
-        // check whether this is a byte array
-        if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) {
-            literalType = new BArrayType(symTable.byteType);
         }
 
         if (this.expType.tag == TypeTags.FINITE) {
