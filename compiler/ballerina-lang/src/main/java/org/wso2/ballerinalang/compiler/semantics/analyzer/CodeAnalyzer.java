@@ -861,6 +861,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     String assigneeType = recordLiteral.parent.type.getKind().typeName();
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyLiteral);
                 }
+                names.add(keyLiteral.value);
             }
         }
     }

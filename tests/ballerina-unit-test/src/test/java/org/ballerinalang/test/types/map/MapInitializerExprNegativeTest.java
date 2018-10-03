@@ -47,4 +47,9 @@ public class MapInitializerExprNegativeTest {
     public void mapInitWithDuplicatedKeysOneStringKeyTest() {
         BAssertUtil.validateError(compileResult, 1, "invalid usage of map literal: duplicate key 'key'", 7, 35);
     }
+
+    @Test(description = "Test map initializer expression with duplicated keys when both keys are string literals")
+    public void mapInitWithDuplicatedKeysBothStringKeysTest() {
+        BAssertUtil.validateError(compileResult, 2, "invalid usage of map literal: duplicate key 'key'", 12, 37);
+    }
 }
