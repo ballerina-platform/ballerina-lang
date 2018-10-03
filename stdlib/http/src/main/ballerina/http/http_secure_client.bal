@@ -28,6 +28,11 @@ public type AuthScheme "Basic"|"OAuth2"|"JWT";
 @final public AuthScheme OAUTH2 = "OAuth2";
 @final public AuthScheme JWT_AUTH = "JWT";
 
+public type ClientAuthentication "BasicAuthHeader"|"RequestBody";
+
+@final public ClientAuthentication BASIC_AUTH_HEADER = "BasicAuthHeader";
+@final public ClientAuthentication REQUEST_BODY = "RequestBody";
+
 # Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
 # configured in the HTTP client endpoint to secure the HTTP requests.
 #
@@ -361,6 +366,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
+    string tokenScope = config.auth.tokenScope but { () => EMPTY_STRING };
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
         error err;
@@ -370,14 +376,18 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     }
 
     CallerActions refreshTokenClient = createSimpleHttpClient(refreshUrl, {});
-
-    string clientIdSecret = clientId + ":" + clientSecret;
-    string base64ClientIdSecret = check clientIdSecret.base64Encode();
-
     Request refreshTokenRequest = new;
-    refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
-    refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
-        contentType = mime:APPLICATION_FORM_URLENCODED);
+    string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
+    if (tokenScope != EMPTY_STRING) {
+        textPayload = textPayload + "&scope=" + tokenScope;
+    }
+    if (config.auth.clientAuthentication == BASIC_AUTH_HEADER) {
+        string clientIdSecret = clientId + ":" + clientSecret;
+        refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
+    } else {
+        textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+    }
+    refreshTokenRequest.setTextPayload(textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
     Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, refreshTokenRequest);
 
     json generatedToken = check refreshTokenResponse.getJsonPayload();
