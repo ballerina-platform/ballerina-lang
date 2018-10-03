@@ -80,7 +80,7 @@ public class BallerinaStackFrame extends XStackFrame {
         // Removes package version.
         String packageName = myFrame.getPackageName().split(":")[0];
 
-        // If package name is "." , file is in the ballerina project root level
+        // If package name is "." , file is in the ballerina project root level.
         if (packageName.equals(".")) {
             return LocalFileSystem.getInstance().findFileByPath(projectBasePath + File.separator + fileName);
         } else {
@@ -109,26 +109,24 @@ public class BallerinaStackFrame extends XStackFrame {
     }
 
     private File searchFile(File file, String search) {
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            if(files!=null) {
-                for (File f : files) {
-                    File found = searchFile(f, search);
-                    if (found != null) {
-                        return found;
-                    }
-                }
-            }
-        } else {
-            if (file.getName().equals(search)) {
-                return file;
+        if (!file.isDirectory()) {
+            return file.getName().equals(search) ? file : null;
+        }
+        File[] files = file.listFiles();
+        if (files == null) {
+            return null;
+        }
+        for (File f : files) {
+            File found = searchFile(f, search);
+            if (found != null) {
+                return found;
             }
         }
         return null;
     }
 
     private String constructFilePath(@NotNull String projectBasePath, @NotNull String packagePath,
-            @NotNull String fileName) {
+                                     @NotNull String fileName) {
         // Remove organization.
         int index = packagePath.indexOf("/");
         if (index != -1) {
