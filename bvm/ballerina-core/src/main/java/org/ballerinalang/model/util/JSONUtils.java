@@ -286,9 +286,14 @@ public class JSONUtils {
      * @return JSON representation of the provided table
      */
     public static BRefType<?> toJSON(BTable table, boolean isInTransaction) {
-        return new BStreamingJSON(new TableJSONDataSource(table, isInTransaction));
+        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table, isInTransaction);
+        if (table.isInMemoryTable()) {
+            return jsonDataSource.build();
+        }
+
+        return new BStreamingJSON(jsonDataSource);
     }
-    
+
     /**
      * Get an element from a JSON.
      * 
