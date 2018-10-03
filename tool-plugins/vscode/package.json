@@ -107,8 +107,11 @@
                         "properties": {
                             "script": {
                                 "type": "string",
-                                "default": "${file}"
+                                "default": "${file}",
+                                "description": "Path of the script that need to be executed (e.g. ${workspaceRoot}/main.bal)"
                             },
+                            "scriptArguments": [],
+                            "commandOptions": [],
                             "debugServerTimeout": {
                                 "type": "integer",
                                 "default": 5000,
@@ -169,6 +172,8 @@
         "package": "npm run compile && vsce package"
     },
     "dependencies": {
+        "compare-versions": "^3.4.0",
+        "glob": "^7.1.3",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
         "request-promise": "^4.2.2",
@@ -178,6 +183,7 @@
         "vscode-debugadapter-testsupport": "^1.32.0",
         "vscode-debugprotocol": "^1.31.0",
         "vscode-languageclient": "^5.1.0",
+        "ps-node": "^0.1.6",
         "ws": "^4.0.0"
     },
     "devDependencies": {
@@ -187,7 +193,6 @@
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
         "decache": "^4.4.0",
-        "glob": "^7.1.3",
         "istanbul": "^0.4.5",
         "mocha": "^5.2.0",
         "ps-node": "^0.1.6",

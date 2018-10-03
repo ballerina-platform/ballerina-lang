@@ -24,7 +24,6 @@ import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.database.table.BCursorTable;
-import org.ballerinalang.database.table.BProxyTable;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
@@ -312,15 +311,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             }
         }
         context.setReturnValues(countArray);
-    }
-
-    protected void createProxyTable(Context context, SQLDatasource datasource, String tableName,
-            BStructureType structType) {
-        try {
-            context.setReturnValues(constructTable(context, structType, datasource, tableName));
-        } catch (SQLException e) {
-            throw new BallerinaException("Proxy table creation failed: " + e.getMessage(), e);
-        }
     }
 
     protected BStructureType getStructType(Context context, int index) {
@@ -957,12 +947,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             String databaseProductName) throws SQLException {
         List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
         return constructTable(rm, context, rs, structType, false, columnDefinitions, databaseProductName);
-    }
-
-    private BProxyTable constructTable(Context context, BStructureType structType, SQLDatasource dataSource,
-            String tableName) throws SQLException {
-        return new BProxyTable(dataSource, tableName, structType, TimeUtils.getTimeStructInfo(context),
-                                TimeUtils.getTimeZoneStructInfo(context), utcCalendar);
     }
 
     private String getSQLType(BMap<String, BValue> parameter) {
