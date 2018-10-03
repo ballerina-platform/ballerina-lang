@@ -10,6 +10,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This contains methods to test ExternalTimeBatchWindow behaviour in Ballerina Streaming V2.
+ *
+ * @since 0.981.2
+ */
 public class BallerinaStreamsV2ExternalTimeBatchWindowTest {
 
     private CompileResult result1, result2, result3, result4, result5, result6;

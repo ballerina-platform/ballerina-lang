@@ -10,6 +10,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This contains methods to test timeWindow behaviour in Ballerina Streaming V2.
+ *
+ * @since 0.981.2
+ */
 public class BallerinaStreamsV2TimeWindowTest {
     private CompileResult result1, result2;
 
