@@ -250,11 +250,16 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT typeName GT)?
+    |   errorTypeName
     |   functionTypeName
     ;
 
 functionTypeName
     :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameter?
+    ;
+
+errorTypeName
+    :   TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
     ;
 
 xmlNamespaceName
@@ -346,11 +351,6 @@ tableData
 
 arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
-    ;
-
-typeInitExpr
-    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
-    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
@@ -630,6 +630,7 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
+    |   errorConstructorExpr                                                # errorConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
@@ -649,6 +650,15 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeName                                                            # typeAccessExpression
+    ;
+
+typeInitExpr
+    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
+    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    ;
+
+errorConstructorExpr
+    :   TYPE_ERROR LEFT_PARENTHESIS expression (COMMA expression)? RIGHT_PARENTHESIS
     ;
 
 awaitExpression
