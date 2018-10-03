@@ -93,6 +93,7 @@
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
+            <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
         </classes>
     </test>
 

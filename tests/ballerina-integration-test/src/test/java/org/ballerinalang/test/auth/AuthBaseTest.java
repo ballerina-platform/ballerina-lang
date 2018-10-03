@@ -35,7 +35,7 @@ public class AuthBaseTest extends BaseTest {
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094};
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095};
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth").getAbsolutePath();
