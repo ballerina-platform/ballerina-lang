@@ -23,7 +23,7 @@ install:
   - . $HOME/.nvm/nvm.sh
   - nvm install 8.9.0
   - nvm use 8.9.0
-  - mvn install -B -V -pl '!tool-plugins/vscode'
+  - mvn install -B -V
 
 script: echo "Done"
 
