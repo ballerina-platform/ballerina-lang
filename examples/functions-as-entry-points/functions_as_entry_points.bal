@@ -16,8 +16,9 @@ public function main(int i, int j, string s) returns int {
     throw unknownOpError;
 }
 
-// A public function to perform a math operation, where the operation `op` is a
-// defaultable param with the default value `add`.
+// A public function to perform a math operation. The first parameter `op`,
+// representing the operation, is a defaultable parameter with the default
+// value `add`.
 public function performMathOp(string op = "add", int... values) returns int {
     if (isKnownOp(op) && lengthof values == 0) {
         error invalidArgsError = { message: "insufficient arguments specified" };
