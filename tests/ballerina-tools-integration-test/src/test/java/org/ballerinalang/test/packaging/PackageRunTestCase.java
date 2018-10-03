@@ -87,7 +87,7 @@ public class PackageRunTestCase extends BaseTest {
      *
      * @param projectPath project path
      * @throws IOException            if an I/O exception occurs when creating directories
-     * @throws BallerinaTestException
+     * @throws BallerinaTestException if an exception occurs when running the command
      */
     private void initProject(Path projectPath) throws IOException, BallerinaTestException {
         Files.createDirectories(projectPath);
@@ -100,7 +100,7 @@ public class PackageRunTestCase extends BaseTest {
      * Create directory with a text file.
      *
      * @param path path of the directory to be created
-     * @throws IOException
+     * @throws IOException if an I/O exception occurs when creating directories
      */
     private void createDirWithTextFile(Path path) throws IOException {
         Files.createDirectories(path.resolve("otherpkg"));
