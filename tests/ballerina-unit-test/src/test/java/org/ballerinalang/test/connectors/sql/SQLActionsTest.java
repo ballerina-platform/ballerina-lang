@@ -41,10 +41,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Calendar;
 
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
