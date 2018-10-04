@@ -71,7 +71,7 @@ function arrayEq(byte[] x, byte[] y) returns boolean {
         if (x[i] != y[i]){
             return false;
         }
-        i++;
+        i += 1;
     }
     return true;
 }
