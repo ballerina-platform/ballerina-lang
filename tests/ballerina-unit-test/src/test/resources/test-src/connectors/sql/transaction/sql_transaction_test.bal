@@ -749,6 +749,39 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
     return (returnVal, count, a);
 }
 
+function testLocalTransactonWithSelect() returns (int, int) {
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 5 }
+    };
+
+    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 900, 5000.75, 'USA')");
+    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 900, 5000.75, 'USA')");
+
+    int returnVal = 0;
+    int count;
+    transaction {
+        table<ResultCount> dt1 = check testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 900", ResultCount);
+        foreach row in dt1 {
+            count = row.COUNTVAL;
+        }
+
+        table<ResultCount> dt2 = check testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 900", ResultCount);
+        foreach row in dt2 {
+            count = row.COUNTVAL;
+        }
+    } onretry {
+        returnVal = -1;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
 function testCloseConnectionPool() returns (int) {
     endpoint jdbc:Client  testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",

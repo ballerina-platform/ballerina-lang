@@ -27,12 +27,14 @@ import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.google.protobuf.DescriptorProtos;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.builder.components.ClientFile;
 import org.ballerinalang.net.grpc.builder.components.Descriptor;
 import org.ballerinalang.net.grpc.builder.components.EnumMessage;
 import org.ballerinalang.net.grpc.builder.components.Message;
 import org.ballerinalang.net.grpc.builder.components.Method;
+import org.ballerinalang.net.grpc.builder.components.ServiceFile;
 import org.ballerinalang.net.grpc.builder.components.ServiceStub;
 import org.ballerinalang.net.grpc.builder.components.StubFile;
 import org.ballerinalang.net.grpc.builder.utils.BalGenConstants;
@@ -57,8 +59,12 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_S
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_SERVICE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_FILE_PREFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_INDEX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
@@ -87,7 +93,7 @@ public class BallerinaFileBuilder {
         this.balOutPath = balOutPath;
     }
     
-    public void build() {
+    public void build(String mode) {
         try (InputStream targetStream = new ByteArrayInputStream(rootDescriptor)) {
             DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                     .parseFrom(targetStream);
@@ -112,12 +118,14 @@ public class BallerinaFileBuilder {
                         "definition. but provided proto file contains " + fileDescriptorSet.getServiceCount() +
                         "service definitions");
             }
+            ServiceFile.Builder sampleServiceBuilder = null;
             if (fileDescriptorSet.getServiceCount() == 1) {
                 DescriptorProtos.ServiceDescriptorProto serviceDescriptor = fileDescriptorSet.getService(SERVICE_INDEX);
                 ServiceStub.Builder serviceBuilder = ServiceStub.newBuilder(serviceDescriptor.getName());
+                sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
-
                 boolean isUnaryContains = false;
+
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
                     if (filePackage != null && !filePackage.isEmpty()) {
@@ -129,6 +137,7 @@ public class BallerinaFileBuilder {
                     }
                     Method method = Method.newBuilder(methodID).setMethodDescriptor(methodDescriptorProto).build();
                     serviceBuilder.addMethod(method);
+                    sampleServiceBuilder.addMethod(method);
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
                     }
@@ -144,7 +153,9 @@ public class BallerinaFileBuilder {
                 }
                 serviceBuilder.setType(ServiceStub.StubType.NONBLOCKING);
                 stubFileObject.addServiceStub(serviceBuilder.build());
-                clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
+                if (mode.equals(GRPC_CLIENT)) {
+                    clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
+                }
             }
             // read message types.
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
@@ -158,13 +169,19 @@ public class BallerinaFileBuilder {
             }
             // write definition objects to ballerina files.
             if (this.balOutPath == null) {
-                this.balOutPath = BalGenConstants.DEFAULT_PACKAGE;
+                this.balOutPath = StringUtils.isNotBlank(fileDescriptorSet.getPackage()) ?
+                        fileDescriptorSet.getPackage() : BalGenConstants.DEFAULT_PACKAGE;
             }
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
             writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
             if (clientFileObject != null) {
                 String clientFilePath = generateOutputFile(this.balOutPath, filename + SAMPLE_FILE_PREFIX);
                 writeOutputFile(clientFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_TEMPLATE_NAME, clientFilePath);
+            }
+            if (mode.equals(GRPC_SERVICE) && fileDescriptorSet.getServiceCount() != 0) {
+                String servicePath = generateOutputFile(this.balOutPath, filename + SAMPLE_SERVICE_FILE_PREFIX);
+                writeOutputFile(sampleServiceBuilder.build(), DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME,
+                        servicePath);
             }
         } catch (IOException | GrpcServerException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
