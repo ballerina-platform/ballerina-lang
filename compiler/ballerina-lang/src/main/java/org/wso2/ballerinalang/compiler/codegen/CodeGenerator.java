@@ -550,6 +550,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 return InstructionCodes.BRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
+            case TypeTags.DECIMAL:
+                return InstructionCodes.DRET;
             case TypeTags.STRING:
                 return InstructionCodes.SRET;
             case TypeTags.BOOLEAN:

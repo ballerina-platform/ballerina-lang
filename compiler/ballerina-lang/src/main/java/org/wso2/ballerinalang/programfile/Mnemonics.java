@@ -247,6 +247,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.IRET] = "iret";
         mnemonics[InstructionCodes.FRET] = "fret";
+        mnemonics[InstructionCodes.DRET] = "dret";
         mnemonics[InstructionCodes.SRET] = "sret";
         mnemonics[InstructionCodes.BRET] = "bret";
         mnemonics[InstructionCodes.RRET] = "rret";
