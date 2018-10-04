@@ -1,0 +1,7 @@
+#Run the following command in the Ballerina tools distribution for mock service generation.
+$ ballerina swagger mock swagger_to_ballerina.yaml -p pet_service
+successfully generated ballerina mock service for input file - swagger_to_ballerina.yaml
+
+#Run the following command in the Ballerina tools distribution for client service generation.
+$ ballerina swagger client swagger_to_ballerina.yaml -p pet_client
+successfully generated ballerina client for input file - swagger_to_ballerina.yaml

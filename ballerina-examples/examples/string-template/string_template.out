@@ -1,0 +1,4 @@
+# To run the program, place the code in "string_template.bal"
+# and issue the `ballerina run` command.
+$ ballerina run string_template.bal
+Hello Ballerina!!!

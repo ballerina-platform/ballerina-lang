@@ -1,0 +1,18 @@
+# At the command line, navigate to the directory that contains the
+# `.bal` file. Ensure that the `sample-users.toml` file is populated correctly
+# with the user information. If required, user passwords can be encrypted using
+# the `ballerina encrypt` configuration encryption command.
+$ echo '["b7a.users"]
+["b7a.users.generalUser1"]
+password="password"
+scopes="scope1"
+["b7a.users.generalUser2"]
+password="password"
+scopes="scope2"
+' > sample-users.toml
+
+# Specify the configuration file name using the `--config` flag and run the
+# program using `ballerina run` command.
+$ ballerina run --config sample-users.toml secured_service_with_basic_auth.bal
+Initiating service(s) in 'secured_service_with_basic_auth.bal'
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:9090

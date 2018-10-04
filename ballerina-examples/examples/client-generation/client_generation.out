@@ -1,0 +1,8 @@
+# In the command line, navigate to the directory that contains the
+# `client_generation.bal` file and run the `ballerina build` command.
+$ ballerina build client_generation.bal
+Compiling source
+    client_generation.bal
+
+Generating executable
+    client_generation.balx

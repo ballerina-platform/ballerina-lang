@@ -1,0 +1,2 @@
+// The HTTP retry client tries sending over the same request to the backend service when there is a network level failure.
+
