@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -1130,6 +1131,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         // TODO
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        // TODO: Fix me.
     }
 
     // private methods

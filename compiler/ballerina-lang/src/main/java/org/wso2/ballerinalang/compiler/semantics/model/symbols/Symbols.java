@@ -70,6 +70,12 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.ERROR;
+        return typeSymbol;
+    }
+
     public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
                                                            BType type, BSymbol owner) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);

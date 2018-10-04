@@ -47,6 +47,10 @@ public class TypeSignatureReader<T> {
             case 'N':
                 typeStack.push(typeCreater.getBasicType(typeChar));
                 return index + 1;
+            case 'E':
+                // TODO : Fix me.
+                typeStack.push(typeCreater.getErrorType());
+                return index + 1;
             case 'R':
                 index++;
                 nameIndex = index;
@@ -59,7 +63,6 @@ public class TypeSignatureReader<T> {
             case 'C':
             case 'J':
             case 'T':
-            case 'E':
             case 'D':
             case 'G':
             case 'Z':

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -646,7 +647,7 @@ public class Types {
                                                                      BType targetType,
                                                                      boolean safe,
                                                                      int opcode) {
-        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errStructType,
+        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errorType,
                 false, safe, opcode, null, null);
     }
 
@@ -1012,6 +1013,12 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BErrorType t, BType s) {
+            // TODO Implement. Not needed for now.
+            throw new AssertionError();
+        }
+
+        @Override
         public BSymbol visit(BFutureType t, BType s) {
             return null;
         }
@@ -1155,6 +1162,19 @@ public class Types {
         @Override
         public Boolean visit(BSemanticErrorType t, BType s) {
             return true;
+        }
+
+        @Override
+        public Boolean visit(BErrorType t, BType s) {
+            if (s.tag != TypeTags.ERROR) {
+                return false;
+            }
+            BErrorType source = (BErrorType) s;
+            if (source.tag == TypeTags.ERROR) {
+                // TODO : Fix me. temporary fix for migration.
+                return true;
+            }
+            return isSameType(source.messageType, t.messageType) && isSameType(source.detailType, t.detailType);
         }
 
         @Override

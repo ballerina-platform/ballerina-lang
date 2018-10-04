@@ -1894,6 +1894,11 @@ public class PackageInfoReader {
             }
             return new BFunctionType(funcParams.toArray(new BType[funcParams.size()]), returnTypes);
         }
+
+        @Override
+        public BType getErrorType() {
+            return null;
+        }
     }
 
     private ArrayList<String> getChildScopesList(DataInputStream codeStream, PackageInfo packageInfo)

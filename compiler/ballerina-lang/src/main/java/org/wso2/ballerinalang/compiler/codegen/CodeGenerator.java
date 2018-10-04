@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -1091,6 +1092,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex regIndex = calcAndGetExprRegIndex(assignableExpr);
         Operand typeCPIndex = getTypeCPIndex(assignableExpr.targetType);
         emit(assignableExpr.opSymbol.opcode, assignableExpr.lhsExpr.regIndex, typeCPIndex, regIndex);
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        // TODO : Fix me.
     }
 
     @Override

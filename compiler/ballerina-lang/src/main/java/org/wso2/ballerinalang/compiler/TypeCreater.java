@@ -41,4 +41,6 @@ public interface TypeCreater<T> {
     public T getCollectionType(char typeChar, List<T> memberTypes);
 
     public T getFunctionType(List<T> funcParamsStack, T retType);
+
+    T getErrorType();
 }

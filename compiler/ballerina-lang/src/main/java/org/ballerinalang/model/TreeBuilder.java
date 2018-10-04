@@ -59,6 +59,7 @@ import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.BracedOrTupleExpression;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
+import org.ballerinalang.model.tree.expressions.ErrorConstructorNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IntRangeExpression;
@@ -124,6 +125,7 @@ import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
+import org.ballerinalang.model.tree.types.ErrorTypeNode;
 import org.ballerinalang.model.tree.types.FiniteTypeNode;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.ObjectTypeNode;
@@ -176,6 +178,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -242,6 +245,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -370,6 +374,10 @@ public class TreeBuilder {
         return new BLangBuiltInRefTypeNode();
     }
 
+    public static ErrorTypeNode createErrorTypeNode() {
+        return new BLangErrorType();
+    }
+
     public static ConstrainedTypeNode createConstrainedTypeNode() {
         return new BLangConstrainedType();
     }
@@ -444,6 +452,10 @@ public class TreeBuilder {
 
     public static TypeInitNode createObjectInitNode() {
         return new BLangTypeInit();
+    }
+
+    public static ErrorConstructorNode createErrorConstructorNode() {
+        return new BLangErrorConstructorExpr();
     }
 
     public static ObjectTypeNode createObjectTypeNode() {

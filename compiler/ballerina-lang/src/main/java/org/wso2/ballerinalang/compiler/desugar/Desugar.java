@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
@@ -1747,6 +1748,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        // TODO: Fix me.
+        result = errorConstructorExpr;
+        //        errorConstructorExpr.messageExpr = rewriteExpr(errorConstructorExpr.messageExpr);
+        //        errorConstructorExpr.detailsExpr = rewriteExprs(errorConstructorExpr.detailsExpr);
+        //        result = errorConstructorExpr;
+    }
+
+    @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
@@ -2111,9 +2121,9 @@ public class Desugar extends BLangNodeVisitor {
         //      1) Create the pattern variable
         String patternFailureCaseVarName = GEN_VAR_PREFIX.value + "t_failure";
         BLangVariable patternFailureCaseVar = ASTBuilderUtil.createVariable(pos,
-                patternFailureCaseVarName, symTable.errStructType, null, new BVarSymbol(0,
+                patternFailureCaseVarName, symTable.errorType, null, new BVarSymbol(0,
                         names.fromString(patternFailureCaseVarName),
-                        this.env.scope.owner.pkgID, symTable.errStructType, this.env.scope.owner));
+                        this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner));
 
         //      2) Create the pattern block
         BLangVariableReference patternFailureCaseVarRef = ASTBuilderUtil.createVariableRef(pos,
@@ -2258,7 +2268,7 @@ public class Desugar extends BLangNodeVisitor {
         if (types.isValueType(lhsType)) {
             conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(rhsType, lhsType);
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
-            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errStructType,
+            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType,
                     false, true, InstructionCodes.NOP, null, null);
         } else {
             conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(rhsType, lhsType);
@@ -2584,8 +2594,8 @@ public class Desugar extends BLangNodeVisitor {
     private BLangMatchStmtPatternClause getMatchErrorPattern(BLangExpression expr, BLangVariable tempResultVar) {
         String errorPatternVarName = GEN_VAR_PREFIX.value + "t_match_error";
         BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(expr.pos, errorPatternVarName,
-                symTable.errStructType, null, new BVarSymbol(0, names.fromString(errorPatternVarName),
-                        this.env.scope.owner.pkgID, symTable.errStructType, this.env.scope.owner));
+                symTable.errorType, null, new BVarSymbol(0, names.fromString(errorPatternVarName),
+                        this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner));
 
         // Create assignment to temp result
         BLangSimpleVarRef assignmentRhsExpr = ASTBuilderUtil.createVariableRef(expr.pos, errorPatternVar.symbol);
@@ -2690,7 +2700,7 @@ public class Desugar extends BLangNodeVisitor {
         // Lift nil always. Lift error only if safe navigation is used.
         errorLiftedType.memberTypes.remove(symTable.nilType);
         if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errStructType);
+            errorLiftedType.memberTypes.remove(symTable.errorType);
         }
 
         if (errorLiftedType.memberTypes.size() == 1) {

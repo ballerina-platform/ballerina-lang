@@ -23,22 +23,22 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -107,7 +107,7 @@ public class SymbolTable {
     public final BTypeSymbol errSymbol;
     public final BType semanticError;
 
-    public BRecordType errStructType;
+    public BErrorType errorType;
 
     public BPackageSymbol builtInPackageSymbol;
     private Names names;
@@ -151,21 +151,17 @@ public class SymbolTable {
         initializeType(nilType, TypeKind.NIL.typeName());
         initializeType(channelType, TypeKind.CHANNEL.typeName());
 
-        // Initialize error type;
+        // Initialize semantic error type;
         this.semanticError = new BSemanticErrorType(null);
         this.errSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID,
                 semanticError, rootPkgSymbol);
         defineType(semanticError, errSymbol);
 
-        // Initialize Ballerina error struct type temporally.
-        BTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
+        // Initialize Ballerina built-in error type.
+        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
-        this.errStructType = new BRecordType(errorStructSymbol);
-        this.errStructType.restFieldType = anyType;
-        this.errStructType.sealed = false;
-        errorStructSymbol.type = this.errStructType;
-        errorStructSymbol.scope = new Scope(errorStructSymbol);
-        defineType(this.errStructType, errorStructSymbol);
+        this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
+        defineType(this.errorType, errorSymbol);
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
@@ -193,6 +189,8 @@ public class SymbolTable {
                 return streamType;
             case TypeTags.NIL:
                 return nilType;
+            case TypeTags.ERROR:
+                return errorType;
             default:
                 return semanticError;
         }
@@ -453,13 +451,13 @@ public class SymbolTable {
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) targetType;
-                unionType.memberTypes.add(this.errStructType);
+                unionType.memberTypes.add(this.errorType);
                 retType = targetType;
             } else {
                 BUnionType unionType = new BUnionType(null,
                         new LinkedHashSet<BType>(2) {{
                             add(targetType);
-                            add(errStructType);
+                            add(errorType);
                         }}, false);
                 retType = unionType;
             }

@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -1315,7 +1316,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangCheckedExpr checkedExpr) {
         BType exprType = checkExpr(checkedExpr.expr, env, symTable.noType);
         if (exprType.tag != TypeTags.UNION) {
-            if (types.isAssignable(exprType, symTable.errStructType)) {
+            if (types.isAssignable(exprType, symTable.errorType)) {
                 dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
             } else {
                 dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
@@ -1327,7 +1328,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BUnionType unionType = (BUnionType) exprType;
         // Filter out the list of types which are not equivalent with the error type.
         Map<Boolean, List<BType>> resultTypeMap = unionType.memberTypes.stream()
-                .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errStructType)));
+                .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errorType)));
 
         // This list will be used in the desugar phase
         checkedExpr.equivalentErrorTypeList = resultTypeMap.get(true);
@@ -1359,6 +1360,11 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(checkedExpr, actualType, expType);
     }
 
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        // TODO: Fix me.
+        resultType = symTable.errorType;
+    }
     // Private methods
 
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
@@ -1970,8 +1976,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType parentType = accessExpr.expr.type;
         if (accessExpr.safeNavigate && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
-                && ((BUnionType) parentType).memberTypes.contains(symTable.errStructType)))) {
-            unionType.memberTypes.add(symTable.errStructType);
+                && ((BUnionType) parentType).memberTypes.contains(symTable.errorType)))) {
+            unionType.memberTypes.add(symTable.errorType);
         }
 
         // If there's only one member, and the one an only member is:
@@ -2140,7 +2146,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
-        if (accessExpr.safeNavigate && type == symTable.errStructType) {
+        if (accessExpr.safeNavigate && type == symTable.errorType) {
             dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
             return symTable.semanticError;
         }
@@ -2155,13 +2161,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
         boolean nullable = false;
         if (accessExpr.safeNavigate) {
-            if (!varRefMemberTypes.contains(symTable.errStructType)) {
+            if (!varRefMemberTypes.contains(symTable.errorType)) {
                 dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
                 return symTable.semanticError;
             }
 
             lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
-                return memberType != symTable.errStructType && memberType != symTable.nilType;
+                return memberType != symTable.errorType && memberType != symTable.nilType;
             }).collect(Collectors.toList());
 
             if (lhsTypes.isEmpty()) {

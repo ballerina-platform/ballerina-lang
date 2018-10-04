@@ -53,6 +53,11 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         return Lists.of(symTable.semanticError);
     }
 
+    @Override
+    public List<BType> visit(BErrorType type, Operation op) {
+        return Lists.of(symTable.semanticError);
+    }
+
     /* Following  types are not iterable and will be handler at BType visitor */
 
     @Override

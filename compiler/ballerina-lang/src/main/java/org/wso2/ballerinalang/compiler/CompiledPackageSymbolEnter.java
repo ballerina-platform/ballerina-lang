@@ -1174,5 +1174,10 @@ public class CompiledPackageSymbolEnter {
             //TODO need to consider a symbol for lambda functions for type definitions.
             return new BInvokableType(funcParams, retType, null);
         }
+
+        @Override
+        public BType getErrorType() {
+            return symTable.errorType;
+        }
     }
 }

@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -196,10 +197,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         //check for symbols defined at root package level.
         if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-            //check whether given symbol is a built in struct type.
-            if (handleSpecialBuiltinStructTypes(symbol)) {
-                return false;
-            }
             dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
             return false;
         }
@@ -687,6 +684,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = tupleType;
     }
 
+    public void visit(BLangErrorType errorTypeNode) {
+        // TODO : Fix me.
+        resultType = symTable.errorType;
+    }
+
     public void visit(BLangConstrainedType constrainedTypeNode) {
         BType type = resolveTypeNode(constrainedTypeNode.type, env);
         BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
@@ -799,26 +801,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
 
     // private methods
-
-    /**
-     * Handle special built-in Struct types, such as error struct.
-     *
-     * @param symbol symbol
-     * @return true, if given symbol is handled
-     */
-    private boolean handleSpecialBuiltinStructTypes(BSymbol symbol) {
-        if (symbol.kind != SymbolKind.RECORD) {
-            return false;
-        }
-        if (Names.ERROR.equals(symbol.name)) {
-            // Update error type to actual type.
-            symbol.type = symTable.errStructType;
-            symbol.scope = symbol.type.tsymbol.scope;
-            symbol.type.tsymbol = (BTypeSymbol) symbol;
-            return true;
-        }
-        return false;
-    }
 
     private BSymbol resolveOperator(ScopeEntry entry, List<BType> types) {
         BSymbol foundSymbol = symTable.notFoundSymbol;
