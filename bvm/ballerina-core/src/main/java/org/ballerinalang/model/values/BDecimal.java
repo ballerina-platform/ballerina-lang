@@ -91,7 +91,7 @@ public final class BDecimal extends BValueType implements BRefType<Decimal128> {
         }
 
         BDecimal bDecimal = (BDecimal) obj;
-        return value.equals(bDecimal.value);
+        return (value.compareTo(bDecimal.value) == 0);
     }
 
     @Override
