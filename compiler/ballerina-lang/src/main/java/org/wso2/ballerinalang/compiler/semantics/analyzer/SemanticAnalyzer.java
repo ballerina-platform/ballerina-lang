@@ -129,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -471,42 +470,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // eg: struct types.
         if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.pos, varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
-        }
-    }
-
-    public void visit(BLangPostIncrement postIncrement) {
-        BLangExpression varRef = postIncrement.varRef;
-        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
-            if (postIncrement.opKind == OperatorKind.ADD) {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_ALLOWED_VARIABLE,
-                        OperatorKind.INCREMENT, varRef);
-            } else {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_ALLOWED_VARIABLE,
-                        OperatorKind.DECREMENT, varRef);
-            }
-            return;
-        } else {
-            this.typeChecker.checkExpr(varRef, env);
-        }
-        this.typeChecker.checkExpr(postIncrement.increment, env);
-        if (varRef.type == symTable.intType || varRef.type == symTable.floatType) {
-            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(postIncrement.opKind, varRef.type,
-                    postIncrement.increment.type);
-            postIncrement.modifiedExpr = getBinaryExpr(varRef,
-                    postIncrement.increment,
-                    postIncrement.opKind,
-                    opSymbol);
-        } else {
-            if (postIncrement.opKind == OperatorKind.ADD) {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
-                        OperatorKind.INCREMENT, varRef.type);
-            } else {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
-                        OperatorKind.DECREMENT, varRef.type);
-            }
         }
     }
 
