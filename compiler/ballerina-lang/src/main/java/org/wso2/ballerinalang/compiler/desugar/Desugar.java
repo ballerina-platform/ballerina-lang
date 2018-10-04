@@ -187,6 +187,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -408,7 +409,7 @@ public class Desugar extends BLangNodeVisitor {
                 .forEachOrdered(field -> {
                     if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol)) {
                         recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
-                                                                          (BLangStatement) createAssignmentStmt(field));
+                                (BLangStatement) createAssignmentStmt(field));
                     }
                 });
 
@@ -1088,10 +1089,10 @@ public class Desugar extends BLangNodeVisitor {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
-                                                             (BVarSymbol) fieldAccessExpr.symbol);
+                        (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                              (BVarSymbol) fieldAccessExpr.symbol);
+                        (BVarSymbol) fieldAccessExpr.symbol);
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
@@ -1099,7 +1100,7 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefType.tag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                  fieldAccessExpr.fieldKind);
+                    fieldAccessExpr.fieldKind);
         }
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
@@ -1120,9 +1121,9 @@ public class Desugar extends BLangNodeVisitor {
         BType varRefType = indexAccessExpr.expr.type;
         if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
-                                                          indexAccessExpr.expr,
-                                                          indexAccessExpr.indexExpr,
-                                                          (BVarSymbol) indexAccessExpr.symbol);
+                    indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr,
+                    (BVarSymbol) indexAccessExpr.symbol);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr,
                     !indexAccessExpr.type.isNullable());
@@ -1873,46 +1874,94 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
-        BLangVariableReference expr;
-        if (iExpr.functionPointerInvocation) {
-            expr = iExpr.expr;
-            if (expr != null) {
-                if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                    iExpr.name = ((BLangFieldBasedAccess) expr).field;
-                } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    iExpr.name = ((BLangSimpleVarRef) expr).variableName;
-                }
-
-                iExpr.symbol = expr.symbol;
-                iExpr.expr = null;
-                iExpr.requiredArgs = rewriteExprs(iExpr.argExprs);
-                iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
-                iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
-
-                if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    expr = new BLangSimpleVarRef();
-                }
-                expr.symbol = iExpr.symbol;
-                expr.type = iExpr.symbol.type;
-                expr = rewriteExpr(expr);
-
-                result = new BFunctionPointerInvocation(iExpr, expr);
-                return;
-            }
-        }
-
-        if (iExpr.expr == null) {
-            expr = new BLangSimpleVarRef();
-        } else {
-            BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
-            fieldBasedAccess.expr = iExpr.expr;
-            fieldBasedAccess.field = iExpr.name;
-            expr = fieldBasedAccess;
-        }
-        expr.symbol = iExpr.symbol;
-        expr.type = iExpr.symbol.type;
-        expr = rewriteExpr(expr);
-        result = new BFunctionPointerInvocation(iExpr, expr);
+//        BLangVariableReference expr;
+//        if (iExpr.functionPointerInvocation) {
+//            expr = iExpr.expr;
+//            if (expr != null) {
+//                if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+//                    iExpr.name = ((BLangFieldBasedAccess) expr).field;
+//                } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+//                    iExpr.name = ((BLangSimpleVarRef) expr).variableName;
+//                }
+//
+//                if (expr.getKind() != NodeKind.INVOCATION) {
+//                    iExpr.symbol = expr.symbol;
+//                    iExpr.expr = null;
+//                    iExpr.requiredArgs = rewriteExprs(iExpr.argExprs);
+//                    iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
+//                    iExpr.restArgs = rewriteExprs(iExpr.restArgs);
+//
+//                    if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+//                        expr = new BLangSimpleVarRef();
+//                    }
+//                    expr.symbol = iExpr.symbol;
+//                    expr.type = iExpr.symbol.type;
+//                    expr = rewriteExpr(expr);
+//
+//                    result = new BFunctionPointerInvocation(iExpr, expr);
+//                    return;
+//                } else {
+//
+//                    iExpr.symbol = expr.symbol;
+//
+//
+//                    iExpr.requiredArgs = rewriteExprs(iExpr.argExprs);
+//                    iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
+//                    iExpr.restArgs = rewriteExprs(iExpr.restArgs);
+//
+//                    expr = rewriteExpr(expr);
+//
+//                    result = new BFunctionPointerInvocation(iExpr, expr);
+//                    return;
+//
+//
+//
+////
+////                    BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(iExpr.pos);
+////
+////                    BVarSymbol varSymbol = new BVarSymbol(0, names.fromString("$$temp"),
+////                            this.env.scope.owner.pkgID, iExpr.expr.type.getReturnType(), this.env.scope.owner);
+////
+////                    BLangExpression varRefExpr = ASTBuilderUtil.createVariableRef(iExpr.pos, varSymbol);
+////
+////                    BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(iExpr.pos, varRefExpr, expr,
+////                            true);
+////                    blockStmt.addStatement(assignmentStmt);
+////
+////
+////                    BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, iExpr.expr.symbol.flags,
+////                            iExpr.expr.symbol.name, env.enclPkg.symbol.pkgID, iExpr.expr.type, env.scope.owner);
+////
+////                    BLangInvocation invocationExpr = ASTBuilderUtil.createInvocationExpr(iExpr.pos, invokableSymbol,
+////                            new LinkedList<>()  /*iExpr.requiredArgs*/, new LinkedList<>(), new LinkedList<>(),
+////                            symResolver);
+////
+////                    BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(iExpr.pos, blockStmt);
+////                    expressionStmt.expr = invocationExpr;
+////
+////                    blockStmt.addStatement(expressionStmt);
+////                    result = blockStmt;
+////                    return;
+//
+//
+//
+//                }
+//            }
+//        }
+//
+//        if (iExpr.expr == null) {
+//            expr = new BLangSimpleVarRef();
+//        } else {
+//            BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
+//            fieldBasedAccess.expr = iExpr.expr;
+//            fieldBasedAccess.field = iExpr.name;
+//            expr = fieldBasedAccess;
+//        }
+//        expr.symbol = iExpr.symbol;
+//        expr.type = iExpr.symbol.type;
+//        expr = rewriteExpr(expr);
+//        result = new BFunctionPointerInvocation(iExpr, expr);
+        result = new BFunctionPointerInvocation(iExpr, rewriteExpr(iExpr.expr));
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {

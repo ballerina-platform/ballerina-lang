@@ -1411,30 +1411,56 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkFunctionPointerInvocationExpr(BLangInvocation iExpr) {
         Name funcName = iExpr.expr.symbol.name;
-        Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-        BSymbol funcSymbol = symTable.notFoundSymbol;
-        // If no package alias, check for same object attached function.
-        if (pkgAlias == Names.EMPTY && env.enclTypeDefinition != null) {
-            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(env.enclTypeDefinition.name.value,
-                    iExpr.name.value));
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
-                    env.enclTypeDefinition.symbol.type.tsymbol);
-            if (funcSymbol != symTable.notFoundSymbol) {
-                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
-            }
-        }
+        BSymbol funcSymbol = iExpr.expr.symbol;
 
-        // If no such function found, then try resolving in package.
-        if (funcSymbol == symTable.notFoundSymbol) {
-            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        if (iExpr.expr.type.tag == TypeTags.INVOKABLE) {
+            ((BInvokableType) funcSymbol.type).paramTypes = ((BInvokableType) iExpr.expr.type).paramTypes;
+            ((BInvokableType) funcSymbol.type).retType =  ((BInvokableType) iExpr.expr.type).retType;
+            //            iExpr.symbol = new BInvokableSymbol(SymTag.VARIABLE, funcSymbol.flags, funcSymbol.name,
+//                    env.enclPkg.symbol.pkgID, iExpr.expr.type, env.scope.owner);
         }
+        //        Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
 
-        // Get the variable symbol from a field.
-        if (funcSymbol == symTable.notFoundSymbol && iExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            BLangFieldBasedAccess expr = (BLangFieldBasedAccess) iExpr.expr;
-            funcSymbol = symResolver.resolveObjectField(iExpr.pos, env, names.fromIdNode(expr.field),
-                    expr.expr.type.tsymbol);
-        }
+        //                symTable.notFoundSymbol;
+        //        // If no package alias, check for same object attached function.
+        //        if (pkgAlias == Names.EMPTY && env.enclTypeDefinition != null) {
+        //            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(env.enclTypeDefinition
+        // .name.value,
+        //                    iExpr.name.value));
+        //            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
+        //                    env.enclTypeDefinition.symbol.type.tsymbol);
+        //            if (funcSymbol != symTable.notFoundSymbol) {
+        //                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
+        //            }
+        //        }
+        //
+        //        // If no such function found, then try resolving in package.
+        //        if (funcSymbol == symTable.notFoundSymbol) {
+        //            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag
+        // .VARIABLE);
+        //        }
+        //
+        //        if (funcSymbol == symTable.notFoundSymbol && iExpr.expr.getKind() == NodeKind.INVOCATION) {
+        //            iExpr.symbol = new BInvokableSymbol(SymTag.VARIABLE, funcSymbol.flags, iExpr.expr.symbol.name,
+        //                    env.enclPkg.symbol.pkgID, iExpr.expr.type.getReturnType(), env.scope.owner);
+        //            checkInvocationParamAndReturnType(iExpr);
+        //            return;
+        //        }
+        //
+        //
+        //        // Get the variable symbol from a field.
+        //        if (funcSymbol == symTable.notFoundSymbol && iExpr.expr.getKind() == NodeKind
+        // .FIELD_BASED_ACCESS_EXPR) {
+        //            BLangFieldBasedAccess expr = (BLangFieldBasedAccess) iExpr.expr;
+        //            funcSymbol = symResolver.resolveObjectField(iExpr.pos, env, names.fromIdNode(expr.field),
+        //                    expr.expr.type.tsymbol);
+        //        }
+        //
+        ////        if(iExpr.expr.type.tag==SymTag.OBJECT) {
+        ////            // Check, any function pointer in struct field with given name.
+        ////            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
+        ////                    iExpr.expr.type.tsymbol);
+        ////        }
 
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
@@ -1559,7 +1585,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!iExpr.name.value.equals("call")) {
             return false;
         }
-        return iExpr.expr.symbol.tag == SymTag.VARIABLE;
+        return iExpr.expr.type.tag == TypeTags.INVOKABLE;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {

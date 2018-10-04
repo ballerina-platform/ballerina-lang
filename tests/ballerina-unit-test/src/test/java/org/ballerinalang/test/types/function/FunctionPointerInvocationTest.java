@@ -62,11 +62,11 @@ public class FunctionPointerInvocationTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10 * 20);
     }
 
-//    @Test
-//    public void testCallMethodInObject() {
-//        BValue[] returns = BRunUtil.invoke(result, "testCallMethodInObject");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10 * 20);
-//    }
+    @Test
+    public void testCallMethodInObject() {
+        BValue[] returns = BRunUtil.invoke(result, "testCallMethodInObject");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10 * 20);
+    }
 }

@@ -10,6 +10,7 @@ function testFPInObjectField() returns int {
 
 function testFPInNestedObjectField() returns int {
     Test2 t2 = new;
+    //t2.call();
     return t2.t1.pow(10, 20);
 }
 
