@@ -53,13 +53,13 @@
             <directory>
                 ${project.build.directory}/api-docs
             </directory>
-            <outputDirectory>docs/api/ballerina</outputDirectory>
+            <outputDirectory>docs/ballerina</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/ballerina-examples-zip/ballerina-examples-${ballerina.version}/examples
+                ../../../examples
             </directory>
-            <outputDirectory>docs/examples</outputDirectory>
+            <outputDirectory>examples</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
