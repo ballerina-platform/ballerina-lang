@@ -268,7 +268,7 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
         setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
         return response;
     } else {
-        currentCount++;
+        currentCount += 1;
         log:printDebug("Redirect count : " + currentCount);
         redirectClient.currentRedirectCount = currentCount;
         match getRedirectMethod(httpVerb, response) {

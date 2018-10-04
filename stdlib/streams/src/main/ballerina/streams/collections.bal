@@ -294,7 +294,7 @@ public type LinkedList object {
                 last = newNode;
             }
         }
-        size++;
+        size += 1;
     }
 
     // Links data as last element.
@@ -311,7 +311,7 @@ public type LinkedList object {
                 last = newNode;
             }
         }
-        size++;
+        size += 1;
     }
 
     // Inserts element 'data' before non-null Node succ.
@@ -327,7 +327,7 @@ public type LinkedList object {
                 first = newNode;
             }
         }
-        size++;
+        size += 1;
     }
 
     // Unlinks non-null first Node node.
@@ -345,7 +345,7 @@ public type LinkedList object {
                 last = ();
             }
         }
-        size--;
+        size -= 1;
         return data;
     }
 
@@ -364,7 +364,7 @@ public type LinkedList object {
                 first = ();
             }
         }
-        size--;
+        size -= 1;
         return data;
     }
 
@@ -399,7 +399,7 @@ public type LinkedList object {
             }
         }
         x.data = ();
-        size--;
+        size -= 1;
         return data;
     }
 
