@@ -179,8 +179,8 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            error webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added"
-                                    + " specifying " + HUB_SECRET};
+            error webSubError = {message: X_HUB_SIGNATURE + " header not present for subscription added" +
+                                            " specifying " + HUB_SECRET};
             return webSubError;
         }
         return;
