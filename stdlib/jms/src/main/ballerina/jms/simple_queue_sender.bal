@@ -76,7 +76,7 @@ public type SimpleQueueSender object {
         match (sender) {
             QueueSender s => return s.getCallerActions();
             () => {
-                error e = {message:"Queue sender cannot be nil"};
+                error e = error("Queue sender cannot be nil");
                 throw e;
             }
         }
@@ -94,7 +94,7 @@ public type SimpleQueueSender object {
         match (session) {
             Session s => return s.createTextMessage(content);
             () => {
-                error e = {message:"Session cannot be nil"};
+                error e = error("Session cannot be nil");
                 throw e;
             }
         }

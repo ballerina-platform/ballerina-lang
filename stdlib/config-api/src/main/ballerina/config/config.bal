@@ -41,7 +41,7 @@ public function getAsString(@sensitive string key, string default = "") returns 
                 throw err;
             }
             error err => {
-                map data = {cause : err};
+                map data = { cause: err };
                 error e = error("Invalid value. Expected a 'string'.", data);
                 throw e;
             }
@@ -68,7 +68,7 @@ public function getAsInt(@sensitive string key, int default = 0) returns int {
                 throw err;
             }
             error err => {
-                map data = {cause : err};
+                map data = { cause: err };
                 error e = error("Invalid value. Expected an 'int'.", data);
                 throw e;
             }
@@ -103,7 +103,7 @@ public function getAsFloat(@sensitive string key, float default = 0.0) returns f
                 throw err;
             }
             error err => {
-                map data = {cause : err};
+                map data = { cause: err };
                 error e = error("Invalid value. Expected a 'float'.", data);
                 throw e;
             }
@@ -167,7 +167,7 @@ public function getAsMap(@sensitive string key) returns map {
             throw err;
         }
         error err => {
-            map data = {cause : err};
+            map data = { cause: err };
             error e = error("Invalid value. Expected a 'map'.", data);
             throw e;
         }

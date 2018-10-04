@@ -62,6 +62,6 @@ public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
 # + message - Error message
 # + return - Error populated with the message
 function handleError(string message) returns (error) {
-    error e = {message: message};
+    error e = error(message);
     return e;
 }

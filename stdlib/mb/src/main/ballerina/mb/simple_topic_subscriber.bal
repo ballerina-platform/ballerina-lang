@@ -63,7 +63,7 @@ public type SimpleTopicSubscriber object {
         match (self.consumerActions) {
             TopicSubscriberActions c => return c;
             () => {
-                error e = {message:"Topic subscriber consumerActions cannot be nil."};
+                error e = error("Topic subscriber consumerActions cannot be nil.");
                 throw e;
             }
         }

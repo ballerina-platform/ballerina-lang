@@ -254,12 +254,12 @@ function FailoverActions::get(string path, Request|string|xml|json|byte[]|io:Byt
 
 function FailoverActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
                                                             |mime:Entity[]|() message) returns HttpFuture|error {
-    error err = {message:"Unsupported action for Failover client."};
+    error err = error("Unsupported action for Failover client.");
     return err;
 }
 
 function FailoverActions::getResponse(HttpFuture httpFuture) returns (error) {
-    error err = {message:"Unsupported action for Failover client."};
+    error err = error("Unsupported action for Failover client.");
     return err;
 }
 
@@ -268,12 +268,12 @@ function FailoverActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
 }
 
 function FailoverActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    error err = {message:"Unsupported action for Failover client."};
+    error err = error("Unsupported action for Failover client.");
     return err;
 }
 
 function FailoverActions::getPromisedResponse(PushPromise promise) returns Response|error {
-    error err = {message:"Unsupported action for Failover client."};
+    error err = error("Unsupported action for Failover client.");
     return err;
 }
 
@@ -426,7 +426,7 @@ function populateGenericFailoverActionError (FailoverActionError failoverActionE
 // will be generated with last response status code and generic failover response.
 function populateFailoverErrorHttpStatusCodes (Response inResponse, FailoverActionError failoverActionErr, int index) {
     string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    error httpActionErr = {message:failoverMessage};
+    error httpActionErr = error(failoverMessage);
     failoverActionErr.httpActionErr[index] = httpActionErr;
 }
 
@@ -435,7 +435,7 @@ function populateFailoverErrorHttpStatusCodes (Response inResponse, FailoverActi
 function populateErrorsFromLastResponse (Response inResponse, FailoverActionError failoverActionErr, int index)
                                                                             returns (error) {
     string failoverMessage = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    error lastHttpConnectorErr = {message:failoverMessage};
+    error lastHttpConnectorErr = error(failoverMessage);
     failoverActionErr.httpActionErr[index] = lastHttpConnectorErr;
     failoverActionErr.statusCode = INTERNAL_SERVER_ERROR_500;
     failoverActionErr.message = "All the failover endpoints failed. Last endpoint returned response is: "

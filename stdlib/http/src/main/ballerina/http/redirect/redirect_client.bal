@@ -296,7 +296,7 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
                     }
                 } else {
                     redirectClient.currentRedirectCount = 0;
-                    error err = { message: "Location header not available!" };
+                    error err = error("Location header not available!");
                     return err;
                 }
             }

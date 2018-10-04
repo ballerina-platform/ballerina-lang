@@ -64,7 +64,7 @@ public type SimpleQueueSender object {
         match (self.producerActions) {
             QueueSenderActions s => return s;
             () => {
-                error e = {message:"Queue sender connector cannot be nil"};
+                error e = error("Queue sender connector cannot be nil");
                 throw e;
             }
         }
@@ -89,7 +89,7 @@ public type SimpleQueueSender object {
                 }
             }
             () => {
-                error e = {message:"Session cannot be nil"};
+                error e = error("Session cannot be nil");
                 throw e;
             }
         }

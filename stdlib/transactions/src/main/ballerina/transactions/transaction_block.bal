@@ -68,7 +68,7 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
                     return txn.markForAbortion();
                 }
                 () => {
-                    error err = {message:"Unknown transaction"};
+                    error err = error("Unknown transaction");
                     throw err;
                 }
             }
@@ -87,7 +87,7 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
 function endTransaction(string transactionId, int transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        error err = {message:"Transaction: " + participatedTxnId + " not found"};
+        error err = error("Transaction: " + participatedTxnId + " not found");
         throw err;
     }
 

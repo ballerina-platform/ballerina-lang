@@ -680,7 +680,7 @@ function sendNewRequest(CallerActions httpClient, Request request, string path, 
     } else if (httpMethod == HEAD) {
         return httpClient.head(path, message = request);
     } else {
-        error err = {message:"HTTP method not supported in caching client: " + httpMethod};
+        error err = error("HTTP method not supported in caching client: " + httpMethod);
         return err;
     }
 }

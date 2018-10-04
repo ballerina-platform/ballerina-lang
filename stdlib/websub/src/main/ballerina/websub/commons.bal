@@ -245,12 +245,12 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     } else if (MD5.equalsIgnoreCase(method)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:MD5);
     } else {
-        error webSubError = {message:"Unsupported signature method: " + method};
+        error webSubError = error("Unsupported signature method: " + method);
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        error webSubError = {message:"Signature validation failed: Invalid Signature!"};
+        error webSubError = error("Signature validation failed: Invalid Signature!");
         return webSubError;
     }
     return;
@@ -507,7 +507,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteCh
                                          string? contentType = ()) returns error? {
 
     if (self.hubUrl == "") {
-        error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
+        error webSubError = error("Internal Ballerina Hub not initialized or incorrectly referenced");
         return webSubError;
     }
 

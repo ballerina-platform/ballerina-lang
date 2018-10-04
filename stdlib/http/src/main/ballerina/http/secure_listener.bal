@@ -203,7 +203,7 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
             }
         } else {
             // other auth providers are unsupported yet
-            error e = {message: "Invalid auth provider: " + authProvider.authStoreProvider };
+            error e = error("Invalid auth provider: " + authProvider.authStoreProvider);
             throw e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
@@ -221,7 +221,7 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
         return <HttpAuthnHandler>jwtAuthnHandler;
     } else {
         // TODO: create other HttpAuthnHandlers
-        error e = {message: "Invalid auth scheme: " + authProvider.scheme};
+        error e = error("Invalid auth scheme: " + authProvider.scheme);
         throw e;
     }
 }
