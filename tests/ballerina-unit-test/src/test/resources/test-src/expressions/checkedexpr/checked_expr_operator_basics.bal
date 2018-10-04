@@ -4,7 +4,7 @@ function openFileSuccess(string path) returns (boolean | error) {
 }
 
 function openFileFailure(string path) returns (boolean | error) {
-    error  e = {message: "file not found error: " + path};
+    error  e = error("file not found error: " + path);
     return e;
 }
 

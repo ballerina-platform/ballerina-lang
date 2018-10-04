@@ -3,7 +3,7 @@ function readLineSuccess() returns string {
 }
 
 function readLineError() returns error {
-    error e = {message:"io error"};
+    error e = error("io error");
     return e;
 }
 

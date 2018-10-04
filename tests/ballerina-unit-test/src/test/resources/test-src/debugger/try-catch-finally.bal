@@ -79,7 +79,7 @@ function testThrow(int a) returns (int) {
     return testNestedThrow(c);
 }
 function testNestedThrow(int a) returns (int){
-    error e  = {message : "test message"};
+    error e  = error("test message");
     if (e != null) {
         throw e;
     }
@@ -92,7 +92,7 @@ function mockFunction () returns (string) {
 function testMethodCallInFinally () returns (string) {
     string s = "start";
     try {
-        error e = {message:"test"};
+        error e = error("test");
         throw e;
     }finally {
         return s + mockFunction();

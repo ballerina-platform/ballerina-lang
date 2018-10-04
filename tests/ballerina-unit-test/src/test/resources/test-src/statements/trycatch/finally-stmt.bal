@@ -2,11 +2,11 @@ function test1 () returns (string, string){
     string data;
     try{
         try {
-            error test = { message: "try block error"};
+            error test = error("try block error");
             data = "assigned";
             throw test;
         } finally {
-            error err = { message : "finally block error"};
+            error err = error("finally block error");
             throw err;
         }
     } catch (error e) {
@@ -17,7 +17,7 @@ function test1 () returns (string, string){
 function test2(int a) returns (string){
     try{
         try {
-            error test = { message: "try block error"};
+            error test = error("try block error");
             throw test;
         } finally {
             if(a > 10) {
