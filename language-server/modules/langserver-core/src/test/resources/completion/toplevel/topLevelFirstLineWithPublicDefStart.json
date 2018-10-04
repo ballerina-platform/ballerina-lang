@@ -1,0 +1,35 @@
+{
+  "position": {
+    "line": 0,
+    "character": 8
+  },
+  "source": "toplevel/source/topLevelFirstLineWithPublicDefStart.bal",
+  "items": [
+    {
+      "label":"function",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"public main function",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"public function main(string... args) {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"future",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"future"
+    },
+    {
+      "label":"float",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"float"
+    }
+  ]
+}
