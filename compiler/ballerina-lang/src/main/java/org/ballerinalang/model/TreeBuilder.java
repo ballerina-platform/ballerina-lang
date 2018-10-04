@@ -193,6 +193,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSymbolicStringLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -320,6 +321,10 @@ public class TreeBuilder {
 
     public static LiteralNode createLiteralExpression() {
         return new BLangLiteral();
+    }
+
+    public static BLangSymbolicStringLiteral createSymbolicStringLiteral() {
+        return new BLangSymbolicStringLiteral();
     }
 
     public static ArrayLiteralNode createArrayLiteralNode() {

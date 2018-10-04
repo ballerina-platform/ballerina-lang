@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSymbolicStringLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -832,6 +833,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangSymbolicStringLiteral literalExpr) {
+        /* ignore */
+    }
+
     public void visit(BLangArrayLiteral arrayLiteral) {
         analyzeExprs(arrayLiteral.exprs);
     }
@@ -863,7 +868,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY
-                && indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+                && (indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL ||
+                indexAccessExpr.indexExpr.getKind() == NodeKind.SYMBOLIC_STRING_LITERAL)) {
             BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
             BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
             Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage

@@ -2181,6 +2181,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
+        } else if ((node = ctx.SymbolicStringLiteral()) != null) {
+            String text = node.getText();
+            text = text.substring(1, text.length());
+            text = StringEscapeUtils.unescapeJava(text);
+            this.pkgBuilder.addSymbolicStringLiteralValue(pos, ws, TypeTags.STRING, text);
         }
     }
 

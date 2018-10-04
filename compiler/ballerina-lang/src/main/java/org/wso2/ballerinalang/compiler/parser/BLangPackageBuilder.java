@@ -141,6 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSymbolicStringLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -955,6 +956,15 @@ public class BLangPackageBuilder {
 
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value) {
         BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        litExpr.addWS(ws);
+        litExpr.pos = pos;
+        litExpr.typeTag = typeTag;
+        litExpr.value = value;
+        addExpressionNode(litExpr);
+    }
+
+    void addSymbolicStringLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value) {
+        BLangSymbolicStringLiteral litExpr = TreeBuilder.createSymbolicStringLiteral();
         litExpr.addWS(ws);
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;

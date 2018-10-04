@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSymbolicStringLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -626,6 +627,11 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.NIL:
                 emit(InstructionCodes.RCONST_NULL, regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangSymbolicStringLiteral literalExpr) {
+        visit((BLangLiteral) literalExpr);
     }
 
     @Override
@@ -2035,8 +2041,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             objFieldInfo.fieldType = objField.type;
 
             // Populate default values
-            if (objField.expr != null && (objField.expr.getKind() == NodeKind.LITERAL &&
-                    objField.expr.type.getKind() != TypeKind.ARRAY)) {
+            if (objField.expr != null && ((objField.expr.getKind() == NodeKind.LITERAL || objField.expr.getKind()
+                    == NodeKind.SYMBOLIC_STRING_LITERAL) && objField.expr.type.getKind() != TypeKind.ARRAY)) {
                 DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
                 objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
@@ -2097,7 +2103,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             recordFieldInfo.fieldType = recordField.type;
 
             // Populate default values
-            if (recordField.expr != null && (recordField.expr.getKind() == NodeKind.LITERAL &&
+            if (recordField.expr != null && ((recordField.expr.getKind() == NodeKind.LITERAL ||
+                    recordField.expr.getKind() == NodeKind.SYMBOLIC_STRING_LITERAL) &&
                     recordField.expr.type.getKind() != TypeKind.ARRAY)) {
                 DefaultValueAttributeInfo defaultVal
                         = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
