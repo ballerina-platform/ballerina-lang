@@ -48,7 +48,12 @@
     padding: 1em;
 }
 
-each( @Operation-Options, {
+.generate-colors(length(@Operation-Options));
+
+.generate-colors(@opCount) when (@opCount > 0) {
+    .generate-colors((@opCount - 1));
+    @value : extract(@Operation-Options, @opCount);
+
     @borderColor: '@{value}-color';
     .operation.@{value} .op-title,
     .operation.@{value} .content{
@@ -57,4 +62,4 @@ each( @Operation-Options, {
     .operation.@{value} .op-title .op-method{
         background-color: @@borderColor;
     }
-});
+}

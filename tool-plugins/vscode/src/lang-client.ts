@@ -55,6 +55,35 @@ export interface BallerinaFragmentASTRequest {
 export interface BallerinaFragmentASTResponse {
 }
 
+export interface BallerinaOASResponse {
+    ballerinaOASJson?: string;
+}
+
+export interface BallerinaOASRequest {
+    ballerinaDocument: {
+        uri: string;
+    };
+    ballerinaService?: string;
+}
+
+export interface BallerinaAstOasChangeRequest {
+    oasDefinition?: string
+}
+
+export interface BallerinaAstOasChangeResponse {
+    oasAST?: string
+}
+
+export interface BallerinaServiceListRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+}
+
+export interface BallerinaServiceListResponse {
+    services: string[];
+}
+
 export class ExtendedLangClient extends LanguageClient {
 
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
@@ -87,5 +116,31 @@ export class ExtendedLangClient extends LanguageClient {
     getEndpoints(): Thenable<Array<any>> {
         return this.sendRequest("ballerinaSymbol/endpoints", {})
                     .then((resp: any) => resp.endpoints);
+    }
+
+    getBallerinaOASDef(uri: Uri, oasService: string): Thenable<BallerinaOASResponse> {
+        const req: BallerinaOASRequest = {
+            ballerinaDocument: {
+                uri: uri.toString()
+            },
+            ballerinaService: oasService
+        }
+        return this.sendRequest("ballerinaDocument/swaggerDef", req);
+    }
+
+    getBallerinaASTforOas(oasJson: string): Thenable<BallerinaAstOasChangeResponse> {
+        const req: BallerinaAstOasChangeRequest = {
+            oasDefinition: oasJson
+        }
+        return this.sendRequest("ballerinaDocument/astOasChange", req)
+    }
+
+    getServiceListForActiveFile(uri: Uri): Thenable<BallerinaServiceListResponse> {
+        const req: BallerinaServiceListRequest = {
+            documentIdentifier: {
+                uri: uri.toString()
+            },
+        }
+        return this.sendRequest("ballerinaDocument/serviceList", req)
     }
 }

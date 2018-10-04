@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
@@ -31,6 +32,11 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.swagger.CodeGenerator;
+import org.ballerinalang.swagger.model.GenSrcFile;
+import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -42,12 +48,17 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
@@ -66,6 +77,94 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaOASResponse> swaggerDef(BallerinaOASRequest request) {
+        String fileUri = request.getBallerinaDocument().getUri();
+        Path formattingFilePath = new LSDocument(fileUri).getPath();
+        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+
+        BallerinaOASResponse reply = new BallerinaOASResponse();
+
+        try {
+            String fileContent = documentManager.getFileContent(compilationPath);
+            String swaggerDefinition = SwaggerConverterUtils
+                .generateSwaggerDefinitions(fileContent, request.getBallerinaService());
+            reply.setBallerinaOASJson(swaggerDefinition);
+        } catch (Exception e) {
+            reply.isIsError(true);
+            logger.error("error: while processing service definition at converter service: " + e.getMessage(), e);
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
+
+        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaASTOASChangeResponse> astOasChange(BallerinaASTOASChangeRequest request) {
+        BallerinaASTOASChangeResponse reply = new BallerinaASTOASChangeResponse();
+
+        try {
+            String swaggerSource = request.getOasDefinition();
+            File temp = File.createTempFile("tempfile", ".json");
+            BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
+            bw.write(swaggerSource);
+            bw.close();
+
+            CodeGenerator generator = new CodeGenerator();
+            List<GenSrcFile> source = generator.generate(GeneratorConstants.GenType.MOCK, temp.getPath());
+
+            reply.setOasAST(getTreeForContent(source.get(0).getContent()));
+        } catch (Exception ex) {
+            reply.isIsError(true);
+            logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
+        }
+
+        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request) {
+        BallerinaServiceListResponse reply = new BallerinaServiceListResponse();
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Path formattingFilePath = new LSDocument(fileUri).getPath();
+        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+
+        try {
+            String fileContent = documentManager.getFileContent(compilationPath);
+            BallerinaFile ballerinaFile = LSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
+            Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
+            ArrayList<String> services = new ArrayList<String>();
+
+            if (bLangPackage.isPresent() && bLangPackage.get().symbol != null) {
+                BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
+                        .findFirst()
+                        .orElse(null);
+                
+                List<TopLevelNode> servicePkgs = new ArrayList<>();
+                servicePkgs.addAll(compilationUnit.getTopLevelNodes().stream()
+                            .filter(topLevelNode -> topLevelNode instanceof ServiceNode)
+                            .collect(Collectors.toList()));
+
+                servicePkgs.forEach(servicepkg -> {
+                    if (servicepkg instanceof ServiceNode) {
+                        ServiceNode pkg = ((ServiceNode) servicepkg);
+                        services.add(pkg.getName().getValue());
+                    }
+                });
+            }
+            reply.setServices(services.toArray(new String[0]));
+        } catch (LSCompilerException | WorkspaceDocumentException  e) {
+            logger.error("error: while processing service definition at converter service: " + e.getMessage());
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
+
+        return CompletableFuture.supplyAsync(() -> reply);
     }
 
     @Override

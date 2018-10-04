@@ -20,6 +20,7 @@ import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEdi
 import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
+import { apiEditorRender } from './api-editor-renderer';
 import { BallerinaAST, ExtendedLangClient } from '../lang-client';
 import { WebViewRPCHandler } from '../utils';
 import BallerinaExtension from '../core/ballerina-extension';
@@ -27,6 +28,7 @@ import BallerinaExtension from '../core/ballerina-extension';
 const DEBOUNCE_WAIT = 500;
 
 let previewPanel: WebviewPanel | undefined;
+let oasEditorPanel: WebviewPanel | undefined;
 let activeEditor: TextEditor | undefined;
 let preventDiagramUpdate = false;
 
@@ -85,6 +87,50 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 					}
 				});
 		}
+	});
+
+	commands.registerCommand('ballerina.showAPIEditor', () => {
+		if(!oasEditorPanel) {
+			oasEditorPanel = window.createWebviewPanel(
+				'ballerinaOASEditor',
+				"Ballerina API Editor",
+				{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+				}
+			);
+		}
+		const editor = window.activeTextEditor;
+		if(!editor) {
+            return "";
+		}
+		activeEditor = editor;
+		WebViewRPCHandler.create([{
+			methodName: 'getSwaggerDef',
+			handler: (args: any[]) => {
+				return langClient.getBallerinaOASDef(args[0], args[1]);
+			}
+		},{
+			methodName: 'onOasChange',
+			handler: (args: any[]) => {
+				return langClient.getBallerinaASTforOas(args[0]);
+			}
+		}], oasEditorPanel.webview)
+
+		langClient.getServiceListForActiveFile(activeEditor.document.uri).then((resp) => {
+			if(resp.services) {
+				window.showQuickPick(resp.services).then((selected) => {
+					if(selected && activeEditor){
+						const html = apiEditorRender(context, langClient, editor.document.uri, selected);
+						if (oasEditorPanel && html) {
+							oasEditorPanel.webview.html = html;
+						}
+					}
+				});
+				
+			}
+		})
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {

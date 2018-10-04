@@ -4,8 +4,6 @@
   "description": "",
   "main": "/dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --mode development",
     "transpile": "babel src -d dist --copy-files",
     "fix:eslint": "eslint . --fix"
   },

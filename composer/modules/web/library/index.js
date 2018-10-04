@@ -31,7 +31,10 @@ import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
 import DesignView from 'plugins/ballerina/views/design-view.jsx';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder.js';
 import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
+import SwaggerVisualizer from 'plugins/swagger-visualizer/dist/scripts';
+
 import '../src/ballerina-theme/semantic.less';
+import 'plugins/swagger-visualizer/dist/style/main.less';
 
 const BalDiagram = DragDropContext(HTML5Backend)(Diagram);
 const BallerinaDesignView = DragDropContext(HTML5Backend)(DesignView);
@@ -192,6 +195,15 @@ function renderSamplesList(target, getSamples, openSample, openLink) {
     ReactDOM.render(SamplesListElement, target);
 }
 
+function renderBallerinaApiEditor(target, swaggerJson, onJsonChange) {
+    const props = {
+        oasJson: JSON.parse(JSON.parse(swaggerJson)),
+        onDidChange: onJsonChange
+    };
+    const oasComponent = createElement(SwaggerVisualizer, props);
+    ReactDOM.render(oasComponent, target);
+}
+
 export {
     renderStaticDiagram,
     renderEditableDiagram,
@@ -199,4 +211,5 @@ export {
     TreeBuilder,
     BallerinaDesignView,
     BallerinaDiagram,
+    renderBallerinaApiEditor
 };
