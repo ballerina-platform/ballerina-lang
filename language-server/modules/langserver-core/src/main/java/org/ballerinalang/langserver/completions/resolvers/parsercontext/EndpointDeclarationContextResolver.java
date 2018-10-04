@@ -60,7 +60,10 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
             return new ArrayList<>();
         }
 
-        return this.getCompletionItemList(this.getEndpointAndPackageEntries(visibleSymbols));
+        List<CompletionItem> completionItems = new ArrayList<>();
+        completionItems.addAll(this.getCompletionItemList(this.getEndpointEntries(visibleSymbols)));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
+        return completionItems;
     }
 
     private List<SymbolInfo> getEndpointEntries(Map<Name, Scope.ScopeEntry> scopeEntries) {
@@ -75,7 +78,7 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
         return symbolInfoList;
     }
 
-    private List<SymbolInfo> getEndpointAndPackageEntries(List<SymbolInfo> symbolInfoList) {
+    private List<SymbolInfo> getEndpointEntries(List<SymbolInfo> symbolInfoList) {
         return symbolInfoList.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return CommonUtil.isEndpointObject(bSymbol) || bSymbol instanceof BPackageSymbol;

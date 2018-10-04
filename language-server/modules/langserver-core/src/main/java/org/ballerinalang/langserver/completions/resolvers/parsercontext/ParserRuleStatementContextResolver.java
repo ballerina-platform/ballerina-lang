@@ -67,6 +67,9 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             completionItems.addAll(this.getCompletionItemList(filteredSymbols));
             itemList = SymbolFilters.get(StatementTemplateFilter.class).filterItems(context);
 
+            // Add the packages
+            completionItems.addAll(this.getPackagesCompletionItems(context));
+
             CompletionItem xmlns = new CompletionItem();
             Snippet.STMT_NAMESPACE_DECLARATION.getBlock().populateCompletionItem(xmlns, isSnippet);
             xmlns.setLabel(ItemResolverConstants.XMLNS);

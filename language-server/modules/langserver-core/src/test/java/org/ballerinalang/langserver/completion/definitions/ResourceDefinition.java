@@ -39,8 +39,6 @@ public class ResourceDefinition extends CompletionTest {
                 {"importPackagesNonEmptyLine.json", "resource"},
                 {"allVisibleSymbolsNonEmptyLine.json", "resource"},
                 {"allVisibleSymbolsEmptyLine.json", "resource"},
-                {"languageConstructsEmptyLine.json", "resource"},
-                {"languageConstructsNonEmptyLine.json", "resource"},
                 {"actionInvocationSuggestion1.json", "resource"},
                 {"actionInvocationSuggestion2.json", "resource"},
                 {"completionBeforeUnderscore1.json", "resource"},
