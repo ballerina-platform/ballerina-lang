@@ -24,7 +24,6 @@ import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.database.table.BCursorTable;
-import org.ballerinalang.database.table.BProxyTable;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
@@ -117,7 +116,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, true);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = getPreparedStatement(conn, datasource, processedQuery, loadSQLTableToMemory);
             createProcessedStatement(conn, stmt, generatedParams);
@@ -146,7 +145,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = conn.prepareStatement(processedQuery);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
@@ -167,7 +166,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             int keyColumnCount = 0;
             if (keyColumns != null) {
@@ -213,7 +212,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             resultSets = executeStoredProc(stmt);
@@ -267,7 +266,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         int paramArrayCount = 0;
         boolean isInTransaction = context.isInTransaction();
         try {
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             stmt = conn.prepareStatement(query);
             conn.setAutoCommit(false);
             if (parameters != null) {
@@ -312,15 +311,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             }
         }
         context.setReturnValues(countArray);
-    }
-
-    protected void createProxyTable(Context context, SQLDatasource datasource, String tableName,
-            BStructureType structType) {
-        try {
-            context.setReturnValues(constructTable(context, structType, datasource, tableName));
-        } catch (SQLException e) {
-            throw new BallerinaException("Proxy table creation failed: " + e.getMessage(), e);
-        }
     }
 
     protected BStructureType getStructType(Context context, int index) {
@@ -957,12 +947,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             String databaseProductName) throws SQLException {
         List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
         return constructTable(rm, context, rs, structType, false, columnDefinitions, databaseProductName);
-    }
-
-    private BProxyTable constructTable(Context context, BStructureType structType, SQLDatasource dataSource,
-            String tableName) throws SQLException {
-        return new BProxyTable(dataSource, tableName, structType, TimeUtils.getTimeStructInfo(context),
-                                TimeUtils.getTimeZoneStructInfo(context), utcCalendar);
     }
 
     private String getSQLType(BMap<String, BValue> parameter) {

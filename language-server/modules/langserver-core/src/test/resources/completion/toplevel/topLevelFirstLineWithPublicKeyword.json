@@ -1,0 +1,202 @@
+{
+  "position": {
+    "line": 0,
+    "character": 7
+  },
+  "source": "toplevel/source/topLevelFirstLineWithPublicKeyword.bal",
+  "items": [
+    {
+      "label":"import",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"import ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"public main function",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"public function main(string... args) {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"service",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} bind { port: 9090 } {\n\t${3:newResource} (endpoint ${4:caller}, http:Request ${5:request}) {\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"service/webSocket",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"service\u003chttp:WebSocketService\u003e ${1:serviceName} bind { port: 9090 } {\n\tonOpen(endpoint caller) {\n\t\t\n\t}\n\tonText(endpoint caller, string text, boolean final) {\n\t\t\n\t}\n\tonClose(endpoint caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"service/webSub",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"service\u003cwebsub:Service\u003e ${1:websubSubscriber} bind {port: 9090} {\n\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {\n\t\t\n\t}\n\tonNotification(websub:Notification notification) {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"annotation",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"xmlns",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type \u003cObjectName\u003e object",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"type ${1:ObjectName} object {\n\t${2}\n};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type \u003cRecordName\u003e record",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"type ${1:RecordName} record {\n\t${2}\n};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"endpoint",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"type ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"public",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"public ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"xml",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"xml"
+    },
+    {
+      "label":"TableConfig",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"TableConfig"
+    },
+    {
+      "label":"byte",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"byte"
+    },
+    {
+      "label":"stream",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"stream"
+    },
+    {
+      "label":"map",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"map"
+    },
+    {
+      "label":"table",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"table"
+    },
+    {
+      "label":"future",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"future"
+    },
+    {
+      "label":"typedesc",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"typedesc"
+    },
+    {
+      "label":"float",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"float"
+    },
+    {
+      "label":"null",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"null"
+    },
+    {
+      "label":"string",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"string"
+    },
+    {
+      "label":"error",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"error"
+    },
+    {
+      "label":"json",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"json"
+    },
+    {
+      "label":"any",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"any"
+    },
+    {
+      "label":"int",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"int"
+    },
+    {
+      "label":"docData",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"docData"
+    },
+    {
+      "label":"boolean",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"boolean"
+    }
+  ]
+}

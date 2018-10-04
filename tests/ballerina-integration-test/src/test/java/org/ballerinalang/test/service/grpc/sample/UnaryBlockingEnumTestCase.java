@@ -23,11 +23,14 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -38,10 +41,16 @@ import java.nio.file.Paths;
 public class UnaryBlockingEnumTestCase extends GrpcBaseTest {
 
     private CompileResult result;
+    private BServerInstance enumServer;
 
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
+        enumServer = new BServerInstance(balServer);
+        String enumServiceBal = new File(
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "grpc"
+                        + File.separator + "enum" + File.separator + "grpc_enum_test_service.bal").getAbsolutePath();
+        enumServer.startServer(enumServiceBal, new int[]{8555});
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_enum_test_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
@@ -53,5 +62,10 @@ public class UnaryBlockingEnumTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @AfterClass
+    public void teardown() throws Exception {
+        enumServer.shutdownServer();
     }
 }
