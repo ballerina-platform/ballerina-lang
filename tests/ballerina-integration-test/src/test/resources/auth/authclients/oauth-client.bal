@@ -26,7 +26,7 @@ endpoint http:Client clientEP1 {
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
         refreshUrl: "http://localhost:9095/foo/token",
-        clientAuthentication: http:REQUEST_BODY
+        credentialBearer: http:POST_BODY_BEARER
     }
 };
 
@@ -38,7 +38,7 @@ endpoint http:Client clientEP2 {
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
         refreshUrl: "http://localhost:9095/foo/token",
-        clientAuthentication: http:BASIC_AUTH_HEADER
+        credentialBearer: http:AUTH_HEADER_BEARER
     }
 };
 
@@ -61,7 +61,7 @@ endpoint http:Client clientEP4 {
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
         refreshUrl: "http://localhost:9095/foo/token",
-        tokenScope: "token-scope"
+        ^"scope": "token-scope"
     }
 };
 

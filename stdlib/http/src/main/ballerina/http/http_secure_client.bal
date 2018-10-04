@@ -28,10 +28,10 @@ public type AuthScheme "Basic"|"OAuth2"|"JWT";
 @final public AuthScheme OAUTH2 = "OAuth2";
 @final public AuthScheme JWT_AUTH = "JWT";
 
-public type ClientAuthentication "BasicAuthHeader"|"RequestBody";
+public type CredentialBearer "AuthHeaderBearer"|"PostBodyBearer";
 
-@final public ClientAuthentication BASIC_AUTH_HEADER = "BasicAuthHeader";
-@final public ClientAuthentication REQUEST_BODY = "RequestBody";
+@final public CredentialBearer AUTH_HEADER_BEARER = "AuthHeaderBearer";
+@final public CredentialBearer POST_BODY_BEARER = "PostBodyBearer";
 
 # Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
 # configured in the HTTP client endpoint to secure the HTTP requests.
@@ -366,7 +366,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-    string tokenScope = config.auth.tokenScope but { () => EMPTY_STRING };
+    string tokenScope = config.auth.^"scope" but { () => EMPTY_STRING };
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
         error err;
@@ -381,7 +381,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     if (tokenScope != EMPTY_STRING) {
         textPayload = textPayload + "&scope=" + tokenScope;
     }
-    if (config.auth.clientAuthentication == BASIC_AUTH_HEADER) {
+    if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
         string clientIdSecret = clientId + ":" + clientSecret;
         refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
     } else {

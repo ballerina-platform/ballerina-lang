@@ -23,7 +23,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Testing OAuth Client Authentication Configs.
@@ -32,9 +32,8 @@ import java.io.File;
 public class OAuthConfigTest extends AuthBaseTest {
 
     private BMainInstance ballerinaClient;
-    private static final String BAL_FILE = new File("src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "auth" + File.separator + "authclients" + File.separator + "oauth-client.bal").
-            getAbsolutePath();
+    private static final String BAL_FILE = Paths.get("src", "test", "resources", "auth",
+            "authclients", "oauth-client.bal").toFile().getAbsolutePath();
 
     @Test(description = "Test client authentication sent as body param")
     public void testClientAuthenticationAsBodyParam() throws Exception {
@@ -45,7 +44,7 @@ public class OAuthConfigTest extends AuthBaseTest {
 
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null, new String[]{"REQUEST_BODY"});
-        serverLeecher.waitForText(5000);
+        serverLeecher.waitForText(20000);
     }
 
     @Test(description = "Test client authentication sent as authentication header")
@@ -57,7 +56,7 @@ public class OAuthConfigTest extends AuthBaseTest {
 
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null, new String[]{"BASIC_AUTH_HEADER"});
-        serverLeecher.waitForText(5000);
+        serverLeecher.waitForText(20000);
     }
 
     @Test(description = "Test client authentication sent as authentication header by default")
@@ -69,7 +68,7 @@ public class OAuthConfigTest extends AuthBaseTest {
 
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null, new String[]{"NO_CONFIG"});
-        serverLeecher.waitForText(5000);
+        serverLeecher.waitForText(20000);
     }
 
     @Test(description = "Test sending scope param in request body")
@@ -81,6 +80,6 @@ public class OAuthConfigTest extends AuthBaseTest {
 
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null, new String[]{"SCOPE"});
-        serverLeecher.waitForText(5000);
+        serverLeecher.waitForText(20000);
     }
 }

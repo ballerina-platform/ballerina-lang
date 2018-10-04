@@ -38,13 +38,13 @@ service<http:Service> foo bind tokenlistener {
         // Mock token refresh resource
         string payload = check req.getTextPayload();
         boolean clientIdInBody = payload.contains("client_id");
-        string authHeader = "";
+        string authHeader;
         try {
             authHeader = req.getHeader("Authorization");
         } catch (error e) {
+            authHeader = "";
         }
-        boolean hasAuthHeader = authHeader != "";
-        json status = { clientIdInBody: clientIdInBody, hasAuthHeader: hasAuthHeader };
+        json status = { clientIdInBody: clientIdInBody, hasAuthHeader: authHeader != "" };
         io:println(status);
         if (payload.contains("scope")) {
             io:println("{scope: true}");
