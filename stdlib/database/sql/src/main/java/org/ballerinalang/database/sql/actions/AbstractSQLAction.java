@@ -116,7 +116,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction, true);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, true);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = getPreparedStatement(conn, datasource, processedQuery, loadSQLTableToMemory);
             createProcessedStatement(conn, stmt, generatedParams);
@@ -145,7 +145,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction, false);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = conn.prepareStatement(processedQuery);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
@@ -166,7 +166,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction, false);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             int keyColumnCount = 0;
             if (keyColumns != null) {
@@ -212,7 +212,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction, false);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             resultSets = executeStoredProc(stmt);
@@ -266,7 +266,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         int paramArrayCount = 0;
         boolean isInTransaction = context.isInTransaction();
         try {
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction, false);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             stmt = conn.prepareStatement(query);
             conn.setAutoCommit(false);
             if (parameters != null) {
