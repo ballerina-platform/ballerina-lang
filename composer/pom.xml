@@ -90,7 +90,6 @@
         <module>modules/server</module>
         <module>modules/web</module>
         <module>modules/integration-tests</module>
-        <module>modules/distribution</module>
     </modules>
 
 </project>
