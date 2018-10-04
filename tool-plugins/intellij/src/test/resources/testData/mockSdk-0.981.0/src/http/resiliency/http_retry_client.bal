@@ -51,10 +51,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {
@@ -62,10 +62,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
     documentation {
@@ -73,10 +73,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {
@@ -95,10 +95,10 @@ public type RetryClient object {
         from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error;
 
     documentation {
@@ -106,10 +106,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {

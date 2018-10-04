@@ -4,7 +4,7 @@ import ballerina/file;
 public function main (string... args) {
     file:Path target = new("/tmp/result.txt");
     string absolutePath = target.toAbsolutePath().getPathValue();
-    io:ByteChannel byteChannel = io:openFile(absolutePath, args[0]);
+    io:ReadableByteChannel byteChannel = io:openReadableFile(absolutePath);
     int intArg = check <int> args[0];
     
     var readOutput = byteChannel.read(intArg);
