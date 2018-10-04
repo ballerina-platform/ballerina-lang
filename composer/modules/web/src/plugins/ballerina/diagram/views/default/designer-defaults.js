@@ -167,7 +167,7 @@ export const blockStatement = {
 
 export const flowChartControlStatement = {
     heading: {
-        width: (statement.width * (3 / 4)),
+        width: (statement.width * (1 / 2)),
         height: (3 * statement.height),
         paramPaddingX: 5,
         paramSeparatorOffsetX: 20,
@@ -176,6 +176,11 @@ export const flowChartControlStatement = {
     },
     gutter: {
         h: statement.height,
+    },
+    decision: {
+        width: 40,
+        height: 17,
+        radius: 0,
     },
     body: {
         padding: {

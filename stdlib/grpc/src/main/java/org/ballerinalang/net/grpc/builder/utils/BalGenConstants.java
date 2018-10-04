@@ -39,13 +39,15 @@ public class BalGenConstants {
     
     public static final String DEFAULT_SAMPLE_CONNECTOR_HOST = "localhost";
     
-    public static final String DEFAULT_PACKAGE = "client";
+    public static final String DEFAULT_PACKAGE = "temp";
     
     public static final String GRPC_NATIVE_PACKAGE = "ballerina/grpc";
     
     public static final String STUB_FILE_PREFIX = "_pb.bal";
     
     public static final String SAMPLE_FILE_PREFIX = "_sample_client.bal";
+
+    public static final String SAMPLE_SERVICE_FILE_PREFIX = "_sample_service.bal";
     
     public static final String EMPTY_STRING = "";
     
@@ -66,6 +68,13 @@ public class BalGenConstants {
     public static final String DEFAULT_SAMPLE_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
     
     public static final String SKELETON_TEMPLATE_NAME = "clientStub";
+
+    public static final String GRPC_CLIENT = "client";
+
+    public static final String GRPC_SERVICE = "service";
     
     public static final String SAMPLE_TEMPLATE_NAME = "sample";
+
+    public static final String SAMPLE_SERVICE_TEMPLATE_NAME = "sampleService";
+
 }

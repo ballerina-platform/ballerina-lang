@@ -23,6 +23,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -39,7 +40,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -50,9 +53,12 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
@@ -91,9 +97,16 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         try {
-            if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
+            Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode).parent)
+                    .globalVars).stream().filter(var -> ((BLangVariable) var).getName().getValue()
+                    .equals(DESCRIPTOR_MAP)).findFirst();
+            if (descriptorMapVar.isPresent()) {
+                String proto = ((BLangRecordLiteral) descriptorMapVar.get().getInitialExpression())
+                        .getKeyValuePairs().get(0).getValue().toString();
+                addDescriptorAnnotation(serviceNode, null, proto);
+            } else if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                 File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
-                addDescriptorAnnotation(serviceNode, fileDefinition);
+                addDescriptorAnnotation(serviceNode, fileDefinition, null);
                 FileDefinitionHolder.getInstance().addDefinition(serviceNode.getName().getValue(), fileDefinition);
             }
         } catch (GrpcServerException e) {
@@ -128,7 +141,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         }
     }
 
-    private void addDescriptorAnnotation(ServiceNode serviceNode, File fileDefinition) {
+    private void addDescriptorAnnotation(ServiceNode serviceNode, File fileDefinition, String protoValue) {
         BLangService service = (BLangService) serviceNode;
         DiagnosticPos pos = service.pos;
         // Create Annotation Attachment.
@@ -166,10 +179,14 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         keyLiteral.type = symTable.stringType;
 
         BLangLiteral valueLiteral = null;
-        LiteralNode literalNode1 = TreeBuilder.createLiteralExpression();
-        if (literalNode1 instanceof BLangLiteral && fileDefinition != null) {
-            valueLiteral = (BLangLiteral) literalNode1;
-            valueLiteral.value = bytesToHex(fileDefinition.getFileDescriptorProto().toByteArray());
+        LiteralNode literalExpression = TreeBuilder.createLiteralExpression();
+        if (literalExpression.getKind() == NodeKind.LITERAL) {
+            valueLiteral = (BLangLiteral) literalExpression;
+            if (fileDefinition != null) {
+                valueLiteral.value = bytesToHex(fileDefinition.getFileDescriptorProto().toByteArray());
+            } else if (protoValue != null) {
+                valueLiteral.value = protoValue;
+            }
             valueLiteral.typeTag = TypeTags.STRING;
             valueLiteral.type = symTable.stringType;
         }
