@@ -28,20 +28,22 @@ public type Listener object {
 };
 
 public type ListenerEndpointConfiguration record {
-    string? interface,
-    int port,
+    string? interface;
+    int port;
 };
 
 public type CallerAction object {
 
-    public extern function read(int size) returns byte[]|error;
+    public extern function read() returns byte[]|error;
 
-    public extern function write(byte[] content) returns error?;
+    public extern function write(byte[] content) returns int|error?;
+
+    public extern function close() returns error?;
 };
 
 public type TCPSocketMeta record {
-    int remotePort,
-    int localPort,
-    string remoteAddress,
-    string localAddress,
+    int remotePort;
+    int localPort;
+    string remoteAddress;
+    string localAddress;
 };
