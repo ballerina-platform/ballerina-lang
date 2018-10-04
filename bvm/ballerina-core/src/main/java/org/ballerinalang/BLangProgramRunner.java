@@ -18,7 +18,9 @@
 package org.ballerinalang;
 
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.persistence.RecoveryTask;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -26,6 +28,8 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
@@ -80,6 +84,10 @@ public class BLangProgramRunner {
                     debugger.notifyExit();
                 }
                 BLangFunctions.invokePackageStopFunctions(programFile);
+                // Notify native units
+                NativeUnitLoader.getInstance().notifyAllShutdownHooks(1000L, TimeUnit.MILLISECONDS);
+                // Notify worker executor
+                ThreadPoolFactory.getInstance().getWorkerExecutor().shutdownNow();
             }
         }
         return entryFuncResult;

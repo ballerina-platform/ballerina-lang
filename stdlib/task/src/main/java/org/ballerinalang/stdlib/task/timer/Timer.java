@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.task.timer;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.TaskExecutor;
 import org.ballerinalang.stdlib.task.TaskIdGenerator;
@@ -57,10 +58,13 @@ public class Timer {
         final Runnable schedulerFunc = () -> {
             callTriggerFunction(ctx, onTriggerFunction, onErrorFunction);
         };
-        
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
         TaskRegistry.getInstance().addTimer(this);
         //BLangScheduler.workerCountUp();
+        NativeUnitLoader.getInstance().addShutdownHook(() -> {
+            executorService.shutdownNow();
+            return 0;
+        });
     }
 
     /**

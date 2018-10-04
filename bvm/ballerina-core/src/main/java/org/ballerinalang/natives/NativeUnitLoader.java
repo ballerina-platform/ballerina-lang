@@ -20,21 +20,34 @@ package org.ballerinalang.natives;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.natives.NativeElementRepository.NativeFunctionDef;
 import org.ballerinalang.spi.NativeElementProvider;
+import org.ballerinalang.util.debugger.VMDebugServerHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @since 0.94
  */
 public class NativeUnitLoader {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(VMDebugServerHandler.class);
+
     private NativeElementRepository nativeElementRepo;
 
     private static NativeUnitLoader instance;
     
     private Map<String, NativeCallableUnit> nativeUnitsCache = new HashMap<>();
+
+    private List<Callable<Integer>> shutdownHooks = new ArrayList<>();
 
     public static NativeUnitLoader getInstance() {
         if (instance == null) {
@@ -86,5 +99,30 @@ public class NativeUnitLoader {
         }
         return result;
     }
-    
+
+    /**
+     * Registers a shutdown hook.
+     *
+     * @param hook a {@link Callable} shutdown hook
+     */
+    public void addShutdownHook(Callable<Integer> hook) {
+        shutdownHooks.add(hook);
+    }
+
+    /**
+     * Notify all shutdown hooks to shutdown.
+     *
+     * @param timeout  maximum timeout
+     * @param timeUnit time unit of the timeout
+     */
+    public void notifyAllShutdownHooks(long timeout, TimeUnit timeUnit) {
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        try {
+            // Execute all shutdown hooks with max-time limit
+            executorService.invokeAll(shutdownHooks, timeout, timeUnit);
+        } catch (InterruptedException e) {
+            logger.error("Notifying shutdown hooks process interrupted", e);
+        }
+        executorService.shutdownNow();
+    }
 }

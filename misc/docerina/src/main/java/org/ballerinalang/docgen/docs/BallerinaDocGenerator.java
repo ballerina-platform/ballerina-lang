@@ -19,6 +19,7 @@
 package org.ballerinalang.docgen.docs;
 
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
@@ -298,12 +299,11 @@ public class BallerinaDocGenerator {
             try {
                 generatePackageDocsFromBallerina(sourceRoot, source, packageFilter, isNative, offline);
 
-            } catch (IOException e) {
+            } catch (IOException | BLangCompilerException e) {
                 out.println(String.format("docerina: API documentation generation failed for %s: %s", source, e
                         .getMessage()));
                 log.error(String.format("API documentation generation failed for %s", source), e);
                 // we continue, as there may be other valid packages.
-                continue;
             }
         }
         return BallerinaDocDataHolder.getInstance().getPackageMap();
