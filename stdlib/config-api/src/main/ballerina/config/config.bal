@@ -37,11 +37,12 @@ public function getAsString(@sensitive string key, string default = "") returns 
         match value {
             string strValue => return strValue;
             int|float|boolean|map|any[]|() => {
-                error err = { message: "Invalid value. Expected a 'string'." };
+                error err = error("Invalid value. Expected a 'string'.");
                 throw err;
             }
             error err => {
-                error e = { message: "Invalid value. Expected a 'string'.", cause: err };
+                map data = {cause : err};
+                error e = error("Invalid value. Expected a 'string'.", data);
                 throw e;
             }
         }
@@ -63,11 +64,12 @@ public function getAsInt(@sensitive string key, int default = 0) returns int {
         match value {
             int intVal => return intVal;
             string|float|boolean|map|any[]|() x => {
-                error err = { message: "Invalid value. Expected an 'int'." };
+                error err = error("Invalid value. Expected an 'int'.");
                 throw err;
             }
             error err => {
-                error e = { message: "Invalid value. Expected an 'int'.", cause: err };
+                map data = {cause : err};
+                error e = error("Invalid value. Expected an 'int'.", data);
                 throw e;
             }
         }
@@ -97,11 +99,12 @@ public function getAsFloat(@sensitive string key, float default = 0.0) returns f
         match value {
             float floatVal => return floatVal;
             int|string|boolean|map|any[]|() => {
-                error err = { message: "Invalid value. Expected a 'float'." };
+                error err = error("Invalid value. Expected a 'float'.");
                 throw err;
             }
             error err => {
-                error e = { message: "Invalid value. Expected a 'float'.", cause: err };
+                map data = {cause : err};
+                error e = error("Invalid value. Expected a 'float'.", data);
                 throw e;
             }
         }
@@ -131,11 +134,12 @@ public function getAsBoolean(@sensitive string key, boolean default = false) ret
         match value {
             boolean booleanVal => return booleanVal;
             int|float|string|map|any[]|() => {
-                error err = { message: "Invalid value. Expected a 'boolean'." };
+                error err = error("Invalid value. Expected a 'boolean'.");
                 throw err;
             }
             error err => {
-                error e = { message: "Invalid value. Expected a 'boolean'.", cause: err };
+                map data = { cause  : err };
+                error e = error("Invalid value. Expected a 'boolean'.", data);
                 throw e;
             }
         }
@@ -159,11 +163,12 @@ public function getAsMap(@sensitive string key) returns map {
     match value {
         map section => return section;
         int|float|boolean|string|any[]|() => {
-            error err = { message: "Invalid value. Expected a 'map'." };
+            error err = error("Invalid value. Expected a 'map'.");
             throw err;
         }
         error err => {
-            error e = { message: "Invalid value. Expected a 'map'.", cause: err };
+            map data = {cause : err};
+            error e = error("Invalid value. Expected a 'map'.", data);
             throw e;
         }
     }
