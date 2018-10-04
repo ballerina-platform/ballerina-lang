@@ -1,0 +1,36 @@
+# To run Ballerina, place the `foreach.bal` file in a specific location. Then navigate to this location and issue this command.
+$ ballerina run foreach.bal
+Iterating over a string array:-
+#Only one value is defined. Therefore, only the values are printed.
+fruit: apple
+fruit: banana
+fruit: cherry
+
+Iterating over a map:-
+# Two values are defined. Therefore, both the key and the value in the map are printed.
+letter: a, word: apple
+letter: b, word: banana
+letter: c, word: cherry
+
+Iterating over a json object:-
+# This returns the values in the JSON object.
+string value: apple
+non-string value: ["red","green"]
+non-string value: 5
+
+Iterating over a json array:-
+color 0: red
+color 1: green
+
+Iterating over an xml:-
+# Two variables are defined. Therefore, the index and the value are printed.
+xml at 0: <name>Sherlock Holmes</name>
+xml at 1: <author>Sir Arthur Conan Doyle</author>
+
+Iterating over a closed integer range:-
+# This prints the sum of the values of the integer range including the start and end values
+summation from 1 to 10 is 55
+
+Iterating over a half open integer range:-
+# This prints the sum of the values of the integer range including the start value but excluding the end value
+summation from 1 to 10 excluding 10 is 45
