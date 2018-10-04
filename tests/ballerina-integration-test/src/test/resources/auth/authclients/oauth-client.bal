@@ -65,14 +65,29 @@ endpoint http:Client clientEP4 {
     }
 };
 
+endpoint http:Client clientEP5 {
+    url:"http://localhost:9095/foo",
+    auth: {
+        scheme: http:OAUTH2,
+        refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+        clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+        clientSecret: "9205371918321623741",
+        refreshUrl: "http://localhost:9095/foo/token",
+        credentialBearer: http:POST_BODY_BEARER,
+        ^"scope": "token-scope"
+    }
+};
+
 public function main (string arg) {
-    if (arg == "REQUEST_BODY") {
+    if (arg == "POST_BODY_BEARER") {
         var resp = clientEP1->get("/bar");
-    } else if (arg == "BASIC_AUTH_HEADER") {
+    } else if (arg == "AUTH_HEADER_BEARER") {
         var resp = clientEP2->get("/bar");
     } else if (arg == "NO_CONFIG") {
         var resp = clientEP3->get("/bar");
     } else if (arg == "SCOPE") {
         var resp = clientEP4->get("/bar");
+    } else if (arg == "SCOPE_POST_BODY_BEARER") {
+        var resp = clientEP5->get("/bar");
     }
 }

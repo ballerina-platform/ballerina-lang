@@ -44,11 +44,12 @@ service<http:Service> foo bind tokenlistener {
         } catch (error e) {
             authHeader = "";
         }
-        json status = { clientIdInBody: clientIdInBody, hasAuthHeader: authHeader != "" };
-        io:println(status);
+        boolean tokenScope = false;
         if (payload.contains("scope")) {
-            io:println("{scope: true}");
+            tokenScope = true;
         }
+        json status = { clientIdInBody: clientIdInBody, hasAuthHeader: authHeader != "", tokenScope: tokenScope };
+        io:println(status);
         json resp = { access_token: "acces-token" };
         http:Response res = new;
         res.setJsonPayload(resp);
