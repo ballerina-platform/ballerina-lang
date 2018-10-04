@@ -69,4 +69,3 @@ public class UnaryBlockingEnumTestCase extends GrpcBaseTest {
         enumServer.shutdownServer();
     }
 }
-
