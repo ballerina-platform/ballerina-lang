@@ -172,7 +172,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
         </classes>
     </test>
