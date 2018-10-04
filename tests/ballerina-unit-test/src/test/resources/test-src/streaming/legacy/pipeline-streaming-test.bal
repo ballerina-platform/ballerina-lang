@@ -74,7 +74,7 @@ function startPipelineQuery() returns (StatusCount[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof globalStatusCountArray) > 0 || count == 10) {
             break;
         }

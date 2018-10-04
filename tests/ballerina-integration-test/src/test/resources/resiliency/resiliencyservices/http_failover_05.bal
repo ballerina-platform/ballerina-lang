@@ -209,7 +209,7 @@ service mock05 bind backendEP05 {
         path: "/"
     }
     mockResource(endpoint caller, http:Request req) {
-        counter05++;
+        counter05 += 1;
         if (counter05 % 5 == 0) {
             runtime:sleep(30000);
         }
