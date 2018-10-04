@@ -135,21 +135,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm run build (compile)</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <skip>${skipClientSideBuild}</skip>
-                            <executable>${npm.executable}</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>${npm.build.command}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm run build (compile) library</id>
                         <goals>
                             <goal>exec</goal>
@@ -239,13 +224,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>electron-build</id>
-            <properties>
-                <!-- for electron the build command should be build-electron -->
-                <npm.build.command>build-electron</npm.build.command>
-            </properties>
-        </profile>
         <profile>
             <id>skip-client</id>
             <properties>
