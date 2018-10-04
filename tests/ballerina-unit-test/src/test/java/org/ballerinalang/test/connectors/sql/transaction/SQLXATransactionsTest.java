@@ -35,15 +35,12 @@ import java.io.File;
  */
 public class SQLXATransactionsTest {
     private CompileResult result;
-    private CompileResult resultProxy;
     private static final String DB_NAME1 = "TestDB1";
     private static final String DB_NAME2 = "TestDB2";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql_xa_transaction_test.bal");
-        resultProxy = BCompileUtil
-                .compile("test-src/connectors/sql/transaction/sql_xa_transaction_test_proxy_table.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_1), DB_NAME1);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_2), DB_NAME2);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1, "datafiles/sql/SQLH2CustomerTableCreate.sql");
@@ -88,34 +85,6 @@ public class SQLXATransactionsTest {
     @Test
     public void testXATransactonRetry() {
         BValue[] returns = BRunUtil.invoke(result, "testXATransactonRetry");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
-    }
-
-    @Test
-    public void testXATransactionSuccessProxyTable() {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testXATransactionSuccess");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
-    }
-
-    @Test
-    public void testXAransactonFailed1ProxyTable() {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testXATransactionFailed1");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-    }
-
-    @Test
-    public void testXATransactionFailed2ProxyTable() {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testXATransactionFailed2");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-    }
-
-    @Test
-    public void testXATransactionRetryProxyTable() {
-        BValue[] returns = BRunUtil.invoke(resultProxy, "testXATransactionRetry");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }

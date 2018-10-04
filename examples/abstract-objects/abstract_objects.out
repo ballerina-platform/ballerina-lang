@@ -1,0 +1,5 @@
+#To run this sample, navigate to the directory that contains the
+#'.bal' file and issue the 'ballerina run' command.
+$ ballerina run abstract_object.bal
+John Doe
+{age:50, firstName:"John", lastName:"Doe"}

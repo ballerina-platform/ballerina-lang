@@ -153,49 +153,6 @@ function testBatchUpdate() returns (int[]) {
     }
 }
 
-function testAddToProxyTable() returns (Customer[]) {
-    endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    try {
-        var temp = testDB->getProxyTable("Customers", Customer);
-        match (temp) {
-            table dt => {
-                Customer c1 = { customerId: 40, name: "Manuri", creditLimit: 1000.0, country: "Sri Lanka" };
-                Customer c2 = { customerId: 41, name: "Devni", creditLimit: 1000.0, country: "Sri Lanka" };
-
-                var result1 = dt.add(c1);
-                var result2 = dt.add(c2);
-            }
-            error e => return [];
-        }
-        var temp2 = testDB->select("SELECT  * from Customers where customerId=40 OR customerId=41", Customer);
-        match (temp2) {
-            table dt2 => {
-                Customer[] customerArray;
-                int i = 0;
-                while (dt2.hasNext()) {
-                    var rs = check <Customer>dt2.getNext();
-                    Customer c = { customerId: rs.customerId, name: rs.name, creditLimit: rs.creditLimit, country: rs.
-                    country
-                    };
-                    customerArray[i] = c;
-                    i++;
-                }
-                return customerArray;
-            }
-            error e => return [];
-        }
-    } finally {
-        testDB.stop();
-    }
-}
-
 function testUpdateInMemory() returns (int, string) {
     endpoint h2:Client testDB {
         name: "TestDB2H2",
