@@ -107,8 +107,11 @@
                         "properties": {
                             "script": {
                                 "type": "string",
-                                "default": "${file}"
+                                "default": "${file}",
+                                "description": "Path of the script that need to be executed (e.g. ${workspaceRoot}/main.bal)"
                             },
+                            "scriptArguments": [],
+                            "commandOptions": [],
                             "debugServerTimeout": {
                                 "type": "integer",
                                 "default": 5000,
