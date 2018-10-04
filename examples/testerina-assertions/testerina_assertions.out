@@ -1,0 +1,24 @@
+$ ballerina test testerina_assertions.bal
+Compiling tests
+    testerina_assertions.bal
+
+Running tests
+    testerina_assertions.bal
+	  [pass] testAssertFail2
+	  [pass] testAssertFail1
+	  [pass] testAssertFalse
+	  [pass] testAssertTrue
+	  [pass] testAssertNotEqualsJson
+	  [pass] testAssertNotEqualsString
+	  [pass] testAssertFloatArrayEquals
+	  [pass] testAssertIntArrayEquals
+	  [pass] testAssertStringArrayEquals
+	  [pass] testAssertBooleanEquals
+	  [pass] testAssertJsonEquals
+	  [pass] testAssertStringEquals
+	  [pass] testAssertFloatEquals
+	  [pass] testAssertIntEquals
+
+	  14 passing
+	  0 failing
+	  0 skipped

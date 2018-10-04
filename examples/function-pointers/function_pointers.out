@@ -1,0 +1,6 @@
+#To run this sample, navigate to the directory that contains the
+#'.bal' file and issue the 'ballerina run' command.
+$ ballerina run function_pointers.bal
+Answer: 200.0
+Answer: 200.0
+Answer: 200.0

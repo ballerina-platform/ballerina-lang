@@ -1,0 +1,2 @@
+// The gRPC Server Connector is used to expose gRPC services over HTTP/2.
+// This sample demonstrates how a gRPC secured unary service interacts with a gRPC secured blocking client.

@@ -1,0 +1,7 @@
+// Invoke the service using cURL three times.
+$ curl http://localhost:9090/online-store-service/make-order
+Order Processed!
+$ curl http://localhost:9090/online-store-service/make-order
+Order Processed!
+$ curl http://localhost:9090/online-store-service/make-order
+Order Processed!

@@ -1,0 +1,7 @@
+// A secured client with OAuth2 authentication is used to connect to a
+// secured service with OAuth2 authentication. An additional `auth`
+// field is added to the HTTP client endpoint initialization in order
+// to make the simple HTTP client endpoint into a secure client endpoint.
+// Inside the `auth` field the `scheme`, `accessToken`, `clientId`,
+// `clientSecret`, `refreshToken` and `refreshUrl` is defined for
+// OAuth2 authentication.

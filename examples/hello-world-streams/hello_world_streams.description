@@ -1,0 +1,4 @@
+// Ballerina provides first class support for streams. This is powered by the Siddhi Complex Event Processing (CEP)
+// engine. You can build streaming queries using the user friendly syntax. The queries include projection, filtering,
+// windows, stream joins, and patterns.
+

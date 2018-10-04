@@ -1,0 +1,3 @@
+// Type conversion transforms the value so that it can be interpreted as belonging to another type.
+// There are safe and unsafe conversions.
+// The type of unsafe conversions expressions is a union of the type to be converted and the error type.

@@ -1,0 +1,4 @@
+// Channel is a constrained type that can be defined only as a top level node.
+// It is introduced for communication between parallel processes in Ballerina programs.
+// Channels can be used for message correlation by sending and receiving messages via different resources to the same channel.
+// In workflow related scenarios, you can use channels to receive intermediate input.

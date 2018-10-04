@@ -1,0 +1,8 @@
+// Invoke the service's receive resource using "curl".
+$ curl localhost:9090/channelService/receive
+{"message":"message to channel"}
+
+// Invoke the service's send resource using "curl" in a separate terminal.
+$ curl localhost:9090/channelService/send -X POST -H "Content-Type: application/json" -d  '{"message":"message to channel"}'
+{"send":"Success!!"}
+

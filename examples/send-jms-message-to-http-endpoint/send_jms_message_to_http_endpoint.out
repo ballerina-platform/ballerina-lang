@@ -1,0 +1,11 @@
+# Download Ballerina message broker from [here](https://github.com/ballerina-platform/ballerina-message-broker/releases/download/v0.970.5/message-broker-0.970.5.zip)
+# Extract the zip file and navigate to <BROKER_HOME>/bin
+# Start Ballerina message broker by executing either the `broker` or the `broker.bat` command.
+$ ./broker
+
+# Navigate to the directory that contains the
+#`.bal` file and run the `ballerina run` command. 
+$ ballerina run send_jms_message_to_http_endpoint.bal
+Initiating service(s) in 'send_jms_message_to_http_endpoint.bal'
+2018-06-14 15:43:04,283 INFO  [ballerina/jms] - Message receiver created for queue MyQueue
+ballerina: started HTTP/WS endpoint 0.0.0.0:9090
