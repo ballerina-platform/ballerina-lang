@@ -153,8 +153,7 @@ public class TargetChannel {
 
     public void setEndPointTimeout(int socketIdleTimeout) {
         this.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER,
-                                               new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
-                                                                    TimeUnit.MILLISECONDS));
+                                               new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS));
         http2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
     }
 
