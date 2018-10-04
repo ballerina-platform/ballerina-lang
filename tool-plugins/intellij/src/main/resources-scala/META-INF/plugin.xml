@@ -1,0 +1,99 @@
+<idea-plugin>
+    <id>com.github.gtache.lsp</id>
+    <name>LSP Support</name>
+    <version>1.4.0</version>
+    <vendor email="guillaume.tache@epfl.ch" url="https://github.com/gtache">gtache</vendor>
+
+    <description>Adds LSP (Language Server Protocol) support for IntelliJ</description>
+
+    <change-notes>
+        <![CDATA[
+        -Add support for multiple extensions per server
+        -Better URI handling, fixes spaces in uris
+        -Fixes NPE on LookupItem
+        -Fixes position/range IJ-LSP translation thanks to ant-druha
+        -Better server crash handling
+        -Fixes some issues with IntelliJ 2018 (QuickDoc, rename)
+        -Less hover requests spamming when holding ctrl down
+        -Dirty hack to make rename close opened windows after renaming
+        -Update to lsp4j 0.4.1 and Coursier 1.0.3
+
+]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products -->
+    <depends>com.intellij.modules.lang</depends>
+
+    <extensionPoints>
+        <extensionPoint interface="com.github.gtache.lsp.contributors.icon.LSPIconProvider" name="LSPIconProvider"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <applicationConfigurable instance="com.github.gtache.lsp.settings.MiscSettings" id="MiscSettings"
+                                 groupId="language" displayName="Language Server Protocol"/>
+        <applicationConfigurable parentId="MiscSettings" id="ServerSettings" displayName="Server Definitions"
+                                 instance="com.github.gtache.lsp.settings.ServersSettings"/>
+        <applicationConfigurable parentId="MiscSettings" id="TimeoutSettings" displayName="Timeouts"
+                                 instance="com.github.gtache.lsp.settings.TimeoutSettings"/>
+        <applicationConfigurable parentId="MiscSettings" id="CoursierSettings" displayName="Coursier"
+                                 instance="com.github.gtache.lsp.settings.CoursierSettings"/>
+
+        <applicationService id="LSPState"
+                            serviceInterface="com.github.gtache.lsp.settings.LSPState"
+                            serviceImplementation="com.github.gtache.lsp.settings.LSPState"/>
+
+        <gotoSymbolContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoSymbolContributor"
+                               id="LSPGotoSymbolContributor"/>
+        <gotoClassContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoClassContributor"
+                              id="LSPGotoClassContributor"/>
+        <typedHandler implementation="com.github.gtache.lsp.editor.listeners.LSPTypedHandler" id="LSPTypedHandler"/>
+        <completion.contributor implementationClass="com.github.gtache.lsp.contributors.LSPCompletionContributor"
+                                id="LSPCompletionContributor" language="any"/>
+        <inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"
+                                id="LSPInspectionProvider"/>
+        <fileDocumentSynchronizationVetoer
+                implementation="com.github.gtache.lsp.editor.listeners.LSPFileDocumentSynchronizationVetoer"
+                id="LSPFileDocumentSynchronizationVetoer"/>
+
+        <renameHandler implementation="com.github.gtache.lsp.contributors.rename.LSPRenameHandler" id="LSPRenameHandler"
+                       order="first"/>
+        <renamePsiElementProcessor implementation="com.github.gtache.lsp.contributors.rename.LSPRenameProcessor"
+                                   id="LSPRenameProcessor" order="first"/>
+        <lang.documentationProvider implementationClass="com.github.gtache.lsp.contributors.LSPDocumentationProvider"
+                                    id="LSPDocumentationProvider" language="TEXT" order="first"/>
+
+        <!--        <lang.findUsagesProvider implementationClass="com.github.gtache.lsp.contributors.LSPFindUsagesProvider" id="LSPFindUsagesProvider" language="TEXT" order="first" />
+                <findUsagesHandlerFactory implementation="com.github.gtache.lsp.contributors.LSPFindUsagesHandlerFactory" id="LSPFindUsagesHandlerFactory" />-->
+    </extensions>
+
+    <actions>
+        <action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"
+                overrides="true"/> <!-- Overrides quickdoc if possible, otherwise delegates to it -->
+        <action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"
+                overrides="true"/>
+        <action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog"
+                use-shortcut-of="ShowReformatFileDialog" overrides="true"/>
+        <action class="com.github.gtache.lsp.actions.LSPReferencesAction"
+                id="LSPFindUsages">
+            <keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
+        </action>
+        <action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction">
+            <keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/>
+        </action>
+    </actions>
+
+    <application-components>
+        <component>
+            <implementation-class>com.github.gtache.lsp.PluginMain</implementation-class>
+        </component>
+    </application-components>
+    <project-components>
+    </project-components>
+
+</idea-plugin>
