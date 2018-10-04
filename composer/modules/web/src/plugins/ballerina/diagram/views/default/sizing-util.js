@@ -1276,9 +1276,6 @@ class SizingUtil {
         const viewState = node.viewState;
         const components = viewState.components;
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
-        const parentBlockGutter = ((node.elseStatement) &&
-            (node.elseStatement.statements) &&
-            (node.elseStatement.statements.length > 0)) ? this.config.statement.height : 0;
         const nodeBodyViewState = node.body.viewState;
 
         // flow chart if width and height is different to normal block node width and height
@@ -1307,7 +1304,7 @@ class SizingUtil {
         viewState.components['statement-box'].w = bodyWidth;
         viewState.bBox.h = viewState.components['statement-box'].h +
             viewState.components['drop-zone'].h +
-            components['block-header'].h + parentBlockGutter;
+            components['block-header'].h + this.config.statement.height;
         viewState.bBox.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
