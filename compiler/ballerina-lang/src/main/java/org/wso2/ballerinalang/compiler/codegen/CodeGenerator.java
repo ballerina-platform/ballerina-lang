@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -205,6 +206,7 @@ import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
+import org.wso2.ballerinalang.programfile.cpentries.DecimalCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
@@ -236,6 +238,7 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.DECIMAL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.INT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.REF_OFFSET;
@@ -600,6 +603,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int floatCPEntryIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(doubleVal));
                     emit(InstructionCodes.FCONST, getOperand(floatCPEntryIndex), regIndex);
                 }
+                break;
+
+            case TypeTags.DECIMAL:
+                Decimal128 decimalVal = new Decimal128((String) literalExpr.value);
+                int decimalCPEntryIndex = currentPkgInfo.addCPEntry(new DecimalCPEntry(decimalVal));
+                emit(InstructionCodes.DCONST, getOperand(decimalCPEntryIndex), regIndex);
                 break;
 
             case TypeTags.STRING:
@@ -1450,6 +1459,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
                 break;
+            case TypeTags.DECIMAL:
+                index = ++indexes.tDecimal;
+                break;
             case TypeTags.STRING:
                 index = ++indexes.tString;
                 break;
@@ -1479,6 +1491,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
+                break;
+            case TypeTags.DECIMAL:
+                opcode = baseOpcode + DECIMAL_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1510,6 +1525,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
+                break;
+            case TypeTags.DECIMAL:
+                opcode = baseOpcode + DECIMAL_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1912,9 +1930,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
-                defaultValue.floatValue = literalExpr.value instanceof String ?
-                        Double.parseDouble((String) literalExpr.value) :
-                        (Double) literalExpr.value;
+                defaultValue.floatValue = (Double) literalExpr.value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(defaultValue.floatValue));
                 break;
             case TypeTags.STRING:
@@ -2372,6 +2388,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int tString = -1;
         int tBoolean = -1;
         int tRef = -1;
+        int tDecimal = -1;
         Kind kind;
 
         VariableIndex(Kind kind) {
@@ -2385,6 +2402,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             result[2] = this.tString;
             result[3] = this.tBoolean;
             result[4] = this.tRef;
+            result[5] = this.tDecimal;
             return result;
         }
 

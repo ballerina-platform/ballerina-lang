@@ -50,23 +50,23 @@ public interface InstructionCodes {
     int FMOVE = 23;
     int SMOVE = 24;
     int BMOVE = 25;
-    int RMOVE = 26;
-    int DMOVE = 27;
+    int DMOVE = 26;
+    int RMOVE = 27;
     int BIALOAD = 28;
     int IALOAD = 29;
     int FALOAD = 30;
     int SALOAD = 31;
     int BALOAD = 32;
-    int RALOAD = 33;
-    int DALOAD = 34;
+    int DALOAD = 33;
+    int RALOAD = 34;
     int JSONALOAD = 35;
 
     int IGLOAD = 36;
     int FGLOAD = 37;
     int SGLOAD = 38;
     int BGLOAD = 39;
-    int RGLOAD = 40;
-    int DGLOAD = 41;
+    int DGLOAD = 40;
+    int RGLOAD = 41;
 
     int CHNRECEIVE = 42;
     int CHNSEND = 43;
@@ -81,8 +81,8 @@ public interface InstructionCodes {
     int FASTORE = 52;
     int SASTORE = 53;
     int BASTORE = 54;
-    int RASTORE = 55;
-    int DASTORE = 56;
+    int DASTORE = 55;
+    int RASTORE = 56;
     int JSONASTORE = 57;
 
     int BIAND = 58;
@@ -94,8 +94,8 @@ public interface InstructionCodes {
     int FGSTORE = 63;
     int SGSTORE = 64;
     int BGSTORE = 65;
-    int RGSTORE = 66;
-    int DGSTORE = 67;
+    int DGSTORE = 66;
+    int RGSTORE = 67;
 
     int MAPSTORE = 74;
     int JSONSTORE = 75;
@@ -130,15 +130,15 @@ public interface InstructionCodes {
     int FEQ = 100;
     int SEQ = 101;
     int BEQ = 102;
-    int REQ = 103;
-    int DEQ = 104;
+    int DEQ = 103;
+    int REQ = 104;
 
     int INE = 105;
     int FNE = 106;
     int SNE = 107;
     int BNE = 108;
-    int RNE = 109;
-    int DNE = 110;
+    int DNE = 109;
+    int RNE = 110;
 
     int IGT = 111;
     int FGT = 112;
@@ -263,8 +263,8 @@ public interface InstructionCodes {
     int FNEWARRAY = 212;
     int SNEWARRAY = 213;
     int BNEWARRAY = 214;
-    int RNEWARRAY = 215;
-    int DNEWARRAY = 216;
+    int DNEWARRAY = 215;
+    int RNEWARRAY = 216;
     int LENGTHOF = 218;
 
     int NEWSTRUCT = 220;
@@ -287,9 +287,9 @@ public interface InstructionCodes {
 
     int IRET = 240;
     int FRET = 241;
-    int DRET = 242;
-    int SRET = 243;
-    int BRET = 244;
+    int SRET = 242;
+    int BRET = 243;
+    int DRET = 244;
     int RRET = 245;
     int RET = 246;
 
