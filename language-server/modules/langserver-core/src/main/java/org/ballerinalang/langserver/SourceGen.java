@@ -7347,7 +7347,7 @@ public class SourceGen {
     private void modifyNode(JsonObject node, String parentKind) {
         String kind = node.get("kind").getAsString();
 
-        if (kind.equals("If")) {
+        if ("If".equals(kind)) {
             if (node.getAsJsonObject("elseStatement") != null) {
                 node.addProperty("ladderParent", true);
             }
@@ -7359,51 +7359,51 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Transaction")) {
-            if (node.has("condition") && node.getAsJsonObject("condition").has("value")) {
-                JsonObject retry = null;
-                if (node.has("failedBody") &&
-                        node.getAsJsonObject("failedBody").has("statements")) {
-                    for (JsonElement statement :
-                            node.getAsJsonObject("failedBody").get("statements").getAsJsonArray()) {
-                        if (statement.isJsonObject() && statement.getAsJsonObject().has("kind") &&
-                                statement.getAsJsonObject().get("kind").getAsString().equals("retry")) {
-                            retry = statement.getAsJsonObject();
-                        }
+        if ("Transaction".equals(kind)
+                && node.has("condition") && node.getAsJsonObject("condition").has("value")) {
+            JsonObject retry = null;
+            if (node.has("failedBody") &&
+                    node.getAsJsonObject("failedBody").has("statements")) {
+                for (JsonElement statement :
+                        node.getAsJsonObject("failedBody").get("statements").getAsJsonArray()) {
+                    if (statement.isJsonObject() && statement.getAsJsonObject().has("kind") &&
+                            statement.getAsJsonObject().get("kind").getAsString().equals("retry")) {
+                        retry = statement.getAsJsonObject();
                     }
                 }
-                if (node.has("committedBody") &&
-                        node.getAsJsonObject("committedBody").has("statements")) {
-                    for (JsonElement statement :
-                            node.getAsJsonObject("committedBody").get("statements").getAsJsonArray()) {
-                        if (statement.isJsonObject() && statement.getAsJsonObject().has("kind") &&
-                                statement.getAsJsonObject().get("kind").getAsString().equals("retry")) {
-                            retry = statement.getAsJsonObject();
-                        }
-                    }
-                }
+            }
 
-                if (node.has("transactionBody") &&
-                        node.getAsJsonObject("transactionBody").has("statements")) {
-                    for (JsonElement statement :
-                            node.getAsJsonObject("transactionBody").get("statements").getAsJsonArray()) {
-                        if (statement.isJsonObject() && statement.getAsJsonObject().has("kind") &&
-                                statement.getAsJsonObject().get("kind").getAsString().equals("retry")) {
-                            retry = statement.getAsJsonObject();
-                        }
+            if (node.has("committedBody") &&
+                    node.getAsJsonObject("committedBody").has("statements")) {
+                for (JsonElement statement :
+                        node.getAsJsonObject("committedBody").get("statements").getAsJsonArray()) {
+                    if (statement.isJsonObject() && statement.getAsJsonObject().has("kind") &&
+                            statement.getAsJsonObject().get("kind").getAsString().equals("retry")) {
+                        retry = statement.getAsJsonObject();
                     }
                 }
+            }
 
-                if (retry != null) {
-                    retry.addProperty("count", node.getAsJsonObject("condition").get("value").getAsString());
+            if (node.has("transactionBody") &&
+                    node.getAsJsonObject("transactionBody").has("statements")) {
+                for (JsonElement statement :
+                        node.getAsJsonObject("transactionBody").get("statements").getAsJsonArray()) {
+                    if (statement.isJsonObject() && statement.getAsJsonObject().has("kind") &&
+                            statement.getAsJsonObject().get("kind").getAsString().equals("retry")) {
+                        retry = statement.getAsJsonObject();
+                    }
                 }
+            }
+
+            if (retry != null) {
+                retry.addProperty("count", node.getAsJsonObject("condition").get("value").getAsString());
             }
         }
 
-        if ((kind.equals("XmlCommentLiteral") ||
-                kind.equals("XmlElementLiteral") ||
-                kind.equals("XmlTextLiteral") ||
-                kind.equals("XmlPiLiteral")) &&
+        if (("XmlCommentLiteral".equals(kind) ||
+                "XmlElementLiteral".equals(kind) ||
+                "XmlTextLiteral".equals(kind) ||
+                "XmlPiLiteral".equals(kind)) &&
                 node.has("ws") &&
                 node.getAsJsonArray("ws").get(0) != null &&
                 node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
@@ -7412,13 +7412,13 @@ public class SourceGen {
             node.addProperty("startLiteral", node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
 
-        if (parentKind.equals("XmlElementLiteral") ||
-                parentKind.equals("XmlTextLiteral") ||
-                parentKind.equals("XmlPiLiteral")) {
+        if ("XmlElementLiteral".equals(parentKind) ||
+                "XmlTextLiteral".equals(parentKind) ||
+                "XmlPiLiteral".equals(parentKind)) {
             node.addProperty("inTemplateLiteral", true);
         }
 
-        if (kind.equals("XmlPiLiteral") && node.has("ws")) {
+        if ("XmlPiLiteral".equals(kind) && node.has("ws")) {
             JsonObject startTagWS = new JsonObject();
             startTagWS.addProperty("text", "<?");
             startTagWS.addProperty("ws", "");
@@ -7445,25 +7445,28 @@ public class SourceGen {
                 JsonObject target = node.getAsJsonObject("target");
                 for (int i = 0; i < target.getAsJsonArray("ws").size(); i++) {
                     if (target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text").getAsString().contains("<?")
-                            && target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text").getAsString().contains(target.get("unescapedValue").getAsString())) {
-                        target.addProperty("unescapedValue", target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text").getAsString().replace("<?", ""));
+                            && target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text")
+                            .getAsString().contains(target.get("unescapedValue").getAsString())) {
+                        target.addProperty("unescapedValue",
+                                target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text")
+                                        .getAsString().replace("<?", ""));
                     }
                 }
             }
         }
 
-        if (kind.equals("Annotation")) {
-            if (node.has("attachmentPoints") && node.getAsJsonArray("attachmentPoints").size() <= 0) {
-                node.addProperty("noAttachmentPoints", true);
-            }
+        if ("Annotation".equals(kind)
+                && node.has("attachmentPoints")
+                && node.getAsJsonArray("attachmentPoints").size() <= 0) {
+            node.addProperty("noAttachmentPoints", true);
         }
 
-        if (kind.equals("AnnotationAttachment") &&
+        if ("AnnotationAttachment".equals(kind) &&
                 node.getAsJsonObject("packageAlias").get("value").getAsString().equals("builtin")) {
             node.addProperty("builtin", true);
         }
 
-        if (kind.equals("Identifier")) {
+        if ("Identifier".equals(kind)) {
             if (node.has("literal") && node.get("literal").getAsBoolean()) {
                 node.addProperty("valueWithBar", "^\"" + node.get("value").getAsString() + "\"");
             } else {
@@ -7471,42 +7474,46 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Import")) {
-            if (node.getAsJsonObject("alias") != null &&
-                    node.getAsJsonObject("alias").get("value") != null &&
-                    node.getAsJsonArray("packageName") != null && node.getAsJsonArray("packageName").size() != 0) {
-                if (!node.getAsJsonObject("alias").get("value").getAsString()
-                        .equals(node.getAsJsonArray("packageName").get(node
-                                .getAsJsonArray("packageName").size() - 1).getAsJsonObject()
-                                .get("value").getAsString())) {
-                    node.addProperty("userDefinedAlias", true);
-                }
+        if ("Import".equals(kind)) {
+            if (node.getAsJsonObject("alias") != null
+                    && node.getAsJsonObject("alias").get("value") != null
+                    && node.getAsJsonArray("packageName") != null
+                    && node.getAsJsonArray("packageName").size() != 0
+                    && !node.getAsJsonObject("alias").get("value").getAsString()
+                    .equals(node.getAsJsonArray("packageName").get(node
+                            .getAsJsonArray("packageName").size() - 1).getAsJsonObject()
+                            .get("value").getAsString())) {
+                node.addProperty("userDefinedAlias", true);
             }
 
-            if ((node.getAsJsonArray("packageName") != null && node.getAsJsonArray("packageName").size() == 2 &&
-                    node.getAsJsonArray("packageName").get(0).getAsJsonObject().get("value").getAsString()
-                            .equals("transactions") && node.getAsJsonArray("packageName").get(1).getAsJsonObject()
-                    .get("value").getAsString().equals("coordinator")) || (node.getAsJsonObject("alias") != null &&
-                    node.getAsJsonObject("alias").get("value") != null &&
-                    node.getAsJsonObject("alias").get("value").getAsString().startsWith("."))) {
+            if ((node.getAsJsonArray("packageName") != null
+                    && node.getAsJsonArray("packageName").size() == 2
+                    && node.getAsJsonArray("packageName").get(0).getAsJsonObject().get("value").getAsString()
+                    .equals("transactions")
+                    && node.getAsJsonArray("packageName").get(1).getAsJsonObject()
+                    .get("value").getAsString().equals("coordinator"))
+                    || (node.getAsJsonObject("alias") != null
+                    && node.getAsJsonObject("alias").get("value") != null
+                    && node.getAsJsonObject("alias").get("value").getAsString().startsWith("."))) {
                 node.addProperty("isInternal", true);
             }
         }
 
-        if (parentKind.equals("CompilationUnit") && (kind.equals("Variable") || kind.equals("Xmlns"))) {
+        if ("CompilationUnit".equals(parentKind) && ("Variable".equals(kind) || "Xmlns".equals(kind))) {
             node.addProperty("global", true);
         }
 
-        if (kind.equals("VariableDef") && node.getAsJsonObject("variable") != null &&
-                node.getAsJsonObject("variable").getAsJsonObject("typeNode") != null &&
-                node.getAsJsonObject("variable").getAsJsonObject("typeNode")
-                        .get("kind").getAsString().equals("EndpointType")) {
+        if ("VariableDef".equals(kind)
+                && node.getAsJsonObject("variable") != null
+                && node.getAsJsonObject("variable").getAsJsonObject("typeNode") != null
+                && node.getAsJsonObject("variable").getAsJsonObject("typeNode")
+                .get("kind").getAsString().equals("EndpointType")) {
             node.getAsJsonObject("variable").addProperty("endpoint", true);
             node.addProperty("endpoint", true);
         }
 
-        if (kind.equals("Variable")) {
-            if (parentKind.equals("ObjectType")) {
+        if ("Variable".equals(kind)) {
+            if ("ObjectType".equals(parentKind)) {
                 node.addProperty("inObject", true);
             }
 
@@ -7518,28 +7525,28 @@ public class SourceGen {
 
             if (node.has("initialExpression")) {
                 node.getAsJsonObject("initialExpression").addProperty("isExpression", true);
+
                 if (node.getAsJsonObject("initialExpression").has("async") &&
-                        node.getAsJsonObject("initialExpression").get("async").getAsBoolean()) {
-                    if (node.has("ws")) {
-                        JsonArray ws = node.getAsJsonArray("ws");
-                        for (int i = 0; i < ws.size(); i++) {
-                            if (ws.get(i).getAsJsonObject().get("text").getAsString().equals("start")) {
-                                if (node.getAsJsonObject("initialExpression").has("ws")) {
-                                    node.getAsJsonObject("initialExpression").add("ws",
-                                            addDataToArray(0, node.getAsJsonArray("ws").get(i),
-                                                    node.getAsJsonObject("initialExpression")
-                                                            .getAsJsonArray("ws")));
-                                    node.getAsJsonArray("ws").remove(i);
-                                }
-                            }
+                        node.getAsJsonObject("initialExpression").get("async").getAsBoolean()
+                        && node.has("ws")) {
+                    JsonArray ws = node.getAsJsonArray("ws");
+                    for (int i = 0; i < ws.size(); i++) {
+                        if (ws.get(i).getAsJsonObject().get("text").getAsString().equals("start")
+                                && node.getAsJsonObject("initialExpression").has("ws")) {
+                            node.getAsJsonObject("initialExpression").add("ws",
+                                    addDataToArray(0, node.getAsJsonArray("ws").get(i),
+                                            node.getAsJsonObject("initialExpression")
+                                                    .getAsJsonArray("ws")));
+                            node.getAsJsonArray("ws").remove(i);
                         }
                     }
                 }
             }
 
-            if (node.has("typeNode") && node.getAsJsonObject("typeNode").has("nullable") &&
-                    node.getAsJsonObject("typeNode").get("nullable").getAsBoolean() &&
-                    node.getAsJsonObject("typeNode").has("ws")) {
+            if (node.has("typeNode")
+                    && node.getAsJsonObject("typeNode").has("nullable")
+                    && node.getAsJsonObject("typeNode").get("nullable").getAsBoolean()
+                    && node.getAsJsonObject("typeNode").has("ws")) {
                 JsonArray ws = node.getAsJsonObject("typeNode").get("ws").getAsJsonArray();
                 for (int i = 0; i < ws.size(); i++) {
                     if (ws.get(i).getAsJsonObject().get("text").getAsString().equals("?")) {
@@ -7549,9 +7556,9 @@ public class SourceGen {
                 }
             }
 
-            if (node.has("typeNode") &&
-                    node.getAsJsonObject("typeNode").has("ws") &&
-                    !node.has("ws")) {
+            if (node.has("typeNode")
+                    && node.getAsJsonObject("typeNode").has("ws")
+                    && !node.has("ws")) {
                 node.addProperty("noVisibleName", true);
             }
 
@@ -7569,14 +7576,14 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Service")) {
+        if ("Service".equals(kind)) {
             if (!node.has("serviceTypeStruct")) {
                 node.addProperty("isServiceTypeUnavailable", true);
             }
 
-            if (!node.has("anonymousEndpointBind") &&
-                    node.has("boundEndpoints") &&
-                    node.getAsJsonArray("boundEndpoints").size() <= 0) {
+            if (!node.has("anonymousEndpointBind")
+                    && node.has("boundEndpoints")
+                    && node.getAsJsonArray("boundEndpoints").size() <= 0) {
                 boolean bindAvailable = false;
                 for (JsonElement ws : node.getAsJsonArray("ws")) {
                     if (ws.getAsJsonObject().get("text").getAsString().equals("bind")) {
@@ -7591,28 +7598,28 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Resource") && node.has("parameters") && node.getAsJsonArray("parameters").size() > 0) {
-            if (node.getAsJsonArray("parameters").get(0).getAsJsonObject().has("ws")) {
-                for (JsonElement ws : node.getAsJsonArray("parameters").get(0).getAsJsonObject().getAsJsonArray("ws")) {
-                    if (ws.getAsJsonObject().get("text").getAsString().equals("endpoint")) {
-                        JsonObject endpointParam = node.getAsJsonArray("parameters").get(0).getAsJsonObject();
-                        String valueWithBar = endpointParam.get("name").getAsJsonObject().has("valueWithBar")
-                                ? endpointParam.get("name").getAsJsonObject().get("valueWithBar").getAsString()
-                                : endpointParam.get("name").getAsJsonObject().get("value").getAsString();
+        if ("Resource".equals(kind)
+                && node.has("parameters")
+                && node.getAsJsonArray("parameters").size() > 0
+                && node.getAsJsonArray("parameters").get(0).getAsJsonObject().has("ws")) {
+            for (JsonElement ws : node.getAsJsonArray("parameters").get(0).getAsJsonObject().getAsJsonArray("ws")) {
+                if (ws.getAsJsonObject().get("text").getAsString().equals("endpoint")) {
+                    JsonObject endpointParam = node.getAsJsonArray("parameters").get(0).getAsJsonObject();
+                    String valueWithBar = endpointParam.get("name").getAsJsonObject().has("valueWithBar")
+                            ? endpointParam.get("name").getAsJsonObject().get("valueWithBar").getAsString()
+                            : endpointParam.get("name").getAsJsonObject().get("value").getAsString();
 
-                        endpointParam.addProperty("serviceEndpoint", true);
-                        endpointParam.get("name").getAsJsonObject().addProperty("value",
-                                endpointParam.get("name").getAsJsonObject().get("value").getAsString().replace("$", ""));
-                        endpointParam.get("name").getAsJsonObject().addProperty("valueWithBar",
-                                valueWithBar.replace("$", ""));
-                        break;
-                    }
+                    endpointParam.addProperty("serviceEndpoint", true);
+                    endpointParam.get("name").getAsJsonObject().addProperty("value",
+                            endpointParam.get("name").getAsJsonObject().get("value").getAsString().replace("$", ""));
+                    endpointParam.get("name").getAsJsonObject().addProperty("valueWithBar",
+                            valueWithBar.replace("$", ""));
+                    break;
                 }
             }
         }
 
-
-        if (kind.equals("ForkJoin")) {
+        if ("ForkJoin".equals(kind)) {
             if (node.getAsJsonObject("joinBody") != null) {
                 node.getAsJsonObject("joinBody").add("position",
                         node.getAsJsonObject("joinResultVar").getAsJsonObject("position"));
@@ -7625,14 +7632,14 @@ public class SourceGen {
         }
 
         // Check if sorrounded by curlies
-        if (kind.equals("MatchPatternClause") || kind.equals("MatchExpressionPatternClause")) {
-            if (node.has("ws") && node.getAsJsonArray("ws").size() > 2) {
-                node.addProperty("withCurlies", true);
-            }
+        if (("MatchPatternClause".equals(kind) || "MatchExpressionPatternClause".equals(kind))
+                && node.has("ws")
+                && node.getAsJsonArray("ws").size() > 2) {
+            node.addProperty("withCurlies", true);
         }
 
         // Check if sorrounded by parantheses
-        if (kind.equals("ValueType")) {
+        if ("ValueType".equals(kind)) {
             if (node.has("ws") && node.getAsJsonArray("ws").size() > 2) {
                 node.addProperty("withParantheses", true);
             }
@@ -7652,7 +7659,7 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("UnionTypeNode") && node.has("ws")) {
+        if ("UnionTypeNode".equals(kind) && node.has("ws")) {
             if (node.getAsJsonArray("ws").size() > 2) {
                 for (JsonElement ws : node.getAsJsonArray("ws")) {
                     if (ws.getAsJsonObject().get("text").getAsString().equals("(")) {
@@ -7677,10 +7684,10 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Function")) {
-            if (node.has("returnTypeNode") &&
-                    node.getAsJsonObject("returnTypeNode").has("ws") &&
-                    node.getAsJsonObject("returnTypeNode").getAsJsonArray("ws").size() > 0) {
+        if ("Function".equals(kind)) {
+            if (node.has("returnTypeNode")
+                    && node.getAsJsonObject("returnTypeNode").has("ws")
+                    && node.getAsJsonObject("returnTypeNode").getAsJsonArray("ws").size() > 0) {
                 node.addProperty("hasReturns", true);
             }
 
@@ -7720,8 +7727,8 @@ public class SourceGen {
 
             node.add("allParams", allParams);
 
-            if (node.has("receiver") &&
-                    !node.getAsJsonObject("receiver").has("ws")) {
+            if (node.has("receiver")
+                    && !node.getAsJsonObject("receiver").has("ws")) {
                 if (node.getAsJsonObject("receiver").has("typeNode")
                         && node.getAsJsonObject("receiver").getAsJsonObject("typeNode").has("ws")
                         && node.getAsJsonObject("receiver")
@@ -7745,18 +7752,19 @@ public class SourceGen {
                 }
             }
 
-            if (node.has("restParameters") &&
-                    (node.has("allParams") && node.getAsJsonArray("allParams").size() > 0)) {
+            if (node.has("restParameters")
+                    && (node.has("allParams")
+                    && node.getAsJsonArray("allParams").size() > 0)) {
                 node.addProperty("hasRestParams", true);
             }
 
-            if (node.has("restParameters") &&
-                    node.getAsJsonObject("restParameters").has("typeNode")) {
+            if (node.has("restParameters")
+                    && node.getAsJsonObject("restParameters").has("typeNode")) {
                 node.getAsJsonObject("restParameters").getAsJsonObject("typeNode").addProperty("isRestParam", true);
             }
         }
 
-        if (kind.equals("TypeDefinition") && node.has("typeNode")) {
+        if ("TypeDefinition".equals(kind) && node.has("typeNode")) {
             if (!node.has("ws")) {
                 node.addProperty("notVisible", true);
             }
@@ -7792,23 +7800,19 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("ObjectType")) {
-            if (node.has("initFunction")) {
-                if (!node.getAsJsonObject("initFunction").has("ws")) {
-                    node.getAsJsonObject("initFunction").addProperty("defaultConstructor", true);
-                } else {
-                    node.getAsJsonObject("initFunction").addProperty("isConstructor", true);
-                }
+        if ("ObjectType".equals(kind) && node.has("initFunction")) {
+            if (!node.getAsJsonObject("initFunction").has("ws")) {
+                node.getAsJsonObject("initFunction").addProperty("defaultConstructor", true);
+            } else {
+                node.getAsJsonObject("initFunction").addProperty("isConstructor", true);
             }
         }
 
-        if (kind.equals("RecordType")) {
-            if (node.has("restFieldType")) {
-                node.addProperty("isRestFieldAvailable", true);
-            }
+        if ("RecordType".equals(kind) && node.has("restFieldType")) {
+            node.addProperty("isRestFieldAvailable", true);
         }
 
-        if (kind.equals("TypeInitExpr")) {
+        if ("TypeInitExpr".equals(kind)) {
             if (node.getAsJsonArray("expressions").size() <= 0) {
                 node.addProperty("noExpressionAvailable", true);
             }
@@ -7830,20 +7834,19 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Return")) {
-            if (node.has("expression") &&
-                    node.getAsJsonObject("expression").get("kind").getAsString().equals("Literal")) {
-                if (node.getAsJsonObject("expression").get("value").getAsString().equals("()")) {
-                    node.addProperty("noExpressionAvailable", true);
-                }
+        if ("Return".equals(kind)
+                && node.has("expression")
+                && node.getAsJsonObject("expression").get("kind").getAsString().equals("Literal")) {
+            if (node.getAsJsonObject("expression").get("value").getAsString().equals("()")) {
+                node.addProperty("noExpressionAvailable", true);
+            }
 
-                if (node.getAsJsonObject("expression").get("value").getAsString().equals("null")) {
-                    node.getAsJsonObject("expression").addProperty("emptyParantheses", true);
-                }
+            if (node.getAsJsonObject("expression").get("value").getAsString().equals("null")) {
+                node.getAsJsonObject("expression").addProperty("emptyParantheses", true);
             }
         }
 
-        if (kind.equals("Documentation")) {
+        if ("Documentation".equals(kind)) {
             if (node.has("ws") && node.getAsJsonArray("ws").size() > 1) {
                 node.addProperty("startDoc",
                         node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
@@ -7875,45 +7878,42 @@ public class SourceGen {
         }
 
         // Tag rest variable nodes
-        if (kind.equals("Function") || kind.equals("Resource")) {
-            if (node.has("restParameters")) {
-                node.getAsJsonObject("restParameters").addProperty("rest", true);
-            }
+        if (("Function".equals(kind) || "Resource".equals(kind)) && node.has("restParameters")) {
+            node.getAsJsonObject("restParameters").addProperty("rest", true);
         }
 
-        if (kind.equals("PostIncrement")) {
+        if ("PostIncrement".equals(kind)) {
             node.addProperty("operator",
                     (node.get("operatorKind").getAsString() + node.get("operatorKind").getAsString()));
         }
 
-        if (kind.equals("SelectExpression") && node.has("identifier")) {
+        if ("SelectExpression".equals(kind) && node.has("identifier")) {
             node.addProperty("identifierAvailable", true);
         }
 
-        if (kind.equals("StreamAction") && node.has("invokableBody")) {
-            if (node.getAsJsonObject("invokableBody").has("functionNode")) {
-                node.getAsJsonObject("invokableBody").getAsJsonObject("functionNode")
-                        .addProperty("isStreamAction", true);
-            }
+        if ("StreamAction".equals(kind) && node.has("invokableBody") &&
+                node.getAsJsonObject("invokableBody").has("functionNode")) {
+            node.getAsJsonObject("invokableBody").getAsJsonObject("functionNode")
+                    .addProperty("isStreamAction", true);
         }
 
-        if (kind.equals("StreamingInput") && node.has("alias")) {
+        if ("StreamingInput".equals(kind) && node.has("alias")) {
             node.addProperty("aliasAvailable", true);
         }
 
-        if (kind.equals("IntRangeExpr")) {
-            if (node.has("ws") && node.getAsJsonArray("ws").size() > 0) {
-                if (node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text")
-                        .getAsString().equals("[")) {
-                    node.addProperty("isWrappedWithBracket", true);
-                } else if (node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text")
-                        .getAsString().equals("(")) {
-                    node.addProperty("isWrappedWithParenthesis", true);
-                }
+        if ("IntRangeExpr".equals(kind)
+                && node.has("ws")
+                && node.getAsJsonArray("ws").size() > 0) {
+            if (node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text")
+                    .getAsString().equals("[")) {
+                node.addProperty("isWrappedWithBracket", true);
+            } else if (node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text")
+                    .getAsString().equals("(")) {
+                node.addProperty("isWrappedWithParenthesis", true);
             }
         }
 
-        if (kind.equals("FunctionType")) {
+        if ("FunctionType".equals(kind)) {
             if (node.has("returnTypeNode")
                     && node.getAsJsonObject("returnTypeNode").has("ws")) {
                 node.addProperty("hasReturn", true);
@@ -7927,7 +7927,7 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Literal") && !parentKind.equals("StringTemplateLiteral")) {
+        if ("Literal".equals(kind) && !"StringTemplateLiteral".equals(parentKind)) {
             if (node.has("ws")
                     && node.getAsJsonArray("ws").size() == 1
                     && node.getAsJsonArray("ws").get(0).getAsJsonObject().has("text")) {
@@ -7946,29 +7946,25 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Foreach")) {
-            if (node.has("ws")) {
-                for (JsonElement ws : node.getAsJsonArray("ws")) {
-                    if (ws.getAsJsonObject().get("text").getAsString().equals("(")) {
-                        node.addProperty("withParantheses", true);
-                        break;
-                    }
+        if ("Foreach".equals(kind) && node.has("ws")) {
+            for (JsonElement ws : node.getAsJsonArray("ws")) {
+                if (ws.getAsJsonObject().get("text").getAsString().equals("(")) {
+                    node.addProperty("withParantheses", true);
+                    break;
                 }
             }
         }
 
-        if (kind.equals("Endpoint")) {
-            if (node.has("ws")) {
-                for (JsonElement ws : node.getAsJsonArray("ws")) {
-                    if (ws.getAsJsonObject().get("text").getAsString().equals("=")) {
-                        node.addProperty("isConfigAssignment", true);
-                        break;
-                    }
+        if ("Endpoint".equals(kind) && node.has("ws")) {
+            for (JsonElement ws : node.getAsJsonArray("ws")) {
+                if (ws.getAsJsonObject().get("text").getAsString().equals("=")) {
+                    node.addProperty("isConfigAssignment", true);
+                    break;
                 }
             }
         }
 
-        if (kind.equals("UserDefinedType")) {
+        if ("UserDefinedType".equals(kind)) {
             if (node.has("ws") && node.has("nullable") && node.get("nullable").getAsBoolean()) {
                 for (JsonElement ws : node.getAsJsonArray("ws")) {
                     if (ws.getAsJsonObject().get("text").getAsString().equals("?")) {
@@ -7987,39 +7983,39 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("ArrayType")) {
-            if (node.has("dimensions") &&
-                    node.get("dimensions").getAsInt() > 0 &&
-                    node.has("ws")) {
-                String dimensionAsString = "";
-                JsonObject startingBracket = null;
-                JsonObject endingBracket = null;
-                StringBuilder content = new StringBuilder();
-                JsonArray ws = node.getAsJsonArray("ws");
-                for (int j = 0; j < ws.size(); j++) {
-                    if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("[")) {
-                        startingBracket = ws.get(j).getAsJsonObject();
-                    } else if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("]")) {
-                        endingBracket = ws.get(j).getAsJsonObject();
+        if ("ArrayType".equals(kind)
+                && node.has("dimensions")
+                && node.get("dimensions").getAsInt() > 0
+                && node.has("ws")) {
+            String dimensionAsString = "";
+            JsonObject startingBracket = null;
+            JsonObject endingBracket = null;
+            StringBuilder content = new StringBuilder();
+            JsonArray ws = node.getAsJsonArray("ws");
 
-                        dimensionAsString += startingBracket.get("text").getAsString() + content.toString()
-                                + endingBracket.get("ws").getAsString()
-                                + endingBracket.get("text").getAsString();
+            for (int j = 0; j < ws.size(); j++) {
+                if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("[")) {
+                    startingBracket = ws.get(j).getAsJsonObject();
+                } else if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("]")) {
+                    endingBracket = ws.get(j).getAsJsonObject();
 
-                        startingBracket = null;
-                        endingBracket = null;
-                        content = new StringBuilder();
-                    } else if (startingBracket != null) {
-                        content.append(ws.get(j).getAsJsonObject().get("ws").getAsString())
-                                .append(ws.get(j).getAsJsonObject().get("text").getAsString());
-                    }
+                    dimensionAsString += startingBracket.get("text").getAsString() + content.toString()
+                            + endingBracket.get("ws").getAsString()
+                            + endingBracket.get("text").getAsString();
+
+                    startingBracket = null;
+                    endingBracket = null;
+                    content = new StringBuilder();
+                } else if (startingBracket != null) {
+                    content.append(ws.get(j).getAsJsonObject().get("ws").getAsString())
+                            .append(ws.get(j).getAsJsonObject().get("text").getAsString());
                 }
-
-                node.addProperty("dimensionAsString", dimensionAsString);
             }
+
+            node.addProperty("dimensionAsString", dimensionAsString);
         }
 
-        if (kind.equals("Block")
+        if ("Block".equals(kind)
                 && node.has("ws")
                 && node.getAsJsonArray("ws").size() > 0
                 && node.getAsJsonArray("ws").get(0)
@@ -8027,7 +8023,7 @@ public class SourceGen {
             node.addProperty("isElseBlock", true);
         }
 
-        if (kind.equals("FieldBasedAccessExpr")
+        if ("FieldBasedAccessExpr".equals(kind)
                 && node.has("ws")
                 && node.getAsJsonArray("ws").size() > 0
                 && node.getAsJsonArray("ws").get(0)
@@ -8035,22 +8031,19 @@ public class SourceGen {
             node.addProperty("errorLifting", true);
         }
 
-        if (kind.equals("StringTemplateLiteral")) {
-            if (node.has("ws")
-                    && node.getAsJsonArray("ws").size() > 0
-                    && node.getAsJsonArray("ws").get(0).getAsJsonObject()
-                    .get("text").getAsString().contains("string")
-                    && node.getAsJsonArray("ws").get(0).getAsJsonObject()
-                    .get("text").getAsString().contains("`")) {
-
-                node.addProperty("startTemplate",
-                        node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
-                literalWSAssignForTemplates(1, 2, node.getAsJsonArray("expressions"),
-                        node.getAsJsonArray("ws"), 2);
-            }
+        if ("StringTemplateLiteral".equals(kind) && node.has("ws")
+                && node.getAsJsonArray("ws").size() > 0
+                && node.getAsJsonArray("ws").get(0).getAsJsonObject()
+                .get("text").getAsString().contains("string")
+                && node.getAsJsonArray("ws").get(0).getAsJsonObject()
+                .get("text").getAsString().contains("`")) {
+            node.addProperty("startTemplate",
+                    node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
+            literalWSAssignForTemplates(1, 2, node.getAsJsonArray("expressions"),
+                    node.getAsJsonArray("ws"), 2);
         }
 
-        if (kind.equals("XmlCommentLiteral") && node.has("ws")) {
+        if ("XmlCommentLiteral".equals(kind) && node.has("ws")) {
             int length = node.getAsJsonArray("ws").size();
             for (int i = 0; i < length; i++) {
                 if (node.getAsJsonArray("ws").get(i).getAsJsonObject()
@@ -8078,7 +8071,7 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("ArrowExpr")) {
+        if ("ArrowExpr".equals(kind)) {
             if (node.has("ws") && node.getAsJsonArray("ws").size() > 0
                     && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text")
                     .getAsString().equals("(")) {
@@ -8094,20 +8087,18 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("PatternStreamingInput")) {
-            if (node.has("ws") && node.getAsJsonArray("ws").get(0)
-                    .getAsJsonObject().get("text").getAsString().equals("(")) {
-                node.addProperty("enclosedInParenthesis", true);
-            }
+        if ("PatternStreamingInput".equals(kind)
+                && node.has("ws")
+                && node.getAsJsonArray("ws").get(0)
+                .getAsJsonObject().get("text").getAsString().equals("(")) {
+            node.addProperty("enclosedInParenthesis", true);
         }
 
-        if (kind.equals("SelectClause")) {
-            if (!node.has("ws")) {
-                node.addProperty("notVisible", true);
-            }
+        if ("SelectClause".equals(kind) && !node.has("ws")) {
+            node.addProperty("notVisible", true);
         }
 
-        if (kind.equals("OrderByVariable")) {
+        if ("OrderByVariable".equals(kind)) {
             if (!node.has("ws")) {
                 node.addProperty("noVisibleType", true);
             } else {
@@ -8116,9 +8107,9 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Deprecated") &&
-                node.has("ws") &&
-                node.getAsJsonArray("ws").size() > 0) {
+        if ("Deprecated".equals(kind)
+                && node.has("ws")
+                && node.getAsJsonArray("ws").size() > 0) {
             node.addProperty("deprecatedStart",
                     node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
@@ -8232,14 +8223,14 @@ public class SourceGen {
                     JsonArray childArray = child.getValue().getAsJsonArray();
                     for (int j = 0; j < childArray.size(); j++) {
                         JsonElement childItem = childArray.get(j);
-                        if (kind.equals("CompilationUnit") &&
-                                childItem.getAsJsonObject().get("kind").getAsString().equals("Function") &&
-                                childItem.getAsJsonObject().has("lambda") &&
-                                childItem.getAsJsonObject().get("lambda").getAsBoolean()) {
+                        if ("CompilationUnit".equals(kind)
+                                && childItem.getAsJsonObject().get("kind").getAsString().equals("Function")
+                                && childItem.getAsJsonObject().has("lambda")
+                                && childItem.getAsJsonObject().get("lambda").getAsBoolean()) {
                             childArray.remove(j);
                             j--;
-                        } else if (childItem.isJsonObject() &&
-                                childItem.getAsJsonObject().get("kind") != null) {
+                        } else if (childItem.isJsonObject()
+                                && childItem.getAsJsonObject().get("kind") != null) {
                             childItem = build(childItem.getAsJsonObject(), json, kind);
                         }
                     }
