@@ -119,4 +119,9 @@ under the License.
             <package name="org.ballerinalang.test.entry.function.*"/>
         </packages>
     </test>
+    <test name="ballerina-bir-test-suite" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.bir.TypeGenTest"/>
+        </classes>
+    </test>
 </suite>

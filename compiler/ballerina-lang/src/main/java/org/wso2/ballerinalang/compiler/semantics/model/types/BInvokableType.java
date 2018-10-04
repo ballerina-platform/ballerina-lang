@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.InvokableType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -93,9 +94,13 @@ public class BInvokableType extends BType implements InvokableType {
     }
 
     private static String getTypeName(String typeDescriptor, List<BType> paramType, BType retType) {
+        String retTypeWithParam = retType.toString();
+        if (retType.getKind() != TypeKind.NIL) {
+            retTypeWithParam = "(" + retTypeWithParam + ")";
+        }
         return (TypeDescriptor.SIG_FUNCTION.equals(typeDescriptor) ? "function " : "")
-                + "(" + (paramType.size() != 0 ? getBTypeListAsString(paramType) : "") + ")"
-                + " returns (" + retType + ")"; // TODO improve this with void type
+               + "(" + (paramType.size() != 0 ? getBTypeListAsString(paramType) : "") + ")"
+               + " returns " + retTypeWithParam;
     }
 
     private static String getBTypeListAsString(List<BType> typeNames) {
