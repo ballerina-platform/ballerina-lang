@@ -103,8 +103,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -160,13 +158,8 @@ public class TreeVisitor extends LSNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         this.symbolEnv = pkgEnv;
 
-        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream()
-                .filter(filterNodeByCompilationUnit(lsContext.get(DocumentServiceKeys.FILE_NAME_KEY)))
-                .collect(Collectors.toList());
-
-        List<BLangImportPackage> imports = pkgNode.getImports().stream()
-                .filter(filterNodeByCompilationUnit(lsContext.get(DocumentServiceKeys.FILE_NAME_KEY)))
-                .collect(Collectors.toList());
+        List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(lsContext);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(lsContext);
         
         imports.forEach(bLangImportPackage -> {
             if (!bLangImportPackage.getOrgName().getValue().equals("ballerina")
@@ -991,9 +984,5 @@ public class TreeVisitor extends LSNodeVisitor {
 
     private void populateSymbolEnvNode(BLangNode node) {
         lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, node);
-    }
-    
-    private Predicate<Node> filterNodeByCompilationUnit(String cUnit) {
-        return node -> node.getPosition().getSource().getCompilationUnitName().equals(cUnit);
     }
 }

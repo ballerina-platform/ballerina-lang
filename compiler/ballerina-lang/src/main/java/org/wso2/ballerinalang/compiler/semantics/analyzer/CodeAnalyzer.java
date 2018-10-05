@@ -144,6 +144,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -842,9 +843,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(kv -> {
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
+        keyValuePairs.forEach(kv -> {
             analyzeExpr(kv.valueExpr);
         });
+
+        Set<Object> names = new TreeSet<>((l, r) -> l.equals(r) ? 0 : 1);
+        for (BLangRecordLiteral.BLangRecordKeyValue recFieldDecl : keyValuePairs) {
+            BLangExpression key = recFieldDecl.getKey();
+            if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef keyRef = (BLangSimpleVarRef) key;
+                if (names.contains(keyRef.variableName.value)) {
+                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
+                }
+                names.add(keyRef.variableName.value);
+            } else if (key.getKind() == NodeKind.LITERAL) {
+                BLangLiteral keyLiteral = (BLangLiteral) key;
+                if (names.contains(keyLiteral.value)) {
+                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyLiteral);
+                }
+                names.add(keyLiteral.value);
+            }
+        }
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
