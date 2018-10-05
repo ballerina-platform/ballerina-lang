@@ -50,13 +50,13 @@ public class FunctionsAndNilTest {
     @Test(description = "Test functions that returns nil type")
     public void testFuncReturnNilImplicit() {
         BValue[] returns = BRunUtil.invoke(result, "funcReturnNilImplicit");
-        Assert.assertEquals(returns.length, 0);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void funcReturnNilExplicit() {
         BValue[] returns = BRunUtil.invoke(result, "funcReturnNilExplicit");
-        Assert.assertEquals(returns.length, 0);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test functions that returns nil type")
@@ -96,7 +96,7 @@ public class FunctionsAndNilTest {
     @Test(description = "Test functions that returns nil type")
     public void testNilReturnAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testNilReturnAssignment");
-        Assert.assertEquals(returns.length, 0);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test count function inside resource.")

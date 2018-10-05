@@ -64,6 +64,7 @@ public class DebugMsgUtil {
     private static final String VALUE = "value";
     private static final String COMMAND = "command";
     private static final String POINTS = "points";
+    private static final String EXPRESSION = "expression";
 
     /**
      * Method to generate json message from the MessageDTO object instance.
@@ -96,11 +97,12 @@ public class DebugMsgUtil {
     public static CommandDTO buildCommandDTO(String jsonStr) {
         BRefType<?> node = JsonParser.parse(jsonStr);
         CommandDTO commandDTO = new CommandDTO();
-        
+
         if (node.getType().getTag() == TypeTags.JSON_TAG) {
             BMap<String, BRefType<?>> json = (BMap) node;
             commandDTO.setCommand(json.get(COMMAND) == null ? null : json.get(COMMAND).stringValue());
             commandDTO.setThreadId(json.get(THREAD_ID) == null ? null : json.get(THREAD_ID).stringValue());
+            commandDTO.setVariableName(json.get(EXPRESSION) == null ? null : json.get(EXPRESSION).stringValue());
             commandDTO.setPoints(buildBreakPoints(json.get(POINTS)));
         }
         return commandDTO;

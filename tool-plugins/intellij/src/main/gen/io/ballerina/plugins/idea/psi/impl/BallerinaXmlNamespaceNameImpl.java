@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlNamespaceNameImpl extends BallerinaCompositeElementImpl implements BallerinaXmlNamespaceName {
 
-  public BallerinaXmlNamespaceNameImpl(ASTNode node) {
+  public BallerinaXmlNamespaceNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

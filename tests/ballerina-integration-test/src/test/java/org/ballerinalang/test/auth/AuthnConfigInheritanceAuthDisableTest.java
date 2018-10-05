@@ -18,16 +18,12 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +33,9 @@ import java.util.Map;
  * @since 0.970.0
  */
 @Test(groups = "auth-test")
-public class AuthnConfigInheritanceAuthDisableTest extends BaseTest {
+public class AuthnConfigInheritanceAuthDisableTest extends AuthBaseTest {
 
-    private final int servicePort = 9090;
+    private final int servicePort = Constant.DEFAULT_HTTP_PORT;
 
     @Test(description = "non secured resource test case with no auth headers")
     public void testResourceLevelAuthDisableWithNoAuthHeaders()
@@ -58,20 +54,5 @@ public class AuthnConfigInheritanceAuthDisableTest extends BaseTest {
                 headersMap);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-    }
-
-    @BeforeTest(groups = "auth-test")
-    public void start() throws BallerinaTestException {
-        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "auth").getAbsolutePath();
-        String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        String[] args = new String[]{"--sourceroot", basePath, "--config", ballerinaConfPath};
-        serverInstance.startBallerinaServer("authservices", args);
-    }
-
-    @AfterTest(groups = "auth-test")
-    public void cleanup() throws Exception {
-        serverInstance.removeAllLeechers();
-        serverInstance.stopServer();
     }
 }

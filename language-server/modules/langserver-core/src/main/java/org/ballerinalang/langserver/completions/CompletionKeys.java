@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachment
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.Node;
+import org.eclipse.lsp4j.CompletionCapabilities;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
@@ -31,9 +32,14 @@ import java.util.Stack;
 
 /**
  * Text Document Service context keys for the completion operation context.
+ *
  * @since 0.95.5
  */
 public class CompletionKeys {
+
+    private CompletionKeys() {
+    }
+
     public static final LSContext.Key<BLangNode> SYMBOL_ENV_NODE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
@@ -61,6 +67,8 @@ public class CompletionKeys {
     public static final LSContext.Key<TokenStream> TOKEN_STREAM_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<CompletionCapabilities> CLIENT_CAPABILITIES_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<AnnotationAttachmentMetaInfo> ANNOTATION_ATTACHMENT_META_KEY
             = new LSContext.Key<>();

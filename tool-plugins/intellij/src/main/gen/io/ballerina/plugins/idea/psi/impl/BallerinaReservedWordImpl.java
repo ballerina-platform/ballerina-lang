@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaReservedWordImpl extends BallerinaCompositeElementImpl implements BallerinaReservedWord {
 
-  public BallerinaReservedWordImpl(ASTNode node) {
+  public BallerinaReservedWordImpl(@NotNull ASTNode node) {
     super(node);
   }
 

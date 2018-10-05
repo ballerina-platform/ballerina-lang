@@ -17,7 +17,7 @@ endpoint jms:TopicPublisher publisher {
     topicPattern: "testMapMessageSubscriber"
 };
 
-function main(string... args) {
+public function main(string... args) {
     // Create a Text message.
     string stringValue = "abcde";
     byte[] blobValue = stringValue.toByteArray("UTF-8");

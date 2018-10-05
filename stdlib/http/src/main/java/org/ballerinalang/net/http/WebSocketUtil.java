@@ -36,7 +36,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -56,19 +55,14 @@ public class WebSocketUtil {
         return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
     }
 
-    static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+    static Annotation getServiceConfigAnnotation(Service service) {
         List<Annotation> annotationList = service
-                .getAnnotationList(pkgPath, WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
+                .getAnnotationList(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                   WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
 
         if (annotationList == null) {
             return null;
         }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "Multiple service configuration annotations found in service: " + service.getName());
-        }
-
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
@@ -112,14 +106,12 @@ public class WebSocketUtil {
 
             @Override
             public void onError(Throwable throwable) {
-                if (context != null) {
-                    context.setReturnValues();
+                if (context != null && callback != null) {
+                    callback.notifyFailure(HttpUtil.getError(
+                            context, "Unable to complete handshake:" + throwable.getMessage()));
+                } else {
+                    throw new BallerinaConnectorException("Unable to complete handshake", throwable);
                 }
-                if (callback != null) {
-                    callback.notifyFailure(
-                            HttpUtil.getError(context, "Unable to complete handshake:" + throwable.getMessage()));
-                }
-                throw new BallerinaConnectorException("Unable to complete handshake", throwable);
             }
         });
     }

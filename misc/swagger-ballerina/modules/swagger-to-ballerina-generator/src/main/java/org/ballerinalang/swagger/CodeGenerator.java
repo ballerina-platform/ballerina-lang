@@ -137,10 +137,10 @@ public class CodeGenerator {
      * @param templateName Name of the parent template to be used
      * @param outPath      Destination path for writing the resulting source file
      * @throws IOException when file operations fail
-     * @deprecated This method is now deprecated. Use {@link #generate(GenType, String)} and implement a
-     * file write functionality your self, if you need to customize file writing steps.
-     * Otherwise use {{@link #generate(GenType, String, String)}} to directly write generated sources
-     * to a ballerina package.
+     * @deprecated This method is now deprecated. Use {@link #generate(GeneratorConstants.GenType, String) generate}
+     * and implement a file write functionality your self, if you need to customize file writing steps.
+     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String) generate}
+     * to directly write generated source to a ballerina package.
      */
     @Deprecated
     public void writeBallerina(Object object, String templateDir, String templateName, String outPath)

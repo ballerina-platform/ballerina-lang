@@ -16,92 +16,64 @@
 
 
 // Cache-control directives
-documentation {
-    Forces the cache to validate a cached response with the origin server before serving.
-}
+# Forces the cache to validate a cached response with the origin server before serving.
 @final public string NO_CACHE = "no-cache";
 
-documentation {
-    Instructs the cache to not store a response in non-volatile storage.
-}
+# Instructs the cache to not store a response in non-volatile storage.
 @final public string NO_STORE = "no-store";
 
-documentation {
-    Instructs intermediaries not to transform the payload.
-}
+# Instructs intermediaries not to transform the payload.
 @final public string NO_TRANSFORM = "no-transform";
 
-documentation {
-    When used in requests, `max-age` implies that clients are not willing to accept responses whose age is greater
-    than `max-age`. When used in responses, the response is to be considered stale after the specified
-    number of seconds.
-}
+# When used in requests, `max-age` implies that clients are not willing to accept responses whose age is greater
+# than `max-age`. When used in responses, the response is to be considered stale after the specified
+# number of seconds.
 @final public string MAX_AGE = "max-age";
 
 
 // Request only cache-control directives
-documentation {
-    Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more
-    than the specified number of seconds.
-}
+# Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more
+# than the specified number of seconds.
 @final public string MAX_STALE = "max-stale";
 
-documentation {
-    Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh.
-}
+# Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh.
 @final public string MIN_FRESH = "min-fresh";
 
-documentation {
-    Indicates that the client is only willing to accept a cached response. A cached response is served subject to
-    other constraints posed by the request.
-}
+# Indicates that the client is only willing to accept a cached response. A cached response is served subject to
+# other constraints posed by the request.
 @final public string ONLY_IF_CACHED = "only-if-cached";
 
 
 // Response only cache-control directives
-documentation {
-    Indicates that once the response has become stale, it should not be reused for subsequent requests without
-    validating with the origin server.
-}
+# Indicates that once the response has become stale, it should not be reused for subsequent requests without
+# validating with the origin server.
 @final public string MUST_REVALIDATE = "must-revalidate";
 
-documentation {
-    Indicates that any cache may store the response.
-}
+# Indicates that any cache may store the response.
 @final public string PUBLIC = "public";
 
-documentation {
-    Indicates that the response is intended for a single user and should not be stored by shared caches.
-}
+# Indicates that the response is intended for a single user and should not be stored by shared caches.
 @final public string PRIVATE = "private";
 
-documentation {
-    Has the same semantics as `must-revalidate`, except that this does not apply to private caches.
-}
+# Has the same semantics as `must-revalidate`, except that this does not apply to private caches.
 @final public string PROXY_REVALIDATE = "proxy-revalidate";
 
-documentation {
-    In shared caches, `s-maxage` overrides the `max-age` or `expires` header field.
-}
+# In shared caches, `s-maxage` overrides the `max-age` or `expires` header field.
 @final public string S_MAX_AGE = "s-maxage";
 
 // Other constants
-documentation {
-    Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit.
-}
+# Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit.
 @final public int MAX_STALE_ANY_AGE = 9223372036854775807;
 
-documentation {
-    Configures cache control directives for a `Request`.
-
-    F{{noCache}} Sets the `no-cache` directive
-    F{{noStore}} Sets the `no-store` directive
-    F{{noTransform}} Sets the `no-transform` directive
-    F{{onlyIfCached}} Sets the `only-if-cached` directive
-    F{{maxAge}} Sets the `max-age` directive
-    F{{maxStale}} Sets the `max-stale` directive
-    F{{minFresh}} Sets the `min-fresh` directive
-}
+# Configures cache control directives for a `Request`.
+#
+# + noCache - Sets the `no-cache` directive
+# + noStore - Sets the `no-store` directive
+# + noTransform - Sets the `no-transform` directive
+# + onlyIfCached - Sets the `only-if-cached` directive
+# + maxAge - Sets the `max-age` directive
+# + maxStale - Sets the `max-stale` directive
+# + minFresh - Sets the `min-fresh` directive
 public type RequestCacheControl object {
 
     public boolean noCache = false;
@@ -112,11 +84,9 @@ public type RequestCacheControl object {
     public int maxStale = -1;
     public int minFresh = -1;
 
-    documentation {
-        Builds the cache control directives string from the current `RequestCacheControl` configurations.
-
-        R{{}} The cache control directives string to be used in the `cache-control` header
-    }
+    # Builds the cache control directives string from the current `RequestCacheControl` configurations.
+    #
+    # + return - The cache control directives string to be used in the `cache-control` header
     public function buildCacheControlDirectives () returns string {
         string[] directives = [];
         int i = 0;
@@ -163,22 +133,20 @@ public type RequestCacheControl object {
     }
 };
 
-documentation {
-    Configures cache control directives for a `Response`.
-
-    F{{mustRevalidate}} Sets the `must-revalidate` directive
-    F{{noCache}} Sets the `no-cache` directive
-    F{{noStore}} Sets the `no-store` directive
-    F{{noTransform}} Sets the `no-transform` directive
-    F{{isPrivate}} Sets the `private` and `public` directives
-    F{{proxyRevalidate}} Sets the `proxy-revalidate` directive
-    F{{maxAge}} Sets the `max-age` directive
-    F{{sMaxAge}} Sets the `s-maxage` directive
-    F{{noCacheFields}} Optional fields for the `no-cache` directive. Before sending a listed field in a response, it
-                       must be validated with the origin server.
-    F{{privateFields}} Optional fields for the `private` directive. A cache can omit the fields specified and store
-                       the rest of the response.
-}
+# Configures cache control directives for a `Response`.
+#
+# + mustRevalidate - Sets the `must-revalidate` directive
+# + noCache - Sets the `no-cache` directive
+# + noStore - Sets the `no-store` directive
+# + noTransform - Sets the `no-transform` directive
+# + isPrivate - Sets the `private` and `public` directives
+# + proxyRevalidate - Sets the `proxy-revalidate` directive
+# + maxAge - Sets the `max-age` directive
+# + sMaxAge - Sets the `s-maxage` directive
+# + noCacheFields - Optional fields for the `no-cache` directive. Before sending a listed field in a response, it
+#                   must be validated with the origin server.
+# + privateFields - Optional fields for the `private` directive. A cache can omit the fields specified and store
+#                   the rest of the response.
 public type ResponseCacheControl object {
 
     public boolean mustRevalidate = false;
@@ -192,11 +160,9 @@ public type ResponseCacheControl object {
     public string[] noCacheFields = [];
     public string[] privateFields = [];
 
-    documentation {
-        Builds the cache control directives string from the current `ResponseCacheControl` configurations.
-
-        R{{}} The cache control directives string to be used in the `cache-control` header
-    }
+    # Builds the cache control directives string from the current `ResponseCacheControl` configurations.
+    #
+    # + return - The cache control directives string to be used in the `cache-control` header
     public function buildCacheControlDirectives () returns string {
         string[] directives = [];
         int i = 0;

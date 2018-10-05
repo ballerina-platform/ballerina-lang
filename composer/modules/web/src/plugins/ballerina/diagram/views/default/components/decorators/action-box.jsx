@@ -46,13 +46,22 @@ class ActionBox extends React.Component {
         };
         return (<div style={style}>
             <Button.Group
-                className='lifeline icons'>
-                <Button
-                    onClick={this.props.disableButtons.delete ? () => {} : this.props.onDelete}
-                ><i className='fw'>{ImageUtil.getCodePoint('delete')}</i></Button>
-                <Button
-                    onClick={this.props.disableButtons.jump ? () => {} : this.props.onJumptoCodeLine}
-                ><i className='fw'>{ImageUtil.getCodePoint('code-view')}</i></Button>
+                className='lifeline icons'
+            >
+                {!this.props.disableButtons.delete &&
+                    <Button
+                        onClick={this.props.onDelete}
+                    >
+                        <i className='fw'>{ImageUtil.getCodePoint('delete')}</i>
+                    </Button>
+                }
+                {!this.props.disableButtons.jump &&
+                    <Button
+                        onClick={this.props.onJumptoCodeLine}
+                    >
+                        <i className='fw'>{ImageUtil.getCodePoint('code-view')}</i>
+                    </Button>
+                }
             </Button.Group>
         </div>);
     }

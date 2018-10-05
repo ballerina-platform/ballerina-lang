@@ -19,9 +19,10 @@
 package org.ballerinalang.test.service.http;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
 
@@ -30,17 +31,29 @@ import java.io.File;
  * and after tests are run.
  */
 public class HttpBaseTest extends BaseTest {
-    @BeforeTest(groups = "http-test", alwaysRun = true)
+    protected static BServerInstance serverInstance;
+
+    @BeforeGroups(value = "http-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101, 9102,
+                9103, 9104, 9105, 9109, 9110, 9111, 9112, 9113, 9114, 9115, 9116, 9117, 9218, 9219, 9220, 9221, 9222,
+                9223, 9224};
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http").getAbsolutePath();
-        String[] args = new String[]{"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("httpservices", args);
+        String privateKey = new File(
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
+                        + File.separator + "private.key").getAbsolutePath();
+        String publicCert = new File(
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
+                        + File.separator + "public.crt").getAbsolutePath();
+        String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(balFile, "httpservices", args, requiredPorts);
     }
 
-    @AfterTest(groups = "http-test")
+    @AfterGroups(value = "http-test", alwaysRun = true)
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
-        serverInstance.stopServer();
+        serverInstance.shutdownServer();
     }
 }

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTupleTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaTupleTypeName {
 
-  public BallerinaTupleTypeNameImpl(ASTNode node) {
+  public BallerinaTupleTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

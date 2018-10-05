@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -113,6 +114,12 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error in sql connector configuration:Failed to initialize pool: "
+                  + "Database does not exists: ./target/tempdb/NON_EXISTING_DB.*")
+    public void testConnectionFailure() {
+        BRunUtil.invokeFunction(result, "testConnectionFailure");
+    }
 
     @AfterSuite
     public void cleanup() {

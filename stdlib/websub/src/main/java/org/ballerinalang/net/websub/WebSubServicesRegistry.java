@@ -27,8 +27,11 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.validateCustomResources;
 
 /**
  * The WebSub service registry which uses an {@link HTTPServicesRegistry} to maintain WebSub Subscriber HTTP services.
@@ -46,6 +49,8 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
     private BMap<String, BMap<String, BValue>> payloadKeyResourceMap;
     private BMap<String, BMap<String, BMap<String, BValue>>> headerAndPayloadKeyResourceMap;
 
+    private HashMap<String, String[]> resourceDetails;
+
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         super(webSocketServicesRegistry);
     }
@@ -53,13 +58,15 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry,
                                   String topicIdentifier, String topicHeader, BMap<String, BValue> headerResourceMap,
                                   BMap<String, BMap<String, BValue>> payloadKeyResourceMap,
-                                  BMap<String, BMap<String, BMap<String, BValue>>> headerAndPayloadKeyResourceMap) {
+                                  BMap<String, BMap<String, BMap<String, BValue>>> headerAndPayloadKeyResourceMap,
+                                  HashMap<String, String[]> resourceDetails) {
         super(webSocketServicesRegistry);
         this.topicIdentifier = topicIdentifier;
         this.topicHeader = topicHeader;
         this.headerResourceMap = headerResourceMap;
         this.payloadKeyResourceMap = payloadKeyResourceMap;
         this.headerAndPayloadKeyResourceMap = headerAndPayloadKeyResourceMap;
+        this.resourceDetails = resourceDetails;
     }
 
     /**
@@ -68,7 +75,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the identifier for topics
      */
-    public String getTopicIdentifier() {
+    String getTopicIdentifier() {
         return topicIdentifier;
     }
 
@@ -81,11 +88,11 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         return topicHeader;
     }
 
-    public BMap<String, BValue> getHeaderResourceMap() {
+    BMap<String, BValue> getHeaderResourceMap() {
         return headerResourceMap;
     }
 
-    public BMap<String, BMap<String, BValue>> getPayloadKeyResourceMap() {
+    BMap<String, BMap<String, BValue>> getPayloadKeyResourceMap() {
         return payloadKeyResourceMap;
     }
 
@@ -94,8 +101,12 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the topic-resource map specified for the service
      */
-    public BMap<String, BMap<String, BMap<String, BValue>>> getHeaderAndPayloadKeyResourceMap() {
+    BMap<String, BMap<String, BMap<String, BValue>>> getHeaderAndPayloadKeyResourceMap() {
         return headerAndPayloadKeyResourceMap;
+    }
+
+    HashMap<String, String[]> getResourceDetails() {
+        return resourceDetails;
     }
 
     /**
@@ -121,7 +132,9 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
 
-        WebSubSubscriberServiceValidator.validateResources(httpService, topicIdentifier, this);
+        if (topicIdentifier != null) {
+            // i.e., extension config exists
+            validateCustomResources(httpService.getResources(), this);
+        }
     }
-
 }

@@ -71,9 +71,7 @@ public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
                 if (ANNOTATION_PATH.equals(key)) {
                     final Object value = ((BLangLiteral) config.getValue()).getValue();
                     if (value == null || value.toString().isEmpty()) {
-                        String msg =
-                                "'" + ANNOTATION_PATH + "' field either empty or not "
-                                        + "available in Directory Listener endpoint.";
+                        String msg = "'" + ANNOTATION_PATH + "' field empty.";
                         dlog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
                         break;
                     }

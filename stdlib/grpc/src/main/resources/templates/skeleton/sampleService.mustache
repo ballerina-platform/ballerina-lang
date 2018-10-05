@@ -1,0 +1,46 @@
+import ballerina/grpc;
+import ballerina/io;
+
+endpoint grpc:Listener listener {
+    host:"hostname",
+    port:9000
+};
+{{#if bidiStreaming}}
+@grpc:ServiceConfig { {{#streamingFunction}}
+    name: {{methodName}},{{/streamingFunction}}
+    clientStreaming: true,
+    serverStreaming: true
+}{{/if}}{{#if clientStreaming}}
+@grpc:ServiceConfig { {{#streamingFunction}}
+    name: {{methodName}},{{/streamingFunction}}
+    clientStreaming: true
+}
+{{/if}}{{#if unary}}
+@grpc:ServiceConfig
+{{/if}}
+service {{serviceName}} bind listener {
+{{#streamingFunction}}
+    onOpen(endpoint caller) {
+        // Implementation goes here.
+    }
+
+    onMessage(endpoint caller, {{inputType}} value) {
+        // Implementation goes here.
+    }
+
+    onError(endpoint caller, error err) {
+        // Implementation goes here.
+    }
+
+    onComplete(endpoint caller) {
+            // Implementation goes here.
+            // You should return a {{outputType}}
+    }
+{{/streamingFunction}}{{#unaryFunctions}}{{#equals methodType "SERVER_STREAMING"}}
+    @grpc:ResourceConfig { streaming: true } {{/equals}}
+    {{methodName}}(endpoint caller, {{inputType}} value) {
+        // Implementation goes here.
+
+        // You should return a {{outputType}}
+    }{{/unaryFunctions}}
+}

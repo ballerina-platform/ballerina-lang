@@ -22,6 +22,7 @@ package org.ballerinalang.cli.utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -43,6 +44,7 @@ public class GenerateBalx {
 
     public static void main(String[] args) {
         Path prjctDir = Paths.get(args[0]);
+        String sourcePath = args[1];
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, prjctDir.toString());
@@ -51,7 +53,10 @@ public class GenerateBalx {
         options.put(SKIP_TESTS, Boolean.toString(true));
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.write(compiler.build());
+        BLangPackage bLangPackage = compiler.build(sourcePath);
+
+        Path targetFilePath = prjctDir.resolve(sourcePath);
+        compiler.write(bLangPackage, targetFilePath.toString());
 
         BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);
         if (diagnosticLog.errorCount > 0) {

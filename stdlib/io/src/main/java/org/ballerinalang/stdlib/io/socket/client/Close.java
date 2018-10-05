@@ -68,11 +68,14 @@ public class Close extends BlockingNativeCallableUnit {
                     selectionKey.cancel();
                 }
             }
-            byteChannel.close();
-            channel.close();
+            if (byteChannel != null) {
+                byteChannel.close();
+            }
+            if (channel != null) {
+                channel.close();
+            }
         } catch (Throwable e) {
-            String message = "Failed to close the socket:" + e.getMessage();
-            log.error(message, e);
+            String message = "Failed to close the socket connection.";
             context.setReturnValues(IOUtils.createError(context, message));
         }
         context.setReturnValues();

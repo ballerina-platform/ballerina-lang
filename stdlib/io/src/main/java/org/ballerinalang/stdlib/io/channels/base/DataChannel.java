@@ -346,4 +346,9 @@ public class DataChannel implements IOChannel {
     public void close() throws IOException {
         this.channel.close();
     }
+
+    @Override
+    public boolean remaining() {
+        return false;
+    }
 }

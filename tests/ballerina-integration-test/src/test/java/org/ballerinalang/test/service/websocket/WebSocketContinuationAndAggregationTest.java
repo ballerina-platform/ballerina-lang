@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test WebSocket continuation frames and the aggregation of fragments when the content is other than a string.
  */
+@Test(groups = "websocket-test")
 public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommons {
 
     @Test(description = "Tests string support for pushText and onText")

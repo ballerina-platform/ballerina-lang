@@ -52,4 +52,8 @@ public class BlobIOChannel extends Channel {
         return false;
     }
 
+    @Override
+    public boolean remaining() {
+        return false;
+    }
 }

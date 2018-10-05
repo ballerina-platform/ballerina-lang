@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaServiceEndpointAttachmentsImpl extends BallerinaCompositeElementImpl implements BallerinaServiceEndpointAttachments {
 
-  public BallerinaServiceEndpointAttachmentsImpl(ASTNode node) {
+  public BallerinaServiceEndpointAttachmentsImpl(@NotNull ASTNode node) {
     super(node);
   }
 

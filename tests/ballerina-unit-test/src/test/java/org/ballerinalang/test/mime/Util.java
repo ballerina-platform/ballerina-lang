@@ -36,23 +36,29 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -133,11 +139,7 @@ public class Util {
      */
     static BMap<String, BValue> getTextFilePart(CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".txt");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("Ballerina text as a file part");
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".txt", "Ballerina text as a file part");
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -161,11 +163,7 @@ public class Util {
     static BMap<String, BValue> getTextFilePartWithEncoding(String contentTransferEncoding, String message,
                                                             CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".txt");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write(message);
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".txt", message);
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -205,11 +203,7 @@ public class Util {
      */
     static BMap<String, BValue> getJsonFilePart(CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".json");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("{'name':'wso2'}");
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".json", "{'name':'wso2'}");
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -246,11 +240,7 @@ public class Util {
      */
     static BMap<String, BValue> getXmlFilePart(CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".xml");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("<name>Ballerina xml file part</name>");
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".xml", "<name>Ballerina xml file part</name>");
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -285,11 +275,7 @@ public class Util {
      */
     static BMap<String, BValue> getBinaryFilePart(CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".tmp");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("Ballerina binary file part");
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".tmp", "Ballerina binary file part");
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -441,7 +427,7 @@ public class Util {
     private static void prepareRequestWithMultiparts(HttpCarbonMessage outboundRequest,
                                                      BMap<String, BValue> requestStruct) {
         BMap<String, BValue> entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
-                                (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
+                (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
         if (entityStruct != null) {
             BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
                     (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
@@ -627,5 +613,49 @@ public class Util {
 
     public static BMap<String, BValue> getByteChannelStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
+    }
+
+    @NotNull
+    static File getTemporaryFile(String fileName, String fileType, String valueTobeWritten) throws IOException {
+        File file = File.createTempFile(fileName, fileType);
+        file.deleteOnExit();
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+        bufferedWriter.write(valueTobeWritten);
+        bufferedWriter.close();
+        return file;
+    }
+
+    /**
+     * Validate that the decoded body part content matches with the encoded content.
+     *
+     * @param mimeParts List of decoded body parts
+     * @param bodyPart  Ballerina body part
+     * @throws IOException When an exception occurs during binary data decoding
+     */
+    static void validateBodyPartContent(List<MIMEPart> mimeParts, BMap<String, BValue> bodyPart) throws IOException {
+        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
+        BValue jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
+        Assert.assertNotNull(jsonData);
+        Assert.assertEquals(jsonData.stringValue(), "{\"" + "bodyPart" + "\":\"" + "jsonPart" +
+                "\"}");
+
+        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
+        BXML xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
+        Assert.assertNotNull(xmlData);
+        Assert.assertEquals(xmlData.stringValue(), "<name>Ballerina xml file part</name>");
+
+        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(2));
+        BString textData = EntityBodyHandler.constructStringDataSource(bodyPart);
+        Assert.assertNotNull(textData);
+        Assert.assertEquals(textData.stringValue(), "Ballerina text body part");
+
+        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
+        BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
+        Assert.assertNotNull(blobDataSource);
+
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        blobDataSource.serialize(outStream);
+        Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8),
+                "Ballerina binary file part");
     }
 }

@@ -33,12 +33,15 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
     private CountDownLatch latch;
     private CountDownLatch waitForConnectionClosureLatch;
     private LinkedList<FullHttpResponse> fullHttpResponses = new LinkedList<>();
+    private String channelEventMsg;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof FullHttpResponse) {
             this.fullHttpResponses.add((FullHttpResponse) msg);
-            latch.countDown();
+            if (latch != null) {
+                latch.countDown();
+            }
         }
     }
 
@@ -50,6 +53,10 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
         return this.fullHttpResponses;
     }
 
+    public String getChannelEventMsg() {
+        return channelEventMsg;
+    }
+
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         super.userEventTriggered(ctx, evt);
@@ -57,12 +64,15 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        this.channelEventMsg = cause.getMessage();
         super.exceptionCaught(ctx, cause);
+        countDownConnectionClosureLatch();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        this.waitForConnectionClosureLatch.countDown();
+        this.channelEventMsg = "Channel is inactive";
+        countDownConnectionClosureLatch();
     }
 
     public void setLatch(CountDownLatch latch) {
@@ -71,5 +81,11 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     void setWaitForConnectionClosureLatch(CountDownLatch waitForConnectionClosureLatch) {
         this.waitForConnectionClosureLatch = waitForConnectionClosureLatch;
+    }
+
+    private void countDownConnectionClosureLatch() {
+        if (this.waitForConnectionClosureLatch != null) {
+            this.waitForConnectionClosureLatch.countDown();
+        }
     }
 }

@@ -40,9 +40,9 @@ import java.util.concurrent.TimeUnit;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "close",
+        functionName = "externClose",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = "ballerina/http"),
+                             structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.OBJECT),
                 @Argument(name = "statusCode", type = TypeKind.INT),
@@ -74,7 +74,13 @@ public class Close implements NativeCallableUnit {
     private ChannelFuture initiateConnectionClosure(Context context, int statusCode, String reason,
                                                     WebSocketOpenConnectionInfo connectionInfo, CountDownLatch latch) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-        return webSocketConnection.initiateConnectionClosure(statusCode, reason).addListener(future -> {
+        ChannelFuture closeFuture;
+        if (statusCode < 0) {
+            closeFuture = webSocketConnection.initiateConnectionClosure();
+        } else {
+            closeFuture = webSocketConnection.initiateConnectionClosure(statusCode, reason);
+        }
+        return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 context.setReturnValues(HttpUtil.getError(context, cause));

@@ -17,60 +17,60 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.PushUtils;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.List;
+
+import static org.ballerinalang.packerina.cmd.Constants.INSTALL_COMMAND;
 
 /**
  * This class represents the "ballerina install" command.
  *
  * @since 0.90
  */
-@Parameters(commandNames = "install", commandDescription = "install packages to the home repository")
+@CommandLine.Command(name = INSTALL_COMMAND, description = "install packages to the home repository")
 public class InstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
-    private JCommander parentCmdParser;
 
-    @Parameter(arity = 1)
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true)
-    private String debugPort;
-
-    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    @CommandLine.Option(names = {"--sourceroot"},
+            description = "path to the directory containing source files and packages")
     private String sourceRoot;
+
+    @CommandLine.Option(names = {"--no-build"}, description = "skip building before installing")
+    private boolean noBuild;
 
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "install");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(INSTALL_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
 
         if (argList == null || argList.size() == 0) {
-            PushUtils.pushAllPackages(sourceRoot, "home");
+            PushUtils.pushAllPackages(sourceRoot, "home", noBuild);
         } else if (argList.size() == 1) {
             String packageStr = argList.get(0);
-            PushUtils.pushPackages(packageStr, sourceRoot, "home");
+            PushUtils.pushPackages(packageStr, sourceRoot, "home", noBuild);
         } else {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
     }
 
     @Override
     public String getName() {
-        return "install";
+        return INSTALL_COMMAND;
     }
 
     @Override
@@ -84,11 +84,10 @@ public class InstallCommand implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

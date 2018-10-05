@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string name = "Ballerina";
     string template = string `Hello {{name}}!!!`;
     secureFunction(template, template);

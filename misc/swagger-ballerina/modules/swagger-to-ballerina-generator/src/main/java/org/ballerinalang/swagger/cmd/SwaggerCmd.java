@@ -17,14 +17,12 @@
 */
 package org.ballerinalang.swagger.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.swagger.CodeGenerator;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -36,9 +34,9 @@ import java.util.Locale;
  * Class to implement "swagger" command for ballerina.
  * Ex: ballerina swagger (mock | client) (swaggerFile | balFile) -p(package name) -o(output directory name)
  */
-@Parameters(commandNames = "swagger",
-            commandDescription = "Generate client/service using swagger definition or "
-                    + "export swagger file for a ballerina service")
+@CommandLine.Command(name = "swagger",
+            description = "generate client/service using Swagger definition or exports swagger file for a Ballerina"
+                    + " Service")
 public class SwaggerCmd implements BLauncherCmd {
     private static final String client = "CLIENT";
     private static final String mock = "MOCK";
@@ -47,28 +45,26 @@ public class SwaggerCmd implements BLauncherCmd {
 
     private static final PrintStream outStream = System.err;
 
-    @Parameter(arity = 1, description = "<action> <swagger spec| ballerina file>. action : mock|client|export")
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = { "-o", "--output" },
+    @CommandLine.Option(names = { "-o", "--output" },
                description = "where to write the generated files (current dir by default)")
     private String output = "";
 
-    @Parameter(names = { "-p", "--package" }, description = "package name to be used in the generated source files")
+    @CommandLine.Option(names = { "-p", "--package" },
+            description = "package name to be used in the generated source files")
     private String srcPackage;
 
-    @Parameter(names = { "-s", "--service" }, description = "Name of the service to export. "
+    @CommandLine.Option(names = { "-s", "--service" }, description = "Name of the service to export. "
             + "This will extract a service with the specified name in the .bal file")
     private String serviceName;
 
-    @Parameter(names = { "-h", "--help" }, hidden = true)
+    @CommandLine.Option(names = { "-h", "--help" }, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--debug", hidden = true)
+    @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
-
-    @Parameter(names = "--java.debug", hidden = true)
-    private String javaDebugPort;
 
     @Override
     public void execute() {
@@ -79,7 +75,7 @@ public class SwaggerCmd implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() < 2) {
-            throw LauncherUtils.createUsageException("action and a input file should be provided. "
+            throw LauncherUtils.createUsageExceptionWithHelp("action and a input file should be provided. "
                     + "Ex: ballerina swagger client swagger_file");
         }
         String action = argList.get(0).toUpperCase(Locale.ENGLISH);
@@ -99,7 +95,7 @@ public class SwaggerCmd implements BLauncherCmd {
                 msg.append("generated swagger definition");
                 break;
             default:
-                throw LauncherUtils.createUsageException(
+                throw LauncherUtils.createLauncherException(
                         "Only following actions(mock, client) are " + "supported in swagger command");
         }
         msg.append(" for input file - " + argList.get(1));
@@ -126,7 +122,7 @@ public class SwaggerCmd implements BLauncherCmd {
         try {
             generator.generate(GenType.valueOf(targetLanguage), argList.get(1), output);
         } catch (Exception e) {
-            throw LauncherUtils.createUsageException(
+            throw LauncherUtils.createLauncherException(
                     "Error occurred when generating " + targetLanguage + " for " + "swagger file at " + argList.get(1)
                             + ". " + e.getMessage() + ".");
         }
@@ -139,18 +135,18 @@ public class SwaggerCmd implements BLauncherCmd {
         try {
             SwaggerConverterUtils.generateOAS3Definitions(servicePath, outPath, serviceName);
         } catch (Exception e) {
-            throw LauncherUtils.createUsageException(
+            throw LauncherUtils.createLauncherException(
                     "Error occurred when exporting swagger file for service file at " + argList.get(1)
                             + ". " + e.getMessage() + ".");
         }
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
 
     }
 }

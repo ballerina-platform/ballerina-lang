@@ -77,6 +77,7 @@ public class BTestRunner {
      * @param sourceRoot      source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included
+     * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
         runTest(sourceRoot, sourceFilePaths, groups, shouldIncludeGroups, false);
@@ -89,6 +90,7 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included/excluded
      * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
+     * @param buildWithTests flag to specify whether to build with tests or not
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups,
                         boolean buildWithTests) {

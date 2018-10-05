@@ -21,15 +21,13 @@ import ballerina/log;
 import ballerina/math;
 import ballerina/config;
 
-documentation {
-    Provides redirect functionality for HTTP client actions.
-
-    F{{serviceUri}} Target service url
-    F{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
-    F{{redirectConfig}} Configurations associated with redirect
-    F{{httpClient}}  HTTP client for outbound HTTP requests
-    F{{currentRedirectCount}}  Current redirect count of the HTTP client
-}
+# Provides redirect functionality for HTTP client actions.
+#
+# + serviceUri - Target service url
+# + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+# + redirectConfig - Configurations associated with redirect
+# + httpClient - HTTP client for outbound HTTP requests
+# + currentRedirectCount - Current redirect count of the HTTP client
 public type RedirectClient object {
 
     public string serviceUri;
@@ -38,14 +36,12 @@ public type RedirectClient object {
     public CallerActions httpClient;
     public int currentRedirectCount = 0;
 
-    documentation {
-        Create a redirect client with the given configurations.
-
-        P{{serviceUri}} Target service url
-        P{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
-        P{{redirectConfig}} Configurations associated with redirect
-        P{{httpClient}}  HTTP client for outbound HTTP requests
-    }
+    # Create a redirect client with the given configurations.
+    #
+    # + serviceUri - Target service url
+    # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+    # + redirectConfig - Configurations associated with redirect
+    # + httpClient - HTTP client for outbound HTTP requests
     public new(serviceUri, config, redirectConfig, httpClient) {
         self.serviceUri = serviceUri;
         self.config = config;
@@ -53,86 +49,74 @@ public type RedirectClient object {
         self.httpClient = httpClient;
     }
 
-    documentation {
-        If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
-        by this `get()` function.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
-                     `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
+    # by this `get()` function.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
+    #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_GET);
     }
 
-    documentation {
-       If the received response for the `post()` action is redirect eligible, redirect will be performed automatically
-       by this `post()` function.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # If the received response for the `post()` action is redirect eligible, redirect will be performed automatically
+    # by this `post()` function.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_POST);
     }
 
-    documentation {
-        If the received response for the `head()` action is redirect eligible, redirect will be performed automatically
-        by this `head()` function.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
-                     `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # If the received response for the `head()` action is redirect eligible, redirect will be performed automatically
+    # by this `head()` function.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
+    #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_HEAD);
     }
 
-    documentation {
-        If the received response for the `put()` action is redirect eligible, redirect will be performed automatically
-        by this `put()` function.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # If the received response for the `put()` action is redirect eligible, redirect will be performed automatically
+    # by this `put()` function.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_PUT);
     }
 
-    documentation {
-        The `forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
-
-        P{{path}} Resource path
-        P{{request}} An HTTP inbound request message
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # The `forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
+    #
+    # + path - Resource path
+    # + request - An HTTP inbound request message
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function forward(string path, Request request) returns Response|error {
         return self.httpClient.forward(path, request);
     }
 
-    documentation {
-        The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
-        only for HTTP methods.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
+    # only for HTTP methods.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request request = buildRequest(message);
@@ -144,114 +128,96 @@ public type RedirectClient object {
         }
     }
 
-    documentation {
-        If the received response for the `patch()` action is redirect eligible, redirect will be performed automatically
-        by this `patch()` function.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # If the received response for the `patch()` action is redirect eligible, redirect will be performed automatically
+    # by this `patch()` function.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_PATCH);
     }
 
-    documentation {
-        If the received response for the `delete()` action is redirect eligible, redirect will be performed automatically
-        by this `delete()` function.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # If the received response for the `delete()` action is redirect eligible, redirect will be performed automatically
+    # by this `delete()` function.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_DELETE);
     }
 
-    documentation {
-        If the received response for the `options()` action is redirect eligible, redirect will be performed automatically
-        by this `options()` function.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
-                     `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # If the received response for the `options()` action is redirect eligible, redirect will be performed automatically
+    # by this `options()` function.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
+    #             `byte[]`, `io:ByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_OPTIONS);
     }
 
-    documentation {
-    Submits an HTTP request to a service with the specified HTTP verb.
-    The `submit()` function does not give out a `Response` as the result,
-    rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
-
-        P{{httpVerb}} The HTTP verb value
-        P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    }
+    # Submits an HTTP request to a service with the specified HTTP verb.
+    # The `submit()` function does not give out a `Response` as the result,
+    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+    #
+    # + httpVerb - The HTTP verb value
+    # + path - The resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ByteChannel` or `mime:Entity[]`
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                 message) returns HttpFuture|error {
         Request request = buildRequest(message);
         return self.httpClient.submit(httpVerb, path, request);
     }
 
-    documentation {
-    Retrieves the `Response` for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP response message, or an error if the invocation fails
-    }
+    # Retrieves the `Response` for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP response message, or an error if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|error {
         return self.httpClient.getResponse(httpFuture);
     }
 
-    documentation {
-    Checks whether a `PushPromise` exists for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} A `boolean` that represents whether a `PushPromise` exists
-    }
+    # Checks whether a `PushPromise` exists for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns (boolean) {
         return self.httpClient.hasPromise(httpFuture);
     }
 
-    documentation {
-    Retrieves the next available `PushPromise` for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP Push Promise message, or an error if the invocation fails
-    }
+    # Retrieves the next available `PushPromise` for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP Push Promise message, or an error if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
         return self.httpClient.getNextPromise(httpFuture);
     }
 
-    documentation {
-    Retrieves the promised server push `Response` message.
-
-        P{{promise}} The related `PushPromise`
-        R{{}} A promised HTTP `Response` message, or an error if the invocation fails
-    }
+    # Retrieves the promised server push `Response` message.
+    #
+    # + promise - The related `PushPromise`
+    # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|error {
         return self.httpClient.getPromisedResponse(promise);
     }
 
-    documentation {
-    Rejects a `PushPromise`.
-    When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
-
-        P{{promise}} The Push Promise to be rejected
-    }
+    # Rejects a `PushPromise`.
+    # When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
+    #
+    # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise) {
         self.httpClient.rejectPromise(promise);
     }

@@ -67,4 +67,9 @@ public class FileIOChannel extends Channel {
     public boolean isSelectable() {
         return false;
     }
+
+    @Override
+    public boolean remaining() {
+        return false;
+    }
 }

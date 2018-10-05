@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 
 string returnValue;
@@ -47,7 +63,7 @@ function startServerSocket(int port, string welcomeMsg) {
         io:Socket s => {
             io:println("Client socket accepted!!!");
             io:println(s.remotePort);
-            io:ByteChannel ch = s.channel;
+            io:ByteChannel ch = s.byteChannel;
             byte[] c1 = welcomeMsg.toByteArray("utf-8");
             match ch.write(c1, 0) {
                 int i => {
@@ -89,6 +105,22 @@ function startServerSocket(int port, string welcomeMsg) {
         }
         error e10 => {
             io:println("Socket accept error: " , e10.message);
+        }
+    }
+    check server.close();
+}
+
+function runOnDuplicatePort(int port) returns error? {
+    io:ServerSocket server1 = new();
+    check server1.bindAddress(port);
+    io:ServerSocket server2 = new();
+    match server2.bindAddress(port) {
+        error e => {
+            check server1.close();
+            return e;
+        }
+        () => {
+            return ();
         }
     }
 }

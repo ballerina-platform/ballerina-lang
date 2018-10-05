@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.nativeimpl.functions;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,14 +55,13 @@ public class IOTest {
     }
 
     @AfterClass(alwaysRun = true)
-    public void cleanup() throws IOException {
+    public void cleanup() {
         System.setOut(original);
     }
 
     @Test
     public void testStringPrintAndPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final String s1 = "Hello World...!!!";
             final String s2 = "A Greeting from Ballerina...!!!";
@@ -71,15 +71,13 @@ public class IOTest {
             BRunUtil.invoke(compileResult, printFuncName + "String", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test
     public void testIntPrintAndPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final int v1 = 1000;
             final int v2 = 1;
@@ -89,15 +87,13 @@ public class IOTest {
             BRunUtil.invoke(compileResult, printFuncName + "Int", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test
     public void testFloatPrintAndPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final float v1 = 1000;
             final float v2 = 1;
@@ -107,15 +103,13 @@ public class IOTest {
             BRunUtil.invoke(compileResult, printFuncName + "Float", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test
     public void testBooleanPrintAndPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final boolean v1 = false;
             final boolean v2 = true;
@@ -125,45 +119,39 @@ public class IOTest {
             BRunUtil.invoke(compileResult, printFuncName + "Boolean", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test
     public void testConnectorPrintAndPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final String expected = "{}\n{}";
 
             BRunUtil.invoke(compileResult, printFuncName + "Connector");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test
     public void testFunctionPointerPrintAndPrintln() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final String expected = "\n";
 
             BRunUtil.invoke(compileResult, printFuncName + "FunctionPointer");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test
     public void testPrintVarargs() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final String s1 = "Hello World...!!!";
             final String s2 = "A Greeting from Ballerina...!!!";
@@ -174,15 +162,13 @@ public class IOTest {
             BRunUtil.invoke(compileResult, "testPrintVarargs", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test
     public void testPrintMixVarargs() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final String s1 = "Hello World...!!!";
             final long l1 = 123456789L;
@@ -194,15 +180,13 @@ public class IOTest {
             BRunUtil.invoke(compileResult, "testPrintMixVarargs", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test
     public void testPrintlnVarargs() throws IOException {
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final String s1 = "Hello World...!!!";
             final String s2 = "A Greeting from Ballerina...!!!";
@@ -213,17 +197,14 @@ public class IOTest {
             BRunUtil.invoke(compileResult, "testPrintlnVarargs", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
-            outContent.close();
             System.setOut(original);
         }
     }
 
     @Test(description = "Test new line character in string")
     public void testNewlineCharacter() {
-        ByteArrayOutputStream out = null;
         PrintStream mainStream = System.out;
-        try {
-            out = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(out));
             BValue[] args = {};
             BRunUtil.invoke(compileResult, "printNewline", args);
@@ -232,13 +213,10 @@ public class IOTest {
             //getting the last new line character
             Assert.assertEquals(outPut.charAt(outPut.length() - 1), '\n'
                     , "New line character not found in output string");
+        } catch (IOException e) {
+            //ignore
         } finally {
             System.setOut(mainStream);
-            try {
-                out.close();
-            } catch (IOException e) {
-                //ignore
-            }
         }
 
     }
@@ -299,15 +277,6 @@ public class IOTest {
     }
 
     @Test
-    public void testFormatOctal() {
-        BRefValueArray fArgs = new BRefValueArray();
-        fArgs.add(0, new BInteger(57005));
-        BValue[] args = {new BString("%o"), fArgs};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].stringValue(), "157255");
-    }
-
-    @Test
     public void testFormatIntArray() {
         BRefValueArray fArgs = new BRefValueArray();
         BIntArray arr = new BIntArray();
@@ -316,7 +285,7 @@ public class IOTest {
         arr.add(2, 333);
 
         fArgs.add(0, arr);
-        BValue[] args = {new BString("%a"), fArgs};
+        BValue[] args = {new BString("%s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "[111, 222, 333]");
     }
@@ -357,19 +326,28 @@ public class IOTest {
         Assert.assertEquals(returns[0].stringValue(), "          12345");
     }
 
-    @Test
-    public void testFormatBinary() {
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*unknown format conversion 'z'.*")
+    public void testSprintfInvalidFormatSpecifier() {
         BRefValueArray fArgs = new BRefValueArray();
-        fArgs.add(0, new BInteger(12345));
-        BValue[] args = {new BString("%B"), fArgs};
+        fArgs.add(0, new BString("cow"));
+        BValue[] args = {new BString("%z"), fArgs};
+        BRunUtil.invoke(compileResult, "testSprintf", args);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*illegal format conversion 'x != string'.*")
+    public void testSprintfIllegalFormatConversion() {
+        BRefValueArray fArgs = new BRefValueArray();
+        fArgs.add(0, new BString("cow"));
+        BValue[] args = {new BString("%x"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].stringValue(), "11000000111001");
     }
 
     @Test
     public void testSprintfMix() {
         BValue[] args = {new BString("the %s jumped over the %s, %d times"),
-                         new BString("cow"), new BString("moon"), new BInteger(2)};
+                new BString("cow"), new BString("moon"), new BInteger(2)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintfMix", args);
         Assert.assertEquals(returns[0].stringValue(), "the cow jumped over the moon, 2 times");
     }

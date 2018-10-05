@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,21 +34,21 @@ import java.util.List;
 public class ResourceContextResolver extends AbstractItemResolver {
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         List<CompletionItem> completionItems = new ArrayList<>();
 
         if (parserRuleContext == null) {
+            boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+                    .getSnippetSupport();
             CompletionItem workerItem = new CompletionItem();
             workerItem.setLabel(ItemResolverConstants.WORKER);
-            workerItem.setInsertText(Snippet.WORKER.toString());
-            workerItem.setInsertTextFormat(InsertTextFormat.Snippet);
+            Snippet.DEF_WORKER.getBlock().populateCompletionItem(workerItem, snippetCapability);
             workerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
             
             CompletionItem endpointItem = new CompletionItem();
             endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-            endpointItem.setInsertText(Snippet.ENDPOINT.toString());
-            endpointItem.setInsertTextFormat(InsertTextFormat.Snippet);
+            Snippet.DEF_ENDPOINT.getBlock().populateCompletionItem(endpointItem, snippetCapability);
             endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
             
             completionItems.add(workerItem);
@@ -60,7 +59,7 @@ public class ResourceContextResolver extends AbstractItemResolver {
         AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
 
         if (resolver != null) {
-            completionItems.addAll(resolver.resolveItems(completionContext));
+            completionItems.addAll(resolver.resolveItems(context));
         }
 
         return completionItems;

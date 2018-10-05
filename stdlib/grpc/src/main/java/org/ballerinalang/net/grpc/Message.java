@@ -226,7 +226,8 @@ public class Message {
                             messages.add(input.readEnum());
                             this.fields.put(name, messages);
                         } else {
-                            this.fields.put(name, input.readEnum());
+                            this.fields.put(name,
+                                    fieldDescriptor.getEnumType().findValueByNumber(input.readEnum()).toString());
                         }
                         break;
                     }

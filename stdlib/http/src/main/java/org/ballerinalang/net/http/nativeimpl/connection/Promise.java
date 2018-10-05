@@ -40,12 +40,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
         orgName = "ballerina", packageName = "http",
         functionName = "promise",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
-                             structPackage = "ballerina/http"),
+                structPackage = "ballerina/http"),
         args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
-                        structPackage = "ballerina/http")
-        },
+                structPackage = "ballerina/http")},
         returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                                 structPackage = "ballerina/http"),
+                structPackage = "ballerina/http"),
         isPublic = true
 )
 public class Promise extends ConnectionAction {
@@ -59,7 +58,7 @@ public class Promise extends ConnectionAction {
 
         BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
-                                                                    HttpUtil.createHttpPushPromise(pushPromiseStruct));
+                HttpUtil.createHttpPushPromise(pushPromiseStruct));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         setResponseConnectorListener(dataContext, outboundRespStatusFuture);
     }

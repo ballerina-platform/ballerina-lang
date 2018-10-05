@@ -18,25 +18,21 @@
 import ballerina/auth;
 import ballerina/reflect;
 
-documentation {
-    Representation of the Authentication filter.
-
-    F{{authnHandlerChain}} The Authentication handler chain
-}
+# Representation of the Authentication filter.
+#
+# + authnHandlerChain - The Authentication handler chain
 public type AuthnFilter object {
 
     public AuthnHandlerChain authnHandlerChain;
 
     public new(authnHandlerChain) {}
 
-    documentation {
-        Request filter method which attempts to authenticated the request.
-
-        P{{listener}} The http endpoint
-        P{{request}} An inboud HTTP request message
-        P{{context}} A filter context
-        R{{}} True if the filter succeeds
-    }
+    # Request filter method which attempts to authenticated the request.
+    #
+    # + listener - The http endpoint
+    # + request - An inboud HTTP request message
+    # + context - A filter context
+    # + return - True if the filter succeeds
     public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
         boolean authenticated;
@@ -61,13 +57,11 @@ public type AuthnFilter object {
     }
 };
 
-documentation {
-    Verifies if the authentication is successful. If not responds to the user.
-
-    P{{listener}} The http endpoint
-    P{{authenticated}} Authorization status for the request
-    R{{}} Authorization result to indicate if the filter can proceed(true) or not(false)
-}
+# Verifies if the authentication is successful. If not responds to the user.
+#
+# + listener - The http endpoint
+# + authenticated - Authorization status for the request
+# + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boolean {
     endpoint Listener caller = listener;
     Response response;
@@ -84,12 +78,10 @@ function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boo
     return true;
 }
 
-documentation {
-    Checks if the resource is secured.
-
-    P{{context}} A filter context
-    R{{}} A tuple of whether the resource is secured and the list of auth provider ids
-}
+# Checks if the resource is secured.
+#
+# + context - A filter context
+# + return - A tuple of whether the resource is secured and the list of auth provider ids
 function getResourceAuthConfig(FilterContext context) returns (boolean, string[]) {
     boolean resourceSecured;
     string[] authProviderIds = [];
@@ -148,14 +140,13 @@ function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAut
     return isSecured;
 }
 
-documentation {
-    Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then from the service level, if it  is not there in the resource level.
-
-    P{{annotationPackage}} Annotation package name
-    P{{annotationName}} Annotation name
-    P{{annData}} Array of annotationData instances
-    R{{}} ListenerAuthConfig instance if its defined, else nil
-}
+# Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then
+# from the service level, if it  is not there in the resource level.
+#
+# + annotationPackage - Annotation package name
+# + annotationName - Annotation name
+# + annData - Array of annotationData instances
+# + return - ListenerAuthConfig instance if its defined, else nil
 function getAuthAnnotation(string annotationPackage, string annotationName, reflect:annotationData[] annData) returns (
             ListenerAuthConfig?) {
     if (lengthof annData == 0) {

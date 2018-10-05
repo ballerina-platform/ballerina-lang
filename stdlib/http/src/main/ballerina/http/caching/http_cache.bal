@@ -17,10 +17,14 @@
 
 import ballerina/cache;
 
-documentation {
-    Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
-    HTTP caching in the HTTP client endpoint.
-}
+# Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
+# HTTP caching in the HTTP client endpoint.
+#
+# + cache - The underlying cache used for storing HTTP responses
+# + policy - Gives the user some control over the caching behaviour. By default, this is set to
+#            `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
+#            header and either the `etag` or `last-modified` header are present.
+# + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
 public type HttpCache object {
 
     public cache:Cache cache;

@@ -383,9 +383,7 @@ public class ObjectInBaloTest {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_with_interface_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-
-        BAssertUtil.validateError(result, 0, "cannot initialize object 'testorg/foo:v1:Country', " +
-                "no implementation for the interface 'Country.attachInterface'", 4, 21);
+        BAssertUtil.validateError(result, 0, "cannot initialize abstract object 'testorg/foo:v1:Country'", 4, 21);
     }
 
     @Test (description = "Negative test to test uninitialized object variables")

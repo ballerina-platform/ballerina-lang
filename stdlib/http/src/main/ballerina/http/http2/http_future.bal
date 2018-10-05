@@ -14,10 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-     Represents a 'future' that returns as a result of an asynchronous HTTP request submission.
-     This can be used as a reference to fetch the results of the submission.
-}
+# Represents a 'future' that returns as a result of an asynchronous HTTP request submission.
+# This can be used as a reference to fetch the results of the submission.
 public type HttpFuture object {
     private int value; // dummy value to prevent pattern ordering issue when matching results
 };

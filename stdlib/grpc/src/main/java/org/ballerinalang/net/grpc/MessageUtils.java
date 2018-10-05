@@ -30,6 +30,7 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
@@ -516,6 +517,9 @@ public class MessageUtils {
                         }
                         requestStruct.put(structFieldName, bArrayValue);
                     }
+                } else if (structFieldType instanceof BFiniteType) {
+                    BValue bEnumValue = new BString((String) request.getFields().get(structField.fieldName));
+                    requestStruct.put(structFieldName, bEnumValue);
                 }
             }
             bValue = requestStruct;
@@ -579,7 +583,9 @@ public class MessageUtils {
      *
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
+     * @param contentType gRPC content type
+     * @return is valid content type
      */
     public static boolean isGrpcContentType(String contentType) {
         if (contentType == null) {

@@ -16,38 +16,37 @@
 
 //Package defines the canonical error codes used by gRPC.
 
-documentation {Indicates operation is successful.}
+# Indicates operation is successful.
 @final public int OK = 0;
-documentation {Indicates the operation was canceled (typically by the caller).}
+# Indicates the operation was canceled (typically by the caller).
 @final public int CANCELED = 1;
-documentation {Indicates unknown error.(e.g. Status value received is unknown)}
+# Indicates unknown error.(e.g. Status value received is unknown)
 @final public int UNKNOWN = 2;
-documentation {Indicates client specified an invalid argument.}
+# Indicates client specified an invalid argument.
 @final public int INVALID_ARGUMENT = 3;
-documentation {Indicates operation expired before completion.}
+# Indicates operation expired before completion.
 @final public int DEADLINE_EXCEEDED = 4;
-documentation {Indicates some requested entity (e.g., file or directory) was not found.}
+# Indicates some requested entity (e.g., file or directory) was not found.
 @final public int NOT_FOUND = 5;
-documentation {Indicates the attempt to create an entity failed because one already exists.}
+# Indicates the attempt to create an entity failed because one already exists.
 @final public int ALREADY_EXISTS = 6;
-documentation {Indicates the caller does not have permission to execute the specified operation.}
+# Indicates the caller does not have permission to execute the specified operation.
 @final public int PERMISSION_DENIED = 7;
-documentation {Indicates some resource has been exhausted.}
+# Indicates some resource has been exhausted.
 @final public int RESOURCE_EXHAUSTED = 8;
-documentation {Indicates operation was rejected because the system is not in a state required for the operation's
-execution.}
+# Indicates operation was rejected because the system is not in a state required for the operation's execution.
 @final public int FAILED_PRECONDITION = 9;
-documentation {Indicates the operation was aborted.}
+# Indicates the operation was aborted.
 @final public int ABORTED = 10;
-documentation {Indicates specified value is out of range.}
+# Indicates specified value is out of range.
 @final public int OUT_OF_RANGE = 11;
-documentation {Indicates operation is not implemented or not supported/enabled in this service.}
+# Indicates operation is not implemented or not supported/enabled in this service.
 @final public int UNIMPLEMENTED = 12;
-documentation {Indicates internal errors.}
+# Indicates internal errors.
 @final public int INTERNAL = 13;
-documentation {Indicates the service is currently unavailable.}
+# Indicates the service is currently unavailable.
 @final public int UNAVAILABLE = 14;
-documentation {Indicates unrecoverable data loss or corruption.}
+# Indicates unrecoverable data loss or corruption.
 @final public int DATA_LOSS = 15;
-documentation {Indicates the request does not have valid authentication credentials for the operation.}
+# Indicates the request does not have valid authentication credentials for the operation.
 @final public int UNAUTHENTICATED = 16;

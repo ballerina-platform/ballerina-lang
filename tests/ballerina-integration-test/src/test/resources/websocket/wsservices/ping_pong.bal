@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL3 = "ws://localhost:15500/websocket";
+@final string REMOTE_BACKEND_URL3 = "ws://localhost:15200/websocket";
 @final string ASSOCIATED_CONNECTION3 = "ASSOCIATED_CONNECTION";
 @final string strData2 = "data";
 @final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");

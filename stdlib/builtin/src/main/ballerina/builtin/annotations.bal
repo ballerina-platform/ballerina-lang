@@ -14,27 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Representation of readonly annotation.
-}
+# Representation of readonly annotation.
 public annotation<type> readonly;
 
-documentation {
-    Representation of final annotation.
-}
+# Representation of final annotation.
 public annotation<type> final;
 
-documentation {
-    Denote that the parameter is security sensitive hence tainted data should not be accepted.
-}
+# Denote that the parameter is security sensitive hence tainted data should not be accepted.
 public annotation<type, parameter> sensitive;
 
-documentation {
-    Denote that the return value is tainted.
-}
+# Denote that the return value is tainted.
 public annotation<type, parameter> tainted;
 
-documentation {
-    Denote that the return value is untainted.
-}
+# Denote that the return value is untainted.
 public annotation<type, parameter> untainted;

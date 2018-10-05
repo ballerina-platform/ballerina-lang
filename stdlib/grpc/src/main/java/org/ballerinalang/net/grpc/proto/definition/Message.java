@@ -33,7 +33,7 @@ public abstract class Message {
 
     public String getSimpleName() {
         if (messageName.contains(CLASSPATH_SYMBOL)) {
-            return messageName.substring(messageName.lastIndexOf(CLASSPATH_SYMBOL), messageName.length());
+            return messageName.substring(messageName.lastIndexOf(CLASSPATH_SYMBOL) + 1, messageName.length());
         } else {
             return messageName;
         }

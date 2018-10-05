@@ -17,58 +17,54 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.UserRepositoryUtils;
+import org.ballerinalang.packerina.UninstallUtils;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.List;
+
+import static org.ballerinalang.packerina.cmd.Constants.UNINSTALL_COMMAND;
 
 /**
  * This class represents the "ballerina uninstall" command.
  *
  * @since 0.90
  */
-@Parameters(commandNames = "uninstall", commandDescription = "uninstall packages from the user repository")
+@CommandLine.Command(name = UNINSTALL_COMMAND, description = "Uninstalls packages from the user repository")
 public class UninstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
-    private JCommander parentCmdParser;
 
-    @Parameter(arity = 1)
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-
-    @Parameter(names = "--java.debug", hidden = true)
-    private String debugPort;
 
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "uninstall");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(UNINSTALL_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
 
         if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageException("no package given");
+            throw LauncherUtils.createUsageExceptionWithHelp("no package given");
         }
 
         if (argList.size() > 1) {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
         String packageStr = argList.get(0);
-        UserRepositoryUtils.uninstallSourcePackage(packageStr);
+        UninstallUtils.uninstallPackage(packageStr);
     }
 
     @Override
     public String getName() {
-        return "uninstall";
+        return UNINSTALL_COMMAND;
     }
 
     @Override
@@ -82,11 +78,10 @@ public class UninstallCommand implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

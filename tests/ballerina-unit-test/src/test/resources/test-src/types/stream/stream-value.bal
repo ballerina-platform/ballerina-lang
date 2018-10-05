@@ -4,17 +4,17 @@ import ballerina/time;
 stream<Employee> globalEmployeeStream;
 
 type Employee record {
-    int id,
-    string name,
+    int id;
+    string name;
 };
 
 type Person record {
-    int id,
-    string name,
+    int id;
+    string name;
 };
 
 type Job record {
-    string description,
+    string description;
 };
 
 type Captain object {

@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 3,
+    "character": 1
+  },
+  "source": "annotation/source/endpointAnnotation1.bal",
+  "items": [
+    {
+      "label":"swagger:ClientEndpoint",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"swagger:ClientEndpoint",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

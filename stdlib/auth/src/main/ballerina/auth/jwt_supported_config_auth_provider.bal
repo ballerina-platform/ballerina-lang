@@ -90,12 +90,13 @@ function createJWTIssueConfig(ConfigJwtAuthProviderConfig authConfig) returns (i
 }
 
 public type ConfigJwtAuthProviderConfig record {
-    string issuer,
-    string audience,
-    int expTime,
-    string keyAlias,
-    string keyPassword,
-    string keyStoreFilePath,
-    string keyStorePassword,
-    string signingAlg,
+    string issuer;
+    string audience;
+    int expTime;
+    string keyAlias;
+    string keyPassword;
+    string keyStoreFilePath;
+    string keyStorePassword;
+    string signingAlg;
+    !...
 };

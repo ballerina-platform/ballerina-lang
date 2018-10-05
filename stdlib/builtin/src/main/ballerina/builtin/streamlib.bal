@@ -14,29 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Publishes data to the stream.
-
-    P{{data}} Data to be published to the stream
-}
+# Publishes data to the stream.
+#
+# + data - Data to be published to the stream
 public extern function stream::publish(any data);
 
-documentation {
-    Subscribes to data from the stream.
-
-    P{{func}} The function pointer for the subscription, which will be invoked with data published to the stream
-}
+# Subscribes to data from the stream.
+#
+# + func - The function pointer for the subscription, which will be invoked with data published to the stream
 public extern function stream::subscribe(function (any) func);
 
-documentation {
-    Creates the forever runtime.
-
-    P{{streamQuery}} The siddhi query by which the siddhi app runtime is created
-    P{{inStreamRefs}} References of the input streams in the forever
-    P{{inTableRefs}} References of the input tables in the forever
-    P{{outStreamRefs}} References of the output streams in the forever
-    P{{outTableRefs}} References of the output tables in the forever
-    P{{funcPointers}} References of the functions to invoke as the streaming action
-}
+# Creates the forever runtime.
+#
+# + streamQuery - The siddhi query by which the siddhi app runtime is created
+# + inStreamRefs - References of the input streams in the forever
+# + inTableRefs - References of the input tables in the forever
+# + outStreamRefs - References of the output streams in the forever
+# + outTableRefs - References of the output tables in the forever
+# + funcPointers - References of the functions to invoke as the streaming action
 extern function startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs,
                              any outTableRefs, any funcPointers);

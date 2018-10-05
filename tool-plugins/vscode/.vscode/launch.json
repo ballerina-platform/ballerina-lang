@@ -1,0 +1,53 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Extension",
+        "type": "extensionHost",
+        "request": "launch",
+        "runtimeExecutable": "${execPath}",
+        "args": [
+            "--extensionDevelopmentPath=${workspaceFolder}"
+        ],
+        "env": {
+            "LSDEBUG": "false",
+            "DIAGRAM_DEBUG": "false",
+            "DIAGRAM_DEV_HOST": "http://localhost:8081"
+        },
+        "outFiles": [
+            "${workspaceFolder}/out/**/*.js"
+        ],
+        "preLaunchTask": "npm: watch"
+    },
+    {
+        "name": "Extension Tests",
+        "type": "extensionHost",
+        "request": "launch",
+        "runtimeExecutable": "${execPath}",
+        "env": {
+            "LSDEBUG": "false",
+            "DIAGRAM_DEBUG": "false"
+        },
+        "args": [
+            "--extensionDevelopmentPath=${workspaceFolder}",
+            "--extensionTestsPath=${workspaceFolder}/out/test"
+        ],
+        "outFiles": [
+            "${workspaceFolder}/out/test/**/*.js"
+        ],
+        "preLaunchTask": "npm: watch"
+    },
+    {
+        "type": "node",
+        "request": "launch",
+        "name": "Server",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/src/debugger/index.ts",
+        "args": [ "--server=4711" ],
+        "outFiles": [ "${workspaceFolder}/out/debugger/**/*.js" ]
+    },
+    ]
+}

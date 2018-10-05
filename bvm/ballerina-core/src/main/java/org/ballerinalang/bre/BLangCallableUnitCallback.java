@@ -52,11 +52,13 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     public void notifySuccess() {
         BLangVMUtils.populateWorkerDataWithValues(this.parentCtx.workerLocal, this.retRegs,
                 this.nativeCallCtx.getReturnValues(), this.retTypes);
+        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
         BLangScheduler.resume(this.parentCtx);
     }
 
     @Override
     public void notifyFailure(BMap<String, BValue> error) {
+        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
         BLangScheduler.resume(BLangScheduler.errorThrown(this.parentCtx, error));
     }
 

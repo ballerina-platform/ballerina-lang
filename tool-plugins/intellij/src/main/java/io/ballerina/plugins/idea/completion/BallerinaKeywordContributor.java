@@ -21,6 +21,7 @@ import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
+import io.ballerina.plugins.idea.inspections.LSPluginInstallationNotificationProvider;
 import io.ballerina.plugins.idea.psi.reference.BallerinaNameReferenceReference;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
@@ -31,7 +32,11 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class BallerinaKeywordContributor extends CompletionContributor implements DumbAware {
 
     public BallerinaKeywordContributor() {
-        extend(CompletionType.BASIC, isBallerinaNameReference(), new BallerinaKeywordCompletionProvider());
+        //If the LSP plugin is installed and enabled, disables the completions coming from ballerina plugin
+        if (!LSPluginInstallationNotificationProvider.isAlreadyInstalled() || LSPluginInstallationNotificationProvider
+                .isDisabled()) {
+            extend(CompletionType.BASIC, isBallerinaNameReference(), new BallerinaKeywordCompletionProvider());
+        }
     }
 
     public PsiElementPattern.Capture<PsiElement> isBallerinaNameReference() {

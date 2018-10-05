@@ -145,6 +145,8 @@ public final class Status implements Serializable {
 
         /**
          * The numerical value of the code.
+         *
+         * @return value
          */
         public int value() {
             return value;
@@ -152,6 +154,8 @@ public final class Status implements Serializable {
 
         /**
          * Returns a {@link Status} object corresponding to this status code.
+         *
+         * @return status object
          */
         public Status toStatus() {
             return STATUS_LIST.get(value);
@@ -179,6 +183,9 @@ public final class Status implements Serializable {
 
     /**
      * Return a {@link Status} given a canonical error {@link Code} value.
+     *
+     * @param codeValue code value
+     * @return code status
      */
     public static Status fromCodeValue(int codeValue) {
         if (codeValue < 0 || codeValue > STATUS_LIST.size()) {

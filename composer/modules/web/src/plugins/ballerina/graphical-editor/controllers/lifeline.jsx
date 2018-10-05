@@ -33,6 +33,7 @@ import HoverButton from '../controller-utils/hover-button';
 import Item from '../controller-utils/item';
 import Search from '../controller-utils/search';
 import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
+import { ACTION_BOX_POSITION } from '../../constants';
 
 class DefaultCtrl extends React.Component {
     render() {
@@ -162,15 +163,16 @@ class RightCtrl extends React.Component {
                 if (!importFound && `${orgName}/${pkgName}` !== 'ballerina/builtin') {
                     const importNodeCode = `\nimport ${orgName}/${pkgName};`;
                     const fragment = FragmentUtils.createTopLevelNodeFragment(importNodeCode);
-                    const newImportNode = FragmentUtils.parseFragment(fragment);
-                    this.context.astRoot.addImport(TreeBuilder.build(newImportNode));
+                    FragmentUtils.parseFragment(fragment)
+                        .then((newImportNode) => {
+                            this.context.astRoot.addImport(TreeBuilder.build(newImportNode));
+                        });
                 }
             } catch (err) {
                 log.error('Error while adding import', err);
             }
         }
-        const node = DefaultNodeFactory.createEndpoint(item.suggestion);
-        this.props.model.acceptDrop(node);
+        DefaultNodeFactory.createEndpoint(item.suggestion).then(node => this.props.model.acceptDrop(node));
     }
 
     getSuggestionValue(suggestion) {
@@ -178,11 +180,16 @@ class RightCtrl extends React.Component {
     }
 
     showEndpoints() {
-        getEndpoints().then((packages) => {
+        // give priority to getEndpoints method
+        // provided via context
+        const getEPs = this.context.getEndpoints
+                        ? this.context.getEndpoints
+                        : getEndpoints;
+        getEPs().then((endpoints) => {
             const suggestionsMap = {};
-            packages.forEach((pkg) => {
-                const pkgname = pkg.packageName;
-                const endpoint = pkg.name;
+            endpoints.forEach((ep) => {
+                const pkgname = ep.packageName;
+                const endpoint = ep.name;
                 if (endpoint.includes('Listener')) {
                     return;
                 }
@@ -191,7 +198,7 @@ class RightCtrl extends React.Component {
                     endpoint,
                     packageName: pkgname,
                     fullPackageName: pkgname,
-                    orgName: pkg.orgName,
+                    orgName: ep.orgName,
                 };
             });
             const suggestions = _.values(suggestionsMap);
@@ -305,8 +312,8 @@ class RightCtrl extends React.Component {
 RightCtrl.contextTypes = {
     designer: PropTypes.instanceOf(Object),
     config: PropTypes.instanceOf(Object),
-    editor: PropTypes.instanceOf(Object).isRequired,
     astRoot: PropTypes.instanceOf(Object).isRequired,
+    getEndpoints: PropTypes.func,
 };
 
 class ActionBox extends React.Component {
@@ -315,17 +322,17 @@ class ActionBox extends React.Component {
         const { viewState: { bBox } } = model.getBody();
 
         const top = model.viewState.components.defaultWorker.y + 20;
-        const left = bBox.x;
+        const left = bBox.x + ACTION_BOX_POSITION.SINGLE_ACTION_OFFSET;
 
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {
-            const { editor } = this.context;
-            editor.goToSource(model);
+            const { goToSource } = this.context;
+            goToSource(model);
         };
 
         return (
             <Toolbox
-                onDelete={onDelete}
+                disableButtons={{ delete: true }}
                 onJumptoCodeLine={onJumptoCodeLine}
                 show
                 style={{
@@ -339,13 +346,7 @@ class ActionBox extends React.Component {
 
 ActionBox.contextTypes = {
     config: PropTypes.instanceOf(Object),
-    editor: PropTypes.shape({
-        isFileOpenedInEditor: PropTypes.func,
-        getEditorByID: PropTypes.func,
-        setActiveEditor: PropTypes.func,
-        getActiveEditor: PropTypes.func,
-        getDefaultContent: PropTypes.func,
-    }).isRequired,
+    goToSource: PropTypes.func.isRequired,
     designer: PropTypes.instanceOf(Object),
 };
 

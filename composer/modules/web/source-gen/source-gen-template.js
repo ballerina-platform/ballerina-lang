@@ -102,6 +102,30 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     switch (node.kind) {
         case 'CompilationUnit':
             return join(node.topLevelNodes, pretty, replaceLambda, l, w) + w();
+        case 'MarkdownDocumentation':
+            let docString = "";
+
+            for (let i = 0; i < node.ws.length; i++) {
+                docString += node.ws[i].ws + node.ws[i].text;
+                docString += node.documentationLines[i].text;
+            }
+
+            if (node.parameters) {
+                for (let i = 0; i < node.parameters.length; i++) {
+                    let parameter = node.parameters[i];
+                    for (let j = 0; j < parameter.ws.length; j++) {
+                        docString += parameter.ws[j].ws + parameter.ws[j].text;
+                    }
+                }
+            }
+
+            if (node.returnParameter) {
+                for (let i = 0; i < node.returnParameter.ws.length; i++) {
+                    docString += node.returnParameter.ws[i].ws + node.returnParameter.ws[i].text;
+                }
+            }
+
+            return docString;
         /* eslint-disable max-len */
         // auto gen start
 // auto-gen-code

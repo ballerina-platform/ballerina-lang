@@ -17,6 +17,7 @@
 package io.ballerina.plugins.idea.template;
 
 import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider;
+import io.ballerina.plugins.idea.inspections.LSPluginInstallationNotificationProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,12 +29,22 @@ public class BallerinaLiveTemplateProvider implements DefaultLiveTemplatesProvid
     @NotNull
     @Override
     public String[] getDefaultLiveTemplateFiles() {
-        return new String[]{"/liveTemplates/Ballerina"};
+        //If the LSP plugin is installed and enabled, disables the completions coming from ballerina plugin
+        if (LSPluginInstallationNotificationProvider.isAlreadyInstalled() && !LSPluginInstallationNotificationProvider
+                .isDisabled()) {
+            return new String[]{};
+        }
+        return new String[] { "/liveTemplates/Ballerina" };
     }
 
     @Nullable
     @Override
     public String[] getHiddenLiveTemplateFiles() {
-        return new String[]{"/liveTemplates/BallerinaHidden"};
+        //If the LSP plugin is installed and enabled, disables the completions coming from ballerina plugin
+        if (LSPluginInstallationNotificationProvider.isAlreadyInstalled() && !LSPluginInstallationNotificationProvider
+                .isDisabled()) {
+            return new String[]{};
+        }
+        return new String[] { "/liveTemplates/BallerinaHidden" };
     }
 }

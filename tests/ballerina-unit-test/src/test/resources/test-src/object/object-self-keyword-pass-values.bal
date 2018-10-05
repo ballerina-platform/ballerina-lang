@@ -11,7 +11,7 @@ function testGetValueFromPassedSelf() returns string {
 }
 
 type Person object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
 
     private int year = 50;

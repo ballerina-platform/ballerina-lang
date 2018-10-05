@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string ex = f1("static data");
 }
 

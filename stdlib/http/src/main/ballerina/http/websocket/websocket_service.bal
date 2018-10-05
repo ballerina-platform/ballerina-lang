@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents the WebSocket client service.
-}
+# Represents the WebSocket client service.
 public type WebSocketService object {
     public function getEndpoint() returns WebSocketListener {
         WebSocketListener ep = new;

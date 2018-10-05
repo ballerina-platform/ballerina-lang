@@ -27,12 +27,12 @@ export default {
     createHTTPServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `service<http:Service> service1 bind endpointName {
-                newResource (endpoint client, http:Request request) {
-                   http:Response res = new;
-                   res.setPayload("Successful");
-                   _ = client -> respond(res);       
+                newResource (endpoint caller, http:Request request) {
+                    http:Response res = new;
+                    res.setPayload("Successful");
+                    _ = caller -> respond(res); 
                 }
-             }`,
+            }`,
         );
     },
     createHTTPEndpointDef: () => {
@@ -44,17 +44,14 @@ export default {
     },
     createWSServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
-            `@http:WebSocketServiceConfig {
-    path:"/basic/ws",
-    subProtocols:["xml", "json"],
-    idleTimeoutInSeconds:120
-}
-service<http:WebSocketService> WSServer bind wsEnpointName {
-onOpen (endpoint conn) {}
-
-onText (endpoint conn, string text, boolean more) {}
-
-onClose (endpoint conn, int statusCode, string reason) {}}`);
+            `service <http:WebSocketService> service1 bind wsEnpointName {
+                onOpen (endpoint caller ) {
+                }
+                onText (endpoint caller ,string text ,boolean final ) {
+                }
+                onClose (endpoint caller ,int statusCode ,string reason ) {
+                }
+            }`);
     },
     createWSEndpointDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
@@ -92,7 +89,7 @@ onClose (endpoint conn, int statusCode, string reason) {}}`);
     },
     createMainFunction: () => {
         return FragmentUtils.createTopLevelNodeFragment(
-            'function main(string... args) {' +
+            'public function main(string... args) {' +
             '}'
         );
     },

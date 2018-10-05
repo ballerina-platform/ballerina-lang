@@ -19,19 +19,14 @@
 package org.ballerinalang.test.mime;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -49,15 +44,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
+import static org.ballerinalang.test.mime.Util.validateBodyPartContent;
 
 /**
  * Unit tests for multipart encoder.
@@ -154,40 +148,6 @@ public class MultipartEncoderTest {
         Assert.assertEquals(nestedParts.size(), 4);
         BMap<String, BValue> ballerinaBodyPart = Util.getEntityStruct(result);
         validateBodyPartContent(nestedParts, ballerinaBodyPart);
-    }
-
-    /**
-     * Validate that the decoded body part content matches with the encoded content.
-     *
-     * @param mimeParts List of decoded body parts
-     * @param bodyPart  Ballerina body part
-     * @throws IOException When an exception occurs during binary data decoding
-     */
-    private void validateBodyPartContent(List<MIMEPart> mimeParts, BMap<String, BValue> bodyPart) throws IOException {
-        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
-        BValue jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
-        Assert.assertNotNull(jsonData);
-        Assert.assertEquals(jsonData.stringValue(), "{\"" + "bodyPart" + "\":\"" + "jsonPart" +
-                "\"}");
-
-        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
-        BXML xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
-        Assert.assertNotNull(xmlData);
-        Assert.assertEquals(xmlData.stringValue(), "<name>Ballerina xml file part</name>");
-
-        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(2));
-        BString textData = EntityBodyHandler.constructStringDataSource(bodyPart);
-        Assert.assertNotNull(textData);
-        Assert.assertEquals(textData.stringValue(), "Ballerina text body part");
-        
-        EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
-        BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
-        Assert.assertNotNull(blobDataSource);
-
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        blobDataSource.serialize(outStream);
-        Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8),
-                "Ballerina binary file part");
     }
 
     @Test(description = "Test whether the body part builds the ContentDisposition struct properly for " +

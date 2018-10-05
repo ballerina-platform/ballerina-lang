@@ -38,14 +38,18 @@ public class CloseConsumerHandler {
 
     public static void handle(Context context) {
         BMap<String, BValue> connectorBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject,
-                                                                    Constants.JMS_CONSUMER_OBJECT,
-                                                                    MessageConsumer.class,
-                                                                    context);
-        try {
-            consumer.close();
-        } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error closing message consumer.", context, e);
+        if (connectorBObject.getNativeData(Constants.JMS_CONSUMER_OBJECT) != null) {
+            MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject,
+                                                                        Constants.JMS_CONSUMER_OBJECT,
+                                                                        MessageConsumer.class,
+                                                                        context);
+            try {
+                if (consumer != null) {
+                    consumer.close();
+                }
+            } catch (JMSException e) {
+                BallerinaAdapter.throwBallerinaException("Error closing message consumer.", context, e);
+            }
         }
     }
 

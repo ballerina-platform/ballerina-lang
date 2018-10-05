@@ -1,14 +1,14 @@
 import ballerina/io;
 
-io:ByteChannel channel;
+io:ByteChannel byteChannel;
 
 function initFileChannel (string filePath, io:Mode permission) {
-    channel = untaint io:openFile(filePath, permission);
+    byteChannel = untaint io:openFile(filePath, permission);
 }
 
 function readBytes (int numberOfBytes) returns byte[]|error {
     byte[] empty;
-    var result = channel.read(numberOfBytes);
+    var result = byteChannel.read(numberOfBytes);
     match result {
         (byte[],int) content =>{
             var (bytes, _) = content;
@@ -22,7 +22,7 @@ function readBytes (int numberOfBytes) returns byte[]|error {
 
 function writeBytes (byte[] content, int startOffset) returns int|error {
     int empty = -1;
-    var result = channel.write(content, startOffset);
+    var result = byteChannel.write(content, startOffset);
     match result {
         int numberOfBytesWritten =>{
             return numberOfBytesWritten;
@@ -34,7 +34,7 @@ function writeBytes (byte[] content, int startOffset) returns int|error {
 }
 
 function close () {
-    var result = channel.close();
+    var result = byteChannel.close();
 }
 
 function testBase64EncodeByteChannel(io:ByteChannel contentToBeEncoded) returns io:ByteChannel|error {

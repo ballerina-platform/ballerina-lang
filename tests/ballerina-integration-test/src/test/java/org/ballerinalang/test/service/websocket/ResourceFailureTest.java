@@ -67,13 +67,13 @@ public class ResourceFailureTest extends WebSocketTestCommons {
         assertCloseFrame();
     }
 
-    @Test(description = "Tests failure of onClose resource")
+    @Test(description = "Tests failure of onIdleTimeout resource")
     public void testOnIdleTimeoutResource() throws InterruptedException {
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         assertCloseFrame();
     }
 
-    @Test(description = "Tests failure of onText resource")
+    @Test(description = "Tests failure of onClose resource")
     public void testOnCloseResource() throws InterruptedException {
         client.shutDown();
         assertCloseFrame();

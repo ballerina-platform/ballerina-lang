@@ -15,38 +15,28 @@
 // under the License.
 
 
-documentation {
-    Returns the environment variable value associated with the provided name.
-
-    P{{name}} Name of the environment variable
-    R{{}} Environment variable value if it exists, otherwise an empty string
-}
+# Returns the environment variable value associated with the provided name.
+#
+# + name - Name of the environment variable
+# + return - Environment variable value if it exists, otherwise an empty string
 public extern function getEnv(@sensitive string name) returns string;
 
-documentation {
-    Returns the current working directory.
-
-    R{{}} Current working directory or an empty string if the current working directory cannot be determined
-}
+# Returns the current working directory.
+#
+# + return - Current working directory or an empty string if the current working directory cannot be determined
 public extern function getCurrentDirectory() returns string;
 
-documentation {
-    Returns the current user's name.
-
-    R{{}} Current user's name if it can be determined, an empty string otherwise
-}
+# Returns the current user's name.
+#
+# + return - Current user's name if it can be determined, an empty string otherwise
 public extern function getUsername() returns string;
 
-documentation {
-    Returns the current user's home directory path.
-
-    R{{}} Current user's home directory if it can be determined, an empty string otherwise
-}
+# Returns the current user's home directory path.
+#
+# + return - Current user's home directory if it can be determined, an empty string otherwise
 public extern function getUserHome() returns string;
 
-documentation {
-    Returns a random UUID string.
-
-    R{{}} The random string
-}
+# Returns a random UUID string.
+#
+# + return - The random string
 public extern function uuid() returns string;

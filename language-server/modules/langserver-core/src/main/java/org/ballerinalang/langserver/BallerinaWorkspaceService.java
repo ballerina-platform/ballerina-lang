@@ -66,7 +66,7 @@ class BallerinaWorkspaceService implements WorkspaceService {
             symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
             List<BLangPackage> bLangPackage = lsCompiler.getBLangPackage(symbolsContext, workspaceDocumentManager,
                                                                          false,
-                                                                         LSCustomErrorStrategy.class, false).getLeft();
+                                                                         LSCustomErrorStrategy.class, true).getLeft();
             if (bLangPackage != null) {
                 bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                     String unitName = compUnit.getName();
@@ -95,10 +95,12 @@ class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeConfiguration(DidChangeConfigurationParams params) {
+        // Operation not supported
     }
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+        // Operation not supported
     }
 
     @Override
@@ -109,9 +111,6 @@ class BallerinaWorkspaceService implements WorkspaceService {
         executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
         executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
 
-        return CompletableFuture.supplyAsync(() -> {
-            CommandExecutor.executeCommand(params, executeCommandContext);
-            return true;
-        });
+        return CompletableFuture.supplyAsync(() -> CommandExecutor.executeCommand(params, executeCommandContext));
     }
 }

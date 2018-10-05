@@ -94,39 +94,39 @@ type InvalidUnion record {
 };
 
 type InvalidUnionArrayElement record {
-    (int|string)[] val,
+    (int|string)[] val;
 };
 
 type InvalidUnionArray record {
-    int[]|string val,
+    int[]|string val;
 };
 
 type InvalidUnionArray2 record {
-    string?[] val,
+    string?[] val;
 };
 
 type ResultMap record {
-    int[] INT_ARRAY,
-    int[] LONG_ARRAY,
-    float[] FLOAT_ARRAY,
-    boolean[] BOOLEAN_ARRAY,
-    string[] STRING_ARRAY,
+    int[] INT_ARRAY;
+    int[] LONG_ARRAY;
+    float[] FLOAT_ARRAY;
+    boolean[] BOOLEAN_ARRAY;
+    string[] STRING_ARRAY;
 };
 
 type ResultMapNonNillableTypeNillableElements record {
-    int?[] INT_ARRAY,
-    int?[] LONG_ARRAY,
-    float?[] FLOAT_ARRAY,
-    boolean?[] BOOLEAN_ARRAY,
-    string?[] STRING_ARRAY,
+    int?[] INT_ARRAY;
+    int?[] LONG_ARRAY;
+    float?[] FLOAT_ARRAY;
+    boolean?[] BOOLEAN_ARRAY;
+    string?[] STRING_ARRAY;
 };
 
 type ResultMapNillable record {
-    int?[]? INT_ARRAY,
-    int?[]? LONG_ARRAY,
-    float?[]? FLOAT_ARRAY,
-    boolean?[]? BOOLEAN_ARRAY,
-    string?[]? STRING_ARRAY,
+    int?[]? INT_ARRAY;
+    int?[]? LONG_ARRAY;
+    float?[]? FLOAT_ARRAY;
+    boolean?[]? BOOLEAN_ARRAY;
+    string?[]? STRING_ARRAY;
 };
 
 type ResultMapNillableTypeNonNillableElements record {

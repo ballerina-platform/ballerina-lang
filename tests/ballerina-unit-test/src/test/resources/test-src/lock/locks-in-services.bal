@@ -99,15 +99,15 @@ service<http:Service> sample1 bind echoEP {
 }
 
 type Person record {
-    int age,
-    string name,
-    Address address,
+    int age;
+    string name;
+    Address address;
 };
 
 type Address record {
-    int no,
-    string line1,
-    string line2,
+    int no;
+    string line1;
+    string line2;
 };
 
 string finalText1 = "";

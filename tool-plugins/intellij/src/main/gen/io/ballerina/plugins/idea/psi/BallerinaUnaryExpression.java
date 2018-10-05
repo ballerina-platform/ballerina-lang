@@ -30,6 +30,9 @@ public interface BallerinaUnaryExpression extends BallerinaExpression {
   PsiElement getAdd();
 
   @Nullable
+  PsiElement getBitComplement();
+
+  @Nullable
   PsiElement getNot();
 
   @Nullable

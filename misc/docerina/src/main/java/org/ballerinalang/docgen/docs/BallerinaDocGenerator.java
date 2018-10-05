@@ -80,7 +80,7 @@ public class BallerinaDocGenerator {
      * @param output        path to the output directory where the API documentation will be written to.
      * @param packageFilter comma separated list of package names to be filtered from the documentation.
      * @param isNative      whether the given packages are native or not.
-     * @param offline
+     * @param offline       is offline generation
      * @param sources       either the path to the directories where Ballerina source files reside or a
      */
     public static void generateApiDocs(String sourceRoot, String output, String packageFilter, boolean isNative,
@@ -328,7 +328,7 @@ public class BallerinaDocGenerator {
      * @param sourceRoot    points to the folder relative to which package path is given
      * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
-     * @param offline
+     * @param offline is offline generation
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      * @throws IOException on error.
      */
@@ -345,7 +345,7 @@ public class BallerinaDocGenerator {
      * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
      * @param isNative      whether this is a native package or not.
-     * @param offline
+     * @param offline is offline generation
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      * @throws IOException on error.
      */
@@ -362,7 +362,7 @@ public class BallerinaDocGenerator {
      * @param packagePath   a {@link Path} object pointing either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
      * @param isNative      whether the given packages are native or not.
-     * @param offline
+     * @param offline is offline generation
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      * @throws IOException on error.
      */

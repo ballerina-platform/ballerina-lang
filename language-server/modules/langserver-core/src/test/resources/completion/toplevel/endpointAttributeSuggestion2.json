@@ -62,10 +62,17 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"maxPipelinedRequests",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"maxPipelinedRequests: ${1:0}",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"Add All Attributes",
       "detail":"none",
       "sortText":"110",
-      "insertText":"host: \"\",\nport: 0,\nkeepAlive: ALWAYS|AUTO|NEVER,\nsecureSocket: ServiceSecureSocket?,\nhttpVersion: \"\",\nrequestLimits: RequestLimits?,\nfilters: [],\ntimeoutMillis: 0"
+      "insertText":"host: \"\",\nport: 0,\nkeepAlive: ALWAYS|AUTO|NEVER,\nsecureSocket: ServiceSecureSocket?,\nhttpVersion: \"\",\nrequestLimits: RequestLimits?,\nfilters: [],\ntimeoutMillis: 0,\nmaxPipelinedRequests: 0"
     }
   ]
 }

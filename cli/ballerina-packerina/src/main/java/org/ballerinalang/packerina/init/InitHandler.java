@@ -46,6 +46,8 @@ public class InitHandler {
      * @param projectPath The output path.
      * @param manifest    The manifest for Ballerina.toml.
      * @param srcFiles    The source files.
+     * @param packageMdFile packageMD file list to be created.
+     * @throws IOException If file write exception occurs.
      */
     public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles,
                                   List<PackageMdFile> packageMdFile) throws IOException {

@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +42,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_SECRET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 /**
  * The Ballerina WebSub Hub.
@@ -75,24 +73,8 @@ public class Hub {
     private Hub() {
     }
 
-    private void setHubEndpoint(BValue hubEndpoint) {
-        this.hubEndpoint = hubEndpoint;
-    }
-
-    public BValue getHubEndpoint() {
-        return hubEndpoint;
-    }
-
-    private void setHubUrl(String hubUrl) {
-        this.hubUrl = hubUrl;
-    }
-
     public String getHubUrl() {
         return hubUrl;
-    }
-
-    private void setHubObject(BMap<String, BValue> hubObject) {
-        this.hubObject = hubObject;
     }
 
     public BMap<String, BValue> getHubObject() {
@@ -149,6 +131,7 @@ public class Hub {
      *
      * @param topic     the topic to which the subscription should be added
      * @param callback  the callback registered for the particular subscription
+     * @param subscriptionDetails the subscription details
      */
     public void registerSubscription(String topic, String callback, BMap<String, BValue> subscriptionDetails) {
         if (!started) {
@@ -163,10 +146,6 @@ public class Hub {
             }
             String queue = UUID.randomUUID().toString();
 
-            //Temporary workaround - expected secret to be "" if not specified but got null
-            if (BLangConnectorSPIUtil.toStruct(subscriptionDetails).getStringField("secret") == null) {
-                subscriptionDetails.put(SUBSCRIPTION_DETAILS_SECRET, new BString(""));
-            }
             HubSubscriber subscriberToAdd = new HubSubscriber(queue, topic, callback, subscriptionDetails);
             brokerInstance.addSubscription(topic, subscriberToAdd);
             subscribers.add(subscriberToAdd);
@@ -220,31 +199,16 @@ public class Hub {
         }
     }
 
-    /**
-     * Method to publish to a topic on MB.
-     *
-     * @param topic             the topic to which the update should happen
-     * @param stringPayload     the update payload as a string
-     * @throws BallerinaWebSubException if the hub service is not started or topic registration is required, but the
-     *                                  topic is not registered
-     */
-    public void publish(String topic, String stringPayload) throws BallerinaWebSubException {
-        if (!started) {
-            throw new BallerinaWebSubException("Hub Service not started: publish failed");
-        } else if (!topics.containsKey(topic) && hubTopicRegistrationRequired) {
-            throw new BallerinaWebSubException("Publish call ignored for unregistered topic[" + topic + "]");
-        } else {
-            byte[] payload = stringPayload.getBytes(StandardCharsets.UTF_8);
-            brokerInstance.publish(topic, payload);
-        }
-    }
-
     public boolean isStarted() {
         return started;
     }
 
     /**
      * Method to start up the default Ballerina WebSub Hub.
+     *
+     * @param context context
+     * @param topicRegistrationRequired required topic for registration
+     * @param publicUrl hub service public URL
      */
     public void startUpHubService(Context context, BBoolean topicRegistrationRequired, BString publicUrl) {
         synchronized (this) {
@@ -285,6 +249,7 @@ public class Hub {
 
     /**
      * Method to clean up after stopping the default Ballerina WebSub Hub.
+     * @param context context
      */
     public void stopHubService(Context context) {
         synchronized (this) {
@@ -313,6 +278,15 @@ public class Hub {
     }
 
     /**
+     * Method to retrieve the program file for the WebSub Hub service.
+     *
+     * @return the program file returned when compiling the package at Hub start up
+     */
+    ProgramFile getHubProgramFile() {
+        return hubProgramFile;
+    }
+
+    /**
      * Method to set the program file for the WebSub Hub service.
      *
      * @param programFile the program file result to set
@@ -321,13 +295,15 @@ public class Hub {
         hubProgramFile = programFile;
     }
 
-    /**
-     * Method to retrieve the program file for the WebSub Hub service.
-     *
-     * @return the program file returned when compiling the package at Hub start up
-     */
-    public ProgramFile getHubProgramFile() {
-        return hubProgramFile;
+    private void setHubEndpoint(BValue hubEndpoint) {
+        this.hubEndpoint = hubEndpoint;
     }
 
+    private void setHubUrl(String hubUrl) {
+        this.hubUrl = hubUrl;
+    }
+
+    private void setHubObject(BMap<String, BValue> hubObject) {
+        this.hubObject = hubObject;
+    }
 }

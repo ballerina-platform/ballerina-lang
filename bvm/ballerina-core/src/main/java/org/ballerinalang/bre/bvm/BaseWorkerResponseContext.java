@@ -109,6 +109,18 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         return null;
     }
 
+    public WorkerExecutionContext getTargetContext() {
+        return targetCtx;
+    }
+
+    public int[] getRetRegIndexes() {
+        return retRegIndexes;
+    }
+
+    public int getWorkerCount() {
+        return workerCount;
+    }
+
     @Override
     public synchronized WorkerDataChannel getWorkerDataChannel(String name) {
         if (this.workerDataChannels == null) {

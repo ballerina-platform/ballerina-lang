@@ -4,7 +4,7 @@ endpoint http:Listener mockEP {
     port:9093
 };
 
-@http:ServiceConfig {basePath:"/autoCompress", compression: http:COMPRESSION_AUTO}
+@http:ServiceConfig {basePath:"/autoCompress", compression: {enable: http:COMPRESSION_AUTO}}
 service<http:Service> autoCompress bind mockEP {
     @http:ResourceConfig {
         methods:["GET"],
@@ -17,7 +17,7 @@ service<http:Service> autoCompress bind mockEP {
     }
 }
 
-@http:ServiceConfig {basePath:"/alwaysCompress", compression: http:COMPRESSION_ALWAYS}
+@http:ServiceConfig {basePath:"/alwaysCompress", compression: {enable: http:COMPRESSION_ALWAYS}}
 service<http:Service> alwaysCompress bind mockEP {
     @http:ResourceConfig {
         methods:["GET"],
@@ -30,7 +30,7 @@ service<http:Service> alwaysCompress bind mockEP {
     }
 }
 
-@http:ServiceConfig {basePath:"/neverCompress", compression: http:COMPRESSION_NEVER}
+@http:ServiceConfig {basePath:"/neverCompress", compression: {enable: http:COMPRESSION_NEVER}}
 service<http:Service> neverCompress bind mockEP {
     @http:ResourceConfig {
         methods:["GET"],
@@ -43,7 +43,7 @@ service<http:Service> neverCompress bind mockEP {
     }
 }
 
-@http:ServiceConfig {basePath:"/userOverridenValue", compression: http:COMPRESSION_NEVER}
+@http:ServiceConfig {basePath:"/userOverridenValue", compression: {enable: http:COMPRESSION_NEVER}}
 service<http:Service> userOverridenValue bind mockEP {
     @http:ResourceConfig {
         methods:["GET"],

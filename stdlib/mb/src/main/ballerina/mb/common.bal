@@ -14,43 +14,45 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation { Configurations related to Ballerina message broker URL
-    F{{username}} The caller's user name
-    F{{password}} The caller's password
-    F{{host}} Hostname of the broker node
-    F{{port}} AMQP port of the broker node
-    F{{clientID}} Identifier used to uniquely identify the client connection
-    F{{virtualHost}} target virtualhost
-    F{{secureSocket}} TLS configurations
-}
+# Configurations related to Ballerina message broker URL
+#
+# + username - The caller's user name
+# + password - The caller's password
+# + host - Hostname of the broker node
+# + port - AMQP port of the broker node
+# + clientID - Identifier used to uniquely identify the client connection
+# + virtualHost - target virtualhost
+# + secureSocket - TLS configurations
 public type BrokerURLConfig record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
+    !...
 };
 
-documentation { Configurations related to TLS
-    F{{trustStore}} Trustore configurations
-    F{{keyStore}} Keystore configuration
-    F{{sslCertAlias}} name of the ssl cert alias
-}
+# Configurations related to TLS
+#
+# + trustStore - Trustore configurations
+# + keyStore - Keystore configuration
+# + sslCertAlias - name of the ssl cert alias
 public type ServiceSecureSocket record {
-    Store? trustStore,
-    Store? keyStore,
-    string sslCertAlias,
+    Store? trustStore;
+    Store? keyStore;
+    string sslCertAlias;
+    !...
 };
 
-documentation {
-    F{{path}} file path to key store
-    F{{password}} password used to protect the key store
-}
+#
+# + path - file path to key store
+# + password - password used to protect the key store
 public type Store record {
-    string path,
-    string password,
+    string path;
+    string password;
+    !...
 };
 
 function generateBrokerURL(BrokerURLConfig config) returns string {

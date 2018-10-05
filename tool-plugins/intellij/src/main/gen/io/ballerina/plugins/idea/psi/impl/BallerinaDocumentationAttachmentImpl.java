@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDocumentationAttachmentImpl extends BallerinaCompositeElementImpl implements BallerinaDocumentationAttachment {
 
-  public BallerinaDocumentationAttachmentImpl(ASTNode node) {
+  public BallerinaDocumentationAttachmentImpl(@NotNull ASTNode node) {
     super(node);
   }
 

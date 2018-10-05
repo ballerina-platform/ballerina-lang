@@ -23,7 +23,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
-import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -78,11 +77,6 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(TypeDefinition typeDefinition, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.TYPEDEF_ANN, typeDefinition.getName().getValue(), annotations.size());
-    }
-
-    @Override
-    public void process(EnumNode enumNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.ENUM_ANN, enumNode.getName().getValue(), annotations.size());
     }
 
     @Override

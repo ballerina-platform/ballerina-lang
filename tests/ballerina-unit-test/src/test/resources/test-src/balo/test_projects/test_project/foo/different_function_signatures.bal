@@ -78,7 +78,7 @@ public type Employee object {
 
 
 public type Person object {
-    public int age,
+    public int age;
 
     public function test1(int a = 77, string n = "inner default") returns (int, string);
 

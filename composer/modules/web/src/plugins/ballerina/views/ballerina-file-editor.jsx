@@ -135,6 +135,7 @@ class BallerinaFileEditor extends React.Component {
      */
     getChildContext() {
         return {
+            goToSource: this.goToSource.bind(this),
             isTabActive: this.props.isActive,
             editor: this,
             astRoot: this.state.model,
@@ -805,6 +806,7 @@ BallerinaFileEditor.childContextTypes = {
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
     isPreviewViewEnabled: PropTypes.bool.isRequired,
     setSourceEditorRef: PropTypes.func.isRequired,
+    goToSource: PropTypes.func.isRequired,
 };
 
 export default BallerinaFileEditor;

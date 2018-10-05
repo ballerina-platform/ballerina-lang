@@ -136,7 +136,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
 
-function main(string... args) {
+public function main(string... args) {
 
     log:printInfo("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startHub(9191) but {
@@ -175,7 +175,7 @@ endpoint websub:Client websubHubClientEP {
     url: "https://localhost:9191/websub/hub"
 };
 
-function main(string... args) {
+public function main(string... args) {
 
     var registrationResponse = websubHubClientEP->registerTopic("<TOPIC_URL>");
     match (registrationResponse) {
@@ -205,7 +205,7 @@ endpoint websub:Client websubHubClientEP {
     url: "<HUB_URL>"
 };
 
-function main(string... args) {
+public function main(string... args) {
 
     // Send subscription request for a subscriber service.
     websub:SubscriptionChangeRequest subscriptionRequest = { topic: "<TOPIC_URL>", 

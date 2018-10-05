@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -31,7 +30,7 @@ import java.util.Map;
  * Test cases for authorization config inheritance scenarios.
  */
 @Test(groups = "auth-test")
-public class AuthnConfigInheritanceTest extends BaseTest {
+public class AuthnConfigInheritanceTest extends AuthBaseTest {
     private final int servicePort = 9091;
 
     @Test(description = "invalid scope test case")

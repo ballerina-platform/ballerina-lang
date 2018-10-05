@@ -35,14 +35,12 @@ import java.io.File;
 public class SQLTransactionsTest {
 
     private CompileResult result;
-    private CompileResult resultMirror;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_TR";
     private static final String TRANSACTION_TEST_GROUP = "TransactionTest";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql_transaction_test.bal");
-        resultMirror = BCompileUtil.compile("test-src/connectors/sql/transaction/mirror_table_transaction_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
@@ -203,123 +201,18 @@ public class SQLTransactionsTest {
         Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
     }
 
+    @Test(groups = TRANSACTION_TEST_GROUP)
+    public void testLocalTransactonWithSelect() {
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonWithSelect");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
     @Test(dependsOnGroups = TRANSACTION_TEST_GROUP)
     public void testCloseConnectionPool() {
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testLocalTransactionMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testLocalTransacton");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testTransactonRollbackMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTransactonRollback");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testTransactonAbortMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTransactonAbort");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testTransactonThrowMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTransactonErrorThrow");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), -1, "Transaction should have been retried");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testTransactonThrowAndCatchMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTransactionErrorThrowAndCatch");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), -1,
-                "Exception thrown inside transaction should have been caught");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testTransactonCommittedMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTransactonCommitted");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testTwoTransactonsMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTwoTransactons");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 4, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testTransactonWithoutHandlersMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testTransactonWithoutHandlers");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testLocalTransactonFailedMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testLocalTransactionFailed");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld "
-                + "afterTrx");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testLocalTransactonSuccessWithFailedMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testLocalTransactonSuccessWithFailed");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx afterTrx");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testLocalTransactonFailedWithNextupdateMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testLocalTransactonFailedWithNextupdate");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1,
-                "Update after transaction failure may not have happened");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testNestedTwoLevelTransactonSuccessMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testNestedTwoLevelTransactonSuccess");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testNestedThreeLevelTransactonSuccessMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testNestedThreeLevelTransactonSuccess");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP, enabled = false) //Issue #7706
-    public void testNestedThreeLevelTransactonFailedMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testNestedThreeLevelTransactonFailed");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testNestedThreeLevelTransactonFailedWithRetrySuccessMirrorTable() {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testNestedThreeLevelTransactonFailedWithRetrySuccess");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-        Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
     }
 
     @AfterSuite

@@ -17,11 +17,306 @@
 // This is a generated file. Not intended for manual editing.
 package io.ballerina.plugins.idea.psi;
 
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAbortStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaActionInvocationExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaActionInvocationImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAggregationQueryImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAliasImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAnnotationAttachmentImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAnnotationDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAnyIdentifierNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAnyTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaArrayLiteralExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaArrayLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaArrayTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaArrowFunctionExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaArrowFunctionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaArrowParamImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAssignmentStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAttachedObjectImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAttachmentPointImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAttributeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaAwaitExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBacktickedBlockImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBinaryAddSubExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBinaryAndExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBinaryCompareExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBinaryDivMulModExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBinaryEqualExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBinaryOrExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBitwiseExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBitwiseShiftExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBlobLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBlockImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBracedOrTupleExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBreakStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBuiltInReferenceTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaBuiltInReferenceTypeTypeExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCallableUnitBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCallableUnitSignatureImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCatchClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCatchClausesImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaChannelDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaChannelTypeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCheckedExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCloseTagImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCommentImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCompensateStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCompensationClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCompletePackageNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCompoundAssignmentStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaCompoundOperatorImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaContentImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaContinueStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDefaultableParameterImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDefinitionReferenceTypeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDeprecatedAttachmentImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDeprecatedTemplateInlineCodeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDeprecatedTextImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocParameterDescriptionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocTextImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationAttachmentImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationContentImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationDefinitionReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationLineImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationStringImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationTemplateAttributeDescriptionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationTemplateContentImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationTemplateInlineCodeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDocumentationTextImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDoneStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDoubleBackTickDeprecatedInlineCodeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDoubleBackTickDocInlineCodeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaDoubleBacktickedBlockImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaElementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaElseClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaElseIfClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaElvisExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaEmptyTagImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaEmptyTupleLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaEndpointDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaEndpointInitializationImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaEndpointParameterImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaEndpointTypeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaExpressionListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaExpressionStmtImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFieldDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFieldImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFieldVariableReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFinallyClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFiniteTypeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFiniteTypeUnitImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFloatingPointLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaForeachStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaForeverStatementBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaForeverStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaForkJoinStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaForkStatementBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFormalParameterListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFunctionDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFunctionInvocationImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFunctionInvocationReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFunctionNameReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFunctionTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFutureTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaGlobalEndpointDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaGlobalVariableDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaGlobalVariableImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaGroupByClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaGroupTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaHavingClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaIfClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaIfElseStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaImportDeclarationImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaIndexImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaIntRangeExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaIntegerLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaIntegerRangeExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaInvocationArgImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaInvocationArgListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaInvocationImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaInvocationReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaJoinClauseBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaJoinClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaJoinConditionsImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaJoinStreamingInputImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaJoinTypeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaJsonTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaLambdaFunctionExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaLambdaFunctionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaLambdaReturnParameterImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaLimitClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaLockStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaMapArrayVariableReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaMapTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaMatchExprExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaMatchExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaMatchExpressionPatternClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaMatchPatternClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaMatchStatementBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaMatchStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaNameReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaNamedArgsImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaNamedPatternImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaNamespaceDeclarationImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaNamespaceDeclarationStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaNullableTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectCallableUnitSignatureImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectDefaultableParameterImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectFieldDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectFunctionDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectInitializerImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectInitializerParameterListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectMemberImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectParameterImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectParameterListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaObjectTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOnAbortStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOnCommitStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOnRetryClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOrderByClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOrderByTypeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOrderByVariableImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOrgNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOutputRateLimitImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPackageNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPackageReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPackageVersionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaParameterDescriptionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaParameterDocumentationImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaParameterDocumentationLineImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaParameterImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaParameterListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaParameterTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaParameterTypeNameListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaParameterWithTypeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPatternClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPatternStreamingEdgeInputImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPatternStreamingInputImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPostArithmeticOperatorImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPostIncrementStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaProcInsImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRecordFieldDefinitionListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRecordKeyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRecordKeyValueImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRecordLiteralBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRecordLiteralExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRecordLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRecordRestFieldDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRecordTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaReferenceTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaReservedWordImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaResourceDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaResourceParameterListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRestArgsImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRestParameterImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRetriesStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaRetryStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaReturnParameterDescriptionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaReturnParameterDocumentationImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaReturnParameterDocumentationLineImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaReturnParameterImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaReturnStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaReturnTypeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaScopeClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaScopeStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSealedLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSelectClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSelectExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSelectExpressionListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaServiceBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaServiceDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaServiceEndpointAttachmentsImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSetAssignmentClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSetClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaShiftExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSimpleLiteralExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSimpleLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSimpleTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSimpleVariableReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSingleBackTickDeprecatedInlineCodeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSingleBackTickDocInlineCodeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaSingleBacktickedBlockImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStartTagImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStreamTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStreamingActionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStreamingInputImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStreamingQueryStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStringTemplateContentImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStringTemplateLiteralExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaStringTemplateLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableColumnDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableColumnImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableDataArrayImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableDataImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableDataListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableLiteralExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableQueryExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableQueryImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTableTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTernaryExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaThrowStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTimeScaleImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTimeoutClauseBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTimeoutClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTransactionClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTransactionPropertyInitStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTransactionPropertyInitStatementListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTransactionStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTriggerWorkerImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTripleBackTickDeprecatedInlineCodeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTripleBackTickDocInlineCodeImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTripleBacktickedBlockImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTryCatchStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTupleDestructuringStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTupleTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTypeAccessExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTypeConversionExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTypeDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTypeDescTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTypeInitExprImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTypeInitExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaUnaryExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaUnionTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaUnnamedPatternImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaUserDefineTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaValueTypeNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaValueTypeTypeExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaVariableDefinitionStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaVariableReferenceExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaVariableReferenceListImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWhereClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWhileStatementBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWhileStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWindowClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWithinClauseImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWorkerBodyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWorkerDefinitionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWorkerInteractionStatementImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWorkerReplyImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlAttribImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlAttribVariableReferenceImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlDoubleQuotedStringImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlItemImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlLiteralExpressionImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlLiteralImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlLocalNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlNamespaceNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlQualifiedNameImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlQuotedStringImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlSingleQuotedStringImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlTextImpl;
+import io.ballerina.plugins.idea.psi.impl.BallerinaXmlTypeNameImpl;
 import io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory;
-import io.ballerina.plugins.idea.psi.impl.*;
 
 public interface BallerinaTypes {
 
@@ -37,6 +332,9 @@ public interface BallerinaTypes {
   IElementType ARRAY_LITERAL = new BallerinaCompositeElementType("ARRAY_LITERAL");
   IElementType ARRAY_LITERAL_EXPRESSION = new BallerinaCompositeElementType("ARRAY_LITERAL_EXPRESSION");
   IElementType ARRAY_TYPE_NAME = new BallerinaCompositeElementType("ARRAY_TYPE_NAME");
+  IElementType ARROW_FUNCTION = new BallerinaCompositeElementType("ARROW_FUNCTION");
+  IElementType ARROW_FUNCTION_EXPRESSION = new BallerinaCompositeElementType("ARROW_FUNCTION_EXPRESSION");
+  IElementType ARROW_PARAM = new BallerinaCompositeElementType("ARROW_PARAM");
   IElementType ASSIGNMENT_STATEMENT = new BallerinaCompositeElementType("ASSIGNMENT_STATEMENT");
   IElementType ATTACHED_OBJECT = new BallerinaCompositeElementType("ATTACHED_OBJECT");
   IElementType ATTACHMENT_POINT = new BallerinaCompositeElementType("ATTACHMENT_POINT");
@@ -61,6 +359,8 @@ public interface BallerinaTypes {
   IElementType CALLABLE_UNIT_SIGNATURE = new BallerinaCompositeElementType("CALLABLE_UNIT_SIGNATURE");
   IElementType CATCH_CLAUSE = new BallerinaCompositeElementType("CATCH_CLAUSE");
   IElementType CATCH_CLAUSES = new BallerinaCompositeElementType("CATCH_CLAUSES");
+  IElementType CHANNEL_DEFINITION = new BallerinaCompositeElementType("CHANNEL_DEFINITION");
+  IElementType CHANNEL_TYPE = new BallerinaCompositeElementType("CHANNEL_TYPE");
   IElementType CHECKED_EXPRESSION = new BallerinaCompositeElementType("CHECKED_EXPRESSION");
   IElementType CLOSE_TAG = new BallerinaCompositeElementType("CLOSE_TAG");
   IElementType COMMENT = new BallerinaCompositeElementType("COMMENT");
@@ -112,6 +412,7 @@ public interface BallerinaTypes {
   IElementType FINALLY_CLAUSE = new BallerinaCompositeElementType("FINALLY_CLAUSE");
   IElementType FINITE_TYPE = new BallerinaCompositeElementType("FINITE_TYPE");
   IElementType FINITE_TYPE_UNIT = new BallerinaCompositeElementType("FINITE_TYPE_UNIT");
+  IElementType FLOATING_POINT_LITERAL = new BallerinaCompositeElementType("FLOATING_POINT_LITERAL");
   IElementType FOREACH_STATEMENT = new BallerinaCompositeElementType("FOREACH_STATEMENT");
   IElementType FOREVER_STATEMENT = new BallerinaCompositeElementType("FOREVER_STATEMENT");
   IElementType FOREVER_STATEMENT_BODY = new BallerinaCompositeElementType("FOREVER_STATEMENT_BODY");
@@ -125,6 +426,7 @@ public interface BallerinaTypes {
   IElementType FUNCTION_TYPE_NAME = new BallerinaCompositeElementType("FUNCTION_TYPE_NAME");
   IElementType FUTURE_TYPE_NAME = new BallerinaCompositeElementType("FUTURE_TYPE_NAME");
   IElementType GLOBAL_ENDPOINT_DEFINITION = BallerinaElementTypeFactory.stubFactory("GLOBAL_ENDPOINT_DEFINITION");
+  IElementType GLOBAL_VARIABLE = new BallerinaCompositeElementType("GLOBAL_VARIABLE");
   IElementType GLOBAL_VARIABLE_DEFINITION = BallerinaElementTypeFactory.stubFactory("GLOBAL_VARIABLE_DEFINITION");
   IElementType GROUP_BY_CLAUSE = new BallerinaCompositeElementType("GROUP_BY_CLAUSE");
   IElementType GROUP_TYPE_NAME = new BallerinaCompositeElementType("GROUP_TYPE_NAME");
@@ -169,10 +471,10 @@ public interface BallerinaTypes {
   IElementType OBJECT_CALLABLE_UNIT_SIGNATURE = new BallerinaCompositeElementType("OBJECT_CALLABLE_UNIT_SIGNATURE");
   IElementType OBJECT_DEFAULTABLE_PARAMETER = new BallerinaCompositeElementType("OBJECT_DEFAULTABLE_PARAMETER");
   IElementType OBJECT_FIELD_DEFINITION = new BallerinaCompositeElementType("OBJECT_FIELD_DEFINITION");
-  IElementType OBJECT_FUNCTIONS = new BallerinaCompositeElementType("OBJECT_FUNCTIONS");
   IElementType OBJECT_FUNCTION_DEFINITION = new BallerinaCompositeElementType("OBJECT_FUNCTION_DEFINITION");
   IElementType OBJECT_INITIALIZER = new BallerinaCompositeElementType("OBJECT_INITIALIZER");
   IElementType OBJECT_INITIALIZER_PARAMETER_LIST = new BallerinaCompositeElementType("OBJECT_INITIALIZER_PARAMETER_LIST");
+  IElementType OBJECT_MEMBER = new BallerinaCompositeElementType("OBJECT_MEMBER");
   IElementType OBJECT_PARAMETER = new BallerinaCompositeElementType("OBJECT_PARAMETER");
   IElementType OBJECT_PARAMETER_LIST = new BallerinaCompositeElementType("OBJECT_PARAMETER_LIST");
   IElementType OBJECT_TYPE_NAME = new BallerinaCompositeElementType("OBJECT_TYPE_NAME");
@@ -318,6 +620,7 @@ public interface BallerinaTypes {
   IElementType XML_TYPE_NAME = new BallerinaCompositeElementType("XML_TYPE_NAME");
 
   IElementType ABORT = new BallerinaTokenType("abort");
+  IElementType ABSTRACT = new BallerinaTokenType("abstract");
   IElementType ADD = new BallerinaTokenType("+");
   IElementType ALL = new BallerinaTokenType("all");
   IElementType AND = new BallerinaTokenType("&&");
@@ -335,6 +638,7 @@ public interface BallerinaTypes {
   IElementType BIND = new BallerinaTokenType("bind");
   IElementType BITAND = new BallerinaTokenType("BITAND");
   IElementType BITXOR = new BallerinaTokenType("BITXOR");
+  IElementType BIT_COMPLEMENT = new BallerinaTokenType("BIT_COMPLEMENT");
   IElementType BOOLEAN = new BallerinaTokenType("boolean");
   IElementType BOOLEAN_LITERAL = new BallerinaTokenType("BOOLEAN_LITERAL");
   IElementType BREAK = new BallerinaTokenType("break");
@@ -343,6 +647,7 @@ public interface BallerinaTypes {
   IElementType BYTE = new BallerinaTokenType("byte");
   IElementType CATCH = new BallerinaTokenType("catch");
   IElementType CDATA = new BallerinaTokenType("cdata");
+  IElementType CHANNEL = new BallerinaTokenType("channel");
   IElementType CHECK = new BallerinaTokenType("check");
   IElementType COLON = new BallerinaTokenType(":");
   IElementType COMMA = new BallerinaTokenType(",");
@@ -357,6 +662,7 @@ public interface BallerinaTypes {
   IElementType DAYS = new BallerinaTokenType("days");
   IElementType DB_DEPRECATED_INLINE_CODE_START = new BallerinaTokenType("DB_DEPRECATED_INLINE_CODE_START");
   IElementType DB_DOC_INLINE_CODE_START = new BallerinaTokenType("DB_DOC_INLINE_CODE_START");
+  IElementType DECIMAL_FLOATING_POINT_NUMBER = new BallerinaTokenType("DECIMAL_FLOATING_POINT_NUMBER");
   IElementType DECIMAL_INTEGER_LITERAL = new BallerinaTokenType("DECIMAL_INTEGER_LITERAL");
   IElementType DECREMENT = new BallerinaTokenType("--");
   IElementType DEFINITION_REFERENCE = new BallerinaTokenType("DEFINITION_REFERENCE");
@@ -367,7 +673,6 @@ public interface BallerinaTypes {
   IElementType DESCENDING = new BallerinaTokenType("descending");
   IElementType DESCRIPTION_SEPARATOR = new BallerinaTokenType("DESCRIPTION_SEPARATOR");
   IElementType DIV = new BallerinaTokenType("/");
-  IElementType DOCUMENTATION = new BallerinaTokenType("documentation");
   IElementType DOCUMENTATION_ESCAPED_CHARACTERS = new BallerinaTokenType("DOCUMENTATION_ESCAPED_CHARACTERS");
   IElementType DOCUMENTATION_TEMPLATE_ATTRIBUTE_END = new BallerinaTokenType("DOCUMENTATION_TEMPLATE_ATTRIBUTE_END");
   IElementType DOCUMENTATION_TEMPLATE_ATTRIBUTE_START = new BallerinaTokenType("DOCUMENTATION_TEMPLATE_ATTRIBUTE_START");
@@ -400,7 +705,6 @@ public interface BallerinaTypes {
   IElementType FINALLY = new BallerinaTokenType("finally");
   IElementType FIRST = new BallerinaTokenType("first");
   IElementType FLOAT = new BallerinaTokenType("float");
-  IElementType FLOATING_POINT_LITERAL = new BallerinaTokenType("FLOATING_POINT_LITERAL");
   IElementType FOLLOWED = new BallerinaTokenType("followed");
   IElementType FOR = new BallerinaTokenType("for");
   IElementType FOREACH = new BallerinaTokenType("foreach");
@@ -415,6 +719,7 @@ public interface BallerinaTypes {
   IElementType GT_EQUAL = new BallerinaTokenType(">=");
   IElementType HALF_OPEN_RANGE = new BallerinaTokenType("HALF_OPEN_RANGE");
   IElementType HAVING = new BallerinaTokenType("having");
+  IElementType HEXADECIMAL_FLOATING_POINT_LITERAL = new BallerinaTokenType("HEXADECIMAL_FLOATING_POINT_LITERAL");
   IElementType HEX_INTEGER_LITERAL = new BallerinaTokenType("HEX_INTEGER_LITERAL");
   IElementType HOUR = new BallerinaTokenType("hour");
   IElementType HOURS = new BallerinaTokenType("hours");
@@ -603,6 +908,15 @@ public interface BallerinaTypes {
       else if (type == ARRAY_TYPE_NAME) {
         return new BallerinaArrayTypeNameImpl(node);
       }
+      else if (type == ARROW_FUNCTION) {
+        return new BallerinaArrowFunctionImpl(node);
+      }
+      else if (type == ARROW_FUNCTION_EXPRESSION) {
+        return new BallerinaArrowFunctionExpressionImpl(node);
+      }
+      else if (type == ARROW_PARAM) {
+        return new BallerinaArrowParamImpl(node);
+      }
       else if (type == ASSIGNMENT_STATEMENT) {
         return new BallerinaAssignmentStatementImpl(node);
       }
@@ -674,6 +988,12 @@ public interface BallerinaTypes {
       }
       else if (type == CATCH_CLAUSES) {
         return new BallerinaCatchClausesImpl(node);
+      }
+      else if (type == CHANNEL_DEFINITION) {
+        return new BallerinaChannelDefinitionImpl(node);
+      }
+      else if (type == CHANNEL_TYPE) {
+        return new BallerinaChannelTypeImpl(node);
       }
       else if (type == CHECKED_EXPRESSION) {
         return new BallerinaCheckedExpressionImpl(node);
@@ -828,6 +1148,9 @@ public interface BallerinaTypes {
       else if (type == FINITE_TYPE_UNIT) {
         return new BallerinaFiniteTypeUnitImpl(node);
       }
+      else if (type == FLOATING_POINT_LITERAL) {
+        return new BallerinaFloatingPointLiteralImpl(node);
+      }
       else if (type == FOREACH_STATEMENT) {
         return new BallerinaForeachStatementImpl(node);
       }
@@ -866,6 +1189,9 @@ public interface BallerinaTypes {
       }
       else if (type == GLOBAL_ENDPOINT_DEFINITION) {
         return new BallerinaGlobalEndpointDefinitionImpl(node);
+      }
+      else if (type == GLOBAL_VARIABLE) {
+        return new BallerinaGlobalVariableImpl(node);
       }
       else if (type == GLOBAL_VARIABLE_DEFINITION) {
         return new BallerinaGlobalVariableDefinitionImpl(node);
@@ -999,9 +1325,6 @@ public interface BallerinaTypes {
       else if (type == OBJECT_FIELD_DEFINITION) {
         return new BallerinaObjectFieldDefinitionImpl(node);
       }
-      else if (type == OBJECT_FUNCTIONS) {
-        return new BallerinaObjectFunctionsImpl(node);
-      }
       else if (type == OBJECT_FUNCTION_DEFINITION) {
         return new BallerinaObjectFunctionDefinitionImpl(node);
       }
@@ -1010,6 +1333,9 @@ public interface BallerinaTypes {
       }
       else if (type == OBJECT_INITIALIZER_PARAMETER_LIST) {
         return new BallerinaObjectInitializerParameterListImpl(node);
+      }
+      else if (type == OBJECT_MEMBER) {
+        return new BallerinaObjectMemberImpl(node);
       }
       else if (type == OBJECT_PARAMETER) {
         return new BallerinaObjectParameterImpl(node);

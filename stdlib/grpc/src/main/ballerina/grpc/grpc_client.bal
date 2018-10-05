@@ -14,32 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Provides the gRPC actions for interacting with gRPC server.
-}
+# Provides the gRPC actions for interacting with gRPC server.
 public type GrpcClient object {
 
-    documentation {
-        Sends request message to the server.
-
-        P{{res}} - The inbound request message.
-        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    }
+    # Sends request message to the server.
+    #
+    # + res - The inbound request message.
+    # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
     public extern function send(any res) returns error?;
 
-    documentation {
-        Informs the server, caller finished sending messages.
-
-        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    }
+    # Informs the server, caller finished sending messages.
+    #
+    # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
     public extern function complete() returns error?;
 
-    documentation {
-        Sends error message to the server.
-
-        P{{statusCode}} - Error status code.
-        P{{message}} - Error message.
-        R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    }
+    # Sends error message to the server.
+    #
+    # + statusCode - Error status code.
+    # + message - Error message.
+    # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
     public extern function sendError(int statusCode, string message) returns error?;
 };

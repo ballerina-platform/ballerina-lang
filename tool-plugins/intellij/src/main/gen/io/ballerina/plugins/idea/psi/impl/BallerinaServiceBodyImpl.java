@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaServiceBodyImpl extends BallerinaCompositeElementImpl implements BallerinaServiceBody {
 
-  public BallerinaServiceBodyImpl(ASTNode node) {
+  public BallerinaServiceBodyImpl(@NotNull ASTNode node) {
     super(node);
   }
 

@@ -35,6 +35,8 @@ public final class CompressorRegistry {
 
   /**
    * Returns the default instance.
+   *
+   * @return default instance
    */
   public static CompressorRegistry getDefaultInstance() {
     return DEFAULT_INSTANCE;

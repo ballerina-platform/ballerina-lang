@@ -14,97 +14,59 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represent `application/octet-stream` media type.
-}
+# Represent `application/octet-stream` media type.
 @final public string APPLICATION_OCTET_STREAM = "application/octet-stream";
 
-documentation {
-    Represent `application/json` media type.
-}
+# Represent `application/json` media type.
 @final public string APPLICATION_JSON = "application/json";
 
-documentation {
-    Represent `application/xml` media type.
-}
+# Represent `application/xml` media type.
 @final public string APPLICATION_XML = "application/xml";
 
-documentation {
-    Represent `application/svg+xml` media type.
-}
+# Represent `application/svg+xml` media type.
 @final public string APPLICATION_SVG_XML = "application/svg+xml";
 
-documentation {
-    Represent `application/xhtml+xml` media type.
-}
+# Represent `application/xhtml+xml` media type.
 @final public string APPLICATION_XHTML_XML = "application/xhtml+xml";
 
-documentation {
-    Represent `application/soap+xml` media type.
-}
+# Represent `application/soap+xml` media type.
 @final public string APPLICATION_SOAP_XML = "application/soap+xml";
 
-documentation {
-    Represent `application/x-www-form-urlencoded` media type.
-}
+# Represent `application/x-www-form-urlencoded` media type.
 @final public string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
-documentation {
-    Represent `application/pdf` media type.
-}
+# Represent `application/pdf` media type.
 @final public string APPLICATION_PDF = "application/pdf";
 
-documentation {
-    Represent `image/jpeg` media type.
-}
+# Represent `image/jpeg` media type.
 @final public string IMAGE_JPEG = "image/jpeg";
 
-documentation {
-    Represent `image/gif` media type.
-}
+# Represent `image/gif` media type.
 @final public string IMAGE_GIF = "image/gif";
 
-documentation {
-    Represent `image/png` media type.
-}
+# Represent `image/png` media type.
 @final public string IMAGE_PNG = "image/png";
 
-documentation {
-    Represent `multipart/form-data` media type.
-}
+# Represent `multipart/form-data` media type.
 @final public string MULTIPART_FORM_DATA = "multipart/form-data";
 
-documentation {
-    Represent `multipart/mixed` media type.
-}
+# Represent `multipart/mixed` media type.
 @final public string MULTIPART_MIXED = "multipart/mixed";
 
-documentation {
-    Represent `multipart/alternative` media type.
-}
+# Represent `multipart/alternative` media type.
 @final public string MULTIPART_ALTERNATIVE = "multipart/alternative";
 
-documentation {
-    Represent `multipart/related` media type.
-}
+# Represent `multipart/related` media type.
 @final public string MULTIPART_RELATED = "multipart/related";
 
-documentation {
-    Represent `multipart/parallel` media type.
-}
+# Represent `multipart/parallel` media type.
 @final public string MULTIPART_PARALLEL = "multipart/parallel";
 
-documentation {
-    Represent `text/plain` media type.
-}
+# Represent `text/plain` media type.
 @final public string TEXT_PLAIN = "text/plain";
 
-documentation {
-    Represent `text/html` media type.
-}
+# Represent `text/html` media type.
 @final public string TEXT_HTML = "text/html";
 
-documentation {
-    Represent `text/xml` media type.
-}
+# Represent `text/xml` media type.
 @final public string TEXT_XML = "text/xml";

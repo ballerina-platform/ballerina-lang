@@ -45,8 +45,8 @@ public class PingPongSupportTestCase extends WebSocketTestCommons {
     private static final ByteBuffer RECEIVING_BYTE_BUFFER = ByteBuffer.wrap("data".getBytes(StandardCharsets.UTF_8));
 
     @BeforeClass(description = "Initializes the Ballerina server with the ping_pong.bal file")
-    public void setup() throws InterruptedException, URISyntaxException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+    public void setup() throws InterruptedException, URISyntaxException, BallerinaTestException {
+        remoteServer = new WebSocketRemoteServer(15200);
         remoteServer.run();
         client = new WebSocketTestClient(URL);
         client.handshake();
@@ -91,7 +91,7 @@ public class PingPongSupportTestCase extends WebSocketTestCommons {
     }
 
     @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
         remoteServer.stop();
     }

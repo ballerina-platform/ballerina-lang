@@ -14,34 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Removes each element that matches the given key.
-
-    P{{key}} Key of the field to remove
-}
+# Removes each element that matches the given key.
+#
+# + key - Key of the field to remove
 public extern function json::remove(string key);
 
-documentation {
-    Converts a JSON object to a string representation.
-
-    R{{}} String value of the converted JSON
-}
+# Converts a JSON object to a string representation.
+#
+# + return - String value of the converted JSON
 public extern function json::toString() returns (string);
 
-documentation {
-    Returns an array of keys contained in the specified JSON.
-
-    R{{}} A string array of keys contained in the specified JSON
-}
+# Returns an array of keys contained in the specified JSON.
+#
+# + return - A string array of keys contained in the specified JSON
 public extern function json::getKeys() returns (string[]);
 
-documentation {
-    Converts a JSON object to a XML representation.
-
-    P{{options}} jsonOptions struct for JSON to XML conversion properties
-    R{{}} The XML representation of the JSON
-}
+# Converts a JSON object to a XML representation.
+#
+# + options - jsonOptions struct for JSON to XML conversion properties
+# + return - The XML representation of the JSON
 public extern function json::toXML(record {
-                                         string attributePrefix = "@",
-                                         string arrayEntryTag = "item",
+                                         string attributePrefix = "@";
+                                         string arrayEntryTag = "item";
                                      } options) returns (xml|error);

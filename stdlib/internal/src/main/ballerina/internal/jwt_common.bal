@@ -29,20 +29,30 @@
 @final string NBF = "nbf";
 @final string IAT = "iat";
 
-documentation {
-    Represents a JWT header.
-}
+# Represents a JWT header.
+# + alg - Signing algorithm
+# + typ - Media type of the JWT
+# + cty - Content type, convey structural information about the JWT
+# + kid - Key ID, hint indicating which key was used to secure the JWS
+# + customClaims - Map of custom claims
 public type JwtHeader record {
     string alg;
     string typ;
     string cty;
     string kid;
     map customClaims;
+    !...
 };
 
-documentation {
-    Represents a JWT payload.
-}
+# Represents a JWT payload.
+# + iss - Issuer, identifies the principal that issued the JWT
+# + sub - Subject, identifies the principal that is the subject of the JWT
+# + aud - Audience, identifies the recipients that the JWT is intended for
+# + jti - JWT ID, unique identifier for the JWT
+# + exp - Expiration time,  identifies the expiration time on or after which the JWT must not be accepted
+# + nbf - Not before, identifies the time before which the JWT must not be accepted
+# + iat - Issued at, identifies the time at which the JWT was issued
+# + customClaims - Map of custom claims
 public type JwtPayload record {
     string iss;
     string sub;
@@ -52,4 +62,5 @@ public type JwtPayload record {
     int nbf;
     int iat;
     map customClaims;
+    !...
 };

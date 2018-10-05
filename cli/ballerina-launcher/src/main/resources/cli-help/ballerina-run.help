@@ -4,11 +4,11 @@ NAME
 
 SYNOPSIS
      ballerina run [-e] [--offline] [--observe]
-         [--sourceroot] [-c|--config] [-B] 
-         <balfile | packagename | balxfile> [args...]  
+         [--sourceroot] [-c|--config] [-printreturn] [-B]
+         <balfile | packagename | balxfile>[:function] [args...]
 
 DESCRIPTION
-     Run command executes the given program or package. 
+     Run command executes the given program or package.
 
      If a Ballerina source file (.bal file) or a source package is 
      given, the run command compiles and runs it. The compilation 
@@ -19,10 +19,14 @@ DESCRIPTION
      The binary runs much faster than a source file, because the source 
      file run requires a compilation phase. 
 
-     You must have either a main function or a service(s) or both in
-     order to run a program or a package. When both the main function
-     and services are present, run executes services first and then
-     executes the main function.
+     You must have either a public function or a service(s) or both in
+     order to run a program or a package. The function to run [:function]
+     could also be specified, and if no function is specified and a
+     function named 'main' would be considered the function to run if
+     such a function exists.
+
+     When both a function to run and services are present, run executes
+     services first and then executes the main function.
 
 OPTIONS
      -e <key=value>
@@ -63,6 +67,10 @@ OPTIONS
          for a default configuration file named `ballerina.conf`
          in the directory the source file(s) reside in.
 
+     --printreturn
+         Enables printing the value returned by the function invoked
+         to the out stream, if a function is run.
+
      -B <key=value>
          Provides Ballerina VM options to be used by the runtime
          when executing a Ballerina program or package. VM options
@@ -76,19 +84,30 @@ OPTIONS
          the program design. 
 
 DEFAULT BEHAVIOR
-     Runs the main function in the given program or package.
-     If no main function is defined, it will look for a service. 
-     If no main function or service is present, the run command will fail.   
+     Runs the function ('main' or specified function) in the given
+     program or package.
+     If a function is specified but not present, the run command fails.
+     If no function is specified and there is no main function defined,
+     it will look for a service.
+     If no main function or service is present, the run command will fail.
 
 EXAMPLES
-     Run hello source program  
+     Run the 'main' function and/or services in the hello source program
      $ ballerina run hello.bal
 
-     Run hello binary program  
+     Run the 'main' function and/or services in the hello binary program
      $ ballerina run hello.balx
 
-     Run hello package  
+     Run the 'main' function and/or services in the hello package
      $ ballerina run hello
 
-     Run math package with three program args: add, 10, and 5
+     Run the 'main' function in the math package with three program args:
+     add, 10 and 5. If the second and third parameters of the 'main'
+     function are of types int and int, the second and third arguments
+     would be passed as integer values 10 and 5
+     $ ballerina run math add 10 5
+
+     Run the 'add' function in the math package with two program args:
+     10 and 5. If the parameters of the 'add' function are of types int
+     and int, the two arguments would be passed as integer values 10 and 5
      $ ballerina run math add 10 5

@@ -194,7 +194,7 @@ const config = [{
             hash: new Date().getTime(),
         }), {
             apply: function(compiler) {
-                compiler.plugin('compile', function(compilation, callback) {
+                compiler.plugin('compile', function (compilation, callback = () => { }) {
                     fs.writeFile(
                         path.resolve(__dirname, './font/dist/font-ballerina/codepoints.json'),
                         JSON.stringify(codepoints),

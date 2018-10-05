@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string ex1 = f1(args[0]);
 }
 

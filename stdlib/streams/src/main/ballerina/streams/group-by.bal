@@ -23,7 +23,7 @@ public type GroupBy object {
 
     }
 
-    public function performGrouping(StreamEvent[] streamEvents) {
+    public function process(StreamEvent[] streamEvents) {
         if (lengthof groupByFields > 0) {
             foreach streamEvent in streamEvents {
                 string key = generateGroupByKey(streamEvent);
@@ -46,26 +46,20 @@ public type GroupBy object {
 
     function generateGroupByKey(StreamEvent event) returns string {
         string key;
-        map|error mappedStreamEvent = <map>event.eventObject;
-        match mappedStreamEvent {
-            map mapValue => {
-                foreach field in groupByFields {
-                    key += ", ";
-                    string? fieldValue = <string>mapValue[field];
-                    match fieldValue {
-                        string value => {
-                            key += value;
-                        }
-                        () => {
 
-                        }
-                    }
+        foreach field in groupByFields {
+            key += ", ";
+            string? fieldValue = <string> event.data[field];
+            match fieldValue {
+                string value => {
+                    key += value;
+                }
+                () => {
+
                 }
             }
-            error => {
-
-            }
         }
+
         return key;
     }
 };

@@ -25,6 +25,7 @@ import Breakpoint from './breakpoint';
 import Node from '../../../../../model/tree/node';
 import ArrowDecorator from './arrow-decorator';
 import TreeUtil from '../../../../../model/tree-util';
+import SizingUtils from '../../sizing-util';
 import splitVariableDefByLambda from '../../../../../model/lambda-util';
 import { getComponentForNodeArray } from '../../../../diagram-util';
 
@@ -101,11 +102,13 @@ class InvocationDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { viewState, expression, isBreakpoint } = this.props;
+        const { viewState, model, isBreakpoint } = this.props;
         const statementBox = viewState.components['statement-box'];
         const { designer } = this.context;
 
+        let expression = viewState.parameterText;
         let tooltip = null;
+
         if (viewState.fullExpression !== expression) {
             const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';');
             tooltip = (<title>{fullExp}</title>);
@@ -115,6 +118,7 @@ class InvocationDecorator extends React.Component {
         const dropDownItemMeta = [];
         const backwardArrowStart = {};
         const backwardArrowEnd = {};
+
         if (viewState.isActionInvocation) {
             // TODO: Need to remove the unique by filter whne the lang server item resolver is implemented
             dropDownItems = _.uniqBy(TreeUtil.getAllVisibleEndpoints(this.props.model.parent), (item) => {
@@ -144,6 +148,44 @@ class InvocationDecorator extends React.Component {
                                 + designer.config.actionInvocationStatement.timelineHeight;
                 backwardArrowEnd.x = statementBox.x + (designer.config.actionInvocationStatement.width / 2);
                 backwardArrowEnd.y = backwardArrowStart.y;
+
+                if (TreeUtil.isVariableDef(model) ||
+                    TreeUtil.isAssignment(model) ||
+                    TreeUtil.isExpressionStatement(model)) {
+                    let exp;
+
+                    if (TreeUtil.isVariableDef(model)) {
+                        exp = model.getVariable().getInitialExpression();
+                    } else {
+                        exp = model.getExpression();
+                    }
+
+                    if (TreeUtil.isMatchExpression(exp) || TreeUtil.isCheckExpr(exp)) {
+                        exp = exp.getExpression();
+                    }
+
+                    const functionNameWidth = new SizingUtils().getTextWidth(exp.getFunctionName(), 0);
+                    const nodeWidth = viewState.components.text.x -
+                        (designer.config.statement.padding.left + designer.config.statement.padding.right);
+
+                    if (functionNameWidth.w > nodeWidth) {
+                        const truncatedFunctionNameWidth = new SizingUtils().getTextWidth(
+                            exp.getFunctionName(), 0, nodeWidth);
+
+                        expression = (<tspan>
+                            {truncatedFunctionNameWidth.text}
+                        </tspan>);
+                    } else {
+                        const displayExpressionWidth = nodeWidth - functionNameWidth.w;
+                        const expressionDisplayText = new SizingUtils().getTextWidth(model.viewState.parameterText, 0,
+                            displayExpressionWidth).text;
+
+                        expression = (<tspan>
+                            {exp.getFunctionName()}
+                            (<tspan className='client-responder-parameter-text'>{expressionDisplayText}</tspan>)
+                        </tspan>);
+                    }
+                }
             }
         }
 

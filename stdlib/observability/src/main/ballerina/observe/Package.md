@@ -51,6 +51,12 @@ It is possible to add tags to span by using the `observe:addTagToSpan()` api by 
 ```ballerina
     _ = observe:addTagToSpan(spanId, "Tag Key", "Tag Value");
 ```
+#### Attach a tag to a span in the system trace
+When no spanId is provided or -1 is given, the defined tags are added to the current active span in the ootb system trace.
+
+```ballerina
+    _ = observe:addTagToSpan("Tag Key", "Tag Value");
+```
 
 ## Metrics 
 There are mainly two kind of metrics instances supported; Counter and Gauge. A counter is a cumulative metric that 

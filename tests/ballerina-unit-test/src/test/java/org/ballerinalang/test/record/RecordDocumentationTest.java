@@ -25,10 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-
-import java.util.List;
 
 /**
  * Test cases for user defined documentation attachment in ballerina.
@@ -47,27 +45,23 @@ public class RecordDocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangTypeDefinition) packageNode.getTypeDefinitions()
-                .get(0)).docAttachments;
-        BLangDocumentation dNode = docNodes.get(0);
+        BLangMarkdownDocumentation dNode =
+                ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).markdownDocumentationAttachment;
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                " Documentation for Test annotation\n");
-        Assert.assertEquals(dNode.getAttributes().size(), 3);
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(
-                dNode.getAttributes().get(0).documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                " annotation `field a` documentation\n");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(
-                dNode.getAttributes().get(1).documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                " annotation `field b` documentation\n");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(
-                dNode.getAttributes().get(2).documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                " annotation `field c` documentation");
-        docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
-        dNode = docNodes.get(0);
+        Assert.assertEquals(dNode.getDocumentation().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "Documentation " +
+                "for Test annotation\n");
+        Assert.assertEquals(dNode.getParameters().size(), 3);
+        Assert.assertEquals(dNode.getParameters().get(0).getParameterName().getValue(), "a");
+        Assert.assertEquals(dNode.getParameters().get(0).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING), "annotation `field a` documentation");
+        Assert.assertEquals(dNode.getParameters().get(1).getParameterName().getValue(), "b");
+        Assert.assertEquals(dNode.getParameters().get(1).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING), "annotation `field b` documentation");
+        Assert.assertEquals(dNode.getParameters().get(2).getParameterName().getValue(), "c");
+        Assert.assertEquals(dNode.getParameters().get(2).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING), "annotation `field c` documentation");
+
+        dNode = ((BLangAnnotation) packageNode.getAnnotations().get(0)).markdownDocumentationAttachment;
         Assert.assertNotNull(dNode);
     }
 
@@ -76,56 +70,51 @@ public class RecordDocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_doc_annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangTypeDefinition) packageNode.getTypeDefinitions()
-                .get(0)).docAttachments;
-        BLangDocumentation dNode = docNodes.get(0);
+        BLangMarkdownDocumentation dNode =
+                ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).markdownDocumentationAttachment;
+
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                " Documentation for Test struct\n");
-        Assert.assertEquals(dNode.getAttributes().size(), 3);
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(
-                dNode.getAttributes().get(0).documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                " struct `field a` documentation\n");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(
-                dNode.getAttributes().get(1).documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                " struct `field b` documentation\n");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(
-                dNode.getAttributes().get(2).documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                " struct `field c` documentation");
+        Assert.assertEquals(dNode.getDocumentation().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "Documentation " +
+                "for Test struct\n");
+        Assert.assertEquals(dNode.getParameters().size(), 3);
+        Assert.assertEquals(dNode.getParameters().get(0).getParameterName().getValue(), "a");
+        Assert.assertEquals(dNode.getParameters().get(0).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING), "struct `field a` documentation");
+        Assert.assertEquals(dNode.getParameters().get(1).getParameterName().getValue(), "b");
+        Assert.assertEquals(dNode.getParameters().get(1).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING), "struct `field b` documentation");
+        Assert.assertEquals(dNode.getParameters().get(2).getParameterName().getValue(), "c");
+        Assert.assertEquals(dNode.getParameters().get(2).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING), "struct `field c` documentation");
     }
 
     @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
-        Assert.assertEquals(compileResult.getWarnCount(), 11);
-        BAssertUtil.validateWarning(compileResult, 0, "already documented attribute 'a'", 5, 1);
-        BAssertUtil.validateWarning(compileResult, 1, "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
-        BAssertUtil.validateWarning(compileResult, 2, "no such documentable attribute 'testConstd' with doc prefix 'V'",
-                17, 1);
-        BAssertUtil.validateWarning(compileResult, 3, "already documented attribute 'a'", 31, 1);
-        BAssertUtil.validateWarning(compileResult, 4, "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
-        BAssertUtil.validateWarning(compileResult, 5, "already documented attribute 'accessMode'", 45, 1);
-        BAssertUtil.validateWarning(compileResult, 6, "already documented attribute 'url'", 92, 1);
-        BAssertUtil
-                .validateWarning(compileResult, 7, "no such documentable attribute 'urls' with doc prefix 'P'", 93, 1);
-        BAssertUtil
-                .validateWarning(compileResult, 8, "no such documentable attribute 'conn' with doc prefix 'P'", 107, 1);
-        BAssertUtil.validateWarning(compileResult, 9, "already documented attribute 'req'", 113, 5);
-        BAssertUtil
-                .validateWarning(compileResult, 10, "no such documentable attribute 'reqest' with doc prefix 'P'", 114,
-                        5);
+        Assert.assertEquals(compileResult.getWarnCount(), 15);
+        BAssertUtil.validateWarning(compileResult, 0, "field 'a' already documented", 6, 5);
+        BAssertUtil.validateWarning(compileResult, 1, "no such documentable field 'c'", 8, 5);
+        BAssertUtil.validateWarning(compileResult, 2, "undocumented field 'cd'", 12, 5);
+        BAssertUtil.validateWarning(compileResult, 3, "no such documentable parameter 'testConstd'", 19, 5);
+        BAssertUtil.validateWarning(compileResult, 4, "field 'a' already documented", 25, 5);
+        BAssertUtil.validateWarning(compileResult, 5, "no such documentable field 'c'", 27, 5);
+        BAssertUtil.validateWarning(compileResult, 6, "undocumented field 'cdd'", 31, 5);
+        BAssertUtil.validateWarning(compileResult, 7, "parameter 'accessMode' already documented", 39, 5);
+        BAssertUtil.validateWarning(compileResult, 8, "no such documentable parameter 'successfuls'", 40, 5);
+        BAssertUtil.validateWarning(compileResult, 9, "undocumented return parameter", 41, 1);
+        BAssertUtil.validateWarning(compileResult, 10, "field 'url' already documented", 73, 5);
+        BAssertUtil.validateWarning(compileResult, 11, "no such documentable field 'urls'", 74, 5);
+        BAssertUtil.validateWarning(compileResult, 12, "no such documentable parameter 'conn'", 81, 5);
+        BAssertUtil.validateWarning(compileResult, 13, "parameter 'req' already documented", 87, 9);
+        BAssertUtil.validateWarning(compileResult, 14, "no such documentable parameter 'reqest'", 88, 9);
     }
 
     private String getErrorString(Diagnostic[] diagnostics) {
         StringBuilder sb = new StringBuilder();
         for (Diagnostic diagnostic : diagnostics) {
-            sb.append(diagnostic + "\n");
+            sb.append(diagnostic).append("\n");
         }
         return sb.toString();
     }
-
 }

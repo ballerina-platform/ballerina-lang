@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.http.sample;
 
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -30,7 +30,7 @@ import java.io.IOException;
  * A test case for http redirect.
  */
 @Test(groups = "http-test")
-public class RedirectTestCase extends BaseTest {
+public class RedirectTestCase extends HttpBaseTest {
 
     private final int servicePort = 9103;
 

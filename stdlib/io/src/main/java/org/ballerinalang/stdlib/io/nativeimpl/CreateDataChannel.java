@@ -47,7 +47,7 @@ import java.nio.ByteOrder;
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DataChannel",
                 structPackage = "ballerina/io"),
-        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "ByteChannel",
+        args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT, structType = "ByteChannel",
                 structPackage = "ballerina/io"),
                 @Argument(name = "order", type = TypeKind.STRING)
         },

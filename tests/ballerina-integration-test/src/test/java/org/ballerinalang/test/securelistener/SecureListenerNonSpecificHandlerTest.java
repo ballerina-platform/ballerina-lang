@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.securelistener;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -31,7 +30,7 @@ import java.util.Map;
  * Test cases for verifying non specific auth handler with secured listener.
  */
 @Test(groups = "secure-listener-test")
-public class SecureListenerNonSpecificHandlerTest extends BaseTest {
+public class SecureListenerNonSpecificHandlerTest extends SecureListenerBaseTest {
     private int servicePort = 9091;
 
     @Test(description = "Authn and authz success test case")

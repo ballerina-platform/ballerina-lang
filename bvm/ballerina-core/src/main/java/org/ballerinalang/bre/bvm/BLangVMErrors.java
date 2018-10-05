@@ -31,8 +31,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
@@ -50,9 +48,8 @@ public class BLangVMErrors {
     private static final String MSG_CALL_CANCELLED = "call cancelled";
     public static final String STRUCT_GENERIC_ERROR = "error";
     private static final String STRUCT_NULL_REF_EXCEPTION = "NullReferenceException";
-    private static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
     public static final String STRUCT_CALL_STACK_ELEMENT = "CallStackElement";
-    private static final String STRUCT_CALL_FAILED_EXCEPTION = "CallFailedException";
+    public static final String STRUCT_CALL_FAILED_EXCEPTION = "CallFailedException";
     public static final String TRANSACTION_ERROR = "TransactionError";
     public static final String ERROR_MESSAGE_FIELD = "message";
     public static final String ERROR_CAUSE_FIELD = "cause";
@@ -168,12 +165,6 @@ public class BLangVMErrors {
             throw new BallerinaConnectorException("record - " + STRUCT_CALL_FAILED_EXCEPTION + " does not exist");
         }
         return generateError(context, true, typeInfo, MSG_CALL_CANCELLED);
-    }
-
-    public static BMap<String, BValue> createIllegalStateException(Context context, String msg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_RUNTIME_PKG);
-        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
-        return createError(context, true, errorStructInfo, msg);
     }
 
     /* Private Util Methods */
@@ -396,27 +387,5 @@ public class BLangVMErrors {
         char c[] = s.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
-    }
-
-    public static String getAggregatedRootErrorMessages(BMap<String, BValue> error) {
-        if (isCFE(error)) {
-            BRefValueArray causesArray = (BRefValueArray) error.get(ERROR_CAUSE_FIELD);
-            if (causesArray != null && causesArray.size() > 0) {
-                List<String> messages = new ArrayList<>();
-                for (int i = 0; i < causesArray.size(); i++) {
-                    messages.add(getAggregatedRootErrorMessages((BMap<String, BValue>) causesArray.get(i)));
-                }
-                return String.join(", ", messages.toArray(new String[0]));
-            }
-
-            return error.get(ERROR_MESSAGE_FIELD).stringValue();
-        }
-
-        BMap<String, BValue> cause = (BMap<String, BValue>) error.get(ERROR_CAUSE_FIELD);
-        if (cause != null) {
-            return getAggregatedRootErrorMessages(cause);
-        }
-
-        return error.get(ERROR_MESSAGE_FIELD).stringValue();
     }
 }

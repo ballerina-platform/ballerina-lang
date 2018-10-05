@@ -14,14 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Schedules an appointment.
-}
+# Schedules an appointment.
 public type Appointment object {
     // The function which gets called when the appointment is up
-    private (function () returns error?) onTrigger,
+    private (function () returns error?) onTrigger;
     // The function that gets called if the onTrigger function returns an error
-    private (function(error) returns ())? onError,
+    private (function(error) returns ())? onError;
     // Specifies the Cron expression of the schedule
     private string scheduleCronExpression;
     // Unique task ID which will be used when this appointment is cancelled

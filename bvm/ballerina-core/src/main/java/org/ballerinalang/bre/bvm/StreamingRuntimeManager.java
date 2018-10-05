@@ -77,7 +77,7 @@ public class StreamingRuntimeManager {
 
     public void addCallback(String streamId, BFunctionPointer functionPointer, SiddhiAppRuntime siddhiAppRuntime) {
 
-        BType[] parameters = functionPointer.value().getFunctionInfo().getParamTypes();
+        BType[] parameters = functionPointer.value().getParamTypes();
 
         // Create an array list with closure var values
         List<BValue> closureArgs = new ArrayList<>();
@@ -115,7 +115,7 @@ public class StreamingRuntimeManager {
                     List<BValue> argsList = new ArrayList<>();
                     argsList.addAll(closureArgs);
                     argsList.add(output);
-                    BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
+                    BLangFunctions.invokeCallable(functionPointer.value(),
                             argsList.toArray(new BValue[argsList.size()]));
                 }
             }

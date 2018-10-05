@@ -59,4 +59,11 @@ public interface LSIndex {
      * @return {@link Boolean}      Whether the save process is success or not      
      */
     boolean saveIndexDump(Path path);
+
+    /**
+     * Close the Language Server Index Connection.
+     * 
+     * @return  Whether the operation is success or not
+     */
+    boolean closeConnection();
 }

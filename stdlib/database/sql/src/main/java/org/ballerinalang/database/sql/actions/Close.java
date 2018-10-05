@@ -19,10 +19,7 @@ package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.Constants;
-import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -45,8 +42,6 @@ public class Close extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
-        closeConnections(datasource);
+        closeConnections(retrieveDatasource(context));
     }
 }

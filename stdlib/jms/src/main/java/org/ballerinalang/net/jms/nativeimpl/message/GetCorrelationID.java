@@ -27,7 +27,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -48,7 +48,7 @@ import javax.jms.Message;
         returnType = { @ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.NIL) },
         isPublic = true
 )
-public class GetCorrelationID extends AbstractBlockinAction {
+public class GetCorrelationID extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {

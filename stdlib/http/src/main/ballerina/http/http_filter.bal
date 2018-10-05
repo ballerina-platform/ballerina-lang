@@ -14,40 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-   Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.
+# Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.
 
-}
-public type Filter object {
-    documentation {
-        Request filter function. If a false is returned the response should have been sent from this function as it will
-        not be dispatched to the next filter or the resource.
-
-        P{{listener}} The http endpoint
-        P{{request}} An inboud HTTP request message
-        P{{context}} A filter context
-        R{{}} True if the filter succeeds
-    }
+public type Filter abstract object {
+    # Request filter function. If a false is returned the response should have been sent from this function as it will
+    # not be dispatched to the next filter or the resource.
+    #
+    # + listener - The http endpoint
+    # + request - An inboud HTTP request message
+    # + context - A filter context
+    # + return - True if the filter succeeds
     public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean;
 
-    documentation {
-        Response filter function. If a false is returned a 500 Internal Server Error would be sent to the client.
-
-        P{{response}} An outbound HTTP response message
-        P{{context}} A filter context
-        R{{}} True if the filter succeeds
-    }
+    # Response filter function. If a false is returned a 500 Internal Server Error would be sent to the client.
+    #
+    # + response - An outbound HTTP response message
+    # + context - A filter context
+    # + return - True if the filter succeeds
     public function filterResponse(Response response, FilterContext context) returns boolean;
 };
 
-documentation {
-    Representation of request filter Context.
-
-    F{{serviceType}} Type of the service
-    F{{serviceName}} Name of the service
-    F{{resourceName}} Name of the resource
-    F{{attributes}} Attributes to share between filters
-}
+# Representation of request filter Context.
+#
+# + serviceType - Type of the service
+# + serviceName - Name of the service
+# + resourceName - Name of the resource
+# + attributes - Attributes to share between filters
 public type FilterContext object {
 
     @readonly public typedesc serviceType;

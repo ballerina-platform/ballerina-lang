@@ -22,17 +22,13 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -43,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -52,10 +47,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Tree visitor to traverse through the ballerina node tree and find the scope of a given cursor position.
@@ -64,23 +60,21 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private SymbolEnv symbolEnv;
     private SymbolResolver symbolResolver;
     private boolean terminateVisitor = false;
-    private SymbolEnter symbolEnter;
     private SymbolTable symTable;
     private LSServiceOperationContext lsContext;
-    private Stack<Node> blockOwnerStack;
+    private Deque<DiagnosticPos> blockPositionStack;
 
     /**
      * Public constructor.
      * @param textDocumentServiceContext    Document service context for the signature operation
      */
     public SignatureTreeVisitor(LSServiceOperationContext textDocumentServiceContext) {
-        blockOwnerStack = new Stack<>();
+        blockPositionStack = new ArrayDeque<>();
         this.lsContext = textDocumentServiceContext;
         init(lsContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
     }
 
     private void init(CompilerContext compilerContext) {
-        symbolEnter = SymbolEnter.getInstance(compilerContext);
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
         lsContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
@@ -93,34 +87,23 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         String fileName = lsContext.get(DocumentServiceKeys.FILE_NAME_KEY);
         BLangCompilationUnit compilationUnit = pkgNode.getCompilationUnits().stream()
                 .filter(bLangCompilationUnit -> bLangCompilationUnit.getName().equals(fileName))
-                .findFirst().orElse(null);
+                .findFirst().orElse(new BLangCompilationUnit());
         List<TopLevelNode> topLevelNodes = compilationUnit.getTopLevelNodes();
 
-        if (!topLevelNodes.isEmpty()) {
-            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
-        }
-    }
-
-    @Override
-    public void visit(BLangCompilationUnit compUnit) {
-        super.visit(compUnit);
+        topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
     }
 
     @Override
     public void visit(BLangFunction funcNode) {
         BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
-            return;
-        }
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
-        blockOwnerStack.push(funcNode);
+        blockPositionStack.push(funcNode.pos);
         this.acceptNode(funcNode.body, funcEnv);
-        blockOwnerStack.pop();
+        blockPositionStack.pop();
         // Process workers
         if (terminateVisitor && !funcNode.workers.isEmpty()) {
             terminateVisitor = false;
         }
-        funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
         funcNode.workers.forEach(e -> this.acceptNode(e, funcEnv));
     }
 
@@ -136,19 +119,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         BSymbol resourceSymbol = resourceNode.symbol;
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, symbolEnv);
         resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
-        this.blockOwnerStack.push(resourceNode);
+        this.blockPositionStack.push(resourceNode.pos);
         acceptNode(resourceNode.body, resourceEnv);
-        this.blockOwnerStack.pop();
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        BSymbol actionSymbol = actionNode.symbol;
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
-        actionNode.workers.forEach(w -> this.acceptNode(w, actionEnv));
-        this.blockOwnerStack.push(actionNode);
-        acceptNode(actionNode.body, actionEnv);
-        this.blockOwnerStack.pop();
+        this.blockPositionStack.pop();
     }
 
     @Override
@@ -168,58 +141,55 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        this.blockOwnerStack.push(ifNode);
+        this.blockPositionStack.push(ifNode.pos);
         this.acceptNode(ifNode.body, symbolEnv);
-        this.blockOwnerStack.pop();
+        this.blockPositionStack.pop();
 
         if (ifNode.elseStmt != null) {
+            this.blockPositionStack.push(ifNode.elseStmt.pos);
             acceptNode(ifNode.elseStmt, symbolEnv);
+            this.blockPositionStack.pop();
         }
     }
 
     @Override
     public void visit(BLangForeach foreach) {
-        this.blockOwnerStack.push(foreach);
+        this.blockPositionStack.push(foreach.pos);
         this.acceptNode(foreach.body, symbolEnv);
-        this.blockOwnerStack.pop();
+        this.blockPositionStack.pop();
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        this.blockOwnerStack.push(whileNode);
+        this.blockPositionStack.push(whileNode.pos);
         this.acceptNode(whileNode.body, symbolEnv);
-        this.blockOwnerStack.pop();
+        this.blockPositionStack.pop();
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.blockOwnerStack.push(transactionNode);
+        this.blockPositionStack.push(transactionNode.transactionBody.pos);
         this.acceptNode(transactionNode.transactionBody, symbolEnv);
-        this.blockOwnerStack.pop();
+        this.blockPositionStack.pop();
 
         if (transactionNode.onRetryBody != null) {
-            this.blockOwnerStack.push(transactionNode);
+            this.blockPositionStack.push(transactionNode.onRetryBody.pos);
             this.acceptNode(transactionNode.onRetryBody, symbolEnv);
-            this.blockOwnerStack.pop();
+            this.blockPositionStack.pop();
         }
     }
 
     @Override
     public void visit(BLangTryCatchFinally tryNode) {
-        this.blockOwnerStack.push(tryNode);
-        this.acceptNode(tryNode.tryBody, symbolEnv);
-        this.blockOwnerStack.pop();
-
-        tryNode.catchBlocks.forEach(c -> {
-            this.blockOwnerStack.push(c);
-            this.acceptNode(c, symbolEnv);
-            this.blockOwnerStack.pop();
-        });
+        tryNode.catchBlocks.forEach(bLangCatch -> this.acceptNode(bLangCatch, symbolEnv));
         if (tryNode.finallyBody != null) {
-            this.blockOwnerStack.push(tryNode);
+            this.blockPositionStack.push(tryNode.finallyBody.pos);
             this.acceptNode(tryNode.finallyBody, symbolEnv);
-            this.blockOwnerStack.pop();
+            this.blockPositionStack.pop();
         }
+        this.blockPositionStack.push(tryNode.pos);
+        this.acceptNode(tryNode.tryBody, symbolEnv);
+        this.blockPositionStack.pop();
     }
 
     @Override
@@ -227,18 +197,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(catchNode.body, symbolEnv);
         this.acceptNode(catchNode.param, catchBlockEnv);
 
-        this.blockOwnerStack.push(catchNode);
+        this.blockPositionStack.push(catchNode.pos);
         this.acceptNode(catchNode.body, catchBlockEnv);
-        this.blockOwnerStack.pop();
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        this.blockOwnerStack.push(scopeNode);
-        this.acceptNode(scopeNode.scopeBody, symbolEnv);
-        this.blockOwnerStack.pop();
-
-        this.acceptNode(scopeNode.compensationFunction, symbolEnv);
+        this.blockPositionStack.pop();
     }
 
     // Private Methods
@@ -255,14 +216,13 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
 
     private boolean isCursorWithinBlock() {
         Position cursorPosition = this.lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        Node blockOwner = blockOwnerStack.peek();
-        DiagnosticPos nodePosition = CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition());
+        DiagnosticPos blockPosition = CommonUtil.toZeroBasedPosition(blockPositionStack.peek());
         int cursorLine = cursorPosition.getLine();
         int cursorColumn = cursorPosition.getCharacter();
-        int nodeStrtLine = nodePosition.getStartLine();
-        int nodeEndLine = nodePosition.getEndLine();
-        int nodeStrtColumn = nodePosition.getStartColumn();
-        int nodeEndColumn = nodePosition.getEndColumn();
+        int nodeStrtLine = blockPosition.getStartLine();
+        int nodeEndLine = blockPosition.getEndLine();
+        int nodeStrtColumn = blockPosition.getStartColumn();
+        int nodeEndColumn = blockPosition.getEndColumn();
         
         /*
           node Start ->{ <cursor_position> }<- node End.

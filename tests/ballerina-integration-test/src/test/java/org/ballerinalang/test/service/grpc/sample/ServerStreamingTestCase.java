@@ -21,10 +21,9 @@ package org.ballerinalang.test.service.grpc.sample;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,13 +31,12 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
 
 /**
  * Test class for gRPC server streaming service with non-blocking client.
  */
 @Test(groups = "grpc-test")
-public class ServerStreamingTestCase extends BaseTest {
+public class ServerStreamingTestCase extends GrpcBaseTest {
 
     @BeforeClass
     private void setup() throws Exception {
@@ -53,13 +51,8 @@ public class ServerStreamingTestCase extends BaseTest {
 
         BValue[] responses = BRunUtil.invoke(result, "testServerStreaming", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStringArray);
-        BStringArray responseValues = (BStringArray) responses[0];
-        Assert.assertEquals(responseValues.size(), 4);
-        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch("Hi WSO2"::equals));
-        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch("Hey WSO2"::equals));
-        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch("GM WSO2"::equals));
-        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch(("Server Complete Sending Response" +
-                ".")::equals));
+        Assert.assertTrue(responses[0] instanceof BInteger);
+        BInteger responseCount = (BInteger) responses[0];
+        Assert.assertEquals(responseCount.intValue(), 4);
     }
 }

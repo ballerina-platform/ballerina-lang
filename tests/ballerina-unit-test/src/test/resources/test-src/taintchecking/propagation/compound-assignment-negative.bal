@@ -1,5 +1,5 @@
 xmlns "http://sample.com/wso2/a1" as ns0;
-function main (string... args) {
+public function main (string... args) {
     string x = "static";
     x += args[0];
     secureFunction(x, x);

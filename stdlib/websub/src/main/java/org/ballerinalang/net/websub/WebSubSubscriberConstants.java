@@ -25,6 +25,7 @@ package org.ballerinalang.net.websub;
  */
 public class WebSubSubscriberConstants {
 
+    public static final String GENERIC_SUBSCRIBER_SERVICE_TYPE = "Service";
     public static final String WEBSUB_SERVICE_REGISTRY = "WEBSUB_SERVICE_REGISTRY";
     public static final String WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME =
                                                         "ballerina/websub:Listener";

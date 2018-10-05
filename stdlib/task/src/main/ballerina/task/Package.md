@@ -60,7 +60,7 @@ import ballerina/task;
 int count;
 task:Timer? timer;
 
-function main(string... args) {
+public function main(string... args) {
     io:println("tasks sample is running");
     scheduleTimer(1000,1000);
     // Keep the program running for 100*1000 milliseconds.
@@ -131,7 +131,7 @@ import ballerina/task;
 int count;
 task:Appointment? app;
 
-function main(string... args) {
+public function main(string... args) {
     io:println("tasks sample is running");
     // To schedule the appointment with given cron expression.
     scheduleAppointment("0/05 * * * * ?");

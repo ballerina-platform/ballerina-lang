@@ -50,6 +50,10 @@ export const RESPOSIVE_MENU_TRIGGER = {
     HIDDEN_MODE: 460,
 };
 
+export const ACTION_BOX_POSITION = {
+    SINGLE_ACTION_OFFSET: 12,
+};
+
 export const VIEWS = {
     TOOL_PALLETE: 'composer.views.ballerina.tool-pallette',
 };

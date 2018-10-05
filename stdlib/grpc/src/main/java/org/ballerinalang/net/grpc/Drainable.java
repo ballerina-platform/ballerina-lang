@@ -32,6 +32,7 @@ public interface Drainable {
      *
      * @param target to write to.
      * @return number of bytes written.
+     * @throws IOException fail when writing output stream
      */
     int drainTo(OutputStream target) throws IOException;
 }

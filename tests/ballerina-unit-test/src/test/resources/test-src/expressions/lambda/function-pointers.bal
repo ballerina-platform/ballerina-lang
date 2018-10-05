@@ -9,7 +9,7 @@ function func1 (int a, int b) returns (int) {
 }
 
 function test2 () returns (string) {
-    function (int , int ) returns (string) sumFunction = (int a, int b) => (string) {
+    function (int , int ) returns (string) sumFunction = function (int a, int b) returns (string) {
                                        int value =  a + b;
                                        return "sum is " + value;
                                    };
@@ -33,7 +33,7 @@ function test4() returns (string){
 }
 
 function test4Callee() returns (function (string a, string b) returns (string)){
-   return (string x, string y) => (string){
+   return function (string x, string y) returns (string){
              string z = x + y;
              return z;
           };
@@ -82,7 +82,7 @@ public function getCount(function (int , int ) returns (int) sumFunction, string
 }
 
 function testFunctionPointerAsFuncParam() returns (int, string) {
-    function (int , int ) returns (int) sumFunction = (int a, int b) => (int) {
+    function (int , int ) returns (int) sumFunction = function (int a, int b) returns (int) {
                                int value =  a + b;
                                return value;
                            };
@@ -92,7 +92,7 @@ function testFunctionPointerAsFuncParam() returns (int, string) {
 }
 
 function testAnyToFuncPointerConversion_1() returns (int) {
-    any anyFunc = (int a, int b) => (int) {
+    any anyFunc = function (int a, int b) returns (int) {
                 int value =  a + b;
                 return value;
             };
@@ -122,7 +122,7 @@ type Student object {
 };
 
 function testFuncPointerConversion() returns (int) {
-    function (Student) returns (int) studentFunc = (Student s) => (int) {
+    function (Student) returns (int) studentFunc = function (Student s) returns (int) {
                 return s.getAge();
             };
 
@@ -132,9 +132,9 @@ function testFuncPointerConversion() returns (int) {
 }
 
 function testAnyToFuncPointerConversion_2() returns (int) {
-    any anyFunc =  (Student s) => (int) {
-        return s.getAge();
-    };
+    any anyFunc = function (Student s) returns (int) {
+                        return s.getAge();
+                    };
 
     function (Person) returns (int) personFunc = check <function (Person) returns (int)> anyFunc;
     Person p = new Person(23);

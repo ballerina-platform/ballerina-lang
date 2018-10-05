@@ -32,7 +32,7 @@ service<http:Service> simple7 bind { port: 9097 } {
     }
 }
 @http:WebSocketServiceConfig {
-    idleTimeoutInSeconds: 15
+    idleTimeoutInSeconds: 10
 }
 service<http:WebSocketService> castErrror {
 

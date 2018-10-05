@@ -176,7 +176,8 @@ stream.once('open', () => {
                         (wQuoted(getter) || '\"\"')];
                     const hasSuffix = p.indexOf('suffixed-by') >= 0;
                     if (p.indexOf('joined-by') >= 0 || hasSuffix) {
-                        params.push('\"' + p.substr(-3, 1) + '\"');
+                        const suffix = p.split('-')[2].split('>')[0];
+                        params.push('\"' + suffix.substr(-(suffix.length - 2), suffix.length - 2) + '\"');
                     } else {
                         params.push('null');
                     }

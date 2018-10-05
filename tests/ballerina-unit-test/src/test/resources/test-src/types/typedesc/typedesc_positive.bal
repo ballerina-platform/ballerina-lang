@@ -46,7 +46,7 @@ function testArrayTypes() returns (typedesc, typedesc) {
 
 function testRecordTypes() returns (typedesc, typedesc) {
     typedesc a = RecordA;
-    typedesc b = record {string c, int d,};
+    typedesc b = record {string c; int d;};
     return (a,b);
 }
 
@@ -59,4 +59,20 @@ function testTupleUnionTypes() returns (typedesc, typedesc) {
     typedesc a = (string, Person);
     typedesc b = int|string;
     return (a,b);
+}
+
+function testTuplesWithExpressions() returns typedesc {
+    int[] fib = [1, 1, 2, 3, 5, 8];
+    typedesc desc = ("foo", 25, ["foo", "bar", "john"], utilFunc(), fib[4]);
+    return desc;
+}
+
+function testAnyToTypedesc() returns typedesc {
+    any a = int;
+    typedesc desc = check <typedesc>a;
+    return desc;
+}
+
+function utilFunc() returns string {
+    return "util function";
 }

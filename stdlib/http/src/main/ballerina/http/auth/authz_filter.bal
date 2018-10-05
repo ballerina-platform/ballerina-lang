@@ -19,11 +19,9 @@ import ballerina/auth;
 import ballerina/cache;
 import ballerina/reflect;
 
-documentation {
-    Representation of the Authorization filter
-
-    F{{authzHandler}} `HttpAuthzHandler` instance for handling authorization
-}
+# Representation of the Authorization filter
+#
+# + authzHandler - `HttpAuthzHandler` instance for handling authorization
 public type AuthzFilter object {
 
     public HttpAuthzHandler authzHandler;
@@ -31,14 +29,12 @@ public type AuthzFilter object {
     public new (authzHandler) {
     }
 
-    documentation {
-        Filter function implementation which tries to authorize the request
-
-        P{{listener}} `Listener` instance that is the http endpoint
-        P{{request}} `Request` instance
-        P{{context}} `FilterContext` instance
-        R{{}} A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
-    }
+    # Filter function implementation which tries to authorize the request
+    #
+    # + listener - `Listener` instance that is the http endpoint
+    # + request - `Request` instance
+    # + context - `FilterContext` instance
+    # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     public function filterRequest (Listener listener, Request request, FilterContext context) returns boolean {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
         ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
@@ -74,13 +70,11 @@ public type AuthzFilter object {
     }
 };
 
-documentation {
-        Verifies if the authorization is successful. If not responds to the user.
-
-        P{{authorized}} flag to indicate if authorization is successful or not
-        R{{}} A boolean flag to indicate if the request flow should be continued(true) or
-        aborted(false)
-}
+# Verifies if the authorization is successful. If not responds to the user.
+#
+# + authorized - flag to indicate if authorization is successful or not
+# + return - A boolean flag to indicate if the request flow should be continued(true) or
+#            aborted(false)
 function isAuthzSuccessfull(Listener listener, boolean authorized) returns boolean {
     endpoint Listener caller = listener;
     Response response;
@@ -97,13 +91,11 @@ function isAuthzSuccessfull(Listener listener, boolean authorized) returns boole
     return true;
 }
 
-documentation {
-        Retrieves the scope for the resource, if any
-
-        P{{resourceLevelAuthAnn}} `ListenerAuthConfig` instance denoting resource level auth annotation details
-        P{{serviceLevelAuthAnn}} `ListenerAuthConfig` instance denoting service level auth annotation details
-        R{{}} Array of scopes for the given resource or nil of no scopes are defined
-}
+# Retrieves the scope for the resource, if any
+#
+# + resourceLevelAuthAnn - `ListenerAuthConfig` instance denoting resource level auth annotation details
+# + serviceLevelAuthAnn - `ListenerAuthConfig` instance denoting service level auth annotation details
+# + return - Array of scopes for the given resource or nil of no scopes are defined
 function getScopesForResource (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
                                                                                             returns (string[]|()) {
     match resourceLevelAuthAnn.scopes {

@@ -14,20 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Prints 'any' value to the STDOUT.
-}
+# Prints 'any' value to the STDOUT.
+# + a - The value to be printed.
 public extern function print(any... a);
 
-documentation {
-    Prints an any value to the STDOUT in a new line.
-}
+# Prints an any value to the STDOUT in a new line.
+# + a - The value to be printed.
 public extern function println(any... a);
 
-documentation {
-    Returns a formatted string using the specified format string and arguments.
-
-    P{{format}} Represent the format of the string which should be returned
-    R{{}} Formatted string
-}
+# Returns a formatted string using the specified format string and arguments. Following format specifiers are allowed.
+#    b              boolean
+#    B              boolean (ALL_CAPS)
+#    d              int
+#    f              float
+#    x              hex
+#    X              HEX (ALL_CAPS)
+#    s              string (This specifier is applicable for any of the supported types in Ballerina.
+#                   These values will be converted to their string representation.)
+#
+# + format - A format string
+# + args   - Arguments referenced by the format specifiers in the format string.
+# + return - Formatted string
 public extern function sprintf(string format, any... args) returns (string);

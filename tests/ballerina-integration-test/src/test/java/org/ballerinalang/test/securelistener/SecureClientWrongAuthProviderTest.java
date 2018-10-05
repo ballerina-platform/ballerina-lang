@@ -19,7 +19,6 @@
 package org.ballerinalang.test.securelistener;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -33,7 +32,7 @@ import java.util.Map;
  * Test cases for verifying wrong auth provider for a service.
  */
 @Test(groups = "secure-listener-test")
-public class SecureClientWrongAuthProviderTest extends BaseTest {
+public class SecureClientWrongAuthProviderTest extends SecureListenerBaseTest {
 
     @Test(description = "Authn failure with wrong auth provider")
     public void testAuthSuccess() throws Exception {

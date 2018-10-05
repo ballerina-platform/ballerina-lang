@@ -18,11 +18,9 @@
 
 package org.ballerinalang.test.service.http.sample;
 
-import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
-import org.testng.annotations.AfterClass;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -31,28 +29,22 @@ import java.io.File;
  * A test case for http proxy scenario.
  */
 @Test(groups = "http-test")
-public class ProxyServerTest extends BaseTest {
+public class ProxyServerTest extends HttpBaseTest {
 
-    private ServerInstance ballerinaClient;
+    private BMainInstance ballerinaClient;
 
     @Test(description = "Test proxy server")
     public void testHttpProxy() throws Exception {
-        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String serverResponse = "Backend server sent response";
 
-        String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "proxy" + File.separator + "proxyClient.bal").getAbsolutePath()};
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "proxy" + File.separator + "proxyClient.bal").getAbsolutePath();
 
-        ballerinaClient = new ServerInstance(serverZipPath);
+        ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.addLogLeecher(clientLeecher);
-        ballerinaClient.runMain(clientArgs);
+        ballerinaClient.runMain(balFile, new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(20000);
     }
 
-    @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaClient.stopServer();
-    }
 }
 
