@@ -798,22 +798,7 @@
       "label":"ballerina/builtin",
       "detail":"Package",
       "sortText":"140",
-      "insertText":"builtin",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":0,
-              "character":22
-            },
-            "end":{
-              "line":0,
-              "character":22
-            }
-          },
-          "newText":"\nimport ballerina/builtin;\n"
-        }
-      ]
+      "insertText":"builtin"
     },
     {
       "label":"ballerina/math",
