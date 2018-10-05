@@ -1,0 +1,4 @@
+//Streams can be joined using a streaming query logic.
+//In this example, events related to raw materials and production output wait for 10 seconds and then correlate the
+// data gathered during that time period. An alert is triggered if the raw material usage is 5% higher than the
+// production outcome. This example can be extended to make decisions based on the output of the streaming rules.
