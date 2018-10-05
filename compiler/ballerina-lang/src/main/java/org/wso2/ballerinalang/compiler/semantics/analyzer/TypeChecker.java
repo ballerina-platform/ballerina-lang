@@ -236,6 +236,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
 
         Object literalValue = literalExpr.value;
+        if (TypeTags.FLOAT == expType.tag && TypeTags.INT == literalType.tag) {
+            literalType = symTable.floatType;
+            literalExpr.value = ((Long) literalValue).doubleValue();
+        }
+
         if (TypeTags.BYTE == expType.tag && TypeTags.INT == literalType.tag) {
             if (!isByteLiteralValue((Long) literalValue)) {
                 dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
