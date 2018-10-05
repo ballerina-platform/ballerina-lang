@@ -20,9 +20,6 @@
         <Package name="org.ballerinalang.database.sql.actions"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.database.table.BProxyTable"/>
-    </Match>
-    <Match>
         <Package name="org.ballerinalang.database.h2"/>
     </Match>
     <Match>

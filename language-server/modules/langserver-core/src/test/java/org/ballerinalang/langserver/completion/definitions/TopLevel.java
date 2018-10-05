@@ -31,6 +31,8 @@ public class TopLevel extends CompletionTest {
                 {"allTopLevelItemSkip.json", "toplevel"},
                 {"topLevelNonEmptyFirstLine.json", "toplevel"},
                 {"topLevelEmptyFirstLine.json", "toplevel"},
+                {"topLevelFirstLineWithPublicKeyword.json", "toplevel"},
+                {"topLevelFirstLineWithPublicDefStart.json", "toplevel"},
                 {"endpointTypeCompletion1.json", "toplevel"},
                 {"endpointTypeCompletion2.json", "toplevel"},
                 {"endpointTypeCompletion3.json", "toplevel"},
