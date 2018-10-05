@@ -9,7 +9,10 @@ function testWithSpaces() returns (string) {
     string var3 = 'U+001E;
     string var4 = 'Hello\nWorld;
     string var5 = 'Hello\uFFFEWorld;
-    // Maps
+    string var6 = 'Hello󰀇;
+    string var6 = 'Hello��;;
+
+// Maps
     map addrMap = { road: 'Mount Lavinia, country: 'SriLanka };
     addrMap['country sl] = 'PO00300;
     // Records
