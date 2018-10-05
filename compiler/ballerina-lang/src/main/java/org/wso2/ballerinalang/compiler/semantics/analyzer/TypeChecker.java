@@ -126,6 +126,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -397,17 +398,38 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> matchedTypeList = getRecordCompatibleType(expType, recordLiteral);
 
+        boolean hasInvalidFieldIndex = false;
         if (matchedTypeList.isEmpty()) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
         } else if (matchedTypeList.size() > 1) {
             dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
         } else {
-            recordLiteral.keyValuePairs
-                    .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
+            for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
+                BType type = checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0));
+                hasInvalidFieldIndex = type.tag == TypeTags.ERROR;
+            }
             actualType = matchedTypeList.get(0);
         }
 
         resultType = types.checkType(recordLiteral, actualType, expType);
+
+        if (recordLiteral.type.tag == TypeTags.RECORD && !hasInvalidFieldIndex) {
+            BRecordType recordType = (BRecordType) recordLiteral.type;
+            int maskOptional = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
+            int maskDefaultable = Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
+
+            recordType.fields.forEach(field -> {
+                boolean hasField = recordLiteral.keyValuePairs.stream().anyMatch(
+                        keyVal -> field.name.value.equals(((BLangSimpleVarRef) keyVal.key.expr)
+                                                                  .variableName.value));
+
+                if (!hasField && !Symbols.isFlagOn(field.symbol.flags, maskOptional) &&
+                        (!types.defaultValueExists(recordLiteral.pos, field.type) &&
+                                !Symbols.isFlagOn(field.symbol.flags, maskDefaultable))) {
+                    dlog.error(recordLiteral.pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
+                }
+            });
+        }
     }
 
     private List<BType> getRecordCompatibleType(BType bType, BLangRecordLiteral recordLiteral) {
@@ -1675,7 +1697,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
+    private BType checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
         BType fieldType = symTable.errType;
         BLangExpression valueExpr = keyValuePair.valueExpr;
         switch (recType.tag) {
@@ -1705,10 +1727,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     valueExpr.type = valueType;
                 }
                 resultType = valueExpr.type;
-                return;
+                return resultType;
         }
 
-        checkExpr(valueExpr, this.env, fieldType);
+        return checkExpr(valueExpr, this.env, fieldType);
     }
 
     private BType checkStructLiteralKeyExpr(BLangRecordKey key, BType recordType) {

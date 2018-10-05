@@ -394,6 +394,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        int maskOptional = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
+        int maskDefaultable = Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
         // Add struct level variables to the init function.
         recordTypeNode.fields.stream()
                 .map(field -> {
@@ -406,7 +408,10 @@ public class Desugar extends BLangNodeVisitor {
                 })
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol)) {
+                    // Only add a field if it is defaultable
+                    if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
+                            (types.defaultValueExists(recordTypeNode.pos, field.type) ||
+                                    Symbols.isFlagOn(field.symbol.flags, maskDefaultable))) {
                         recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
                                                                           (BLangStatement) createAssignmentStmt(field));
                     }
