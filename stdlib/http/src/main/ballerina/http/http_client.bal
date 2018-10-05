@@ -31,7 +31,7 @@ public type CallerActions object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function post(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
@@ -43,7 +43,7 @@ public type CallerActions object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function head(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
@@ -55,7 +55,7 @@ public type CallerActions object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function put(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
@@ -68,7 +68,7 @@ public type CallerActions object {
     # + httpVerb - HTTP verb value
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
                                                         |io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
@@ -80,7 +80,7 @@ public type CallerActions object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
@@ -92,7 +92,7 @@ public type CallerActions object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
@@ -104,7 +104,7 @@ public type CallerActions object {
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function get(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
@@ -116,7 +116,7 @@ public type CallerActions object {
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function options(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
@@ -138,7 +138,7 @@ public type CallerActions object {
     # + httpVerb - The HTTP verb value
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     public function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
                                                     io:ReadableByteChannel|mime:Entity[]|() message)
