@@ -61,6 +61,13 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
+        <!-- Lang-Server specific files -->
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lib
+            </directory>
+            <outputDirectory>lib/tools/lang-server/lib</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -89,7 +96,7 @@
             <fileMode>644</fileMode>
         </file>
 
-        <!-- LS specific files -->
+        <!-- Lang-Server specific files -->
         <file>
             <source>
                 ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lang-server-index.sql
@@ -138,6 +145,7 @@
             </includes>
             <unpack>false</unpack>
         </dependencySet>
+        <!-- Lang-Server specific jars -->
         <dependencySet>
             <outputDirectory>lib/tools/lang-server/lib</outputDirectory>
             <includes>
