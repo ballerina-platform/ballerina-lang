@@ -71,14 +71,6 @@ public type CallerActions object {
     #            Else `error` will be returned if there is any error.
     public extern function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
                                                    Param... parameters) returns (int, string[])|error;
-
-    # The getProxyTable operation implementation for SQL connector which acts as a proxy for a database
-    # table that allows performing select/update operations over the actual database table.
-    #
-    # + tableName - The name of the table to be retrieved
-    # + recordType - The record type of the returned table
-    # + return - A `table` returned by the operation or else `error` will be returned if there is any error
-    public extern function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
 };
 
 # An internal function used by clients to shutdown the connection pool.

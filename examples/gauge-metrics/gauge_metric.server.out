@@ -1,0 +1,45 @@
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command with `--observe` param.
+$ ballerina run --observe gauge_metrics.bal
+ballerina: started publishing tracers to Jaeger on localhost:5775
+Initiating service(s) in 'ballerina-home/lib/balx/prometheus/reporter.balx'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9797
+ballerina: started Prometheus HTTP endpoint 0.0.0.0:9797
+Initiating service(s) in 'counter_metrics.bal'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+------------------------------------------
+Gauge - global_gauge Snapshot: [{timeWindow:600000, mean:15.0, max:15.0, min:15.0, stdDev:0.0, percentileValues:[{percentile:0.33, value:15.0}, {percentile:0.5, value:15.0}, {percentile:0.66, value:15.0}, {percentile:0.99, value:15.0}]}]
+Gauge - global_gauge Current Value: 15.0
+Gauge - local_operations Snapshot: [{timeWindow:600000, mean:13.0390625, max:21.1171875, min:1.0, stdDev:8.180620171277893, percentileValues:[{percentile:0.33, value:10.0546875}, {percentile:0.5, value:10.0546875}, {percentile:0.66, value:20.1171875}, {percentile:0.99, value:21.1171875}]}]
+Gauge - local_operations Current Value: 10.0
+Gauge - registered_gauge_with_tags Snapshot: [{timeWindow:600000, mean:6.515625, max:12.0546875, min:1.0, stdDev:5.515625, percentileValues:[{percentile:0.33, value:1.0}, {percentile:0.5, value:1.0}, {percentile:0.66, value:12.0546875}, {percentile:0.99, value:12.0546875}]}]
+Gauge - registered_gauge_with_tags Current Value: 12.0
+Gauge - gauge_with_no_stats Snapshot:
+Gauge - gauge_with_no_stats Current Value: 100.0
+Gauge - gauge_with_custom_stats Snapshot: [{timeWindow:30000, mean:300.7, max:501.5, min:100.0, stdDev:141.775033062948, percentileValues:[{percentile:0.33, value:200.5}, {percentile:0.5, value:301.5}, {percentile:0.9, value:501.5}, {percentile:0.99, value:501.5}]}]
+Gauge - gauge_with_custom_stats Current Value: 500.0
+------------------------------------------
+------------------------------------------
+Gauge - global_gauge Snapshot: [{timeWindow:600000, mean:22.53125, max:30.0625, min:15.0, stdDev:7.53125, percentileValues:[{percentile:0.33, value:15.0}, {percentile:0.5, value:15.0}, {percentile:0.66, value:30.0625}, {percentile:0.99, value:30.0625}]}]
+Gauge - global_gauge Current Value: 30.0
+Gauge - local_operations Snapshot: [{timeWindow:600000, mean:13.0390625, max:21.1171875, min:1.0, stdDev:8.180620171277893, percentileValues:[{percentile:0.33, value:10.0546875}, {percentile:0.5, value:10.0546875}, {percentile:0.66, value:20.1171875}, {percentile:0.99, value:21.1171875}]}]
+Gauge - local_operations Current Value: 10.0
+Gauge - registered_gauge_with_tags Snapshot: [{timeWindow:600000, mean:55.4140625, max:156.9921875, min:1.0, stdDev:61.38432884406833, percentileValues:[{percentile:0.33, value:12.0546875}, {percentile:0.5, value:12.0546875}, {percentile:0.66, value:52.2421875}, {percentile:0.99, value:156.9921875}]}]
+Gauge - registered_gauge_with_tags Current Value: 156.0
+Gauge - gauge_with_no_stats Snapshot:
+Gauge - gauge_with_no_stats Current Value: 100.0
+Gauge - gauge_with_custom_stats Snapshot: [{timeWindow:30000, mean:300.7, max:501.5, min:100.0, stdDev:141.775033062948, percentileValues:[{percentile:0.33, value:200.5}, {percentile:0.5, value:301.5}, {percentile:0.9, value:501.5}, {percentile:0.99, value:501.5}]}]
+Gauge - gauge_with_custom_stats Current Value: 500.0
+------------------------------------------
+------------------------------------------
+Gauge - global_gauge Snapshot: [{timeWindow:600000, mean:30.0625, max:45.1875, min:15.0, stdDev:12.298479750223873, percentileValues:[{percentile:0.33, value:15.0}, {percentile:0.5, value:30.0625}, {percentile:0.66, value:30.0625}, {percentile:0.99, value:45.1875}]}]
+Gauge - global_gauge Current Value: 45.0
+Gauge - local_operations Snapshot: [{timeWindow:600000, mean:13.0390625, max:21.1171875, min:1.0, stdDev:8.180620171277893, percentileValues:[{percentile:0.33, value:10.0546875}, {percentile:0.5, value:10.0546875}, {percentile:0.66, value:20.1171875}, {percentile:0.99, value:21.1171875}]}]
+Gauge - local_operations Current Value: 10.0
+Gauge - registered_gauge_with_tags Snapshot: [{timeWindow:600000, mean:377.1927083333333, max:1887.9921875, min:1.0, stdDev:676.7534301455432, percentileValues:[{percentile:0.33, value:12.0546875}, {percentile:0.5, value:52.2421875}, {percentile:0.66, value:156.9921875}, {percentile:0.99, value:1887.9921875}]}]
+Gauge - registered_gauge_with_tags Current Value: 1884.0
+Gauge - gauge_with_no_stats Snapshot:
+Gauge - gauge_with_no_stats Current Value: 100.0
+Gauge - gauge_with_custom_stats Snapshot: [{timeWindow:30000, mean:300.7, max:501.5, min:100.0, stdDev:141.775033062948, percentileValues:[{percentile:0.33, value:200.5}, {percentile:0.5, value:301.5}, {percentile:0.9, value:501.5}, {percentile:0.99, value:501.5}]}]
+Gauge - gauge_with_custom_stats Current Value: 500.0
+------------------------------------------

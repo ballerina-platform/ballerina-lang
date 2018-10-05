@@ -1,0 +1,4 @@
+// Ballerina programs operate on a universe of values, and each value belongs to only one basic type
+// such as int, boolean, map, record, function, etc. There are three kinds of values
+// corresponding to three kinds of basic types. They are simple values (e.g., int, string, boolean),
+// structured values (e.g., record, map, array), and behavioral values (e.g., function, object).
