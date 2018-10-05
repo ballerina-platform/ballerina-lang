@@ -23,7 +23,6 @@ import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import io.ballerina.plugins.idea.inspections.LSPluginInstallationNotificationProvider;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.reference.BallerinaFieldReference;
@@ -42,10 +41,6 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class BallerinaCompletionContributor extends CompletionContributor {
 
     public BallerinaCompletionContributor() {
-
-        //If the LSP plugin is installed and enabled, disables the completions coming from ballerina plugin
-        if (!LSPluginInstallationNotificationProvider.isAlreadyInstalled() || LSPluginInstallationNotificationProvider
-                .isDisabled()) {
             extend(CompletionType.BASIC, isBallerinaNameReference(), new BallerinaReferenceCompletionProvider());
             extend(CompletionType.BASIC, isBallerinaTypeReference(), new BallerinaReferenceCompletionProvider());
             extend(CompletionType.BASIC, isBallerinaObjectFunctionReference(),
@@ -54,7 +49,6 @@ public class BallerinaCompletionContributor extends CompletionContributor {
             extend(CompletionType.BASIC, isBallerinaFieldReference(), new BallerinaReferenceCompletionProvider());
             extend(CompletionType.BASIC, isBallerinaInvocationReference(), new BallerinaReferenceCompletionProvider());
         }
-    }
 
     @Override
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {

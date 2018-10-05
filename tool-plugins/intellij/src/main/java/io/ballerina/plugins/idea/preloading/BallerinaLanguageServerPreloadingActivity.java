@@ -24,7 +24,6 @@ import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.util.messages.MessageBusConnection;
-import io.ballerina.plugins.idea.inspections.LSPluginInstallationNotificationProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -104,7 +103,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
                 args[0] = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
             }
 
-            if (args[0] != null && hasLspPlugin()) {
+            if (args[0] != null) {
                 LanguageServerRegisterService.register(args);
                 LOGGER.info("registered language server definition using Sdk path: " + sdkPath);
                 return true;
@@ -154,14 +153,5 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
         String launcherScriptPath = Paths.get(sdkPath, this.launcherScriptPath, "language-server-launcher.sh")
                 .toString();
         return new File(balScriptPath).exists() && new File(launcherScriptPath).exists();
-    }
-
-    private boolean hasLspPlugin() {
-        //checks among installed plugins
-        if (LSPluginInstallationNotificationProvider.isAlreadyInstalled() && !LSPluginInstallationNotificationProvider
-                .isDisabled()) {
-            return true;
-        }
-        return false;
     }
 }
