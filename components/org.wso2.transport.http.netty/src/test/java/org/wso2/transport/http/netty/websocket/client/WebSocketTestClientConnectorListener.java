@@ -113,6 +113,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     }
 
     @Override
+    public void onClose(WebSocketConnection webSocketConnection) {
+        //Do nothing
+    }
+
+    @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         errorsQueue.add(throwable);
         LOG.error("Error handler received: " + throwable.getMessage());
