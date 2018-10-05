@@ -68,6 +68,12 @@
             </directory>
             <outputDirectory>lib/tools/lang-server/lib</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/resources
+            </directory>
+            <outputDirectory>lib/tools/lang-server/resources</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -97,15 +103,6 @@
         </file>
 
         <!-- Lang-Server specific files -->
-        <file>
-            <source>
-                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lang-server-index.sql
-            </source>
-            <outputDirectory>lib/tools/lang-server</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-
         <file>
             <source>resources/language-server-launcher.sh</source>
             <outputDirectory>lib/tools/lang-server/launcher/</outputDirectory>

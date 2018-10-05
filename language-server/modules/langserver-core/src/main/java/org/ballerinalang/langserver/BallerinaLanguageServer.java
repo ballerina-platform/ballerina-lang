@@ -188,7 +188,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     // Private Methods
 
     private void initLSIndex() {
-        String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/tools/lang-server/lang-server-index.sql")
+        String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/tools/lang-server/resources/lang-server-index.sql")
                 .toString();
         LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }

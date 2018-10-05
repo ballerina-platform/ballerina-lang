@@ -24,7 +24,7 @@
     <files>
         <file>
             <source>${project.build.directory}/lib/resources/composer/lang-server-index.sql</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>resources</outputDirectory>
         </file>
     </files>
     <dependencySets>
