@@ -31,6 +31,7 @@ public class CodeAttributeInfo implements AttributeInfo {
     public int maxDoubleLocalVars;
     public int maxStringLocalVars;
     public int maxIntLocalVars;
+    public int maxDecimalLocalVars;
     public int maxRefLocalVars;
 
     // 4 bytes per register
@@ -39,6 +40,7 @@ public class CodeAttributeInfo implements AttributeInfo {
     public int maxDoubleRegs;
     public int maxStringRegs;
     public int maxIntRegs;
+    public int maxDecimalRegs;
     public int maxRefRegs;
 
     // Base code address in the instruction array

@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.programfile;
 
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+
 /**
  * {@code DefaultValue} contains the default value of a Ballerina literal.
  *
@@ -32,6 +34,7 @@ public class DefaultValue {
     public double floatValue;
     public String stringValue;
     public boolean booleanValue;
+    public Decimal128 decimalValue;
 
     public DefaultValue(int typeDescCPIndex, String desc) {
         this.typeDescCPIndex = typeDescCPIndex;
