@@ -45,7 +45,7 @@ service<http:Service> foo bind tokenlistener {
             authHeader = "";
         }
         boolean tokenScope = false;
-        if (payload.contains("scope")) {
+        if (payload.contains("&scope=token-scope1 token-scope2")) {
             tokenScope = true;
         }
         json status = { clientIdInBody: clientIdInBody, hasAuthHeader: authHeader != "", tokenScope: tokenScope };

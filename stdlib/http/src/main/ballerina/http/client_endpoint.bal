@@ -194,7 +194,7 @@ public type ConnectionThrottling record {
 # + clientId - Clietnt ID for OAuth2 authentication
 # + clientSecret - Client secret for OAuth2 authentication
 # + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
-# + scope - Scope of the access request
+# + scopes - Scope of the access request
 public type AuthConfig record {
     AuthScheme scheme;
     string username;
@@ -208,7 +208,7 @@ public type AuthConfig record {
     string clientId;
     string clientSecret;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
-    string ^"scope";
+    string[] scopes;
     !...
 };
 

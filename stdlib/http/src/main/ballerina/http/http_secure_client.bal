@@ -28,9 +28,12 @@ public type AuthScheme "Basic"|"OAuth2"|"JWT";
 @final public AuthScheme OAUTH2 = "OAuth2";
 @final public AuthScheme JWT_AUTH = "JWT";
 
+# The `CredentialBearer` type specifies how the authentication credentials should be sent
 public type CredentialBearer "AuthHeaderBearer"|"PostBodyBearer";
 
+# The `AUTH_HEADER_BEARER` will send the authentication credentials in the Authentication Header
 @final public CredentialBearer AUTH_HEADER_BEARER = "AuthHeaderBearer";
+# The `POST_BODY_BEARER` will send the authentication credentials in the body of the POST request
 @final public CredentialBearer POST_BODY_BEARER = "PostBodyBearer";
 
 # Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
@@ -366,7 +369,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-    string tokenScope = config.auth.^"scope" but { () => EMPTY_STRING };
+    string[] scopes = config.auth.scopes but { () => [] };
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
         error err;
@@ -378,8 +381,12 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     CallerActions refreshTokenClient = createSimpleHttpClient(refreshUrl, {});
     Request refreshTokenRequest = new;
     string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
-    if (tokenScope != EMPTY_STRING) {
-        textPayload = textPayload + "&scope=" + tokenScope;
+    string scopeString = EMPTY_STRING;
+    foreach requestScope in scopes {
+        scopeString = scopeString + WHITE_SPACE + requestScope;
+    }
+    if (scopeString != EMPTY_STRING) {
+        textPayload = textPayload + "&scope=" + scopeString.trim();
     }
     if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
         string clientIdSecret = clientId + ":" + clientSecret;

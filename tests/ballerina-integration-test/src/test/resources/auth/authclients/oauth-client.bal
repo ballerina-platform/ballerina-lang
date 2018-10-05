@@ -61,7 +61,7 @@ endpoint http:Client clientEP4 {
         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
         clientSecret: "9205371918321623741",
         refreshUrl: "http://localhost:9095/foo/token",
-        ^"scope": "token-scope"
+        scopes: ["token-scope1", "token-scope2"]
     }
 };
 
@@ -74,7 +74,8 @@ endpoint http:Client clientEP5 {
         clientSecret: "9205371918321623741",
         refreshUrl: "http://localhost:9095/foo/token",
         credentialBearer: http:POST_BODY_BEARER,
-        ^"scope": "token-scope"
+        scopes: ["token-scope1", "token-scope2"]
+
     }
 };
 
