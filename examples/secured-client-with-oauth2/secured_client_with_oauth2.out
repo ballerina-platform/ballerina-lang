@@ -1,0 +1,17 @@
+# Create a file named `secured_client_with_oauth2.bal`, copy the code
+# into it, and use the `ballerina run` command to start the service.
+$ ballerina run secured_client_with_oauth2.bal
+INFO  [] -
+{
+ "kind": "tasks#taskLists",
+ "etag": "\"FhCqMAsBrrKDkDLKevwtJykQ9I8/HZ4P5ZoRYE9MVosnStxk5dPGhhE\"",
+ "items": [
+  {
+   "kind": "tasks#taskList",
+   "id": "MDQ4NzI4NjE3OTU0OTE0OTgwNTg6MDow",
+   "title": "My Tasks",
+   "updated": "2018-07-31T11:29:14.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/users/@me/lists/MDQ4NzI4NjE3OTU0OTE0OTgwNTg6MDow"
+  }
+ ]
+}

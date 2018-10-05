@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.FiniteType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -65,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -90,6 +92,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -640,6 +643,35 @@ public class CommonUtil {
                 && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind)))
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.kind));
+    }
+
+    /**
+     * Get the current file's imports.
+     * 
+     * @param ctx               LS Operation Context
+     * @return {@link List}     List of imports in the current file
+     */
+    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
+        return bLangPackage.getImports().stream()
+                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the current file's top level nodes.
+     *
+     * @param ctx               LS Operation Context
+     * @return {@link List}     List of top level nodes in the current file
+     */
+    public static List<TopLevelNode> getCurrentFileTopLevelNodes(LSContext ctx) {
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
+        return bLangPackage.topLevelNodes.stream()
+                .filter(topLevelNode -> topLevelNode.getPosition().getSource().getCompilationUnitName()
+                        .equals(currentFile))
+                .collect(Collectors.toList());
     }
 
     static boolean isInvalidSymbol(BSymbol symbol) {

@@ -201,6 +201,13 @@ public class SQLTransactionsTest {
         Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
     }
 
+    @Test(groups = TRANSACTION_TEST_GROUP)
+    public void testLocalTransactonWithSelect() {
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonWithSelect");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
     @Test(dependsOnGroups = TRANSACTION_TEST_GROUP)
     public void testCloseConnectionPool() {
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
