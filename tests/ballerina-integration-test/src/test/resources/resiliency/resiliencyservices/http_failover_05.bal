@@ -1,4 +1,4 @@
-// Copyright (c) 2028 WSO2 Inc. (//www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (//www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,13 +16,13 @@
 //
 
 import ballerina/http;
-import ballerina/log;
 import ballerina/io;
+import ballerina/log;
 import ballerina/mime;
 import ballerina/runtime;
 
 endpoint http:Listener failoverEP05 {
-    port:9305
+    port: 9305
 };
 
 // Create an endpoint with port 8085 for the mock backend services.
@@ -38,37 +38,9 @@ endpoint http:FailoverClient foBackendEP05 {
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:3000/inavalidEP" },
-        { url: "http://localhost:8085/echo" },
-        { url: "http://localhost:8085/mock" },
+        { url: "http://localhost:8085/delay" },
         { url: "http://localhost:8085/mock" }
     ]
-
-};
-
-endpoint http:FailoverClient foBackendFailureEP05 {
-    timeoutMillis: 5000,
-    failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
-    // Define set of HTTP Clients that needs to be Failover.
-    targets: [
-        { url: "http://localhost:3000/inavalidEP" },
-        { url: "http://localhost:8085/echo" },
-        { url: "http://localhost:8085/echo" }
-    ]
-
-};
-
-endpoint http:FailoverClient foStatusCodesEP05 {
-    timeoutMillis: 5000,
-    failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
-    // Define set of HTTP Clients that needs to be Failover.
-    targets: [
-        { url: "http://localhost:8085/statuscodes" },
-        { url: "http://localhost:8085/statuscodes" },
-        { url: "http://localhost:8085/statuscodes" }
-    ]
-
 };
 
 @http:ServiceConfig {
@@ -77,83 +49,11 @@ endpoint http:FailoverClient foStatusCodesEP05 {
 service<http:Service> failoverDemoService05 bind failoverEP05 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
-        path: "/typical"
-    }
-    invokeEndpoint(endpoint caller, http:Request request) {
-        var backendRes = foBackendEP05->forward("/", request);
-        match backendRes {
-            http:Response response => {
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
-            }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response response = new;
-                response.statusCode = 500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
-            }
-        }
-    }
-
-    @http:ResourceConfig {
-        methods: ["GET", "POST"],
-        path: "/failures"
-    }
-    invokeAllFailureEndpoint(endpoint caller, http:Request request) {
-        var backendRes = foBackendFailureEP05->forward("/", request);
-        match backendRes {
-            http:Response response => {
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
-            }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response response = new;
-                response.statusCode = 500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
-            }
-        }
-    }
-
-    @http:ResourceConfig {
-        methods: ["GET", "POST"],
-        path: "/failurecodes"
-    }
-    invokeAllFailureStatusCodesEndpoint(endpoint caller, http:Request request) {
-        var backendRes = foStatusCodesEP05->forward("/", request);
-        match backendRes {
-            http:Response response => {
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
-            }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response response = new;
-                response.statusCode = 500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
-            }
-        }
-    }
-
-    @http:ResourceConfig {
-        methods: ["GET", "POST"],
         path: "/index"
     }
     failoverStartIndex(endpoint caller, http:Request request) {
         http:FailoverActions foClient = foBackendEP05.getCallerActions();
-        string startIndex = <string> foClient.succeededEndpointIndex;
+        string startIndex = <string>foClient.succeededEndpointIndex;
         var backendRes = foBackendEP05->forward("/", request);
         match backendRes {
             http:Response response => {
@@ -178,27 +78,24 @@ service<http:Service> failoverDemoService05 bind failoverEP05 {
 
 // Define the sample service to mock connection timeouts and service outages.
 @http:ServiceConfig {
-    basePath: "/echo"
+    basePath: "/delay"
 }
 service echo05 bind backendEP05 {
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
     }
-    echoResource(endpoint caller, http:Request req) {
+    delayResource(endpoint caller, http:Request req) {
         http:Response outResponse = new;
         // Delay the response for 30000 milliseconds to mimic network level delays.
         runtime:sleep(30000);
-
-        outResponse.setPayload("echo Resource is invoked");
+        outResponse.setPayload("Delayed resource is invoked");
         caller->respond(outResponse) but {
-            error e => log:printError(
-                           "Error sending response from mock service", err = e)
+            error e => log:printError("Error sending response from mock service", err = e)
         };
     }
 }
 
-public int counter05 = 1;
 // Define the sample service to mock a healthy service.
 @http:ServiceConfig {
     basePath: "/mock"
@@ -209,67 +106,8 @@ service mock05 bind backendEP05 {
         path: "/"
     }
     mockResource(endpoint caller, http:Request req) {
-        counter05++;
-        if (counter05 % 5 == 0) {
-            runtime:sleep(30000);
-        }
         http:Response response = new;
-        if (req.hasHeader(mime:CONTENT_TYPE)
-            && req.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-            match req.getBodyParts() {
-                // Setting the error response in case of an error
-                error err => {
-                    log:printError(err.message);
-                    response.setPayload("Error in decoding multiparts!");
-                    response.statusCode = 500;
-                }
-                // Iterate through the body parts.
-                mime:Entity[] bodyParts => {
-                    foreach bodyPart in bodyParts {
-                        if (bodyPart.hasHeader(mime:CONTENT_TYPE)
-                            && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
-                            mime:Entity[] childParts = check bodyPart.getBodyParts();
-                            foreach childPart in childParts {
-                                // When performing passthrough scenarios, message needs to be built before
-                                // invoking the endpoint to create a message datasource.
-                                var childBlobContent = childPart.getByteArray();
-                            }
-                            io:println(bodyPart.getContentType());
-                            bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
-                        } else {
-                            var bodyPartBlobContent = bodyPart.getByteArray();
-                        }
-                    }
-                    response.setBodyParts(untaint bodyParts, contentType = untaint req.getContentType());
-                }
-            }
-        } else {
-            response.setPayload("Mock Resource is Invoked.");
-        }
-        caller->respond(response) but {
-            error e => log:printError(
-                           "Error sending response from mock service", err = e)
-        };
-
-    }
-}
-
-// Define the sample service to mock connection timeouts and service outages.
-@http:ServiceConfig {
-    basePath: "/statuscodes"
-}
-service failureStatusCodeService05 bind backendEP05 {
-    @http:ResourceConfig {
-        methods: ["POST", "PUT", "GET"],
-        path: "/"
-    }
-    errorStatusResource(endpoint caller, http:Request req) {
-        http:Response outResponse = new;
-        outResponse.statusCode = 503;
-        outResponse.setPayload("Failure status code scenario");
-        caller->respond(outResponse) but {
-            error e => log:printError(
-                           "Error sending response from mock service", err = e)
-        };
+        response.setPayload("Mock Resource is Invoked.");
+        caller->respond(response) but {error e => log:printError("Error sending response from mock service", err = e)};
     }
 }
