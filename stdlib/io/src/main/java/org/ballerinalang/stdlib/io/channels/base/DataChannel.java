@@ -42,6 +42,7 @@ public class DataChannel implements IOChannel {
      */
     private static final long BIT_64_LONG_MAX = 0xFFFFFFFFFFFFFFFFL;
 
+
     public DataChannel(Channel channel, ByteOrder order) {
         this.channel = channel;
         this.order = order;
@@ -57,15 +58,34 @@ public class DataChannel implements IOChannel {
     }
 
     /**
+     * Reverse the byte array.
+     *
+     * @param buffer the content of the byte in it's native byte order.
+     */
+    private byte[] reverse(ByteBuffer buffer) {
+        byte[] contentArr = buffer.array();
+        int length = contentArr.length;
+        byte[] reverseContent = new byte[length];
+        for (int count = 0; buffer.limit() < buffer.position(); count++) {
+            reverseContent[count] = contentArr[length - count];
+        }
+        return reverseContent;
+    }
+
+    /**
      * Recursively read bytes until the buffer is filled.
      *
-     * @param buffer buffer which will hold the read bytes.
+     * @param buffer buffer which holds the byte[]
      * @throws IOException during i/o error.
      */
     private void readFull(ByteBuffer buffer) throws IOException {
         do {
             channel.read(buffer);
         } while (buffer.hasRemaining() && !channel.hasReachedEnd());
+        if (order.equals(ByteOrder.LITTLE_ENDIAN)) {
+            byte[] reverseContent = reverse(buffer);
+            buffer.put(reverseContent, 0, reverseContent.length);
+        }
     }
 
     /**
@@ -212,6 +232,19 @@ public class DataChannel implements IOChannel {
     }
 
     /**
+     * Writes the given content to the channel.
+     *
+     * @param buffer buffer which holds the content.
+     * @throws IOException occurs during i/o error.
+     */
+    private void write(ByteBuffer buffer) throws IOException {
+        if (order.equals(ByteOrder.LITTLE_ENDIAN)) {
+            reverse(buffer);
+        }
+        channel.write(buffer);
+    }
+
+    /**
      * Writes fixed size long value.
      *
      * @param value          the value of the long which should be written.
@@ -220,7 +253,7 @@ public class DataChannel implements IOChannel {
      */
     public void writeLong(long value, Representation representation) throws IOException {
         byte[] bytes = encodeLong(value, representation);
-        channel.write(ByteBuffer.wrap(bytes));
+        write(ByteBuffer.wrap(bytes));
     }
 
     /**
@@ -279,7 +312,7 @@ public class DataChannel implements IOChannel {
         byte booleanValue = (byte) (value ? 1 : 0);
         buffer.put(booleanValue);
         buffer.flip();
-        channel.write(buffer);
+        write(buffer);
     }
 
     /**
