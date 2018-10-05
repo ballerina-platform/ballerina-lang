@@ -1,0 +1,3 @@
+$ ballerina run subscription_change_client.bal
+Subscription Request successful at Hub [https://localhost:9191/websub/hub] for Topic [http://websubpubtopic.com]
+Unsubscription Request successful at Hub [https://localhost:9191/websub/hub] for Topic [http://websubpubtopic.com]

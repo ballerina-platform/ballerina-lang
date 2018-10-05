@@ -69,3 +69,8 @@ function testHexFloatingPointLiterals() returns (float, float, float, float) {
     float d = 0x3p2;
     return (a, b, c, d);
 }
+
+function testIntLiteralAssignment() returns (float, float) {
+    float x = 12;
+    return (x, 15);
+}
