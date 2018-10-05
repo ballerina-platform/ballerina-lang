@@ -316,7 +316,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
                                             lastErrorTime:circuitStartTime,
                                             lastForcedOpenTime:circuitStartTime,
                                             totalBuckets: bucketArray
-                                           };
+                                          };
             return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
         }
         () => {

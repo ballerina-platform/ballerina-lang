@@ -551,7 +551,6 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
                             CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
     lock {
         CircuitState currentState = currentStateValue;
-        io:println(circuitHealth);
         prepareRollingWindow(circuitHealth, circuitBreakerInferredConfig);
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         updateLastUsedBucketId(currentBucketId, circuitHealth);

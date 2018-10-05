@@ -23,7 +23,7 @@ function testNonDefReqField2() returns Person {
     return p;
 }
 
-// When adrs is a defaultable field
+// When adrs is a defaultable field.
 type Person2 record {
     string fname = "default";
     string lname?;
@@ -42,7 +42,7 @@ function testDefaultableReqField() returns Person2 {
     return p;
 }
 
-// When adrs is an optional field
+// When adrs is an optional field.
 type Person3 record {
     string fname = "default";
     string lname?;
@@ -61,7 +61,7 @@ function testOptionalNonDefField() returns Person3 {
     return p;
 }
 
-// When adrs is an optional defaultable field
+// When adrs is an optional defaultable field.
 type Person4 record {
     string fname = "default";
     string lname?;

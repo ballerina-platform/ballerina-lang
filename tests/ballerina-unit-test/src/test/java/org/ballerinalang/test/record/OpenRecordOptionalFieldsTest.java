@@ -58,8 +58,8 @@ public class OpenRecordOptionalFieldsTest {
 
         BMap person = (BMap) returns[0];
         Assert.assertEquals(person.get("fname").stringValue(), "default");
-        Assert.assertEquals(person.get("lname").stringValue(), "");
-        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 999);
+        Assert.assertNull(person.get("lname"));
+        Assert.assertNull(person.get("age"));
 
         BMap adrs = (BMap) person.get("adrs");
         Assert.assertEquals(adrs.get("street").stringValue(), "");
@@ -75,7 +75,7 @@ public class OpenRecordOptionalFieldsTest {
         BMap person = (BMap) returns[0];
         Assert.assertEquals(person.get("fname").stringValue(), "John");
         Assert.assertEquals(person.get("lname").stringValue(), "Doe");
-        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 999);
+        Assert.assertNull(person.get("age"));
 
         BMap adrs = (BMap) person.get("adrs");
         Assert.assertEquals(adrs.get("street").stringValue(), "");
@@ -89,8 +89,8 @@ public class OpenRecordOptionalFieldsTest {
 
         BMap person = (BMap) returns[0];
         Assert.assertEquals(person.get("fname").stringValue(), "default");
-        Assert.assertEquals(person.get("lname").stringValue(), "");
-        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 999);
+        Assert.assertNull(person.get("lname"));
+        Assert.assertNull(person.get("age"));
 
         BMap adrs = (BMap) person.get("adrs");
         Assert.assertEquals(adrs.get("street").stringValue(), "");
@@ -103,8 +103,8 @@ public class OpenRecordOptionalFieldsTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testOptionalNonDefField");
         BMap person = (BMap) returns[0];
         Assert.assertEquals(person.get("fname").stringValue(), "default");
-        Assert.assertEquals(person.get("lname").stringValue(), "");
-        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 999);
+        Assert.assertNull(person.get("lname"));
+        Assert.assertNull(person.get("age"));
         Assert.assertNull(person.get("adrs"));
     }
 
@@ -114,12 +114,8 @@ public class OpenRecordOptionalFieldsTest {
 
         BMap person = (BMap) returns[0];
         Assert.assertEquals(person.get("fname").stringValue(), "default");
-        Assert.assertEquals(person.get("lname").stringValue(), "");
-        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 999);
-
-        BMap adrs = (BMap) person.get("adrs");
-        Assert.assertEquals(adrs.get("street").stringValue(), "");
-        Assert.assertEquals(adrs.get("city").stringValue(), "");
-        Assert.assertEquals(adrs.get("country").stringValue(), "LK");
+        Assert.assertNull(person.get("lname"));
+        Assert.assertNull(person.get("age"));
+        Assert.assertNull(person.get("adrs"));
     }
 }

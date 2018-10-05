@@ -92,7 +92,7 @@ public enum Flag {
      */
     ABSTRACT,
     /**
-     * Indicates that the flagged node is an optional field
+     * Indicates that the flagged node is an optional field.
      */
     OPTIONAL
 }

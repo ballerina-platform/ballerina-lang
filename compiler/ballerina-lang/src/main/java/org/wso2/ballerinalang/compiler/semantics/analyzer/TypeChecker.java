@@ -420,8 +420,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             recordType.fields.forEach(field -> {
                 boolean hasField = recordLiteral.keyValuePairs.stream().anyMatch(
-                        keyVal -> field.name.value.equals(((BLangSimpleVarRef) keyVal.key.expr)
-                                                                  .variableName.value));
+                        keyVal -> field.name.value.equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
 
                 if (!hasField && !Symbols.isFlagOn(field.symbol.flags, maskOptional) &&
                         (!types.defaultValueExists(recordLiteral.pos, field.type) &&
