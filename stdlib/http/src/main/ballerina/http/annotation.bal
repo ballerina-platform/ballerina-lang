@@ -34,7 +34,7 @@ public type HttpServiceConfig record {
     string host = "b7a.default";
     string basePath;
     CompressionConfig compression;
-    Chunking chunking = CHUNKING_AUTO;
+    Chunking chunking? = CHUNKING_AUTO;
     CorsConfig cors;
     Versioning versioning;
     ListenerAuthConfig? authConfig;
@@ -133,7 +133,7 @@ public type HttpResourceConfig record {
 # + upgradeService - WebSocket service which should be used after a successful upgrade
 public type WebSocketUpgradeConfig record {
     string upgradePath;
-    typedesc upgradeService;
+    typedesc upgradeService?;
     !...
 };
 

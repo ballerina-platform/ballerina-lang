@@ -310,7 +310,13 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
                                                                 noOfBuckets:numberOfBuckets,
                                                                 rollingWindow:cb.rollingWindow
                                                             };
-            CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
+            CircuitHealth circuitHealth = {
+                                            startTime:circuitStartTime,
+                                            lastRequestTime:circuitStartTime,
+                                            lastErrorTime:circuitStartTime,
+                                            lastForcedOpenTime:circuitStartTime,
+                                            totalBuckets: bucketArray
+                                           };
             return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
         }
         () => {
