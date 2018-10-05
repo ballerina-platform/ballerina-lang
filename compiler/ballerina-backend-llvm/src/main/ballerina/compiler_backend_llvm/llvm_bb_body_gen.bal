@@ -68,7 +68,7 @@ function findBbRefById(map<BbTermGenrator> bbGenrators, string id) returns llvm:
     match bbGenrators[id] {
         BbTermGenrator foundBB => return foundBB.bbRef;
         () => {
-            error err = { message: "bb '" + id + "' dosn't exist" };
+            error err = error("bb '" + id + "' dosn't exist");
             throw err;
         }
     }
@@ -78,7 +78,7 @@ function findFuncRefByName(map<FuncGenrator> funcGenrators, bir:Name name) retur
     match funcGenrators[name.value] {
         FuncGenrator foundFunc => return foundFunc.funcRef;
         any => {
-            error err = { message: "function '" + name.value + "' dosn't exist" };
+            error err = error("function '" + name.value + "' dosn't exist");
             throw err;
         }
     }

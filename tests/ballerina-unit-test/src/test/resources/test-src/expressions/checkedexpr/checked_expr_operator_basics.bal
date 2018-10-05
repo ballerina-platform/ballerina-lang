@@ -91,7 +91,7 @@ public type customError record {
 };
 
 function getPerson() returns person | myerror {
-   //myerror e = {message:"ddd"};
+   //myerror e = error("ddd");
     //return e;
     person p = {name:"Diayasena"};
     return  p;
@@ -104,12 +104,12 @@ function testSafeAssignOpInAssignmentStatement7 () returns string {
 
 
 function readLineError() returns string | myerror {
-    myerror e = { message: "io error" };
+    myerror e = error("io error");
     return e;
 }
 
 function readLineCustomError() returns string | customError {
-    customError e = { message: "custom io error", data: "foo.txt"};
+    customerror e = error("custom io error", { data: "foo.txt"});
     return e;
 }
 

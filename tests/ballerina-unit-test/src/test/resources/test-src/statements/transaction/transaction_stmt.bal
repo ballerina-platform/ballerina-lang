@@ -23,7 +23,7 @@ function testTransactionStmt(int i) returns (string) {
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
-                    TrxError err = { message: " trxErr", data: "test" };
+                    Trxerror err = error(" trxErr", { data: "test" });
                     throw err;
                 }
             } catch (TrxError err) {
@@ -69,7 +69,7 @@ function testOptionalFailed(int i) returns (string) {
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
-                    TrxError err = { message: " trxErr", data: "test" };
+                    Trxerror err = error(" trxErr", { data: "test" });
                     throw err;
                 }
             } catch (TrxError err) {
@@ -99,7 +99,7 @@ function testNestedTransaction(int i) returns (string) {
                         a = a + " abort";
                         abort;
                     } else if (i < -1) {
-                        TrxError err = { message: " trxErr", data: "test" };
+                        Trxerror err = error(" trxErr", { data: "test" });
                         throw err;
                     }
                 } catch (TrxError err) {
@@ -132,7 +132,7 @@ function testNestedTransactionWithFailed(int i) returns (string) {
                         a = a + " abort";
                         abort;
                     } else if (i < -1) {
-                        TrxError err = { message: " trxErr", data: "test" };
+                        Trxerror err = error(" trxErr", { data: "test" });
                         throw err;
                     }
                 } catch (TrxError err) {
@@ -167,7 +167,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (strin
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
-                    TrxError err = { message: " trxErr", data: "test" };
+                    Trxerror err = error(" trxErr", { data: "test" });
                     throw err;
                 } else {
                     a = a + " success";

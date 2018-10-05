@@ -31,11 +31,11 @@ function testTryCatch(int value) returns (string){
             path = path + "insideInnerTry ";
             if(value > 10){
                 path = path + "onError ";
-                testError tError = { message : "error" , code : "test" };
+                testerror tError = error("error" , { code : "test" });
                 throw tError;
             } else if( value < 0 ) {
                 path = path + "onInputError " ;
-                testInputError tError = {message : "error", input : "0"};
+                testInputerror tError = error("error", { input : "0" } );
                 throw tError;
             }
 
