@@ -1,7 +1,7 @@
 type Person record {
     string fname;
     string lname;
-    function (string, string) returns (string) getName;
+    function (string, string) returns (string) getName?;
 };
 
 function getFullName (string f, string l) returns (string) {

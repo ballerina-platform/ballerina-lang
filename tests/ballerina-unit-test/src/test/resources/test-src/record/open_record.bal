@@ -331,7 +331,7 @@ function testTupleRestFieldRHSAccess() returns (float, string, Animal) {
 type PersonA record {
     string fname;
     string lname;
-    function() returns string fullName;
+    function() returns string fullName?;
 };
 
 function testFuncPtrAsRecordField() returns string {
