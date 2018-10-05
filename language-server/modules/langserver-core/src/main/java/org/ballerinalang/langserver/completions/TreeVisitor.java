@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -103,7 +104,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -743,6 +743,12 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         SymbolEnv annotationAttachmentEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
         this.isCursorWithinBlock(recordLiteral.getPosition(), annotationAttachmentEnv);
+    }
+
+    @Override
+    public void visit(BLangCompoundAssignment assignment) {
+        CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(assignment.getPosition(), assignment, this, this.lsContext);
     }
 
     ///////////////////////////////////
