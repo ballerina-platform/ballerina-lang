@@ -23,7 +23,7 @@ public type Connection object {
 
     # Sends the outbound response to the caller.
     #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
     public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
@@ -87,7 +87,7 @@ public type Connection object {
 
     # Sends the outbound response to the caller with the status 200 OK.
     #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
     public function ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error?;
@@ -95,7 +95,7 @@ public type Connection object {
     # Sends the outbound response to the caller with the status 201 Created.
     #
     # + uri - Represents the most specific URI for the newly created resource
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
     public function created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
@@ -103,7 +103,7 @@ public type Connection object {
 
     # Sends the outbound response to the caller with the status 202 Accepted.
     #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
     public function accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())

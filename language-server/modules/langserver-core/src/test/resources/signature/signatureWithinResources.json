@@ -12,7 +12,7 @@
           "parameters":[
             {
               "label":"message",
-              "documentation":"The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`\n            or `mime:Entity[]`"
+              "documentation":"The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`"
             }
           ]
         }

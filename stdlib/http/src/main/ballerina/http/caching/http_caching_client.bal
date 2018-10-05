@@ -100,7 +100,7 @@ public type HttpCachingClient object {
     # origin server. Responses received for POST requests invalidate the cached responses for the same resource.
     #
     # + path - Resource path
-    # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -110,7 +110,7 @@ public type HttpCachingClient object {
     # suitable response cannot be found will the request be directed to the origin server.
     #
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -120,7 +120,7 @@ public type HttpCachingClient object {
     # origin server. In addition, PUT requests invalidate the currently stored responses for the given path.
     #
     # + path - Resource path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -131,7 +131,7 @@ public type HttpCachingClient object {
     #
     # + httpMethod - HTTP method to be used for the request
     # + path - Resource path
-    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function execute(string httpMethod, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -141,7 +141,7 @@ public type HttpCachingClient object {
     # the origin server. Responses received for PATCH requests invalidate the cached responses for the same resource.
     #
     # + path - Resource path
-    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -151,7 +151,7 @@ public type HttpCachingClient object {
     # origin server. Responses received for DELETE requests invalidate the cached responses for the same resource.
     #
     # + path - Resource path
-    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -161,7 +161,7 @@ public type HttpCachingClient object {
     # response cannot be found will the request be directed to the origin server.
     #
     # + path - Request path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -171,7 +171,7 @@ public type HttpCachingClient object {
     # origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource.
     #
     # + path - Request path
-    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -189,7 +189,7 @@ public type HttpCachingClient object {
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
-    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -276,9 +276,9 @@ function HttpCachingClient::put(string path, Request|string|xml|json|byte[]|io:R
     }
 }
 
-function HttpCachingClient::execute(string httpMethod, string path, Request|string|xml|json|byte[]|
-                                                    io:ReadableByteChannel|mime:Entity[]|() message)
-                                    returns Response|error {
+function HttpCachingClient::execute(string httpMethod, string path,
+                                    Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
+                                returns Response|error {
     Request request = buildRequest(message);
     setRequestCacheControlHeader(request);
 
