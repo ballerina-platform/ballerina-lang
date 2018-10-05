@@ -340,8 +340,7 @@ public class DatabaseUtils {
      */
     public static String sortBMap(LinkedHashMap map) {
 
-        TreeMap<String, String> result =
-                new TreeMap<>();
+        TreeMap<String, String> result = new TreeMap<>();
         result.putAll(map);
         return result.toString();
     }
