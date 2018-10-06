@@ -48,6 +48,9 @@ import ballerina/reflect;
 # `hub.mode` value indicating "unsubscription" mode, to unsubscribe to updates for a topic.
 @final string MODE_UNSUBSCRIBE = "unsubscribe";
 
+@final string X_HUB_SIGNATURE = "X-Hub-Signature";
+
+///////////////////////////////// Ballerina WebSub specific constants /////////////////////////////////
 # `hub.mode` value indicating "publish" mode, used by a publisher to notify an update to a topic.
 @final string MODE_PUBLISH = "publish";
 
@@ -57,21 +60,15 @@ import ballerina/reflect;
 # `hub.mode` value indicating "unregister" mode, used by a publisher to unregister a topic at a hub.
 @final string MODE_UNREGISTER = "unregister";
 
-# Topic registration parameter `publisher.secret` indicating a secret specified by a publisher when registering a
-# topic at the hub, to use for authenticated content delivery between publisher and hub.
-@final string PUBLISHER_SECRET = "publisher.secret";
 @final string REMOTE_PUBLISHING_MODE_DIRECT = "direct";
 @final string REMOTE_PUBLISHING_MODE_FETCH = "fetch";
 
 @final string X_HUB_UUID = "X-Hub-Uuid";
 @final string X_HUB_TOPIC = "X-Hub-Topic";
-@final string X_HUB_SIGNATURE = "X-Hub-Signature";
-@final string PUBLISHER_SIGNATURE = "Publisher-Signature";
 
 @final string CONTENT_TYPE = "Content-Type";
 @final string SHA1 = "SHA1";
 @final string SHA256 = "SHA256";
-@final string MD5 = "MD5";
 
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
 @final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
@@ -88,7 +85,7 @@ public type RemotePublishMode "PUBLISH_MODE_DIRECT"|"PUBLISH_MODE_FETCH";
 # needs to fetch the topic URL to identify the update content.
 @final public RemotePublishMode PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
 
-//TODO: Make public once extension story is finalized.
+///////////////////////////////// Custom Webhook/Extension specific constants /////////////////////////////////
 # The identifier to be used to identify the topic for dispatching with custom subscriber services.
 public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
 
@@ -158,26 +155,16 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    string reqTopic = check http:decode(intentVerificationRequest.topic, "UTF-8");
-    if (topic == "") {
-        response.statusCode = http:NOT_FOUND_404;
-        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic +
-                "], since topic unavailable as an annotation or unspecified as a parameter");
+    string reqTopic = http:decode(intentVerificationRequest.topic, "UTF-8") but { error => topic };
+
+    string reqMode = intentVerificationRequest.mode;
+    string challenge = intentVerificationRequest.challenge;
+
+    if (reqMode == mode && reqTopic == topic) {
+        response.statusCode = http:ACCEPTED_202;
+        response.setTextPayload(challenge);
     } else {
-        string reqMode = intentVerificationRequest.mode;
-        string challenge = intentVerificationRequest.challenge;
-
-        string reqLeaseSeconds = <string>intentVerificationRequest.leaseSeconds;
-
-        if (reqMode == mode && reqTopic == topic) {
-            response.statusCode = http:ACCEPTED_202;
-            response.setTextPayload(challenge);
-            log:printInfo("Intent Verification agreed - Mode [" + mode + "], Topic [" + topic + "], Lease Seconds ["
-                    + reqLeaseSeconds + "]");
-        } else {
-            response.statusCode = http:NOT_FOUND_404;
-            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic + "]");
-        }
+        response.statusCode = http:NOT_FOUND_404;
     }
     return response;
 }
@@ -188,25 +175,18 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + serviceType - The type of the service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
-    string secret;
-    match (retrieveSubscriberServiceAnnotations(serviceType)) {
-        SubscriberServiceConfiguration subscriberServiceAnnotation => { secret = subscriberServiceAnnotation.secret; }
-        () => { log:printDebug("WebSub notification received for subscription with no secret specified"); }
-    }
+    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret but { () => "" };
 
-    string xHubSignature;
-
-    if (request.hasHeader(X_HUB_SIGNATURE)) {
-        xHubSignature = request.getHeader(X_HUB_SIGNATURE);
-    } else {
+    if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            error webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added" +
-                " specifying " + HUB_SECRET};
+            error webSubError = {message: X_HUB_SIGNATURE + " header not present for subscription added" +
+                                            " specifying " + HUB_SECRET};
             return webSubError;
         }
         return;
     }
 
+    string xHubSignature = request.getHeader(X_HUB_SIGNATURE);
     if (secret == "" && xHubSignature != "") {
         log:printWarn("Ignoring " + X_HUB_SIGNATURE + " value since secret is not specified.");
         return;
@@ -232,7 +212,6 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
 # + secret - The secret used when subscribing
 # + return - `error` if an error occurs validating the signature or the signature is invalid
 function validateSignature(string xHubSignature, string stringPayload, string secret) returns error? {
-
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
@@ -242,8 +221,6 @@ function validateSignature(string xHubSignature, string stringPayload, string se
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
     } else if (SHA256.equalsIgnoreCase(method)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
-    } else if (MD5.equalsIgnoreCase(method)) {
-        generatedSignature = crypto:hmac(stringPayload, secret, crypto:MD5);
     } else {
         error webSubError = {message:"Unsupported signature method: " + method};
         return webSubError;
@@ -402,6 +379,7 @@ public type SubscriptionChangeResponse record {
 /////////////////////////////////////////////////////////////
 # Starts up the Ballerina Hub.
 #
+# + host - The hostname to start up the hub on
 # + port - The port to start up the hub on
 # + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
 # + signatureMethod - The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
@@ -420,13 +398,12 @@ public type SubscriptionChangeResponse record {
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-public function startHub(int port, int? leaseSeconds = (), string? signatureMethod = (),
-boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
-boolean? topicRegistrationRequired = (), string? publicUrl = (),
-boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
-http:SecureSocket? clientSecureSocket = ())
-    returns WebSubHub|HubStartedUpError {
-
+public function startHub(string? host = (), int port, int? leaseSeconds = (), string? signatureMethod = (),
+                         boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
+                         boolean? topicRegistrationRequired = (), string? publicUrl = (),
+                         boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
+                         http:SecureSocket? clientSecureSocket = ()) returns WebSubHub|HubStartedUpError {
+    hubHost = config:getAsString("b7a.websub.hub.host", default = host but { () => DEFAULT_HOST });
     hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
                                       default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
@@ -504,8 +481,7 @@ function WebSubHub::stop() returns boolean {
 }
 
 function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
-                                         string? contentType = ()) returns error? {
-
+                                  string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
         error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
@@ -534,11 +510,11 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteCh
 }
 
 function WebSubHub::registerTopic(string topic) returns error? {
-    return registerTopicAtHub(topic, "");
+    return registerTopicAtHub(topic);
 }
 
 function WebSubHub::unregisterTopic(string topic) returns error? {
-    return unregisterTopicAtHub(topic, "");
+    return unregisterTopicAtHub(topic);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -550,7 +526,7 @@ function WebSubHub::unregisterTopic(string topic) returns error? {
 # + hubs - The hubs the publisher advertises as the hubs that it publishes updates to
 # + topic - The topic to which subscribers need to subscribe to, to receive updates for the resource
 public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
-    string hubLinkHeader = "";
+    string hubLinkHeader;
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }

@@ -37,7 +37,6 @@ import org.ballerinalang.net.websub.hub.Hub;
         orgName = "ballerina", packageName = "websub",
         functionName = "registerTopicAtHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "secret", type = TypeKind.STRING),
                 @Argument(name = "loadingOnStartUp", type = TypeKind.BOOLEAN)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
@@ -47,10 +46,9 @@ public class RegisterTopicAtHub extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String topic = context.getStringArgument(0);
-        String secret = context.getStringArgument(1);
         Boolean loadingOnStartUp = context.getBooleanArgument(0);
         try {
-            Hub.getInstance().registerTopic(topic, secret, loadingOnStartUp);
+            Hub.getInstance().registerTopic(topic, loadingOnStartUp);
             context.setReturnValues();
         } catch (BallerinaWebSubException e) {
             context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));

@@ -145,26 +145,39 @@ public class PackageLoader {
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.lockFile = LockFileProcessor.getInstance(context).getLockFile();
     }
-
+    
+    /**
+     * Generates the repository hierarchy. Following is the hierarchy.
+     * 1. Program Source
+     * 2. Project Repo
+     * 3.1. Project Cache
+     * 3.2. Home Repo
+     * 4. Home Cache
+     * 5. System Repo
+     * 6. Central
+     * 7. System Repo
+     * @param sourceRoot Project path.
+     * @return Repository Hierarchy.
+     */
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
         Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         Converter<Path> converter = sourceDirectory.getConverter();
 
-        RepoNode system = node(new BinaryRepo(RepoUtils.getLibDir()));
-        Repo remote = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
+        Repo systemRepo = new BinaryRepo(RepoUtils.getLibDir());
+        Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir) : new ZipRepo(projectHiddenDir);
-
+        Repo secondarySystemRepo = new BinaryRepo(RepoUtils.getLibDir());
 
         RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeCacheRepo, system);
+            homeCacheNode = node(homeCacheRepo, node(systemRepo));
         } else {
-            homeCacheNode = node(homeCacheRepo, node(remote, system));
+            homeCacheNode = node(homeCacheRepo, node(systemRepo, node(remoteRepo, node(secondarySystemRepo))));
         }
         RepoNode nonLocalRepos = node(projectRepo,
                                       node(projectCacheRepo, homeCacheNode),
