@@ -100,6 +100,15 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("ballerinaExample/list", args);
     }
 
+    fetchDocs(uri: Uri): Thenable<any> {
+        const req: GetASTRequest = {
+            documentIdentifier: {
+                uri: uri.toString()
+            }
+        };
+        return this.sendRequest("ballerinaDocument/docs", req);
+    }
+
     parseFragment(args: BallerinaFragmentASTRequest): Thenable<BallerinaFragmentASTResponse> {
         return this.sendRequest("ballerinaFragment/ast", args).then((resp: any)=> resp.ast);
     }

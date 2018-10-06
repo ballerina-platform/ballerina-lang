@@ -14,11 +14,12 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ballerina/diagram": "file:../diagram",
     "@ballerina/ballerina-by-examples": "file:../bbe",
     "@ballerina/theme": "file:../theme",
-    "react-dom": "^16.2.0",
-    "react": "^16.2.0"
+    "@ballerina/diagram": "file:../diagram",
+    "@ballerina/documentation": "file:../documentation",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
   },
   "devDependencies": {
     "css-loader": "^1.0.0",
