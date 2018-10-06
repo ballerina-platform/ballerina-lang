@@ -6,10 +6,10 @@ import com.intellij.openapi.options.Configurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
 /**
- * Settings for the Timeouts
+ * Settings for the Timeouts.
  */
 public final class TimeoutSettings implements Configurable {
 

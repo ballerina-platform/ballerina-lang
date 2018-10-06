@@ -1,7 +1,7 @@
 package com.github.gtache.lsp.requests;
 
 /**
- * Enumeration for the timeouts
+ * Enumeration for the timeouts.
  */
 public enum Timeouts {
     CODEACTION(2000),

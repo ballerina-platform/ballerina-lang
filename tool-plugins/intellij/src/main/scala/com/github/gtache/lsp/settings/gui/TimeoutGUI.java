@@ -9,18 +9,21 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.JBUI;
 
-import javax.swing.*;
-import javax.swing.text.NumberFormatter;
-import java.awt.*;
+import java.awt.Dimension;
 import java.text.NumberFormat;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.text.NumberFormatter;
 
 /**
- * GUI for the Timeouts settings
+ * GUI for the Timeouts settings.
  */
 public final class TimeoutGUI implements LSPGUI {
     private static final String FIELD_TOOLTIP = "Time in milliseconds";
@@ -50,12 +53,16 @@ public final class TimeoutGUI implements LSPGUI {
         return createGridConstraints(rowIdx, colIdx, null);
     }
 
-    private static GridConstraints createGridConstraints(final int rowIdx, final int colIdx, final Dimension preferredSize) {
-        return new GridConstraints(rowIdx, colIdx, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, preferredSize, null, 0, false);
+    private static GridConstraints createGridConstraints(final int rowIdx, final int colIdx,
+            final Dimension preferredSize) {
+        return new GridConstraints(rowIdx, colIdx, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, preferredSize, null, 0,
+                false);
     }
 
     private static GridConstraints createSpacerGridConstraints(final int rowIdx, final int colIdx) {
-        return new GridConstraints(rowIdx, colIdx, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false);
+        return new GridConstraints(rowIdx, colIdx, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false);
     }
 
     @Override
@@ -73,7 +80,8 @@ public final class TimeoutGUI implements LSPGUI {
             Timeouts timeout = entry.getKey();
             JTextField textField = entry.getValue();
             String name = timeout.name();
-            panel.add(new JLabel(name.substring(0, 1) + name.substring(1).toLowerCase()), createGridConstraints(idx, 0));
+            panel.add(new JLabel(name.substring(0, 1) + name.substring(1).toLowerCase()),
+                    createGridConstraints(idx, 0));
             panel.add(textField, createGridConstraints(idx, 1, new Dimension(100, 10)));
             panel.add(new Spacer(), createSpacerGridConstraints(idx, 2));
             if (iterator.hasNext()) {
@@ -81,7 +89,8 @@ public final class TimeoutGUI implements LSPGUI {
                 timeout = entry.getKey();
                 textField = entry.getValue();
                 name = timeout.name();
-                panel.add(new JLabel(name.substring(0, 1) + name.substring(1).toLowerCase()), createGridConstraints(idx, 3));
+                panel.add(new JLabel(name.substring(0, 1) + name.substring(1).toLowerCase()),
+                        createGridConstraints(idx, 3));
                 panel.add(textField, createGridConstraints(idx, 4, new Dimension(100, 10)));
                 panel.add(new Spacer(), createSpacerGridConstraints(idx++, 5));
             }
@@ -91,8 +100,9 @@ public final class TimeoutGUI implements LSPGUI {
 
     @Override
     public void apply() {
-        final Map<Timeouts, Integer> newTimeouts = rows.entrySet().stream().map(e ->
-                new AbstractMap.SimpleEntry<>(e.getKey(), Integer.parseInt(e.getValue().getText()))).collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+        final Map<Timeouts, Integer> newTimeouts = rows.entrySet().stream()
+                .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), Integer.parseInt(e.getValue().getText())))
+                .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
         state.setTimeouts(newTimeouts);
         Timeout.setTimeouts(newTimeouts);
     }
@@ -119,5 +129,4 @@ public final class TimeoutGUI implements LSPGUI {
             return false;
         }
     }
-
 }

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * Enum for methods which may support DynamicRegistration
+ * Enum for methods which may support DynamicRegistration.
  */
 public enum DynamicRegistrationMethods {
     DID_CHANGE_CONFIGURATION("workspace/didChangeConfiguration"),
@@ -34,7 +34,8 @@ public enum DynamicRegistrationMethods {
     }
 
     public static DynamicRegistrationMethods forName(final String name) {
-        return Arrays.stream(DynamicRegistrationMethods.values()).filter(n -> n.name.equals(name)).collect(Collectors.toList()).get(0);
+        return Arrays.stream(DynamicRegistrationMethods.values()).filter(n -> n.name.equals(name))
+                .collect(Collectors.toList()).get(0);
     }
 
     public String getName() {

@@ -13,13 +13,17 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-
-@State(name = "LSPState", storages = @Storage(file = "LSPState.xml"))
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Class representing the state of the LSP settings
+ * Class representing the state of the LSP settings.
  */
+@State(name = "LSPState", storages = @Storage(file = "LSPState.xml"))
 public final class LSPState implements PersistentStateComponent<LSPState> {
 
     private static final Logger LOG = Logger.getInstance(LSPState.class);

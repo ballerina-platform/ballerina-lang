@@ -1,7 +1,15 @@
 package com.github.gtache.lsp.settings.gui;
 
 import com.github.gtache.lsp.PluginMain$;
-import com.github.gtache.lsp.client.languageserver.serverdefinition.*;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.ArtifactLanguageServerDefinition;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.ArtifactLanguageServerDefinition$;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.ConfigurableTypes;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.ExeLanguageServerDefinition;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.ExeLanguageServerDefinition$;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandServerDefinition;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandServerDefinition$;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.UserConfigurableServerDefinition;
+import com.github.gtache.lsp.client.languageserver.serverdefinition.UserConfigurableServerDefinition$;
 import com.github.gtache.lsp.settings.LSPState;
 import com.github.gtache.lsp.utils.Utils;
 import com.intellij.openapi.diagnostic.Logger;
@@ -15,15 +23,28 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.JBUI;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ItemEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
- * The GUI for the LSP ServerDefinition settings
+ * The GUI for the LSP ServerDefinition settings.
  */ //TODO improve
 public final class ServersGUI implements LSPGUI {
 
@@ -68,7 +89,8 @@ public final class ServersGUI implements LSPGUI {
             serverDefinitions.put(serverDefinition.ext(), serverDefinition);
             if (serverDefinition.getClass().equals(ArtifactLanguageServerDefinition.class)) {
                 final ArtifactLanguageServerDefinition def = (ArtifactLanguageServerDefinition) serverDefinition;
-                rootPanel.add(createArtifactRow(def.ext(), def.packge(), def.mainClass(), Utils.arrayToString(def.args(), " ")));
+                rootPanel.add(createArtifactRow(def.ext(), def.packge(), def.mainClass(),
+                        Utils.arrayToString(def.args(), " ")));
             } else if (serverDefinition.getClass().equals(ExeLanguageServerDefinition.class)) {
                 final ExeLanguageServerDefinition def = (ExeLanguageServerDefinition) serverDefinition;
                 rootPanel.add(createExeRow(def.ext(), def.path(), Utils.arrayToString(def.args(), " ")));
@@ -87,7 +109,10 @@ public final class ServersGUI implements LSPGUI {
         final Set<String> distinct = new ArrayList<>(extensions).stream().distinct().collect(Collectors.toSet());
         distinct.forEach(extensions::remove);
         if (!extensions.isEmpty()) {
-            Messages.showWarningDialog(extensions.stream().reduce((f, s) -> "Duplicate : " + f + Utils.lineSeparator() + s).orElse("Error while getting extensions") + Utils.lineSeparator() + "Unexpected behavior may occur", "Duplicate Extensions");
+            Messages.showWarningDialog(
+                    extensions.stream().reduce((f, s) -> "Duplicate : " + f + Utils.lineSeparator() + s)
+                            .orElse("Error while getting extensions") + Utils.lineSeparator()
+                            + "Unexpected behavior may occur", "Duplicate Extensions");
         }
         //TODO manage without restarting
         //Messages.showInfoMessage("The changes will be applied after restarting the IDE.", "LSP Settings");
@@ -95,7 +120,8 @@ public final class ServersGUI implements LSPGUI {
         for (final ServersGUIRow row : rows) {
             final String[] arr = row.toStringArray();
             final String ext = row.getText(EXT);
-            final UserConfigurableServerDefinition serverDefinition = UserConfigurableServerDefinition$.MODULE$.fromArray(arr);
+            final UserConfigurableServerDefinition serverDefinition = UserConfigurableServerDefinition$.MODULE$
+                    .fromArray(arr);
             if (serverDefinition != null) {
                 serverDefinitions.put(ext, serverDefinition);
             }
@@ -106,10 +132,13 @@ public final class ServersGUI implements LSPGUI {
 
     @Override
     public boolean isModified() {
-        if (serverDefinitions.size() == rows.stream().filter(row -> Arrays.stream(row.toStringArray()).skip(1).anyMatch(s -> s != null && !s.isEmpty())).collect(Collectors.toList()).size()) {
+        if (serverDefinitions.size() == rows.stream()
+                .filter(row -> Arrays.stream(row.toStringArray()).skip(1).anyMatch(s -> s != null && !s.isEmpty()))
+                .collect(Collectors.toList()).size()) {
             for (final ServersGUIRow row : rows) {
                 final UserConfigurableServerDefinition stateDef = serverDefinitions.get(row.getText(EXT));
-                final UserConfigurableServerDefinition rowDef = UserConfigurableServerDefinition$.MODULE$.fromArray(row.toStringArray());
+                final UserConfigurableServerDefinition rowDef = UserConfigurableServerDefinition$.MODULE$
+                        .fromArray(row.toStringArray());
                 if (rowDef != null && !rowDef.equals(stateDef)) {
                     return true;
                 }
@@ -185,27 +214,51 @@ public final class ServersGUI implements LSPGUI {
         int colIdx = 0;
         panel.setLayout(new GridLayoutManager(2, 17, JBUI.emptyInsets(), -1, -1));
 
-        panel.add(new Spacer(), new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(0, 10), new Dimension(0, 10), new Dimension(0, 10), 0, false));
+        panel.add(new Spacer(),
+                new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, 1,
+                        GridConstraints.SIZEPOLICY_FIXED, new Dimension(0, 10), new Dimension(0, 10),
+                        new Dimension(0, 10), 0, false));
         final JComboBox<String> typeBox = createComboBox(panel, selectedItem);
-        panel.add(typeBox, new GridConstraints(0, colIdx++, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(typeBox,
+                new GridConstraints(0, colIdx++, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
+                        GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0,
+                        false));
 
         final Iterator<JComponent> iterator = labelFields.iterator();
         while (iterator.hasNext()) {
             final JComponent label = iterator.next();
             final JComponent field = iterator.next();
-            panel.add(new Spacer(), new GridConstraints(0, colIdx++, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
-            panel.add(label, new GridConstraints(0, colIdx++, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-            panel.add(field, new GridConstraints(0, colIdx++, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+            panel.add(new Spacer(), new GridConstraints(0, colIdx++, 1, 1, GridConstraints.ANCHOR_CENTER,
+                    GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0,
+                    false));
+            panel.add(label,
+                    new GridConstraints(0, colIdx++, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
+                            GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0,
+                            false));
+            panel.add(field,
+                    new GridConstraints(0, colIdx++, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL,
+                            GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null,
+                            new Dimension(150, -1), null, 0, false));
         }
 
-        panel.add(new Spacer(), new GridConstraints(0, 14, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel.add(new Spacer(),
+                new GridConstraints(0, 14, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
+                        GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JButton newRowButton = createNewRowButton();
-        panel.add(newRowButton, new GridConstraints(0, 15, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(newRowButton,
+                new GridConstraints(0, 15, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
+                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         if (rows.isEmpty()) {
-            panel.add(new Spacer(), new GridConstraints(0, 16, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
+            panel.add(new Spacer(),
+                    new GridConstraints(0, 16, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
+                            GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
         } else {
             final JButton removeRowButton = createRemoveRowButton(panel);
-            panel.add(removeRowButton, new GridConstraints(0, 16, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+            panel.add(removeRowButton,
+                    new GridConstraints(0, 16, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
+                            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                            GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         }
 
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -230,9 +283,12 @@ public final class ServersGUI implements LSPGUI {
         argsField.setToolTipText("e.g. -stdio");
         argsField.setText(args);
 
-        final List<JComponent> components = Arrays.asList(extLabel, extField, packgeLabel, packgeField, mainClassLabel, mainClassField, argsLabel, argsField);
+        final List<JComponent> components = Arrays
+                .asList(extLabel, extField, packgeLabel, packgeField, mainClassLabel, mainClassField, argsLabel,
+                        argsField);
         final JPanel panel = createRow(components, ArtifactLanguageServerDefinition$.MODULE$.getPresentableTyp());
-        final scala.collection.mutable.LinkedHashMap<String, JComponent> map = new scala.collection.mutable.LinkedHashMap<>();
+        final scala.collection.mutable.LinkedHashMap<String, JComponent> map =
+                new scala.collection.mutable.LinkedHashMap<>();
         map.put(EXT, extField);
         map.put(PACKGE, packgeField);
         map.put(MAINCLASS, mainClassField);
@@ -250,15 +306,18 @@ public final class ServersGUI implements LSPGUI {
         final TextFieldWithBrowseButton pathField = new TextFieldWithBrowseButton();
         pathField.setToolTipText("e.g. C:\\rustLS\\rls.exe");
         pathField.setText(path);
-        pathField.addBrowseFolderListener(new TextBrowseFolderListener(new FileChooserDescriptor(true, false, true, true, true, false).withShowHiddenFiles(true)));
+        pathField.addBrowseFolderListener(new TextBrowseFolderListener(
+                new FileChooserDescriptor(true, false, true, true, true, false).withShowHiddenFiles(true)));
         final JLabel argsLabel = new JLabel("Args");
         final JTextField argsField = new JTextField();
         argsField.setToolTipText("e.g. -stdio");
         argsField.setText(args);
 
-        final List<JComponent> components = Arrays.asList(extLabel, extField, pathLabel, pathField, argsLabel, argsField);
+        final List<JComponent> components = Arrays
+                .asList(extLabel, extField, pathLabel, pathField, argsLabel, argsField);
         final JPanel panel = createRow(components, ExeLanguageServerDefinition$.MODULE$.getPresentableTyp());
-        final scala.collection.mutable.LinkedHashMap<String, JComponent> map = new scala.collection.mutable.LinkedHashMap<>();
+        final scala.collection.mutable.LinkedHashMap<String, JComponent> map =
+                new scala.collection.mutable.LinkedHashMap<>();
         map.put(EXT, extField);
         map.put(PATH, pathField);
         map.put(ARGS, argsField);
@@ -275,11 +334,13 @@ public final class ServersGUI implements LSPGUI {
         final TextFieldWithBrowseButton commandField = new TextFieldWithBrowseButton();
         commandField.setText(command);
         commandField.setToolTipText("e.g. python.exe -m C:\\python-ls\\pyls");
-        commandField.addBrowseFolderListener(new TextBrowseFolderListener(new FileChooserDescriptor(true, false, true, true, true, false).withShowHiddenFiles(true)));
+        commandField.addBrowseFolderListener(new TextBrowseFolderListener(
+                new FileChooserDescriptor(true, false, true, true, true, false).withShowHiddenFiles(true)));
 
         final List<JComponent> components = Arrays.asList(extLabel, extField, commandLabel, commandField);
         final JPanel panel = createRow(components, RawCommandServerDefinition$.MODULE$.getPresentableTyp());
-        final scala.collection.mutable.LinkedHashMap<String, JComponent> map = new scala.collection.mutable.LinkedHashMap<>();
+        final scala.collection.mutable.LinkedHashMap<String, JComponent> map =
+                new scala.collection.mutable.LinkedHashMap<>();
         map.put(EXT, extField);
         map.put(COMMAND, commandField);
         rows.add(new ServersGUIRow(panel, RawCommandServerDefinition$.MODULE$.typ(), map));

@@ -5,8 +5,11 @@ import com.intellij.openapi.options.Configurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
+/**
+ * Class representing the Coursier settings.
+ */
 public final class CoursierSettings implements Configurable {
 
     private static CoursierGUI coursierGUI;

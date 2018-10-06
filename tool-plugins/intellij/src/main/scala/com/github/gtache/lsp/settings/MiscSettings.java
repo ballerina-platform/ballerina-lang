@@ -6,8 +6,11 @@ import com.intellij.openapi.options.Configurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
+/**
+ * Class representing MISC settings.
+ */
 public final class MiscSettings implements Configurable {
 
     private static final Logger LOG = Logger.getInstance(MiscSettings.class);
