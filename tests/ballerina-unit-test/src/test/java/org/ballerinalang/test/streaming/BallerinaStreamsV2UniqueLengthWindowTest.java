@@ -47,7 +47,7 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
     }
 
     @Test(description = "Test uniqueLength window query")
-    public void testTimeLengthQuery1() {
+    public void testUniqueLengthQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startUniqueLengthwindowTest1");
         System.setProperty("enable.siddhiRuntime", "true");
 
@@ -66,7 +66,7 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
     }
 
     @Test(description = "Test uniqueLength window query")
-    public void testTimeLengthQuery2() {
+    public void testUniqueLengthQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startUniqueLengthwindowTest2");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
