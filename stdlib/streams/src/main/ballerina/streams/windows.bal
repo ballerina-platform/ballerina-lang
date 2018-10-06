@@ -842,7 +842,7 @@ public type TimeLengthWindow object {
                     int timeDiff = expiredEvent.timestamp - currentTime + timeInMilliSeconds;
                     if (timeDiff <= 0) {
                         expiredEventChunk.removeCurrent();
-                        count--;
+                        count -= 1;
                         expiredEvent.timestamp = currentTime;
                         streamEventChunk.insertBeforeCurrent(expiredEvent);
                     } else {
@@ -855,7 +855,7 @@ public type TimeLengthWindow object {
                     StreamEvent clonedEvent = streamEvent.clone();
                     clonedEvent.eventType = EXPIRED;
                     if (count < length) {
-                        count++;
+                        count += 1;
                         expiredEventChunk.addLast(clonedEvent);
                     } else {
                         StreamEvent firstEvent = check <StreamEvent>expiredEventChunk.removeFirst();
