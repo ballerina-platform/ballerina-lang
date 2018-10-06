@@ -50,7 +50,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
-        if (isInvocationOrFieldAccess(completionContext)) {
+        if (isInvocationOrInteractionOrFieldAccess(completionContext)) {
             itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(completionContext);
         } else {
             List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
