@@ -26,13 +26,13 @@ public type Filter object {
         StreamEvent[] newStreamEventArr = [];
         int index = 0;
         foreach event in streamEvents {
-            if (conditionFunc(event.data)) {
+            if (conditionFunc.call(event.data)) {
                 newStreamEventArr[index] = event;
                 index += 1;
             }
         }
         if (index > 0) {
-            nextProcessorPointer(newStreamEventArr);
+            nextProcessorPointer.call(newStreamEventArr);
         }
     }
 };

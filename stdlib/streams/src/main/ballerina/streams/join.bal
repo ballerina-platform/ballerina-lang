@@ -112,7 +112,7 @@ public type JoinProcessor object {
                 }
             }
         }
-        nextProcessor(outputEvents);
+        nextProcessor.call(outputEvents);
     }
 
     public function setLHS(string streamName, Window windowInstance) {

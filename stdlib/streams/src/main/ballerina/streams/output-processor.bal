@@ -32,7 +32,7 @@ public type OutputProcess object {
                         outputData[s[1]] = v;
                     }
                 }
-                outputFunc(outputData);
+                outputFunc.call(outputData);
             }
         }
     }

@@ -34,7 +34,7 @@ public class ClosureNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 14);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'functionR'", 6, 56);
-        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'methodInt3'", 17, 44);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'methodInt3'", 17, 49);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to function argument 'a'", 29, 9);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to function argument 'fOut'", 34, 17);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'a'", 50, 9);
@@ -43,9 +43,9 @@ public class ClosureNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'l'", 81, 58);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 81, 62);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 81, 66);
-        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 84, 40);
-        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 84, 44);
-        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 87, 36);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 84, 45);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 84, 49);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 87, 41);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 96, 24);
     }
 }

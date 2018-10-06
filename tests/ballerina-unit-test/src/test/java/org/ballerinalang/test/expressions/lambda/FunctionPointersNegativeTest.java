@@ -77,7 +77,7 @@ public class FunctionPointersNegativeTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-incorrect-arg-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 16, 39);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 16, 44);
     }
 
 

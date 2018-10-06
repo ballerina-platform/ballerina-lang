@@ -68,7 +68,7 @@ public type LengthWindow object {
             expiredVeresionOfEvent.eventType = "EXPIRED";
             linkedList.addLast(expiredVeresionOfEvent);
         }
-        nextProcessorPointer(outputEvents);
+        nextProcessorPointer.call(outputEvents);
     }
 
     public function getCandidateEvents(
@@ -83,7 +83,7 @@ public type LengthWindow object {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
                         i++;
                     }
@@ -166,7 +166,7 @@ public type TimeWindow object {
                 StreamEvent streamEvent = check <StreamEvent> streamEventChunk.next();
                 events[lengthof events] = streamEvent;
             }
-            nextProcessorPointer(events);
+            nextProcessorPointer.call(events);
         }
     }
 
@@ -198,7 +198,7 @@ public type TimeWindow object {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
                         i++;
                     }
@@ -280,7 +280,7 @@ public type LengthBatchWindow object {
                 StreamEvent streamEvent = check <StreamEvent> streamEventChunk.next();
                 events[lengthof events] = streamEvent;
             }
-            nextProcessorPointer(events);
+            nextProcessorPointer.call(events);
         }
     }
 
@@ -296,7 +296,7 @@ public type LengthBatchWindow object {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
                         i++;
                     }
@@ -390,7 +390,7 @@ public type TimeBatchWindow object {
                 StreamEvent streamEvent = check <StreamEvent> outputStreamEvents.next();
                 events[lengthof events] = streamEvent;
             }
-            nextProcessorPointer(events);
+            nextProcessorPointer.call(events);
         }
     }
 
@@ -406,7 +406,7 @@ public type TimeBatchWindow object {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
                         i++;
                     }
