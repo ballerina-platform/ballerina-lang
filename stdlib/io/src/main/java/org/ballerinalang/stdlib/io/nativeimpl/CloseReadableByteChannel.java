@@ -1,20 +1,18 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
 package org.ballerinalang.stdlib.io.nativeimpl;
@@ -28,39 +26,35 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.io.channels.base.DataChannel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.data.CloseDataChannelEvent;
+import org.ballerinalang.stdlib.io.events.bytes.CloseByteChannelEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Extern function ballerina.io#DataChannel.close().
+ * Extern function ballerina/io#close.
  *
- * @since 0.974.1
+ * @since 0.94
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina.io"),
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.io")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage =
+                "ballerina/io"),
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
-public class CloseDataChannel implements NativeCallableUnit {
-    /**
-     * The index of the DataChannel.
-     */
-    private static final int DATA_CHANNEL_INDEX = 0;
+public class CloseReadableByteChannel implements NativeCallableUnit {
 
     /**
-     * Close data channel.
-     *
-     * @param result the response received after the channel is closed.
-     * @return the result of the close response.
+     * The index of the ByteChannel in ballerina/io#close().
      */
+    private static final int BYTE_CHANNEL_INDEX = 0;
+
     private static EventResult closeResponse(EventResult<Boolean, EventContext> result) {
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
@@ -75,19 +69,16 @@ public class CloseDataChannel implements NativeCallableUnit {
     }
 
     /**
-     * <p>
-     * Close data channel.
-     * </p>
-     * <p>
+     * Closes the byte channel.
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> dataChannelStruct = (BMap<String, BValue>) context.getRefArgument(DATA_CHANNEL_INDEX);
-        DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
+        Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        CloseDataChannelEvent dataChannelCloseEvt = new CloseDataChannelEvent(channel, eventContext);
-        Register register = EventRegister.getFactory().register(dataChannelCloseEvt, CloseDataChannel::closeResponse);
+        CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
+        Register register = EventRegister.getFactory().register(closeEvent, CloseReadableByteChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
     }

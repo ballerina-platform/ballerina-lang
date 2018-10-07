@@ -69,7 +69,7 @@ public type CallerActions object {
     # + contentType - The type of the update content, to set as the `ContentType` header
     # + headers - The headers, if any, that need to be set
     # + return - `error` if an error occurred with the update
-    public function publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload, string? contentType = (),
+    public function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload, string? contentType = (),
                                   map<string>? headers = ()) returns error?;
 
     # Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
@@ -145,7 +145,7 @@ function CallerActions::unregisterTopic(string topic) returns error? {
     }
 }
 
-function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
+function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                       string? contentType = (), map<string>? headers = ()) returns error? {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
