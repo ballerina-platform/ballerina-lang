@@ -148,9 +148,9 @@ function handleContent(mime:Entity bodyPart) {
         match payload {
             error err => log:printError("Error in getting byte channel :"
                     + err.message);
-            io:ByteChannel byteChannel => {
-                io:ByteChannel destinationChannel =
-                    getFileChannel("ReceivedFile.pdf", io:WRITE);
+            io:ReadableByteChannel byteChannel => {
+                io:WritableByteChannel destinationChannel =
+                    io:openWritableFile("ReceivedFile.pdf");
                 try {
                     copy(byteChannel, destinationChannel);
                     log:printInfo("File Received");
@@ -173,18 +173,8 @@ function handleContent(mime:Entity bodyPart) {
     }
 }
 
-// This function returns a ByteChannel from a given file location according
-// to the specified file permission
-//(i.e., whether the file should be opened for read or write)."}
-function getFileChannel(string filePath, io:Mode permission)
-    returns (io:ByteChannel) {
-    // Here is how the ByteChannel is retrieved from the file.
-    io:ByteChannel byteChannel = io:openFile(filePath, permission);
-    return byteChannel;
-}
-
 // This function reads a specified number of bytes from the given channel.
-function readBytes(io:ByteChannel byteChannel, int numberOfBytes)
+function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes)
     returns (byte[], int) {
 
     // Here is how the bytes are read from the channel.
@@ -200,7 +190,7 @@ function readBytes(io:ByteChannel byteChannel, int numberOfBytes)
 }
 
 // This function writes a byte content with the given offset to a channel.
-function writeBytes(io:ByteChannel byteChannel, byte[] content, int startOffset = 0)
+function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset = 0)
     returns (int) {
 
     // Here is how the bytes are written to the channel.
@@ -217,7 +207,7 @@ function writeBytes(io:ByteChannel byteChannel, byte[] content, int startOffset 
 
 // This function copies content from the source channel to a
 //destination channel.
-function copy(io:ByteChannel src, io:ByteChannel dst) {
+function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) {
     // Specifies the number of bytes that should be read from a
     //single read operation.
     int bytesChunk = 10000;

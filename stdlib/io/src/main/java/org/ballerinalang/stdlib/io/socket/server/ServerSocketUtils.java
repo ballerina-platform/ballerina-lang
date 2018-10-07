@@ -46,7 +46,10 @@ public class ServerSocketUtils {
     private static final Logger log = LoggerFactory.getLogger(ServerSocketUtils.class);
 
     private static final String SOCKET_STRUCT_TYPE = "Socket";
-    private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
+    private static final String READABLE_BYTE_CHANNEL_STRUCT_TYPE = "ReadableByteChannel";
+    private static final String READABLE_CHANNEL = "readableChannel";
+    private static final String WRITABLE_BYTE_CHANNEL_STRUCT_TYPE = "WritableByteChannel";
+    private static final String WRITABLE_CHANNEL = "writableChannel";
 
     /**
      * Create new socket struct.
@@ -59,7 +62,10 @@ public class ServerSocketUtils {
         StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
         Socket socket = socketChannel.socket();
         BMap<String, BValue> socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
-        socketStruct.put(IOConstants.BYTE_CHANNEL_NAME, getByteChannelStruct(socketChannel, ioPackageInfo));
+        socketStruct.put(READABLE_CHANNEL, getByteChannelStruct(socketChannel, ioPackageInfo,
+                READABLE_BYTE_CHANNEL_STRUCT_TYPE));
+        socketStruct.put(WRITABLE_CHANNEL, getByteChannelStruct(socketChannel, ioPackageInfo,
+                WRITABLE_BYTE_CHANNEL_STRUCT_TYPE));
         socketStruct.put(SocketConstants.REMOTE_PORT_FIELD, new BInteger(socket.getPort()));
         socketStruct.put(SocketConstants.LOCAL_PORT_OPTION_FIELD, new BInteger(socket.getLocalPort()));
         socketStruct.put(SocketConstants.REMOTE_ADDRESS_FIELD, new BString(socket.getInetAddress().getHostAddress()));
@@ -68,8 +74,9 @@ public class ServerSocketUtils {
         return socketStruct;
     }
 
-    private static BMap<String, BValue> getByteChannelStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo) {
-        StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
+    private static BMap<String, BValue> getByteChannelStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo,
+                                                             String channelType) {
+        StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(channelType);
         Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, true);
         BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
