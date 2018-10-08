@@ -576,8 +576,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (variable.expr == null) {
             return;
         }
-        if (variable.expr.getKind() != NodeKind.LITERAL && variable.expr.getKind() != NodeKind.
-                SYMBOLIC_STRING_LITERAL) {
+        if (variable.expr.getKind() != NodeKind.LITERAL &&
+                variable.expr.getKind() != NodeKind.SYMBOLIC_STRING_LITERAL) {
             this.dlog.error(variable.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE, variable.name);
             return;
         }
