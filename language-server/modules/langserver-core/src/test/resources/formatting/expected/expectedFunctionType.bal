@@ -1,4 +1,4 @@
-function (string, string) returns (string) lambda = (string x, string y) => (string) {
+function (string, string) returns (string) lambda = function (string x, string y) returns (string) {
     string r = x + y;
     return r;
 };
@@ -8,7 +8,7 @@ function name1(function (string, string) returns (string) param) {
 }
 
 function name2() {
-    name1((string x, string y) => (string) {
+    name1(function (string x, string y) returns (string) {
         string r = x + y;
         return r;
     });

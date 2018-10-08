@@ -54,10 +54,10 @@ function name1() {
     record {
         int hd = 0;
         record {
-            int jd = 0,
+            int jd = 0;
             record {
                 int hyf = 0;
-            } hgt,
+            } hgt;
         } hgs;
     } sdd;
 }

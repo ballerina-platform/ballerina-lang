@@ -44,13 +44,6 @@ ArrayLiteralExpr
    : [ <expressions-joined-by,>* ]
    ;
 
-ArrayType
-   : <isRestParam?> <grouped?> ( <elementType.source> )
-   | <isRestParam?>              <elementType.source>
-   |                <grouped?> ( <elementType.source> <dimensionAsString> )
-   |                             <elementType.source> <dimensionAsString>
-   ;
-
 ArrowExpr
    : <hasParantheses?> ( <parameters-joined-by,>* ) => <expression.source>
    |                     <parameters-joined-by,>*   => <expression.source>
