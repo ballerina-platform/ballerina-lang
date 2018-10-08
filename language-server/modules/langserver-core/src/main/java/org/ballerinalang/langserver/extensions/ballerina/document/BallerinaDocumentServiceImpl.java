@@ -116,6 +116,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     @Override
     public CompletableFuture<BallerinaASTOASChangeResponse> astOasChange(BallerinaASTOASChangeRequest request) {
         BallerinaASTOASChangeResponse reply = new BallerinaASTOASChangeResponse();
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Path formattingFilePath = new LSDocument(fileUri).getPath();
+        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
 
         try {
             String swaggerSource = request.getOasDefinition();
@@ -124,13 +128,34 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             bw.write(swaggerSource);
             bw.close();
 
+            String fileContent = documentManager.getFileContent(compilationPath);
+            BallerinaFile ballerinaFile = LSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
+            Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
+            ArrayList<String> services = new ArrayList<String>();
+
+
             CodeGenerator generator = new CodeGenerator();
             List<GenSrcFile> source = generator.generate(GeneratorConstants.GenType.MOCK, temp.getPath());
+
+            BallerinaFile swaggerFile = LSCompiler.compileContent(source.get(0).getContent(),
+                    CompilerPhase.CODE_ANALYZE);
+
+
+            if (bLangPackage.isPresent() && bLangPackage.get().symbol != null) {
+                BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
+                        .findFirst()
+                        .orElse(null);
+                BLangCompilationUnit swaggerCompilationUnit = swaggerFile.getBLangPackage().get().getCompilationUnits()
+                        .stream().findFirst().orElse(null);
+                mergeAst(compilationUnit, swaggerCompilationUnit);
+            }
 
             reply.setOasAST(getTreeForContent(source.get(0).getContent()));
         } catch (Exception ex) {
             reply.isIsError(true);
             logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
+        } finally {
+            lock.ifPresent(Lock::unlock);
         }
 
         return CompletableFuture.supplyAsync(() -> reply);
