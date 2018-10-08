@@ -401,7 +401,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariable varNode) {
         // Set type for compiler time constants which were defined without types.
-        if ((Flags.asMask(varNode.flagSet) == Flags.COMPILE_TIME_CONSTANT) && (varNode.typeNode == null)) {
+        if ((Flags.asMask(varNode.flagSet) == Flags.CONST) && (varNode.typeNode == null)) {
             BType rhsType = typeChecker.checkExpr(varNode.expr, this.env, expType);
             varNode.symbol.type = rhsType;
             varNode.type = rhsType;

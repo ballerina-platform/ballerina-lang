@@ -679,7 +679,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // If the node is a compile time constant and the RHS is not a simple literal, we log an error. This is done
         // because at the moment, compile time constants only support assigning simple literals.
-        if ((varNode.symbol.flags & Flags.COMPILE_TIME_CONSTANT) == Flags.COMPILE_TIME_CONSTANT &&
+        if ((varNode.symbol.flags & Flags.CONST) == Flags.CONST &&
                 varNode.expr.getKind() != NodeKind.LITERAL) {
             dlog.error(varNode.pos, DiagnosticCode.CANNOT_ASSIGN_TO_COMPILE_TIME_CONSTANT);
         }

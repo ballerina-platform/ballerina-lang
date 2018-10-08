@@ -1470,7 +1470,7 @@ public class BLangPackageBuilder {
             var.flagSet.add(Flag.PUBLIC);
         }
         if (isConst) {
-            var.flagSet.add(Flag.COMPILE_TIME_CONSTANT);
+            var.flagSet.add(Flag.CONST);
         }
         var.docTag = DocTag.VARIABLE;
         attachMarkdownDocumentations(var);

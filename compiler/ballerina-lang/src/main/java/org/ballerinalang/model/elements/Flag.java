@@ -94,5 +94,5 @@ public enum Flag {
     /**
      * Indicates Flagged node is a compile time constant.
      */
-    COMPILE_TIME_CONSTANT
+    CONST
 }
