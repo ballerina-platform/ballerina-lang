@@ -31,20 +31,15 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -263,7 +258,7 @@ public abstract class AbstractItemResolver {
                 item.setLabel(ballerinaPackage.getFullPackageNameAlias());
                 item.setInsertText(name);
                 item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
-                item.setAdditionalTextEdits(getAutoImportTextEdits(ctx, orgName, name));
+                item.setAdditionalTextEdits(CommonUtil.getAutoImportTextEdits(ctx, orgName, name));
                 completionItems.add(item);
             }
         });
@@ -273,21 +268,6 @@ public abstract class AbstractItemResolver {
 
     // Private Methods
 
-    private List<TextEdit> getAutoImportTextEdits(LSServiceOperationContext ctx, String orgName, String pkgName) {
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
-        Position start = new Position();
-        
-        if (imports.size() > 0) {
-            BLangImportPackage last = CommonUtil.getLastItem(imports);
-            int endLine = last.getPosition().getEndLine() - 1;
-            int endColumn = last.getPosition().getEndColumn();
-            start = new Position(endLine, endColumn);
-        }
-        
-        String importStatement = CommonUtil.LINE_SEPARATOR + ItemResolverConstants.IMPORT
-                + " " + orgName + "/" + pkgName + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
-        return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
-    }
     /**
      * Populate the Ballerina Function Completion Item.
      * @param symbolInfo - symbol information

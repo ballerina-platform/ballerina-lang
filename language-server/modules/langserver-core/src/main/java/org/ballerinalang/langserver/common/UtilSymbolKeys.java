@@ -80,4 +80,8 @@ public class UtilSymbolKeys {
     public static final String SLASH_KEYWORD_KEY = "/";
 
     public static final String EP_OBJECT_IDENTIFIER = "getCallerActions";
+    
+    public static final String BALLERINA_KW = "ballerina";
+    
+    public static final String BUILTIN_KW = "builtin";
 }

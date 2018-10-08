@@ -145,7 +145,7 @@ function remoteRegisterTopic()  {
     remoteTopicRegistered = true;
 }
 
-function getPayloadContent(string contentType, string mode) returns string|xml|json|byte[]|io:ByteChannel {
+function getPayloadContent(string contentType, string mode) returns string|xml|json|byte[]|io:ReadableByteChannel {
     string errorMessage = "unknown content type";
     if (contentType == "" || contentType == "json") {
         if (mode == "internal") {
@@ -165,7 +165,7 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
         } else {
             return xml `<websub><request>Notification</request><type>Remote</type></websub>`;
         }
-    } else if (contentType == "byte[]" || contentType == "io:ByteChannel") {
+    } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }
     error e = { errorMessage: errorMessage };

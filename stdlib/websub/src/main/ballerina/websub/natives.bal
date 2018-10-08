@@ -58,29 +58,21 @@ extern function removeSubscription(string topic, string callback);
 # Registers a topic in the Ballerina Hub.
 #
 # + topic - The topic to register
-# + secret - The secret to use to identify the registration
 # + loadingOnStartUp - Whether registration is being called on loading from the database at start up
 # + return - `error` if an error occurred with registration
-extern function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns error?;
+extern function registerTopicAtHub(string topic, boolean loadingOnStartUp = false) returns error?;
 
 # Unregisters a topic in the Ballerina Hub.
 #
 # + topic - The topic to unregister
-# + secret - The secret specified at registration
 # + return - `error` if an error occurred with unregistration
-extern function unregisterTopicAtHub(string topic, string secret) returns error?;
+extern function unregisterTopicAtHub(string topic) returns error?;
 
 # Retrieves whether a topic is registered with the Ballerina Hub.
 #
 # + topic - The topic to check
 # + return - `boolean` True if the topic has been registered by a publisher, false if not
 extern function isTopicRegistered(string topic) returns boolean;
-
-# Retrieves secret for a topic registered with the Ballerina Hub.
-#
-# + topic - The topic for which the publisher's secret needs to be retrieved
-# + return - `string` The secret specified at registration
-extern function retrievePublisherSecret(string topic) returns string;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Natives /////////////////////
@@ -93,4 +85,4 @@ extern function retrievePublisherSecret(string topic) returns string;
 # + return - `error` if an error occurred during publishing
 extern function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error?;
 
-extern function constructByteArray(io:ByteChannel byteChannel) returns byte[];
+extern function constructByteArray(io:ReadableByteChannel byteChannel) returns byte[];
