@@ -26,6 +26,7 @@ public class WorkerDataIndex {
     public int doubleRegCount = 0;
     public int stringRegCount = 0;
     public int intRegCount = 0;
+    public int decimalRegCount = 0;
     public int refRegCount = 0;
     public int byteRegCount = 0;
 }

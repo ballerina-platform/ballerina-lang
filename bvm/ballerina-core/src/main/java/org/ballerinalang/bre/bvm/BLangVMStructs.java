@@ -92,7 +92,7 @@ public class BLangVMStructs {
                 if (value instanceof Integer) {
                     return new BInteger(((Integer) value).longValue());
                 } else if (value instanceof Long) {
-                    return new BInteger(((Long) value).longValue());
+                    return new BInteger((Long) value);
                 } else if (value instanceof BInteger) {
                     return (BInteger) value;
                 }
@@ -109,19 +109,17 @@ public class BLangVMStructs {
             case TypeTags.FLOAT_TAG:
                 if (value != null) {
                     if (value instanceof Float) {
-                        return new BFloat(((Float) value).floatValue());
+                        return new BFloat((Float) value);
                     } else if (value instanceof Double) {
-                        return new BFloat(((Double) value).doubleValue());
+                        return new BFloat((Double) value);
                     } else if (value instanceof BFloat) {
                         return (BFloat) value;
                     }
                 }
             case TypeTags.DECIMAL_TAG:
                 if (value != null) {
-                    if (value instanceof Integer) {
-                        return new BDecimal(new Decimal128((Integer) value));
-                    } else if (value instanceof Long) {
-                        return new BDecimal(new Decimal128((Long) value));
+                    if (value instanceof String) {
+                        return new BDecimal(new Decimal128((String) value));
                     } else if (value instanceof BDecimal) {
                         return (BDecimal) value;
                     }
