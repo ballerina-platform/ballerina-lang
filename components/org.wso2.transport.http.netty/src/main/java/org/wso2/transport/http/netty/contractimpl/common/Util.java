@@ -52,11 +52,13 @@ import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.CertificateValidationHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.OCSPStaplingHandler;
+import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.Listener;
+import org.wso2.transport.http.netty.message.PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.io.IOException;
@@ -808,5 +810,40 @@ public class Util {
         SSLParameters sslParams = sslEngine.getSSLParameters();
         sslParams.setEndpointIdentificationAlgorithm(Constants.HTTPS_SCHEME);
         sslEngine.setSSLParameters(sslParams);
+    }
+
+    /**
+     * Use this method to get the {@link BackPressureHandler} in the pipeline. This requires a
+     * {@link ChannelHandlerContext} of a handler in the pipeline.
+     *
+     * @param channelContext the channelContext which will be used to obtain the {@link BackPressureHandler}
+     *                       in the pipeline.
+     * @return The {@link BackPressureHandler} in the pipeline.
+     */
+    public static BackPressureHandler getBackPressureHandler(ChannelHandlerContext channelContext) {
+        return (BackPressureHandler) channelContext.pipeline().get(Constants.BACK_PRESSURE_HANDLER);
+
+    }
+
+    /**
+     * Sets the backPressure listener the to the Observable of the handler.
+     *
+     * @param passthrough         true if passthrough
+     * @param backpressureHandler the handler that checks for writability.
+     * @param inContext           {@link ChannelHandlerContext} of a handler in the incoming channel.
+     * @param outContext          {@link ChannelHandlerContext} of a handler in the outgoing channel.
+     */
+    public static void setBackPressureObservableListener(boolean passthrough, BackPressureHandler backpressureHandler,
+                                                         ChannelHandlerContext inContext,
+                                                         ChannelHandlerContext outContext) {
+        if (backpressureHandler != null) {
+            if (inContext != null && passthrough) {
+                backpressureHandler.getBackPressureObservable().setListener(
+                        new PassthroughBackPressureListener(inContext, outContext));
+            } else {
+                backpressureHandler.getBackPressureObservable().setListener(
+                        new DefaultBackPressureListener(outContext));
+            }
+        }
     }
 }

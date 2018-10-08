@@ -59,6 +59,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
+    private ChannelHandlerContext context;
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) {
+        context = ctx;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -231,5 +237,14 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     public ConnectionManager getConnectionManager() {
         return connectionManager;
+    }
+
+    /**
+     * Gets the {@link ChannelHandlerContext} of the {@link TargetHandler}.
+     *
+     * @return the {@link ChannelHandlerContext} of this handler.
+     */
+    public ChannelHandlerContext getContext() {
+        return context;
     }
 }

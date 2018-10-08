@@ -71,7 +71,9 @@ public class ReceivingHeaders implements SenderState {
             msgHolder.markNoPromisesReceived();
         }
         if (targetHandler.getHttpResponseFuture() != null) {
-            targetHandler.getHttpResponseFuture().notifyHttpListener(targetHandler.getInboundResponseMsg());
+            HttpCarbonMessage inboundResponseMsg = targetHandler.getInboundResponseMsg();
+            inboundResponseMsg.setTargetContext(targetHandler.getContext());
+            targetHandler.getHttpResponseFuture().notifyHttpListener(inboundResponseMsg);
         } else {
             LOG.error("Cannot notify the response to client as there is no associated responseFuture");
         }

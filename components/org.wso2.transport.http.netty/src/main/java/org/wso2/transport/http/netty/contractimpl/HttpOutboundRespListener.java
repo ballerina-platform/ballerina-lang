@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
@@ -69,23 +71,27 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HttpCarbonMessage outboundResponseMsg) {
-        sourceContext.channel().eventLoop().execute(() -> {
+        BackPressureHandler backpressureHandler = Util.getBackPressureHandler(sourceContext);
+        Util.setBackPressureObservableListener(outboundResponseMsg.isPassthrough(), backpressureHandler,
+                                               outboundResponseMsg.getTargetContext(), sourceContext);
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
+        }
 
-            if (handlerExecutor != null) {
-                handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
+        outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent -> {
+            if (backpressureHandler != null) {
+                backpressureHandler.getBackPressureObservable().notifyAcquire();
             }
-
-            outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
-                    this.sourceContext.channel().eventLoop().execute(() -> {
-                        try {
-                            writeOutboundResponse(outboundResponseMsg, httpContent);
-                        } catch (Exception exception) {
-                            String errorMsg = "Failed to send the outbound response : "
-                                    + exception.getMessage().toLowerCase(Locale.ENGLISH);
-                            LOG.error(errorMsg, exception);
-                            inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(exception);
-                        }
-                    }));
+            this.sourceContext.channel().eventLoop().execute(() -> {
+                try {
+                    writeOutboundResponse(outboundResponseMsg, httpContent);
+                } catch (Exception exception) {
+                    String errorMsg = "Failed to send the outbound response : "
+                            + exception.getMessage().toLowerCase(Locale.ENGLISH);
+                    LOG.error(errorMsg, exception);
+                    inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(exception);
+                }
+            });
         });
     }
 
