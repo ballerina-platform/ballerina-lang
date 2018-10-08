@@ -20,23 +20,23 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * The {@code BDecimal} represents a decimal value in Ballerina.
  *
  * @since 0.981.2
  */
-public final class BDecimal extends BValueType implements BRefType<Decimal128> {
+public final class BDecimal extends BValueType implements BRefType<Decimal> {
 
-    private Decimal128 value;
+    private Decimal value;
 
-    public BDecimal(Decimal128 value) {
+    public BDecimal(Decimal value) {
         this.value = value;
     }
 
     @Override
-    public Decimal128 decimalValue() {
+    public Decimal decimalValue() {
         return this.value;
     }
 
@@ -66,7 +66,7 @@ public final class BDecimal extends BValueType implements BRefType<Decimal128> {
     }
 
     @Override
-    public Decimal128 value() {
+    public Decimal value() {
         return this.value;
     }
 

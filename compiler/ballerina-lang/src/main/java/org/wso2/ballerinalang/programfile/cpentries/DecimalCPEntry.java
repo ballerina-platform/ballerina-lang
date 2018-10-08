@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.programfile.cpentries;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * {@code DecimalCPEntry} represents a Ballerina decimal value in the constant pool.
@@ -27,13 +27,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
  */
 public class DecimalCPEntry implements ConstantPoolEntry {
 
-    private Decimal128 value;
+    private Decimal value;
 
-    public DecimalCPEntry(Decimal128 value) {
+    public DecimalCPEntry(Decimal value) {
         this.value = value;
     }
 
-    public Decimal128 getValue() {
+    public Decimal getValue() {
         return value;
     }
 

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * {@code AnnotationAttributeValue} contains the default value of a Ballerina struct field.
@@ -32,7 +32,7 @@ public class DefaultValue {
     private long intValue;
     private byte byteValue;
     private double floatValue;
-    private Decimal128 decimalValue;
+    private Decimal decimalValue;
     private String stringValue;
     private boolean booleanValue;
 
@@ -73,11 +73,11 @@ public class DefaultValue {
         this.floatValue = floatValue;
     }
 
-    public Decimal128 getDecimalValue() {
+    public Decimal getDecimalValue() {
         return decimalValue;
     }
 
-    public void setDecimalValue(Decimal128 decimalValue) {
+    public void setDecimalValue(Decimal decimalValue) {
         this.decimalValue = decimalValue;
     }
 

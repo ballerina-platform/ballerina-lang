@@ -57,7 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -287,7 +287,7 @@ public class CompiledPackageSymbolEnter {
             case CP_ENTRY_FLOAT:
                 return new FloatCPEntry(dataInStream.readDouble());
             case CP_ENTRY_DECIMAL:
-                return new DecimalCPEntry(new Decimal128(dataInStream.readUTF()));
+                return new DecimalCPEntry(new Decimal(dataInStream.readUTF()));
             case CP_ENTRY_STRING:
                 cpIndex = dataInStream.readInt();
                 utf8CPEntry = (UTF8CPEntry) constantPool[cpIndex];

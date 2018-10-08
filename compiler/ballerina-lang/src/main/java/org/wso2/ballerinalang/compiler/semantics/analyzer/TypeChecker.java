@@ -57,7 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -260,7 +260,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (TypeTags.FLOAT == literalType.tag && literalValue instanceof String) {
             if (TypeTags.DECIMAL == expType.tag) {
                 literalType = symTable.decimalType;
-                literalExpr.value = new Decimal128((String) literalValue);
+                literalExpr.value = new Decimal((String) literalValue);
             } else if (TypeTags.FLOAT == expType.tag) {
                 literalExpr.value = Double.parseDouble((String) literalValue);
             }

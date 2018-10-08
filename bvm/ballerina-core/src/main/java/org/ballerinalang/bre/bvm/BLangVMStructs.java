@@ -33,7 +33,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * Util Class for handling structs in Ballerina VM.
@@ -119,7 +119,7 @@ public class BLangVMStructs {
             case TypeTags.DECIMAL_TAG:
                 if (value != null) {
                     if (value instanceof String) {
-                        return new BDecimal(new Decimal128((String) value));
+                        return new BDecimal(new Decimal((String) value));
                     } else if (value instanceof BDecimal) {
                         return (BDecimal) value;
                     }

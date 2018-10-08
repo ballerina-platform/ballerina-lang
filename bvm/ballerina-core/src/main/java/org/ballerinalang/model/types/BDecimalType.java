@@ -21,7 +21,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BValue;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * {@code BDecimalType} represents decimal type in Ballerina.
@@ -43,13 +43,13 @@ class BDecimalType extends BType {
     @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getZeroValue() {
-        return (V) new BDecimal(new Decimal128(0));
+        return (V) new BDecimal(new Decimal(0));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BDecimal(new Decimal128(0));
+        return (V) new BDecimal(new Decimal(0));
     }
 
     @Override

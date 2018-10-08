@@ -19,7 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * The {@code BFloat} represents a float value in Ballerina.
@@ -50,8 +50,8 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
-    public Decimal128 decimalValue() {
-        return new Decimal128(this.value);
+    public Decimal decimalValue() {
+        return new Decimal(this.value);
     }
 
     @Override

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * The {@code BValueType} represents a value type value in Ballerina.
@@ -60,7 +60,7 @@ public abstract class BValueType implements BValue {
      * @return  the numeric value represented by this object after conversion
      *          to type {@code decimal}.
      */
-    public abstract Decimal128 decimalValue();
+    public abstract Decimal decimalValue();
 
     public abstract boolean booleanValue();
 

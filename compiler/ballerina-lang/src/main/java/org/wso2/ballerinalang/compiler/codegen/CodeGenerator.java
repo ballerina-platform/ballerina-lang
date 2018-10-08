@@ -51,7 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal128;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -606,7 +606,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
 
             case TypeTags.DECIMAL:
-                Decimal128 decimalVal = new Decimal128((String) literalExpr.value);
+                Decimal decimalVal = new Decimal((String) literalExpr.value);
                 int decimalCPEntryIndex = currentPkgInfo.addCPEntry(new DecimalCPEntry(decimalVal));
                 emit(InstructionCodes.DCONST, getOperand(decimalCPEntryIndex), regIndex);
                 break;
@@ -1951,7 +1951,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.booleanValue = (Boolean) literalExpr.value;
                 break;
             case TypeTags.DECIMAL:
-                defaultValue.decimalValue = new Decimal128((String) literalExpr.value);
+                defaultValue.decimalValue = new Decimal((String) literalExpr.value);
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new DecimalCPEntry(defaultValue.decimalValue));
                 break;
             case TypeTags.NIL:
