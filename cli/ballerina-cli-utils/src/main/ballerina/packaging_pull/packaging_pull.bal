@@ -151,7 +151,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             return createError("package size information is missing from remote repository. please retry.");
         }
 
-        io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
+        io:ReadableByteChannel sourceChannel = check (httpResponse.getByteChannel());
 
         string resolvedURI = httpResponse.resolvedRequestedURI;
         if (resolvedURI == "") {
@@ -177,13 +177,14 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                 }
             }
 
-            io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
+            io:WritableByteChannel wch = io:openWritableFile(untaint destArchivePath);
+
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
-            int width = (check <int> terminalWidth) - rightMargin;
-            copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom, width);
+            int width = (check <int>terminalWidth) - rightMargin;
+            copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
-            match destDirChannel.close() {
+            match wch.close() {
                 error destChannelCloseError => {
                     return createError("error occured while closing the channel: " + destChannelCloseError.message);
                 }
@@ -252,22 +253,12 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
     return httpEndpointWithoutProxy;
 }
 
-# This function will get the file channel.
-#
-# + filePath - File path
-# + permission - Permissions provided
-# + return - `ByteChannel` of the file content
-function getFileChannel (string filePath, io:Mode permission) returns (io:ByteChannel) {
-    io:ByteChannel byteChannel = io:openFile(untaint filePath, permission);
-    return byteChannel;
-}
-
 # This function will read the bytes from the byte channel.
 #
 # + byteChannel - Byte channel
 # + numberOfBytes - Number of bytes to be read
 # + return - Read content as byte[] along with the number of bytes read.
-function readBytes (io:ByteChannel byteChannel, int numberOfBytes) returns (byte[], int) {
+function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns (byte[], int) {
     byte[] bytes;
     int numberOfBytesRead;
     (bytes, numberOfBytesRead) = check (byteChannel.read(numberOfBytes));
@@ -280,7 +271,7 @@ function readBytes (io:ByteChannel byteChannel, int numberOfBytes) returns (byte
 # + content - Content to be written as a byte[]
 # + startOffset - Offset
 # + return - number of bytes written.
-function writeBytes (io:ByteChannel byteChannel, byte[] content, int startOffset) returns int {
+function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset) returns int {
     int numberOfBytesWritten = check (byteChannel.write(content, startOffset));
     return numberOfBytesWritten;
 }
@@ -293,7 +284,8 @@ function writeBytes (io:ByteChannel byteChannel, byte[] content, int startOffset
 # + fullPkgPath - Full package path
 # + toAndFrom - Pulled package details
 # + width - Width of the terminal
-function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom, int width) {
+function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
+              string fullPkgPath, string toAndFrom, int width) {
     int terminalWidth = width - logFormatter.offset;
     int bytesChunk = 8;
     byte[] readContent;
@@ -386,6 +378,33 @@ function createDirectories(string directoryPath) returns (boolean) {
     } else {
         return false;
     }
+}
+
+# This function will close the byte channel.
+#
+# + byteChannel - Byte channel to be closed
+function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel) {
+    match byteChannel {
+        io:ReadableByteChannel rc => {
+            match rc.close() {
+                error channelCloseError => {
+                    io:println(logFormatter.formatLog("Error occured while closing the channel: " +
+                                channelCloseError.message));
+                }
+                () => return;
+            }
+        }
+        io:WritableByteChannel wc => {
+            match wc.close() {
+                error channelCloseError => {
+                    io:println(logFormatter.formatLog("Error occured while closing the channel: " +
+                                channelCloseError.message));
+                }
+                () => return;
+            }
+        }
+    }
+
 }
 
 # This function sets the proxy configurations for the endpoint.
