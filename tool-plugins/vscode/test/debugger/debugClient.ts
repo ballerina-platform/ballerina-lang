@@ -33,6 +33,21 @@ export class DebugClientEx extends DebugClient {
 
         return this.waitForEvent('stopped').then(event => {
             assert.equal(event.body.reason, "breakpoint");
+            this.stackTraceRequest({
+                threadId: event.body.threadId,
+            }).then( response =>{
+                const frame: any = response.body.stackFrames[0];
+                if (typeof location.path === 'string') {
+                    this.assertPath(frame.source.path, location.path, 'stopped location: path mismatch');
+                }
+                if (typeof location.line === 'number') {
+                    assert.equal(frame.line, location.line, 'stopped location: line mismatch');
+                }
+                if (typeof location.column === 'number') {
+                    assert.equal(frame.column, location.column, 'stopped location: column mismatch');
+                }
+                return response;
+            });
         });
     }
 }

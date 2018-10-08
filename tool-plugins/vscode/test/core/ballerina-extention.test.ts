@@ -39,17 +39,18 @@ suite("Ballerina Extension Core Tests", function () {
         assert.equal(BallerinaExtInstance.isValidBallerinaHome(testBallerinaHome + '../'), false);
     });
 
-    test("Test autoDitectBallerinaHome", function () {
+    test("Test autoDetectBallerinaHome", done => {
         // Following should not throw an error all times.
-        const path = BallerinaExtInstance.autoDitectBallerinaHome();
-        if (path) {
+        const path:string = BallerinaExtInstance.autoDetectBallerinaHome();
+        if (path.length > 0) {
             assert.equal(BallerinaExtInstance.isValidBallerinaHome(path), true);
         }
+        done();
     });
 
     test("Test getBallerinaVersion", function () {
-        BallerinaExtInstance.getBallerinaVersion(testBallerinaHome).then(ditected=>{
-            assert.equal(ditected, testBallerinaVersion);
+        BallerinaExtInstance.getBallerinaVersion(testBallerinaHome).then(detected=>{
+            assert.equal(detected, testBallerinaVersion);
         });
     });
 
