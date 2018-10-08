@@ -171,8 +171,8 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int expectedSize, String serviceName,
-                                                 BLangResource resource, DiagnosticLog dlog) {
+    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int expectedSize,
+                                                 String serviceName, BLangResource resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
@@ -180,8 +180,8 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int min, int max, String serviceName,
-                                                 BLangResource resource, DiagnosticLog dlog) {
+    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int min, int max,
+                                                 String serviceName, BLangResource resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() < min || paramDetails.size() > max) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +

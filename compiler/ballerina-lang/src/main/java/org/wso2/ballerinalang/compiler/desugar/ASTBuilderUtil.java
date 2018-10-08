@@ -228,7 +228,8 @@ public class ASTBuilderUtil {
     }
 
     static BLangSimpleVariableDef createVariableDef(DiagnosticPos pos) {
-        final BLangSimpleVariableDef variableDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        final BLangSimpleVariableDef variableDef =
+                (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         variableDef.pos = pos;
         return variableDef;
     }
@@ -388,7 +389,8 @@ public class ASTBuilderUtil {
     }
 
     static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
-                                                List<BLangSimpleVariable> requiredArgs, List<BLangSimpleVariable> namedArgs,
+                                                List<BLangSimpleVariable> requiredArgs,
+                                                List<BLangSimpleVariable> namedArgs,
                                                 List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
@@ -410,7 +412,8 @@ public class ASTBuilderUtil {
     }
 
     static BLangInvocation createInvocationExprMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
-                                                      List<BLangExpression> requiredArgs, List<BLangSimpleVariable> namedArgs,
+                                                      List<BLangExpression> requiredArgs,
+                                                      List<BLangSimpleVariable> namedArgs,
                                                       List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
@@ -459,7 +462,8 @@ public class ASTBuilderUtil {
     }
 
     static BLangSimpleVariableDef createVariableDef(DiagnosticPos pos, BLangSimpleVariable variable) {
-        final BLangSimpleVariableDef variableDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        final BLangSimpleVariableDef variableDef =
+                (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         variableDef.pos = pos;
         variableDef.var = variable;
         return variableDef;

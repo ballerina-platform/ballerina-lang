@@ -79,7 +79,6 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.types.TupleTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -225,7 +224,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -2699,7 +2697,8 @@ public class BLangPackageBuilder {
     }
 
     void addDefaultableParam(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangSimpleVariableDef defaultableParam = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        BLangSimpleVariableDef defaultableParam =
+                (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         defaultableParam.pos = pos;
         defaultableParam.addWS(ws);
         List<VariableNode> params = this.varListStack.peek();

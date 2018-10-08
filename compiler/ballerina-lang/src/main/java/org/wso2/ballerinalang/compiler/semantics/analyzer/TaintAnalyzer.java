@@ -1509,7 +1509,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             } else {
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
-                    BLangSimpleVariable param = getParam(invNode, paramIndex, requiredParamCount, defaultableParamCount);
+                    BLangSimpleVariable param = getParam(invNode, paramIndex, requiredParamCount,
+                            defaultableParamCount);
                     // If parameter is sensitive, it's invalid to have a case where tainted status of parameter is true.
                     if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
                         continue;

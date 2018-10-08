@@ -87,7 +87,8 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangSimpleVariable) packageNode.getGlobalVariables().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangSimpleVariable) packageNode.getGlobalVariables().get(0)).
+                docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertTrue(dNode.documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING)

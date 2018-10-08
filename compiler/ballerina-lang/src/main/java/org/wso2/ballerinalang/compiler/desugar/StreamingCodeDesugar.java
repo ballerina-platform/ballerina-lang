@@ -270,8 +270,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         userDefinedType.typeName = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, OUTPUT_PROCESS_OBJECT_NAME);
         userDefinedType.type = outputProcessInvokableType;
         outputProcessInvokableTypeVariable.setTypeNode(userDefinedType);
-        BLangSimpleVariableDef outputProcessInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(lambdaFunction.pos,
-                outputProcessInvokableTypeVariable);
+        BLangSimpleVariableDef outputProcessInvokableTypeVariableDef = ASTBuilderUtil.
+                createVariableDef(lambdaFunction.pos, outputProcessInvokableTypeVariable);
 
         stmts.add(outputProcessInvokableTypeVariableDef);
     }
@@ -378,8 +378,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         selectWithGroupByInvokableTypeVariable.setTypeNode(userDefinedType);
 
         // streams:Select select = streams:createSelect(...);
-        BLangSimpleVariableDef selectWithGroupByInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(selectClause.pos,
-                selectWithGroupByInvokableTypeVariable);
+        BLangSimpleVariableDef selectWithGroupByInvokableTypeVariableDef =
+                ASTBuilderUtil.createVariableDef(selectClause.pos, selectWithGroupByInvokableTypeVariable);
         stmts.add(selectWithGroupByInvokableTypeVariableDef);
     }
 
@@ -465,8 +465,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         ...
                     };
         */
-        BLangSimpleVariableDef outputEventObjectVariableDef = addOutputObjectCreationStmt(selectClause, selectLambdaBody,
-                varStreamEvent, varAggregatorArray, typeCastingVariableDef.var);
+        BLangSimpleVariableDef outputEventObjectVariableDef = addOutputObjectCreationStmt(selectClause,
+                selectLambdaBody, varStreamEvent, varAggregatorArray, typeCastingVariableDef.var);
 
         // return teacherOutput;
         addReturnOutputStmt(selectClause, selectLambdaBody, outputEventObjectVariableDef.var);
@@ -481,7 +481,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef addOutputObjectCreationStmt(BLangSelectClause selectClause,
-                                                               BLangBlockStmt selectLambdaBody, BLangSimpleVariable varStreamEvent,
+                                                               BLangBlockStmt selectLambdaBody,
+                                                               BLangSimpleVariable varStreamEvent,
                                                                BLangSimpleVariable varAggregatorArray,
                                                                BLangSimpleVariable typeCastingVariable) {
 
@@ -601,7 +602,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangLambdaFunction createLambdaWithStreamEventArg(BLangSelectClause selectClause,
-                                                               BLangSimpleVariable varGroupByStreamEvent, TypeKind string) {
+                                                               BLangSimpleVariable varGroupByStreamEvent,
+                                                               TypeKind string) {
         Set<BVarSymbol> groupByLambdaClosureVarSymbols = new LinkedHashSet<>();
         groupByLambdaClosureVarSymbols.add(varGroupByStreamEvent.symbol);
 
@@ -1336,7 +1338,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return selectFieldExpression;
     }
 
-    private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, List<BLangSimpleVariable> lambdaFunctionVariable,
+    private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos,
+                                                     List<BLangSimpleVariable> lambdaFunctionVariable,
                                                      Set<BVarSymbol> closureVarSymbols, BLangValueType returnType) {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         BLangFunction filterLambdaFunctionNode = ASTBuilderUtil.createFunction(pos,
