@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since 0.982
+ * @since 0.982.1
  */
 public class BLangSymbolicStringLiteral extends BLangLiteral {
 

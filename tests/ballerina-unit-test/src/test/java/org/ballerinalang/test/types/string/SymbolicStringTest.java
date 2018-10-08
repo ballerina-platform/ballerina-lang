@@ -26,7 +26,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test Native functions in ballerina.model.string.
+ * Test class for Symbolic String Literal.
+ * @since 0.982.1
  */
 public class SymbolicStringTest {
     private CompileResult result;
