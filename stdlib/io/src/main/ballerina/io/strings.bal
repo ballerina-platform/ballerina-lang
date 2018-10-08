@@ -16,7 +16,7 @@
 
 # Represents a reader which will wrap string content as a channel.
 public type StringReader object {
-    private CharacterChannel? charChannel;
+    private ReadableCharacterChannel? charChannel;
 
     # Constructs a channel to read string.
     #
@@ -24,8 +24,8 @@ public type StringReader object {
     # + encoding - encoding of the characters of the content
     public new(string content, string encoding = "UTF-8") {
         byte[] contentBytes = content.toByteArray(encoding);
-        ByteChannel byteChannel = createMemoryChannel(contentBytes);
-        charChannel = new CharacterChannel(byteChannel, encoding);
+        ReadableByteChannel byteChannel = createReadableChannel(contentBytes);
+        charChannel = new ReadableCharacterChannel(byteChannel, encoding);
     }
 
     # Reads string as json from reader.
@@ -51,6 +51,7 @@ public type StringReader object {
     }
 
     # Closes reader.
+    #
     # + return - An error if could not close the channel.
     public function close() returns error? {
         return charChannel.close();

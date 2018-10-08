@@ -1,18 +1,20 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
 package org.ballerinalang.stdlib.io.nativeimpl;
@@ -26,33 +28,34 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.bytes.CloseByteChannelEvent;
+import org.ballerinalang.stdlib.io.events.characters.CloseCharacterChannelEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Extern function ballerina/io#close.
+ * Extern function ballerina/io#closeCharacterChannel.
  *
- * @since 0.94
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "IOError", structPackage = "ballerina/io")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WritableCharacterChannel", structPackage =
+                "ballerina/io"),
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
-public class CloseByteChannel implements NativeCallableUnit {
+public class CloseWritableCharacterChannel implements NativeCallableUnit {
 
     /**
-     * The index of the ByteChannel in ballerina/io#close().
+     * The index of the CharacterChannel in ballerina/io#closeCharacterChannel().
      */
-    private static final int BYTE_CHANNEL_INDEX = 0;
+    private static final int CHARACTER_CHANNEL_INDEX = 0;
 
     private static EventResult closeResponse(EventResult<Boolean, EventContext> result) {
         EventContext eventContext = result.getContext();
@@ -68,16 +71,20 @@ public class CloseByteChannel implements NativeCallableUnit {
     }
 
     /**
-     * Closes the byte channel.
+     * <p>
+     * Closes a character channel.
+     * </p>
+     * <p>
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
-        Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(CHARACTER_CHANNEL_INDEX);
+        CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
-        Register register = EventRegister.getFactory().register(closeEvent, CloseByteChannel::closeResponse);
+        CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel, eventContext);
+        Register register = EventRegister.getFactory().register(closeEvent,
+                CloseWritableCharacterChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
     }

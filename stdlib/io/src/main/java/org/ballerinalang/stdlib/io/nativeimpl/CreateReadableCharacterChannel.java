@@ -41,15 +41,16 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
-        args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT, structType = "ByteChannel",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableCharacterChannel", structPackage =
+                "ballerina/io"),
+        args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT, structType = "ReadableByteChannel",
                 structPackage = "ballerina/io"),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         isPublic = true
 )
-public class CreateCharacterChannel extends BlockingNativeCallableUnit {
+public class CreateReadableCharacterChannel extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(CreateCharacterChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateReadableCharacterChannel.class);
     /**
      * Specifies the index of the character channel in ballerina/io#CharacterChannel.init.
      */
