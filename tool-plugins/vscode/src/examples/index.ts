@@ -60,7 +60,7 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
                 const url = JSON.parse(message.url);
                 const ballerinaHome = BallerinaExtension.getBallerinaHome();
                 if (ballerinaHome) {
-                    const folderPath = path.join(ballerinaHome, 'docs', 'examples', url);
+                    const folderPath = path.join(ballerinaHome, 'examples', url);
                     const filePath = path.join(folderPath, `${url.replace(/-/g, '_')}.bal`);
                     workspace.openTextDocument(Uri.file(filePath)).then(doc => {
                         window.showTextDocument(doc);
