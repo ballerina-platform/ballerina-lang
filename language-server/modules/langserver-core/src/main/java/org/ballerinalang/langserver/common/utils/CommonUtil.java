@@ -32,11 +32,14 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.FiniteType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -65,6 +68,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -82,14 +86,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -384,11 +391,13 @@ public class CommonUtil {
     /**
      * Get the Annotation completion Item.
      *
-     * @param packageID  Package Id
-     * @param annotationSymbol BLang annotation to extract the completion Item
+     * @param packageID                 Package Id
+     * @param annotationSymbol          BLang annotation to extract the completion Item
+     * @param ctx                       LS Service operation context, in this case completion context
      * @return {@link CompletionItem}   Completion item for the annotation
      */
-    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol) {
+    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
+                                                             LSContext ctx) {
         String label = getAnnotationLabel(packageID, annotationSymbol);
         String insertText = getAnnotationInsertText(packageID, annotationSymbol);
         CompletionItem annotationItem = new CompletionItem();
@@ -396,8 +405,44 @@ public class CommonUtil {
         annotationItem.setInsertText(insertText);
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        Optional currentPkgImport = imports.stream()
+                .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
+                .findAny();
+        // if the particular import statement not available we add the additional text edit to auto import
+        if (!currentPkgImport.isPresent()) {
+            annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(ctx, packageID.orgName.getValue(),
+                    packageID.name.getValue()));
+        }
         return annotationItem;
+    }
+
+    /**
+     * Get the text edit for an auto import statement.
+     *
+     * @param ctx               Service operation context
+     * @param orgName           package org name
+     * @param pkgName           package name
+     * @return {@link List}     List of Text Edits to apply
+     */
+    public static List<TextEdit> getAutoImportTextEdits(LSContext ctx, String orgName, String pkgName) {
+        if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
+            return null;
+        }
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        Position start = new Position();
+
+        if (!imports.isEmpty()) {
+            BLangImportPackage last = CommonUtil.getLastItem(imports);
+            int endLine = last.getPosition().getEndLine() - 1;
+            int endColumn = last.getPosition().getEndColumn();
+            start = new Position(endLine, endColumn);
+        }
+
+        String importStatement = CommonUtil.LINE_SEPARATOR + ItemResolverConstants.IMPORT + " "
+                + orgName + UtilSymbolKeys.SLASH_KEYWORD_KEY + pkgName + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY
+                + CommonUtil.LINE_SEPARATOR;
+        return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
     }
 
     /**
@@ -640,6 +685,35 @@ public class CommonUtil {
                 && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind)))
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.kind));
+    }
+
+    /**
+     * Get the current file's imports.
+     * 
+     * @param ctx               LS Operation Context
+     * @return {@link List}     List of imports in the current file
+     */
+    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
+        return bLangPackage.getImports().stream()
+                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the current file's top level nodes.
+     *
+     * @param ctx               LS Operation Context
+     * @return {@link List}     List of top level nodes in the current file
+     */
+    public static List<TopLevelNode> getCurrentFileTopLevelNodes(LSContext ctx) {
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
+        return bLangPackage.topLevelNodes.stream()
+                .filter(topLevelNode -> topLevelNode.getPosition().getSource().getCompilationUnitName()
+                        .equals(currentFile))
+                .collect(Collectors.toList());
     }
 
     static boolean isInvalidSymbol(BSymbol symbol) {

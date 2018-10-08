@@ -47,7 +47,8 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "write",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WritableByteChannel",
+                structPackage = "ballerina/io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT),
