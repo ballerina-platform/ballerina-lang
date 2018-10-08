@@ -92,10 +92,12 @@ public class InitCommand implements BLauncherCmd {
 
                     String defaultOrg = guessOrgName();
 
-                    // Get org name.
-                    out.print("Organization name: (" + defaultOrg + ") ");
-                    String orgName = scanner.nextLine().trim();
-                    manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
+                    String orgName;
+                    do {
+                        out.print("Organization name: (" + defaultOrg + ") ");
+                        orgName = scanner.nextLine().trim();
+                        manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
+                    } while (!validateOrgName(out, orgName));
 
                     String version;
                     do {
@@ -251,6 +253,22 @@ public class InitCommand implements BLauncherCmd {
     }
 
     /**
+     * Validates the org-name.
+     *
+     * @param orgName The org-name.
+     * @return True if valid org-name, else false.
+     */
+    private boolean validateOrgName(PrintStream out, String orgName) {
+        String validRegex = "^[a-z0-9_]*$";
+        boolean matches = Pattern.matches(validRegex, orgName);
+        if (!matches) {
+            out.println("--Invalid organization name: \"" + orgName + "\"." + " Organization name can only contain " +
+                                "lowercase alphanumerics and underscores");
+        }
+        return matches;
+    }
+
+    /**
      * Validates the package name.
      *
      * @param pkgName The package name.
@@ -264,7 +282,7 @@ public class InitCommand implements BLauncherCmd {
         boolean matches = Pattern.matches(validRegex, pkgName);
         if (!matches) {
             out.println("--Invalid package name: \"" + pkgName + "\"." + " Package name can only contain " +
-                                "alphanumeric, underscore and DOT");
+                                "alphanumerics, underscores and periods");
         }
         return matches;
     }
