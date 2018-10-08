@@ -21,11 +21,11 @@ import org.ballerinalang.langserver.common.utils.index.DTOUtil;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.ballerinalang.langserver.index.dto.BFunctionDTO;
+import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
-import org.ballerinalang.langserver.index.dto.ObjectType;
+import org.ballerinalang.langserver.index.ObjectType;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
@@ -119,7 +119,7 @@ public class IndexGenerator {
     }
 
     private static void insertBLangFunctions(int pkgEntryId, List<BInvokableSymbol> bInvokableSymbols) {
-        List<BFunctionDTO> bFunctionDTOs = bInvokableSymbols.stream()
+        List<BFunctionSymbolDTO> bFunctionDTOs = bInvokableSymbols.stream()
                 .map(bInvokableSymbol -> DTOUtil.getFunctionDTO(pkgEntryId, bInvokableSymbol))
                 .collect(Collectors.toList());
         try {
@@ -152,7 +152,7 @@ public class IndexGenerator {
     }
 
     private void insertBLangObjects(int pkgEntryId, DTOUtil.ObjectCategories categories) {
-        List<BFunctionDTO> objectAttachedFunctions = new ArrayList<>();
+        List<BFunctionSymbolDTO> objectAttachedFunctions = new ArrayList<>();
         List<Integer> epIds = insertBLangObjects(pkgEntryId, categories.getEndpoints(), ObjectType.ENDPOINT);
         List<Integer> actionHolderIds = insertBLangObjects(pkgEntryId, categories.getEndpointActionHolders(),
                 ObjectType.ACTION_HOLDER);
@@ -181,8 +181,8 @@ public class IndexGenerator {
         }
     }
     
-    private List<BFunctionDTO> getObjectAttachedFunctionDTOs(int packageId, int objectId,
-                                                             BObjectTypeSymbol objectTypeSymbol) {
+    private List<BFunctionSymbolDTO> getObjectAttachedFunctionDTOs(int packageId, int objectId,
+                                                                   BObjectTypeSymbol objectTypeSymbol) {
         return objectTypeSymbol.attachedFuncs.stream()
                 .map(bAttachedFunction -> DTOUtil.getFunctionDTO(packageId, objectId, bAttachedFunction.symbol))
                 .collect(Collectors.toList());

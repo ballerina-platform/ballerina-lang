@@ -20,16 +20,14 @@ package org.ballerinalang.langserver.common.utils.index;
 import com.google.gson.Gson;
 import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
-import org.ballerinalang.langserver.index.dto.BFunctionDTO;
+import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BLangResourceDTO;
 import org.ballerinalang.langserver.index.dto.BLangServiceDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
-import org.ballerinalang.langserver.index.dto.ObjectType;
+import org.ballerinalang.langserver.index.ObjectType;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
-import org.ballerinalang.langserver.index.dto.PackageIDDTO;
-import org.ballerinalang.langserver.index.dto.TypeDTO;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.slf4j.Logger;
@@ -42,10 +40,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -61,43 +57,7 @@ public class DTOUtil {
 
     private static final Gson gson = new Gson();
     
-    private static final Logger logger = LoggerFactory.getLogger(DTOUtil.class); 
-
-    /**
-     * Get the TypeDTO for the BType.
-     * @param bType                 bType to generate the DAO
-     * @return {@link TypeDTO}      Generated DTO
-     */
-    public static TypeDTO getTypeDTO(BType bType) {
-        BTypeSymbol typeSymbol;
-        String name;
-        PackageID packageID = null;
-        List<TypeDTO> memberTypes = new ArrayList<>();
-        if (bType instanceof BArrayType) {
-            typeSymbol = ((BArrayType) bType).eType.tsymbol;
-            name = typeSymbol.getName().getValue();
-            packageID = typeSymbol.pkgID;
-        } else if (bType instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) bType;
-            unionType.getMemberTypes().forEach(memberBType -> {
-                memberTypes.add(getTypeDTO(memberBType));
-            });
-            name = bType.toString();
-        } else {
-            typeSymbol = bType.tsymbol;
-            name = typeSymbol.getName().getValue();
-            packageID = typeSymbol.pkgID;
-        }
-        
-        PackageIDDTO packageIDDTO = packageID == null ? null :
-                new PackageIDDTO(
-                        packageID.getName().getValue(),
-                        packageID.getOrgName().getValue(),
-                        packageID.getPackageVersion().getValue()
-                );
-
-        return new TypeDTO(packageIDDTO, name, memberTypes);
-    }
+    private static final Logger logger = LoggerFactory.getLogger(DTOUtil.class);
 
     /**
      * Get the BPackageSymbolDTO for the package symbol.
@@ -163,9 +123,9 @@ public class DTOUtil {
      * Get the BFunctionDTO for the invokable symbol.
      * @param pkgEntryId                Package Entry ID
      * @param bInvokableSymbol          BInvokableSymbol to generate DAO
-     * @return {@link BFunctionDTO}     Generated DTO
+     * @return {@link BFunctionSymbolDTO}     Generated DTO
      */
-    public static BFunctionDTO getFunctionDTO(int pkgEntryId, BInvokableSymbol bInvokableSymbol) {
+    public static BFunctionSymbolDTO getFunctionDTO(int pkgEntryId, BInvokableSymbol bInvokableSymbol) {
         return getFunctionDTO(pkgEntryId, -1, bInvokableSymbol);
     }
 
@@ -174,13 +134,13 @@ public class DTOUtil {
      * @param pkgEntryId                Package Entry ID
      * @param bInvokableSymbol          BInvokableSymbol to generate DAO
      * @param objectId                  ObjectId which the function is attached
-     * @return {@link BFunctionDTO}     Generated DTO
+     * @return {@link BFunctionSymbolDTO}     Generated DTO
      */
-    public static BFunctionDTO getFunctionDTO(int pkgEntryId, int objectId, BInvokableSymbol bInvokableSymbol) {
+    public static BFunctionSymbolDTO getFunctionDTO(int pkgEntryId, int objectId, BInvokableSymbol bInvokableSymbol) {
         CompletionItem completionItem = BInvokableSymbolUtil.getFunctionCompletionItem(bInvokableSymbol);
         boolean isPrivate = !((bInvokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
         boolean isAttached = (bInvokableSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
-        return new BFunctionDTO(pkgEntryId, objectId, bInvokableSymbol.getName().getValue(), completionItem, isPrivate,
+        return new BFunctionSymbolDTO(pkgEntryId, objectId, bInvokableSymbol.getName().getValue(), completionItem, isPrivate,
                 isAttached);
     }
 
@@ -236,6 +196,16 @@ public class DTOUtil {
      */
     public static String completionItemToJSON(CompletionItem completionItem) {
         return gson.toJson(completionItem);
+    }
+
+    /**
+     * Get the Completion Item from the json.
+     * 
+     * @param jsonVal   Json value to convert
+     * @return {@link CompletionItem}   Converted Completion item
+     */
+    public static CompletionItem JsonToCompletionItem(String jsonVal) {
+        return gson.fromJson(jsonVal, CompletionItem.class);
     }
 
     /**

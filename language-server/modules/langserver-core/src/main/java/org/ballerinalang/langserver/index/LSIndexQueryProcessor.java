@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.index.dao.ObjectDAO;
 import org.ballerinalang.langserver.index.dao.OtherTypeDAO;
 import org.ballerinalang.langserver.index.dao.PackageFunctionDAO;
 import org.ballerinalang.langserver.index.dao.RecordDAO;
-import org.ballerinalang.langserver.index.dto.BFunctionDTO;
+import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BLangResourceDTO;
 import org.ballerinalang.langserver.index.dto.BLangServiceDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
@@ -182,145 +182,7 @@ public class LSIndexQueryProcessor {
         return this.getGeneratedKeys(insertBLangResource.getGeneratedKeys());
     }
 
-    /**
-     * Batch Insert List of BInvokable Symbols.
-     *
-     * @param bFunctionDTOs     List of BFunctionDTOs
-     * @return {@link List}     List of Generated Keys
-     * @throws SQLException     Exception While Insert
-     * @throws IOException      Exception while Insert
-     */
-    public List<Integer> batchInsertBLangFunctions(List<BFunctionDTO> bFunctionDTOs)
-         throws SQLException, IOException {
-        clearBatch(insertBLangFunction);
-
-        for (BFunctionDTO bFunctionDTO : bFunctionDTOs) {
-            insertBLangFunction.setInt(1, bFunctionDTO.getPackageId());
-            insertBLangFunction.setInt(2, bFunctionDTO.getObjectId());
-            insertBLangFunction.setString(3, bFunctionDTO.getName());
-            insertBLangFunction.setString(4, DTOUtil.completionItemToJSON(bFunctionDTO.getCompletionItem()));
-            insertBLangFunction.setBoolean(5, bFunctionDTO.isPrivate());
-            insertBLangFunction.setBoolean(6, bFunctionDTO.isAttached());
-            insertBLangFunction.addBatch();
-        }
-        insertBLangFunction.executeBatch();
-
-        return this.getGeneratedKeys(insertBLangFunction.getGeneratedKeys());
-    }
-
-    /**
-     * Batch Insert List of RecordTypeSymbols.
-     * @param recordDTOs        List of BRecordTypeSymbolDTOs
-     * @return {@link List}     List of Generated Keys
-     * @throws SQLException     Exception While Insert
-     * @throws IOException      Exception while Insert
-     */
-    public List<Integer> batchInsertBLangRecords(List<BRecordTypeSymbolDTO> recordDTOs) throws SQLException,
-            IOException {
-        clearBatch(insertBLangRecord);
-        for (BRecordTypeSymbolDTO recordDTO : recordDTOs) {
-            insertBLangRecord.setInt(1, recordDTO.getPackageId());
-            insertBLangRecord.setString(2, recordDTO.getName());
-            // TODO: Currently null
-            insertBLangRecord.setString(3, "");
-            insertBLangRecord.setBoolean(4, recordDTO.isPrivate());
-            insertBLangRecord.setString(5, DTOUtil.completionItemToJSON(recordDTO.getCompletionItem()));
-            insertBLangRecord.addBatch();
-        }
-
-        insertBLangRecord.executeBatch();
-
-        return this.getGeneratedKeys(insertBLangRecord.getGeneratedKeys());
-    }
-
-    /**
-     * Batch Insert List of Other Type Symbols.
-     * @param otherTypeSymbolDTOs   list of BRecordTypeSymbolDTOs
-     * @return {@link List}         List of Generated Keys
-     * @throws SQLException         Exception While Insert
-     * @throws IOException          Exception while Insert
-     */
-    public List<Integer> batchInsertOtherTypes(List<OtherTypeSymbolDTO> otherTypeSymbolDTOs) throws SQLException,
-            IOException {
-        clearBatch(insertOtherType);
-        for (OtherTypeSymbolDTO otherTypeDTO : otherTypeSymbolDTOs) {
-            insertOtherType.setInt(1, otherTypeDTO.getPackageId());
-            insertOtherType.setString(2, otherTypeDTO.getName());
-            // TODO: Currently null
-            insertOtherType.setString(3, "");
-            insertOtherType.setString(4, DTOUtil.completionItemToJSON(otherTypeDTO.getCompletionItem()));
-            insertOtherType.addBatch();
-        }
-
-        insertOtherType.executeBatch();
-
-        return this.getGeneratedKeys(insertOtherType.getGeneratedKeys());
-    }
-
-    /**
-     * Batch Insert List of ObjectTypeSymbols.
-     * @param objectDTOs        List of BObjectDTOs
-     * @return {@link List}     List of Generated Keys
-     * @throws SQLException     Exception While Insert
-     * @throws IOException      Exception while Insert
-     */
-    public List<Integer> batchInsertBLangObjects(List<BObjectTypeSymbolDTO> objectDTOs) throws SQLException,
-            IOException {
-        clearBatch(insertBLangObject);
-        for (BObjectTypeSymbolDTO objectDTO : objectDTOs) {
-            insertBLangObject.setInt(1, objectDTO.getPackageId());
-            insertBLangObject.setString(2, objectDTO.getName());
-            // TODO: still null. handle properly
-            insertBLangObject.setString(3, "");
-            insertBLangObject.setInt(4, objectDTO.getType().getValue());
-            insertBLangObject.setBoolean(5, objectDTO.isPrivate());
-            insertBLangObject.setString(6, DTOUtil.completionItemToJSON(objectDTO.getCompletionItem()));
-            insertBLangObject.addBatch();
-        }
-
-        insertBLangObject.executeBatch();
-        return this.getGeneratedKeys(insertBLangObject.getGeneratedKeys());
-    }
-
-    /**
-     * Update Action holderId entry of endpoint nodes
-     *
-     * Note: endpoint IDs order and te actionHolder IDs holder order are equal.
-     * @param endpoints         list of Endpoint IDs
-     * @param actionHolders     list of Action holder IDs
-     * @return {@link List}     List of Generated Keys
-     * @throws SQLException     Exception while update
-     */
-    public List<Integer> batchUpdateActionHolderId(List<Integer> endpoints, List<Integer> actionHolders)
-            throws SQLException {
-        clearBatch(updateActionHolderId);
-        for (int i = 0; i < endpoints.size(); i++) {
-            updateActionHolderId.setInt(1, actionHolders.get(i));
-            updateActionHolderId.setInt(2, endpoints.get(i));
-            updateActionHolderId.addBatch();
-        }
-        
-        updateActionHolderId.executeBatch();
-        
-        return this.getGeneratedKeys(updateActionHolderId.getGeneratedKeys());
-    }
-
     // Get Statements
-    /**
-     * Get a List of PackageFunctionDAOs.
-     * @param name                          Package Name
-     * @param orgName                       Org Name
-     * @return {@link PackageFunctionDAO}   List of FunctionDAOs
-     * @throws SQLException                 Exception While Insert
-     */
-    public List<PackageFunctionDAO> getAllFunctionsFromPackage(String name, String orgName)
-            throws SQLException {
-        getAllFunctionsFromPackage.clearParameters();
-        getAllFunctionsFromPackage.setString(1, name);
-        getAllFunctionsFromPackage.setString(2, orgName);
-        
-        return DAOUtil.getPackageFunctionDAO(getAllFunctionsFromPackage.executeQuery());
-    }
 
     /**
      * Get a List of PackageFunctionDAOs based on selection criteria over access type and attached or not.
@@ -344,21 +206,6 @@ public class LSIndexQueryProcessor {
     }
 
     /**
-     * Get a List of RecordDAOs.
-     * @param name                  Package Name
-     * @param orgName               Org Name
-     * @return {@link RecordDAO}    List of RecordDAOs
-     * @throws SQLException         Exception While Insert
-     */
-    public List<RecordDAO> getRecordsFromPackage(String name, String orgName) throws SQLException {
-        getRecordsFromPackage.clearParameters();
-        getRecordsFromPackage.setString(1, name);
-        getRecordsFromPackage.setString(2, orgName);
-        
-        return DAOUtil.getRecordDAO(getRecordsFromPackage.executeQuery());
-    }
-
-    /**
      * Get a List of RecordDAOs based on the access type either private or public.
      * @param name                  Package Name
      * @param orgName               Org Name
@@ -374,21 +221,6 @@ public class LSIndexQueryProcessor {
         getRecordsOnAccessType.setBoolean(3, isPrivate);
         
         return DAOUtil.getRecordDAO(getRecordsOnAccessType.executeQuery());
-    }
-
-    /**
-     * Get a List of RecordDAOs.
-     * @param name                      Package Name
-     * @param orgName                   Org Name
-     * @return {@link OtherTypeDAO}     List of OtherTypeDAOs
-     * @throws SQLException             Exception While Insert
-     */
-    public List<OtherTypeDAO> getOtherTypesFromPackage(String name, String orgName) throws SQLException {
-        getOtherTypesFromPackage.clearParameters();
-        getOtherTypesFromPackage.setString(1, name);
-        getOtherTypesFromPackage.setString(2, orgName);
-
-        return DAOUtil.getOtherTypeDAO(getOtherTypesFromPackage.executeQuery());
     }
 
     /**
@@ -512,8 +344,8 @@ public class LSIndexQueryProcessor {
      * @return                  List of Endpoints
      * @throws SQLException     Exception while query
      */
-    public List<BFunctionDTO> getActions(String pkgName, String type) throws SQLException {
-        List<BFunctionDTO> packages = new ArrayList<>();
+    public List<BFunctionSymbolDTO> getActions(String pkgName, String type) throws SQLException {
+        List<BFunctionSymbolDTO> packages = new ArrayList<>();
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
@@ -522,7 +354,7 @@ public class LSIndexQueryProcessor {
             statement.setString(2, type);
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                packages.add(new BFunctionDTO(
+                packages.add(new BFunctionSymbolDTO(
                         Integer.parseInt(resultSet.getString(1)),
                         Integer.parseInt(resultSet.getString(2)),
                         resultSet.getString(3),
