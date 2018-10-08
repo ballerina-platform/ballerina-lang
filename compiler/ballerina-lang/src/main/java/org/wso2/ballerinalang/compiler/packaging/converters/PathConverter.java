@@ -123,7 +123,11 @@ public class PathConverter implements Converter<Path> {
         }
     
         if (Files.isRegularFile(path)) {
-            return Stream.of(new FileSystemSourceInput(path));
+            return Stream.of(
+                    Names.DEFAULT_PACKAGE.getValue().equals(pkgId.name.value) ?
+                            new FileSystemSourceInput(path) :
+                            new FileSystemSourceInput(path, root.resolve(Paths.get(pkgId.name.value)))
+            );
         } else {
             return Stream.of();
         }
