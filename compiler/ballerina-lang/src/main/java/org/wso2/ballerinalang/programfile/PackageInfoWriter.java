@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.programfile;
 
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
+import org.wso2.ballerinalang.programfile.cpentries.DecimalCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
@@ -94,6 +96,10 @@ public class PackageInfoWriter {
                 case CP_ENTRY_FLOAT:
                     double doubleVal = ((FloatCPEntry) cpEntry).getValue();
                     dataOutStream.writeDouble(doubleVal);
+                    break;
+                case CP_ENTRY_DECIMAL:
+                    Decimal decimalVal = ((DecimalCPEntry) cpEntry).getValue();
+                    dataOutStream.writeUTF(decimalVal.toString());
                     break;
                 case CP_ENTRY_STRING:
                     nameCPIndex = ((StringCPEntry) cpEntry).getStringCPIndex();
