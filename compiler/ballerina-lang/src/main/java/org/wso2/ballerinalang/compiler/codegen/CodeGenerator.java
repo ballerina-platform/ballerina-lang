@@ -606,7 +606,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
 
             case TypeTags.DECIMAL:
-                Decimal decimalVal = new Decimal((String) literalExpr.value);
+                Decimal decimalVal = (Decimal) literalExpr.value;
                 int decimalCPEntryIndex = currentPkgInfo.addCPEntry(new DecimalCPEntry(decimalVal));
                 emit(InstructionCodes.DCONST, getOperand(decimalCPEntryIndex), regIndex);
                 break;
