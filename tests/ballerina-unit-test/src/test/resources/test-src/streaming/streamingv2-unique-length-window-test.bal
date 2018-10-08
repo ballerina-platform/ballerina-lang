@@ -35,7 +35,7 @@ stream<Teacher> inputStream;
 stream<TeacherOutput > outputStream;
 TeacherOutput[] globalEmployeeArray = [];
 
-function startUniqueLengthwindowTest1() returns (TeacherOutput[]) {
+function startUniqueLengthwindowTest1() returns TeacherOutput[] {
 
     Teacher[] teachers = [];
     Teacher t1 = { name: "Mohan", age: 30, status: "single", school: "Hindu College" };
