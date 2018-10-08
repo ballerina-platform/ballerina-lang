@@ -58,8 +58,7 @@ service<http:Service> failoverDemoService05 bind failoverEP05 {
         match backendRes {
             http:Response response => {
                 string responseMessage = "Failover start index is : " + startIndex;
-                response.setPayload(responseMessage);
-                caller->respond(response) but {
+                caller->ok(responseMessage) but {
                     error e => log:printError("Error sending response", err = e)
                 };
             }
@@ -86,11 +85,9 @@ service echo05 bind backendEP05 {
         path: "/"
     }
     delayResource(endpoint caller, http:Request req) {
-        http:Response outResponse = new;
         // Delay the response for 30000 milliseconds to mimic network level delays.
         runtime:sleep(30000);
-        outResponse.setPayload("Delayed resource is invoked");
-        caller->respond(outResponse) but {
+        caller->ok("Delayed resource is invoked") but {
             error e => log:printError("Error sending response from mock service", err = e)
         };
     }
@@ -106,8 +103,8 @@ service mock05 bind backendEP05 {
         path: "/"
     }
     mockResource(endpoint caller, http:Request req) {
-        http:Response response = new;
-        response.setPayload("Mock Resource is Invoked.");
-        caller->respond(response) but {error e => log:printError("Error sending response from mock service", err = e)};
+        caller->ok("Mock Resource is Invoked.") but {
+            error e => log:printError("Error sending response from mock service", err = e)
+        };
     }
 }
