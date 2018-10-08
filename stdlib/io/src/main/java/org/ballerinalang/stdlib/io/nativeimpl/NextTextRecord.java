@@ -45,7 +45,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         orgName = "ballerina", packageName = "io",
         functionName = "getNext",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "DelimitedTextRecordChannel",
+                structType = "ReadableTextRecordChannel",
                 structPackage = "ballerina/io"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
                 @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},

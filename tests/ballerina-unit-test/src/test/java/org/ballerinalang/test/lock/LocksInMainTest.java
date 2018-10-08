@@ -199,7 +199,7 @@ public class LocksInMainTest {
 
     }
 
-    @Test(description = "Tests lock within functions down the function chain")
+    @Test(description = "Tests lock within functions down the function chain", enabled = false)
     public void testLockWithinFunctionsDownTheLine() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks_in_functions_down_the_chain.bal");
 

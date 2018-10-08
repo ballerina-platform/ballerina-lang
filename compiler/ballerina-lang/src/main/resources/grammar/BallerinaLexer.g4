@@ -35,7 +35,7 @@ DEPRECATED  : 'deprecated';
 CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
 
-FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
+FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
 SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
 GROUP       : 'group' ;
@@ -44,10 +44,7 @@ HAVING      : 'having' ;
 ORDER       : 'order' ;
 WHERE       : 'where' ;
 FOLLOWED    : 'followed' ;
-INSERT      : {inSiddhi}? 'insert' { inSiddhi = false; } ;
 INTO        : 'into' ;
-UPDATE      : {inSiddhi}? 'update' { inSiddhi = false; } ;
-DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
 FOR         : 'for' { inSiddhiTimeScaleQuery = true; } ;
 WINDOW      : 'window' ;
@@ -207,6 +204,14 @@ COMPOUND_ADD   : '+=' ;
 COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
+
+COMPOUND_BIT_AND   : '&=' ;
+COMPOUND_BIT_OR    : '|=' ;
+COMPOUND_BIT_XOR   : '^=' ;
+
+COMPOUND_LEFT_SHIFT      : '<<=' ;
+COMPOUND_RIGHT_SHIFT     : '>>=' ;
+COMPOUND_LOGICAL_SHIFT   : '>>>=' ;
 
 // Post Arithmetic operators.
 

@@ -32,10 +32,13 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments {
     host: string;
     port: number;
+    script: string;
 }
 
 interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     script: string;
+    scriptArguments: Array<string>;
+    commandOptions: Array<string>;
     'ballerina.home': string; 
 }
 
@@ -193,6 +196,10 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     }
 
     attachRequest(response: DebugProtocol.AttachResponse, args:AttachRequestArguments) : void {
+        const openFile = args.script;
+        let cwd : string | undefined = path.dirname(openFile);
+        this.setSourceRoot(cwd);
+
         this._debugManager.connect(`ws://${args.host}:${args.port}/debug`, () => {
             this.sendResponse(response);
             this.sendEvent(new InitializedEvent());
@@ -217,6 +224,10 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             path.dirname(currentPath), root, path.basename(currentPath));
     }
 
+    setSourceRoot(sourceRoot: string) {
+        this._sourceRoot = sourceRoot;
+    }
+    
     launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments) {
         if (!args['ballerina.home']) {
             this.terminate("Couldn't start the debug server. Please set ballerina.home.");
@@ -224,6 +235,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
         }
 
         const openFile = args.script;
+        const scriptArguments = args.scriptArguments;
+        const commandOptions = args.commandOptions;
         let cwd : string | undefined = path.dirname(openFile);
         let debugTarget = path.basename(openFile);
         this._sourceRoot = cwd;
@@ -233,7 +246,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             this._getRunningInfo(cwd, path.parse(openFile).root);
 
         if (sourceRoot) {
-            this._sourceRoot = sourceRoot;
+            this.setSourceRoot(sourceRoot);
         }
 
         if (ballerinaPackage) {
@@ -263,10 +276,24 @@ export class BallerinaDebugSession extends LoggingDebugSession {
                 return;
             }
             this._debugPort = port.toString();
-            let debugServer;
-            debugServer = this._debugServer = spawn(
+
+            let executableArgs: Array<string> = ["run"];
+            executableArgs.push('--debug');
+            executableArgs.push(<string>this._debugPort);
+
+            if (Array.isArray(commandOptions) && commandOptions.length) {
+                executableArgs = executableArgs.concat(commandOptions);
+            }
+
+            executableArgs.push(<string>this._debugTarget);
+
+            if (Array.isArray(scriptArguments) && scriptArguments.length) {
+                executableArgs = executableArgs.concat(scriptArguments);
+            }
+
+            let debugServer = this._debugServer = spawn(
                 executable,
-                ['run', '--debug', <string> this._debugPort, <string> this._debugTarget],
+                executableArgs,
                 { cwd }
             );
 
@@ -286,8 +313,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             });
 
             debugServer.stderr.on('data', (data) => {
-                if (`${data}`.indexOf('compilation contains errors') > -1) {
-                    this.terminate('Failed to compile.');
+                if (`${data}`.startsWith("error:")) {
+                    this.terminate(`${data}`);
                 } else {
                     this.sendEvent(new OutputEvent(`${data}`));
                 }

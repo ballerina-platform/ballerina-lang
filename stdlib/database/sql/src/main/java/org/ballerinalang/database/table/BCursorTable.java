@@ -66,4 +66,9 @@ public class BCursorTable extends BTable {
     protected boolean isIteratorGenerationConditionMet() {
         return false;
     }
+
+    @Override
+    public boolean isInMemoryTable() {
+        return false;
+    }
 }

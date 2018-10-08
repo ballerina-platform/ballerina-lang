@@ -23,7 +23,7 @@ import {
 } from 'vscode';
 import { } from 'vscode-debugadapter';
 import { BallerinaPluginConfig, getPluginConfig } from './config';
-import { activate as activateRenderer, errored as rendererErrored } from './renderer';
+import { activate as activateRenderer } from './renderer';
 import { activate as activateSamples } from './examples';
 import BallerinaExtension from './core/ballerina-extension';
 
@@ -35,6 +35,8 @@ const debugConfigResolver: DebugConfigurationProvider = {
 			const workspaceConfig: BallerinaPluginConfig = getPluginConfig();
 			if (workspaceConfig.home) {
 				config['ballerina.home'] = workspaceConfig.home;
+			} else {
+				config['ballerina.home'] = BallerinaExtension.getBallerinaHome();
 			}
 		}
 		return config;
@@ -44,21 +46,10 @@ const debugConfigResolver: DebugConfigurationProvider = {
 export function activate(context: ExtensionContext): void {
 
 	BallerinaExtension.setContext(context);
-	BallerinaExtension.init()
-		.then(success => {
-			// start the features.
-			activateRenderer(context, BallerinaExtension.langClient!);
-			activateSamples(context, BallerinaExtension.langClient!);
-		}, () => {
-			// If home is not valid show error on design page.
-			if (!BallerinaExtension.isValidBallerinaHome()) {
-				rendererErrored(context);
-			}
-		})
-		.catch(error => {
-			// unknown error
-			BallerinaExtension.showPluginActivationError()
-		});
+	BallerinaExtension.init();
+	// start the features.
+	activateRenderer(context, BallerinaExtension.langClient!);
+	activateSamples(context, BallerinaExtension.langClient!);
 
 	/*if (!config.debugLog) {
 		clientOptions.outputChannel = dropOutputChannel;
