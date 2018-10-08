@@ -1429,3 +1429,48 @@ function testToJsonAndIterate(string jdbcUrl, string userName, string password) 
         testDB.stop();
     }
 }
+
+function testToJsonAndSetAsChildElement(string jdbcUrl, string userName, string password) returns json {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable", ());
+        json result = check <json>dt;
+        json j = { status: "SUCCESS", resp: { value: result } };
+        return j;
+    } finally {
+        testDB.stop();
+    }
+}
+
+function testToJsonAndLengthof(string jdbcUrl, string userName, string password) returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable", ());
+        json result = check <json>dt;
+
+        // get the length before accessing
+        int beforeLen = lengthof result;
+
+        // get the length after accessing
+        json j = result[0];
+        int afterLen = lengthof result;
+
+        return (beforeLen, afterLen);
+    } finally {
+        testDB.stop();
+    }
+}

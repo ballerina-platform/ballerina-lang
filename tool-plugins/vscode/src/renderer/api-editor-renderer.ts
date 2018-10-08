@@ -20,8 +20,6 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
         let docUri = ${JSON.stringify(docUri.toString())};
         let selectedService = ${JSON.stringify(selectedService.toString())};
 
-        debugger;
-
         function getSwaggerJson(docUri, serviceName) {
             return new Promise((resolve, reject) => {
                 webViewRPCHandler.invokeRemoteMethod('getSwaggerDef', [docUri, serviceName], (resp) => {

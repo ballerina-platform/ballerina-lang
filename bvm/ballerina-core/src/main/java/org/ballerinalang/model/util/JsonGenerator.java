@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BValue;
 
 import java.io.BufferedWriter;
@@ -274,6 +275,10 @@ public class JsonGenerator {
 
         switch (json.getType().getTag()) {
             case TypeTags.ARRAY_TAG:
+                if (json instanceof BStreamingJSON) {
+                    ((BStreamingJSON) json).serialize(this);
+                    break;
+                }
                 this.writeStartArray();
                 BRefValueArray jsonArray = (BRefValueArray) json;
                 for (int i = 0; i < jsonArray.size(); i++) {

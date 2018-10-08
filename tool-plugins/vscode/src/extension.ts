@@ -35,6 +35,8 @@ const debugConfigResolver: DebugConfigurationProvider = {
 			const workspaceConfig: BallerinaPluginConfig = getPluginConfig();
 			if (workspaceConfig.home) {
 				config['ballerina.home'] = workspaceConfig.home;
+			} else {
+				config['ballerina.home'] = BallerinaExtension.getBallerinaHome();
 			}
 		}
 		return config;

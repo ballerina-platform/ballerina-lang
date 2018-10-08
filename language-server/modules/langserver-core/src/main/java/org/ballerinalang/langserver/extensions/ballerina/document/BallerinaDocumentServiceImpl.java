@@ -17,8 +17,11 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.sun.org.apache.xpath.internal.ExpressionNode;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
@@ -32,8 +35,10 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.Identifier;
+import org.ballerinalang.model.TreeUtils;
+import org.ballerinalang.model.tree.*;
 import org.ballerinalang.swagger.CodeGenerator;
 import org.ballerinalang.swagger.model.GenSrcFile;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
@@ -45,16 +50,21 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
@@ -242,4 +252,148 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         }
         return null;
     }
+
+    private void mergeAst(BLangCompilationUnit ast, BLangCompilationUnit swaggerAst) {
+        swaggerAst.getTopLevelNodes().stream().forEach(topLevelNode -> {
+
+            if(topLevelNode instanceof ImportPackageNode){
+                if(!hasImport(ast, topLevelNode)){
+                    ast.addTopLevelNode(topLevelNode);
+                }
+            }
+
+            if(topLevelNode instanceof ServiceNode) {
+                ServiceNode swaggerService = (ServiceNode) topLevelNode;
+                for(TopLevelNode astNode : ast.getTopLevelNodes()) {
+                    if(astNode instanceof ServiceNode) {
+                        ServiceNode astService = (ServiceNode) astNode;
+                        if(astService.getName().getValue().equals(swaggerService.getName().getValue())){
+                            mergeServices(astService, swaggerService);
+                        } else {
+                            ast.addTopLevelNode(swaggerService);
+                        }
+                    }
+                }
+            }
+
+        });
+
+    }
+
+    private  void mergeServices(ServiceNode targetService, ServiceNode swaggerService) {
+        mergeAnnotations(targetService, swaggerService);
+
+        for(ResourceNode swaggerResource : swaggerService.getResources()) {
+            for(ResourceNode targetResource : targetService.getResources()) {
+                if(matchResource(targetResource, swaggerResource)){
+                    mergeAnnotations(targetResource, swaggerResource);
+                } else {
+                    targetService.addResource(swaggerResource);
+                }
+            }
+        }
+    }
+
+    private void mergeAnnotations(AnnotatableNode targetNode, AnnotatableNode sourceNode){
+        for(AnnotationAttachmentNode swaggerNode : sourceNode.getAnnotationAttachments()) {
+            boolean matchedAnnotation = false;
+            AnnotationAttachmentNode matchedNode = new BLangAnnotationAttachment();
+
+            for(AnnotationAttachmentNode attachementNode : targetNode.getAnnotationAttachments()) {
+                if(swaggerNode.getAnnotationName().getValue().equals(attachementNode.getAnnotationName().getValue()) &&
+                        swaggerNode.getPackageAlias().getValue().equals(attachementNode.getPackageAlias().getValue())) {
+                    matchedNode = attachementNode;
+                    matchedAnnotation = true;
+                    break;
+                }
+            }
+
+            if(matchedAnnotation) {
+                if(swaggerNode.getExpression() instanceof BLangRecordLiteral &&
+                        matchedNode.getExpression() instanceof BLangRecordLiteral) {
+
+                    BLangRecordLiteral swaggerRecord = (BLangRecordLiteral) swaggerNode.getExpression();
+                    BLangRecordLiteral matchedRecord = (BLangRecordLiteral) matchedNode.getExpression();
+
+                    for(BLangRecordLiteral.BLangRecordKeyValue swaggerKeyValue : swaggerRecord.getKeyValuePairs()){
+                        boolean matched = false;
+                        BLangRecordLiteral.BLangRecordKeyValue record;
+
+                        for (BLangRecordLiteral.BLangRecordKeyValue matchedKeyValue : matchedRecord.getKeyValuePairs()){
+                            if((matchedKeyValue.key!= null && matchedKeyValue.key.expr instanceof BLangSimpleVarRef)){
+                                BLangSimpleVarRef matchedKey = (BLangSimpleVarRef) matchedKeyValue.key.expr;
+                                BLangSimpleVarRef swaggerKey = (BLangSimpleVarRef) swaggerKeyValue.key.expr;
+
+                                if(matchedKey.variableName.getValue().equals(swaggerKey.variableName.getValue())) {
+                                    matched = true;
+                                    record = swaggerKeyValue;
+                                }
+                            }
+                        }
+
+                        if(matched) {
+
+                        } else {
+                            ((BLangRecordLiteral) matchedNode.getExpression()).keyValuePairs.add(swaggerKeyValue);
+                        }
+
+                    }
+                }
+            } else {
+                targetNode.addAnnotationAttachment(swaggerNode);
+            }
+
+        }
+    }
+
+    /**
+     * Util method to match given resource in a service node.
+     * @param astResource service node
+     * @param swaggerResource resource which needs to be checked
+     * @return true if matched else false
+     */
+    private boolean matchResource(ResourceNode astResource, ResourceNode swaggerResource) {
+        if(astResource.getName().getValue().equals(swaggerResource.getName().getValue())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *
+     * Util method to check if given node is an existing import in current AST model
+     * @param ast - current AST model
+     * @param node - Import Node
+     * @return - boolean status
+     */
+    private boolean hasImport(BLangCompilationUnit ast, TopLevelNode node) {
+        boolean importFound = false;
+
+        for(TopLevelNode topLevelNode : ast.getTopLevelNodes()) {
+            if(topLevelNode instanceof  ImportPackageNode) {
+                ImportPackageNode pkg = (ImportPackageNode) topLevelNode;
+                ImportPackageNode swaggerNode = (ImportPackageNode) node;
+
+                if(pkg.getOrgName().getValue().equals(swaggerNode.getOrgName().getValue())){
+                    importFound = true;
+                    boolean samePackage = true;
+                    for(IdentifierNode packageName : pkg.getPackageName()) {
+                        for (IdentifierNode swaggerpkg: swaggerNode.getPackageName()) {
+                            if (!packageName.getValue().equals(swaggerpkg.getValue())) {
+                                samePackage = false;
+                                break;
+                            }
+                        }
+                        if(!samePackage) {
+                            importFound = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return importFound;
+    }
+
 }

@@ -24,18 +24,18 @@ import {
     Extension, ExtensionContext
 } from "vscode";
 import {
-    INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA,
-    CONFIG_CHANGED, UNKNOWN_ERROR
+    INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
+    CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR,
 } from "./messages";
 import * as path from 'path';
 import * as fs from 'fs';
-import { execSync } from "child_process";
+import { exec, execSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE } from "vscode-languageclient";
 import { getServerOptions } from '../server';
 import { ExtendedLangClient } from "../lang-client";
 import { log } from '../logger';
 import { AssertionError } from "assert";
-
+import * as compareVersions from 'compare-versions';
 class BallerinaExtension {
 
     public ballerinaHome: string;
@@ -86,11 +86,11 @@ class BallerinaExtension {
             }
 
             // Validate the ballerina version.
-            const pluginVersion = this.extention.packageJSON.version;
-            const ballerinaVersion = this.getBallerinaVersion(this.ballerinaHome);
-            if (!this.isCompatibleVersion(pluginVersion, ballerinaVersion)) {
-                reject();
-            }
+            const pluginVersion = this.extention.packageJSON.version.split('-')[0];
+            this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
+                ballerinaVersion = ballerinaVersion.split('-')[0];
+                this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
+            })
 
             // if Home is found load Language Server.
             this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
@@ -141,17 +141,22 @@ class BallerinaExtension {
         });
     }
 
-    isCompatibleVersion(pluginVersion: string, ballerinaVersion: string): boolean {
-        // If both minor versions are equal return true.
-        // If home version > plugin version.
-        // Inform the user to update the plugin.
-        // If home version < plugin version.
-        // Inform the user to update ballerina.
-        // TODO put a dummy class for ExtendedLanguageClient.
-        return true;
+    checkCompatibleVersion(pluginVersion: string, ballerinaVersion: string): void {
+        const versionCheck = compareVersions(pluginVersion, ballerinaVersion);
+
+        if (versionCheck > 0) {
+            // Plugin version is greater
+            this.showMessageOldBallerina();
+            return;
+        }
+
+        if (versionCheck < 0) {
+            // Ballerina version is greater
+            this.showMessageOldPlugin();
+        }
     }
 
-    getBallerinaVersion(ballerinaHome: string): string {
+    getBallerinaVersion(ballerinaHome: string): Promise<string> {
         if (!this.ballerinaHome) {
             throw new AssertionError({
                 message: "Trying to get ballerina version without setting ballerina home."
@@ -161,9 +166,12 @@ class BallerinaExtension {
         if (process.platform === 'win32') {
             command = `"${path.join(ballerinaHome, 'bin', 'ballerina.bat')}" version`;
         }
-        let version = execSync(command).toString();
-        version = version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, '');
-        return version;
+        return new Promise((resolve, reject) => {
+            exec(command, (err, stdout, stderr) => {
+                const version = stdout.length > 0 ? stdout : stderr;
+                resolve(version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
+            })
+        })
     }
 
     showMessageInstallBallerina(): any {
@@ -188,6 +196,32 @@ class BallerinaExtension {
         });
     }
 
+    showMessageOldBallerina(): any {
+        const download: string = 'Download';
+        window.showWarningMessage(OLD_BALLERINA_VERSION, download).then((selection) => {
+            if (download === selection) {
+                commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
+            }
+        });
+    }
+
+    showMessageOldPlugin(): any {
+        const download: string = 'Download';
+        window.showWarningMessage(OLD_PLUGIN_VERSION, download).then((selection) => {
+            if (download === selection) {
+                commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
+            }
+        });
+    }
+
+    showMessageServerMissingCapability(): any {
+        const download: string = 'Download';
+        window.showErrorMessage(MISSING_SERVER_CAPABILITY, download).then((selection) => {
+            if (download === selection) {
+                commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
+            }
+        });
+    }
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {

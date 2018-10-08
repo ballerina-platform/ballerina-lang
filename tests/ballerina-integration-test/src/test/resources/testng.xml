@@ -204,13 +204,15 @@
 
     <test name="ballerina-websub-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.websub.WebSubAutoIntentVerificationTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
+            <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
+                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
+                @BeforeClass in test classes which have @BeforeClass -->
+            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubCoreFunctionalityTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubSubscriptionChangeTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
         </classes>
     </test>
 
