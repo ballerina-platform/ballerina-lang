@@ -17,6 +17,7 @@
 package org.ballerinalang.channels;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.HashMap;
@@ -59,7 +60,14 @@ public class ChannelRegistry {
         //add channel if absent
         addChannel(channel);
         Map<String, LinkedList<PendingContext>> channelEntries = channelList.get(channel);
-        String keyVal = key != null ? key.stringValue() : null;
+        String keyVal = null;
+        if (key != null) {
+            if (key instanceof BMap) {
+                keyVal = DatabaseUtils.sortBMap(((BMap) key).getMap());
+            } else {
+                keyVal = key.stringValue();
+            }
+        }
         LinkedList<PendingContext> ctxList = channelEntries.computeIfAbsent(keyVal,
                 bValue -> new LinkedList<>());
 
@@ -79,7 +87,14 @@ public class ChannelRegistry {
     public PendingContext pollOnChannel(String channel, BValue key) {
         //add channel if absent
         addChannel(channel);
-        String keyVal = key != null ? key.stringValue() : null;
+        String keyVal = null;
+        if (key != null) {
+            if (key instanceof BMap) {
+                keyVal = DatabaseUtils.sortBMap(((BMap) key).getMap());
+            } else {
+                keyVal = key.stringValue();
+            }
+        }
         LinkedList<PendingContext> pendingCtxs = channelList.get(channel).get(keyVal);
         if (pendingCtxs != null) {
             return pendingCtxs.poll();

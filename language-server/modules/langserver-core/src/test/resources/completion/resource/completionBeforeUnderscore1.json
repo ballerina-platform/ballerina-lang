@@ -6,11 +6,19 @@
   "source": "resource/source/completionBeforeUnderscore1.bal",
   "items": [
     {
-      "label": "openFile(string path, io:Mode accessMode)(ballerina/io:ByteChannel)",
+      "label": "openReadableFile(string path)(ballerina/io:ReadableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "openFile(${1:path}, ${2:accessMode})",
+      "insertText": "openReadableFile(${1:path})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "openWritableFile(string path, boolean append = false)(ballerina/io:WritableByteChannel)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "openWritableFile(${1:path}, append = ${2:false})",
       "insertTextFormat": "Snippet"
     },
     {
@@ -22,19 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "createMemoryChannel(byte[] content)(ballerina/io:ByteChannel)",
+      "label": "createReadableChannel(byte[] content)(ballerina/io:ReadableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "createMemoryChannel(${1:content})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "openCsvFile(string path, io:Mode mode \u003d r, io:Separator fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina/io:CSVChannel)",
-      "kind": "Function",
-      "detail": "Function",
-      "sortText": "121",
-      "insertText": "openCsvFile(${1:path}, mode \u003d ${5:r}, fieldSeparator \u003d ${6:,}, charset \u003d ${7:\"UTF-8\"}, skipHeaders \u003d ${8:0})",
+      "insertText": "createReadableChannel(${1:content})",
       "insertTextFormat": "Snippet"
     },
     {
@@ -88,46 +88,46 @@
       "insertText": "Separator"
     },
     {
-      "label": "ByteOrder",
-      "detail": "BType",
-      "sortText": "171",
-      "insertText": "ByteOrder"
-    },
-    {
       "label": "Mode",
       "detail": "BType",
       "sortText": "171",
       "insertText": "Mode"
     },
     {
-      "label": "ByteChannel",
+      "label": "ByteOrder",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "ByteChannel"
+      "insertText": "ByteOrder"
     },
     {
-      "label": "CharacterChannel",
+      "label": "ReadableByteChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "CharacterChannel"
+      "insertText": "ReadableByteChannel"
     },
     {
-      "label": "CSVChannel",
+      "label": "ReadableCharacterChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "CSVChannel"
+      "insertText": "ReadableCharacterChannel"
     },
     {
-      "label": "DataChannel",
+      "label": "ReadableCSVChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "DataChannel"
+      "insertText": "ReadableCSVChannel"
     },
     {
-      "label": "DelimitedTextRecordChannel",
+      "label": "ReadableDataChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "DelimitedTextRecordChannel"
+      "insertText": "ReadableDataChannel"
+    },
+    {
+      "label": "ReadableTextRecordChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "ReadableTextRecordChannel"
     },
     {
       "label": "Socket",
@@ -146,6 +146,36 @@
       "detail": "BType",
       "sortText": "171",
       "insertText": "StringReader"
+    },
+    {
+      "label": "WritableByteChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableByteChannel"
+    },
+    {
+      "label": "WritableCharacterChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableCharacterChannel"
+    },
+    {
+      "label": "WritableCSVChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableCSVChannel"
+    },
+    {
+      "label": "WritableDataChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableDataChannel"
+    },
+    {
+      "label": "WritableTextRecordChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableTextRecordChannel"
     }
   ]
 }
