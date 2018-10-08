@@ -88,7 +88,7 @@ public type WebSocketConnector object {
         match statusCode {
             int code => {
                 if (code <= 999 || code >= 1004 && code <= 1006 || code >= 1012 && code <= 2999 || code > 4999) {
-                    error err = { message: "Failed to execute close. Invalid status code: " + code };
+                    error err = error("Failed to execute close. Invalid status code: " + code);
                     return err;
                 }
                 return externClose(code, reason ?: "", timeoutInSecs);

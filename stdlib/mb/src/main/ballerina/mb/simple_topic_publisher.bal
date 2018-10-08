@@ -63,7 +63,7 @@ public type SimpleTopicPublisher object {
         match (self.producerActions) {
             TopicPublisherActions s => return s;
             () => {
-                error e = {message:"Topic publisher connector cannot be nil"};
+                error e = error("Topic publisher connector cannot be nil");
                 throw e;
             }
         }
@@ -88,7 +88,7 @@ public type SimpleTopicPublisher object {
                 }
             }
             () => {
-                error e = {message:"topic publisher cannot be nil"};
+                error e = error("topic publisher cannot be nil");
                 throw e;
             }
         }

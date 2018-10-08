@@ -41,7 +41,7 @@ public type ChannelReader object {
     public function readByteArray(int len) returns byte[] {
         var (arr, arrLen) = check byteChannel.read(len);
         if(arrLen != len){
-            error err = { message: "Unable to read "+len+" bytes" };
+            error err = error("Unable to read "+len+" bytes");
             throw err;
         }
         return arr;

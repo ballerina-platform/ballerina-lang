@@ -195,7 +195,7 @@ service<http:Service> sample3 bind echoEP {
             io:println("************** waiting inside first request");
             runtime:sleep(100);
             message = "sample Response";
-            error err = {message:"error occurred"};
+            error err = error("error occurred");
             throw err;
         }
         //http:Response res = new;

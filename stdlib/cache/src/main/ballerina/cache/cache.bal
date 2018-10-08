@@ -52,17 +52,17 @@ public type Cache object {
     public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.
         if (expiryTimeMillis <= 0) {
-            error e = { message: "Expiry time must be greater than 0." };
+            error e = error("Expiry time must be greater than 0.");
             throw e;
         }
         // Cache capacity must be a positive value.
         if (capacity <= 0) {
-            error e = { message: "Capacity must be greater than 0." };
+            error e = error("Capacity must be greater than 0.");
             throw e;
         }
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
         if (evictionFactor <= 0 || evictionFactor > 1) {
-            error e = { message: "Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)." };
+            error e = error("Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).");
             throw e;
         }
         // We remove empty caches to prevent OOM issues. So in such scenarios, the cache will not be in the `cacheMap`

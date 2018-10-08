@@ -631,7 +631,7 @@ function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredCo
     int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining + " milliseconds.";
-    error httpConnectorErr = {message:errorMessage};
+    error httpConnectorErr = error(errorMessage);
     return httpConnectorErr;
 }
 
@@ -641,7 +641,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
     if (failureThreshold < 0 || failureThreshold > 1) {
         string errorMessage = "Invalid failure threshold. Failure threshold value"
             + " should between 0 to 1, found " + failureThreshold;
-        error circuitBreakerConfigError = { message: errorMessage };
+        error circuitBreakerConfigError = error(errorMessage);
         throw circuitBreakerConfigError;
     }
 }

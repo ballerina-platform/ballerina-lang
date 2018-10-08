@@ -420,7 +420,7 @@ extern function base64Decode((string|byte[]|io:ByteChannel) contentToBeDecoded, 
 # + valueToBeEncoded - Content that needs to be encoded
 # + return - An encoded byte[]. In case of errors, an `error` record is returned
 public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
-    error customErr = {message:"Error occurred while encoding byte[]"};
+    error customErr = error("Error occurred while encoding byte[]");
     match base64Encode(valueToBeEncoded) {
         string returnString => return customErr;
         byte[] returnBlob => return returnBlob;
@@ -435,7 +435,7 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
 # + charset - Charset to be used
 # + return - An encoded `string`. In case of errors, an `error` record is returned
 public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|error {
-    error customErr = {message:"Error occurred while encoding string"};
+    error customErr = error("Error occurred while encoding string");
     match base64Encode(valueToBeEncoded) {
         string returnString => return returnString;
         byte[] returnBlob => return customErr;
@@ -449,7 +449,7 @@ public function base64EncodeString(string valueToBeEncoded, string charset = "ut
 # + valueToBeEncoded - Content that needs to be encoded
 # + return - An encoded `io:ByteChannel`. In case of errors, an `error` record is returned
 public function base64EncodeByteChannel(io:ByteChannel valueToBeEncoded) returns io:ByteChannel|error {
-    error customErr = {message:"Error occurred while encoding ByteChannel content"};
+    error customErr = error("Error occurred while encoding ByteChannel content");
     match base64Encode(valueToBeEncoded) {
         string returnString => return customErr;
         byte[] returnBlob => return customErr;
@@ -463,7 +463,7 @@ public function base64EncodeByteChannel(io:ByteChannel valueToBeEncoded) returns
 # + valueToBeDecoded - Content that needs to be decoded
 # + return - A decoded `byte[]`. In case of errors, an `error` record is returned
 public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
-    error customErr = {message:"Error occurred while decoding byte[]"};
+    error customErr = error("Error occurred while decoding byte[]");
     match base64Decode(valueToBeDecoded) {
         string returnString => return customErr;
         byte[] returnBlob => return returnBlob;
@@ -478,7 +478,7 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
 # + charset - Charset to be used
 # + return - A decoded `string`. In case of errors, an `error` record is returned
 public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|error {
-    error customErr = {message:"Error occurred while decoding string"};
+    error customErr = error("Error occurred while decoding string");
     match base64Decode(valueToBeDecoded) {
         string returnString => return returnString;
         byte[] returnBlob => return customErr;
@@ -492,7 +492,7 @@ public function base64DecodeString(string valueToBeDecoded, string charset = "ut
 # + valueToBeDecoded - Content that needs to be decoded
 # + return - A decoded `io:ByteChannel`. In case of errors, an `error` record is returned
 public function base64DecodeByteChannel(io:ByteChannel valueToBeDecoded) returns io:ByteChannel|error {
-    error customErr = {message:"Error occurred while decoding ByteChannel content"};
+    error customErr = error("Error occurred while decoding ByteChannel content");
     match base64Decode(valueToBeDecoded) {
         string returnString => return customErr;
         byte[] returnBlob => return customErr;

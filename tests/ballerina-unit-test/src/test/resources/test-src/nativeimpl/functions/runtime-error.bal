@@ -27,7 +27,7 @@ function level1Error (int value) returns (int) {
 
 function level2Error (int value) returns (int) {
     if (value < 0) {
-        error e = {message:"less than zero"};
+        error e = error("less than zero");
         throw e;
     }
     return value;

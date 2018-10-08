@@ -14,7 +14,7 @@ public type BirChannelReader object {
         } else if (sginatureAlias == "B"){
             return "boolean";
         }
-        error err = { message: "type signature " + sginatureAlias + " not supported." };
+        error err = error("type signature " + sginatureAlias + " not supported.");
         throw err;
     }
 

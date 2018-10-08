@@ -490,7 +490,7 @@ public type ExternalTimeWindow object {
         match val {
             int value => return value;
             any => {
-                error err = { message: "external timestamp should be of type int" };
+                error err = error("external timestamp should be of type int");
                 throw err;
             }
         }
@@ -793,7 +793,7 @@ public type ExternalTimeBatchWindow object {
         match val {
             int value => return value;
             any => {
-                error err = { message: "external timestamp should be of type int" };
+                error err = error("external timestamp should be of type int");
                 throw err;
             }
         }

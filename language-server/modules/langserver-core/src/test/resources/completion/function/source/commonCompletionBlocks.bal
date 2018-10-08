@@ -66,7 +66,7 @@ service<http:Service> sampleService bind { port: 9090 } {
 
 function divideNumbers(int a, int b) returns int|error {
     if (b == 0) {
-        error err = { message: "Division by 0 is not defined" };
+        error err = error("Division by 0 is not defined");
         return err;
     }
     return a / b;

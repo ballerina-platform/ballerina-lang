@@ -31,11 +31,11 @@ function testTryCatch(int value) returns (string){
             path = path + "insideInnerTry ";
             if(value > 10){
                 path = path + "onError ";
-                testError tError = { message : "error" , code : "test" };
+                testerror tError = error("error" , { code : "test" });
                 throw tError;
             } else if( value < 0 ) {
                 path = path + "onInputError " ;
-                testInputError tError = {message : "error", input : "0"};
+                testInputerror tError = error("error", { input : "0" } );
                 throw tError;
             }
 
@@ -79,7 +79,7 @@ function testThrow(int a) returns (int) {
     return testNestedThrow(c);
 }
 function testNestedThrow(int a) returns (int){
-    error e  = {message : "test message"};
+    error e  = error("test message");
     if (e != null) {
         throw e;
     }
@@ -92,7 +92,7 @@ function mockFunction () returns (string) {
 function testMethodCallInFinally () returns (string) {
     string s = "start";
     try {
-        error e = {message:"test"};
+        error e = error("test");
         throw e;
     }finally {
         return s + mockFunction();

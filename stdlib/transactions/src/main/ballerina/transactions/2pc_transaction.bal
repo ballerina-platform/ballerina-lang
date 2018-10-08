@@ -141,7 +141,7 @@ type TwoPhaseCommitTransaction object {
                 string msg = "Aborting local resource managers failed for participated transaction:" +
                     participatedTxnId;
                 log:printError(msg);
-                error err = {message:msg};
+                error err = error(msg);
                 return err;
             }
         }

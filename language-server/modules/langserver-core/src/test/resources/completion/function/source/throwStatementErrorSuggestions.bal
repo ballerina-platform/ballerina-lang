@@ -1,7 +1,5 @@
 function testThrowErrorSuggestions() {
-    error err = {
-        message: "Error Occurred!!"
-    };
+    error err = error("Error Occurred!!");
 
     try {
         

@@ -74,7 +74,7 @@ public type PackageParser object {
         } else if (b == 2){
             return "PUBLIC";
         }
-        error err = { message: "unknown variable visiblity tag " + b };
+        error err = error("unknown variable visiblity tag " + b);
         throw err;
     }
 
@@ -89,7 +89,7 @@ public type PackageParser object {
         } else if (b == 4){
             return "RETURN";
         }
-        error err = { message: "unknown var kind tag " + b };
+        error err = error("unknown var kind tag " + b);
         throw err;
     }
 

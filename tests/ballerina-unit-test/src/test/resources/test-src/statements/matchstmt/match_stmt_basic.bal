@@ -39,7 +39,7 @@ function openFile(function (string) returns(File | error) fp) returns (string) {
 }
 
 function openFileFailure(string path) returns (File | error) {
-    error e = {message: "file not found: " + path};
+    error e = error("file not found: " + path);
     return e;
 }
 

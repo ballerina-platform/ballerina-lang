@@ -106,7 +106,7 @@ public type LinkedList object {
             }
             return curr.data;
         } else {
-            error e = { message: "couldn't iterate to next node." };
+            error e = error("couldn't iterate to next node.");
             return e;
         }
     }
@@ -126,7 +126,7 @@ public type LinkedList object {
             }
             return curr.data;
         } else {
-            error e = { message: "couldn't iterate to previous node." };
+            error e = error("couldn't iterate to previous node.");
             return e;
         }
     }

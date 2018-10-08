@@ -94,7 +94,7 @@ function getStoreDetails(Store? store) returns (string, string) {
             return (t.path, t.password);
         }
         () => {
-            error e = {message:"Store details not provided."};
+            error e = error("Store details not provided.");
             throw e;
         }
     }

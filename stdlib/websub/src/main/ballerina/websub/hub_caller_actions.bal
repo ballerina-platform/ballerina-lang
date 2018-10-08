@@ -116,7 +116,7 @@ function CallerActions::registerTopic(string topic, string? secret = ()) returns
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
                 string payload = response.getTextPayload() but { error => "" };
-                error webSubError = {message:"Error occured during topic registration: " + payload};
+                error webSubError = error("Error occured during topic registration: " + payload);
                 return webSubError;
             }
             return;
@@ -137,7 +137,7 @@ function CallerActions::unregisterTopic(string topic, string? secret = ()) retur
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
                 string payload = response.getTextPayload() but { error => "" };
-                error webSubError = {message:"Error occured during topic unregistration: " + payload};
+                error webSubError = error("Error occured during topic unregistration: " + payload);
                 return webSubError;
             }
             return;
@@ -197,13 +197,14 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:By
         http:Response httpResponse => {
             if (!isSuccessStatusCode(httpResponse.statusCode)) {
                 string textPayload = httpResponse.getTextPayload() but { error => "" };
-                error webSubError = {message:"Error occured publishing update: " + textPayload };
+                error webSubError = error("Error occured publishing update: " + textPayload);
                 return webSubError;
             }
             return;
         }
         error httpConnectorError => {
-            error webSubError = {message: "Publish failed for topic [" + topic + "]", cause:httpConnectorError};
+            map data = { cause: err };
+            error webSubError = error("Publish failed for topic [" + topic + "]", data);
             return webSubError;
         }
     }
@@ -228,7 +229,7 @@ function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) re
         http:Response httpResponse => {
             if (!isSuccessStatusCode(httpResponse.statusCode)) {
                 string textPayload = httpResponse.getTextPayload() but { error => "" };
-                error webSubError = {message:"Error occured notifying update availability: " + textPayload };
+                error webSubError = error("Error occured notifying update availability: " + textPayload);
                 return webSubError;
             }
             return;
@@ -305,7 +306,8 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
         error httpConnectorError => {
             string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - "
                 + httpConnectorError.message;
-            error webSubError = {message:errorMessage, cause:httpConnectorError};
+            map data = { cause: httpConnectorError };
+            error webSubError = error(errorMessage, data);
             return webSubError;
         }
         http:Response httpResponse => {
@@ -330,7 +332,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                         + "Error occurred identifying cause: "
                         + payloadError.message; }
                 }
-                error webSubError = {message:errorMessage};
+                error webSubError = error(errorMessage);
                 return webSubError;
             } else {
                 if (responseStatusCode != http:ACCEPTED_202) {

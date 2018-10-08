@@ -236,12 +236,12 @@ function LoadBalancerActions::get(string path, Request|string|xml|json|byte[]|io
 
 function LoadBalancerActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
-    error err = {message:"Unsupported action for LoadBalancer client."};
+    error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
 function LoadBalancerActions::getResponse(HttpFuture httpFuture) returns Response|error {
-    error err = {message:"Unsupported action for LoadBalancer client."};
+    error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
@@ -250,12 +250,12 @@ function LoadBalancerActions::hasPromise(HttpFuture httpFuture) returns (boolean
 }
 
 function LoadBalancerActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-    error err = {message:"Unsupported action for LoadBalancer client."};
+    error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
 function LoadBalancerActions::getPromisedResponse(PushPromise promise) returns Response|error {
-    error err = {message:"Unsupported action for LoadBalancer client."};
+    error err = error("Unsupported action for LoadBalancer client.");
     return err;
 }
 
@@ -270,7 +270,7 @@ function performLoadBalanceExecuteAction(LoadBalancerActions lb, string path, Re
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, request, connectorAction);
     } else {
-        error httpActionErr = {message:"Unsupported connector action received."};
+        error httpActionErr = error("Unsupported connector action received.");
         return httpActionErr;
     }
 }

@@ -48,9 +48,7 @@ type BuildLogFormatter object {
 # + errMessage - The error message.
 # + return - Newly created error record.
 function createError (string errMessage) returns error {
-    error endpointError = {
-        message: logFormatter.formatLog(errMessage)
-    };
+    error endpointError = error(logFormatter.formatLog(errMessage));
     return endpointError;
 }
 

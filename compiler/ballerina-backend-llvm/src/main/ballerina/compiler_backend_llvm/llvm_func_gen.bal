@@ -105,7 +105,7 @@ type FuncGenrator object {
         match localVarRefs[id] {
             llvm:LLVMValueRef varRef => return varRef;
             any => {
-                error err = { message: "Local var by name '" + id + "' dosn't exist in " + func.name.value };
+                error err = error("Local var by name '" + id + "' dosn't exist in " + func.name.value);
                 throw err;
             }
         }

@@ -17,7 +17,7 @@ function readCharacters(int numberOfCharacters) returns string|error {
             return err;
         }
         () => {
-            error e = {message:"Character channel not initialized properly"};
+            error e = error("Character channel not initialized properly");
             return e;
         }
     }
@@ -54,7 +54,7 @@ function writeCharacters(string content, int startOffset) returns int|error? {
             return err;
         }
         () => {
-            error e = {message:"Character channel not initialized properly"};
+            error e = error("Character channel not initialized properly");
             return e;
         }
 
@@ -83,7 +83,7 @@ function readXml() returns xml|error {
             return err;
         }
         () => {
-            error e = {message:"Character channel not initialized properly"};
+            error e = error("Character channel not initialized properly");
             return e;
         }
     }

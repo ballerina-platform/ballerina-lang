@@ -18,7 +18,7 @@ type AssertError record {
 @Param{value:"errorMessage: Custom message for the ballerina error"}
 @Param{value:"category: error category"}
 public function createBallerinaError (string errorMessage, string category) returns (error) {
-    error e = { message : errorMessage };
+    error e = error(errorMessage);
     return e;
 }
 

@@ -66,7 +66,7 @@ public type SimpleQueueReceiver object {
         match (self.consumerActions) {
             QueueReceiverActions c => return c;
             () => {
-                error e = {message:"Queue receiver consumerActions cannot be nil."};
+                error e = error("Queue receiver consumerActions cannot be nil.");
                 throw e;
             }
         }

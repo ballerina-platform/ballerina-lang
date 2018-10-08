@@ -37,7 +37,7 @@ public type Aggregator object {
                 return 0.0;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -76,7 +76,7 @@ public type Sum object {
                 return fSum;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -130,7 +130,7 @@ public type Average object {
                 }
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -310,7 +310,7 @@ public type Max object {
                 return fMax;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -419,7 +419,7 @@ public type Min object {
                 return fMin;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -460,7 +460,7 @@ public type StdDev object {
                 fVal = f;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -559,7 +559,7 @@ public type MaxForever object {
                 return fMax;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -615,7 +615,7 @@ public type MinForever object {
                 return fMin;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }

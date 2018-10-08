@@ -302,16 +302,16 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
-            error err = {message:"Malformed URL specified as callback"};
+            error err = error("Malformed URL specified as callback");
             return err;
         }
         if (hubTopicRegistrationRequired && !isTopicRegistered(topic)) {
-            error err = {message:"Subscription request denied for unregistered topic"};
+            error err = error("Subscription request denied for unregistered topic");
             return err;
         }
         return;
     }
-    error err = {message:"Topic/Callback cannot be null for subscription/unsubscription request"};
+    error err = error("Topic/Callback cannot be null for subscription/unsubscription request");
     return err;
 }
 
