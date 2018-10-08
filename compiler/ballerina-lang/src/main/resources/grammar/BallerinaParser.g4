@@ -149,8 +149,8 @@ annotationDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
-    |   (PUBLIC)? CONST typeName Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? typeName Identifier (ASSIGN expression)? SEMICOLON
+    |   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier SEMICOLON
     ;
 
@@ -305,7 +305,6 @@ statement
 
 variableDefinitionStatement
     :   typeName Identifier (ASSIGN expression)? SEMICOLON
-    |   CONST typeName Identifier ASSIGN expression SEMICOLON
     ;
 
 recordLiteral

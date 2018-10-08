@@ -824,8 +824,7 @@ public class BLangPackageBuilder {
                                  Set<Whitespace> ws,
                                  String identifier,
                                  boolean exprAvailable,
-                                 boolean endpoint,
-                                 boolean isConst) {
+                                 boolean endpoint) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         // TODO : Remove endpoint logic from here.
@@ -846,9 +845,6 @@ public class BLangPackageBuilder {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
 
-        if (isConst) {
-            var.flagSet.add(Flag.COMPILE_TIME_CONSTANT);
-        }
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
@@ -1422,20 +1418,27 @@ public class BLangPackageBuilder {
         }
     }
 
-    private VariableNode generateBasicVarNode(DiagnosticPos pos,
-                                              Set<Whitespace> ws,
-                                              String identifier,
-                                              boolean exprAvailable) {
+    private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                              boolean exprAvailable, boolean typeAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
         var.setName(name);
         var.addWS(ws);
-        var.setTypeNode(this.typeNodeStack.pop());
+        if (typeAvailable) {
+            var.setTypeNode(this.typeNodeStack.pop());
+        }
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         return var;
+    }
+
+    private VariableNode generateBasicVarNode(DiagnosticPos pos,
+                                              Set<Whitespace> ws,
+                                              String identifier,
+                                              boolean exprAvailable) {
+        return generateBasicVarNode(pos, ws, identifier, exprAvailable, true);
     }
 
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
@@ -1458,8 +1461,10 @@ public class BLangPackageBuilder {
                            String identifier,
                            boolean exprAvailable,
                            boolean publicVar,
+                           boolean isTypeAvailable,
                            boolean isConst) {
-        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable,
+                isTypeAvailable);
         attachAnnotations(var);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);

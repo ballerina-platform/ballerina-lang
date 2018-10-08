@@ -400,6 +400,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariable varNode) {
+        // Set type for compiler time constants which were defined without types.
+        if ((Flags.asMask(varNode.flagSet) == Flags.COMPILE_TIME_CONSTANT) && (varNode.typeNode == null)) {
+            BType rhsType = typeChecker.checkExpr(varNode.expr, this.env, expType);
+            varNode.symbol.type = rhsType;
+            varNode.type = rhsType;
+            return;
+        }
+
         // This will prevent cases Eg:- int _ = 100;
         // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
         Name varName = names.fromIdNode(varNode.name);
