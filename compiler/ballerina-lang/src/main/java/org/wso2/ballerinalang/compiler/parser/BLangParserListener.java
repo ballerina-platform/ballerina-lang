@@ -669,8 +669,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
+        boolean isConst = ctx.CONST() != null;
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.expression() != null, publicVar);
+                ctx.Identifier().getText(), ctx.expression() != null, publicVar, isConst);
     }
 
     @Override
@@ -919,8 +920,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean exprAvailable = ctx.ASSIGN() != null;
-        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), exprAvailable, false);
+        boolean isConst = ctx.CONST() != null;
+        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                exprAvailable, false, isConst);
     }
 
     @Override

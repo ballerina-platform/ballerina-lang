@@ -676,6 +676,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varSymbol.docTag = varNode.docTag;
         varNode.symbol = varSymbol;
+
+        if ((varNode.symbol.flags & Flags.COMPILE_TIME_CONSTANT) == Flags.COMPILE_TIME_CONSTANT &&
+                varNode.expr.getKind() != NodeKind.LITERAL) {
+            dlog.error(varNode.pos, DiagnosticCode.CANNOT_ASSIGN_TO_COMPILE_TIME_CONSTANT);
+        }
     }
 
     @Override

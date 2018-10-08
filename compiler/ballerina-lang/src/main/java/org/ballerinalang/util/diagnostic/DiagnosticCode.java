@@ -60,6 +60,8 @@ public enum DiagnosticCode {
     CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT("cannot.attach.functions.to.abstract.object"),
     ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
 
+    CANNOT_ASSIGN_TO_COMPILE_TIME_CONSTANT("cannot.assign.to.compile.time.constant"),
+
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
     UNKNOWN_TYPE("unknown.type"),

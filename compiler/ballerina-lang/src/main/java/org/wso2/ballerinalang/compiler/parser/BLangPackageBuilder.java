@@ -824,7 +824,8 @@ public class BLangPackageBuilder {
                                  Set<Whitespace> ws,
                                  String identifier,
                                  boolean exprAvailable,
-                                 boolean endpoint) {
+                                 boolean endpoint,
+                                 boolean isConst) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         // TODO : Remove endpoint logic from here.
@@ -845,6 +846,9 @@ public class BLangPackageBuilder {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
 
+        if (isConst) {
+            var.flagSet.add(Flag.COMPILE_TIME_CONSTANT);
+        }
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
@@ -1453,11 +1457,15 @@ public class BLangPackageBuilder {
                            Set<Whitespace> ws,
                            String identifier,
                            boolean exprAvailable,
-                           boolean publicVar) {
+                           boolean publicVar,
+                           boolean isConst) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         attachAnnotations(var);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
+        }
+        if (isConst) {
+            var.flagSet.add(Flag.COMPILE_TIME_CONSTANT);
         }
         var.docTag = DocTag.VARIABLE;
         attachMarkdownDocumentations(var);
