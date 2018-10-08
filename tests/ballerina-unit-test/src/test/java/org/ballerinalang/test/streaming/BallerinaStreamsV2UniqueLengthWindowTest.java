@@ -51,7 +51,6 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startUniqueLengthwindowTest1");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
-
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
         BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[2];
