@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,9 @@ public class ResponseCompleted implements ListenerState {
 
     @Override
     public void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener,
-                                     Http2PushPromise pushPromise) {
+                                     Http2PushPromise pushPromise) throws Http2Exception {
         LOG.warn("writeOutboundPromise is not a dependant action of this state");
+        throw new Http2Exception(Http2Error.PROTOCOL_ERROR,
+                "writeOutboundPromise is not a dependant action of this state");
     }
 }

@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
@@ -119,8 +120,10 @@ public class SendingEntityBody implements ListenerState {
 
     @Override
     public void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener,
-                                     Http2PushPromise pushPromise) {
+                                     Http2PushPromise pushPromise) throws Http2Exception {
         LOG.warn("writeOutboundPromise is not a dependant action of this state");
+        throw new Http2Exception(Http2Error.PROTOCOL_ERROR,
+                "writeOutboundPromise is not a dependant action of this state");
     }
 
     private void writeContent(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
