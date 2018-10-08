@@ -51,15 +51,20 @@ public type Listener object {
 # + port - The server port.
 # + secureSocket - The SSL configurations for the client endpoint.
 public type ServiceEndpointConfiguration record {
-    string host,
-    int port,
-    ServiceSecureSocket? secureSocket,
+    string host;
+    int port;
+    ServiceSecureSocket? secureSocket;
+    !...
 };
 
 # SecureSocket struct represents SSL/TLS options to be used for gRPC service.
 #
 # + trustStore - TrustStore related options.
 # + keyStore - KeyStore related options.
+# + certFile - A file containing the certificate of the server.
+# + keyFile - A file containing the private key of the server.
+# + keyPassword - Password of the private key if it is encrypted.
+# + trustedCertFile - A file containing a list of certificates or a single certificate that the server trusts.
 # + protocol - SSL/TLS protocol related options.
 # + certValidation - Certificate validation against CRL or OCSP related options.
 # + ciphers - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -68,14 +73,19 @@ public type ServiceEndpointConfiguration record {
 # + shareSession - Enable/disable new ssl session creation.
 # + ocspStapling - Enable/disable ocsp stapling.
 public type ServiceSecureSocket record {
-    TrustStore? trustStore,
-    KeyStore? keyStore,
-    Protocols? protocol,
-    ValidateCert? certValidation,
-    string[] ciphers,
-    string sslVerifyClient,
-    boolean shareSession = true,
-    ServiceOcspStapling? ocspStapling,
+    TrustStore? trustStore;
+    KeyStore? keyStore;
+    string certFile;
+    string keyFile;
+    string keyPassword;
+    string trustedCertFile;
+    Protocols? protocol;
+    ValidateCert? certValidation;
+    string[] ciphers;
+    string sslVerifyClient;
+    boolean shareSession = true;
+    ServiceOcspStapling? ocspStapling;
+    !...
 };
 
 public type Service object {

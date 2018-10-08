@@ -2,6 +2,7 @@ public type TrxError record {
     string message;
     error? cause;
     string data;
+    !...
 };
 
 @final int RETRYCOUNT = 4;

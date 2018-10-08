@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBuiltInReferenceTypeTypeExpressionImpl extends BallerinaExpressionImpl implements BallerinaBuiltInReferenceTypeTypeExpression {
 
-  public BallerinaBuiltInReferenceTypeTypeExpressionImpl(ASTNode node) {
+  public BallerinaBuiltInReferenceTypeTypeExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

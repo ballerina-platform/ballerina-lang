@@ -16,17 +16,17 @@
 
 # Represents a channel which will allow to read/write records through a given CharacterChannel.
 public type DelimitedTextRecordChannel object {
-    private CharacterChannel channel;
+    private CharacterChannel charChannel;
     private string rs;
     private string fs;
 
     # Constructs a DelimitedTextRecordChannel from a given CharacterChannel.
     #
-    # + channel - CharacterChannel which will point to the input/output resource
+    # + charChannel - CharacterChannel which will point to the input/output resource
     # + rs - Record separator (this could be a regex)
     # + fs - Field separator (this could be a regex)
-    public new(channel, fs = "", rs = "", string fmt = "default") {
-        init(channel, fs, rs, fmt);
+    public new(charChannel, fs = "", rs = "", string fmt = "default") {
+        init(charChannel, fs, rs, fmt);
     }
 
     # Initializes delimited record channel.

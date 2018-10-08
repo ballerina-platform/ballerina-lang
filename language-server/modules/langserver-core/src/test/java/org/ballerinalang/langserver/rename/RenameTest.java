@@ -20,7 +20,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.completion.util.FileUtils;
-import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -33,7 +32,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test class for Renaming.
@@ -51,8 +49,6 @@ public class RenameTest {
     @BeforeClass
     public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
-        String indexDumpPath = Paths.get("target/lang-server-index.sql").toAbsolutePath().toString();
-        LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
 
     @Test(dataProvider = "rename-data-provider")

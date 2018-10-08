@@ -332,6 +332,21 @@ public class PackagingInitTestCase extends BaseTest {
                 .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
     }
 
+    @Test(description = "Test creating a project in the interactive mode by giving enter as the option")
+    public void testInitPrjctWithoutOpts() throws Exception {
+        // Test ballerina init
+        Path projectPath = tempProjectDirectory.resolve("projectWithoutOpts");
+        Files.createDirectories(projectPath);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", "\n", "\n", "\n", "\n", "\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                          projectPath.toString());
+
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("hello_service.bal")));
+    }
     /**
      * Run and test main function in project.
      *

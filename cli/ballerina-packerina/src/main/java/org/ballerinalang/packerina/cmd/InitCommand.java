@@ -109,11 +109,24 @@ public class InitCommand implements BLauncherCmd {
 
                 String srcInput;
                 boolean validInput = false;
+                boolean firstPrompt = true;
                 do {
-                    out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
+                    // Following will be the first prompt and it will create a service by default. This is to align
+                    // with the non-interactive implementation.
+                    if (firstPrompt) {
+                        // Here if the user presses enter or "s" a service will be created (This will have the same
+                        // behavior as running ballerina init without the interactive mode)
+                        out.print("Ballerina source [service/s, main/m, finish/f]: (s) ");
+                    } else {
+                        // Following will be prompted after the first prompt
+                        // Here if the user presses enter, "f" or "finish" the command will be exited. If user gives
+                        // "m" a main function and "s" a service will be created.
+                        out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
+                    }
                     srcInput = scanner.nextLine().trim();
 
-                    if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") || srcInput.isEmpty()) {
+                    if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s")
+                            || (srcInput.isEmpty() && firstPrompt)) {
                         String packageName;
                         do {
                             out.print("Package for the service: (no package) ");
@@ -127,6 +140,7 @@ public class InitCommand implements BLauncherCmd {
                             PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.SERVICE);
                             packageMdFiles.add(packageMdFile);
                         }
+                        firstPrompt = false;
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
                         String packageName;
                         do {
@@ -141,8 +155,11 @@ public class InitCommand implements BLauncherCmd {
                             PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.MAIN);
                             packageMdFiles.add(packageMdFile);
                         }
-                    } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f")) {
+                        firstPrompt = false;
+                    } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f") ||
+                            srcInput.equalsIgnoreCase("finish")) {
                         validInput = true;
+                        firstPrompt = false;
                     } else {
                         out.println("Invalid input");
                     }

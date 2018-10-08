@@ -18,9 +18,9 @@
 public type Timer object {
 
     // The function which gets called when the timer goes off
-    private (function() returns error?) onTrigger,
+    private (function() returns error?) onTrigger;
     // The function that gets called if the onTrigger function returns an error
-    private (function(error) returns ())? onError,
+    private (function(error) returns ())? onError;
     // Initial delay before the timer gets triggerred
     private int delay;
     // Timer trigger interval

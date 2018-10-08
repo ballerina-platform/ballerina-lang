@@ -34,6 +34,6 @@ public extern function json::getKeys() returns (string[]);
 # + options - jsonOptions struct for JSON to XML conversion properties
 # + return - The XML representation of the JSON
 public extern function json::toXML(record {
-                                         string attributePrefix = "@",
-                                         string arrayEntryTag = "item",
+                                         string attributePrefix = "@";
+                                         string arrayEntryTag = "item";
                                      } options) returns (xml|error);

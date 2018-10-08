@@ -47,10 +47,15 @@ public class ServiceProtoConstants {
     public static final String TMP_DIRECTORY_PATH = System.getProperty("java.io.tmpdir");
 
     public static final String ANN_SERVICE_CONFIG = "ServiceConfig";
+    public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
 
     public static final String SERVICE_CONFIG_RPC_ENDPOINT = "name";
     public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";
     public static final String SERVICE_CONFIG_SERVER_STREAMING = "serverStreaming";
+
+    public static final String RESOURCE_CONFIG_STREAMING = "streaming";
+    public static final String RESOURCE_CONFIG_REQUEST_TYPE = "requestType";
+    public static final String RESOURCE_CONFIG_RESPONSE_TYPE = "responseType";
 
     public static final Map<Integer, String> FIELD_TYPE_MAP;
     static {

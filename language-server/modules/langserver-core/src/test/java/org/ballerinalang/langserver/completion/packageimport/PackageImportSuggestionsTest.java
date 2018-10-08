@@ -18,23 +18,13 @@
 package org.ballerinalang.langserver.completion.packageimport;
 
 import org.ballerinalang.langserver.completion.CompletionTest;
-import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-
-import java.nio.file.Paths;
 
 /**
  * Tests the auto-completion suggestions.
  *
  */
 public class PackageImportSuggestionsTest extends CompletionTest {
-
-    @BeforeClass
-    private void initLSIndex() {
-        String indexDumpPath = Paths.get("target/lang-server-index.sql").toAbsolutePath().toString();
-        LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
-    }
 
     @DataProvider(name = "completion-data-provider")
     @Override

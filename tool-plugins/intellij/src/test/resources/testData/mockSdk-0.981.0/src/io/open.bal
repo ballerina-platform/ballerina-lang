@@ -72,7 +72,7 @@ public function openCsvFile(@sensitive string path,
                             @sensitive Separator fieldSeparator = ",",
                             @sensitive string charset = "UTF-8",
                             @sensitive int skipHeaders = 0) returns @tainted CSVChannel {
-    ByteChannel channel = openFile(path, mode);
-    CharacterChannel charChannel = new(channel, charset);
+    ByteChannel byteChannel = openFile(path, mode);
+    CharacterChannel charChannel = new(byteChannel, charset);
     return new CSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
 }

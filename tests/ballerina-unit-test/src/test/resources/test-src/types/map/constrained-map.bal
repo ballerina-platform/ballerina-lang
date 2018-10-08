@@ -269,15 +269,15 @@ function updateGenericMapWithNullValue (map m) returns (map) {
 }
 
 type Person record {
-    string name,
-    int age,
-    string address,
+    string name;
+    int age;
+    string address;
     !...
 };
 
 type Employee record {
-    string name,
-    int age,
+    string name;
+    int age;
     !...
 };
 
@@ -391,8 +391,8 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
 }
 
 type Student record {
-    int index,
-    int age,
+    int index;
+    int age;
     !...
 };
 
@@ -461,16 +461,16 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
 }
 
 type PersonComplex record {
-     string name,
-    int age,
-    PersonComplex? parent,
-    json info,
-    map<string> address,
-    int[] marks,
-    any a,
-    float score,
-    boolean alive,
-        !...
+     string name;
+    int age;
+    PersonComplex? parent;
+    json info;
+    map<string> address;
+    int[] marks;
+    any a;
+    float score;
+    boolean alive;
+    !...
 };
 
 function testJsonToStructConversionStructWithConstrainedMap () returns (string, string) {
@@ -500,16 +500,16 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
 }
 
 type PersonComplexTwo record {
-    string name,
-    int age,
-    PersonComplexTwo? parent,
-    json info,
-    map<int> address,
-    int[] marks,
-    any a,
-    float score,
-    boolean alive,
-        !...
+    string name;
+    int age;
+    PersonComplexTwo? parent;
+    json info;
+    map<int> address;
+    int[] marks;
+    any a;
+    float score;
+    boolean alive;
+    !...
 };
 
 function testJsonToStructConversionStructWithConstrainedMapNegative () returns (PersonComplexTwo|error) {
@@ -596,35 +596,35 @@ function testMapConstrainedEquivalentMapInsert () returns (string?, int?) {
 }
 
 type Transaction record {
-    string transactionId,
-    string coordinationType,
-    map<Participant> participants,
-    Protocol[] coordinatorProtocols,
+    string transactionId;
+    string coordinationType;
+    map<Participant> participants;
+    Protocol[] coordinatorProtocols;
     !...
 };
 
 type Participant record {
-    string participantId,
-    Protocol[] participantProtocols,
+    string participantId;
+    Protocol[] participantProtocols;
     !...
 };
 
 type Protocol record {
-    string name,
-    string url,
-    int transactionBlockId,
+    string name;
+    string url;
+    int transactionBlockId;
     (function (string transactionId,
                int transactionBlockId,
-               string protocolAction) returns boolean)|() protocolFn,
+               string protocolAction) returns boolean)|() protocolFn;
     !...
 };
 
 type TwoPhaseCommitTransaction record {
-    string transactionId,
-    string coordinationType,
-    map<Participant> participants,
-    Protocol[] coordinatorProtocols,
-    boolean possibleMixedOutcome,
+    string transactionId;
+    string coordinationType;
+    map<Participant> participants;
+    Protocol[] coordinatorProtocols;
+    boolean possibleMixedOutcome;
     !...
 };
 

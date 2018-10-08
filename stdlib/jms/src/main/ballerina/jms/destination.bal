@@ -14,26 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Defines the possible values for the destination type in JMS `Destination`.
-
-    `queue`: Destination type queue
-    `topic`: Destination type topic
-}
+# Defines the possible values for the destination type in JMS `Destination`.
+#
+# `queue`: Destination type queue
+# `topic`: Destination type topic
 public type DestinationType "queue" | "topic";
 
-documentation {Constant for jms destination type queue}
+# Constant for jms destination type queue
 @final public DestinationType QUEUE = "queue";
 
-documentation {Constant for jms destination type topic}
+# Constant for jms destination type topic
 @final public DestinationType TOPIC = "topic";
 
-documentation {
-    Destination object
-
-    F{{destinationName}} name of the destination
-    F{{destinationType}} type of the destination, either queue or topic
-}
+# Destination object
+#
+# + destinationName - name of the destination
+# + destinationType - type of the destination, either queue or topic
 public type Destination object {
     public string destinationName;
     public string destinationType;

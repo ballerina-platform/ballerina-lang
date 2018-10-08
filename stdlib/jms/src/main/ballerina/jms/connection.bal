@@ -52,4 +52,5 @@ public type ConnectionConfiguration record {
     string? username;
     string? password;
     map properties;
+    !...
 };

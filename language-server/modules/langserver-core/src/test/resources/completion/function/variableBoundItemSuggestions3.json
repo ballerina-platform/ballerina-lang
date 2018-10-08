@@ -278,14 +278,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"new()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"new()",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"createNewEntity()(ballerina/mime:Entity)",
       "kind":"Function",
       "detail":"Function",

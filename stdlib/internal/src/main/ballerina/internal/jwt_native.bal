@@ -24,9 +24,10 @@
 extern function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
     returns (boolean);
 type TrustStore record {
-    string certificateAlias,
-    string trustStoreFilePath,
-    string trustStorePassword,
+    string certificateAlias;
+    string trustStoreFilePath;
+    string trustStorePassword;
+    !...
 };
 
 # Sign the given input jwt data.
@@ -38,10 +39,11 @@ type TrustStore record {
 extern function sign(string data, string algorithm, KeyStore keyStore) returns (string);
 
 type KeyStore record {
-    string keyAlias,
-    string keyPassword,
-    string keyStoreFilePath,
-    string keyStorePassword,
+    string keyAlias;
+    string keyPassword;
+    string keyStoreFilePath;
+    string keyStorePassword;
+    !...
 };
 
 # Parse JSON string to generate JSON object.

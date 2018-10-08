@@ -32,11 +32,14 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.FiniteType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -65,6 +68,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -82,14 +86,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
@@ -327,7 +335,8 @@ public class CommonUtil {
      */
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
+                "record");
         LSDocument document = new LSDocument(identifier.getUri());
 
         try {
@@ -382,11 +391,13 @@ public class CommonUtil {
     /**
      * Get the Annotation completion Item.
      *
-     * @param packageID  Package Id
-     * @param annotationSymbol BLang annotation to extract the completion Item
+     * @param packageID                 Package Id
+     * @param annotationSymbol          BLang annotation to extract the completion Item
+     * @param ctx                       LS Service operation context, in this case completion context
      * @return {@link CompletionItem}   Completion item for the annotation
      */
-    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol) {
+    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
+                                                             LSContext ctx) {
         String label = getAnnotationLabel(packageID, annotationSymbol);
         String insertText = getAnnotationInsertText(packageID, annotationSymbol);
         CompletionItem annotationItem = new CompletionItem();
@@ -394,8 +405,44 @@ public class CommonUtil {
         annotationItem.setInsertText(insertText);
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        Optional currentPkgImport = imports.stream()
+                .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
+                .findAny();
+        // if the particular import statement not available we add the additional text edit to auto import
+        if (!currentPkgImport.isPresent()) {
+            annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(ctx, packageID.orgName.getValue(),
+                    packageID.name.getValue()));
+        }
         return annotationItem;
+    }
+
+    /**
+     * Get the text edit for an auto import statement.
+     *
+     * @param ctx               Service operation context
+     * @param orgName           package org name
+     * @param pkgName           package name
+     * @return {@link List}     List of Text Edits to apply
+     */
+    public static List<TextEdit> getAutoImportTextEdits(LSContext ctx, String orgName, String pkgName) {
+        if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
+            return null;
+        }
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        Position start = new Position();
+
+        if (!imports.isEmpty()) {
+            BLangImportPackage last = CommonUtil.getLastItem(imports);
+            int endLine = last.getPosition().getEndLine() - 1;
+            int endColumn = last.getPosition().getEndColumn();
+            start = new Position(endLine, endColumn);
+        }
+
+        String importStatement = CommonUtil.LINE_SEPARATOR + ItemResolverConstants.IMPORT + " "
+                + orgName + UtilSymbolKeys.SLASH_KEYWORD_KEY + pkgName + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY
+                + CommonUtil.LINE_SEPARATOR;
+        return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
     }
 
     /**
@@ -592,22 +639,30 @@ public class CommonUtil {
         return list.get(list.size() - 1);
     }
 
-    static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
+    static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList, LSContext context) {
         BType bType = variable.getScopeEntry().symbol.getType();
+        
+        if (iterableType(bType)) {
+            SymbolInfo itrForEach = getIterableOpSymbolInfo(Snippet.ITR_FOREACH, bType,
+                    ItemResolverConstants.ITR_FOREACH_LABEL, context);
+            SymbolInfo itrMap = getIterableOpSymbolInfo(Snippet.ITR_MAP, bType,
+                    ItemResolverConstants.ITR_MAP_LABEL, context);
+            SymbolInfo itrFilter = getIterableOpSymbolInfo(Snippet.ITR_FILTER, bType,
+                    ItemResolverConstants.ITR_FILTER_LABEL, context);
+            SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT, bType,
+                    ItemResolverConstants.ITR_COUNT_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
 
-        if (bType instanceof BArrayType || bType instanceof BMapType || bType instanceof BJSONType
-                || bType instanceof BXMLType || bType instanceof BTableType
-                || bType instanceof BIntermediateCollectionType) {
-            fillForeachIterableOperation(bType, symbolInfoList);
-            fillMapIterableOperation(bType, symbolInfoList);
-            fillFilterIterableOperation(bType, symbolInfoList);
-            fillCountIterableOperation(symbolInfoList);
-            if (bType instanceof BArrayType && (((BArrayType) bType).eType.toString().equals("int")
-                    || ((BArrayType) bType).eType.toString().equals("float"))) {
-                fillMinIterableOperation(symbolInfoList);
-                fillMaxIterableOperation(symbolInfoList);
-                fillAverageIterableOperation(symbolInfoList);
-                fillSumIterableOperation(symbolInfoList);
+            if (aggregateFunctionsAllowed(bType)) {
+                SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN, bType,
+                        ItemResolverConstants.ITR_MIN_LABEL, context);
+                SymbolInfo itrMax = getIterableOpSymbolInfo(Snippet.ITR_MAX, bType,
+                        ItemResolverConstants.ITR_MAX_LABEL, context);
+                SymbolInfo itrAvg = getIterableOpSymbolInfo(Snippet.ITR_AVERAGE, bType,
+                        ItemResolverConstants.ITR_AVERAGE_LABEL, context);
+                SymbolInfo itrSum = getIterableOpSymbolInfo(Snippet.ITR_SUM, bType,
+                        ItemResolverConstants.ITR_SUM_LABEL, context);
+                symbolInfoList.addAll(Arrays.asList(itrMin, itrMax, itrAvg, itrSum));
             }
 
             // TODO: Add support for Table and Tuple collection
@@ -632,7 +687,36 @@ public class CommonUtil {
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.kind));
     }
 
-    public static boolean isInvalidSymbol(BSymbol symbol) {
+    /**
+     * Get the current file's imports.
+     * 
+     * @param ctx               LS Operation Context
+     * @return {@link List}     List of imports in the current file
+     */
+    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
+        return bLangPackage.getImports().stream()
+                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the current file's top level nodes.
+     *
+     * @param ctx               LS Operation Context
+     * @return {@link List}     List of top level nodes in the current file
+     */
+    public static List<TopLevelNode> getCurrentFileTopLevelNodes(LSContext ctx) {
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
+        return bLangPackage.topLevelNodes.stream()
+                .filter(topLevelNode -> topLevelNode.getPosition().getSource().getCompilationUnitName()
+                        .equals(currentFile))
+                .collect(Collectors.toList());
+    }
+
+    static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
                 || "runtime".equals(symbol.getName().getValue())
                 || "transactions".equals(symbol.getName().getValue())
@@ -643,116 +727,88 @@ public class CommonUtil {
     }
 
     // Private Methods
+    
+    private static SymbolInfo getIterableOpSymbolInfo(Snippet operation, @Nullable BType bType, String label,
+                                                      LSContext context) {
+        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
+        String lambdaSignature = "";
+        SymbolInfo.IterableOperationSignature signature;
+        SymbolInfo iterableOperation = new SymbolInfo();
+        switch (operation) {
+            case ITR_FOREACH: {
+                String params = getIterableOpLambdaParam(bType, context);
+                lambdaSignature = operation.getBlock()
+                        .getString(isSnippet)
+                        .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+                break;
+            }
+            case ITR_MAP: {
+                String params = getIterableOpLambdaParam(bType, context);
+                lambdaSignature = operation.getBlock()
+                        .getString(isSnippet)
+                        .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+                break;
+            }
+            case ITR_FILTER: {
+                String params = getIterableOpLambdaParam(bType, context);
+                lambdaSignature = operation.getBlock()
+                        .getString(isSnippet)
+                        .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+                break;
+            }
+            case ITR_COUNT:
+            case ITR_MIN:
+            case ITR_MAX:
+            case ITR_AVERAGE:
+            case ITR_SUM:
+                lambdaSignature = operation.getBlock().getString(isSnippet);
+                break;
+            default: {
+                // Do Nothing
+                break;
+            }
+                
+        }
 
-    private static void fillForeachIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
-        String params = getIterableOpLambdaParam(bType);
-
-        String lambdaSignature =
-                Snippet.ITR_FOREACH.toString().replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
-        SymbolInfo.IterableOperationSignature signature =
-                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_FOREACH_LABEL, lambdaSignature);
-        SymbolInfo forEachSymbolInfo = new SymbolInfo();
-        forEachSymbolInfo.setIterableOperation(true);
-        forEachSymbolInfo.setIterableOperationSignature(signature);
-        symbolInfoList.add(forEachSymbolInfo);
+        signature = new SymbolInfo.IterableOperationSignature(label, lambdaSignature);
+        iterableOperation.setIterableOperation(true);
+        iterableOperation.setIterableOperationSignature(signature);
+        return iterableOperation;
     }
 
-    private static void fillMapIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
-        String params = getIterableOpLambdaParam(bType);
-
-        String lambdaSignature
-                = Snippet.ITR_MAP.toString().replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
-        SymbolInfo.IterableOperationSignature signature =
-                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_MAP_LABEL, lambdaSignature);
-        SymbolInfo forEachSymbolInfo = new SymbolInfo();
-        forEachSymbolInfo.setIterableOperation(true);
-        forEachSymbolInfo.setIterableOperationSignature(signature);
-        symbolInfoList.add(forEachSymbolInfo);
-    }
-
-    private static void fillFilterIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
-        String params = getIterableOpLambdaParam(bType);
-
-        String lambdaSignature
-                = Snippet.ITR_FILTER.toString().replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
-        SymbolInfo.IterableOperationSignature signature =
-                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_FILTER_LABEL, lambdaSignature);
-        SymbolInfo forEachSymbolInfo = new SymbolInfo();
-        forEachSymbolInfo.setIterableOperation(true);
-        forEachSymbolInfo.setIterableOperationSignature(signature);
-        symbolInfoList.add(forEachSymbolInfo);
-    }
-
-    private static void fillCountIterableOperation(List<SymbolInfo> symbolInfoList) {
-        String lambdaSignature = Snippet.ITR_COUNT.toString();
-        SymbolInfo.IterableOperationSignature signature =
-                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_COUNT_LABEL, lambdaSignature);
-        SymbolInfo forEachSymbolInfo = new SymbolInfo();
-        forEachSymbolInfo.setIterableOperation(true);
-        forEachSymbolInfo.setIterableOperationSignature(signature);
-        symbolInfoList.add(forEachSymbolInfo);
-    }
-
-    private static void fillMinIterableOperation(List<SymbolInfo> symbolInfoList) {
-        String lambdaSignature = Snippet.ITR_MIN.toString();
-        SymbolInfo.IterableOperationSignature signature =
-                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_MIN_LABEL, lambdaSignature);
-        SymbolInfo forEachSymbolInfo = new SymbolInfo();
-        forEachSymbolInfo.setIterableOperation(true);
-        forEachSymbolInfo.setIterableOperationSignature(signature);
-        symbolInfoList.add(forEachSymbolInfo);
-    }
-
-    private static void fillMaxIterableOperation(List<SymbolInfo> symbolInfoList) {
-        String lambdaSignature = Snippet.ITR_MAX.toString();
-        SymbolInfo.IterableOperationSignature signature =
-                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_MAX_LABEL, lambdaSignature);
-        SymbolInfo forEachSymbolInfo = new SymbolInfo();
-        forEachSymbolInfo.setIterableOperation(true);
-        forEachSymbolInfo.setIterableOperationSignature(signature);
-        symbolInfoList.add(forEachSymbolInfo);
-    }
-
-    private static void fillAverageIterableOperation(List<SymbolInfo> symbolInfoList) {
-        String lambdaSignature = Snippet.ITR_AVERAGE.toString();
-        SymbolInfo.IterableOperationSignature signature =
-                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_AVERAGE_LABEL, lambdaSignature);
-        SymbolInfo forEachSymbolInfo = new SymbolInfo();
-        forEachSymbolInfo.setIterableOperation(true);
-        forEachSymbolInfo.setIterableOperationSignature(signature);
-        symbolInfoList.add(forEachSymbolInfo);
-    }
-
-    private static void fillSumIterableOperation(List<SymbolInfo> symbolInfoList) {
-        String lambdaSignature = Snippet.ITR_SUM.toString();
-        SymbolInfo.IterableOperationSignature signature =
-                new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_SUM_LABEL, lambdaSignature);
-        SymbolInfo forEachSymbolInfo = new SymbolInfo();
-        forEachSymbolInfo.setIterableOperation(true);
-        forEachSymbolInfo.setIterableOperationSignature(signature);
-        symbolInfoList.add(forEachSymbolInfo);
-    }
-
-    private static String getIterableOpLambdaParam(BType bType) {
+    private static String getIterableOpLambdaParam(BType bType, LSContext context) {
         String params = "";
+        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         if (bType instanceof BMapType) {
-            params = Snippet.ITR_ON_MAP_PARAMS.toString();
+            params = Snippet.ITR_ON_MAP_PARAMS.getBlock().getString(isSnippet);
         } else if (bType instanceof BArrayType) {
             params = ((BArrayType) bType).eType.toString() + " v";
         } else if (bType instanceof BJSONType) {
-            params = Snippet.ITR_ON_JSON_PARAMS.toString();
+            params = Snippet.ITR_ON_JSON_PARAMS.getBlock().getString(isSnippet);
         } else if (bType instanceof BXMLType) {
-            params = Snippet.ITR_ON_XML_PARAMS.toString();
+            params = Snippet.ITR_ON_XML_PARAMS.getBlock().getString(isSnippet);
         }
 
         return params;
+    }
+    
+    private static boolean iterableType(BType bType) {
+        return bType instanceof BArrayType || bType instanceof BMapType || bType instanceof BJSONType
+                || bType instanceof BXMLType || bType instanceof BTableType
+                || bType instanceof BIntermediateCollectionType;
+    }
+    
+    private static boolean aggregateFunctionsAllowed(BType bType) {
+        return bType instanceof BArrayType && (((BArrayType) bType).eType.toString().equals("int")
+                || ((BArrayType) bType).eType.toString().equals("float"));
     }
 
     private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
         return bSymbol.getName().getValue().contains(UtilSymbolKeys.LT_SYMBOL_KEY)
                 || bSymbol.getName().getValue().contains(UtilSymbolKeys.GT_SYMBOL_KEY)
                 || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
-                || bSymbol.getName().getValue().equals("main");
+                || bSymbol.getName().getValue().equals("main")
+                || bSymbol.getName().getValue().endsWith(".new");
     }
 
     ///////////////////////////////
@@ -1044,7 +1100,7 @@ public class CommonUtil {
                     argNames.add(argName);
                 }
             }
-            return (!list.isEmpty()) ? list : null;
+            return (!list.isEmpty()) ? list : new ArrayList<>();
         }
 
         private static String lookupVariableReturnType(String variableName, BLangNode parent) {

@@ -72,8 +72,8 @@ class StatementDecorator extends React.Component {
      * Navigates to code line in the source view from the design view node
      */
     onJumpToCodeLine() {
-        const { editor } = this.context;
-        editor.goToSource(this.props.model);
+        const { goToSource } = this.context;
+        goToSource(this.props.model);
     }
 
     /**
@@ -208,7 +208,7 @@ StatementDecorator.propTypes = {
 
 StatementDecorator.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
-    editor: PropTypes.instanceOf(Object).isRequired,
+    goToSource: PropTypes.func.isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
     designer: PropTypes.instanceOf(Object),

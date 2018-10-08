@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -142,6 +143,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
+
+import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
 /**
  * This represents the code analyzing pass of semantic analysis.
@@ -153,8 +157,6 @@ import java.util.Stack;
  * (*) Worker send/receive validation.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
-
-    private static final String MAIN_FUNC_NAME = "main";
 
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
@@ -260,6 +262,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
+        this.validateMainFunction(funcNode);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
@@ -481,7 +484,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchStmt) {
-        this.returnWithintransactionCheckStack.push(true);
         boolean unmatchedExprTypesAvailable = false;
         analyzeExpr(matchStmt.expr);
 
@@ -555,7 +557,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             this.statementReturns = matchStmtReturns;
         }
-        this.returnWithintransactionCheckStack.pop();
     }
 
     @Override
@@ -797,6 +798,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWorkerSend workerSendNode) {
         this.checkStatementExecutionValidity(workerSendNode);
+        if (workerSendNode.isChannel) {
+            analyzeExpr(workerSendNode.expr);
+            if (workerSendNode.keyExpr != null) {
+                analyzeExpr(workerSendNode.keyExpr);
+            }
+            return;
+        }
         if (!this.inWorker()) {
             return;
         }
@@ -807,6 +815,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         this.checkStatementExecutionValidity(workerReceiveNode);
+        if (workerReceiveNode.isChannel) {
+            analyzeExpr(workerReceiveNode.expr);
+            if (workerReceiveNode.keyExpr != null) {
+                analyzeExpr(workerReceiveNode.keyExpr);
+            }
+            return;
+        }
         if (!this.inWorker()) {
             return;
         }
@@ -823,9 +838,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(kv -> {
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
+        keyValuePairs.forEach(kv -> {
             analyzeExpr(kv.valueExpr);
         });
+
+        Set<Object> names = new TreeSet<>((l, r) -> l.equals(r) ? 0 : 1);
+        for (BLangRecordLiteral.BLangRecordKeyValue recFieldDecl : keyValuePairs) {
+            BLangExpression key = recFieldDecl.getKey();
+            if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef keyRef = (BLangSimpleVarRef) key;
+                if (names.contains(keyRef.variableName.value)) {
+                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
+                }
+                names.add(keyRef.variableName.value);
+            } else if (key.getKind() == NodeKind.LITERAL) {
+                BLangLiteral keyLiteral = (BLangLiteral) key;
+                if (names.contains(keyLiteral.value)) {
+                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyLiteral);
+                }
+                names.add(keyLiteral.value);
+            }
+        }
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
@@ -983,6 +1019,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        /* ignore */
+    }
+
+    public void visit(BLangArrowFunction bLangArrowFunction) {
         /* ignore */
     }
 
@@ -1277,6 +1317,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean isValidTransactionBlock() {
         return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek()) &&
                 !this.withinRetryBlock;
+    }
+
+    private void validateMainFunction(BLangFunction funcNode) {
+        if (!MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
+            return;
+        }
+        if (!Symbols.isPublic(funcNode.symbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
+        }
+        if (!(funcNode.symbol.retType.tag == TypeTags.NIL || funcNode.symbol.retType.tag == TypeTags.INT)) {
+            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_RETURN_WITH_MAIN,
+                            funcNode.symbol.retType);
+        }
     }
 
     private void checkDuplicateNamedArgs(List<BLangExpression> args) {

@@ -41,6 +41,7 @@ public type Listener object {
 # + path - Directory path which need to listen
 # + recursive - Recursively monitor all sub folders or not in the given direcotry path
 public type ListenerEndpointConfiguration record {
-    string path,
-    boolean recursive = false,
+    string path;
+    boolean recursive = false;
+    !...
 };

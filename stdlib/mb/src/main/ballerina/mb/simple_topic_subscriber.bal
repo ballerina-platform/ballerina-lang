@@ -57,6 +57,8 @@ public type SimpleTopicSubscriber object {
     }
 
     # Get simple topic subscriber actions
+    #
+    # + return - the caller action object of the `TopicPublisher`
     public function getCallerActions() returns TopicSubscriberActions {
         match (self.consumerActions) {
             TopicSubscriberActions c => return c;
@@ -75,6 +77,7 @@ public type SimpleTopicSubscriber object {
     # Create JMS text message
     #
     # + message - A message body to create a text message
+    # + return - the `Message` object created using the `string` message. or `error` on failure
     public function createTextMessage(string message) returns Message|error {
         var result = self.subscriber.createTextMessage(message);
         match (result) {
@@ -92,6 +95,7 @@ public type SimpleTopicSubscriber object {
 # + port - Hostname of the Ballerina message broker
 # + clientID - Used to identify the JMS client
 # + virtualHost - Name of the virtual host where the virtual host is a path that acts as a namespace
+# + secureSocket - Configuration for the TLS options to be used
 # + connectionFactoryName - JNDI name of the connection factory
 # + acknowledgementMode - JMS session acknowledgement mode. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
@@ -99,21 +103,24 @@ public type SimpleTopicSubscriber object {
 # + properties - JMS message properties
 # + topicPattern - Topic name pattern
 public type SimpleTopicSubscriberEndpointConfiguration record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
-    string connectionFactoryName = "ConnectionFactory",
-    string acknowledgementMode = "AUTO_ACKNOWLEDGE",
-    string messageSelector,
-    map properties,
-    string topicPattern,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
+    string connectionFactoryName = "ConnectionFactory";
+    string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    string messageSelector;
+    map properties;
+    string topicPattern;
+    !...
 };
 
 # Actions that topic subscriber endpoint could perform
+#
+# + helper - the jms TopicSubscriberActions
 public type TopicSubscriberActions object {
 
     public jms:TopicSubscriberActions helper;
@@ -125,6 +132,7 @@ public type TopicSubscriberActions object {
     # Acknowledges a received message
     #
     # + message - Message to be acknowledged
+    # + return - `error` on failure to acknowledge
     public function acknowledge(Message message) returns error? {
         return self.helper.acknowledge(message.getJMSMessage());
     }
@@ -132,7 +140,7 @@ public type TopicSubscriberActions object {
     # Synchronously receive a message from Ballerina message broker
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nill if the timeout exceededs. Returns an error on broker internal error.
+    # + return - Returns a message or nil if the timeout exceededs. Returns an error on broker internal error.
     public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
         var result = self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {

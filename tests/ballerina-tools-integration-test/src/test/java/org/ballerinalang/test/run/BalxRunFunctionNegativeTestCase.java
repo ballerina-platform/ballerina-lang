@@ -64,7 +64,7 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
     @Test
     public void testEmptyEntryFunctionName() throws BallerinaTestException {
         String sourceArg = balxPath + ":";
-        LogLeecher errLogLeecher = new LogLeecher("usage error: expected function name after final ':'",
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: expected function name after final ':'",
                 LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);

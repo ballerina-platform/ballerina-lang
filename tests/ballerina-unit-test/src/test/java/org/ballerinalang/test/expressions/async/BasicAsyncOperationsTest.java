@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.expressions.async;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -75,5 +76,13 @@ public class BasicAsyncOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic6", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
-    
+
+    @Test (description = "Test negative issues with future")
+    public void testAsyncNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/expressions/async/async-operations-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'future', found 'int'", 3, 18);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'future', found 'int'", 9, 18);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'future', found 'any'", 15, 18);
+    }
 }

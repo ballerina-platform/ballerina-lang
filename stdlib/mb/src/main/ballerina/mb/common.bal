@@ -24,13 +24,14 @@
 # + virtualHost - target virtualhost
 # + secureSocket - TLS configurations
 public type BrokerURLConfig record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
+    !...
 };
 
 # Configurations related to TLS
@@ -39,17 +40,19 @@ public type BrokerURLConfig record {
 # + keyStore - Keystore configuration
 # + sslCertAlias - name of the ssl cert alias
 public type ServiceSecureSocket record {
-    Store? trustStore,
-    Store? keyStore,
-    string sslCertAlias,
+    Store? trustStore;
+    Store? keyStore;
+    string sslCertAlias;
+    !...
 };
 
 #
 # + path - file path to key store
 # + password - password used to protect the key store
 public type Store record {
-    string path,
-    string password,
+    string path;
+    string password;
+    !...
 };
 
 function generateBrokerURL(BrokerURLConfig config) returns string {

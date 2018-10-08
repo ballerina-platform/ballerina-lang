@@ -3,8 +3,8 @@ import ballerina/io;
 io:CharacterChannel? characterChannel;
 
 function initCharacterChannel(string filePath, io:Mode permission, string encoding) {
-    io:ByteChannel channel = io:openFile(filePath, permission);
-    characterChannel = untaint new io:CharacterChannel(channel, encoding);
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
+    characterChannel = untaint new io:CharacterChannel(byteChannel, encoding);
 }
 
 function readCharacters(int numberOfCharacters) returns string|error {

@@ -72,7 +72,9 @@ function startAggregationQuery() returns (OutputRecord[]) {
 
 function streamFunc() {
 
-    function (OutputRecord[]) outputFunc = (OutputRecord[] o) => {
+    function (map) outputFunc = function (map m) {
+        // just cast input map into the output type
+        OutputRecord o = check <OutputRecord>m;
         outputStream.publish(o);
     };
 
@@ -116,69 +118,61 @@ function streamFunc() {
 
     // create selector
     streams:Select select = streams:createSelect(
-                                outputProcess.process,
-                                aggregators,
-                                (streams:StreamEvent e) => string {
-                                    InputRecord i = check <InputRecord>e.eventObject;
-                                    return i.category;
-                                },
-                                (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) => any {
-                                    InputRecord i = check <InputRecord>e.eventObject;
-                                    streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
-                                    streams:Sum fSumAggregator1 = check <streams:Sum>aggregatorArray[1];
-                                    streams:Count countAggregator1 = check <streams:Count>aggregatorArray[2];
-                                    streams:Average iAvgAggregator1 = check <streams:Average>aggregatorArray[3];
-                                    streams:Average fAvgAggregator1 = check <streams:Average>aggregatorArray[4];
-                                    streams:DistinctCount dCountAggregator1 = check <streams:DistinctCount>
-                                    aggregatorArray[5];
-                                    streams:StdDev stdDevAggregator1 = check <streams:StdDev>aggregatorArray[6];
-                                    streams:MaxForever iMaxForeverAggregator1 = check <streams:MaxForever>
-                                    aggregatorArray[7];
-                                    streams:MaxForever fMaxForeverAggregator1 = check <streams:MaxForever>
-                                    aggregatorArray[8];
-                                    streams:MinForever iMinForeverAggregator1 = check <streams:MinForever>
-                                    aggregatorArray[9];
-                                    streams:MinForever fMinForeverAggregator1 = check <streams:MinForever>
-                                    aggregatorArray[10];
-                                    streams:Max iMaxAggregator1 = check <streams:Max>aggregatorArray[11];
-                                    streams:Max fMaxAggregator1 = check <streams:Max>aggregatorArray[12];
-                                    streams:Min iMinAggregator1 = check <streams:Min>aggregatorArray[13];
-                                    streams:Min fMinAggregator1 = check <streams:Min>aggregatorArray[14];
-                                    OutputRecord o = {
-                                        id: i.id,
-                                        category: i.category,
-                                        iSum: check <int>iSumAggregator1.process(i.intVal, e.eventType),
-                                        fSum: check <float>fSumAggregator1.process(i.floatVal, e.eventType),
-                                        count: check <int>countAggregator1.process((), e.eventType),
-                                        iAvg: check <float>iAvgAggregator1.process(i.intVal, e.eventType),
-                                        fAvg: check <float>fAvgAggregator1.process(i.floatVal, e.eventType),
-                                        distCount: check <int>dCountAggregator1.process(i.id, e.eventType),
-                                        stdDev: check <float>stdDevAggregator1.process(i.floatVal, e.eventType),
-                                        iMaxForever: check <int>iMaxForeverAggregator1.process(i.intVal, e.eventType),
-                                        fMaxForever: check <float>fMaxForeverAggregator1.process(i.floatVal, e.eventType
-                                        ),
-                                        iMinForever: check <int>iMinForeverAggregator1.process(i.intVal, e.eventType),
-                                        fMinForever: check <float>fMinForeverAggregator1.process(i.floatVal, e.eventType
-                                        ),
-                                        iMax: check <int>iMaxAggregator1.process(i.intVal, e.eventType),
-                                        fMax: check <float>fMaxAggregator1.process(i.floatVal, e.eventType),
-                                        iMin: check <int>iMinAggregator1.process(i.intVal, e.eventType),
-                                        fMin: check <float>fMinAggregator1.process(i.floatVal, e.eventType)
-                                    };
-                                    return o;
-                                }
+        outputProcess.process,
+        aggregators,
+        function (streams:StreamEvent e) returns string {
+            return <string>e.data["inputStream.category"];
+        },
+        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map {
+            streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
+            streams:Sum fSumAggregator1 = check <streams:Sum>aggregatorArray[1];
+            streams:Count countAggregator1 = check <streams:Count>aggregatorArray[2];
+            streams:Average iAvgAggregator1 = check <streams:Average>aggregatorArray[3];
+            streams:Average fAvgAggregator1 = check <streams:Average>aggregatorArray[4];
+            streams:DistinctCount dCountAggregator1 = check <streams:DistinctCount>aggregatorArray[5];
+            streams:StdDev stdDevAggregator1 = check <streams:StdDev>aggregatorArray[6];
+            streams:MaxForever iMaxForeverAggregator1 = check <streams:MaxForever>aggregatorArray[7];
+            streams:MaxForever fMaxForeverAggregator1 = check <streams:MaxForever>aggregatorArray[8];
+            streams:MinForever iMinForeverAggregator1 = check <streams:MinForever>aggregatorArray[9];
+            streams:MinForever fMinForeverAggregator1 = check <streams:MinForever>aggregatorArray[10];
+            streams:Max iMaxAggregator1 = check <streams:Max>aggregatorArray[11];
+            streams:Max fMaxAggregator1 = check <streams:Max>aggregatorArray[12];
+            streams:Min iMinAggregator1 = check <streams:Min>aggregatorArray[13];
+            streams:Min fMinAggregator1 = check <streams:Min>aggregatorArray[14];
+
+            // got rid of type casting
+            return {
+                "id": e.data["inputStream.id"],
+                "category": e.data["inputStream.category"],
+                "iSum": iSumAggregator1.process(e.data["inputStream.intVal"], e.eventType),
+                "fSum": fSumAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
+                "count": countAggregator1.process((), e.eventType),
+                "iAvg": iAvgAggregator1.process(e.data["inputStream.intVal"], e.eventType),
+                "fAvg": fAvgAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
+                "distCount": dCountAggregator1.process(e.data["inputStream.id"], e.eventType),
+                "stdDev": stdDevAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
+                "iMaxForever": iMaxForeverAggregator1.process(e.data["inputStream.intVal"], e.eventType),
+                "fMaxForever": fMaxForeverAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
+                "iMinForever": iMinForeverAggregator1.process(e.data["inputStream.intVal"], e.eventType),
+                "fMinForever": fMinForeverAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
+                "iMax": iMaxAggregator1.process(e.data["inputStream.intVal"], e.eventType),
+                "fMax": fMaxAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
+                "iMin": iMinAggregator1.process(e.data["inputStream.intVal"], e.eventType),
+                "fMin": fMinAggregator1.process(e.data["inputStream.floatVal"], e.eventType)
+            };
+        }
     );
 
-    streams:Filter filter = streams:createFilter(
-                                select.process,
-                                (any o) => boolean {
-                                    InputRecord i = check <InputRecord>o;
-                                    return i.intVal > getValue();
-                                }
+    streams:Filter filter = streams:createFilter(select.process, function (map m) returns boolean {
+            // simplify filter
+            return check <int>m["inputStream.intVal"] > getValue();
+        }
     );
 
-    inputStream.subscribe((InputRecord i) => {
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(i);
+    inputStream.subscribe(function (InputRecord i) {
+            // make it type unaware and proceed
+            map keyVal = <map>i;
+            streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
             filter.process(eventArr);
         }
     );

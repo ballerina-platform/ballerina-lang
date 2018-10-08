@@ -1,0 +1,3 @@
+// In Ballerina, anonymous functions are a syntactic shortcut for defining inline functions.
+// When you compare an anonymous function to a normal function definition in Ballerina,
+// the only missing part is the function name.

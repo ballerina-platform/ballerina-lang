@@ -19,14 +19,21 @@
 # + name - Resource name. This applies only for client streaming and bidirectional streaming
 #          where we can define only one resource. In order to generate proto file, service resource name need to
 #          pass as annotation parameter.
+# + requestType - Request message type of the resource. This is an optional field. If it is not specified, request
+#                   type is derived from input argument of the resource.
+# + responseType - Response message type of the resource. This is an optional field. If it is not specified, response
+#                   type is derived from the he value passed to the send() expression.
 # + clientStreaming - Client streaming flag. This applies only for client streaming and
 #                     bidirectional streaming. Flag sets to true, if the service defines as client/bidirectional streaming.
 # + serverStreaming - Server streaming flag. This applies only for bidirectional streaming. Flag
 #                     sets to true, if the service defines as bidirectional streaming.
 public type GrpcServiceConfig record {
     string name;
+    typedesc requestType;
+    typedesc responseType;
     boolean clientStreaming;
     boolean serverStreaming;
+    !...
 };
 
 # Service configuration. Sets only for client and bidirectional streaming service.
@@ -36,8 +43,15 @@ public annotation<service> ServiceConfig GrpcServiceConfig;
 #
 # + streaming - Server streaming flag. This flag sets to true to specify that the resource is capable of sending
 #               multiple responses per request.
+# + requestType - Request message type of the resource. This is an optional field. If it is not specified, request
+#                   type is derived from input argument of the resource.
+# + responseType - Response message type of the resource. This is an optional field. If it is not specified, response
+#                   type is derived from the he value passed to the send() expression.
 public type GrpcResourceConfig record {
     boolean streaming;
+    typedesc requestType;
+    typedesc responseType;
+    !...
 };
 
 # Service resource configuration. Sets only for server streaming service.
@@ -48,6 +62,7 @@ public annotation<resource> ResourceConfig GrpcResourceConfig;
 # + descriptor - Service descriptor sets at compile time.
 public type ServiceDescriptorData record {
     string descriptor;
+    !...
 };
 
 # Service descriptor data generated at compile time. This is for internal use.

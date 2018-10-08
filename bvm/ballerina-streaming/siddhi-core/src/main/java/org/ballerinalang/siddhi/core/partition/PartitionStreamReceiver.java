@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Specific {@link StreamJunction.Receiver} implementation to pump events into partitions. This will send the event
+ * Specific StreamJunction Receiver implementation to pump events into partitions. This will send the event
  * to the matching partition.
  */
 public class PartitionStreamReceiver implements StreamJunction.Receiver {

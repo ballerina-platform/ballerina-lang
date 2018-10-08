@@ -31,7 +31,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -63,7 +62,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     public PackageID packageID;
     public BPackageSymbol symbol;
-    public PackageRepository packageRepository;
 
     // TODO Revisit these instance variables
     public BDiagnosticCollector diagCollector;

@@ -595,3 +595,135 @@ function testObjectEqViewFromThirdPackage() returns (string) {
     eq2:FooObj fooObj = check <eq2:FooObj> barObj;
     return fooObj.name;
 }
+
+public type ObjectWithoutNew object {
+    public string name;
+    public string id;
+
+    public function getPerson() returns ObjectWithoutNew {
+        return self;
+    }
+};
+
+public type ObjectWithNew object {
+    public string name;
+    public string id;
+
+    public new () {
+    }
+
+    public function getPerson() returns ObjectWithNew {
+        return self;
+    }
+};
+
+function testObjectEqualityWithDefaultConstructor() returns (ObjectWithNew, ObjectWithoutNew) {
+    ObjectWithoutNew obj1 = new();
+    ObjectWithNew obj2 = new();
+
+    ObjectWithNew obj3 = obj1;
+    ObjectWithoutNew obj4 = obj2;
+    
+    return (obj3, obj4);
+}
+
+type A object {
+
+    public string field;
+    
+    new () {
+        field = "value A"; 
+    }
+
+    function foo(C c) returns A {
+        return new ();
+    }
+};
+
+type B object {
+
+    public string field;
+    
+    new () {
+        field = "value B"; 
+    }
+
+    function foo(D d) returns B {
+        return new ();
+    }
+};
+
+type C object {
+    function foo(A c) returns C {
+        return new ();
+    }
+};
+
+type D object {
+    function foo(B a) returns D {
+        return new ();
+    }
+};
+
+function testObjectEqualityWithRecursiveTypes() returns (A, B) {
+    A obj1 = new();
+    B obj2 = new();
+
+    B obj3 = obj1;
+    A obj4 = obj2;
+    
+    return (obj3, obj4);
+}
+
+public type PersonInOrder object {
+    public int age;
+    public string name;
+    public string address;
+
+    public new (name, age) {}
+
+    public function getName() returns (string) {
+        return name;
+    }
+
+    public function getAge() returns (int) {
+        return age;
+    }
+
+    public function getAddress() returns (string) {
+        return address;
+    }
+};
+
+public type PersonNotInOrder object {
+
+    public function getName() returns (string) {
+        return name;
+    }
+
+    public int age;
+
+    public function getAge() returns (int) {
+        return age;
+    }
+
+    public new (name, age) {}
+
+    public string name;
+
+    public function getAddress() returns (string) {
+        return address;
+    }
+
+    public string address;
+};
+
+function testObjectMemberOrder() returns (PersonInOrder, PersonNotInOrder) {
+    PersonInOrder p1 = new("John", 35);
+    PersonNotInOrder p2 = p1;
+
+    PersonNotInOrder p3 = new ("Doe", 45);
+    PersonInOrder p4 = p3;
+
+    return (p4, p2);
+}

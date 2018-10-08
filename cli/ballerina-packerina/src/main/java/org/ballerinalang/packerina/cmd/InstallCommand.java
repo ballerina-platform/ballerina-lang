@@ -43,12 +43,12 @@ public class InstallCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true)
-    private String debugPort;
-
     @CommandLine.Option(names = {"--sourceroot"},
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
+
+    @CommandLine.Option(names = {"--no-build"}, description = "skip building before installing")
+    private boolean noBuild;
 
     @Override
     public void execute() {
@@ -59,12 +59,12 @@ public class InstallCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            PushUtils.pushAllPackages(sourceRoot, "home");
+            PushUtils.pushAllPackages(sourceRoot, "home", noBuild);
         } else if (argList.size() == 1) {
             String packageStr = argList.get(0);
-            PushUtils.pushPackages(packageStr, sourceRoot, "home");
+            PushUtils.pushPackages(packageStr, sourceRoot, "home", noBuild);
         } else {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
     }
 

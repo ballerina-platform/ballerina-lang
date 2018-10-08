@@ -20,6 +20,7 @@ public annotation Description docData;
 deprecated {}
 type docData record {
     string value;
+    !...
 };
 
 deprecated {}

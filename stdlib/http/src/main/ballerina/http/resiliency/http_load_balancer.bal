@@ -175,10 +175,11 @@ public type LoadBalancerActions object {
 # + statusCode - HTTP status code of the LoadBalanceActionError
 # + httpActionErr - Array of errors occurred at each endpoint
 public type LoadBalanceActionError record {
-    string message,
-    error? cause,
-    int statusCode,
-    error[] httpActionErr,
+    string message;
+    error? cause;
+    int statusCode;
+    error[] httpActionErr;
+    !...
 };
 
 function LoadBalancerActions::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()

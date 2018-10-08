@@ -25,13 +25,16 @@
 
     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingInitTestCase"/>
-            <class name="org.ballerinalang.test.packaging.TestExecutionTestCase"/>
+            <class name="org.ballerinalang.test.packaging.BalRunWithConfigTestCase"/>
             <class name="org.ballerinalang.test.packaging.DocGenTestCase"/>
             <class name="org.ballerinalang.test.packaging.ListDependencyTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingInitTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.RunTopLevelBalInProjectTestCase"/>
             <class name="org.ballerinalang.test.packaging.SingleBalBuildTestCase"/>
+            <class name="org.ballerinalang.test.packaging.TestExecutionTestCase"/>
+            <class name="org.ballerinalang.test.packaging.RepoHierarchyTestCase"/>
             <class name="org.ballerinalang.test.grpc.ServicePackagingTestCase"/>
         </classes>
     </test>
@@ -45,6 +48,12 @@
     <test name="ballerina-run-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.run.*"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-swagger-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.swagger.*"/>
         </packages>
     </test>
 </suite>

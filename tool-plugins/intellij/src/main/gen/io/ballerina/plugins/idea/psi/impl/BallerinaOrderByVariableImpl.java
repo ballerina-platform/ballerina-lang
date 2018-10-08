@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaOrderByVariableImpl extends BallerinaCompositeElementImpl implements BallerinaOrderByVariable {
 
-  public BallerinaOrderByVariableImpl(ASTNode node) {
+  public BallerinaOrderByVariableImpl(@NotNull ASTNode node) {
     super(node);
   }
 

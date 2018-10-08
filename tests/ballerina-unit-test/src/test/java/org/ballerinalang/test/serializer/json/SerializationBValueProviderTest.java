@@ -25,7 +25,6 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValuePro
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -95,7 +94,7 @@ public class SerializationBValueProviderTest {
 
     @Test(description = "test Date SerializationBValue")
     public void testDateBValueProvider() {
-        Date date = DateTime.now().toDate();
+        Date date = new Date();
         String serialize = new JsonSerializer().serialize(date);
         Date dsDate = new JsonSerializer().deserialize(serialize, Date.class);
         Assert.assertEquals(date, dsDate);

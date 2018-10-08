@@ -63,7 +63,7 @@ function startServerSocket(int port, string welcomeMsg) {
         io:Socket s => {
             io:println("Client socket accepted!!!");
             io:println(s.remotePort);
-            io:ByteChannel ch = s.channel;
+            io:ByteChannel ch = s.byteChannel;
             byte[] c1 = welcomeMsg.toByteArray("utf-8");
             match ch.write(c1, 0) {
                 int i => {
@@ -108,4 +108,19 @@ function startServerSocket(int port, string welcomeMsg) {
         }
     }
     check server.close();
+}
+
+function runOnDuplicatePort(int port) returns error? {
+    io:ServerSocket server1 = new();
+    check server1.bindAddress(port);
+    io:ServerSocket server2 = new();
+    match server2.bindAddress(port) {
+        error e => {
+            check server1.close();
+            return e;
+        }
+        () => {
+            return ();
+        }
+    }
 }

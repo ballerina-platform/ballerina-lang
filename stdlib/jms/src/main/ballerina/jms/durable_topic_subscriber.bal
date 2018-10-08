@@ -56,7 +56,7 @@ public type DurableTopicSubscriber object {
 
     # Return the subscrber caller actions
     #
-    # + return - subscriber actions
+    # + return - durable topic subscriber actions
     public function getCallerActions() returns DurableTopicSubscriberActions {
         return consumerActions;
     }
@@ -80,6 +80,7 @@ public type DurableTopicSubscriberEndpointConfiguration record {
     string topicPattern;
     string messageSelector;
     string identifier;
+    !...
 };
 
 # Caller actions related to durable topic subscriber endpoint
@@ -88,6 +89,7 @@ public type DurableTopicSubscriberActions object {
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
+    # + return - error upon failure to acknowledge the received message
     public extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider

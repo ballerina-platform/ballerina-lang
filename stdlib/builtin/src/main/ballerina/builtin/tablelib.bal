@@ -68,4 +68,5 @@ type TableConfig record {
     string[] primaryKey;
     string[] index;
     any[] data;
+    !...
 };

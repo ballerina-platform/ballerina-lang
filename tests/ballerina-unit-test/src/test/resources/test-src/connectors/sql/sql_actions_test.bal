@@ -5,70 +5,70 @@ import ballerina/io;
 import ballerina/internal;
 
 type ResultCustomers record {
-    string FIRSTNAME,
+    string FIRSTNAME;
 };
 
 type CustomerFullName record {
-    string FIRSTNAME,
-    string LASTNAME,
+    string FIRSTNAME;
+    string LASTNAME;
 };
 
 type ResultIntType record {
-    int INT_TYPE,
+    int INT_TYPE;
 };
 
 type ResultBlob record {
-    byte[] BLOB_TYPE,
+    byte[] BLOB_TYPE;
 };
 
 type ResultRowIDBlob record {
-    int row_id,
-    byte[] BLOB_TYPE,
+    int row_id;
+    byte[] BLOB_TYPE;
 };
 
 type ResultDataType record {
-    int INT_TYPE,
-    int LONG_TYPE,
-    float FLOAT_TYPE,
-    float DOUBLE_TYPE,
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
 };
 
 type ResultCount record {
-    int COUNTVAL,
+    int COUNTVAL;
 };
 
 type ResultArrayType record {
-    int[] INT_ARRAY,
-    int[] LONG_ARRAY,
-    float[] DOUBLE_ARRAY,
-    boolean[] BOOLEAN_ARRAY,
-    string[] STRING_ARRAY,
-    float[] FLOAT_ARRAY,
+    int[] INT_ARRAY;
+    int[] LONG_ARRAY;
+    float[] DOUBLE_ARRAY;
+    boolean[] BOOLEAN_ARRAY;
+    string[] STRING_ARRAY;
+    float[] FLOAT_ARRAY;
 };
 
 type ResultDates record {
-    string DATE_TYPE,
-    string TIME_TYPE,
-    string TIMESTAMP_TYPE,
-    string DATETIME_TYPE,
+    string DATE_TYPE;
+    string TIME_TYPE;
+    string TIMESTAMP_TYPE;
+    string DATETIME_TYPE;
 };
 
 type ResultBalTypes record {
-    int INT_TYPE,
-    int LONG_TYPE,
-    float FLOAT_TYPE,
-    float DOUBLE_TYPE,
-    boolean BOOLEAN_TYPE,
-    string STRING_TYPE,
-    float NUMERIC_TYPE,
-    float DECIMAL_TYPE,
-    float REAL_TYPE,
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    boolean BOOLEAN_TYPE;
+    string STRING_TYPE;
+    float NUMERIC_TYPE;
+    float DECIMAL_TYPE;
+    float REAL_TYPE;
 };
 
 type Employee record {
-    int id,
-    string name,
-    string address,
+    int id;
+    string name;
+    string address;
 };
 
 function testInsertTableData(string jdbcUrl, string userName, string password) returns (int) {

@@ -61,10 +61,6 @@ public class CodeActionTest {
 
     private Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
     
-    private static final String DOCUMENT_THIS = "Document This";
-    
-    private static final String DOCUMENT_ALL = "Document All";
-
     @BeforeClass
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
@@ -76,7 +72,8 @@ public class CodeActionTest {
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        JsonObject documentThis = expected.getAsJsonObject("documentThis");
+        int numberOfCommands = expected.get("size").getAsInt();
+        JsonObject documentThis = expected.getAsJsonObject("actions").getAsJsonObject("documentThis");
         CodeActionContext codeActionContext = new CodeActionContext();
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
         
@@ -85,21 +82,22 @@ public class CodeActionTest {
                 .getAsJsonObject();
         JsonArray result = responseJson.getAsJsonArray("result");
         
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(numberOfCommands, result.size());
         result.forEach(element -> {
             String title = element.getAsJsonObject().get("title").getAsString();
-            String command = "";
-            switch (title) {
-                case DOCUMENT_THIS:
-                    command = element.getAsJsonObject().get("command").getAsString();
-                    Assert.assertTrue(command.equals(CommandConstants.CMD_ADD_DOCUMENTATION));
+            String command = element.getAsJsonObject().get("command").getAsString();
+            switch (command) {
+                case CommandConstants.CMD_ADD_DOCUMENTATION:
+                    Assert.assertEquals(title, "Document This");
                     JsonArray args = element.getAsJsonObject().get("arguments").getAsJsonArray();
                     JsonArray documentThisArr = documentThis.getAsJsonArray("arguments");
                     Assert.assertTrue(TestUtil.isArgumentsSubArray(args, documentThisArr));
                     break;
-                case DOCUMENT_ALL:
-                    command = element.getAsJsonObject().get("command").getAsString();
-                    Assert.assertTrue(command.equals(CommandConstants.CMD_ADD_ALL_DOC));
+                case CommandConstants.CMD_ADD_ALL_DOC:
+                    Assert.assertEquals(title, "Document All");
+                    break;
+                case CommandConstants.CMD_CREATE_CONSTRUCTOR:
+                    Assert.assertEquals(title, "Create Constructor");
                     break;
                 default:
                     Assert.fail("Invalid Command Found: [" + title + "]");

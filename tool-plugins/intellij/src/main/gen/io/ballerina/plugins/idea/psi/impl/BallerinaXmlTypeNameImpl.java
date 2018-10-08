@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaXmlTypeName {
 
-  public BallerinaXmlTypeNameImpl(ASTNode node) {
+  public BallerinaXmlTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

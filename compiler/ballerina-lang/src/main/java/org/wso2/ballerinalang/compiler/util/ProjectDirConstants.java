@@ -52,4 +52,6 @@ public class ProjectDirConstants {
 
     public static final String BALLERINA_VERSION = "ballerina.version";
     public static final String PROPERTIES_FILE = "/META-INF/launcher.properties";
+
+    public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
 }

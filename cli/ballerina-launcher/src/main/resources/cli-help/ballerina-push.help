@@ -2,11 +2,15 @@ NAME
     Ballerina push - Upload package to Ballerina Central
 
 SYNOPSIS
-    ballerina push <package-name>
+    ballerina push <package-name> [--no-build]
+    [--repository home]
 
 DESCRIPTION
      Uploads the given package to Ballerina Central 
      (https://central.ballerina.io/) repository. 
+
+     By default, the sources will be built before pushing
+     the package to Ballerina Central
 
      Before you can push, you must enter your Ballerina Central
      access token in Settings.toml in your home repository 
@@ -22,8 +26,20 @@ DESCRIPTION
      set that as org-name in the package Ballerina.toml file. 
 
 OPTIONS
-     Ballerina push command takes no options.
+      --no-build
+           Skip building before pushing. The sources will not be
+           built before pushing to Ballerina Central
+
+      --repository home
+           Push the package to the home repository. This is an alias
+           to the 'ballerina install' command
 
 EXAMPLES
-     Push math package to Ballerina Central 
+     Push math package to Ballerina Central after building it
      $ ballerina push math
+
+     Push math package to Ballerina Central without building it
+     $ ballerina push math --no-build
+
+      Push math package to the home repository after building it
+      $ ballerina push math --repository home

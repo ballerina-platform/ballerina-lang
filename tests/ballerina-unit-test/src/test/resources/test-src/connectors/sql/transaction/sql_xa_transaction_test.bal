@@ -2,7 +2,7 @@ import ballerina/jdbc;
 import ballerina/h2;
 
 type ResultCount record {
-    int COUNTVAL,
+    int COUNTVAL;
 };
 
 function testXATransactonSuccess() returns (int, int) {

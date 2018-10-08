@@ -71,8 +71,8 @@ service<http:WebSocketService> onTextbyteArray bind wsCaller {
 }
 
 type Person record {
-    int id,
-    string name,
+    int id;
+    string name;
     !...
 };
 

@@ -472,8 +472,8 @@ public type Entity object {
 
 function Entity::setFileAsEntityBody(@sensitive string filePath,
                                             @sensitive string contentType = "application/octet-stream") {
-    io:ByteChannel channel = io:openFile(filePath, READ_PERMISSION);
-    self.setByteChannel(channel, contentType = contentType);
+    io:ByteChannel byteChannel = io:openFile(filePath, READ_PERMISSION);
+    self.setByteChannel(byteChannel, contentType = contentType);
 }
 
 function Entity::setBody(@sensitive (string|xml|json|byte[]|io:ByteChannel|Entity[]) entityBody) {

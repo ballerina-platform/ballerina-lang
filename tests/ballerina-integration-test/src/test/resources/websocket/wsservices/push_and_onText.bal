@@ -40,8 +40,8 @@ service<http:WebSocketService> onTextXML bind { port: 9082 } {
 }
 
 type Person record {
-    int id,
-    string name,
+    int id;
+    string name;
     !...
 };
 service<http:WebSocketService> onTextRecord bind { port: 9083 } {

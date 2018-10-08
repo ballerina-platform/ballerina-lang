@@ -66,8 +66,8 @@ public class ErrorServiceTestCase extends BaseTest {
             BServiceUtil.runService(result);
             Assert.fail("Secure Service should not start without keystore file");
         } catch (BLangRuntimeException ex) {
-            Assert.assertTrue(ex.getMessage()
-                    .contains("error: error, message: keystore location must be provided for secure connection"));
+            Assert.assertTrue(ex.getMessage().contains(
+                    "error: error, message: keystore file location must be provided for secure connection"));
         }
     }
 
@@ -82,7 +82,7 @@ public class ErrorServiceTestCase extends BaseTest {
             Assert.fail("Secure Service should not start without keystore file");
         } catch (BLangRuntimeException ex) {
             Assert.assertTrue(ex.getMessage()
-                    .contains("error: error, message: keystore password value must be provided for secure connection"));
+                    .contains("error: error, message: keystore password must be provided for secure connection"));
         }
     }
 

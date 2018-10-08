@@ -23,6 +23,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
+import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -93,16 +94,16 @@ public class BLangProgramRunner {
     }
 
     public static FunctionInfo getEntryFunctionInfo(PackageInfo entryPkgInfo, String functionName) {
-        String errorMsg = functionName + " function not found in  '"
+        String errorMsg = "'" + functionName + "' function not found in '"
                             + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
         FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
-            throw new BallerinaException(errorMsg);
+            throw new BLangUsageException(errorMsg);
         }
 
         if (!functionInfo.isPublic()) {
-            throw new BallerinaException("non public function '" + functionName + "' not allowed as entry function");
+            throw new BLangUsageException("non public function '" + functionName + "' not allowed as entry function");
         }
 
         return functionInfo;

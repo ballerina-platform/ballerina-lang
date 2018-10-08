@@ -26,6 +26,9 @@
 # Constant for the default failover starting index for failover endpoints
 @final int DEFAULT_FAILOVER_EP_STARTING_INDEX = 0;
 
+# Maximum number of requests that can be processed at a given time on a single connection.
+@final int MAX_PIPELINED_REQUESTS = 10;
+
 # Represents multipart primary type
 @final public string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 
@@ -77,19 +80,19 @@ public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 # Options to compress using gzip or deflate.
 #
 # `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-#         outbound request/response accept-encoding option
-# `ALWAYS`: Always set accept-encoding in outbound request/response
-# `NEVER`: Never set accept-encoding header in outbound request/response
+#         outbound request/response accept-encoding/content-encoding option
+# `ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response
+# `NEVER`: Never set accept-encoding/content-encoding header in outbound request/response
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
 # When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-# outbound request/response accept-encoding option.
+# outbound request/response accept-encoding/content-encoding option.
 @final public Compression COMPRESSION_AUTO = "AUTO";
 
-# Always set accept-encoding in outbound request/response.
+# Always set accept-encoding/content-encoding in outbound request/response.
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
 
-# Never set accept-encoding header in outbound request/response.
+# Never set accept-encoding/content-encoding header in outbound request/response.
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
@@ -110,8 +113,9 @@ public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "P
 # + path - Path to the trust store file
 # + password - Trust store password
 public type TrustStore record {
-    string path,
-    string password,
+    string path;
+    string password;
+    !...
 };
 
 # A record for providing key store related configurations.
@@ -119,8 +123,9 @@ public type TrustStore record {
 # + path - Path to the key store file
 # + password - Key store password
 public type KeyStore record {
-    string path,
-    string password,
+    string path;
+    string password;
+    !...
 };
 
 # A record for configuring SSL/TLS protocol and version to be used.
@@ -128,8 +133,9 @@ public type KeyStore record {
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
 # + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
 public type Protocols record {
-    string name,
-    string[] versions,
+    string name;
+    string[] versions;
+    !...
 };
 
 # A record for providing configurations for certificate revocation status checks.
@@ -138,9 +144,10 @@ public type Protocols record {
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ValidateCert record {
-    boolean enable,
-    int cacheSize,
-    int cacheValidityPeriod,
+    boolean enable;
+    int cacheSize;
+    int cacheValidityPeriod;
+    !...
 };
 
 # A record for providing configurations for certificate revocation status checks.
@@ -149,9 +156,20 @@ public type ValidateCert record {
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ServiceOcspStapling record {
-    boolean enable,
-    int cacheSize,
-    int cacheValidityPeriod,
+    boolean enable;
+    int cacheSize;
+    int cacheValidityPeriod;
+    !...
+};
+
+# A record for providing configurations for content compression.
+#
+# + enable - The status of compression
+# + contentTypes - Content types which are allowed for compression
+public type CompressionConfig record {
+    Compression enable = COMPRESSION_AUTO;
+    string[] contentTypes;
+    !...
 };
 
 //////////////////////////////
@@ -195,16 +213,14 @@ function buildResponse(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entit
     return response;
 }
 
-documentation {
-    The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
-    HTTP actions provider.
+# The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+# HTTP actions provider.
 
-    P{{path}} Resource path
-    P{{outRequest}} A Request struct
-    P{{requestAction}} `HttpOperation` related to the request
-    P{{httpClient}} HTTP client which uses to call the relavant functions
-    R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-}
+# + path - Resource path
+# + outRequest - A Request struct
+# + requestAction - `HttpOperation` related to the request
+# + httpClient - HTTP client which uses to call the relavant functions
+# + return - The response for the request or an `error` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest,
                                 HttpOperation requestAction, CallerActions httpClient) returns Response|error {
     if (HTTP_GET == requestAction) {

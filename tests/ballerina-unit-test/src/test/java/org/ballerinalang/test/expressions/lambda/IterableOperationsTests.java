@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -50,39 +51,55 @@ public class IterableOperationsTests {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 23);
-        BAssertUtil.validateError(negative, 0, "undefined function 'int.foreach'", 6, 5);
-        BAssertUtil.validateError(negative, 1, "undefined function 'string.map'", 8, 5);
-        BAssertUtil.validateError(negative, 2, "variable assignment is required", 14, 5);
-        BAssertUtil.validateError(negative, 3, "iterable lambda function required a single param or a tuple param",
-                16, 14);
-        BAssertUtil.validateError(negative, 4, "invalid function 'keys' invocation on type '(string,string) " +
-                "collection'", 23, 21);
-        BAssertUtil.validateError(negative, 5, "incompatible types: expected 'string[]', found '(string,string) " +
-                "collection'", 31, 24);
-        BAssertUtil.validateError(negative, 6, "incompatible types: expected 'map', found '(any) collection'", 35, 22);
-        BAssertUtil.validateError(negative, 7, "cannot assign return value of 'filter' operation here, use a reduce " +
-                "operation", 38, 22);
-        BAssertUtil.validateError(negative, 8, "incompatible types: expected 'int', found '()'", 46, 19);
+        Assert.assertEquals(negative.getErrorCount(), 25);
 
-        BAssertUtil.validateError(negative, 9, "incompatible types: expected tuple, found '(int,string) " +
+        int index = 0;
+        BAssertUtil.validateError(negative, index++, "undefined function 'int.foreach'", 6, 5);
+        BAssertUtil.validateError(negative, index++, "undefined function 'string.map'", 8, 5);
+        BAssertUtil.validateError(negative, index++, "variable assignment is required", 14, 5);
+        BAssertUtil.validateError(negative, index++,
+                                  "iterable lambda function required a single param or a tuple param",
+                16, 14);
+        BAssertUtil.validateError(negative, index++, "invalid function 'keys' invocation on type '(string,string) " +
+                "collection'", 23, 21);
+        BAssertUtil.validateError(negative, index++,
+                                  "incompatible types: expected 'string[]', found '(string,string) " +
+                "collection'", 31, 24);
+        BAssertUtil.validateError(negative, index++,
+                                  "incompatible lambda function types: expected 'string', found 'any'", 35, 22);
+        BAssertUtil.validateError(negative, index++,
+                                  "incompatible lambda function types: expected 'string', found 'any'", 38, 22);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 19);
+
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected tuple, found '(int,string) " +
                 "collection'", 48, 5);
-        BAssertUtil.validateError(negative, 10, "no argument required for operation 'count'", 55, 17);
-        BAssertUtil.validateError(negative, 11, "single lambda function required here", 56, 5);
-        BAssertUtil.validateError(negative, 12, "single lambda function required here", 58, 15);
-        BAssertUtil.validateError(negative, 13, "too many variables are defined for iterable type 'string[]'", 63, 15);
-        BAssertUtil.validateError(negative, 14, "iterable lambda function required a single param or a tuple param",
+        BAssertUtil.validateError(negative, index++, "no argument required for operation 'count'", 55, 17);
+        BAssertUtil.validateError(negative, index++, "single lambda function required here", 56, 5);
+        BAssertUtil.validateError(negative, index++, "single lambda function required here", 58, 15);
+        BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'string[]'", 63,
+                                  15);
+        BAssertUtil.validateError(negative, index++,
+                                  "iterable lambda function required a single param or a tuple param",
                 64, 15);
-        BAssertUtil.validateError(negative, 15, "too many return arguments are defined for operation 'filter'", 65, 14);
-        BAssertUtil.validateError(negative, 16, "not enough return arguments are defined for operation 'filter'", 66,
+        BAssertUtil.validateError(negative, index++, "too many return arguments are defined for operation 'filter'", 65,
+                                  14);
+        BAssertUtil.validateError(negative, index++, "not enough return arguments are defined for operation 'filter'",
+                                  66, 14);
+        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 24);
+        BAssertUtil.validateError(negative, index++, "not enough return arguments are defined for operation 'filter'",
+                                  67,
                 14);
-        BAssertUtil.validateError(negative, 17, "unknown type 'person'", 67, 15);
-        BAssertUtil.validateError(negative, 18, "not enough return arguments are defined for operation 'filter'", 67,
-                14);
-        BAssertUtil.validateError(negative, 19, "unknown type 'person'", 68, 33);
-        BAssertUtil.validateError(negative, 20, "incompatible types: expected 'int[]', found 'any[]'", 73, 23);
-        BAssertUtil.validateError(negative, 21, "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
-        BAssertUtil.validateError(negative, 22, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
+        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'",
+                73, 23);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'map', found '(any) collection'", 99, 22);
+        BAssertUtil.validateError(negative, index++,
+                "cannot assign return value of 'filter' operation here, use a reduce operation", 103, 22);
     }
 
     @Test
@@ -288,5 +305,17 @@ public class IterableOperationsTests {
         Assert.assertEquals(a3.intValue(), -8);
         Assert.assertEquals(a4.intValue(), 7);
         Assert.assertEquals(a5.intValue(), 4);
+    }
+
+    @Test
+    public void testIterableReturnLambda() {
+        BValue[] returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BFunctionPointer);
+        Assert.assertTrue(returns[1] instanceof BFunctionPointer);
+        Assert.assertTrue(returns[2] instanceof BFunctionPointer);
+        Assert.assertEquals(returns[0].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(returns[1].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
     }
 }

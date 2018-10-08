@@ -28,6 +28,7 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.roots.ProjectExtension;
 import com.intellij.openapi.util.AsyncResult;
 import io.ballerina.plugins.idea.BallerinaExternalAnnotator;
+import io.ballerina.plugins.idea.preloading.BallerinaLanguageServerPreloadingActivity;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +65,10 @@ public class BallerinaProjectExtension extends ProjectExtension {
         }
         // Reset Ballerina external annotator.
         BallerinaExternalAnnotator.reset();
+
+        //Register language server definition for the new SDK
+        BallerinaLanguageServerPreloadingActivity langServerLoader = new BallerinaLanguageServerPreloadingActivity();
+        langServerLoader.registerServerDefinition(project);
     }
 
     @Override

@@ -30,16 +30,17 @@
 # + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes
 # + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 public type PoolOptions record {
-    string connectionInitSql,
-    string dataSourceClassName,
-    boolean autoCommit = true,
-    boolean isXA = false,
-    int maximumPoolSize = 10,
-    int connectionTimeout = 30000,
-    int idleTimeout = 600000,
-    int minimumIdle = -1,
-    int maxLifetime = 1800000,
-    int validationTimeout = 5000,
+    string connectionInitSql;
+    string dataSourceClassName;
+    boolean autoCommit = true;
+    boolean isXA = false;
+    int maximumPoolSize = 10;
+    int connectionTimeout = 30000;
+    int idleTimeout = 600000;
+    int minimumIdle = -1;
+    int maxLifetime = 1800000;
+    int validationTimeout = 5000;
+    !...
 };
 
 # The SQL Datatype of the parameter.
@@ -134,10 +135,11 @@ public type Direction "IN"|"OUT"|"INOUT";
 # + recordType - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
 #                result row
 public type Parameter record {
-    SQLType sqlType,
-    any value,
-    Direction direction,
-    typedesc recordType,
+    SQLType sqlType;
+    any value;
+    Direction direction;
+    typedesc recordType;
+    !...
 };
 
 # The parameter passed into the operations.

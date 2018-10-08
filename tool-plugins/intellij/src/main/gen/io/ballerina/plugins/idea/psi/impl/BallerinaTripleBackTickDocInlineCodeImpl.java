@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTripleBackTickDocInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaTripleBackTickDocInlineCode {
 
-  public BallerinaTripleBackTickDocInlineCodeImpl(ASTNode node) {
+  public BallerinaTripleBackTickDocInlineCodeImpl(@NotNull ASTNode node) {
     super(node);
   }
 

@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.model.types.BTypes.getTypeFromName;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETERS_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE;
@@ -107,7 +108,8 @@ public class ArgumentParser {
         TaintTableAttributeInfo taintTableAttributeInfo =
                 (TaintTableAttributeInfo) entryFuncInfo.getAttributeInfo(TAINT_TABLE);
         int totalParamCount = requiredParamsCount + defaultableParamsCount + restParamCount;
-        if (totalParamCount != 0 && taintTableAttributeInfo.rowCount - 1 != totalParamCount) {
+        if (!MAIN_FUNCTION_NAME.equals(entryFuncInfo.getName())
+                && totalParamCount != 0 && taintTableAttributeInfo.rowCount - 1 != totalParamCount) {
             throw new BLangUsageException("function with sensitive parameters cannot be invoked as the entry function");
         }
 

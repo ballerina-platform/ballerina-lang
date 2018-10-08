@@ -2,7 +2,7 @@ import ballerina/sql;
 import ballerina/jdbc;
 
 type ResultCount record {
-    int COUNTVAL,
+    int COUNTVAL;
 };
 
 function getTableCount(string tablePrefix) returns (int) {

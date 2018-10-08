@@ -47,7 +47,7 @@ public class WebSubHttpService extends HttpService {
     private static final Logger logger = LoggerFactory.getLogger(WebSubHttpService.class);
     private String topic;
 
-    WebSubHttpService(Service service) {
+    private WebSubHttpService(Service service) {
         super(service);
     }
 
