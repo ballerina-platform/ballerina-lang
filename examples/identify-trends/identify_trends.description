@@ -1,0 +1,8 @@
+// Sequence is a state machine implementation that detects the sequence of event occurrences over time.
+// All the consecutive events need to match the sequence condition and there can not be any
+// non-matching events within a matching sequence of events. This can correlate events within a single stream
+// or between multiple streams.
+// In this example, the peaks in the temperature is detected using a sequence event variation. If the
+// temperature is increasing (incoming events have higher temperature reading than the previous event's reading), and
+// then decreasing (incoming events have lower temperature reading than the previous event's temperature reading), a
+// peak temperature is in the middle.

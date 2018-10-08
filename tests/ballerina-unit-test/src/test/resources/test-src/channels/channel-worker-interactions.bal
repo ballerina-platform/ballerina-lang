@@ -10,7 +10,7 @@ function workerWithChannels() returns json {
     }
 
     worker w2 {
-        json key = {"id":50, name:"john"};
+        json key = {name:"john", "id":50};
         json msg = {"payment":10000};
         msg -> chn, key;
     }
@@ -18,7 +18,7 @@ function workerWithChannels() returns json {
 
 function sendBeforeReceive() returns json {
     worker w2 {
-        json key = {"id":50, name:"john"};
+        json key = {name:"john", "id":50};
         json msg = {"payment":10000};
         msg -> chn, key;
     }

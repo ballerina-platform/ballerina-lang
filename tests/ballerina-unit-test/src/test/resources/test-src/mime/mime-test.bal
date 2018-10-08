@@ -122,11 +122,11 @@ function testMimeBase64DecodeBlob(byte[] contentToBeDecoded) returns (byte[]|err
     return mime:base64DecodeBlob(contentToBeDecoded);
 }
 
-function testMimeBase64EncodeByteChannel(io:ByteChannel contentToBeEncoded) returns (io:ByteChannel|error) {
+function testMimeBase64EncodeByteChannel(io:ReadableByteChannel contentToBeEncoded) returns (io:ReadableByteChannel|error) {
     return mime:base64EncodeByteChannel(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeByteChannel(io:ByteChannel contentToBeDecoded) returns (io:ByteChannel|error) {
+function testMimeBase64DecodeByteChannel(io:ReadableByteChannel contentToBeDecoded) returns (io:ReadableByteChannel|error) {
     return mime:base64DecodeByteChannel(contentToBeDecoded);
 }
 
@@ -306,35 +306,35 @@ function testSetFileAsEntityBody(string fileLocation) returns byte[]|error {
     return entity.getByteArray();
 }
 
-function testSetByteChannel(io:ByteChannel byteChannel) returns byte[]|error {
+function testSetByteChannel(io:ReadableByteChannel byteChannel) returns byte[]|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     return entity.getByteArray();
 }
 
-function testGetByteChannel(io:ByteChannel byteChannel) returns io:ByteChannel|error {
+function testGetByteChannel(io:ReadableByteChannel byteChannel) returns io:ReadableByteChannel|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     return entity.getByteChannel();
 }
 
-function testSetEntityBodyMultipleTimes(io:ByteChannel byteChannel, string textdata) returns string {
+function testSetEntityBodyMultipleTimes(io:ReadableByteChannel byteChannel, string textdata) returns string {
     mime:Entity entity = new;
     entity.setText(textdata);
     entity.setByteChannel(byteChannel);
-    io:ByteChannel receivedByteChannel = check entity.getByteChannel();
-    io:CharacterChannel characterChannel = new io:CharacterChannel(receivedByteChannel, "utf-8");
+    io:ReadableByteChannel receivedByteChannel = check entity.getByteChannel();
+    io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(receivedByteChannel, "utf-8");
     string result = check characterChannel.read(30);
     return result;
 }
 
-function testSetJsonAndGetByteChannel(json jsonContent) returns io:ByteChannel|error {
+function testSetJsonAndGetByteChannel(json jsonContent) returns io:ReadableByteChannel|error {
     mime:Entity entity = new;
     entity.setJson(jsonContent);
     return entity.getByteChannel();
 }
 
-function testGetTextDataSource(io:ByteChannel byteChannel) returns string|error {
+function testGetTextDataSource(io:ReadableByteChannel byteChannel) returns string|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     entity.setHeader("content-type", "text/plain");
@@ -342,14 +342,14 @@ function testGetTextDataSource(io:ByteChannel byteChannel) returns string|error 
     var result = entity.getByteChannel();
     match result {
         error err => log:printInfo("error in returnContent1");
-        io:ByteChannel returnChannel => {
+        io:ReadableByteChannel returnChannel => {
             consumeChannel(returnChannel);
         }
     }
     return entity.getText();
 }
 
-function testGetJsonDataSource(io:ByteChannel byteChannel) returns json|error {
+function testGetJsonDataSource(io:ReadableByteChannel byteChannel) returns json|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
     entity.setHeader("content-type", "application/json");
@@ -357,7 +357,7 @@ function testGetJsonDataSource(io:ByteChannel byteChannel) returns json|error {
     var result = entity.getByteChannel();
     match result {
         error err => log:printInfo("error in returnContent1");
-        io:ByteChannel returnChannel => {
+        io:ReadableByteChannel returnChannel => {
             consumeChannel(returnChannel);
         }
     }
@@ -365,7 +365,7 @@ function testGetJsonDataSource(io:ByteChannel byteChannel) returns json|error {
     return entity.getJson();
 }
 
-function consumeChannel(io:ByteChannel byteChannel) {
+function consumeChannel(io:ReadableByteChannel byteChannel) {
     var result = byteChannel.read(1000000);
 }
 
@@ -404,43 +404,43 @@ function testGetTextWithNonCompatibleMediaType(string textContent) returns strin
     return entity.getText();
 }
 
-function testSetBodyAndGetText((string|xml|json|byte[]|io:ByteChannel) entityBody) returns string|error {
+function testSetBodyAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns string|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getText();
 }
 
-function testSetBodyAndGetXml((string|xml|json|byte[]|io:ByteChannel) entityBody) returns xml|error {
+function testSetBodyAndGetXml((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns xml|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getXml();
 }
 
-function testSetBodyAndGetJson((string|xml|json|byte[]|io:ByteChannel) entityBody) returns json|error {
+function testSetBodyAndGetJson((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns json|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getJson();
 }
 
-function testSetBodyAndGetByteArray((string|xml|json|byte[]|io:ByteChannel) entityBody) returns byte[]|error {
+function testSetBodyAndGetByteArray((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns byte[]|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getByteArray();
 }
 
-function testSetBodyAndGetByteChannel((string|xml|json|byte[]|io:ByteChannel) entityBody) returns io:ByteChannel|error {
+function testSetBodyAndGetByteChannel((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns io:ReadableByteChannel|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getByteChannel();
 }
 
-function testGetAnyStreamAsString(io:ByteChannel byteChannel, string contentType) returns string|error {
+function testGetAnyStreamAsString(io:ReadableByteChannel byteChannel, string contentType) returns string|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
     return entity.getBodyAsString();
 }
 
-function testByteArrayWithContentType(io:ByteChannel byteChannel, string contentTypeValue) returns byte[]|error {
+function testByteArrayWithContentType(io:ReadableByteChannel byteChannel, string contentTypeValue) returns byte[]|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentTypeValue);
     //First time the json will be constructed from the byte channel
@@ -449,7 +449,7 @@ function testByteArrayWithContentType(io:ByteChannel byteChannel, string content
     return entity.getByteArray();
 }
 
-function testGetBodyPartsAsChannel() returns io:ByteChannel|error {
+function testGetBodyPartsAsChannel() returns io:ReadableByteChannel|error {
     //Create a body part with json content.
     mime:Entity bodyPart1 = new;
     bodyPart1.setJson({ "bodyPart": "jsonPart" });
@@ -481,13 +481,13 @@ function getBodyPartsFromDiscreteTypeEntity() returns mime:Entity[]|error {
     return entity.getBodyParts();
 }
 
-function getChannelFromParts() returns io:ByteChannel|error {
+function getChannelFromParts() returns io:ReadableByteChannel|error {
     mime:Entity entity = new;
     entity.setJson({ "bodyPart": "jsonPart" });
     return entity.getBodyPartsAsChannel();
 }
 
-function getChannelFromMultipartEntity() returns io:ByteChannel|error {
+function getChannelFromMultipartEntity() returns io:ReadableByteChannel|error {
     mime:Entity bodyPart1 = new;
     bodyPart1.setJson({ "bodyPart": "jsonPart" });
 
@@ -501,7 +501,7 @@ function getChannelFromMultipartEntity() returns io:ByteChannel|error {
     return multipartEntity.getByteChannel();
 }
 
-function getAnyStreamAsStringFromCache(io:ByteChannel byteChannel, string contentType) returns string|error {
+function getAnyStreamAsStringFromCache(io:ReadableByteChannel byteChannel, string contentType) returns string|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
     string returnContent;
@@ -511,14 +511,14 @@ function getAnyStreamAsStringFromCache(io:ByteChannel byteChannel, string conten
     return returnContent;
 }
 
-function testXmlWithByteArrayContent(io:ByteChannel byteChannel, string contentTypeValue) returns xml|error {
+function testXmlWithByteArrayContent(io:ReadableByteChannel byteChannel, string contentTypeValue) returns xml|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentTypeValue);
     byte[] binaryPayload = check entity.getByteArray();
     return entity.getXml();
 }
 
-function getPartsFromInvalidChannel(io:ByteChannel byteChannel, string contentType) returns mime:Entity[]|error {
+function getPartsFromInvalidChannel(io:ReadableByteChannel byteChannel, string contentType) returns mime:Entity[]|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
     return entity.getBodyParts();

@@ -77,6 +77,7 @@ public class StatementContextResolver extends AbstractItemResolver {
                 return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
             });
             completionItems.addAll(this.getCompletionItemList(filteredList));
+            completionItems.addAll(this.getPackagesCompletionItems(context));
             // Now we need to sort the completion items and populate the completion items specific to the scope owner
             // as an example, resource, action, function scopes are different from the if-else, while, and etc
             Class itemSorter = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();

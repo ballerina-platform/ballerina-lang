@@ -25,7 +25,7 @@ service<http:Service> backEndService bind { port: 9097 } {
         path: "/byteChannel"
     }
     sendByteChannel(endpoint client, http:Request req) {
-        io:ByteChannel byteChannel = check req.getByteChannel();
+        io:ReadableByteChannel byteChannel = check req.getByteChannel();
         _ = client->respond(untaint byteChannel);
     }
 
@@ -150,7 +150,7 @@ service<http:Service> testService bind { port: 9098 } {
     }
     testPostWithByteChannel(endpoint client, http:Request req) {
         string value;
-        io:ByteChannel byteChannel = check req.getByteChannel();
+        io:ReadableByteChannel byteChannel = check req.getByteChannel();
         http:Response res = check clientEP2->post("/test1/byteChannel", untaint byteChannel);
         value = check res.getPayloadAsString();
 
