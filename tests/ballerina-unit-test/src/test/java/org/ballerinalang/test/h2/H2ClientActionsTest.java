@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.connectors.h2;
+package org.ballerinalang.test.h2;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -49,7 +49,7 @@ public class H2ClientActionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/h2/h2_actions_test.bal");
+        result = BCompileUtil.compile("test-src/h2/h2_actions_test.bal");
         SQLDBUtils.deleteFiles(new File(DB_DIRECTORY_H2), DB_NAME);
         SQLDBUtils.initH2Database(DB_DIRECTORY_H2, DB_NAME, "datafiles/sql/H2ConnectorTableCreate.sql");
     }
