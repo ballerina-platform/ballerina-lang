@@ -33,9 +33,11 @@ public class CompileTimeConstantsNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "compile-time-constants-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        Assert.assertEquals(compileResult.getErrorCount(), 4);
         String expectedErrMsg = "only simple literals can be assigned to a compile time constant";
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg, 2, 1);
-        BAssertUtil.validateError(compileResult, 1, expectedErrMsg, 5, 1);
+        BAssertUtil.validateError(compileResult, 1, expectedErrMsg, 3, 1);
+        BAssertUtil.validateError(compileResult, 2, expectedErrMsg, 6, 1);
+        BAssertUtil.validateError(compileResult, 3, expectedErrMsg, 7, 1);
     }
 }

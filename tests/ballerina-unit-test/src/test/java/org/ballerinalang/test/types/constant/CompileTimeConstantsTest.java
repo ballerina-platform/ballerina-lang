@@ -54,6 +54,13 @@ public class CompileTimeConstantsTest {
     }
 
     @Test
+    public void getId() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getId");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 123);
+    }
+
+    @Test
     public void concatConstants() {
         BValue[] returns = BRunUtil.invoke(compileResult, "concatConstants");
         Assert.assertNotNull(returns[0]);
