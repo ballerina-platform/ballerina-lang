@@ -27,11 +27,11 @@ import java.util.List;
 public interface ErrorConstructorNode extends ExpressionNode {
 
     /**
-     * Provides error message expression node.
+     * Provides error reason expression node.
      *
-     * @return message expression node.
+     * @return reason expression node.
      */
-    ExpressionNode getMessageExpression();
+    ExpressionNode getReasonExpression();
 
     /**
      * Provides details expression as a list.

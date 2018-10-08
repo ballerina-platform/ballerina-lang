@@ -31,7 +31,7 @@ import java.util.Optional;
  * @since 0.983.0
  */
 public class BLangErrorType extends BLangType implements ErrorTypeNode {
-    public BLangType messageType;
+    public BLangType reasonType;
     public BLangType detailType;
 
     public BLangErrorType() {
@@ -44,7 +44,7 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
 
     @Override
     public String toString() {
-        return this.type.toString() + "<" + this.messageType.toString() + Optional.ofNullable(detailType)
+        return this.type.toString() + "<" + this.reasonType.toString() + Optional.ofNullable(detailType)
                 .map(type -> "," + type.toString()) + ">";
     }
 
@@ -54,8 +54,8 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
     }
 
     @Override
-    public TypeNode getMessageTypeNode() {
-        return messageType;
+    public TypeNode getReasonTypeNode() {
+        return reasonType;
     }
 
     @Override

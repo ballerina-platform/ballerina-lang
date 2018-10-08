@@ -36,7 +36,7 @@ public class BLangErrorConstructorExpr extends BLangExpression implements ErrorC
     public List<BLangExpression> detailsExpr = new ArrayList<>();
 
     @Override
-    public ExpressionNode getMessageExpression() {
+    public ExpressionNode getReasonExpression() {
         return messageExpr;
     }
 

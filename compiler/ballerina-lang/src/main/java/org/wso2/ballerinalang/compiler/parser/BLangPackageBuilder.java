@@ -524,15 +524,15 @@ public class BLangPackageBuilder {
         addType(refType);
     }
 
-    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean isMessageTypeExists, boolean isDetailsTypeExists) {
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean isReasonTypeExists, boolean isDetailsTypeExists) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
         if (isDetailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
         }
-        if (isMessageTypeExists) {
-            errorType.messageType = (BLangType) this.typeNodeStack.pop();
+        if (isReasonTypeExists) {
+            errorType.reasonType = (BLangType) this.typeNodeStack.pop();
         }
         addType(errorType);
     }

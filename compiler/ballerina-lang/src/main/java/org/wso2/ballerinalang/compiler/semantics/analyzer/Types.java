@@ -1174,7 +1174,7 @@ public class Types {
                 // TODO : Fix me. temporary fix for migration.
                 return true;
             }
-            return isSameType(source.messageType, t.messageType) && isSameType(source.detailType, t.detailType);
+            return isSameType(source.reasonType, t.reasonType) && isSameType(source.detailType, t.detailType);
         }
 
         @Override

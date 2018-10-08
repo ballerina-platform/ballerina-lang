@@ -30,12 +30,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  */
 public class BErrorType extends BType implements ErrorType {
 
-    public BType messageType;
+    public BType reasonType;
     public BType detailType;
 
-    public BErrorType(BTypeSymbol tSymbol, BType messageType, BType detailType) {
+    public BErrorType(BTypeSymbol tSymbol, BType reasonType, BType detailType) {
         super(TypeTags.ERROR, tSymbol);
-        this.messageType = messageType;
+        this.reasonType = reasonType;
         this.detailType = detailType;
     }
 
@@ -45,8 +45,8 @@ public class BErrorType extends BType implements ErrorType {
     }
 
     @Override
-    public Type getMessageType() {
-        return messageType;
+    public Type getReasonType() {
+        return reasonType;
     }
 
     @Override
