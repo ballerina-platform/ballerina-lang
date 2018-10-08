@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test uniqueLengthWindow behaviour in Ballerina Streaming V2.
  *
- * @since 0.981.2
+ * @since 0.982.1
  */
 public class BallerinaStreamsV2UniqueLengthWindowTest {
 
@@ -50,7 +50,6 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
     public void testUniqueLengthQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startUniqueLengthwindowTest1");
         System.setProperty("enable.siddhiRuntime", "true");
-
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");

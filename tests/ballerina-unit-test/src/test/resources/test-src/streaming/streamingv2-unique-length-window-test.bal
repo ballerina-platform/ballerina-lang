@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 import ballerina/streams;
 
 type Teacher record {
@@ -25,7 +25,7 @@ type Teacher record {
     string school;
 };
 
-type TeacherOutput record{
+type TeacherOutput record {
     string name;
     int count;
 };

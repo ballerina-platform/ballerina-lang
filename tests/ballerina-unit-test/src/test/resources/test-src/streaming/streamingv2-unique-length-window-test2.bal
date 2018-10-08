@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 import ballerina/streams;
 
 type Teacher record {
@@ -44,7 +44,6 @@ function startUniqueLengthwindowTest2() returns (TeacherOutput[]) {
     Teacher t4 = { name: "Amal", age: 50, status: "married", school: "Hindu College" };
     Teacher t5 = { name: "Nimal", age: 50, status: "married", school: "Hindu College" };
     Teacher t6 = { name: "Kavindu", age: 60, status: "married", school: "Hindu College" };
-
 
     teachers[0] = t1;
     teachers[1] = t2;
