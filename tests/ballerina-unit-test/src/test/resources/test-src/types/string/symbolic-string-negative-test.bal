@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Student record; {
+type Student record {
     string name;
     int age;
 };

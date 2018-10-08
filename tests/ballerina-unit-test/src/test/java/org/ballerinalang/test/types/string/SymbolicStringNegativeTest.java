@@ -33,23 +33,23 @@ public class SymbolicStringNegativeTest {
     public void testNegativeTest() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/types/string/symbolic-string-negative-test.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 17);
-        BAssertUtil.validateError(resultNegative, 0, "extraneous input 'World'", 7, 26);
-        BAssertUtil.validateError(resultNegative, 1, "token recognition error at: '$'", 8, 25);
+        BAssertUtil.validateError(resultNegative, 0, "extraneous input 'World'", 23, 26);
+        BAssertUtil.validateError(resultNegative, 1, "token recognition error at: '$'", 24, 25);
         BAssertUtil.validateError(resultNegative, 2, "mismatched input '0'. expecting " +
                 "{'but', ';', '?', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '&', '^', " +
-                "'...', '|', '?:', '..<'}", 9, 23);
-        BAssertUtil.validateError(resultNegative, 3, "token recognition error at: '\\'", 10, 25);
-        BAssertUtil.validateError(resultNegative, 4, "extraneous input 'nWorld'", 10, 26);
-        BAssertUtil.validateError(resultNegative, 5, "token recognition error at: '\\'", 11, 25);
-        BAssertUtil.validateError(resultNegative, 6, "extraneous input 'uFFFEWorld'", 11, 26);
-        BAssertUtil.validateError(resultNegative, 7, "extraneous input '\uDB80\uDC07'", 12, 25);
-        BAssertUtil.validateError(resultNegative, 8, "extraneous input '��'", 13, 25);
-        BAssertUtil.validateError(resultNegative, 9, "extraneous input 'Lavinia'", 16, 34);
-        BAssertUtil.validateError(resultNegative, 10, "invalid token 'sl'", 17, 22);
-        BAssertUtil.validateError(resultNegative, 11, "extraneous input 'Page'", 19, 33);
-        BAssertUtil.validateError(resultNegative, 12, "token recognition error at: '$'", 20, 21);
-        BAssertUtil.validateError(resultNegative, 14, "extraneous input 'world'", 22, 43);
-        BAssertUtil.validateError(resultNegative, 15, "token recognition error at: '\\'", 24, 27);
-        BAssertUtil.validateError(resultNegative, 16, "extraneous input 'uFFFFStallone'", 24, 28);
+                "'...', '|', '?:', '..<'}", 25, 23);
+        BAssertUtil.validateError(resultNegative, 3, "token recognition error at: '\\'", 26, 25);
+        BAssertUtil.validateError(resultNegative, 4, "extraneous input 'nWorld'", 26, 26);
+        BAssertUtil.validateError(resultNegative, 5, "token recognition error at: '\\'", 27, 25);
+        BAssertUtil.validateError(resultNegative, 6, "extraneous input 'uFFFEWorld'", 27, 26);
+        BAssertUtil.validateError(resultNegative, 7, "extraneous input '\uDB80\uDC07'", 28, 25);
+        BAssertUtil.validateError(resultNegative, 8, "extraneous input '��'", 29, 25);
+        BAssertUtil.validateError(resultNegative, 9, "extraneous input 'Lavinia'", 32, 34);
+        BAssertUtil.validateError(resultNegative, 10, "invalid token 'sl'", 33, 22);
+        BAssertUtil.validateError(resultNegative, 11, "extraneous input 'Page'", 35, 33);
+        BAssertUtil.validateError(resultNegative, 12, "token recognition error at: '$'", 36, 21);
+        BAssertUtil.validateError(resultNegative, 14, "extraneous input 'world'", 38, 43);
+        BAssertUtil.validateError(resultNegative, 15, "token recognition error at: '\\'", 40, 27);
+        BAssertUtil.validateError(resultNegative, 16, "extraneous input 'uFFFFStallone'", 40, 28);
     }
 }
