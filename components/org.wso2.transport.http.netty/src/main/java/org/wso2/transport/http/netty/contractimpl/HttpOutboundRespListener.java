@@ -26,13 +26,17 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contractimpl.common.OutboundThrottlingHandler;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.message.DefaultOutboundThrottlingListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.PassthroughOutboundThrottlingListener;
 
 import java.util.Locale;
 
@@ -69,23 +73,35 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HttpCarbonMessage outboundResponseMsg) {
-        sourceContext.channel().eventLoop().execute(() -> {
-
-            if (handlerExecutor != null) {
-                handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
+        OutboundThrottlingHandler outboundThrottlingHandler = Util.getOutBoundThrottlingHandler(sourceContext);
+        if (outboundThrottlingHandler != null) {
+            if (outboundResponseMsg.getTargetContext() != null && outboundResponseMsg.isPassthrough()) {
+                outboundThrottlingHandler.getOutboundThrottlingObservable().setListener(
+                        new PassthroughOutboundThrottlingListener(outboundResponseMsg.getTargetContext(),
+                                                                  sourceContext));
+            } else {
+                outboundThrottlingHandler.getOutboundThrottlingObservable().setListener(
+                        new DefaultOutboundThrottlingListener(sourceContext));
             }
+        }
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
+        }
 
-            outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
-                    this.sourceContext.channel().eventLoop().execute(() -> {
-                        try {
-                            writeOutboundResponse(outboundResponseMsg, httpContent);
-                        } catch (Exception exception) {
-                            String errorMsg = "Failed to send the outbound response : "
-                                    + exception.getMessage().toLowerCase(Locale.ENGLISH);
-                            LOG.error(errorMsg, exception);
-                            inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(exception);
-                        }
-                    }));
+        outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent -> {
+            if (outboundThrottlingHandler != null) {
+                outboundThrottlingHandler.getOutboundThrottlingObservable().notifyAcquire();
+            }
+            this.sourceContext.channel().eventLoop().execute(() -> {
+                try {
+                    writeOutboundResponse(outboundResponseMsg, httpContent);
+                } catch (Exception exception) {
+                    String errorMsg = "Failed to send the outbound response : "
+                            + exception.getMessage().toLowerCase(Locale.ENGLISH);
+                    LOG.error(errorMsg, exception);
+                    inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(exception);
+                }
+            });
         });
     }
 

@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
+import org.wso2.transport.http.netty.contractimpl.common.OutboundThrottlingHandler;
 import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
@@ -207,6 +208,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
+        serverPipeline.addLast(Constants.OUTBOUND_THROTTLING_HANDLER, new OutboundThrottlingHandler());
         serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
                                new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
                                                  keepAliveConfig, this.serverName, this.allChannels,

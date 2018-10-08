@@ -65,4 +65,9 @@ public class DefaultListener implements Listener {
             this.ctx.channel().read();
         }
     }
+
+    @Override
+    public void resumeReadInterest() {
+        ctx.channel().config().setAutoRead(true);
+    }
 }

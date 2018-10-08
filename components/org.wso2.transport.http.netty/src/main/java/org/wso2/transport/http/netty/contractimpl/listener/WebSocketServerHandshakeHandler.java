@@ -77,6 +77,9 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                         LOG.debug("Upgrading the connection from Http to WebSocket for channel : {}", ctx.channel());
                     }
                     ChannelPipeline pipeline = ctx.pipeline();
+                    if (pipeline.get(Constants.OUTBOUND_THROTTLING_HANDLER) != null) {
+                        pipeline.remove(Constants.OUTBOUND_THROTTLING_HANDLER);
+                    }
                     pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,

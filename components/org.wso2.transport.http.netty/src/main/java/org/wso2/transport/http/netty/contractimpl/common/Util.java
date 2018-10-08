@@ -809,4 +809,16 @@ public class Util {
         sslParams.setEndpointIdentificationAlgorithm(Constants.HTTPS_SCHEME);
         sslEngine.setSSLParameters(sslParams);
     }
+
+    /**
+     * Use this method to get the {@link OutboundThrottlingHandler} in the pipeline. This requires a
+     * {@link ChannelHandlerContext} of a handler in the pipeline.
+     *
+     * @param channelContext the channelContext which will be used to obtain the {@link OutboundThrottlingHandler}
+     *                       in the pipeline.
+     */
+    public static OutboundThrottlingHandler getOutBoundThrottlingHandler(ChannelHandlerContext channelContext) {
+        return (OutboundThrottlingHandler) channelContext.pipeline().get(Constants.OUTBOUND_THROTTLING_HANDLER);
+
+    }
 }

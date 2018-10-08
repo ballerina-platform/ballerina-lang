@@ -18,27 +18,18 @@
 
 package org.wso2.transport.http.netty.message;
 
-import io.netty.handler.codec.http.HttpContent;
-
 /**
- * Get notified upon receiving new messages.
+ * Gets notified to acquire or release during Outbound throttling.
  */
-public interface Listener {
+public interface OutboundThrottlingListener {
 
     /**
-     * Get notified when content are added to the message.
-     * @param httpContent of the message
+     * Get notified to start throttling.
      */
-    void onAdd(HttpContent httpContent);
+    void onAcquire();
 
     /**
-     * Get notified when content is removed from the the message.
-     * @param httpContent of the message
+     * Get notified to release throttling.
      */
-    void onRemove(HttpContent httpContent);
-
-    /**
-     * Since the listener removes readInterest this method resumes it if required.
-     */
-    void resumeReadInterest();
+    void onRelease();
 }
