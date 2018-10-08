@@ -101,7 +101,7 @@ objectMember
     ;
 
 typeReference
-    :   MUL userDefineTypeName SEMICOLON
+    :   MUL simpleTypeName SEMICOLON
     ;
 
 objectInitializer

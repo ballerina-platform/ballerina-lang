@@ -2091,8 +2091,8 @@ public class BallerinaParser extends Parser {
 
 	public static class TypeReferenceContext extends ParserRuleContext {
 		public TerminalNode MUL() { return getToken(BallerinaParser.MUL, 0); }
-		public UserDefineTypeNameContext userDefineTypeName() {
-			return getRuleContext(UserDefineTypeNameContext.class,0);
+		public SimpleTypeNameContext simpleTypeName() {
+			return getRuleContext(SimpleTypeNameContext.class,0);
 		}
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
 		public TypeReferenceContext(ParserRuleContext parent, int invokingState) {
@@ -2118,7 +2118,7 @@ public class BallerinaParser extends Parser {
 			setState(698);
 			match(MUL);
 			setState(699);
-			userDefineTypeName();
+			simpleTypeName();
 			setState(700);
 			match(SEMICOLON);
 			}
@@ -17540,7 +17540,7 @@ public class BallerinaParser extends Parser {
 		"\u02b6\3\2\2\2\u02b4\u02b2\3\2\2\2\u02b4\u02b5\3\2\2\2\u02b5\'\3\2\2\2"+
 		"\u02b6\u02b4\3\2\2\2\u02b7\u02bb\5\60\31\2\u02b8\u02bb\5@!\2\u02b9\u02bb"+
 		"\5*\26\2\u02ba\u02b7\3\2\2\2\u02ba\u02b8\3\2\2\2\u02ba\u02b9\3\2\2\2\u02bb"+
-		")\3\2\2\2\u02bc\u02bd\7\u008c\2\2\u02bd\u02be\5b\62\2\u02be\u02bf\7}\2"+
+		")\3\2\2\2\u02bc\u02bd\7\u008c\2\2\u02bd\u02be\5^\60\2\u02be\u02bf\7}\2"+
 		"\2\u02bf+\3\2\2\2\u02c0\u02c2\5\u0198\u00cd\2\u02c1\u02c0\3\2\2\2\u02c1"+
 		"\u02c2\3\2\2\2\u02c2\u02c6\3\2\2\2\u02c3\u02c5\5n8\2\u02c4\u02c3\3\2\2"+
 		"\2\u02c5\u02c8\3\2\2\2\u02c6\u02c4\3\2\2\2\u02c6\u02c7\3\2\2\2\u02c7\u02ca"+

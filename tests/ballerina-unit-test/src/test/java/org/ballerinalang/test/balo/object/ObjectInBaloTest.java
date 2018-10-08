@@ -558,9 +558,19 @@ public class ObjectInBaloTest {
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
     }
 
+    @Test
+    public void testObjectReferingTypeFromBaloNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 3);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 24, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 24, 15);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'foo:Manager1' is not an abstract object", 36, 6);
+    }
+
     @AfterClass
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("testorg", "foo");
     }
-
 }

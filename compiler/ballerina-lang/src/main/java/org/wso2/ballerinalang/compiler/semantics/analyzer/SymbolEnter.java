@@ -901,6 +901,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // resolved by the time we reach here. It is achieved by ordering the typeDefs 
                 // according to the precedence.
                 for (BLangType typeRef : objTypeNode.typeRefs) {
+                    if (typeRef.type.tsymbol.kind != SymbolKind.OBJECT) {
+                        continue;
+                    }
+
                     List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
                     for (BAttachedFunction function : functions) {
                         defineReferencedFunction(typeDef, objEnv, typeRef, function);

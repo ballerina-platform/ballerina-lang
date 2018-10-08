@@ -36,17 +36,27 @@ public class ObjectTypeReferenceTest {
     CompileResult compileResult = BCompileUtil.compile("test-src/object/object-type-reference.bal");
 
     @Test
-    public void testSimpleObjectTypeReferenceNegative() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-negative.bal");
+    public void testSimpleObjectTypeReferenceNegative_1() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 6);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 16,
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 32,
                 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 32, 6);
-        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, A, B, C, D, E]'", 36, 1);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, A, B, C, D, E]'", 52, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 80, 5);
+                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 80, 5);
+                "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 96, 5);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an abstract object", 101, 6);
+    }
+
+    @Test
+    public void testSimpleObjectTypeReferenceNegative_2() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'map<string>' is not an abstract object", 18, 6);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'int' is not an abstract object", 20, 6);
     }
 
     @Test
