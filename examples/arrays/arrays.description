@@ -1,0 +1,3 @@
+// In Ballerina, arrays are mutable lists of values with dynamic length, where each member in the list is
+// of the same type. The implicit initial value of an array is the array with a length of 0.
+// If you want to have a fixed length array, specify the length of the array at the time of declaration.
