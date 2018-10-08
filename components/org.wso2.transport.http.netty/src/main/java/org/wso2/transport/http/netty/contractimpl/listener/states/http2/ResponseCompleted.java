@@ -80,6 +80,6 @@ public class ResponseCompleted implements ListenerState {
                                      Http2PushPromise pushPromise) throws Http2Exception {
         LOG.warn("writeOutboundPromise is not a dependant action of this state");
         throw new Http2Exception(Http2Error.PROTOCOL_ERROR,
-                "writeOutboundPromise is not a dependant action of this state");
+                "WriteOutboundPromise is not a dependant action of ResponseCompleted state");
     }
 }
