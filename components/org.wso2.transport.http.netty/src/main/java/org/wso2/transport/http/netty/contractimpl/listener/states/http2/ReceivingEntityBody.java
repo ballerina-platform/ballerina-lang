@@ -42,11 +42,9 @@ public class ReceivingEntityBody implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
 
-    private final Http2SourceHandler http2SourceHandler;
     private final Http2MessageStateContext http2MessageStateContext;
 
-    ReceivingEntityBody(Http2SourceHandler http2SourceHandler, Http2MessageStateContext http2MessageStateContext) {
-        this.http2SourceHandler = http2SourceHandler;
+    ReceivingEntityBody(Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
     }
 
@@ -56,7 +54,7 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestBody(Http2DataFrame dataFrame) {
+    public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
         ByteBuf data = dataFrame.getData();
         HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId);

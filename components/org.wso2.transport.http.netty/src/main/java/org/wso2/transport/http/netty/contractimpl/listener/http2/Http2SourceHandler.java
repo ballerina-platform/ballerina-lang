@@ -124,7 +124,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             Http2DataFrame dataFrame = (Http2DataFrame) msg;
             int streamId = dataFrame.getStreamId();
             HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
-            sourceReqCMsg.getHttp2MessageStateContext().getListenerState().readInboundRequestBody(dataFrame);
+            sourceReqCMsg.getHttp2MessageStateContext().getListenerState().readInboundRequestBody(this, dataFrame);
         } else {
             ctx.fireChannelRead(msg);
         }

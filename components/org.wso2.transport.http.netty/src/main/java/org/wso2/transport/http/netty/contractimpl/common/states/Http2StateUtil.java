@@ -20,6 +20,7 @@ package org.wso2.transport.http.netty.contractimpl.common.states;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.Http2Connection;
@@ -68,7 +69,7 @@ public class Http2StateUtil {
     /**
      * Notifies the registered listeners which listen for the incoming carbon messages.
      *
-     * @param http2SourceHandler the instance which handle the incoming request
+     * @param http2SourceHandler the HTTP2 source handler
      * @param httpRequestMsg     the http request message
      * @param streamId           the id of the stream
      */
@@ -217,9 +218,31 @@ public class Http2StateUtil {
     /**
      * Release the {@link io.netty.buffer.ByteBuf} content.
      *
-     * @param dataFrame HTTP2 data frame
+     * @param http2SourceHandler the HTTP2 source handler
+     * @param dataFrame          the HTTP2 data frame to be released
      */
-    public static void releaseDataFrame(Http2DataFrame dataFrame) {
+    public static void releaseDataFrame(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
+        int streamId = dataFrame.getStreamId();
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId);
+        if (sourceReqCMsg != null) {
+            sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
+            http2SourceHandler.getStreamIdRequestMap().remove(streamId);
+        }
         dataFrame.getData().release();
+    }
+
+    /**
+     * Send {@link org.wso2.transport.http.netty.message.Http2Reset} frame with `NO_ERROR` error code.
+     *
+     * @param ctx      the channel handler context
+     * @param encoder  the HTTP2 connection encoder
+     * @param streamId id of the stream need to be send RST_FRAME
+     * @throws Http2Exception if a protocol-related error occurred
+     */
+    public static void sendRstFrame(ChannelHandlerContext ctx, Http2ConnectionEncoder encoder, int streamId)
+            throws Http2Exception {
+        encoder.writeRstStream(ctx, streamId, Http2Error.NO_ERROR.code(), ctx.newPromise());
+        encoder.flowController().writePendingBytes();
+        ctx.flush();
     }
 }

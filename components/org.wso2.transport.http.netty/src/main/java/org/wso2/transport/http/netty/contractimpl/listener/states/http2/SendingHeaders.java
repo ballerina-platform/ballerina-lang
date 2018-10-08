@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -78,9 +79,9 @@ public class SendingHeaders implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestBody(Http2DataFrame dataFrame) {
+    public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         // Response is already started to send, hence the incoming data frames need to be released.
-        releaseDataFrame(dataFrame);
+        releaseDataFrame(http2SourceHandler, dataFrame);
     }
 
     @Override

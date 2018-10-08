@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -50,7 +51,7 @@ public class EntityBodyReceived implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestBody(Http2DataFrame dataFrame) {
+    public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         LOG.warn("readInboundRequestBody is not a dependant action of this state");
     }
 

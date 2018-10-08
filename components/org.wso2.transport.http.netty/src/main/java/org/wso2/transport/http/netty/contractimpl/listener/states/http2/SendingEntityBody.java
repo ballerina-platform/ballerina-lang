@@ -41,6 +41,7 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -99,9 +100,9 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestBody(Http2DataFrame dataFrame) {
+    public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         // Response is already started to send, hence the incoming data frames need to be released.
-        releaseDataFrame(dataFrame);
+        releaseDataFrame(http2SourceHandler, dataFrame);
     }
 
     @Override
@@ -115,7 +116,7 @@ public class SendingEntityBody implements ListenerState {
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
                                           int streamId) throws Http2Exception {
-        writeContent(outboundResponseMsg, httpContent, streamId);
+        writeContent(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
     }
 
     @Override
@@ -126,7 +127,8 @@ public class SendingEntityBody implements ListenerState {
                 "WriteOutboundPromise is not a dependant action of SendingEntityBody state");
     }
 
-    private void writeContent(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
+    private void writeContent(Http2OutboundRespListener http2OutboundRespListener,
+                              HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
             throws Http2Exception {
         if (httpContent instanceof LastHttpContent) {
             final LastHttpContent lastContent = (LastHttpContent) httpContent;
@@ -141,7 +143,8 @@ public class SendingEntityBody implements ListenerState {
                 // Write trailing headers.
                 writeHttp2Headers(ctx, encoder, outboundRespStatusFuture, streamId, http2Trailers, true);
             }
-            http2MessageStateContext.setListenerState(new ResponseCompleted(http2MessageStateContext));
+            http2MessageStateContext
+                    .setListenerState(new ResponseCompleted(http2OutboundRespListener, http2MessageStateContext));
         } else {
             writeData(httpContent, streamId, false);
         }

@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -42,10 +43,11 @@ public interface ListenerState {
     /**
      * Read entity body of inbound request.
      *
-     * @param dataFrame inbound data frame
+     * @param http2SourceHandler HTTP2 source handler
+     * @param dataFrame          inbound data frame
      * @throws Http2Exception if an error occurs while reading
      */
-    void readInboundRequestBody(Http2DataFrame dataFrame) throws Http2Exception;
+    void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) throws Http2Exception;
 
     /**
      * Write headers of outbound response.

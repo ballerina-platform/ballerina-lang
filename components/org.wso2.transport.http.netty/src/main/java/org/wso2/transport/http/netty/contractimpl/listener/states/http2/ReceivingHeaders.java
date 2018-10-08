@@ -80,12 +80,11 @@ public class ReceivingHeaders implements ListenerState {
             http2SourceHandler.getStreamIdRequestMap().put(streamId, sourceReqCMsg); // storing to add HttpContent later
             notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
         }
-        http2MessageStateContext.setListenerState(
-                new ReceivingEntityBody(http2SourceHandler, http2MessageStateContext));
+        http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
     }
 
     @Override
-    public void readInboundRequestBody(Http2DataFrame dataFrame) {
+    public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         LOG.warn("readInboundRequestBody is not a dependant action of this state");
     }
 
