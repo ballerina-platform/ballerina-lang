@@ -91,26 +91,12 @@ suite('Ballerina Debug Adapter', () => {
                 request: "launch", 
                 name: "Ballerina Debug",
             };
+            
+            setTimeout(()=>{
+                http.get('http://0.0.0.0:9090/hello/sayHello');
+            }, 6000);
 
-            dc.launch(launchArgs).then(() =>{
-                return Promise.all([
-                    dc.setBreakpointsRequest({
-                        breakpoints: [{ line: 11 }],
-                        source: { path: PROGRAM, name: 'hello_world_service.bal'},
-                    }),
-                    dc.configurationDoneRequest(),
-                    ]
-                );
-            }).then(()=>{
-                setTimeout(()=>{
-                    http.get('http://0.0.0.0:9090/hello/sayHello');
-                }, 4000);
-            });
-    
-            return dc.waitForEvent('stopped', 10000).then(event => {
-                assert.equal(event.body.reason, "breakpoint");
-            });
-
+            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 11 });
         }).timeout(15000);
     });
 

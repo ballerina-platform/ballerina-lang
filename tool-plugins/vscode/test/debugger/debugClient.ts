@@ -31,7 +31,7 @@ export class DebugClientEx extends DebugClient {
             return this.configurationDoneRequest();
         });
 
-        return this.waitForEvent('stopped').then(event => {
+        return this.waitForEvent('stopped', 12000).then(event => {
             assert.equal(event.body.reason, "breakpoint");
             this.stackTraceRequest({
                 threadId: event.body.threadId,
