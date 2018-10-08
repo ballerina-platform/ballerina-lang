@@ -1,0 +1,24 @@
+// A service can be secured using basic authentication and optionally, by
+// enforcing authorization. The auth provider reads the username and password
+// from a file which has a toml format. This stores usernames, passwords for
+// authentication, and scopes for authorization.
+// Ballerina uses the concept of scopes for authorization. A resource
+// declared in a service can be bound to one/more scope(s). In the config
+// auth provider, scopes are mapped to users.
+// In the authorization phase, the scopes of the resource are compared against
+// the scopes mapped to the user for at least one match between the two sets.
+// The following code block shows the contents of the file `sample-users.toml`, which has the
+// required format of usernames, passwords and scopes, including their mapping.
+//
+//      ["b7a.users"]
+//
+//      ["b7a.users.tom"]
+//      password="password1"
+//      scopes="scope2,scope3"
+//
+//      ["b7a.users.dick"]
+//      password="password2"
+//      scopes="scope1"
+//
+// There are two users defined - Tom and Dick. Each user has a password and
+// assigned scopes.

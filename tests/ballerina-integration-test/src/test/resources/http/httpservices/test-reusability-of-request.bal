@@ -88,7 +88,7 @@ service<http:Service> testService_1 bind testEP {
     }
     postWithByteChannel(endpoint outboundEP, http:Request clientRequest) {
         http:Request clientReq = new;
-        io:ByteChannel byteChannel = check clientRequest.getByteChannel();
+        io:ReadableByteChannel byteChannel = check clientRequest.getByteChannel();
         clientReq.setByteChannel(byteChannel, contentType = "text/plain");
         http:Response firstResponse = check clientEP1 -> post("/consumeChannel", clientReq);
         var secondResponse = clientEP1 -> post("/consumeChannel", clientReq);

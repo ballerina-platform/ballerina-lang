@@ -1,0 +1,4 @@
+$ ballerina run elvis-operator.bal
+The output from match expression: value is null
+The output from elvis operator: value is null
+
