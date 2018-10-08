@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
@@ -644,7 +643,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 objectTypeNode.initFunction.initFunctionStmts
                         .put(symbol, (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
             }
-            varSymbol.docTag = varNode.docTag;
             varNode.symbol = varSymbol;
             return;
         }
@@ -674,7 +672,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
                 varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
-        varSymbol.docTag = varNode.docTag;
         varNode.symbol = varSymbol;
     }
 
@@ -995,13 +992,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                       Name varName, SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName, env.enclPkg.symbol
-                .pkgID, varType, enclScope.owner);
-        Scope.ScopeEntry scopeEntry = enclScope.entries.get(names.fromString("$" + varName.value));
-        if (scopeEntry != null && scopeEntry.symbol != null && scopeEntry.symbol instanceof BVarSymbol) {
-            varSymbol.docTag = ((BVarSymbol) scopeEntry.symbol).docTag;
-        }
-
+        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,
+                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
         // Add it to the enclosing scope
         // Find duplicates
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
@@ -1131,8 +1123,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         receiver.pos = pos;
         IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
         receiver.setName(identifier);
-        receiver.docTag = DocTag.RECEIVER;
-
         BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         structTypeNode.pkgAlias = new BLangIdentifier();
         structTypeNode.typeName = name;
