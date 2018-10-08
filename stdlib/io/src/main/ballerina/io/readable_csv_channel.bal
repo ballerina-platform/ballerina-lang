@@ -14,31 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents record separator of the CSV file.
-@final string CSV_RECORD_SEPERATOR = "\n";
-
-# Represents colon separator which should be used to identify colon separated files.
-@final string FS_COLON = ":";
-
-# Represents minimum number of headers which will be included in CSV.
-@final int MINIMUM_HEADER_COUNT = 0;
-
-# Represents a CSVChannel which could be used to read/write records from CSV file.
-public type CSVChannel object {
-    private DelimitedTextRecordChannel? dc;
+# Represents a ReadableCSVChannel which could be used to read records from CSV file.
+public type ReadableCSVChannel object {
+    private ReadableTextRecordChannel? dc;
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
     #
     # + byteChannel - ChracterChannel which will represent the content in the CSV
     # + fs - Field separator which will separate between the records in the CSV
     # + nHeaders - Number of headers which should be skipped prior to reading records
-    public new(CharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
+    public new(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB){
-            dc = new DelimitedTextRecordChannel(byteChannel, fmt = "TDF");
+            dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON){
-            dc = new DelimitedTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+            dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
-            dc = new DelimitedTextRecordChannel(byteChannel, fmt = "CSV");
+            dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
         }
         skipHeaders(nHeaders);
     }
@@ -59,7 +50,7 @@ public type CSVChannel object {
     # + return - True if there's a record
     public function hasNext() returns boolean {
         match dc{
-            DelimitedTextRecordChannel delimitedChannel=>{
+            ReadableTextRecordChannel delimitedChannel=>{
                 return delimitedChannel.hasNext();
             }
             () =>{
@@ -74,14 +65,6 @@ public type CSVChannel object {
     # + return - List of fields in the CSV or error
     public function getNext() returns @tainted string[]|error? {
         return dc.getNext();
-    }
-
-    # Writes record to a given CSV file.
-    #
-    # + csvRecord - A record to be written to the channel
-    # + return - Returns an error if the record could not be written properly
-    public function write(string[] csvRecord) returns error? {
-        return dc.write(csvRecord);
     }
 
     # Closes a given CSVChannel.

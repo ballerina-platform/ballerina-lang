@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Represents Ballerina application running state.
@@ -81,16 +82,17 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         }
 
         VirtualFile fileDir = file.getVirtualFile().getParent();
-        // Sets source root of the IDEA project as the termination of the recursive search.
-        String rootDir = project.getBasePath();
+        // Sets parent of IDEA project as the termination for the recursive search.
+        String rootDir = new File(project.getBasePath()).getParent();
         String sourcerootDir = getSourceRoot(fileDir.getPath(), rootDir);
         // if no ballerina project is found.
         if (sourcerootDir.equals("")) {
             sourcerootDir = baseDir.getPath();
-            filePath = file.getVirtualFile().getPath().replace(sourcerootDir, "").substring(1);
+            filePath = Paths.get(file.getVirtualFile().getPath()).toString().replace(sourcerootDir, "").substring(1);
         } else {
-            String relativeFilePath = file.getVirtualFile().getPath().replace(sourcerootDir, "").substring(1);
-            //If file is found in a ballerina package, runs the whole
+            String relativeFilePath =
+                    Paths.get(file.getVirtualFile().getPath()).toString().replace(sourcerootDir, "").substring(1);
+            //If file is found in a ballerina package, runs the whole package.
             if (relativeFilePath.contains(File.separator)) {
                 // package, instead of the single file.
                 filePath = relativeFilePath.substring(0, relativeFilePath.indexOf(File.separator));
@@ -178,6 +180,5 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             }
         }
         return getSourceRoot(currentDir.getParentFile().getAbsolutePath(), root);
-
     }
 }

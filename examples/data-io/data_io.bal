@@ -9,8 +9,8 @@ public type Person record {
 };
 
 //Serialize record into binary
-function serialize(Person p, io:ByteChannel byteChannel) {
-    io:DataChannel dc = new io:DataChannel(byteChannel);
+function serialize(Person p, io:WritableByteChannel byteChannel) {
+    io:WritableDataChannel dc = new io:WritableDataChannel(byteChannel);
     var length = lengthof p.name.toByteArray("UTF-8");
     var lengthResult = dc.writeInt32(length);
     var nameResult = dc.writeString(p.name, "UTF-8");
@@ -21,11 +21,11 @@ function serialize(Person p, io:ByteChannel byteChannel) {
 }
 
 //Deserialize record into binary
-function deserialize(io:ByteChannel byteChannel) returns Person {
+function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     Person person;
     int nameLength;
     string nameValue;
-    io:DataChannel dc = new io:DataChannel(byteChannel);
+    io:ReadableDataChannel dc = new io:ReadableDataChannel(byteChannel);
     //Read 32 bit singed integer
     match dc.readInt32() {
         int namel => nameLength = namel;
@@ -68,13 +68,13 @@ function deserialize(io:ByteChannel byteChannel) returns Person {
 
 //Serialize and write record to a file
 function writeRecordToFile(Person p, string path) {
-    io:ByteChannel wc = io:openFile(path, io:WRITE);
+    io:WritableByteChannel wc = io:openWritableFile(path);
     serialize(p, wc);
 }
 
 //Read serialized record from file
 function readRecordFromFile(string path) returns Person {
-    io:ByteChannel rc = io:openFile(path, io:READ);
+    io:ReadableByteChannel rc = io:openReadableFile(path);
     return deserialize(rc);
 }
 

@@ -242,6 +242,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.XML2S] = "xml2s";
         mnemonics[InstructionCodes.LOCK] = "lock";
         mnemonics[InstructionCodes.UNLOCK] = "unlock";
+
+        mnemonics[InstructionCodes.SCOPE_END] = "scope_end";
+        mnemonics[InstructionCodes.COMPENSATE] = "compensate";
+        mnemonics[InstructionCodes.LOOP_COMPENSATE] = "loop_compensate";
     }
 
     public static String getMnem(int opcode) {

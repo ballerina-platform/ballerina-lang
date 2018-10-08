@@ -7,7 +7,10 @@
             "es6"
         ],
         "sourceMap": true,
-        "rootDir": "src",
+        "rootDirs": [
+            "src",
+            "test"
+        ],
         /* Strict Type-Checking Option */
         "strict": true,   /* enable all strict type-checking options */
         /* Additional Checks */
