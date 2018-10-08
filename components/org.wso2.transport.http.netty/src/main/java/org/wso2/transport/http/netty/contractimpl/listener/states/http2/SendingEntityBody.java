@@ -64,7 +64,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 public class SendingEntityBody implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
-    private static final InternalLogger accessLogger = InternalLoggerFactory.getInstance(ACCESS_LOG);
+    private static final InternalLogger ACCESS_LOGGER = InternalLoggerFactory.getInstance(ACCESS_LOG);
 
     private final Http2MessageStateContext http2MessageStateContext;
     private final ChannelHandlerContext ctx;
@@ -162,7 +162,7 @@ public class SendingEntityBody implements ListenerState {
     }
 
     private void logAccessInfo(HttpCarbonMessage outboundResponseMsg, int streamId) {
-        if (!accessLogger.isEnabled(InternalLogLevel.INFO)) {
+        if (!ACCESS_LOGGER.isEnabled(InternalLogLevel.INFO)) {
             return;
         }
         if (originalStreamId != streamId) { // Skip access logs for server push messages
@@ -199,7 +199,7 @@ public class SendingEntityBody implements ListenerState {
         // Populate response parameters
         int statusCode = Util.getHttpResponseStatus(outboundResponseMsg).code();
 
-        accessLogger.log(InternalLogLevel.INFO, String.format(
+        ACCESS_LOGGER.log(InternalLogLevel.INFO, String.format(
                 ACCESS_LOG_FORMAT, remoteAddress, inboundRequestArrivalTime, method, uri, protocol,
                 statusCode, contentLength, referrer, userAgent));
     }

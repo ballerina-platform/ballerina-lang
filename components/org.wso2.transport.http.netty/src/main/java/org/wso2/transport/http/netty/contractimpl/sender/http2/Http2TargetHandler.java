@@ -56,8 +56,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
-import java.util.Locale;
-
 /**
  * {@code Http2TargetHandler} is responsible for sending and receiving HTTP/2 frames over an outbound connection.
  */
@@ -139,9 +137,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                                 try {
                                     writeOutboundRequest(ctx, httpContent);
                                 } catch (Exception ex) {
-                                    String errorMsg = "Failed to send the request : " +
-                                            ex.getMessage().toLowerCase(Locale.ENGLISH);
-                                    LOG.error(errorMsg, ex);
+                                    LOG.error("Failed to send the request : " + ex.getMessage(), ex);
                                     outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
                                 }
                             })));

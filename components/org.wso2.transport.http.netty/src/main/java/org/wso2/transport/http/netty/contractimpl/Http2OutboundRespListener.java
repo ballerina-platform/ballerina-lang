@@ -37,7 +37,6 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Calendar;
-import java.util.Locale;
 
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.isValidStreamId;
@@ -101,8 +100,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         if (isValidStreamId(promiseId, conn)) {
             writeMessage(outboundResponseMsg, promiseId);
         } else {
-            inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(
-                    new ServerConnectorException(PROMISED_STREAM_REJECTED_ERROR));
+            inboundRequestMsg.getHttpOutboundRespStatusFuture()
+                    .notifyHttpListener(new ServerConnectorException(PROMISED_STREAM_REJECTED_ERROR));
         }
     }
 
@@ -114,9 +113,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                     http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
                 }
                 http2MessageStateContext.getListenerState().writeOutboundPromise(this, pushPromise);
-            } catch (Exception ex) {
-                String errorMsg = "Failed to send push promise : " + ex.getMessage().toLowerCase(Locale.ENGLISH);
-                LOG.error(errorMsg, ex);
+            } catch (Http2Exception ex) {
+                LOG.error("Failed to send push promise : " + ex.getMessage(), ex);
                 inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
             }
         });
@@ -129,9 +127,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                     try {
                         writer.writeOutboundResponse(outboundResponseMsg, httpContent);
                     } catch (Http2Exception ex) {
-                        String errorMsg = "Failed to send the outbound response : " +
-                                ex.getMessage().toLowerCase(Locale.ENGLISH);
-                        LOG.error(errorMsg, ex);
+                        LOG.error("Failed to send the outbound response : " + ex.getMessage(), ex);
                         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
                     }
                 })));
