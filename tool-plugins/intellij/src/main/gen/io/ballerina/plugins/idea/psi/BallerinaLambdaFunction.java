@@ -32,13 +32,16 @@ public interface BallerinaLambdaFunction extends BallerinaCompositeElement {
   @Nullable
   BallerinaLambdaReturnParameter getLambdaReturnParameter();
 
-  @NotNull
-  PsiElement getEqualGt();
-
-  @NotNull
+  @Nullable
   PsiElement getLeftParenthesis();
 
-  @NotNull
+  @Nullable
   PsiElement getRightParenthesis();
+
+  @NotNull
+  PsiElement getFunction();
+
+  @Nullable
+  PsiElement getReturns();
 
 }

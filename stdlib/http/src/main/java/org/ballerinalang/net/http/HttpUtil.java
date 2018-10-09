@@ -960,17 +960,19 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
-    public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HttpCarbonMessage reqMsg) {
+    public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HttpCarbonMessage reqMsg,
+                                             HttpCarbonMessage outboundResponseMsg) {
         serverConnectionStructCheck(reqMsg);
-        methodInvocationCheck(connectionStruct, reqMsg);
+        int statusCode = (int) outboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        methodInvocationCheck(connectionStruct, reqMsg, statusCode);
     }
 
-    private static void methodInvocationCheck(BMap<String, BValue> bStruct, HttpCarbonMessage reqMsg) {
+    private static void methodInvocationCheck(BMap<String, BValue> bStruct, HttpCarbonMessage reqMsg, int statusCode) {
         if (bStruct.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
 
-        if (!is100ContinueRequest(reqMsg)) {
+        if (!is100ContinueRequest(reqMsg, statusCode)) {
             bStruct.addNativeData(METHOD_ACCESSED, true);
         }
     }
@@ -981,9 +983,9 @@ public class HttpUtil {
         }
     }
 
-    private static boolean is100ContinueRequest(HttpCarbonMessage reqMsg) {
+    private static boolean is100ContinueRequest(HttpCarbonMessage reqMsg, int statusCode) {
         return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
-                reqMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
+                reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {

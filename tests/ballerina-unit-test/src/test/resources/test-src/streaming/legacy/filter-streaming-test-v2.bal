@@ -40,7 +40,9 @@ function testFilterQuery(stream<Teacher> teacherStream6, stream<Employee> employ
         where age > 30
         select name, age, status
         => (Employee[] emp) {
-            employeeStream.publish(emp);
+            foreach e in emp {
+                employeeStream.publish(e);
+            }
         }
     }
 }

@@ -22,4 +22,7 @@ export const INVALID_HOME_MSG: string = "Ballerina Home is invalid, please check
 export const INSTALL_BALLERINA: string = "Unable to autoditect ballerina in your environment. Please download and install Ballerina or provide ballerina home path in settings.";
 export const DOWNLOAD_BALLERINA: string = "https://ballerina.io/downloads/";
 export const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
+export const OLD_BALLERINA_VERSION: string ="Your Ballerina version does not match the Ballerina vscode plugin version. Some features may not work properly. Please download the latest Ballerina distribution.";
+export const OLD_PLUGIN_VERSION: string ="Your Ballerina vscode plugin version does not match your Ballerina version. Some features may not work properly. Please update the Ballerina vscode plugin.";
+export const MISSING_SERVER_CAPABILITY: string = "Your version of Ballerina platform distribution does not support this feature. Please update to the latest Ballerina platform";
 export const UNKNOWN_ERROR: string ="Unknown Error : Failed to start Ballerina Plugin.";

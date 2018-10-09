@@ -151,13 +151,13 @@ function testMoveToFunction(string source, string target) returns boolean {
 function testWriteFile(string pathValue) returns error? {
     internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
-    io:ByteChannel byteChannel = io:openFile(absolutePath, "rw");
+    io:WritableByteChannel byteChannel = io:openWritableFile(absolutePath);
     var result = byteChannel.write(TEST_CONTENT.toByteArray("UTF-8"), 0);
     return byteChannel.close();
 }
 
 function testReadFile(string pathValue) returns boolean {
-    io:ByteChannel byteChannel = io:openFile(pathValue,"r");
+    io:ReadableByteChannel byteChannel = io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
     _ = byteChannel.close();
     match readResult {

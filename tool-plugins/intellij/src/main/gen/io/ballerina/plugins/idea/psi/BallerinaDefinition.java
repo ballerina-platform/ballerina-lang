@@ -33,7 +33,7 @@ public interface BallerinaDefinition extends BallerinaCompositeElement {
   BallerinaGlobalEndpointDefinition getGlobalEndpointDefinition();
 
   @Nullable
-  BallerinaGlobalVariableDefinition getGlobalVariableDefinition();
+  BallerinaGlobalVariable getGlobalVariable();
 
   @Nullable
   BallerinaServiceDefinition getServiceDefinition();

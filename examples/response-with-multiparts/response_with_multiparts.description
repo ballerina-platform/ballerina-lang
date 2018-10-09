@@ -1,0 +1,4 @@
+// Ballerina supports encoding and decoding multipart content in http responses along with nested parts.
+// When you request multiparts from a HTTP inbound response, you get an array of body parts (An array of
+// entities). If the received parts contain nested parts, you can loop through the parent parts and get the child parts.
+

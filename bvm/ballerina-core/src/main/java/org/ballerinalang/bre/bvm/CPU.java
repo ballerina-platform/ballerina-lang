@@ -751,7 +751,9 @@ public class CPU {
                         if (index >= 0 && (table.compensations.get(index).scope.equals(compIn
                                 .scopeName) || compIn.childScopes.contains(table.compensations.get(index).scope))) {
                             CompensationTable.CompensationEntry entry = table.compensations.get(index);
-                            ctx = invokeCompensate(ctx, entry.fPointer, entry.functionInfo, sf);
+
+                            int[] retRegsIndexes = {compIn.retRegIndex};
+                            ctx = invokeCompensate(ctx, entry.fPointer, entry.functionInfo, sf, retRegsIndexes);
                         }
                         if (ctx == null) {
                             return;
@@ -888,11 +890,11 @@ public class CPU {
     }
 
     private static WorkerExecutionContext invokeCompensate(WorkerExecutionContext ctx, BFunctionPointer fp,
-            FunctionInfo functionInfo, WorkerData sf) {
+                                                           FunctionInfo functionInfo, WorkerData sf, int[] retRegs) {
         List<BClosure> closureVars = fp.getClosureVars();
         if (closureVars.isEmpty()) {
-            //compensate functions has no args apart from closure vars, no return as well
-            return BLangFunctions.invokeCallable(functionInfo, ctx, new int[0], new int[0], false);
+            //compensate functions has no args apart from closure vars
+            return BLangFunctions.invokeCallable(functionInfo, ctx, new int[0], retRegs, false);
         }
 
         int[] newArgRegs = new int[closureVars.size()];
@@ -906,38 +908,38 @@ public class CPU {
 
         for (BClosure closure : closureVars) {
             switch (closure.getType().getTag()) {
-            case TypeTags.INT_TAG: {
-                sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
-                newArgRegs[argRegIndex++] = longIndex++;
-                break;
-            }
-            case TypeTags.BYTE_TAG: {
-                sf.intRegs[intIndex] = ((BByte) closure.value()).byteValue();
-                newArgRegs[argRegIndex++] = intIndex++;
-                break;
-            }
-            case TypeTags.FLOAT_TAG: {
-                sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
-                newArgRegs[argRegIndex++] = doubleIndex++;
-                break;
-            }
-            case TypeTags.BOOLEAN_TAG: {
-                sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
-                newArgRegs[argRegIndex++] = intIndex++;
-                break;
-            }
-            case TypeTags.STRING_TAG: {
-                sf.stringRegs[stringIndex] = (closure.value()).stringValue();
-                newArgRegs[argRegIndex++] = stringIndex++;
-                break;
-            }
-            default:
-                sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
-                newArgRegs[argRegIndex++] = refIndex++;
+                case TypeTags.INT_TAG: {
+                    sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
+                    newArgRegs[argRegIndex++] = longIndex++;
+                    break;
+                }
+                case TypeTags.BYTE_TAG: {
+                    sf.intRegs[intIndex] = ((BByte) closure.value()).byteValue();
+                    newArgRegs[argRegIndex++] = intIndex++;
+                    break;
+                }
+                case TypeTags.FLOAT_TAG: {
+                    sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
+                    newArgRegs[argRegIndex++] = doubleIndex++;
+                    break;
+                }
+                case TypeTags.BOOLEAN_TAG: {
+                    sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
+                    newArgRegs[argRegIndex++] = intIndex++;
+                    break;
+                }
+                case TypeTags.STRING_TAG: {
+                    sf.stringRegs[stringIndex] = (closure.value()).stringValue();
+                    newArgRegs[argRegIndex++] = stringIndex++;
+                    break;
+                }
+                default:
+                    sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
+                    newArgRegs[argRegIndex++] = refIndex++;
             }
         }
 
-        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, new int[0], false);
+        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, retRegs, false);
     }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
@@ -3456,84 +3458,100 @@ public class CPU {
         int j = operands[2];
 
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-        BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
         BStructureType structType = (BStructureType) typeRefCPEntry.getType();
+        BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
+
+        try {
+            sf.refRegs[j] = convertMapToStruct(ctx, bMap, structType);
+        } catch (BallerinaException e) {
+            sf.refRegs[j] = null;
+            String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+
+    private static BMap<String, BValue> convertMapToStruct(WorkerExecutionContext ctx,
+                                                           BMap<String, BValue> bMap, BStructureType structType) {
         BMap<String, BValue> bStruct = new BMap<>(structType);
-        StructureTypeInfo structInfo = ctx.callableUnitInfo
-                .getPackageInfo().getStructInfo(structType.getName());
+        StructureTypeInfo structInfo = ctx.callableUnitInfo.getPackageInfo().getStructInfo(structType.getName());
 
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             String key = fieldInfo.getName();
             BType fieldType = fieldInfo.getFieldType();
-            BValue mapVal = null;
-            try {
-                boolean containsField = bMap.hasKey(key);
-                DefaultValueAttributeInfo defaultValAttrInfo = null;
-                if (containsField) {
-                    mapVal = bMap.get(key);
-                    if (mapVal == null && BTypes.isValueType(fieldType)) {
-                        throw BLangExceptionHelper.getRuntimeException(
-                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
-                    }
 
-                    if (mapVal != null && !checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
-                        throw BLangExceptionHelper.getRuntimeException(
-                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
-                    }
-                } else {
-                    defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo,
-                            AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
-                }
-
-                switch (fieldType.getTag()) {
-                    case TypeTags.INT_TAG:
-                        if (containsField) {
-                            bStruct.put(key, mapVal);
-                        } else if (defaultValAttrInfo != null) {
+            boolean containsField = bMap.hasKey(key);
+            if (!containsField) {
+                DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo)
+                        getAttributeInfo(fieldInfo, AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+                if (defaultValAttrInfo != null) {
+                    switch (fieldType.getTag()) {
+                        case TypeTags.INT_TAG:
                             bStruct.put(key, new BInteger(defaultValAttrInfo.getDefaultValue().getIntValue()));
-                        }
-                        break;
-                    case TypeTags.BYTE_TAG:
-                        if (containsField) {
-                            bStruct.put(key, mapVal);
-                        } else if (defaultValAttrInfo != null) {
+                            continue;
+                        case TypeTags.BYTE_TAG:
                             bStruct.put(key, new BByte(defaultValAttrInfo.getDefaultValue().getByteValue()));
-                        }
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        if (containsField) {
-                            bStruct.put(key, mapVal);
-                        } else if (defaultValAttrInfo != null) {
+                            continue;
+                        case TypeTags.FLOAT_TAG:
                             bStruct.put(key, new BFloat(defaultValAttrInfo.getDefaultValue().getFloatValue()));
-                        }
-                        break;
-                    case TypeTags.STRING_TAG:
-                        if (containsField) {
-                            bStruct.put(key, mapVal);
-                        } else if (defaultValAttrInfo != null) {
+                            continue;
+                        case TypeTags.STRING_TAG:
                             bStruct.put(key, new BString(defaultValAttrInfo.getDefaultValue().getStringValue()));
-                        }
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        if (containsField) {
-                            bStruct.put(key, mapVal);
-                        } else if (defaultValAttrInfo != null) {
+                            continue;
+                        case TypeTags.BOOLEAN_TAG:
                             bStruct.put(key, new BBoolean(defaultValAttrInfo.getDefaultValue().getBooleanValue()));
-                        }
-                        break;
-                    default:
-                        bStruct.put(key, mapVal);
+                            continue;
+                    }
                 }
-            } catch (BallerinaException e) {
-                sf.refRegs[j] = null;
-                String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
-                        e.getMessage();
-                handleTypeConversionError(ctx, sf, j, errorMsg);
-                return;
+                bStruct.put(key, fieldType.getZeroValue());
+                continue;
             }
-        }
 
-        sf.refRegs[j] = bStruct;
+            BValue mapVal = bMap.get(key);
+            if (mapVal == null && BTypes.isValueType(fieldType)) {
+                throw BLangExceptionHelper.getRuntimeException(
+                        RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
+            }
+
+            if (mapVal != null && mapVal.getType().getTag() == TypeTags.MAP_TAG) {
+                bStruct.put(key, convertMap(ctx, (BMap<String, BValue>) mapVal, fieldType, key));
+                continue;
+            }
+
+            if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING,
+                                                               key, fieldType,
+                                                               mapVal == null ? null : mapVal.getType());
+            }
+            bStruct.put(key, mapVal);
+        }
+        return bStruct;
+    }
+
+    private static BValue convertMap(WorkerExecutionContext ctx, BMap<String, BValue> mapValue, BType targetType,
+                                     String key) {
+        switch (targetType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                return convertMapToStruct(ctx, mapValue, (BStructureType) targetType);
+            case TypeTags.JSON_TAG:
+                return JSONUtils.convertMapToJSON(mapValue, (BJSONType) targetType);
+            case TypeTags.UNION_TAG:
+                for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
+                    try {
+                        return convertMap(ctx, mapValue, memType, key);
+                    } catch (BallerinaException e) {
+                        // ignore conversion exception if thrown when the expected type is a union
+                        // type, to allow attempting conversion for other types
+                    }
+                }
+                break;
+            default:
+                if (checkCast(mapValue, targetType, new ArrayList<TypePair>())) {
+                    return mapValue;
+                }
+        }
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key,
+                                                       targetType, mapValue.getType());
     }
 
     private static void convertJSONToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3756,7 +3774,7 @@ public class CPU {
 
     /**
      * Type vector of size two, to hold the source and the target types.
-     * 
+     *
      * @since 0.982.0
      */
     private static class TypePair {

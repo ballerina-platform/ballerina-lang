@@ -98,6 +98,9 @@ class IfStatementDecorator extends React.Component {
         const viewState = model.viewState;
         const titleH = this.context.designer.config.flowChartControlStatement.heading.height;
         const titleW = this.context.designer.config.flowChartControlStatement.heading.width;
+        const decisionLabelH = this.context.designer.config.flowChartControlStatement.decision.height;
+        const decisionLabelW = this.context.designer.config.flowChartControlStatement.decision.width;
+        const decisionLabelRadius = this.context.designer.config.flowChartControlStatement.decision.radius;
         const statementBBox = viewState.components['statement-box'];
         const displayExpression = viewState.components.expression;
         const gapLeft = this.context.designer.config.flowChartControlStatement.gap.left;
@@ -161,6 +164,13 @@ class IfStatementDecorator extends React.Component {
         const p12X = p8X;
         const p12Y = p8Y + this.context.designer.config.flowChartControlStatement.heading.gap;
 
+        const decisionTrueLabelPositionX = (p8X - (decisionLabelW / 2));
+        const decisionTrueLabelPositionY = (((p8Y + p12Y) / 2) - (decisionLabelH / 2));
+        const decisionFalseLabelPositionX = (p3X + 2);
+        const decisionFalseLabelPositionY = (p3Y - (decisionLabelH / 2));
+        const expressionPositionX = (bBox.x + (viewState.components.expression.w / 2)) + 18;
+        const expressionPositionY = (p2Y + 22);
+
         this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
             statementBBox.w, this.context.designer.config.statement.height);
 
@@ -208,31 +218,49 @@ class IfStatementDecorator extends React.Component {
                     className={statementRectClass}
                 />
                 <text
-                    x={p9X}
-                    y={p9Y + 14}
+                    x={p8X}
+                    y={p2Y}
                     className='statement-title-text'
                 >
                     if
                 </text>
                 {expression &&
                     <text
-                        x={p8X}
-                        y={p2Y}
+                        x={expressionPositionX}
+                        y={expressionPositionY}
                         className='condition-text'
                     >
                         {displayExpression.text}
                     </text>
                 }
+                <rect
+                    x={decisionTrueLabelPositionX}
+                    y={decisionTrueLabelPositionY}
+                    width={decisionLabelW}
+                    height={decisionLabelH}
+                    rx={decisionLabelRadius}
+                    ry={decisionLabelRadius}
+                    className='flowchart-true-text-bg'
+                />
                 <text
-                    x={p12X - 4}
-                    y={(p8Y + p12Y) / 2}
+                    x={p8X + 12}
+                    y={((p8Y + p12Y) / 2) + 4}
                     className='flowchart-true-text'
                 >
                     true
                 </text>
+                <rect
+                    x={decisionFalseLabelPositionX}
+                    y={decisionFalseLabelPositionY}
+                    width={decisionLabelW}
+                    height={decisionLabelH}
+                    rx={decisionLabelRadius}
+                    ry={decisionLabelRadius}
+                    className='flowchart-false-text-bg'
+                />
                 <text
-                    x={p3X + 4}
-                    y={p3Y - 4}
+                    x={p3X + 8}
+                    y={p3Y + 4}
                     className='flowchart-false-text'
                 >
                     false

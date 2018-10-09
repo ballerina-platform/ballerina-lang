@@ -59,10 +59,4 @@ public class BallerinaIntegerLiteralImpl extends BallerinaCompositeElementImpl i
     return findChildByType(HEX_INTEGER_LITERAL);
   }
 
-  @Override
-  @Nullable
-  public PsiElement getOctalIntegerLiteral() {
-    return findChildByType(OCTAL_INTEGER_LITERAL);
-  }
-
 }
