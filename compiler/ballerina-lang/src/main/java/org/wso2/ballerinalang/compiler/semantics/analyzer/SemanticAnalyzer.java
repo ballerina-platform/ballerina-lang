@@ -227,28 +227,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-        analyzeConstructs(pkgNode, pkgEnv);
-        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
-        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
-    }
 
-    private void analyzeConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.FUNCTION)
-                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
+                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+                             .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
-        analyzeFunctions(pkgNode.functions, pkgEnv);
+        while (pkgNode.lambdaFunctions.peek() != null) {
+            BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
+            BLangFunction function = lambdaFunction.function;
+            lambdaFunction.type = function.symbol.type;
+            analyzeDef(lambdaFunction.function, lambdaFunction.cachedEnv);
+        }
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
-    }
 
-    private void analyzeFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {
-        //reversing the order here to process lambdas last - needed for analysing closures
-        Collections.reverse(functions);
-        //if the isTypeChecked flag is set, then this is a lambda expression which is already analysed and type checked.
-        functions.stream()
-                .filter(func -> !func.isTypeChecked)
-                .forEach(func -> analyzeDef(func, pkgEnv));
-        Collections.reverse(functions);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
