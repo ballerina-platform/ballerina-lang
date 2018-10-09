@@ -362,7 +362,6 @@ public class BLangPackageBuilder {
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.compilerOptions = CompilerOptions.getInstance(context);
         this.compUnit = compUnit;
     }

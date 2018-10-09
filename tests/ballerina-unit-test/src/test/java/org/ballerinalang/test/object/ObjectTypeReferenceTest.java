@@ -38,7 +38,8 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 6);
+        // Assert.assertEquals(negativeResult.getErrorCount(), 10);
+        System.out.println(negativeResult);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 32,
                 6);
@@ -49,6 +50,12 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an abstract object", 101, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
+                "function through referenced type 'ObjectWithFunction'", 119, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
+                "function through referenced type 'ObjectWithRedeclaredFunction_1'", 125, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 134, 6);
     }
 
     @Test

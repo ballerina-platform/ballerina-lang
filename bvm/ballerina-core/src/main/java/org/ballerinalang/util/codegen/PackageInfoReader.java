@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.util.codegen;
 
-import com.google.common.collect.Lists;
-
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
@@ -98,6 +96,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
@@ -726,8 +725,10 @@ public class PackageInfoReader {
         // first parameter will always be the attached type. These param types will be used
         // to allocate worker local data.
         // This is the only place where we append the receiver to the params.
-        List<BType> paramTypes = Lists.asList(functionInfo.attachedToType, functionInfo.getParamTypes());
-        functionInfo.setParamTypes(paramTypes.toArray(new BType[paramTypes.size()]));
+        BType[] paramTypes =
+                Stream.concat(Stream.of(functionInfo.attachedToType), Stream.of(functionInfo.getParamTypes()))
+                        .toArray(BType[]::new);
+        functionInfo.setParamTypes(paramTypes);
 
         if (attachedType.getTag() != TypeTags.OBJECT_TYPE_TAG && attachedType.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;

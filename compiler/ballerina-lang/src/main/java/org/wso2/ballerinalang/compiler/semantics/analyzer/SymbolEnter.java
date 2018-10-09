@@ -854,6 +854,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             structureType.fields =
                     Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
                             .peek(field -> defineNode(field, typeDefEnv))
+                            .filter(field -> field.symbol.type != symTable.errType) // filter out erroneous fields 
                             .map(field -> new BField(names.fromIdNode(field.name), field.symbol, field.expr != null))
                             .collect(Collectors.toList());
 
@@ -890,6 +891,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDef.symbol.kind == SymbolKind.OBJECT) {
                 BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
                 SymbolEnv objEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
+
+                // Define the functions defined within the object
                 defineObjectInitFunction(objTypeNode, objEnv);
                 objTypeNode.functions.forEach(f -> {
                     f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, typeDef.symbol.type));
@@ -1302,6 +1305,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void resolveReferencedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
+        List<BSymbol> referencedTypes = new ArrayList<>();
         // Get the inherited fields from the type references
         structureTypeNode.referencedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
@@ -1309,10 +1313,18 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return Stream.empty();
             }
 
+            // Check for duplicate type references
+            if (referencedTypes.contains(referredType.tsymbol)) {
+                dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_TYPE_REFERENCE, typeRef);
+                return Stream.empty();
+            }
+
             if (referredType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT)) {
                 dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
                 return Stream.empty();
             }
+
+            referencedTypes.add(referredType.tsymbol);
 
             // Here it is assumed that all the fields of the referenced types are resolved
             // by the time we reach here. It is achieved by ordering the typeDefs according
@@ -1325,12 +1337,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
                                           BAttachedFunction function) {
-        // If the function is already defined within the object(i.e: there exists an
-        // implementation within the object), then skip.
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, function.funcName.value));
-        BSymbol symbol = symResolver.lookupSymbol(objEnv, funcName, SymTag.VARIABLE);
-        if (symbol != symTable.notFoundSymbol) {
+        BSymbol foundSymbol = symResolver.lookupSymbol(objEnv, funcName, SymTag.VARIABLE);
+        if (foundSymbol != symTable.notFoundSymbol) {
+            if (Symbols.isFlagOn(foundSymbol.flags, Flags.INTERFACE) &&
+                    Symbols.isFlagOn(function.symbol.flags, Flags.INTERFACE)) {
+                dlog.error(typeRef.pos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE, function.funcName,
+                        typeRef);
+            }
             return;
         }
 

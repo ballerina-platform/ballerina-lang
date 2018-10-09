@@ -2087,7 +2087,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         typeDefInfo.typeInfo = objInfo;
     }
-    
+
     private void createAttachedFunctionInfo(Name funcName, BInvokableSymbol funcSymbol,
                                             BObjectTypeSymbol objectSymbol) {
         // Add function name as an UTFCPEntry to the constant pool

@@ -105,3 +105,35 @@ type Q record {
     int x;
     string y;
 };
+
+type R object {
+    *Person1;
+    *Person1;
+};
+
+type ObjectWithFunction abstract object {
+    public function getName(string? title) returns string;
+};
+
+type ObjectWithRedeclaredFunction_1 abstract object {
+    *ObjectWithFunction;
+    public function getName(string? title) returns string;
+};
+
+type ObjectWithRedeclaredFunction_2 abstract object {
+    *ObjectWithFunction;
+    *ObjectWithRedeclaredFunction_1;
+};
+
+type RedecalredFieldObject_1 abstract object {
+    int x;
+};
+
+type RedecalredFieldObject_2 abstract object {
+    int x;
+    *RedecalredFieldObject_1;
+};
+
+type RedecalredFieldObject_3 abstract object {
+    *RedecalredFieldObject_2;
+};

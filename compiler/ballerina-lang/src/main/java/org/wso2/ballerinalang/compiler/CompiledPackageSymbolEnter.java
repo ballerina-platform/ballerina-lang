@@ -349,10 +349,8 @@ public class CompiledPackageSymbolEnter {
         int flags = dataInStream.readInt();
 
         BInvokableType funcType = createInvokableType(funcSig);
-
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (Symbols.isFlagOn(flags, Flags.ATTACHED)) {
@@ -361,7 +359,8 @@ public class CompiledPackageSymbolEnter {
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
             BType attachedType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
 
-            // Update the symbol by appending the type name in front of the function name
+            // Update the symbol
+            invokableSymbol.owner = attachedType.tsymbol;
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
