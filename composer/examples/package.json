@@ -1,12 +1,23 @@
 {
-    "name": "@ballerina/examples",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "ballerina.io",
-    "license": "Apache-2.0"
-  }
-  
+  "name": "@ballerina/examples",
+  "version": "0.982.1",
+  "description": "Provides components for displaying Ballerina By Examples",
+  "main": "lib/index.js",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "react": "^16.2.0",
+    "react-scripts-ts": "2.13.0",
+    "semantic-ui-react": "^0.82.5"
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.116",
+    "@types/react": "16.0.38",
+    "typescript": "^2.7.2"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0"
+}

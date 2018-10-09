@@ -15,30 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Grid, Input } from 'semantic-ui-react';
-import _ from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
+import { BallerinaExampleCategory } from './types';
+
+export interface SamplesListState {
+    samples? : Array<BallerinaExampleCategory>;
+}
+
+export interface SamplesListProps {
+    openSample: (url: string) => void;
+    getSamples: () => Promise<Array<BallerinaExampleCategory>>;
+}
 
 /**
- * React component for list of ballerina samples.
+ * React component for rendering a list of Ballerina examples.
  *
  * @class SamplesList
- * @extends {React.Component}
+ * @extends {Component}
  */
-class SamplesList extends React.Component {
+export class SamplesList extends React.Component<SamplesListProps, SamplesListState> {
 
-    constructor(props, context) {
+    private _availableSamples: undefined | Array<BallerinaExampleCategory>;
+    private searchInput: undefined | any;
+    private onSearchQueryEdit: () => void;
+
+    constructor(props: SamplesListProps, context: SamplesListState) {
         super(props, context);
-        this._availableSamples = undefined;
-        this.state = {
-            samples: undefined,
-        };
-        this.searchInput = undefined;
-        this.onSearchQueryEdit = _.debounce(() => {
+        this.onSearchQueryEdit = debounce(() => {
             if (this.searchInput && this._availableSamples) {
                 const searchQuery = this.searchInput.inputRef.value.toLowerCase();
-                let samples = _.cloneDeep(this._availableSamples);
+                let samples = cloneDeep(this._availableSamples);
                 samples = samples.filter((sampleCategory) => {
                     if (!sampleCategory.title.toLowerCase().includes(searchQuery)) {
                         sampleCategory.samples = sampleCategory.samples.filter(sample => sample.name.toLowerCase().includes(searchQuery));
@@ -64,7 +72,7 @@ class SamplesList extends React.Component {
         });
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps: SamplesListProps) {
         this.props.getSamples().then((samples) => {
             this._availableSamples = samples;
             this.setState({
@@ -74,16 +82,19 @@ class SamplesList extends React.Component {
     }
 
     getColumnContents() {
-        const columns = [];
-        this.state.samples.forEach((sample) => {
-            columns[sample.column] = columns[sample.column] || [];
-            columns[sample.column].push(sample);
-        });
 
+        const columns: Array<Array<BallerinaExampleCategory>> = [];
+        const { samples } = this.state;
+        if (samples) {
+            samples.forEach((sample: BallerinaExampleCategory) => {
+                columns[sample.column] = columns[sample.column] || [];
+                columns[sample.column].push(sample);
+            });
+        }
         return columns;
     }
 
-    renderColumnItem(column) {
+    renderColumnItem(column: BallerinaExampleCategory) {
         return (
             <ul>
                 <li className='title'>{column.title}</li>
@@ -106,14 +117,7 @@ class SamplesList extends React.Component {
         );
     }
 
-    /**
-     * Renders view for samples list.
-     *
-     * @returns {ReactElement} The view.
-     * @memberof SamplesList
-     */
-    render() {
-        // const columnSize = columns.length > 0 ? (16 / columns.length) : 16;
+    public render() {
         return (
             <Grid className='welcome-page'>
                 <Grid.Row className='welcome-navbar' columns={2}>
@@ -121,7 +125,7 @@ class SamplesList extends React.Component {
                         Search and open available examples
                     </Grid.Column>
                     <Grid.Column>
-                        <div className='top-nav-links' style={{ paddingRight: 0, marginRight: 40 }} position='right'>
+                        <div className='top-nav-links' style={{ paddingRight: 0, marginRight: 40 }}>
                             <Input
                                 ref={(ref) => {
                                     this.searchInput = ref;
@@ -156,18 +160,3 @@ class SamplesList extends React.Component {
             </Grid>);
     }
 }
-
-SamplesList.propTypes = {
-    samples: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        isFile: PropTypes.bool,
-        folder: PropTypes.string,
-        path: PropTypes.string.isRequired,
-        image: PropTypes.string.isRequired,
-    })).isRequired,
-    getSamples: PropTypes.func.isRequired,
-    openSample: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired,
-};
-
-export default SamplesList;
