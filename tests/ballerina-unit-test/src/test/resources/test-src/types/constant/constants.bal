@@ -1,4 +1,4 @@
-const string name = "Ballerina";
+const  name = "Ballerina";
 
 const age = 10;
 
