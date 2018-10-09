@@ -513,7 +513,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
                     }
                 }
-                if (env.node.getKind() == NodeKind.ARROW_EXPR) {
+                if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
+                    symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
+                            env.enclPkg.packageID, null, symbol.owner);
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                     BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                             SymTag.VARIABLE_NAME);
@@ -562,9 +564,10 @@ public class TypeChecker extends BLangNodeVisitor {
      */
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
         if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            // if enclosing env's node is arrow expression
             return env.enclEnv;
         }
-        if (env.enclInvokable == encInvokable) {
+        if (env.enclInvokable == encInvokable && env.enclInvokable != null) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
         }
         return env;
