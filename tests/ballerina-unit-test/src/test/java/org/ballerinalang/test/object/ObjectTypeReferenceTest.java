@@ -38,8 +38,7 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        // Assert.assertEquals(negativeResult.getErrorCount(), 10);
-        System.out.println(negativeResult);
+        Assert.assertEquals(negativeResult.getErrorCount(), 10);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 32,
                 6);
@@ -62,7 +61,8 @@ public class ObjectTypeReferenceTest {
     public void testSimpleObjectTypeReferenceNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'map<string>' is not an abstract object", 18, 6);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'map<string>' is not an abstract object", 18,
+                6);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'int' is not an abstract object", 20, 6);
     }
 

@@ -43,7 +43,9 @@ function testProjectionQuery() {
         from teacherStream4
         select name, age, address
         => (Employee[] emp) {
-            employeeStream2.publish(emp);
+            foreach e in emp {
+                employeeStream2.publish(e);
+            }
         }
     }
 }

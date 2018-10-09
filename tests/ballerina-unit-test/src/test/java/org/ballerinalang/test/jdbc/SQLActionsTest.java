@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.connectors.sql;
+package org.ballerinalang.test.jdbc;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -101,8 +101,8 @@ public class SQLActionsTest {
         connectionArgs[1] = new BString(testDatabase.getUsername());
         connectionArgs[2] = new BString(testDatabase.getPassword());
 
-        result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
-        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
+        result = BCompileUtil.compile("test-src/jdbc/sql_actions_test.bal");
+        resultNegative = BCompileUtil.compile("test-src/jdbc/sql_actions_negative_test.bal");
     }
 
     @Test(groups = CONNECTOR_TEST)

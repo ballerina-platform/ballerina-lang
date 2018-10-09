@@ -20,6 +20,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
@@ -28,6 +29,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
@@ -94,6 +96,8 @@ public class StreamingRuntimeManager {
         siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
             @Override
             public void receive(Event[] events) {
+                BRefValueArray outputArray = new BRefValueArray(new BMapType(structType));
+                int j = 0;
                 for (Event event : events) {
                     // Here it is assumed that an event data will contain all the fields
                     // of the record. Otherwise, some fields will be missing from the record value.
@@ -112,12 +116,13 @@ public class StreamingRuntimeManager {
                         }
                         i++;
                     }
-                    List<BValue> argsList = new ArrayList<>();
-                    argsList.addAll(closureArgs);
-                    argsList.add(output);
-                    BLangFunctions.invokeCallable(functionPointer.value(),
-                            argsList.toArray(new BValue[argsList.size()]));
+                    outputArray.add(j, output);
+                    j++;
                 }
+                List<BValue> argsList = new ArrayList<>();
+                argsList.addAll(closureArgs);
+                argsList.add(outputArray);
+                BLangFunctions.invokeCallable(functionPointer.value(), argsList.toArray(new BValue[argsList.size()]));
             }
         });
     }
