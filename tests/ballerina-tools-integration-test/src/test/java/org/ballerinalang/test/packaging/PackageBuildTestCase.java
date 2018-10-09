@@ -51,7 +51,6 @@ public class PackageBuildTestCase extends BaseTest {
         envVariables = PackagingTestUtils.getEnvVariables();
     }
 
-
     /**
      * Building all packages in the project.
      *
@@ -68,8 +67,8 @@ public class PackageBuildTestCase extends BaseTest {
         // Create another directory with a text file
         createDirWithTextFile(projectPath);
 
-        balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{},
-                          projectPath.toString());
+        balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{}, projectPath.
+                                                                                                            toString());
 
         Path genPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                     ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "foo", VERSION);
