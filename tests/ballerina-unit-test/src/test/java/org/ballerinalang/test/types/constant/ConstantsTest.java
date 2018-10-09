@@ -66,4 +66,11 @@ public class ConstantsTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals((returns[0]).stringValue(), "Hello Ballerina");
     }
+
+    @Test
+    public void typeTest() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "typeTest");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
 }
