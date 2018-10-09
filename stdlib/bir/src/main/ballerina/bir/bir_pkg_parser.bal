@@ -1,7 +1,8 @@
 public type PackageParser object {
     BirChannelReader reader;
+    TypeParser typeParser;
 
-    public new(reader) {
+    public new(reader, typeParser) {
     }
 
     public function parseVariableDcl() returns VariableDcl {
@@ -18,7 +19,12 @@ public type PackageParser object {
         var name = reader.readStringCpRef();
         var isDeclaration = reader.readBoolean();
         var visibility = parseVisibility();
-        var sig = reader.readStringCpRef();
+        var typeTag = reader.readInt8();
+        if(typeTag != typeParser.TYPE_TAG_INVOKABL_TYPE){
+            error err = { message: "Illegal function signature type tag" + typeTag };
+            throw err;
+        }
+        var sig = typeParser.parseInvokableType();
         var argsCount = reader.readInt32();
         var numLocalVars = reader.readInt32();
 
@@ -48,7 +54,7 @@ public type PackageParser object {
             localVars: dcls,
             basicBlocks: basicBlocks,
             argsCount: argsCount,
-            typeValue: parseSig(sig)
+            typeValue: sig
         };
     }
 

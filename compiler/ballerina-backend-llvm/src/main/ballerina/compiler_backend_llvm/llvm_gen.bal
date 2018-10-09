@@ -114,6 +114,10 @@ function genBType(bir:BType bType) returns llvm:LLVMTypeRef {
         bir:BTypeInt => return llvm:LLVMInt64Type();
         bir:BTypeBoolean => return llvm:LLVMInt1Type();
         bir:BTypeNil => return llvm:LLVMVoidType();
+        any => {
+            error err = { message: "LLVM genration is not supported for type" };
+            throw err;
+        }
     }
 }
 

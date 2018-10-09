@@ -382,6 +382,38 @@
     <build>
         <plugins>
 
+            <!-- Generate balx -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>ballerina.compiler.backend.llvm</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>ballerina.home</key>
+                                    <value>${project.build.directory}</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <arguments>
+                                <argument>${basedir}/src/test/ballerina</argument>
+                                <argument>bir_test</argument>
+                                <argument>${basedir}/target/bir_test.balx</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>org.ballerinalang.compiler.backend.llvm.GenerateBalx</mainClass>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
