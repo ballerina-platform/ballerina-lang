@@ -30,13 +30,13 @@ import org.testng.annotations.Test;
 /**
  * Compile time constant tests.
  */
-public class CompileTimeConstantsTest {
+public class ConstantsTest {
 
     private static CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/constant/compile-time-constants.bal");
+        compileResult = BCompileUtil.compile("test-src/types/constant/constants.bal");
     }
 
     @Test

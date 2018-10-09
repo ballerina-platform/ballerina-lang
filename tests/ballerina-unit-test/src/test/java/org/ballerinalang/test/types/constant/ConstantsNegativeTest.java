@@ -27,17 +27,19 @@ import org.testng.annotations.Test;
 /**
  * Compile time constant negative tests.
  */
-public class CompileTimeConstantsNegativeTest {
+public class ConstantsNegativeTest {
 
     @Test
     public void testNegative() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
-                "compile-time-constants-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 4);
-        String expectedErrMsg = "only simple literals can be assigned to a compile time constant";
-        BAssertUtil.validateError(compileResult, 0, expectedErrMsg, 2, 1);
-        BAssertUtil.validateError(compileResult, 1, expectedErrMsg, 3, 1);
-        BAssertUtil.validateError(compileResult, 2, expectedErrMsg, 6, 1);
-        BAssertUtil.validateError(compileResult, 3, expectedErrMsg, 7, 1);
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constants-negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        String expectedErrMsg1 = "only simple literals can be assigned to a constant";
+        String expectedErrMsg2 = "cannot assign a value to a constant";
+        BAssertUtil.validateError(compileResult, 0, expectedErrMsg1, 2, 1);
+        BAssertUtil.validateError(compileResult, 1, expectedErrMsg1, 3, 1);
+        BAssertUtil.validateError(compileResult, 2, expectedErrMsg1, 6, 1);
+        BAssertUtil.validateError(compileResult, 3, expectedErrMsg1, 7, 1);
+        BAssertUtil.validateError(compileResult, 4, expectedErrMsg2, 13, 5);
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg2, 14, 5);
     }
 }

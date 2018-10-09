@@ -650,8 +650,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Assign the type to var type node.
-        if (varNode.type == null && varNode.typeNode != null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        if (varNode.type == null) {
+            if (varNode.typeNode == null) {
+                varNode.type = symTable.noType;
+            } else {
+                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            }
         }
 
         Name varName = names.fromIdNode(varNode.name);
@@ -680,7 +684,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // If the node is a compile time constant and the RHS is not a simple literal, we log an error. This is done
         // because at the moment, compile time constants only support assigning simple literals.
         if ((varNode.symbol.flags & Flags.CONST) == Flags.CONST && varNode.expr.getKind() != NodeKind.LITERAL) {
-            dlog.error(varNode.pos, DiagnosticCode.CANNOT_ASSIGN_TO_COMPILE_TIME_CONSTANT);
+            dlog.error(varNode.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
         }
     }
 
@@ -987,7 +991,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
         BVarSymbol varSymbol;
-        if (varType != null && varType.tag == TypeTags.INVOKABLE) {
+        if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
                     env.enclPkg.symbol.pkgID, varType, env.scope.owner);
         } else {
