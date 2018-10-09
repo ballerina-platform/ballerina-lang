@@ -72,6 +72,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             httpResource = HttpDispatcher.findResource(httpServicesRegistry, inboundMessage);
             if (HttpDispatcher.shouldDiffer(httpResource)) {
                 inboundMessage.setProperty(HTTP_RESOURCE, httpResource);
+                inboundMessage.removeInboundContentListener();
                 return;
             }
             if (httpResource != null) {
