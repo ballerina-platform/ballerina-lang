@@ -103,15 +103,15 @@ public class PushUtils {
         String orgName = manifest.getName();
         // Validate the org-name
         if (!validateOrg(orgName)) {
-            throw createLauncherException("invalid organization name provided " + "'" + orgName + "'." + " Only " +
+            throw createLauncherException("invalid organization name provided \'" + orgName + "\'." + " Only " +
                                           "lowercase alphanumerics and underscores are allowed in an organization " +
                                           "name and the maximum length is 256 characters");
         }
         // Validate the package-name
         if (!validatePkg(packageName)) {
-            throw createLauncherException("invalid package name provided " + "'" + packageName + "'." + " Only " +
-                                          "alphanumerics, underscores and periods are allowed in a package name " +
-                                          "and the maximum length is 256 characters");
+            throw createLauncherException("invalid package name provided'" + packageName + "\'." + " Only " +
+                                          "alphanumerics, underscores and periods are allowed in a package name and " +
+                                          "the maximum length is 256 characters");
         }
         String version = manifest.getVersion();
         String ballerinaVersion = RepoUtils.getBallerinaVersion();

@@ -262,8 +262,8 @@ public class InitCommand implements BLauncherCmd {
         String validRegex = "^[a-z0-9_]*$";
         boolean matches = Pattern.matches(validRegex, orgName);
         if (!matches) {
-            out.println("--Invalid organization name: \"" + orgName + "\"." + " Organization name can only contain " +
-                                "lowercase alphanumerics and underscores");
+            out.println("--Invalid organization name: \'" + orgName + "\'." + " Organization name can only contain " +
+                                "lowercase alphanumerics and underscores and the maximum length is 256 characters");
         }
         return matches;
     }
@@ -281,8 +281,8 @@ public class InitCommand implements BLauncherCmd {
         String validRegex = "^[a-zA-Z0-9_.]*$";
         boolean matches = Pattern.matches(validRegex, pkgName);
         if (!matches) {
-            out.println("--Invalid package name: \"" + pkgName + "\"." + " Package name can only contain " +
-                                "alphanumerics, underscores and periods");
+            out.println("--Invalid package name: \'" + pkgName + "\'." + " Package name can only contain " +
+                                "alphanumerics, underscores and periods and the maximum length is 256 characters");
         }
         return matches;
     }
