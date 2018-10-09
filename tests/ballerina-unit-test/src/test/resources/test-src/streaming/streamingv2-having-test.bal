@@ -58,7 +58,9 @@ function testFilterQuery() {
         select inputStream.name, inputStream.age
         having age > getMaxAge() && age > 25
         => (Employee[] emp) {
-            outputStream.publish(emp);
+            foreach e in emp {
+                outputStream.publish(e);
+            }
         }
     }
 }

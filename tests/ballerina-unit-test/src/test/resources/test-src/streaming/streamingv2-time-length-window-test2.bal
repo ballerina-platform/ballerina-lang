@@ -73,8 +73,10 @@ function testTimeLengthwindow() {
         from inputStream window timeLengthWindow(2000, 3)
         select inputStream.timestamp, inputStream.name, count() as count
         group by inputStream.school
-        => (TeacherOutput [] emp) {
-            outputStream.publish(emp);
+        => (TeacherOutput [] teachers) {
+            foreach t in teachers {
+                outputStream.publish(t);
+            }
         }
     }
 }

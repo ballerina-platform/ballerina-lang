@@ -67,7 +67,9 @@ function testLengthWindow() {
         select inputStream.name, inputStream.age, inputStream.status, inputStream.school, count() as count
         group by inputStream.school
         => (Teacher [] emp) {
-            outputStream.publish(emp);
+            foreach e in emp {
+                outputStream.publish(e);
+            }
         }
     }
 }
