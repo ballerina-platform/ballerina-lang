@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Node tree visitor for formatting.
  */
-public class FormattingTreeUtil {
+public class FormattingNodeTree {
 
     private String getWhiteSpaces(int column) {
         StringBuilder whiteSpaces = new StringBuilder();

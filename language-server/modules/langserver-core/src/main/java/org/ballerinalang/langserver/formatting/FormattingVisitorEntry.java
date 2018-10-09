@@ -23,10 +23,10 @@ import java.util.Map;
 /**
  * Util class for formatting.
  */
-public class FormattingUtil {
+public class FormattingVisitorEntry {
     private FormattingVisitor visitor;
 
-    public FormattingUtil() {
+    public FormattingVisitorEntry() {
         this.visitor = new FormattingVisitor();
     }
 
