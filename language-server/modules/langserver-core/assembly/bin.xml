@@ -23,7 +23,7 @@
     </formats>
     <files>
         <file>
-            <source>${project.build.directory}/lib/resources/composer/lang-server-index.sql</source>
+			<source>${project.build.directory}/lib/tools/lang-server/resources/lang-server-index.sql</source>
             <outputDirectory>resources</outputDirectory>
         </file>
     </files>
