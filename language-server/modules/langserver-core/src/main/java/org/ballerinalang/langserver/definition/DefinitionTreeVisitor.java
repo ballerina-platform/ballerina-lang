@@ -69,7 +69,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     public DefinitionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
-        this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
+        this.fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         this.context.put(NodeContextKeys.NODE_KEY, null);
     }
 
