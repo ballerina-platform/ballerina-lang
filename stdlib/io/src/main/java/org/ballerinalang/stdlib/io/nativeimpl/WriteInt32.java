@@ -46,7 +46,8 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "writeInt32",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WritableDataChannel",
+                structPackage = "ballerina/io"),
         args = {@Argument(name = "value", type = TypeKind.INT)},
         isPublic = true
 )

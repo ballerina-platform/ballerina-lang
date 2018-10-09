@@ -1574,10 +1574,11 @@ public class SQLDatasourceUtils {
         return columnDefs;
     }
 
-    public static Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
+    public static Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isSelectQuery)
             throws SQLException {
         Connection conn;
-        if (!isInTransaction) {
+        boolean isInTransaction = context.isInTransaction();
+        if (!isInTransaction || isSelectQuery) {
             conn = datasource.getSQLConnection();
             return conn;
         } else {

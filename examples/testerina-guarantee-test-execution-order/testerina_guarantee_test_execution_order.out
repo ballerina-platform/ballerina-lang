@@ -1,0 +1,21 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina test` command.
+#Note that you need to have the ballerina-tools distribution 
+#installed in order to run this command. 
+$ ballerina test testerina_guarantee_test_execution_order.bal
+Compiling tests
+    testerina_guarantee_test_execution_order.bal
+
+Running tests
+    testerina_guarantee_test_execution_order.bal
+I'm in test function 3!
+I'm in test function 1!
+I'm in test function 2!
+
+	  [pass] testFunction3
+	  [pass] testFunction1
+	  [pass] testFunction2
+
+	  3 passing
+	  0 failing
+	  0 skipped

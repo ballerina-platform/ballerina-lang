@@ -1,0 +1,14 @@
+{name:"", age:0, grades:{maths:0, physics:0, chemistry:0}}
+{name:"John Doe", age:17, grades:{maths:80, physics:75, chemistry:65}}
+John Doe
+John Doe
+80
+{name:"Peter", age:19, grades:{maths:0, physics:0, chemistry:0}}
+{name:"John Doe", age:17, grades:{maths:80, physics:75, chemistry:65}}
+{name:"Peter", age:19, grades:{maths:0, physics:0, chemistry:0}, department:"Computer Science"}
+maths : 80
+physics : 75
+chemistry : 65
+Average grade: 73.33333333333333
+{"maths":"A", "physics":"B"}
+Average grade using iterable ops: 73.33333333333333

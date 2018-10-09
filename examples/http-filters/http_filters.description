@@ -1,0 +1,4 @@
+// HTTP Listener endpoints support intercepting request in the request path.
+// Its possible to define a filter with custom logic, engage to a HTTP Listener.
+// The request will go through the filter logic before its dispatched to the
+// actual resource in the target service.

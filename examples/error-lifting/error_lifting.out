@@ -1,0 +1,6 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
+$ ballerina run error-lifting.bal
+The status code: {message:"response error", cause:null}
+The status code:
+

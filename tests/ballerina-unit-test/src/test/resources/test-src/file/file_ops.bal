@@ -71,13 +71,13 @@ function testGetModifiedTime(string pathValue) returns (string){
 function testWriteFile(string pathValue,string accessMode,byte[] content) returns (byte[]|io:IOError){
    file:Path filePath = new(pathValue);
    string absolutePath = filePath.toAbsolutePath().getPathValue();
-   io:ByteChannel byteChannel =io:openFile(absolutePath,accessMode);
-   var result = byteChannel.write(content,0);
-   var closeResult = byteChannel.close();
+   io:WritableByteChannel wbc =io:openWritableFile(absolutePath);
+   var result = wbc.write(content,0);
+   var closeResult = wbc.close();
    //Open the file again for reading
-   byteChannel =io:openFile(absolutePath,"r");
-   var readResult = byteChannel.read(100);
-   closeResult = byteChannel.close();
+   io:ReadableByteChannel rbc =io:openReadableFile(absolutePath);
+   var readResult = rbc.read(100);
+   closeResult = rbc.close();
    match readResult {
        (blob,int) byteContent =>{
           var (bytes, numberOfBytes) = byteContent;
