@@ -40,14 +40,14 @@ repositories {
     maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
 }
 
-//LSP Dependencies
+// LSP Dependencies
 dependencies {
     compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.4.1'
     compile group: 'io.get-coursier', name: 'coursier_2.12', version: '1.0.3'
     compile group: 'io.get-coursier', name: 'coursier-cache_2.12', version: '1.0.3'
     compile group: 'com.vladsch.flexmark', name: 'flexmark', version: '0.32.24'
-    compile 'org.scala-lang:scala-compiler:2.12.4'
-    compile 'org.scala-lang:scala-library:2.12.4'
+    compile group: 'org.scala-lang', name: 'scala-compiler', version: '2.12.4'
+    compile group: 'org.scala-lang', name: 'scala-library', version: '2.12.4'
 }
 
 apply plugin: 'scala'
@@ -67,7 +67,6 @@ intellij {
     // For a full list of IntelliJ IDEA releases, please see https://www.jetbrains.com/intellij-repository/releases.
 
     version ideaVersion
-//    plugins 'com.github.gtache.lsp:1.4.0'
     pluginName ballerinaPluginName
     updateSinceUntilBuild false
     // plugins 'coverage' //Bundled plugin dependencies
@@ -112,9 +111,8 @@ checkstyle {
     }
 }
 
-//TODO: Enable after fixing lsp plugin checkstyle issue
-//runIde.dependsOn check
-//buildPlugin.dependsOn check
+runIde.dependsOn check
+buildPlugin.dependsOn check
 
 // Todo - Uncomment after implementing mixin classes
 //configurations {

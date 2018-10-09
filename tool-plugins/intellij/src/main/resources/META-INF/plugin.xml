@@ -239,8 +239,6 @@
                          shortName="BallerinaUnresolvedReference"
                          implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
-        <!--<editorNotificationProvider-->
-        <!--implementation="io.ballerina.plugins.idea.inspections.LSPluginInstallationNotificationProvider"/>-->
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaLanguageServerPreloadingActivity"
                 id="io.ballerina.plugins.idea.preloading.BallerinaLanguageServerPreloadingActivity"/>

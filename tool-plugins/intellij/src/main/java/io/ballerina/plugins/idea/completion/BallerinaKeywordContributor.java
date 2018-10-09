@@ -31,8 +31,8 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class BallerinaKeywordContributor extends CompletionContributor implements DumbAware {
 
     public BallerinaKeywordContributor() {
-            extend(CompletionType.BASIC, isBallerinaNameReference(), new BallerinaKeywordCompletionProvider());
-        }
+        extend(CompletionType.BASIC, isBallerinaNameReference(), new BallerinaKeywordCompletionProvider());
+    }
 
     public PsiElementPattern.Capture<PsiElement> isBallerinaNameReference() {
         return psiElement().withReference(BallerinaNameReferenceReference.class);
