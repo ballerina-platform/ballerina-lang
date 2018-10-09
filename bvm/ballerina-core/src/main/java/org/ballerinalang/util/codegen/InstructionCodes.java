@@ -299,7 +299,7 @@ public interface InstructionCodes {
     int XMLATTRSTORE = 250;
     int S2QNAME = 251;
     int NEWQNAME = 252;
-    int NEWXMLELEMENT = 252;
+    int NEWXMLELEMENT = 253;
     int NEWXMLCOMMENT = 254;
     int NEWXMLTEXT = 255;
     int NEWXMLPI = 256;
