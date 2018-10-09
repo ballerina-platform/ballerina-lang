@@ -24,6 +24,7 @@ import org.ballerinalang.packerina.init.models.FileType;
 import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -96,9 +97,9 @@ public class InitCommand implements BLauncherCmd {
                     do {
                         out.print("Organization name: (" + defaultOrg + ") ");
                         orgName = scanner.nextLine().trim();
-                        manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
                     } while (!validateOrgName(out, orgName));
-
+                    // Set org-name
+                    manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
                     String version;
                     do {
                         out.print("Version: (" + DEFAULT_VERSION + ") ");
@@ -259,8 +260,7 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid org-name, else false.
      */
     private boolean validateOrgName(PrintStream out, String orgName) {
-        String validRegex = "^[a-z0-9_]*$";
-        boolean matches = Pattern.matches(validRegex, orgName);
+        boolean matches = RepoUtils.validateOrg(orgName);
         if (!matches) {
             out.println("--Invalid organization name: \'" + orgName + "\'." + " Organization name can only contain " +
                                 "lowercase alphanumerics and underscores and the maximum length is 256 characters");
@@ -278,8 +278,7 @@ public class InitCommand implements BLauncherCmd {
         if (pkgName.isEmpty()) {
            return true;
         }
-        String validRegex = "^[a-zA-Z0-9_.]*$";
-        boolean matches = Pattern.matches(validRegex, pkgName);
+        boolean matches = RepoUtils.validatePkg(pkgName);
         if (!matches) {
             out.println("--Invalid package name: \'" + pkgName + "\'." + " Package name can only contain " +
                                 "alphanumerics, underscores and periods and the maximum length is 256 characters");

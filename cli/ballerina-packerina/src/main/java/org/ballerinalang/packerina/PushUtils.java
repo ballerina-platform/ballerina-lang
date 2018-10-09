@@ -49,7 +49,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -102,14 +101,14 @@ public class PushUtils {
 
         String orgName = manifest.getName();
         // Validate the org-name
-        if (!validateOrg(orgName)) {
-            throw createLauncherException("invalid organization name provided \'" + orgName + "\'." + " Only " +
+        if (!RepoUtils.validateOrg(orgName)) {
+            throw createLauncherException("invalid organization name provided \'" + orgName + "\'. Only " +
                                           "lowercase alphanumerics and underscores are allowed in an organization " +
                                           "name and the maximum length is 256 characters");
         }
         // Validate the package-name
-        if (!validatePkg(packageName)) {
-            throw createLauncherException("invalid package name provided'" + packageName + "\'." + " Only " +
+        if (!RepoUtils.validatePkg(packageName)) {
+            throw createLauncherException("invalid package name provided'" + packageName + "\'. Only " +
                                           "alphanumerics, underscores and periods are allowed in a package name and " +
                                           "the maximum length is 256 characters");
         }
@@ -392,27 +391,5 @@ public class PushUtils {
                                                 ProjectDirConstants.RESOURCE_DIR_NAME);
         String dirNameStr = dirName.toString();
         return dirNameStr.startsWith(".") || dirName.toFile().isHidden() || ignoreDirs.contains(dirNameStr);
-    }
-
-    /**
-     * Validates the org-name and package name.
-     *
-     * @param orgName The org-name
-     * @return True if valid org-name or package name, else false.
-     */
-    private static boolean validateOrg(String orgName) {
-        String validRegex = "^[a-z0-9_]*$";
-        return Pattern.matches(validRegex, orgName);
-    }
-
-    /**
-     * Validates the org-name and package name.
-     *
-     * @param pkgName The org-name or package name.
-     * @return True if valid org-name or package name, else false.
-     */
-    private static boolean validatePkg(String pkgName) {
-        String validRegex = "^[a-zA-Z0-9_.]*$";
-        return Pattern.matches(validRegex, pkgName);
     }
 }
