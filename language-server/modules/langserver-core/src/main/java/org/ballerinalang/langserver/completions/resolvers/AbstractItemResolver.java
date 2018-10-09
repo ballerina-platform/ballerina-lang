@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -234,7 +236,8 @@ public abstract class AbstractItemResolver {
     protected List<CompletionItem> getPackagesCompletionItems(LSServiceOperationContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
-        List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(ctx).stream()
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(pkg, ctx).stream()
                 .map(bLangImportPackage -> {
                     String orgName = bLangImportPackage.orgName.toString();
                     String pkgName = String.join(".", bLangImportPackage.pkgNameComps.stream()

@@ -61,7 +61,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -158,13 +157,10 @@ public class CommandExecutor {
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
-            String currentFile = context.get(DocumentServiceKeys.FILE_NAME_KEY);
             DiagnosticPos pos;
 
             // Filter the imports except the runtime import
-            List<BLangImportPackage> imports = bLangPackage.getImports().stream()
-                    .filter(bLangImportPackage -> bLangImportPackage.getPosition().src.cUnitName.equals(currentFile))
-                    .collect(Collectors.toList());
+            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(bLangPackage, context);
 
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
@@ -381,7 +377,7 @@ public class CommandExecutor {
         String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY).getFileContent(compilationPath);
         String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
         List<TextEdit> textEdits = new ArrayList<>();
-        String fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
+        String fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         bLangPackage.topLevelNodes.stream()
                 .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
                 .forEach(topLevelNode -> {
