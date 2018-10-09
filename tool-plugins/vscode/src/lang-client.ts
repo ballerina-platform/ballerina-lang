@@ -67,7 +67,10 @@ export interface BallerinaOASRequest {
 }
 
 export interface BallerinaAstOasChangeRequest {
-    oasDefinition?: string
+    oasDefinition?: string,
+    documentIdentifier: {
+        uri: string;
+    };
 }
 
 export interface BallerinaAstOasChangeResponse {
@@ -128,9 +131,12 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("ballerinaDocument/swaggerDef", req);
     }
 
-    getBallerinaASTforOas(oasJson: string): Thenable<BallerinaAstOasChangeResponse> {
+    getBallerinaASTforOas(oasJson: string, uri: Uri): Thenable<BallerinaAstOasChangeResponse> {
         const req: BallerinaAstOasChangeRequest = {
-            oasDefinition: oasJson
+            oasDefinition: oasJson,
+            documentIdentifier: {
+                uri: uri.toString()
+            },
         }
         return this.sendRequest("ballerinaDocument/astOasChange", req)
     }

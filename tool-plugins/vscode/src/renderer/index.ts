@@ -114,7 +114,7 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 		},{
 			methodName: 'onOasChange',
 			handler: (args: any[]) => {
-				return langClient.getBallerinaASTforOas(args[0]);
+				return langClient.getBallerinaASTforOas(args[0], args[1]);
 			}
 		}], oasEditorPanel.webview)
 

@@ -17,11 +17,8 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.sun.org.apache.xpath.internal.ExpressionNode;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
@@ -35,25 +32,15 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.Identifier;
-import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.tree.*;
 import org.ballerinalang.swagger.CodeGenerator;
 import org.ballerinalang.swagger.model.GenSrcFile;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
-import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
-import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
@@ -61,11 +48,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
@@ -283,41 +266,46 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         swaggerAst.getTopLevelNodes().stream().forEach(topLevelNode -> {
 
             if(topLevelNode instanceof ImportPackageNode){
-                if(!hasImport(ast, topLevelNode)){
+                if(!hasImport(ast, (ImportPackageNode) topLevelNode)){
                     ast.addTopLevelNode(topLevelNode);
                 }
             }
 
             if(topLevelNode instanceof ServiceNode) {
                 ServiceNode swaggerService = (ServiceNode) topLevelNode;
+                List<ServiceNode> serviceList = new ArrayList<>();
                 for(TopLevelNode astNode : ast.getTopLevelNodes()) {
                     if(astNode instanceof ServiceNode) {
                         ServiceNode astService = (ServiceNode) astNode;
                         if(astService.getName().getValue().equals(swaggerService.getName().getValue())){
                             mergeServices(astService, swaggerService);
                         } else {
-                            ast.addTopLevelNode(swaggerService);
+                            serviceList.add(swaggerService);
                         }
                     }
                 }
+                serviceList.forEach(service -> ast.addTopLevelNode(service));
             }
 
         });
 
     }
 
-    private  void mergeServices(ServiceNode targetService, ServiceNode swaggerService) {
-        mergeAnnotations(targetService, swaggerService);
+    private void mergeServices(ServiceNode originService, ServiceNode targetService) {
+        mergeAnnotations(originService, targetService);
 
-        for(ResourceNode swaggerResource : swaggerService.getResources()) {
-            for(ResourceNode targetResource : targetService.getResources()) {
-                if(matchResource(targetResource, swaggerResource)){
-                    mergeAnnotations(targetResource, swaggerResource);
+        List<ResourceNode> targetServices = new ArrayList<>();
+        for(ResourceNode targetResource : targetService.getResources()){
+            for(ResourceNode originResource : originService.getResources()){
+                if(matchResource(originResource, targetResource)){
+                    mergeAnnotations(originResource, targetResource);
                 } else {
-                    targetService.addResource(swaggerResource);
+                    targetServices.add(targetResource);
                 }
             }
         }
+
+        targetServices.forEach(service -> originService.addResource(service));
     }
 
     private void mergeAnnotations(AnnotatableNode targetNode, AnnotatableNode sourceNode){
@@ -332,6 +320,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     BLangRecordLiteral sourceRecord = (BLangRecordLiteral) sourceNodeAttachment.getExpression();
                     BLangRecordLiteral matchedTargetRecord = (BLangRecordLiteral) matchedTargetNode.getExpression();
 
+                    List<BLangRecordLiteral.BLangRecordKeyValue> ooo = new ArrayList<>();
                     for(BLangRecordLiteral.BLangRecordKeyValue sourceKeyValue : sourceRecord.getKeyValuePairs()){
                         for (BLangRecordLiteral.BLangRecordKeyValue matchedKeyValue : matchedTargetRecord.getKeyValuePairs()){
                             int matchedKeyValuePairIndex = 0;
@@ -342,12 +331,14 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                 if(matchedKey.variableName.getValue().equals(sourceKey.variableName.getValue())) {
                                     matchedTargetRecord.getKeyValuePairs().set(matchedKeyValuePairIndex, sourceKeyValue);
                                 } else {
-                                    ((BLangRecordLiteral) matchedTargetNode.getExpression()).keyValuePairs.add(sourceKeyValue);
+                                    ooo.add(sourceKeyValue);
                                 }
                             }
                             matchedKeyValuePairIndex++;
                         }
                     }
+
+                    ((BLangRecordLiteral) matchedTargetNode.getExpression()).keyValuePairs.addAll(ooo);
                 }
             } else {
                 targetNode.addAnnotationAttachment(sourceNodeAttachment);
@@ -384,34 +375,28 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     /**
      *
      * Util method to check if given node is an existing import in current AST model
-     * @param ast - current AST model
-     * @param node - Import Node
+     * @param originAst - current AST model
+     * @param mergePackage - Import Node
      * @return - boolean status
      */
-    private boolean hasImport(BLangCompilationUnit ast, TopLevelNode node) {
+    private boolean hasImport(BLangCompilationUnit originAst, ImportPackageNode mergePackage) {
         boolean importFound = false;
 
-        for(TopLevelNode topLevelNode : ast.getTopLevelNodes()) {
-            if(topLevelNode instanceof  ImportPackageNode) {
-                ImportPackageNode pkg = (ImportPackageNode) topLevelNode;
-                ImportPackageNode swaggerNode = (ImportPackageNode) node;
+        for(TopLevelNode originNode : originAst.getTopLevelNodes()) {
+            if (originNode instanceof ImportPackageNode) {
+                ImportPackageNode originPackage = (ImportPackageNode) originNode;
 
-                if(pkg.getOrgName().getValue().equals(swaggerNode.getOrgName().getValue())){
-                    importFound = true;
-                    boolean samePackage = true;
-                    for(IdentifierNode packageName : pkg.getPackageName()) {
-                        for (IdentifierNode swaggerpkg: swaggerNode.getPackageName()) {
-                            if (!packageName.getValue().equals(swaggerpkg.getValue())) {
-                                samePackage = false;
-                                break;
-                            }
-                        }
-                        if(!samePackage) {
-                            importFound = false;
-                            break;
+                if (originPackage.getOrgName().getValue().equals(mergePackage.getOrgName().getValue())) {
+                    if (originPackage.getPackageName().size() == mergePackage.getPackageName().size()) {
+                        List<IdentifierNode> packageNameList = originPackage.getPackageName().stream().filter(pkgName ->
+                                mergePackage.getPackageName().contains(pkgName)).collect(Collectors.toList());
+                        if (packageNameList.size() > 0 && packageNameList.size() == mergePackage.getPackageName().size()) {
+                            importFound = true;
                         }
                     }
                 }
+            } else {
+                break;
             }
         }
 
