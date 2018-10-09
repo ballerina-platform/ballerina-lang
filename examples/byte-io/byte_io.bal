@@ -1,17 +1,7 @@
 import ballerina/io;
 
-// This function returns a ByteChannel from a given file location
-// according to the specified file permission (i.e., whether the file
-// should be opened for read or write).
-function getFileChannel(string filePath,
-                        io:Mode permission) returns io:ByteChannel {
-    // Here is how the ByteChannel is retrieved from the file.
-    io:ByteChannel byteChannel = io:openFile(filePath, permission);
-    return byteChannel;
-}
-
 // Reads a specified number of bytes from the given channel.
-function readBytes(io:ByteChannel byteChannel,
+function readBytes(io:ReadableByteChannel byteChannel,
                    int numberOfBytes) returns (byte[], int) {
     // Here is how the bytes are read from the channel.
     var result = byteChannel.read(numberOfBytes);
@@ -26,7 +16,7 @@ function readBytes(io:ByteChannel byteChannel,
 }
 
 // Writes byte content with the given offset to a channel.
-function writeBytes(io:ByteChannel byteChannel,
+function writeBytes(io:WritableByteChannel byteChannel,
                     byte[] content,
                     int startOffset = 0) returns int {
     // Here is how the bytes are written to the channel.
@@ -42,7 +32,7 @@ function writeBytes(io:ByteChannel byteChannel,
 }
 
 // Copies content from the source channel to a destination channel.
-function copy(io:ByteChannel src, io:ByteChannel dst) {
+function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) {
     // Specifies the number of bytes that should be read from a single
     // read operation.
     int bytesChunk = 10000;
@@ -70,8 +60,8 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
 public function main() {
     string srcFilePath = "./files/ballerina.jpg";
     string dstFilePath = "./files/ballerinaCopy.jpg";
-    io:ByteChannel sourceChannel = getFileChannel(srcFilePath, io:READ);
-    io:ByteChannel destinationChannel = getFileChannel(dstFilePath, io:WRITE);
+    io:ReadableByteChannel sourceChannel = io:openReadableFile(srcFilePath);
+    io:WritableByteChannel destinationChannel = io:openWritableFile(dstFilePath);
     try {
         io:println("Start to copy files from " + srcFilePath + " to " +
                     dstFilePath);

@@ -58,7 +58,7 @@ public class Utils {
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
     public static final String BASE64_ENCODE_ERROR = "Base64EncodeError";
     public static final String BASE64_DECODE_ERROR = "Base64DecodeError";
-    private static final String STRUCT_TYPE = "ByteChannel";
+    private static final String STRUCT_TYPE = "ReadableByteChannel";
 
     public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;

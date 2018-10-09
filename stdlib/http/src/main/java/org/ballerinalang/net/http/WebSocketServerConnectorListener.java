@@ -66,7 +66,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         if (onUpgradeResource != null) {
             webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
-                    onUpgradeResource.getCorsHeaders());
+                                                                   onUpgradeResource.getCorsHeaders());
             Resource balResource = onUpgradeResource.getBalResource();
             BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                     .getHttpCarbonRequest(), httpEndpointConfig);
@@ -157,13 +157,19 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         WebSocketDispatcher.dispatchCloseMessage(
-                connectionManager.removeConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
+                connectionManager.getConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
+    }
+
+    @Override
+    public void onClose(WebSocketConnection webSocketConnection) {
+        WebSocketUtil.setListenerOpenField(
+                connectionManager.removeConnectionInfo(webSocketConnection.getChannelId()));
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(
-                connectionManager.removeConnectionInfo(webSocketConnection.getChannelId()), throwable);
+                connectionManager.getConnectionInfo(webSocketConnection.getChannelId()), throwable);
     }
 
     @Override

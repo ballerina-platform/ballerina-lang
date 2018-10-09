@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
@@ -66,8 +67,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -81,6 +84,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,6 +141,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String EVENT_TYPE_VARIABLE_NAME = "eventType";
     private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
     private static final String STREAM_SUBSCRIBE_METHOD_NAME = "stream.subscribe";
+    private static final String VAR_FOREACH_VAL = "val";
+    private static final String VAR_OUTPUT_EVENTS = "outputEvents";
 
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -235,15 +241,19 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     // eg: Below query,
     //
-    //      => (TeacherOutput[] emp) {
-    //              outputStream.publish(emp);
-    //      }
+    //        => (TeacherOutput[] outputEvents) {
+    //            foreach e in outputEvents {
+    //                outputStream.publish(e);
+    //            }
+    //        }
     //
     // convert into below constructs.
     //
-    //      function (map) outputFunc = (map t) => {
-    //          TeacherOutput t1 = check <TeacherOutput>t;
-    //          outputStream.publish(t1);
+    //       function (map[]) outputFunc = function (map[] events) {
+    //          foreach m in events {
+    //              TeacherOutput t = check <TeacherOutput>m;
+    //              outputStream.publish(t);
+    //          }
     //      };
     //
     //      streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
@@ -251,47 +261,81 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangLambdaFunction lambdaFunction) {
-        //Create lambda function Variable
+        // create lambda function Variable
         BLangVariable outputFuncArg = (BLangVariable) lambdaFunction.getFunctionNode().getParameters().get(0);
         outputEventType = ((BArrayType) outputFuncArg.type).eType;
-
-        //create a wrapper lambda expression to invoke the actual streamAction lambda function
+        // create a wrapper lambda expression to invoke the actual streamAction lambda function
         BLangLambdaFunction outputLambdaFunc = createLambdaWithVarArg(lambdaFunction.pos, new BLangVariable[]{
                         ASTBuilderUtil.createVariable(outputFuncArg.pos, getVariableName(OUTPUT_FUNC_VAR_ARG),
-                                symTable.mapType, null, new BVarSymbol(0,
+                                new BArrayType(symTable.mapType), null, new BVarSymbol(0,
                                         names.fromString(getVariableName(OUTPUT_FUNC_VAR_ARG)),
-                                        lambdaFunction.function.symbol.pkgID, symTable.mapType,
-                                        lambdaFunction.function.symbol.owner))},
-                TypeKind.NIL);
-        BLangTypeConversionExpr outputTypeConversionExpr = generateConversionExpr(ASTBuilderUtil.createVariableRef
-                        (outputFuncArg.pos, ((BLangVariable)
-                                outputLambdaFunc.getFunctionNode().getParameters().get(0)).symbol),
-                outputEventType, symResolver);
+                                        lambdaFunction.function.symbol.pkgID, new BArrayType(symTable.mapType),
+                                        lambdaFunction.function.symbol.owner))}, TypeKind.NIL);
+        // create `T[] outputEvents`
+        BType outputArrayType = new BArrayType(outputEventType);
+        BLangArrayLiteral arrayLiteralExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        arrayLiteralExpr.exprs = new ArrayList<>();
+        arrayLiteralExpr.type = outputArrayType;
+        BLangVariable outputArrayVariable = ASTBuilderUtil.createVariable(outputLambdaFunc.function.pos,
+                VAR_OUTPUT_EVENTS, outputArrayType, arrayLiteralExpr, null);
+        defineVariable(outputArrayVariable, env.scope.owner.pkgID, env.scope.owner);
+        BLangSimpleVarRef outputArrayRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos,
+                outputArrayVariable.symbol);
+        BLangVariableDef outputArrayVarDef = ASTBuilderUtil.createVariableDef(outputLambdaFunc.pos,
+                outputArrayVariable);
+        outputLambdaFunc.function.body.addStatement(outputArrayVarDef);
+        // define k, v of `foreach k, v in mArr` expr
+        final List<BLangVariable> foreachVariables = createForeachVariables(outputLambdaFunc.function);
+        BLangSimpleVarRef indexVarRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos,
+                foreachVariables.get(0).symbol);
+        BLangSimpleVarRef mapVarRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos,
+                foreachVariables.get(1).symbol);
+        // define `map[] events`
+        BLangVariable mapArrayVar = ((BLangVariable) outputLambdaFunc.getFunctionNode().getParameters().get(0));
+
+        // foreach k, v in events {
+        //     outputEvents[k] = check <T> v;
+        // }
+        BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(outputLambdaFunc.function.pos);
+        // create `type[i] = checked <type> v;` assignment stmt
+        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputArrayRef, indexVarRef);
+        indexAccessExpr.type = outputEventType;
+        BLangTypeConversionExpr outputTypeConversionExpr = generateConversionExpr(mapVarRef, outputEventType,
+                symResolver);
         BLangCheckedExpr outputCheckedExpr = createCheckedConversionExpr(outputTypeConversionExpr);
+        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(outputLambdaFunc.function.pos, foreachBody);
+        assignment.setExpression(outputCheckedExpr);
+        assignment.varRef = indexAccessExpr;
+        BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+        foreach.pos = outputLambdaFunc.function.pos;
+        foreach.body = foreachBody;
+        foreach.collection = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos, mapArrayVar.symbol);
+        foreach.varRefs.addAll(ASTBuilderUtil.createVariableRefList(outputLambdaFunc.function.pos, foreachVariables));
+        foreach.varTypes = Lists.of(foreachVariables.get(0).type, foreachVariables.get(1).type);
+        outputLambdaFunc.function.body.stmts.add(foreach);
+
+        // pass `T[] outputEvents` created above, to the streaming action
         BLangInvocation streamActionInvocation = ASTBuilderUtil.createInvocationExprForMethod(lambdaFunction.pos,
-                lambdaFunction.function.symbol, Collections.singletonList(outputCheckedExpr), symResolver);
+                lambdaFunction.function.symbol, Collections.singletonList(outputArrayRef), symResolver);
         BLangExpressionStmt streamActionInvocationStmt =
                 ASTBuilderUtil.createExpressionStmt(lambdaFunction.function.pos, outputLambdaFunc.function.body);
         streamActionInvocationStmt.expr = streamActionInvocation;
 
-        //Create wrapper lambda expression definition statement
+        // create wrapper lambda expression definition statement
         BLangVariable outputStreamFunctionVariable = ASTBuilderUtil.
                 createVariable(outputLambdaFunc.pos, getVariableName(OUTPUT_FUNC_REFERENCE),
                         outputLambdaFunc.function.symbol.type, outputLambdaFunc, outputLambdaFunc.function.symbol);
-
         outputStreamFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(outputLambdaFunc.function.symbol.type);
         BLangVariableDef outputStreamFunctionVarDef = ASTBuilderUtil.createVariableDef(outputLambdaFunc.pos,
                 outputStreamFunctionVariable);
-
         stmts.add(outputStreamFunctionVarDef);
 
-        //Create output event process definition
+        // create output event process definition
         BLangSimpleVarRef outputStreamFunctionSimpleVarRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.pos,
                 outputStreamFunctionVariable.symbol);
         BInvokableSymbol outputProcessInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(outputLambdaFunc.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
                 scope.lookup(new Name(CREATE_OUTPUT_PROCESS_METHOD_NAME)).symbol;
-
         BType outputProcessInvokableType = outputProcessInvokableSymbol.type.getReturnType();
         BVarSymbol outputProcessInvokableTypeVarSymbol = new BVarSymbol(0,
                 new Name(getVariableName(OUTPUT_PROCESS_FUNC_REFERENCE)), outputProcessInvokableSymbol.pkgID,
@@ -313,7 +357,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         outputProcessInvokableTypeVariable.setTypeNode(userDefinedType);
         BLangVariableDef outputProcessInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(outputLambdaFunc.pos,
                 outputProcessInvokableTypeVariable);
-
         stmts.add(outputProcessInvokableTypeVariableDef);
     }
 
@@ -1494,5 +1537,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             streamAliasMap.put(((BLangSimpleVarRef) streamingInput.getStreamReference()).symbol.toString(),
                     streamingInput.getAlias());
         }
+    }
+
+    private List<BLangVariable> createForeachVariables(BLangFunction funcNode) {
+        List<BLangVariable> foreachVariables = new ArrayList<>();
+        final List<BType> varTypes = Lists.of(symTable.intType, symTable.mapType);
+        for (int i = 0; i < varTypes.size(); i++) {
+            BType type = varTypes.get(i);
+            String varName = VAR_FOREACH_VAL + i;
+            final BLangVariable variable = ASTBuilderUtil.createVariable(funcNode.pos, varName, type);
+            foreachVariables.add(variable);
+            defineVariable(variable, funcNode.symbol.pkgID, funcNode.symbol);
+        }
+        return foreachVariables;
+    }
+
+    private void defineVariable(BLangVariable variable, PackageID pkgID, BSymbol owner) {
+        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), pkgID, variable.type, owner);
     }
 }

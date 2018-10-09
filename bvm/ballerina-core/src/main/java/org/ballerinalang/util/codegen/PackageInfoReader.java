@@ -1496,7 +1496,8 @@ public class PackageInfoReader {
                     for (int count = 0; count < childCount; count++) {
                         childScopeMap.add(((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue());
                     }
-                    packageInfo.addInstruction(new InstructionCompensate(opcode, name, childScopeMap));
+                    int retRegIndex = codeStream.readInt();
+                    packageInfo.addInstruction(new InstructionCompensate(opcode, name, childScopeMap, retRegIndex));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
