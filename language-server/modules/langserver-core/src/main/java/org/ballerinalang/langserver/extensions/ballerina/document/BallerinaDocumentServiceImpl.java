@@ -147,10 +147,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                         .orElse(null);
                 BLangCompilationUnit swaggerCompilationUnit = swaggerFile.getBLangPackage().get().getCompilationUnits()
                         .stream().findFirst().orElse(null);
+
                 mergeAst(compilationUnit, swaggerCompilationUnit);
+                reply.setOasAST(TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>()));
             }
 
-            reply.setOasAST(getTreeForContent(source.get(0).getContent()));
         } catch (Exception ex) {
             reply.isIsError(true);
             logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
@@ -320,55 +321,51 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     private void mergeAnnotations(AnnotatableNode targetNode, AnnotatableNode sourceNode){
-        for(AnnotationAttachmentNode swaggerNode : sourceNode.getAnnotationAttachments()) {
-            boolean matchedAnnotation = false;
-            AnnotationAttachmentNode matchedNode = new BLangAnnotationAttachment();
+        for(AnnotationAttachmentNode sourceNodeAttachment : sourceNode.getAnnotationAttachments()) {
 
-            for(AnnotationAttachmentNode attachementNode : targetNode.getAnnotationAttachments()) {
-                if(swaggerNode.getAnnotationName().getValue().equals(attachementNode.getAnnotationName().getValue()) &&
-                        swaggerNode.getPackageAlias().getValue().equals(attachementNode.getPackageAlias().getValue())) {
-                    matchedNode = attachementNode;
-                    matchedAnnotation = true;
-                    break;
-                }
-            }
+            AnnotationAttachmentNode matchedTargetNode = findAttachmentNode(targetNode, sourceNodeAttachment);
 
-            if(matchedAnnotation) {
-                if(swaggerNode.getExpression() instanceof BLangRecordLiteral &&
-                        matchedNode.getExpression() instanceof BLangRecordLiteral) {
+            if(matchedTargetNode != null) {
+                if(sourceNodeAttachment.getExpression() instanceof BLangRecordLiteral &&
+                        matchedTargetNode.getExpression() instanceof BLangRecordLiteral) {
 
-                    BLangRecordLiteral swaggerRecord = (BLangRecordLiteral) swaggerNode.getExpression();
-                    BLangRecordLiteral matchedRecord = (BLangRecordLiteral) matchedNode.getExpression();
+                    BLangRecordLiteral sourceRecord = (BLangRecordLiteral) sourceNodeAttachment.getExpression();
+                    BLangRecordLiteral matchedTargetRecord = (BLangRecordLiteral) matchedTargetNode.getExpression();
 
-                    for(BLangRecordLiteral.BLangRecordKeyValue swaggerKeyValue : swaggerRecord.getKeyValuePairs()){
-                        boolean matched = false;
-                        BLangRecordLiteral.BLangRecordKeyValue record;
-
-                        for (BLangRecordLiteral.BLangRecordKeyValue matchedKeyValue : matchedRecord.getKeyValuePairs()){
+                    for(BLangRecordLiteral.BLangRecordKeyValue sourceKeyValue : sourceRecord.getKeyValuePairs()){
+                        for (BLangRecordLiteral.BLangRecordKeyValue matchedKeyValue : matchedTargetRecord.getKeyValuePairs()){
+                            int matchedKeyValuePairIndex = 0;
                             if((matchedKeyValue.key!= null && matchedKeyValue.key.expr instanceof BLangSimpleVarRef)){
                                 BLangSimpleVarRef matchedKey = (BLangSimpleVarRef) matchedKeyValue.key.expr;
-                                BLangSimpleVarRef swaggerKey = (BLangSimpleVarRef) swaggerKeyValue.key.expr;
+                                BLangSimpleVarRef sourceKey = (BLangSimpleVarRef) sourceKeyValue.key.expr;
 
-                                if(matchedKey.variableName.getValue().equals(swaggerKey.variableName.getValue())) {
-                                    matched = true;
-                                    record = swaggerKeyValue;
+                                if(matchedKey.variableName.getValue().equals(sourceKey.variableName.getValue())) {
+                                    matchedTargetRecord.getKeyValuePairs().set(matchedKeyValuePairIndex, sourceKeyValue);
+                                } else {
+                                    ((BLangRecordLiteral) matchedTargetNode.getExpression()).keyValuePairs.add(sourceKeyValue);
                                 }
                             }
+                            matchedKeyValuePairIndex++;
                         }
-
-                        if(matched) {
-
-                        } else {
-                            ((BLangRecordLiteral) matchedNode.getExpression()).keyValuePairs.add(swaggerKeyValue);
-                        }
-
                     }
                 }
             } else {
-                targetNode.addAnnotationAttachment(swaggerNode);
+                targetNode.addAnnotationAttachment(sourceNodeAttachment);
             }
 
         }
+    }
+
+    private AnnotationAttachmentNode findAttachmentNode(AnnotatableNode targetNode, AnnotationAttachmentNode sourceNodeAttachment) {
+        AnnotationAttachmentNode matchedNode = null;
+        for(AnnotationAttachmentNode attachmentNode : targetNode.getAnnotationAttachments()) {
+            if(sourceNodeAttachment.getAnnotationName().getValue().equals(attachmentNode.getAnnotationName().getValue()) &&
+                    sourceNodeAttachment.getPackageAlias().getValue().equals(attachmentNode.getPackageAlias().getValue())) {
+                matchedNode = attachmentNode;
+                break;
+            }
+        }
+        return matchedNode;
     }
 
     /**
