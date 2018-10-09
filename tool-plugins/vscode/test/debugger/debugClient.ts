@@ -22,32 +22,35 @@ import { IPartialLocation } from "vscode-debugadapter-testsupport/lib/debugClien
 
 export class DebugClientEx extends DebugClient {
     hitBreakpoint(launchArgs: any, location: any, expectedStopLocation?: IPartialLocation, expectedBPLocation?: IPartialLocation): Promise<any> {
-        this.launch(launchArgs).then(()=>{
-            this.setBreakpointsRequest({
-                lines: [location.line],
-                breakpoints: [{ line: location.line, column: location.column }],
-                source: { path: location.path, name: location.name},
-            });
-            return this.configurationDoneRequest();
-        });
-
-        return this.waitForEvent('stopped', 12000).then(event => {
-            assert.equal(event.body.reason, "breakpoint");
-            this.stackTraceRequest({
-                threadId: event.body.threadId,
-            }).then( response =>{
-                const frame: any = response.body.stackFrames[0];
-                if (typeof location.path === 'string') {
-                    this.assertPath(frame.source.path, location.path, 'stopped location: path mismatch');
-                }
-                if (typeof location.line === 'number') {
-                    assert.equal(frame.line, location.line, 'stopped location: line mismatch');
-                }
-                if (typeof location.column === 'number') {
-                    assert.equal(frame.column, location.column, 'stopped location: column mismatch');
-                }
-                return response;
-            });
-        });
+        return Promise.all([
+            this.waitForEvent('initialized', 20000).then(()=>{
+                return this.setBreakpointsRequest({
+                    lines: [location.line],
+                    breakpoints: [{ line: location.line, column: location.column }],
+                    source: { path: location.path, name: location.name},
+                });
+            }).then(()=>{
+                return this.configurationDoneRequest();
+            }),
+            this.launch(launchArgs),
+            this.waitForEvent('stopped', 20000).then(event => {
+                assert.equal(event.body.reason, "breakpoint");
+                return this.stackTraceRequest({
+                    threadId: event.body.threadId,
+                }).then( response =>{
+                    const frame: any = response.body.stackFrames[0];
+                    if (typeof location.path === 'string') {
+                        this.assertPath(frame.source.path, location.path, 'stopped location: path mismatch');
+                    }
+                    if (typeof location.line === 'number') {
+                        assert.equal(frame.line, location.line, 'stopped location: line mismatch');
+                    }
+                    if (typeof location.column === 'number') {
+                        assert.equal(frame.column, location.column, 'stopped location: column mismatch');
+                    }
+                    return response;
+                });
+            })
+        ]);
     }
 }
