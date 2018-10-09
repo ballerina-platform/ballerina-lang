@@ -108,7 +108,7 @@ public class PushUtils {
         }
         // Validate the package-name
         if (!RepoUtils.validatePkg(packageName)) {
-            throw createLauncherException("invalid package name provided'" + packageName + "\'. Only " +
+            throw createLauncherException("invalid package name provided \'" + packageName + "\'. Only " +
                                           "alphanumerics, underscores and periods are allowed in a package name and " +
                                           "the maximum length is 256 characters");
         }

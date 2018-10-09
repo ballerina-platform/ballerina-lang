@@ -262,7 +262,7 @@ public class InitCommand implements BLauncherCmd {
     private boolean validateOrgName(PrintStream out, String orgName) {
         boolean matches = RepoUtils.validateOrg(orgName);
         if (!matches) {
-            out.println("--Invalid organization name: \'" + orgName + "\'." + " Organization name can only contain " +
+            out.println("--Invalid organization name: \'" + orgName + "\'. Organization name can only contain " +
                                 "lowercase alphanumerics and underscores and the maximum length is 256 characters");
         }
         return matches;
@@ -280,7 +280,7 @@ public class InitCommand implements BLauncherCmd {
         }
         boolean matches = RepoUtils.validatePkg(pkgName);
         if (!matches) {
-            out.println("--Invalid package name: \'" + pkgName + "\'." + " Package name can only contain " +
+            out.println("--Invalid package name: \'" + pkgName + "\'. Package name can only contain " +
                                 "alphanumerics, underscores and periods and the maximum length is 256 characters");
         }
         return matches;
