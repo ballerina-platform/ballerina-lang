@@ -239,3 +239,19 @@ function testConditions() returns (boolean) {
     }
     return false;
 }
+
+function testUnicode_1() returns (boolean) {
+    string str = 'බැලරිනා;
+    if (str == 'බැලරිනා) {
+        return true;
+    }
+    return false;
+}
+
+function testUnicode_2() returns (boolean) {
+    string str = '⺑⺺⻨⼚⾉⼚⽫;
+    if (str == '⺑⺺⻨⼚⾉⼚⽫) {
+        return true;
+    }
+    return false;
+}

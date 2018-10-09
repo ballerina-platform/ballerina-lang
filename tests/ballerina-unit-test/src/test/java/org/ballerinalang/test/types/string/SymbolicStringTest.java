@@ -233,4 +233,16 @@ public class SymbolicStringTest {
         BValue[] returns = BRunUtil.invoke(result, "testConditions");
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
+
+    @Test
+    public void testUnicodeCharacters_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnicode_1");
+        Assert.assertEquals(returns[0].stringValue(), "true");
+    }
+
+    @Test
+    public void testUnicodeCharacters_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnicode_2");
+        Assert.assertEquals(returns[0].stringValue(), "true");
+    }
 }

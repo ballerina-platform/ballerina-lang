@@ -43,7 +43,7 @@ public class SymbolicStringNegativeTest {
         BAssertUtil.validateError(resultNegative, 5, "token recognition error at: '\\'", 27, 25);
         BAssertUtil.validateError(resultNegative, 6, "extraneous input 'uFFFEWorld'", 27, 26);
         BAssertUtil.validateError(resultNegative, 7, "extraneous input '\uDB80\uDC07'", 28, 25);
-        BAssertUtil.validateError(resultNegative, 8, "extraneous input '��'", 29, 25);
+        BAssertUtil.validateError(resultNegative, 8, "extraneous input '\uDBBF\uDFFD'", 29, 25);
         BAssertUtil.validateError(resultNegative, 9, "extraneous input 'Lavinia'", 32, 34);
         BAssertUtil.validateError(resultNegative, 10, "invalid token 'sl'", 33, 22);
         BAssertUtil.validateError(resultNegative, 11, "extraneous input 'Page'", 35, 33);
