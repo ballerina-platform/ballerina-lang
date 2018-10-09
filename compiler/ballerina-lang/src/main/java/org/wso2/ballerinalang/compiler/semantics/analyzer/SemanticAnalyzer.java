@@ -596,7 +596,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
                 dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
             } else if ((simpleVarRef.symbol.flags & Flags.CONST) == Flags.CONST) {
-                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT, varRef);
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
             } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
                 dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
             }
@@ -1110,6 +1110,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         String workerName = workerReceiveNode.workerIdentifier.getValue();
         if (!this.workerExists(this.env, workerName)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        }
+
+        BLangSimpleVarRef expr = (BLangSimpleVarRef) workerReceiveNode.expr;
+        if ((expr.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+            dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL);
+        } else if ((expr.symbol.flags & Flags.CONST) == Flags.CONST) {
+            dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
         }
     }
 
