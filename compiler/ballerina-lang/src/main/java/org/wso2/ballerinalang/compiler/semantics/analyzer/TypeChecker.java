@@ -95,7 +95,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSymbolicStringLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -274,11 +273,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         }
-        resultType = types.checkType(literalExpr, literalType, expType);
-    }
-
-    public void visit(BLangSymbolicStringLiteral literalExpr) {
-        BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
         resultType = types.checkType(literalExpr, literalType, expType);
     }
 
@@ -1779,7 +1773,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.SYMBOLIC_STRING_LITERAL) {
+        if (indexExpr.getKind() != NodeKind.LITERAL) {
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
             return symTable.errType;
         }
@@ -1834,7 +1828,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.SYMBOLIC_STRING_LITERAL) {
+        if (indexExpr.getKind() != NodeKind.LITERAL) {
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
             return symTable.errType;
         }

@@ -117,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangP
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSymbolicStringLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -894,11 +893,6 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         result = literalExpr;
-    }
-
-    @Override
-    public void visit(BLangSymbolicStringLiteral literalExpr) {
-        visit((BLangLiteral) literalExpr);
     }
 
     private BLangNode rewriteBlobLiteral(BLangLiteral literalExpr) {

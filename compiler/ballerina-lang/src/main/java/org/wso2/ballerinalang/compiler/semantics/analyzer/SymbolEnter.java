@@ -576,8 +576,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (variable.expr == null) {
             return;
         }
-        if (variable.expr.getKind() != NodeKind.LITERAL &&
-                variable.expr.getKind() != NodeKind.SYMBOLIC_STRING_LITERAL) {
+        if (variable.expr.getKind() != NodeKind.LITERAL) {
             this.dlog.error(variable.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE, variable.name);
             return;
         }
@@ -714,8 +713,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Get the namespace URI, only if it is statically defined. Then define the namespace symbol.
         // This namespace URI is later used by the attributes, when they lookup for duplicate attributes.
         // TODO: find a better way to get the statically defined URI.
-        if (exprs.size() == 1 && (exprs.get(0).getKind() == NodeKind.LITERAL || exprs.get(0).getKind() ==
-                NodeKind.SYMBOLIC_STRING_LITERAL)) {
+        if (exprs.size() == 1 && exprs.get(0).getKind() == NodeKind.LITERAL) {
             nsURI = (String) ((BLangLiteral) exprs.get(0)).value;
         }
 
@@ -914,8 +912,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .peek(varDefNode -> defineNode(varDefNode.var, invokableEnv))
                         .map(varDefNode -> {
                             BVarSymbol varSymbol = varDefNode.var.symbol;
-                            if (varDefNode.var.expr.getKind() != NodeKind.LITERAL && varDefNode.var.expr.getKind()
-                                    != NodeKind.SYMBOLIC_STRING_LITERAL) {
+                            if (varDefNode.var.expr.getKind() != NodeKind.LITERAL) {
                                 this.dlog.error(varDefNode.var.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE,
                                         varDefNode.var.name);
                             } else {

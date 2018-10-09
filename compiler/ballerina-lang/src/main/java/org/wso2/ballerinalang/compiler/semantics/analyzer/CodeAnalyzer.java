@@ -71,7 +71,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSymbolicStringLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -834,10 +833,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangSymbolicStringLiteral literalExpr) {
-        /* ignore */
-    }
-
     public void visit(BLangArrayLiteral arrayLiteral) {
         analyzeExprs(arrayLiteral.exprs);
     }
@@ -858,7 +853,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
                 names.add(keyRef.variableName.value);
-            } else if (key.getKind() == NodeKind.LITERAL || key.getKind() == NodeKind.SYMBOLIC_STRING_LITERAL) {
+            } else if (key.getKind() == NodeKind.LITERAL) {
                 BLangLiteral keyLiteral = (BLangLiteral) key;
                 if (names.contains(keyLiteral.value)) {
                     String assigneeType = recordLiteral.parent.type.getKind().typeName();
@@ -889,9 +884,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY
-                && (indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL ||
-                indexAccessExpr.indexExpr.getKind() == NodeKind.SYMBOLIC_STRING_LITERAL)) {
+        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY &&
+                indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
             BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
             BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
             Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage

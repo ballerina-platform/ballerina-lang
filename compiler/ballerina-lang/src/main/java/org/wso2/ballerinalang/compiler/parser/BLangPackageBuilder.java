@@ -141,7 +141,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSymbolicStringLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -955,20 +954,15 @@ public class BLangPackageBuilder {
     }
 
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value) {
+        addLiteralValue(pos, ws, typeTag, value, String.valueOf(value));
+    }
+    void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
         BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
         litExpr.addWS(ws);
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;
         litExpr.value = value;
-        addExpressionNode(litExpr);
-    }
-
-    void addSymbolicStringLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value) {
-        BLangSymbolicStringLiteral litExpr = TreeBuilder.createSymbolicStringLiteral();
-        litExpr.addWS(ws);
-        litExpr.pos = pos;
-        litExpr.typeTag = typeTag;
-        litExpr.value = value;
+        litExpr.orginalValue = originalValue;
         addExpressionNode(litExpr);
     }
 
@@ -2653,16 +2647,17 @@ public class BLangPackageBuilder {
                                                            Stack<String> precedingTextFragments,
                                                            String endingText) {
         List<BLangExpression> expressions = new ArrayList<>();
-
+        String originalValue = endingText;
         endingText = endingText == null ? "" : StringEscapeUtils.unescapeJava(endingText);
-        addLiteralValue(pos, ws, TypeTags.STRING, endingText);
+        addLiteralValue(pos, ws, TypeTags.STRING, endingText, originalValue);
         expressions.add((BLangExpression) exprNodeStack.pop());
 
         while (!precedingTextFragments.empty()) {
             expressions.add((BLangExpression) exprNodeStack.pop());
             String textFragment = precedingTextFragments.pop();
+            originalValue = textFragment;
             textFragment = textFragment == null ? "" : StringEscapeUtils.unescapeJava(textFragment);
-            addLiteralValue(pos, ws, TypeTags.STRING, textFragment);
+            addLiteralValue(pos, ws, TypeTags.STRING, textFragment, originalValue);
             expressions.add((BLangExpression) exprNodeStack.pop());
         }
 
