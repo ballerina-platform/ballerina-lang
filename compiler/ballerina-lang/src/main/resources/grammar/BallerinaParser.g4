@@ -151,6 +151,7 @@ annotationDefinition
 globalVariableDefinition
     :   PUBLIC? typeName Identifier (ASSIGN expression)? SEMICOLON
     |   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    |   PUBLIC? FINAL (typeName|VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier SEMICOLON
     ;
 

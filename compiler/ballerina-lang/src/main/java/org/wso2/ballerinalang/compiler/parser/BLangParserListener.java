@@ -667,12 +667,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-        boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        boolean isTypeAvailable = ctx.typeName() != null || ctx.channelType() != null;
+        boolean isPublic = ctx.PUBLIC() != null;
         boolean isConst = ctx.CONST() != null;
+        boolean isFinal = ctx.FINAL() != null;
+        boolean isTypeAvailable = ctx.typeName() != null || ctx.channelType() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                ctx.expression() != null, publicVar, isTypeAvailable, isConst);
+                isExpressionAvailable, isPublic, isTypeAvailable, isConst, isFinal);
     }
 
     @Override

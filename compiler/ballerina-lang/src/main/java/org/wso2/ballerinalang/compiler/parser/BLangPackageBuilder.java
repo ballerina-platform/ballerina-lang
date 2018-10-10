@@ -1419,16 +1419,16 @@ public class BLangPackageBuilder {
     }
 
     private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                              boolean exprAvailable, boolean typeAvailable) {
+                                              boolean isExpressionAvailable, boolean isTypeAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
         var.setName(name);
         var.addWS(ws);
-        if (typeAvailable) {
+        if (isTypeAvailable) {
             var.setTypeNode(this.typeNodeStack.pop());
         }
-        if (exprAvailable) {
+        if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         return var;
@@ -1456,21 +1456,19 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    void addGlobalVariable(DiagnosticPos pos,
-                           Set<Whitespace> ws,
-                           String identifier,
-                           boolean exprAvailable,
-                           boolean publicVar,
-                           boolean isTypeAvailable,
-                           boolean isConst) {
-        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable,
+    void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isExpressionAvailable,
+                           boolean isPublic, boolean isTypeAvailable, boolean isConst, boolean isFinal) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, isExpressionAvailable,
                 isTypeAvailable);
         attachAnnotations(var);
-        if (publicVar) {
+        if (isPublic) {
             var.flagSet.add(Flag.PUBLIC);
         }
         if (isConst) {
             var.flagSet.add(Flag.CONST);
+        }
+        if (isFinal) {
+            var.flagSet.add(Flag.FINAL);
         }
         var.docTag = DocTag.VARIABLE;
         attachMarkdownDocumentations(var);
