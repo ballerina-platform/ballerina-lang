@@ -194,8 +194,8 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo33").stringValue(), "echo1", "No media types");
     }
 
-    @Test(description = "Test case sensitivity of produces and consumes annotation values")
-    public void testCaseSensitivityOfProduceAndConsume() {
+    @Test(description = "Test case insensitivity of produces and consumes annotation values")
+    public void testCaseInSensitivityOfProduceAndConsume() {
         String path = "/echo66/test4";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "<test>TestVal</test>");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "application/xml; charset=ISO-8859-4");
