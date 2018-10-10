@@ -1112,11 +1112,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
 
-        BLangSimpleVarRef expr = (BLangSimpleVarRef) workerReceiveNode.expr;
-        if ((expr.symbol.flags & Flags.FINAL) == Flags.FINAL) {
-            dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL);
-        } else if ((expr.symbol.flags & Flags.CONST) == Flags.CONST) {
-            dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
+        if (workerReceiveNode.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef expr = (BLangSimpleVarRef) workerReceiveNode.expr;
+            if (expr.symbol != null) {
+                if ((expr.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+                    dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL);
+                } else if ((expr.symbol.flags & Flags.CONST) == Flags.CONST) {
+                    dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
+                }
+            }
         }
     }
 
