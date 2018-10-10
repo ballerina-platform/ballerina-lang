@@ -16,15 +16,15 @@
 
 
 # Represents record separator of the CSV file.
-@final string CSV_RECORD_SEPERATOR = "\n";
+final string CSV_RECORD_SEPERATOR = "\n";
 
 
 # Represents colon separator which should be used to identify colon separated files.
-@final string FS_COLON = ":";
+final string FS_COLON = ":";
 
 
 # Represents minimum number of headers which will be included in CSV.
-@final int MINIMUM_HEADER_COUNT = 0;
+final int MINIMUM_HEADER_COUNT = 0;
 
 
 # Represents a WritableCSVChannel which could be used to write records from CSV file.

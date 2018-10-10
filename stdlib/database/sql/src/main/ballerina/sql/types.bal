@@ -85,36 +85,36 @@ public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARC
 "BINARY"|"BLOB"|"LONGVARBINARY"|"VARBINARY"|"CLOB"|"NCLOB"|"DATE"|"TIME"|"DATETIME"|
 "TIMESTAMP"|"ARRAY"|"STRUCT"|"REFCURSOR";
 
-@final public SQLType TYPE_VARCHAR = "VARCHAR";
-@final public SQLType TYPE_CHAR = "CHAR";
-@final public SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
-@final public SQLType TYPE_NCHAR = "NCHAR";
-@final public SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
-@final public SQLType TYPE_NVARCHARR = "NVARCHAR";
-@final public SQLType TYPE_BIT = "BIT";
-@final public SQLType TYPE_BOOLEAN = "BOOLEAN";
-@final public SQLType TYPE_TINYINT = "TINYINT";
-@final public SQLType TYPE_SMALLINT = "SMALLINT";
-@final public SQLType TYPE_INTEGER = "INTEGER";
-@final public SQLType TYPE_BIGINT = "BIGINT";
-@final public SQLType TYPE_NUMERIC = "NUMERIC";
-@final public SQLType TYPE_DECIMAL = "DECIMAL";
-@final public SQLType TYPE_REAL = "REAL";
-@final public SQLType TYPE_FLOAT = "FLOAT";
-@final public SQLType TYPE_DOUBLE = "DOUBLE";
-@final public SQLType TYPE_BINARY = "BINARY";
-@final public SQLType TYPE_BLOB = "BLOB";
-@final public SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
-@final public SQLType TYPE_VARBINARY = "VARBINARY";
-@final public SQLType TYPE_CLOB = "CLOB";
-@final public SQLType TYPE_NCLOB = "NCLOB";
-@final public SQLType TYPE_DATE = "DATE";
-@final public SQLType TYPE_TIME = "TIME";
-@final public SQLType TYPE_DATETIME = "DATETIME";
-@final public SQLType TYPE_TIMESTAMP = "TIMESTAMP";
-@final public SQLType TYPE_ARRAY = "ARRAY";
-@final public SQLType TYPE_STRUCT = "STRUCT";
-@final public SQLType TYPE_REFCURSOR = "REFCURSOR";
+public final SQLType TYPE_VARCHAR = "VARCHAR";
+public final SQLType TYPE_CHAR = "CHAR";
+public final SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
+public final SQLType TYPE_NCHAR = "NCHAR";
+public final SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+public final SQLType TYPE_NVARCHARR = "NVARCHAR";
+public final SQLType TYPE_BIT = "BIT";
+public final SQLType TYPE_BOOLEAN = "BOOLEAN";
+public final SQLType TYPE_TINYINT = "TINYINT";
+public final SQLType TYPE_SMALLINT = "SMALLINT";
+public final SQLType TYPE_INTEGER = "INTEGER";
+public final SQLType TYPE_BIGINT = "BIGINT";
+public final SQLType TYPE_NUMERIC = "NUMERIC";
+public final SQLType TYPE_DECIMAL = "DECIMAL";
+public final SQLType TYPE_REAL = "REAL";
+public final SQLType TYPE_FLOAT = "FLOAT";
+public final SQLType TYPE_DOUBLE = "DOUBLE";
+public final SQLType TYPE_BINARY = "BINARY";
+public final SQLType TYPE_BLOB = "BLOB";
+public final SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
+public final SQLType TYPE_VARBINARY = "VARBINARY";
+public final SQLType TYPE_CLOB = "CLOB";
+public final SQLType TYPE_NCLOB = "NCLOB";
+public final SQLType TYPE_DATE = "DATE";
+public final SQLType TYPE_TIME = "TIME";
+public final SQLType TYPE_DATETIME = "DATETIME";
+public final SQLType TYPE_TIMESTAMP = "TIMESTAMP";
+public final SQLType TYPE_ARRAY = "ARRAY";
+public final SQLType TYPE_STRUCT = "STRUCT";
+public final SQLType TYPE_REFCURSOR = "REFCURSOR";
 
 # The direction of the parameter.
 #
@@ -123,9 +123,9 @@ public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARC
 # INOUT - INOUT parameters are used to send values and get values from stored procedures
 public type Direction "IN"|"OUT"|"INOUT";
 
-@final public Direction DIRECTION_IN = "IN";
-@final public Direction DIRECTION_OUT = "OUT";
-@final public Direction DIRECTION_INOUT = "INOUT";
+public final Direction DIRECTION_IN = "IN";
+public final Direction DIRECTION_OUT = "OUT";
+public final Direction DIRECTION_INOUT = "INOUT";
 
 # Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
 #

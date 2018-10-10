@@ -20,22 +20,22 @@ import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
 
-@final string WARNING_AGENT = getWarningAgent();
+final string WARNING_AGENT = getWarningAgent();
 
-@final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
-@final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
+final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
+final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
 
-@final string WEAK_VALIDATOR_TAG = "W/";
-@final int STALE = 0;
+final string WEAK_VALIDATOR_TAG = "W/";
+final int STALE = 0;
 
-@final string FORWARD = "FORWARD";
-@final string GET = "GET";
-@final string POST = "POST";
-@final string DELETE = "DELETE";
-@final string OPTIONS = "OPTIONS";
-@final string PUT = "PUT";
-@final string PATCH = "PATCH";
-@final string HEAD = "HEAD";
+final string FORWARD = "FORWARD";
+final string GET = "GET";
+final string POST = "POST";
+final string DELETE = "DELETE";
+final string OPTIONS = "OPTIONS";
+final string PUT = "PUT";
+final string PATCH = "PATCH";
+final string HEAD = "HEAD";
 
 # Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows
 # the user to control the caching behaviour.
@@ -43,10 +43,10 @@ public type CachingPolicy "CACHE_CONTROL_AND_VALIDATORS"|"RFC_7234";
 
 # This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances
 # where the `cache-control` header and either the `etag` or `last-modified` header are present.
-@final public CachingPolicy CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
+public final CachingPolicy CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
 
 # Caching behaviour is as specified by the RFC 7234 specification.
-@final public CachingPolicy RFC_7234 = "RFC_7234";
+public final CachingPolicy RFC_7234 = "RFC_7234";
 
 # Provides a set of configurations for controlling the caching behaviour of the endpoint.
 #

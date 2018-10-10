@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
+final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.99] }];
 
-@final map<string> DEFAULT_TAGS;
+final map<string> DEFAULT_TAGS = {};
 
 
 # Start a span with no parent span.
@@ -68,9 +68,9 @@ public extern function lookupMetric(string name, map<string>? tags = ()) returns
 # + metricTags - Tags associated with the counter metric.
 public type Counter object {
 
-    @readonly public string name;
-    @readonly public string description;
-    @readonly public map<string> metricTags;
+    public string name;
+    public string description;
+    public map<string> metricTags;
 
     # This instantiates the Counter object. Name field is mandatory, and description and tags fields
     # are optional and have its own default values when no params are passed.
@@ -127,10 +127,10 @@ public type Counter object {
 #                      of the gauge during its usage.
 public type Gauge object {
 
-    @readonly public string name;
-    @readonly public string description;
-    @readonly public map<string> metricTags;
-    @readonly public StatisticConfig[] statisticConfigs;
+    public string name;
+    public string description;
+    public map<string> metricTags;
+    public StatisticConfig[] statisticConfigs;
 
     # This instantiates the Gauge object. Name field is mandatory, and description, tags, and statitics config fields
     # are optional and have its own default values when no params are passed.
@@ -208,12 +208,12 @@ public type Gauge object {
 # + value - Current value the metric.
 # + summary - If the metric is configured with statistics config, then the calculated statistics of the metric.
 public type Metric record {
-    @readonly string name;
-    @readonly string desc;
-    @readonly map<string> tags;
-    @readonly string metricType;
-    @readonly int|float value;
-    @readonly Snapshot[]? summary;
+    string name;
+    string desc;
+    map<string> tags;
+    string metricType;
+    int|float value;
+    Snapshot[]? summary;
 };
 
 # This represents the statistic configuration that can be used to instatiate gauge metric.
@@ -232,8 +232,8 @@ public type StatisticConfig record {
 # + percentile - The percentile of the reported value.
 # + value - The value of the percentile.
 public type PercentileValue record {
-    @readonly float percentile;
-    @readonly float value;
+    float percentile;
+    float value;
 };
 
 # This represents the snapshot of the statistics calculation of the gauge.
@@ -245,10 +245,10 @@ public type PercentileValue record {
 # + stdDev - The standard deviation value within the time window.
 # + percentileValues - The percentiles values calculated wihtin the time window.
 public type Snapshot record {
-    @readonly int timeWindow;
-    @readonly float mean;
-    @readonly float max;
-    @readonly float min;
-    @readonly float stdDev;
-    @readonly PercentileValue[] percentileValues;
+    int timeWindow;
+    float mean;
+    float max;
+    float min;
+    float stdDev;
+    PercentileValue[] percentileValues;
 };

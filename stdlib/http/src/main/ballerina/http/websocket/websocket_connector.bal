@@ -23,9 +23,9 @@ public type WebSocketConnector object {
     # Push text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
-    # + final - True if this is a final frame of a (long) message
+    # + isFinal - True if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
-    public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
+    public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean isFinal = true) returns error? {
         string text;
         match data {
             byte byteContent => {
@@ -50,17 +50,17 @@ public type WebSocketConnector object {
                 text = jsonContent.toString();
             }
         }
-        return externPushText(text, final);
+        return externPushText(text, isFinal);
     }
 
-    extern function externPushText(string text, boolean final) returns error?;
+    extern function externPushText(string text, boolean isFinal) returns error?;
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
-    # + final - True if this is a final frame of a (long) message
+    # + isFinal - True if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public extern function pushBinary(byte[] data, boolean final = true) returns error?;
+    public extern function pushBinary(byte[] data, boolean isFinal = true) returns error?;
 
     # Ping the connection.
     #

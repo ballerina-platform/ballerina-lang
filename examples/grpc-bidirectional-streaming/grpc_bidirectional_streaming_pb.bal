@@ -57,7 +57,7 @@ type ChatMsg record {
 };
 
 // Service descriptor data.
-@final string DESCRIPTOR_KEY = "Chat.proto";
+final string DESCRIPTOR_KEY = "Chat.proto";
 map descriptorMap =
 {
     "Chat.proto":

@@ -17,10 +17,10 @@
 import ballerina/log;
 import ballerina/http;
 
-@final string TWO_PHASE_COMMIT = "2pc";
-@final string PROTOCOL_COMPLETION = "completion";
-@final string PROTOCOL_VOLATILE = "volatile";
-@final string PROTOCOL_DURABLE = "durable";
+final string TWO_PHASE_COMMIT = "2pc";
+final string PROTOCOL_COMPLETION = "completion";
+final string PROTOCOL_VOLATILE = "volatile";
+final string PROTOCOL_DURABLE = "durable";
 
 string[] coordinationTypes = [TWO_PHASE_COMMIT];
 

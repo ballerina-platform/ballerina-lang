@@ -15,19 +15,19 @@
 // under the License.
 
 //JOSH header parameters
-@final string ALG = "alg";
-@final string TYP = "typ";
-@final string CTY = "cty";
-@final string KID = "kid";
+final string ALG = "alg";
+final string TYP = "typ";
+final string CTY = "cty";
+final string KID = "kid";
 
 //Payload parameters
-@final string ISS = "iss";
-@final string SUB = "sub";
-@final string AUD = "aud";
-@final string JTI = "jti";
-@final string EXP = "exp";
-@final string NBF = "nbf";
-@final string IAT = "iat";
+final string ISS = "iss";
+final string SUB = "sub";
+final string AUD = "aud";
+final string JTI = "jti";
+final string EXP = "exp";
+final string NBF = "nbf";
+final string IAT = "iat";
 
 # Represents a JWT header.
 # + alg - Signing algorithm

@@ -23,55 +23,55 @@ import ballerina/reflect;
 
 # Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
-@final string HUB_CHALLENGE = "hub.challenge";
+final string HUB_CHALLENGE = "hub.challenge";
 
 # Parameter `hub.mode` representing the mode of the request from hub to subscriber or subscriber to hub.
-@final string HUB_MODE = "hub.mode";
+final string HUB_MODE = "hub.mode";
 
 # Subscription change or intent verification request parameter `hub.topic` representing the topic relevant to the for
 # which the request is initiated.
-@final string HUB_TOPIC = "hub.topic";
+final string HUB_TOPIC = "hub.topic";
 
 # Subscription change request parameter `hub.callback` representing the callback to which notification should happen.
-@final string HUB_CALLBACK = "hub.callback";
+final string HUB_CALLBACK = "hub.callback";
 
 # Subscription request parameter `hub.lease_seconds` representing the period for which the subscription is expected to
 # be active.
-@final string HUB_LEASE_SECONDS = "hub.lease_seconds";
+final string HUB_LEASE_SECONDS = "hub.lease_seconds";
 
 # Subscription parameter `hub.secret` representing the secret key to use for authenticated content distribution.
-@final string HUB_SECRET = "hub.secret";
+final string HUB_SECRET = "hub.secret";
 
 # `hub.mode` value indicating "subscription" mode, to subscribe to updates for a topic.
-@final string MODE_SUBSCRIBE = "subscribe";
+final string MODE_SUBSCRIBE = "subscribe";
 
 # `hub.mode` value indicating "unsubscription" mode, to unsubscribe to updates for a topic.
-@final string MODE_UNSUBSCRIBE = "unsubscribe";
+final string MODE_UNSUBSCRIBE = "unsubscribe";
 
-@final string X_HUB_SIGNATURE = "X-Hub-Signature";
+final string X_HUB_SIGNATURE = "X-Hub-Signature";
 
 ///////////////////////////////// Ballerina WebSub specific constants /////////////////////////////////
 # `hub.mode` value indicating "publish" mode, used by a publisher to notify an update to a topic.
-@final string MODE_PUBLISH = "publish";
+final string MODE_PUBLISH = "publish";
 
 # `hub.mode` value indicating "register" mode, used by a publisher to register a topic at a hub.
-@final string MODE_REGISTER = "register";
+final string MODE_REGISTER = "register";
 
 # `hub.mode` value indicating "unregister" mode, used by a publisher to unregister a topic at a hub.
-@final string MODE_UNREGISTER = "unregister";
+final string MODE_UNREGISTER = "unregister";
 
-@final string REMOTE_PUBLISHING_MODE_DIRECT = "direct";
-@final string REMOTE_PUBLISHING_MODE_FETCH = "fetch";
+final string REMOTE_PUBLISHING_MODE_DIRECT = "direct";
+final string REMOTE_PUBLISHING_MODE_FETCH = "fetch";
 
-@final string X_HUB_UUID = "X-Hub-Uuid";
-@final string X_HUB_TOPIC = "X-Hub-Topic";
+final string X_HUB_UUID = "X-Hub-Uuid";
+final string X_HUB_TOPIC = "X-Hub-Topic";
 
-@final string CONTENT_TYPE = "Content-Type";
-@final string SHA1 = "SHA1";
-@final string SHA256 = "SHA256";
+final string CONTENT_TYPE = "Content-Type";
+final string SHA1 = "SHA1";
+final string SHA256 = "SHA256";
 
-@final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
-@final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
+final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
 
 
 # The identifier to be used to identify the mode in which update content should be identified.
@@ -79,25 +79,25 @@ public type RemotePublishMode "PUBLISH_MODE_DIRECT"|"PUBLISH_MODE_FETCH";
 
 # `RemotePublishMode` indicating direct update content notification (fat-ping). The payload of the update
 # notification request from the publisher to the hub would include be the update content.
-@final public RemotePublishMode PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
+public final RemotePublishMode PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
 
 # `RemotePublishMode` indicating that once the publisher notifies the hub that an update is available, the hub
 # needs to fetch the topic URL to identify the update content.
-@final public RemotePublishMode PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
+public final RemotePublishMode PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
 
 ///////////////////////////////// Custom Webhook/Extension specific constants /////////////////////////////////
 # The identifier to be used to identify the topic for dispatching with custom subscriber services.
 public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
 
 # `TopicIdentifier` indicating dispatching based solely on a header of the request.
-@final public TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
+public final TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
 
 # `TopicIdentifier` indicating dispatching based solely on a value for a key in the JSON payload of the request.
-@final public TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
+public final TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
 
 # `TopicIdentifier` indicating dispatching based on a combination of header and values specified for a key/key(s) in
 # the JSON payload of the request.
-@final public TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
+public final TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Commons ////////////////////

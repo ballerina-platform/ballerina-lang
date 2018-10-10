@@ -20,7 +20,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 # Authentication cache name.
-@final string AUTH_CACHE = "basic_auth_cache";
+final string AUTH_CACHE = "basic_auth_cache";
 
 # Defines Basic Auth handler for HTTP traffic.
 #

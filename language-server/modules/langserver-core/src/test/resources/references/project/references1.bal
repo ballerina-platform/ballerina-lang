@@ -1,7 +1,7 @@
 import pkg1;
 
 @readonly string READ_ONLY_VAR;
-@final string FINAL_VAR = "Final variable";
+final string FINAL_VAR = "Final variable";
 
 type Info record {
     int id;

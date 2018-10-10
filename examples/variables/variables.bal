@@ -7,12 +7,8 @@ int total = 99;
 public int count;
 
 // Declare a public constant.
-@final
-public string OK = "ok";
+public final string OK = "ok";
 
-// Declare a public variable that behaves as a constant for other packages.
-// The code in the current package can update the value.
-@readonly
 public int status = 1;
 
 public function main() {

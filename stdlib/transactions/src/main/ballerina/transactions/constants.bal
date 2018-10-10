@@ -16,40 +16,40 @@
 
 import ballerina/config;
 
-@final string basePath = "/balcoordinator";
-@final string initiatorCoordinatorBasePath = basePath + "/initiator";
-@final string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
-@final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
-@final string registrationPath = "/register";
-@final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
+final string basePath = "/balcoordinator";
+final string initiatorCoordinatorBasePath = basePath + "/initiator";
+final string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
+final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
+final string registrationPath = "/register";
+final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
-@final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", default = getHostAddress());
-@final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", default = getAvailablePort());
+final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", default = getHostAddress());
+final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", default = getAvailablePort());
 
-@final string TRANSACTION_CONTEXT_VERSION = "1.0";
+final string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-@final public string COMMAND_PREPARE = "prepare";
-@final public string COMMAND_COMMIT = "commit";
-@final public string COMMAND_ABORT = "abort";
+public final string COMMAND_PREPARE = "prepare";
+public final string COMMAND_COMMIT = "commit";
+public final string COMMAND_ABORT = "abort";
 
-@final public string PREPARE_RESULT_PREPARED_STR = "prepared";
-@final public string PREPARE_RESULT_ABORTED_STR = "aborted";
-@final public string PREPARE_RESULT_COMMITTED_STR = "committed";
-@final public string PREPARE_RESULT_READ_ONLY_STR = "read-only";
-@final string PREPARE_RESULT_FAILED_STR = "failed";
+public final string PREPARE_RESULT_PREPARED_STR = "prepared";
+public final string PREPARE_RESULT_ABORTED_STR = "aborted";
+public final string PREPARE_RESULT_COMMITTED_STR = "committed";
+public final string PREPARE_RESULT_READ_ONLY_STR = "read-only";
+final string PREPARE_RESULT_FAILED_STR = "failed";
 
-@final public string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
-@final public string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
+public final string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
+public final string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
 
-@final public string NOTIFY_RESULT_COMMITTED_STR = "committed";
-@final public string NOTIFY_RESULT_ABORTED_STR = "aborted";
+public final string NOTIFY_RESULT_COMMITTED_STR = "committed";
+public final string NOTIFY_RESULT_ABORTED_STR = "aborted";
 
-@final public string OUTCOME_COMMITTED = "committed";
-@final public string OUTCOME_ABORTED = "aborted";
-@final string OUTCOME_MIXED = "mixed";
-@final string OUTCOME_HAZARD = "hazard";
+public final string OUTCOME_COMMITTED = "committed";
+public final string OUTCOME_ABORTED = "aborted";
+final string OUTCOME_MIXED = "mixed";
+final string OUTCOME_HAZARD = "hazard";
 
-@final public string TRANSACTION_UNKNOWN = "Transaction-Unknown";
+public final string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
 endpoint http:Listener coordinatorListener {
     host:coordinatorHost,

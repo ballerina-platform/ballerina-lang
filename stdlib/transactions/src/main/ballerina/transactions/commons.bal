@@ -33,7 +33,7 @@ map<TwoPhaseCommitTransaction> participatedTransactions;
 # This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;
 
-@final boolean scheduleInit = scheduleTimer(1000, 60000);
+final boolean scheduleInit = scheduleTimer(1000, 60000);
 
 function scheduleTimer(int delay, int interval) returns boolean {
     (function() returns error?) onTriggerFunction = cleanupTransactions;

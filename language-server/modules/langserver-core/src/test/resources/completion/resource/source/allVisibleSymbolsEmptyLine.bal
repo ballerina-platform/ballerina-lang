@@ -1,9 +1,9 @@
 import ballerina/http;
 
-@final
+final
 int const1 = 0;
 
-@final
+final
 string const2 = "test const";
 
 service<http:Service> hello {
