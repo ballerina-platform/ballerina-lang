@@ -6,6 +6,7 @@ endpoint http:Listener listener {
 
 channel<json> chn;
 
+@interruptible
 service<http:Service> channelService bind listener {
 
     receiveChannelMessage (endpoint caller, http:Request request) {

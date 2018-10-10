@@ -57,7 +57,9 @@ function testTimeWindow() {
         from inputStream window timeWindow(1000)
         select inputStream.name, inputStream.age, inputStream.status, inputStream.school
         => (Teacher [] emp) {
-            outputStream.publish(emp);
+            foreach e in emp {
+                outputStream.publish(e);
+            }
         }
     }
 }

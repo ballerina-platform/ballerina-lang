@@ -42,7 +42,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provide functions need to covert a patten to steam of by paths, by downloading them as url .
+ * Provide functions need to covert a patten to steam of by paths, by downloading them as url.
  */
 public class URIConverter implements Converter<URI> {
 
@@ -71,7 +71,7 @@ public class URIConverter implements Converter<URI> {
             try {
                 Files.createDirectories(dirPath);
             } catch (IOException e) {
-                throw new RuntimeException("Error occured when creating the directory path " + dirPath);
+                throw new RuntimeException("Error occurred when creating the directory path " + dirPath);
             }
         }
     }

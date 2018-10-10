@@ -67,8 +67,7 @@ public class BallerinaProjectExtension extends ProjectExtension {
         BallerinaExternalAnnotator.reset();
 
         //Register language server definition for the new SDK
-        BallerinaLanguageServerPreloadingActivity langServerLoader = new BallerinaLanguageServerPreloadingActivity();
-        langServerLoader.registerServerDefinition(project);
+        BallerinaLanguageServerPreloadingActivity.registerServerDefinition(project);
     }
 
     @Override
