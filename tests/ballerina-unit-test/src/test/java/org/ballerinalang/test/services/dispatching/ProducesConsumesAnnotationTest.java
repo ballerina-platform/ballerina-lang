@@ -196,7 +196,7 @@ public class ProducesConsumesAnnotationTest {
 
     @Test(description = "Test case sensitivity of produces and consumes annotation values")
     public void testCaseSensitivityOfProduceAndConsume() {
-        String path = "/echo67/test4";
+        String path = "/echo66/test4";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "<test>TestVal</test>");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "application/xml; charset=ISO-8859-4");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "application/json");
