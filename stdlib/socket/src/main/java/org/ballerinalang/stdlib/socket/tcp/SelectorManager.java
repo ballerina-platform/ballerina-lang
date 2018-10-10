@@ -21,15 +21,11 @@ package org.ballerinalang.stdlib.socket.tcp;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
-import org.ballerinalang.stdlib.io.events.EventExecutor;
-import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.client.SocketConnectCallbackRegistry;
-import org.ballerinalang.stdlib.socket.tcp.server.SocketAcceptCallbackQueue;
-import org.ballerinalang.stdlib.socket.tcp.server.SocketIOExecutorQueue;
-import org.ballerinalang.stdlib.socket.tcp.server.SocketQueue;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -46,8 +42,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.Iterator;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -55,6 +51,11 @@ import java.util.concurrent.ThreadFactory;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import static java.nio.channels.SelectionKey.OP_CONNECT;
 import static java.nio.channels.SelectionKey.OP_READ;
+import static org.ballerinalang.stdlib.socket.SocketConstants.CALLER_ACTION;
+import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ACCEPT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CLOSE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_READ_READY;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -121,125 +122,125 @@ public class SelectorManager {
     }
 
     /**
+     * Unregister the given client channel from the selector instance.
+     *
+     * @param channel {@link SocketChannel} that about to unregister.
+     */
+    public void unRegisterChannel(SocketChannel channel) {
+        final SelectionKey selectionKey = channel.keyFor(selector);
+        if (selectionKey != null) {
+            selectionKey.cancel();
+        }
+    }
+
+    /**
      * Start the selector loop.
      */
     public void start() {
-        if (!running) {
-            SocketAcceptCallbackQueue acceptCallbackQueue = SocketAcceptCallbackQueue.getInstance();
-            SocketIOExecutorQueue ioQueue = SocketIOExecutorQueue.getInstance();
-            SocketQueue socketQueue = SocketQueue.getInstance();
-            SocketConnectCallbackRegistry connectCallbackRegistry = SocketConnectCallbackRegistry.getInstance();
-            executor.execute(() -> {
-                while (execution) {
-                    try {
-                        selector.select(2000);
-                        if (!selector.isOpen()) {
-                            break;
-                        }
-                        Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
-                        while (keyIterator.hasNext()) {
-                            SelectionKey key = keyIterator.next();
-                            if (!key.isValid()) {
-                                key.cancel();
-                                keyIterator.remove();
-                            } else if (key.isAcceptable()) {
-                                System.out.println("Accept");
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Selector triggered for client accept.");
-                                }
-                                SocketService socketService = (SocketService) key.attachment();
-                                ServerSocketChannel channel = (ServerSocketChannel) socketService.getSocketChannel();
-                                final SocketChannel client = channel.accept();
-                                SocketService clientService = new SocketService(client, socketService.getResources());
-                                client.configureBlocking(false);
-                                client.register(selector, OP_READ, clientService);
-                                final Resource acceptResource = socketService.getResources()
-                                        .get(SocketConstants.LISTENER_RESOURCE_ON_ACCEPT);
-                                ProgramFile programFile = acceptResource.getResourceInfo().getServiceInfo()
-                                        .getPackageInfo().getProgramFile();
-                                Socket socket = client.socket();
-                                System.out.println("Acc = " + socket.hashCode());
-                                int remotePort = socket.getPort();
-                                int localPort = socket.getLocalPort();
-                                String remoteHost = socket.getInetAddress().getHostAddress();
-                                String localHost = socket.getLocalAddress().getHostAddress();
-                                BMap<String, BValue> tcpSocketMeta = BLangConnectorSPIUtil
-                                        .createBStruct(programFile, SOCKET_PACKAGE, "TCPSocketMeta",
-                                                remotePort, localPort, remoteHost, localHost);
-                                Executor.submit(acceptResource, new TCPSocketCallableUnitCallback(), null, null,
-                                        tcpSocketMeta);
-                            } else if (key.isReadable()) {
-                                System.out.println("Read");
-                                SocketService socketService = (SocketService) key.attachment();
-                                final Resource acceptResource = socketService.getResources()
-                                        .get(SocketConstants.LISTENER_RESOURCE_ON_READ_READY);
-                                ProgramFile programFile = acceptResource.getResourceInfo().getServiceInfo()
-                                        .getPackageInfo().getProgramFile();
-                                SocketChannel socketChannel = (SocketChannel) socketService.getSocketChannel();
-                                Socket socket = socketChannel.socket();
-                                int remotePort = socket.getPort();
-                                int localPort = socket.getLocalPort();
-                                String remoteHost = socket.getInetAddress().getHostAddress();
-                                String localHost = socket.getLocalAddress().getHostAddress();
-
-                                ByteBuffer buffer = ByteBuffer.allocate(256);
-                                final int read = socketChannel.read(buffer);
-                                if (read == -1) {
-                                    System.out.println("read = " + read);
-                                    socketChannel.close();
-                                }
-                                BMap<String, BValue> tcpSocketMeta = BLangConnectorSPIUtil
-                                        .createBStruct(programFile, SOCKET_PACKAGE, "TCPSocketMeta",
-                                                remotePort, localPort, remoteHost, localHost);
-                                Executor.submit(acceptResource, new TCPSocketCallableUnitCallback(), null, null,
-                                        tcpSocketMeta);
-
-//                                if (log.isDebugEnabled()) {
-//                                    log.debug("Selector triggered for client read ready.");
-//                                }
-//                                final boolean readDispatchSuccess = readData(key, ioQueue);
-//                                if (readDispatchSuccess) {
-//                                    if (log.isDebugEnabled()) {
-//                                        log.debug("Read ready selection key removed.");
-//                                    }
-//                                    keyIterator.remove();
-//                                }
-                            } else if (key.isConnectable()) {
-//                                if (log.isDebugEnabled()) {
-//                                    log.debug("Selector triggered for socket connectable.");
-//                                }
-//                                if (isConnectPending(connectCallbackRegistry, key)) {
-//                                    continue;
-//                                }
-                            } else if (key.isWritable()) {
-                                System.out.println("Write");
-                                SocketService socketService = (SocketService) key.attachment();
-                                final Resource acceptResource = socketService.getResources()
-                                        .get(SocketConstants.LISTENER_RESOURCE_ON_WRITE_READY);
-                                ProgramFile programFile = acceptResource.getResourceInfo().getServiceInfo()
-                                        .getPackageInfo().getProgramFile();
-                                SocketChannel socketChannel = (SocketChannel) socketService.getSocketChannel();
-                                Socket socket = socketChannel.socket();
-                                System.out.println("wrr = " + socket.hashCode());
-                                int remotePort = socket.getPort();
-                                int localPort = socket.getLocalPort();
-                                String remoteHost = socket.getInetAddress().getHostAddress();
-                                String localHost = socket.getLocalAddress().getHostAddress();
-                                BMap<String, BValue> tcpSocketMeta = BLangConnectorSPIUtil
-                                        .createBStruct(programFile, SOCKET_PACKAGE, "TCPSocketMeta",
-                                                remotePort, localPort, remoteHost, localHost);
-                                Executor.submit(acceptResource, new TCPSocketCallableUnitCallback(), null, null,
-                                        tcpSocketMeta);
-                            }
-                            keyIterator.remove();
-                        }
-                    } catch (Throwable e) {
-                        log.error("An error occurred in selector loop: " + e.getMessage(), e);
-                    }
-                }
-            });
-            running = true;
+        if (running) {
+            return;
         }
+        executor.execute(() -> {
+            while (execution) {
+                try {
+                    selector.select();
+                    Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+                    while (keyIterator.hasNext()) {
+                        SelectionKey key = keyIterator.next();
+                        keyIterator.remove();
+                        performAction(key);
+                    }
+                } catch (Throwable e) {
+                    log.error("An error occurred in selector loop: " + e.getMessage(), e);
+                }
+            }
+        });
+        running = true;
+    }
+
+    private void performAction(SelectionKey key) throws IOException {
+        if (!key.isValid()) {
+            key.cancel();
+        } else if (key.isAcceptable()) {
+            onAccept(key);
+        } else if (key.isReadable()) {
+            onReadReady(key);
+        } else if (key.isConnectable()) {
+        } else if (key.isWritable()) {
+            System.out.println("Write");
+        }
+    }
+
+    private void onAccept(SelectionKey key) throws IOException {
+        SocketService socketService = (SocketService) key.attachment();
+        ServerSocketChannel server = (ServerSocketChannel) socketService.getSocketChannel();
+        final SocketChannel client = server.accept();
+        client.configureBlocking(false);
+        SocketService clientService = new SocketService(client, socketService.getResources());
+        client.register(selector, OP_READ, clientService);
+        final Resource acceptResource = socketService.getResources().get(LISTENER_RESOURCE_ON_ACCEPT);
+        ProgramFile programFile = acceptResource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        BValue[] signatureParams = getAcceptMethodSignature(client, programFile);
+        Executor.submit(acceptResource, new TCPSocketCallableUnitCallback(), null, null, signatureParams);
+    }
+
+    private void onReadReady(SelectionKey key) throws IOException {
+        SocketService socketService = (SocketService) key.attachment();
+        final Resource readReadyResource = socketService.getResources().get(LISTENER_RESOURCE_ON_READ_READY);
+        ProgramFile programFile = readReadyResource.getResourceInfo().getServiceInfo().getPackageInfo()
+                .getProgramFile();
+        SocketChannel socketChannel = (SocketChannel) socketService.getSocketChannel();
+        BMap<String, BValue> tcpSocketMeta = getTcpSocketMeta(programFile, socketChannel);
+        ByteBuffer buffer = ByteBuffer.allocate(socketChannel.socket().getReceiveBufferSize());
+        final int read = socketChannel.read(buffer);
+        if (read == -1) {
+            socketChannel.close();
+            unRegisterChannel(socketChannel);
+            BValue[] signatureParams = { tcpSocketMeta };
+            final Resource onCloseResource = socketService.getResources().get(LISTENER_RESOURCE_ON_CLOSE);
+            Executor.submit(onCloseResource, new TCPSocketCallableUnitCallback(), null, null, signatureParams);
+        } else {
+            BMap<String, BValue> endpoint = getCallerAction(programFile, socketService.getSocketChannel());
+            BValue[] signatureParams = { endpoint, tcpSocketMeta, new BByteArray(getByteArrayFromByteBuffer(buffer)) };
+            Executor.submit(readReadyResource, new TCPSocketCallableUnitCallback(), null, null, signatureParams);
+        }
+    }
+
+    private BValue[] getAcceptMethodSignature(SocketChannel client, ProgramFile programFile) {
+        BMap<String, BValue> tcpSocketMeta = getTcpSocketMeta(programFile, client);
+        BMap<String, BValue> endpoint = getCallerAction(programFile, client);
+        BValue[] signatureParams = new BValue[2];
+        signatureParams[0] = endpoint;
+        signatureParams[1] = tcpSocketMeta;
+        return signatureParams;
+    }
+
+    private BMap<String, BValue> getCallerAction(ProgramFile programFile, SelectableChannel client) {
+        BMap<String, BValue> callerEndpoint = BLangConnectorSPIUtil
+                .createBStruct(programFile, SOCKET_PACKAGE, CALLER_ACTION);
+        callerEndpoint.addNativeData(SOCKET_KEY, client);
+        BMap<String, BValue> endpoint = BLangConnectorSPIUtil.createBStruct(programFile, SOCKET_PACKAGE, "Listener");
+        endpoint.put("callerAction", callerEndpoint);
+        return endpoint;
+    }
+
+    private BMap<String, BValue> getTcpSocketMeta(ProgramFile programFile, SocketChannel socketChannel) {
+        Socket socket = socketChannel.socket();
+        int remotePort = socket.getPort();
+        int localPort = socket.getLocalPort();
+        String remoteHost = socket.getInetAddress().getHostAddress();
+        String localHost = socket.getLocalAddress().getHostAddress();
+        return BLangConnectorSPIUtil
+                .createBStruct(programFile, SOCKET_PACKAGE, "TCPSocketMeta", remotePort, localPort, remoteHost,
+                        localHost);
+    }
+
+    private byte[] getByteArrayFromByteBuffer(ByteBuffer content) {
+        int contentLength = content.position();
+        byte[] bytesArray = new byte[contentLength];
+        content.flip();
+        content.get(bytesArray, 0, contentLength);
+        return bytesArray;
     }
 
     private boolean isConnectPending(SocketConnectCallbackRegistry connectCallbackRegistry, SelectionKey key)
@@ -251,26 +252,6 @@ public class SelectorManager {
         log.debug("Successfully connected to the remote server.");
         channel.register(selector, OP_READ);
         connectCallbackRegistry.getCallback(channel.hashCode()).notifyConnect();
-        return false;
-    }
-
-    private void handleAccept(SelectionKey key, SocketAcceptCallbackQueue acceptCallbackQueue,
-            SocketQueue socketQueue) {
-    }
-
-    private boolean readData(SelectionKey key, SocketIOExecutorQueue ioQueue) {
-        SocketChannel clientSocketChannel = (SocketChannel) key.channel();
-        final Queue<EventExecutor> readQueue = ioQueue.getReadQueue(clientSocketChannel.hashCode());
-        if (readQueue != null) {
-            final EventExecutor eventExecutor = readQueue.poll();
-            if (eventExecutor != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Read request available from b7a code. Invoke EventExecutor.");
-                }
-                eventExecutor.execute();
-                return true;
-            }
-        }
         return false;
     }
 

@@ -32,6 +32,7 @@ import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.nio.channels.ServerSocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
@@ -57,9 +58,12 @@ public class Init extends BlockingNativeCallableUnit {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             ServerSocketChannel serverSocket = ServerSocketChannel.open();
             serverSocket.configureBlocking(false);
+            serverSocket.socket().setReuseAddress(true);
             serviceEndpoint.addNativeData(SocketConstants.SERVER_SOCKET_KEY, serverSocket);
             BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
             serviceEndpoint.addNativeData(SocketConstants.LISTENER_CONFIG, endpointConfig);
+        } catch (SocketException e) {
+            throw new BallerinaException("Unable to reuse the socket port.");
         } catch (IOException e) {
             throw new BallerinaException(e);
         }

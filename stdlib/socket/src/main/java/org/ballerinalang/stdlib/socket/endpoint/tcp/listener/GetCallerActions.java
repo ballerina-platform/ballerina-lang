@@ -20,9 +20,13 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.listener;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
  * Get the client responder instance binds to the service endpoint.
@@ -34,14 +38,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "getCallerActions",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/socket"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "CallerAction", structPackage =
-                "ballerina/socket")},
+                SOCKET_PACKAGE)},
         isPublic = true
 )
 public class GetCallerActions extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
+        BMap<String, BValue> endpoint = (BMap<String, BValue>) context.getRefArgument(0);
+        BMap<String, BValue> connection = (BMap<String, BValue>) endpoint.get("callerAction");
+        context.setReturnValues(connection);
     }
 }

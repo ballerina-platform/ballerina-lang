@@ -18,6 +18,8 @@
 
 public type Listener object {
 
+    private CallerAction callerAction;
+
     public extern function init(ListenerEndpointConfiguration config);
 
     public extern function register(typedesc serviceType);
@@ -36,7 +38,7 @@ public type CallerAction object {
 
     public extern function read() returns byte[]|error;
 
-    public extern function write(byte[] content) returns int|error?;
+    public extern function write(byte[] content) returns int|error;
 
     public extern function close() returns error?;
 };
