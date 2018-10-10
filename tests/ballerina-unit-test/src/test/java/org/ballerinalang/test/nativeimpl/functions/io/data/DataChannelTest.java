@@ -47,7 +47,7 @@ public class DataChannelTest {
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
-    @Test(description = "read and write fixed size integers", dataProvider = "endianness")
+    @Test(description = "read and write fixed size integers", dataProvider = "Endianness")
     public void processFixedInteger(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/integer.bin";
         //Will initialize the channel
@@ -63,7 +63,7 @@ public class DataChannelTest {
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
 
-    @Test(description = "read and write var integers", dataProvider = "endianness")
+    @Test(description = "read and write var integers", dataProvider = "Endianness")
     public void processVarInteger(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/varint.bin";
         //Will initialize the channel
@@ -77,7 +77,7 @@ public class DataChannelTest {
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
 
-    @Test(description = "read and write fixed size float values", dataProvider = "endianness")
+    @Test(description = "read and write fixed size float values", dataProvider = "Endianness")
     public void processFixedFloat(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/float.bin";
         //Will initialize the channel
@@ -91,7 +91,7 @@ public class DataChannelTest {
         Assert.assertEquals(value, ((BFloat) result[0]).floatValue());
     }
 
-    @Test(description = "read and write bool", dataProvider = "endianness")
+    @Test(description = "read and write bool", dataProvider = "Endianness")
     public void processBool(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/boolean.bin";
         BValue[] args = {new BBoolean(false), new BString(sourceToWrite), new BString(order.toString())};
@@ -103,7 +103,7 @@ public class DataChannelTest {
         Assert.assertEquals(false, ((BBoolean) result[0]).booleanValue());
     }
 
-    @Test(description = "read and write string", dataProvider = "endianness")
+    @Test(description = "read and write string", dataProvider = "Endianness")
     public void processString(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/string.bin";
         String content = "Ballerina";
