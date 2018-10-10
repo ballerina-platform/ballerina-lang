@@ -1692,7 +1692,7 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
                 }
                 break;
             case InstructionCodes.TEQ:
@@ -1736,7 +1736,7 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
+                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j])) ? 1 : 0;
                 }
                 break;
             case InstructionCodes.TNE:
@@ -3770,6 +3770,114 @@ public class CPU {
         entry.fPointer = fp;
         compensationTable.compensations.add(entry);
         compensationTable.index++;
+    }
+
+    /**
+     * Deep value equality check for anydata.
+     *
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
+     * @return True if values are equal, else false.
+     */
+    private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
+        if (null == lhsValue && null == rhsValue) {
+            return true;
+        }
+
+        if (null == lhsValue || null == rhsValue) {
+            return false;
+        }
+
+//        // TODO: 10/8/18 should int/byte or byte/int be allowed?
+//        if (TypeTags.INT_TAG == lhsValue.getType().getTag() && TypeTags.BYTE_TAG == rhsValue.getType().getTag()) {
+//            BInteger bInteger = (BInteger) lhsValue;
+//            BByte bByte = (BByte) rhsValue;
+//            return bInteger.intValue() == bByte.intValue();
+//        }
+//
+//        if (TypeTags.BYTE_TAG == lhsValue.getType().getTag() && TypeTags.INT_TAG == rhsValue.getType().getTag()) {
+//            BByte bByte = (BByte) lhsValue;
+//            BInteger bInteger = (BInteger) rhsValue;
+//            return bInteger.intValue() == bByte.intValue();
+//        }
+
+        int lhsValTypeTag = lhsValue.getType().getTag();
+        int rhsValTypeTag = lhsValue.getType().getTag();
+
+        if (lhsValTypeTag != rhsValTypeTag) {
+            return false;
+        }
+
+        switch (lhsValue.getType().getTag()) {
+            case TypeTags.STRING_TAG:
+            case TypeTags.INT_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+                // for non-object JSON values
+                BRefType lhsRef = (BRefType) lhsValue;
+                BRefType rhsRef = (BRefType) rhsValue;
+                if (null == lhsRef.value() && null == rhsRef.value()) {
+                    return true;
+                }
+
+                if (null == lhsRef.value() || null == rhsRef.value()) {
+                    return false;
+                }
+
+                return lhsRef.value().equals(rhsRef.value());
+            case TypeTags.XML_TAG:
+                // TODO: 10/8/18
+                break;
+            case TypeTags.TABLE_TAG:
+                // TODO: 10/8/18
+                break;
+            case TypeTags.ARRAY_TAG:
+                // TODO: 10/8/18 fail if element type is not anydata
+                BNewArray lhsArray = (BNewArray) lhsValue;
+                BNewArray rhsArray = (BNewArray) rhsValue;
+                if (lhsArray.size() != rhsArray.size()) {
+                    return false;
+                }
+
+                for (int i = 0; i < lhsArray.size(); i++) {
+                    if (!isEqual(lhsArray.getBValue(i), rhsArray.getBValue(i))) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+                return isEqual((BMap) lhsValue, (BMap) rhsValue);
+        }
+        return false;
+    }
+
+    /**
+     * Deep equality check for a map.
+     *
+     * @param lhsMap    Map on the left hand side
+     * @param rhsMap    Map on the right hand side
+     * @return True if the map values are equal, else false.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
+        // Check if size is same.
+        if (lhsMap.size() != rhsMap.size()) {
+            return false;
+        }
+
+        // Check if key set is equal.
+        if (!lhsMap.getMap().keySet().containsAll(rhsMap.getMap().keySet())) {
+            return false;
+        }
+
+        List<String> keys = Arrays.stream(lhsMap.keys()).map(String.class::cast).collect(Collectors.toList());
+        for (int i = 0; i < lhsMap.size(); i++) {
+            if (!isEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
