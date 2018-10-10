@@ -28,9 +28,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for anonymous sealed records.
+ * Test cases for anonymous closed records.
  */
-public class AnonymousSealedRecordTest {
+public class AnonymousClosedRecordTest {
 
     private CompileResult compileResult;
 
