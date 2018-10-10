@@ -1,8 +1,7 @@
 import org.bar;
 import ballerina/http;
 
-@final public int globalFinalInt = 10;
-
+public final int globalFinalInt = 10;
 
 public function testFinalGlobalVariable() returns (int, int, int) {
     int v1 = globalFinalInt;
@@ -20,7 +19,7 @@ public function testFieldAsFinalParameter() returns (int) {
     return x;
 }
 
-function bar(@final int a) returns (int) {
+function bar(int a) returns (int) {
     int i = a;
     a = 500;
     return a;
@@ -38,14 +37,6 @@ function baz(float f, string s, boolean b, json j) returns (float, string, boole
     b = true;
     j = {"a":"b"};
     return (f, s, b, j);
-}
-
-@final function finalFunction() {
-    int i = 0;
-}
-
-@final service<http:Service> FooService {
-
 }
 
 function testCompound(int a) returns int {

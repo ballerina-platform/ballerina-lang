@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/websub;
 
-@final string MOCK_HEADER = "MockHeader";
+final string MOCK_HEADER = "MockHeader";
 
 public type WebhookListenerConfiguration record {
     string host;

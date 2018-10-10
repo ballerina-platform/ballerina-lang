@@ -1,7 +1,7 @@
 import org.bar;
 
-@final public int globalFinalInt = 10;
-@final public string globalFinalString = "hello";
+public final int globalFinalInt = 10;
+public final string globalFinalString = "hello";
 
 
 public function testFinalAccess() returns (int, int, int, int) {
@@ -33,7 +33,7 @@ function foo(int a) returns (int) {
     return i;
 }
 
-function bar(@final int a) returns (int) {
+function bar(int a) returns (int) {
     int i = a;
     return a;
 }

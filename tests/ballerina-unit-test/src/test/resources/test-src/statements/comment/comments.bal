@@ -41,8 +41,8 @@ type Person record { // Person type
 
 type Day "MONDAY" | "TUESDAY"; // enum Day
 
-@final Day MONDAY = "MONDAY"; // enumerator Monday
-@final Day TUESDAY = "TUESDAY"; // enumerator Tuesday
+final Day MONDAY = "MONDAY"; // enumerator Monday
+final Day TUESDAY = "TUESDAY"; // enumerator Tuesday
 
 
 @Description {value:"/FooService"} // http config annotation

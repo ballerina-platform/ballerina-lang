@@ -123,7 +123,7 @@ public type helloWorldClient object {
     }
 };
 
-@final string DESCRIPTOR_KEY = "HelloWorld.proto";
+final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
 {
     "HelloWorld.proto":

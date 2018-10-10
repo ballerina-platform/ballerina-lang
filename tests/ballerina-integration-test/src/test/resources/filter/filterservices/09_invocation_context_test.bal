@@ -2,8 +2,8 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-@final string attributeName = "attribute";
-@final string attributeValue = "value";
+final string attributeName = "attribute";
+final string attributeValue = "value";
 
 public type Filter15 object {
     public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context)

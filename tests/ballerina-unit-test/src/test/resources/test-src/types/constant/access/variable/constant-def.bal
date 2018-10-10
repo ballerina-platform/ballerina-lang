@@ -1,2 +1,2 @@
 
-@final public float constFloat = 342342.234;
+public final float constFloat = 342342.234;

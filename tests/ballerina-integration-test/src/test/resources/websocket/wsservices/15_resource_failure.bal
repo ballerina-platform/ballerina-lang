@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-@final string ASSOCIATED_CONNECTION4 = "ASSOCIATED_CONNECTION";
+final string ASSOCIATED_CONNECTION4 = "ASSOCIATED_CONNECTION";
 service<http:Service> simple7 bind { port: 9097 } {
 
     @http:ResourceConfig {

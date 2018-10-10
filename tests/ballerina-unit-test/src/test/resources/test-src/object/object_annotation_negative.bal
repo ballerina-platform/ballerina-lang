@@ -17,7 +17,7 @@ annotation Test Tst;
 # Documentation for testConst constant
 #
 # + testConst - abc description
-@final string testConst = "TestConstantDocumentation";
+final string testConst = "TestConstantDocumentation";
 
 # Documentation for Test struct
 #
@@ -97,4 +97,4 @@ service<http:Service> PizzaService {
 # Documentation for testConst constant
 #
 # + testConstd - abc description
-@final string testConsts = "TestConstantDocumentation";
+final string testConsts = "TestConstantDocumentation";

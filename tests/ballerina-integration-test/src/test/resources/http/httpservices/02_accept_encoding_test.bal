@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/mime;
 
-@final string ACCEPT_ENCODING = "accept-encoding";
+final string ACCEPT_ENCODING = "accept-encoding";
 
 endpoint http:Listener passthroughEP2 {
     port:9091

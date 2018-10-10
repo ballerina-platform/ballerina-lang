@@ -19,12 +19,12 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/websub;
 
-@final string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
-@final string WEBSUB_TOPIC_TWO = "http://two.websub.topic.com";
-@final string WEBSUB_TOPIC_THREE = "http://three.websub.topic.com";
-@final string WEBSUB_TOPIC_FOUR = "http://four.websub.topic.com";
-@final string WEBSUB_TOPIC_FIVE = "http://one.redir.topic.com";
-@final string WEBSUB_TOPIC_SIX = "http://two.redir.topic.com";
+final string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
+final string WEBSUB_TOPIC_TWO = "http://two.websub.topic.com";
+final string WEBSUB_TOPIC_THREE = "http://three.websub.topic.com";
+final string WEBSUB_TOPIC_FOUR = "http://four.websub.topic.com";
+final string WEBSUB_TOPIC_FIVE = "http://one.redir.topic.com";
+final string WEBSUB_TOPIC_SIX = "http://two.redir.topic.com";
 
 boolean remoteTopicRegistered;
 

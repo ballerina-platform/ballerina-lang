@@ -17,10 +17,10 @@
 import ballerina/io;
 import ballerina/http;
 
-@final string PATH1 = "PATH1";
-@final string PATH2 = "PATH2";
-@final string QUERY1 = "QUERY1";
-@final string QUERY2 = "QUERY2";
+final string PATH1 = "PATH1";
+final string PATH2 = "PATH2";
+final string QUERY1 = "QUERY1";
+final string QUERY2 = "QUERY2";
 
 service<http:Service> simple6 bind { port: 9096 } {
 

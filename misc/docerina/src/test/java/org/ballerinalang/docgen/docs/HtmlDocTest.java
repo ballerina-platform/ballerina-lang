@@ -612,8 +612,7 @@ public class HtmlDocTest {
     @Test(description = "Global variables should be available via construct")
     public void testGlobalVariablePropertiesExtracted() {
         BLangPackage bLangPackage = createPackage("# The Read Append access mode\n" +
-                "@final\n" +
-                "public string RA = \"RA\";");
+                "public final string RA = \"RA\";");
 
         GlobalVariableDoc globalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
         Assert.assertEquals(globalVariableDoc.name, "RA", "Global variable name should be extracted");
@@ -626,7 +625,7 @@ public class HtmlDocTest {
     public void testGlobalVariablePropertiesExtractedWithNewSyntax() {
         BLangPackage bLangPackage = createPackage("# The Read Append access mode\n" +
                 "# + RA - mode\n" +
-                "@final\n" + "public string RA = \"RA\";");
+                "public final string RA = \"RA\";");
 
         GlobalVariableDoc globalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
         Assert.assertEquals(globalVariableDoc.name, "RA", "Global variable name should be extracted");

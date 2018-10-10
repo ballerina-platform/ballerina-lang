@@ -2,7 +2,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/io;
 
-@final string constPath = getConstPath();
+final string constPath = getConstPath();
 
 type Person record {
     string name;

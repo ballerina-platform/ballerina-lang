@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-@final string REMOTE_BACKEND_URL1 = "ws://localhost:15500/websocket";
+final string REMOTE_BACKEND_URL1 = "ws://localhost:15500/websocket";
 
 @http:WebSocketServiceConfig {
     path: "/client/failure"

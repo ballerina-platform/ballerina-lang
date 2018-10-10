@@ -17,8 +17,8 @@
 import ballerina/http;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL = "ws://localhost:15300/websocket";
-@final public string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
+final string REMOTE_BACKEND_URL = "ws://localhost:15300/websocket";
+public final string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
     path: "/"

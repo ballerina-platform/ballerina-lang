@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/http;
 
-@final string CUSTOM_HEADER = "X-some-header";
+final string CUSTOM_HEADER = "X-some-header";
 
 service<http:Service> simple3 bind { port: 9093 } {
 

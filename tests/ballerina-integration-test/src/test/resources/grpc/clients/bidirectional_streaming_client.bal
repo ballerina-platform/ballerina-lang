@@ -120,7 +120,7 @@ type ChatMessage record {
     string message;
 };
 
-@final string DESCRIPTOR_KEY4 = "Chat.proto";
+final string DESCRIPTOR_KEY4 = "Chat.proto";
 map descriptorMap4 =
 {
     "Chat.proto":
