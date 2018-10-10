@@ -65,6 +65,15 @@ public class RecordVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
     }
 
+    @Test(description = "Test record variable inside record variable")
+    public void recordVarInRecordVar2() {
+        BValue[] returns = BRunUtil.invoke(result, "recordVarInRecordVar2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "Peter");
+        Assert.assertEquals(((BInteger) ((BMap) returns[1]).get("age")).intValue(), 29);
+        Assert.assertEquals(((BMap) returns[1]).get("format").stringValue(), "Y");
+    }
+
     @Test(description = "Test record variable inside record variable inside record variable")
     public void recordVarInRecordVarInRecordVar() {
         BValue[] returns = BRunUtil.invoke(result, "recordVarInRecordVarInRecordVar");
@@ -131,6 +140,14 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(bMap2.get("work").stringValue(), "SE");
     }
 
+//    @Test(description = "Test rest parameter in nested record variable")
+//    public void testVariableAssignment() {
+//        BValue[] returns = BRunUtil.invoke(result, "testVariableAssignment");
+//        Assert.assertEquals(returns.length, 2);
+//        Assert.assertEquals(returns[0].stringValue(), "Peter");
+//        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+//    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 11);
@@ -144,15 +161,15 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 35, 26);
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 36, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name1' field not found in literal", 40, 11);
+                invalidRecordLiteralInBindingPattern + "'name1' field not found in literal", 40, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 41, 11);
+                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 41, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 42, 11);
+                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 42, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidClosedRecordBindingPattern + "expected '2' fields, but found '3'", 43, 11);
+                invalidClosedRecordBindingPattern + "expected '2' fields, but found '3'", 43, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 44, 11);
+                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 44, 12);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'Person', found 'PersonWithAge'", 49, 37);
         BAssertUtil.validateError(resultNegative, ++i,

@@ -144,12 +144,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -181,6 +184,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -250,6 +254,8 @@ public class BLangPackageBuilder {
     private Stack<List<VariableNode>> varListStack = new Stack<>();
 
     private Stack<BLangRecordVariableKeyValue> recordVarStack = new Stack<>();
+
+    private Stack<BLangRecordVarRefKeyValue> recordVarRefStack = new Stack<>();
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
 
@@ -696,7 +702,7 @@ public class BLangPackageBuilder {
         return memberVar;
     }
 
-    BLangTupleVariable addTupleVariable(DiagnosticPos pos,
+    void addTupleVariable(DiagnosticPos pos,
                                         Set<Whitespace> ws, int members) {
 
         BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
@@ -707,7 +713,19 @@ public class BLangPackageBuilder {
             tupleVariable.memberVariables.add(0, member);
         }
         this.varStack.push(tupleVariable);
-        return tupleVariable;
+    }
+
+    void addRefTupleVariable(DiagnosticPos pos,
+                                        Set<Whitespace> ws, int members) {
+        BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
+        tupleVarRef.pos = pos;
+        tupleVarRef.addWS(ws);
+        for (int i = 0; i < members; i++) {
+            final BLangExpression expr = (BLangExpression) this.exprNodeStack.pop();
+            tupleVarRef.expressions.add(expr);
+        }
+        this.exprNodeStack.push(tupleVarRef);
+
     }
 
     void addRecordVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam, boolean closed) {
@@ -727,8 +745,22 @@ public class BLangPackageBuilder {
         this.varStack.push(recordVariable);
     }
 
-    void addFieldBindingMemberVar(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                  boolean bindingPattern) {
+    void addRefRecordVariable(DiagnosticPos pos, Set<Whitespace> ws,
+                              int members, boolean hasRestParam, boolean closed) {
+        BLangRecordVarRef recordVarRef = (BLangRecordVarRef) TreeBuilder.createRecordVariableReferenceNode();
+        recordVarRef.pos = pos;
+        recordVarRef.addWS(ws);
+        recordVarRef.isClosed = closed;
+        for (int i = 0; i < members; i++) {
+            recordVarRef.recordRefFields.add(this.recordVarRefStack.pop());
+        }
+        if (hasRestParam) {
+            recordVarRef.restParam = this.exprNodeStack.pop();
+        }
+        this.exprNodeStack.push(recordVarRef);
+    }
+
+    void addFieldBindingMemberVar(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean bindingPattern) {
         BLangRecordVariableKeyValue recordKeyValue = new BLangRecordVariableKeyValue();
         recordKeyValue.key = (BLangIdentifier) this.createIdentifier(identifier);
         if (!bindingPattern) {
@@ -736,6 +768,23 @@ public class BLangPackageBuilder {
         }
         recordKeyValue.valueBindingPattern = (BLangVariable) this.varStack.pop();
         this.recordVarStack.push(recordKeyValue);
+    }
+
+    void addFieldRefBindingMemberVar(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                     boolean bindingPattern) {
+        BLangExpression expression;
+        if (bindingPattern) {
+            expression = (BLangExpression) this.exprNodeStack.pop();
+        } else {
+            BLangSimpleVarRef rhsVar = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            rhsVar.variableName = (BLangIdentifier) createIdentifier(identifier);
+            expression = rhsVar;
+        }
+
+        BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
+        keyValue.variableName = (BLangIdentifier) createIdentifier(identifier);
+        keyValue.variableReference = expression;
+        this.recordVarRefStack.push(keyValue);
     }
 
     public void endFormalParameterList(Set<Whitespace> ws) {
@@ -2059,6 +2108,18 @@ public class BLangPackageBuilder {
             stmt.addWS(commaWsStack.pop());
         }
         // TODO: handle ParamList Destructure.
+        addStmtToCurrentBlock(stmt);
+    }
+
+    public void addRecordDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean declaredWithVar) {
+
+        BLangRecordDestructure stmt = (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
+        stmt.pos = pos;
+        stmt.addWS(ws);
+        stmt.setDeclaredWithVar(declaredWithVar);
+
+        stmt.expr = (BLangExpression) exprNodeStack.pop();
+        stmt.varRef = (BLangRecordVarRef) exprNodeStack.pop();
         addStmtToCurrentBlock(stmt);
     }
 
