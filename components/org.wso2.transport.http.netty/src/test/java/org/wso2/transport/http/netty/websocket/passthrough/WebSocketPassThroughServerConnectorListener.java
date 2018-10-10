@@ -118,6 +118,11 @@ public class WebSocketPassThroughServerConnectorListener implements WebSocketCon
     }
 
     @Override
+    public void onClose(WebSocketConnection webSocketConnection) {
+        //Do nothing
+    }
+
+    @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
 
     }
