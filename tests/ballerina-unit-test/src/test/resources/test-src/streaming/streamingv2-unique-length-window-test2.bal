@@ -32,7 +32,7 @@ type TeacherOutput record{
 
 int index = 0;
 stream<Teacher> inputStream;
-stream<TeacherOutput > outputStream;
+stream<TeacherOutput> outputStream;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startUniqueLengthwindowTest2() returns TeacherOutput[] {

@@ -69,7 +69,7 @@ function startExternalTimeWindowTest() returns (TeacherOutput[]) {
 
 function testExternalTimeWindow() {
     forever {
-        from inputStream window externalTimeWindow("inputStream.timestamp", 1000)
+        from inputStream window externalTimeWindow(inputStream.timestamp, 1000)
         select inputStream.timestamp, inputStream.name, count() as count
         group by inputStream.school
         => (TeacherOutput [] emp) {

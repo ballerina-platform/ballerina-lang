@@ -65,7 +65,7 @@ function startExternalTimeBatchwindowTest3() returns (TeacherOutput[]) {
 function testExternalTimeBatchwindow3() {
 
     forever {
-        from inputStream window externalTimeBatchWindow("inputStream.timestamp", 1000, timeOut = 3000)
+        from inputStream window externalTimeBatchWindow(inputStream.timestamp, 1000, timeOut = 3000)
         select inputStream.timestamp, inputStream.name, count() as count
         group by inputStream.school
         => (TeacherOutput [] emp) {
