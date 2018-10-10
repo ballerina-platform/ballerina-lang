@@ -919,6 +919,30 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 nextProcessInvokableSymbol, nextProcessSimpleVarRef);
 
         BLangInvocation invocation = (BLangInvocation) window.getFunctionInvocation();
+
+        //converting BLangFieldBaseAccess to BLangLiteral of string type, in argExprs
+        BLangLiteral streamEventParameter;
+        for (int i = 0; i < invocation.argExprs.size(); i++){
+            BLangExpression exp = invocation.argExprs.get(i);
+            if(exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                streamEventParameter = createStringLiteral(exp.pos,
+                                                           ((BLangFieldBasedAccess) exp).expr+ "." +
+                                                           ((BLangFieldBasedAccess) exp).field.value);
+                invocation.argExprs.set(i, streamEventParameter);
+            }
+        }
+
+        //converting BLangFieldBaseAccess to BLangLiteral of string type, in requiredArgs
+        for (int i = 0; i < invocation.requiredArgs.size(); i++){
+            BLangExpression exp = invocation.requiredArgs.get(i);
+            if(exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                streamEventParameter = createStringLiteral(exp.pos,
+                                                           ((BLangFieldBasedAccess) exp).expr+ "." +
+                                                           ((BLangFieldBasedAccess) exp).field.value);
+                invocation.requiredArgs.set(i, streamEventParameter);
+            }
+        }
+
         BInvokableSymbol windowInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(window.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
                 scope.lookup(new Name(invocation.name.value)).symbol;
@@ -929,7 +953,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 new Name(getVariableName(WINDOW_FUNC_REFERENCE)), windowInvokableSymbol.pkgID,
                 windowInvokableType, env.scope.owner);
         nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
-
+        
         List<BLangExpression> args = new ArrayList<>();
         args.add(nextProcessMethodAccess);
         args.addAll(invocation.argExprs);
@@ -963,6 +987,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             }
         }
 
+    }
+
+    private BLangLiteral createStringLiteral(DiagnosticPos pos, String value) {
+        BLangLiteral stringLit = new BLangLiteral();
+        stringLit.pos = pos;
+        stringLit.typeTag = TypeTags.STRING;
+        stringLit.value = value;
+        stringLit.type = symTable.stringType;
+        return stringLit;
     }
 
     private void attachWindowToJoinProcessor(BLangWindow window, BVarSymbol windowInvokableTypeVarSymbol,
