@@ -89,9 +89,6 @@ public function main() {
 
     ret = testDB->update("DROP PROCEDURE GETCOUNT");
     handleUpdate(ret, "Drop stored procedure GETCOUNT");
-
-    // Finally, close the connection pool.
-    testDB.stop();
 }
 
 // Function to handle return of the update operation.
