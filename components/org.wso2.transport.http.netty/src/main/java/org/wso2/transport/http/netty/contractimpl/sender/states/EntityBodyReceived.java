@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * State of successfully read response
+ * State of successfully read response.
  */
 public class EntityBodyReceived implements SenderState {
 

@@ -184,6 +184,9 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
 
     private ServerHandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
                                                   HttpHeaders headers) {
+        if (handshaker == null) {
+            WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
+        }
         DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
         if (cancelled) {
             Throwable e = new IllegalAccessException("Handshake is already cancelled.");
@@ -211,8 +214,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
         pipeline.remove(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER);
         if (idleTimeout > 0) {
             pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                             new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout,
-                                                  TimeUnit.MILLISECONDS));
+                             new IdleStateHandler(0, 0, idleTimeout, TimeUnit.MILLISECONDS));
         } else {
             pipeline.remove(Constants.IDLE_STATE_HANDLER);
         }

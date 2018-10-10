@@ -41,16 +41,17 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.sendRequestTimeoutResponse;
 
 /**
- * State between end of payload read and start of response headers write
+ * State between end of payload read and start of response headers write.
  */
 public class EntityBodyReceived implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
+
     private final MessageStateContext messageStateContext;
     private final SourceHandler sourceHandler;
     private final float httpVersion;
 
-    public EntityBodyReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler, float httpVersion) {
+    EntityBodyReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler, float httpVersion) {
         this.messageStateContext = messageStateContext;
         this.sourceHandler = sourceHandler;
         this.httpVersion = httpVersion;
@@ -107,7 +108,7 @@ public class EntityBodyReceived implements ListenerState {
             if (cause != null) {
                 LOG.warn("Failed to send: {}", cause.getMessage());
             }
-            sourceHandler.channelInactive(ctx);
+            ctx.close();
         });
         return outboundRespFuture;
     }

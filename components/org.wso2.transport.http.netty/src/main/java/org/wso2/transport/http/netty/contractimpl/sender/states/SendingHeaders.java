@@ -47,11 +47,12 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.writeRequestHeaders;
 
 /**
- * State between start and end of outbound request header write
+ * State between start and end of outbound request header write.
  */
 public class SendingHeaders implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
+
     private final String httpVersion;
     private final ChunkConfig chunkConfig;
     private final TargetChannel targetChannel;

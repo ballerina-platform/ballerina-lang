@@ -58,11 +58,12 @@ import static org.wso2.transport.http.netty.contractimpl.common.Util.setupConten
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * State between start and end of outbound response entity body write
+ * State between start and end of outbound response entity body write.
  */
 public class SendingEntityBody implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
+
     private final HandlerExecutor handlerExecutor;
     private final HttpResponseFuture outboundRespStatusFuture;
     private final MessageStateContext messageStateContext;

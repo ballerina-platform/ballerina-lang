@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
@@ -44,14 +43,16 @@ import static org.wso2.transport.http.netty.contract.Constants
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.respondToIncompleteRequest;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.sendRequestTimeoutResponse;
 
 /**
- * State between start and end of payload read
+ * State between start and end of payload read.
  */
 public class ReceivingEntityBody implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
+
     private final HandlerExecutor handlerExecutor;
     private final ServerConnectorFuture serverConnectorFuture;
     private final MessageStateContext messageStateContext;
@@ -106,10 +107,10 @@ public class ReceivingEntityBody implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        // If this method is called, it is an application error. we need to close connection once response is sent.
-        outboundResponseListener.setKeepAliveConfig(KeepAliveConfig.NEVER);
-        messageStateContext.setListenerState(new SendingHeaders(outboundResponseListener, messageStateContext));
-        messageStateContext.getListenerState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+        // If this method is called, it's an application error. Connection needs to be closed once the response is sent.
+        respondToIncompleteRequest(sourceHandler.getInboundChannelContext().channel(), outboundResponseListener,
+                                   messageStateContext, outboundResponseMsg, httpContent,
+                                   REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
     }
 
     @Override
@@ -127,7 +128,7 @@ public class ReceivingEntityBody implements ListenerState {
             if (cause != null) {
                 LOG.warn("Failed to send: {}", cause.getMessage());
             }
-            sourceHandler.channelInactive(ctx);
+            ctx.close();
             handleIncompleteInboundMessage(inboundRequestMsg,
                                            IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY);
         });

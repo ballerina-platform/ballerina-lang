@@ -148,8 +148,7 @@ public class WebSocketClient {
         pipeline.addLast(new HttpObjectAggregator(8192));
         pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
         if (idleTimeout > 0) {
-            pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
-                    idleTimeout, TimeUnit.MILLISECONDS));
+            pipeline.addLast(new IdleStateHandler(0, 0, idleTimeout, TimeUnit.MILLISECONDS));
         }
         pipeline.addLast(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER, clientHandshakeHandler);
     }

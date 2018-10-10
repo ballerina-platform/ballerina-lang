@@ -61,6 +61,16 @@ public interface WebSocketConnectorListener {
     void onMessage(WebSocketCloseMessage closeMessage);
 
     /**
+     * This lets the listener know when the connection closes. This method will be called only after the user is
+     * notified of a close message or an error message if one is available. It is also possible that this method is
+     * called without a close message or an error message. Also note that this method will be called only after the
+     * futures of connection closure methods return.
+     *
+     * @param webSocketConnection {@link WebSocketConnection} which gets closed.
+     */
+    void onClose(WebSocketConnection webSocketConnection);
+
+    /**
      * Trigger any transport error.
      *
      * @param webSocketConnection {@link WebSocketConnection} which causes the error.

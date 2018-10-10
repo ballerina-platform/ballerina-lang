@@ -52,11 +52,12 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.notifyIfHeaderWriteFailure;
 
 /**
- * Special state of sending 100-continue response
+ * Special state of sending 100-continue response.
  */
 public class Response100ContinueSent extends SendingHeaders {
 
     private static final Logger LOG = LoggerFactory.getLogger(Response100ContinueSent.class);
+
     private final MessageStateContext messageStateContext;
     private final HttpOutboundRespListener outboundResponseListener;
     private final SourceHandler sourceHandler;

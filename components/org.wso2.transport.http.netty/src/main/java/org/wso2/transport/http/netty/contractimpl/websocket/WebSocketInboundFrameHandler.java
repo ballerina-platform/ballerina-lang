@@ -122,16 +122,13 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws WebSocketConnectorException {
         if (evt instanceof IdleStateEvent) {
-            IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
-            if (idleStateEvent.state() == IdleStateEvent.ALL_IDLE_STATE_EVENT.state()) {
-                notifyIdleTimeout();
-            }
+            notifyIdleTimeout();
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws WebSocketConnectorException {
-        if (!caughtException && webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null &&
+        if (!caughtException && webSocketConnection != null && !closeFrameReceived && closePromise == null &&
                 !closeInitialized) {
             // Notify abnormal closure.
             DefaultWebSocketMessage webSocketCloseMessage =
@@ -145,6 +142,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             String errMsg = "Connection is closed by remote endpoint without echoing a close frame";
             ctx.close().addListener(closeFuture -> closePromise.setFailure(new IllegalStateException(errMsg)));
         }
+        connectorFuture.notifyWebSocketListener(webSocketConnection);
     }
 
     @Override

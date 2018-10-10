@@ -18,6 +18,11 @@
 
 package org.wso2.transport.http.netty.websocket.server;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import org.testng.Assert;
@@ -84,6 +89,19 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         Assert.assertFalse(webSocketConnection.isSecure());
 
         testClient.closeChannel();
+    }
+
+    @Test(description = "Check response for unsupported WebSocket version")
+    public void testUnsupportedWebSocketVersion() throws UnirestException {
+        String url = String.format("http://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT, "test");
+        HttpResponse<String> response = Unirest.get(url)
+                .header(HttpHeaderNames.UPGRADE.toString(), HttpHeaderValues.WEBSOCKET.toString())
+                .header(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.UPGRADE.toString())
+                .header(HttpHeaderNames.SEC_WEBSOCKET_VERSION.toString(), String.valueOf(15))
+                .header("x-handshake", "true")
+                .asString();
+        Assert.assertEquals(response.getStatus(), 426);
+        Assert.assertEquals(response.getStatusText(), "Upgrade Required");
     }
 
     @Test(description = "Check whether the correct sub protocol is chosen by the server with the given sequence.")
