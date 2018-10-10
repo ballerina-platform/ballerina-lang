@@ -41,6 +41,11 @@ function recordVarInRecordVar() returns (string, int, string, boolean) {
     return (fName, theAge, format, married);
 }
 
+function recordVarInRecordVar2() returns (string, Age) {
+    PersonWithAge {name: fName, age} = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    return (fName, age);
+}
+
 type StreetCity record {
     string streetName;
     string city;
@@ -113,3 +118,8 @@ function testNestedRestParameter() returns (map, map) {
     PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
     return (rest1, rest2);
 }
+
+//function testVariableAssignment() {
+//    var {name: fName, married} = {name: "Peter", married: true};
+//    return (fName, married);
+//}

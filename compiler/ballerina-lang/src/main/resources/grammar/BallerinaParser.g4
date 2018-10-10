@@ -261,6 +261,7 @@ statement
     :   variableDefinitionStatement
     |   assignmentStatement
     |   tupleDestructuringStatement
+    |   recordDestructuringStatement
     |   compoundAssignmentStatement
     |   postIncrementStatement
     |   ifElseStatement
@@ -348,6 +349,10 @@ tupleDestructuringStatement
     |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
     ;
 
+recordDestructuringStatement
+    :   VAR? recordRefBindingPattern ASSIGN expression SEMICOLON
+    ;
+
 compoundAssignmentStatement
     :   variableReference compoundOperator expression SEMICOLON
     ;
@@ -426,6 +431,38 @@ fieldBindingPattern
 
 restBindingPattern
     :   ELLIPSIS Identifier
+    |   sealedLiteral
+    ;
+
+bindingRefPattern
+    :   variableReference
+    |   structuredRefBindingPattern
+    ;
+
+structuredRefBindingPattern
+    :   tupleRefBindingPattern
+    |   recordRefBindingPattern
+    ;
+
+tupleRefBindingPattern
+    :   LEFT_PARENTHESIS bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_PARENTHESIS
+    ;
+
+recordRefBindingPattern
+    :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+entryRefBindingPattern
+    :   fieldRefBindingPattern (COMMA fieldRefBindingPattern)* (COMMA restRefBindingPattern)?
+    |   restRefBindingPattern
+    ;
+
+fieldRefBindingPattern
+    :   Identifier (COLON bindingRefPattern)?
+    ;
+
+restRefBindingPattern
+    :   ELLIPSIS variableReference
     |   sealedLiteral
     ;
 

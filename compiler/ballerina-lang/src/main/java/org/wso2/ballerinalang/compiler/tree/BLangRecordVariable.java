@@ -65,7 +65,7 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     }
 
     /**
-     * This static inner class represents key/value pair of a record literal.
+     * This static inner class represents key/value pair of a record variable.
      *
      * @since 0.982.0
      */
