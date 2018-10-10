@@ -31,8 +31,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput > outputStream;
+stream<Teacher> inputStreamTimeLengthWindowTest1;
+stream<TeacherOutput > outputStreamTimeLengthWindowTest1;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startTimeLengthwindowTest1() returns (TeacherOutput[]) {
@@ -48,9 +48,9 @@ function startTimeLengthwindowTest1() returns (TeacherOutput[]) {
 
     testTimeLengthwindow();
 
-    outputStream.subscribe(printTeachers);
+    outputStreamTimeLengthWindowTest1.subscribe(printTeachers);
     foreach t in teachers {
-        inputStream.publish(t);
+        inputStreamTimeLengthWindowTest1.publish(t);
         runtime:sleep(500);
     }
 
@@ -62,12 +62,12 @@ function startTimeLengthwindowTest1() returns (TeacherOutput[]) {
 function testTimeLengthwindow() {
 
     forever {
-        from inputStream window timeLengthWindow(2000, 10)
-        select inputStream.timestamp, inputStream.name, count() as count
-        group by inputStream.school
+        from inputStreamTimeLengthWindowTest1 window timeLengthWindow(2000, 10)
+        select inputStreamTimeLengthWindowTest1.timestamp, inputStreamTimeLengthWindowTest1.name, count() as count
+        group by inputStreamTimeLengthWindowTest1.school
         => (TeacherOutput [] teachers) {
             foreach t in teachers {
-                outputStream.publish(t);
+                outputStreamTimeLengthWindowTest1.publish(t);
             }
         }
     }
