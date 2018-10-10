@@ -266,11 +266,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         outputEventType = ((BArrayType) outputFuncArg.type).eType;
         // create a wrapper lambda expression to invoke the actual streamAction lambda function
         BLangLambdaFunction outputLambdaFunc = createLambdaWithVarArg(lambdaFunction.pos, new BLangVariable[]{
-                        ASTBuilderUtil.createVariable(outputFuncArg.pos, getVariableName(OUTPUT_FUNC_VAR_ARG),
-                                new BArrayType(symTable.mapType), null, new BVarSymbol(0,
-                                        names.fromString(getVariableName(OUTPUT_FUNC_VAR_ARG)),
-                                        lambdaFunction.function.symbol.pkgID, new BArrayType(symTable.mapType),
-                                        lambdaFunction.function.symbol.owner))}, TypeKind.NIL);
+                ASTBuilderUtil.createVariable(outputFuncArg.pos, getVariableName(OUTPUT_FUNC_VAR_ARG),
+                        new BArrayType(symTable.mapType), null, new BVarSymbol(0,
+                                names.fromString(getVariableName(OUTPUT_FUNC_VAR_ARG)),
+                                lambdaFunction.function.symbol.pkgID, new BArrayType(symTable.mapType),
+                                lambdaFunction.function.symbol.owner))}, TypeKind.NIL);
         // create `T[] outputEvents`
         BType outputArrayType = new BArrayType(outputEventType);
         BLangArrayLiteral arrayLiteralExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
@@ -968,9 +968,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         for (int i = 0; i < invocation.argExprs.size(); i++) {
             BLangExpression exp = invocation.argExprs.get(i);
             if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                streamEventParameter = createStringLiteral(exp.pos,
-                                                           ((BLangFieldBasedAccess) exp).expr + "." +
-                                                           ((BLangFieldBasedAccess) exp).field.value);
+
+                String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
+                if (streamAliasMap.containsKey(variableName)) {
+                    variableName = streamAliasMap.get(variableName);
+                }
+                ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
+                streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
                 invocation.argExprs.set(i, streamEventParameter);
             }
         }
@@ -979,9 +983,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         for (int i = 0; i < invocation.requiredArgs.size(); i++) {
             BLangExpression exp = invocation.requiredArgs.get(i);
             if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                streamEventParameter = createStringLiteral(exp.pos,
-                                                           ((BLangFieldBasedAccess) exp).expr + "." +
-                                                           ((BLangFieldBasedAccess) exp).field.value);
+                String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
+                if (streamAliasMap.containsKey(variableName)) {
+                    variableName = streamAliasMap.get(variableName);
+                }
+                ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
+                streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
                 invocation.requiredArgs.set(i, streamEventParameter);
             }
         }
@@ -996,7 +1003,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 new Name(getVariableName(WINDOW_FUNC_REFERENCE)), windowInvokableSymbol.pkgID,
                 windowInvokableType, env.scope.owner);
         nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
-        
+
         List<BLangExpression> args = new ArrayList<>();
         args.add(nextProcessMethodAccess);
         args.addAll(invocation.argExprs);
