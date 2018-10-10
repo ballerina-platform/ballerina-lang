@@ -1,0 +1,3 @@
+// Testerina provides inbuilt support for data driven tests.
+// You can provide a function pointer as a data-provider. The function returns a 
+//value-set of data and you can iterate the same test over the returned data-set.

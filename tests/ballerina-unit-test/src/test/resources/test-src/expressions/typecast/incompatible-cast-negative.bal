@@ -27,8 +27,12 @@ function testStructToStruct() returns (Person) {
 
 function intToFloatImpCast() {
     float[] numbers;
-    numbers = [999,95,889];
+    int a = 999;
+    int b = 95;
+    int c = 889;
+    numbers = [a, b, c];
     float val1 = 160.0;
     float val2 = <float> 160;
-    float val3 = 160;
+    int d;
+    float val3 = d;
 }

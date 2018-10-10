@@ -305,10 +305,10 @@ public class TypeCastExprTest {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/incompatible-cast-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 5);
         BAssertUtil.validateError(res, 0, "incompatible types: expected 'Person', found 'Student'", 24, 16);
-        BAssertUtil.validateError(res, 1, "incompatible types: expected 'float', found 'int'", 30, 16);
-        BAssertUtil.validateError(res, 2, "incompatible types: expected 'float', found 'int'", 30, 20);
-        BAssertUtil.validateError(res, 3, "incompatible types: expected 'float', found 'int'", 30, 23);
-        BAssertUtil.validateError(res, 4, "incompatible types: expected 'float', found 'int'", 33, 18);
+        BAssertUtil.validateError(res, 1, "incompatible types: expected 'float', found 'int'", 33, 16);
+        BAssertUtil.validateError(res, 2, "incompatible types: expected 'float', found 'int'", 33, 19);
+        BAssertUtil.validateError(res, 3, "incompatible types: expected 'float', found 'int'", 33, 22);
+        BAssertUtil.validateError(res, 4, "incompatible types: expected 'float', found 'int'", 37, 18);
     }
 
     @Test(description = "Test casting a JSON integer to a string")

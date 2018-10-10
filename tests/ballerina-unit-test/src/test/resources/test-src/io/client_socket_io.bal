@@ -18,7 +18,7 @@ function closeSocket(io:Socket socket) {
 }
 
 function write(io:Socket socket, byte[] content) returns int|error {
-    io:ByteChannel byteChannel = socket.byteChannel;
+    io:WritableByteChannel byteChannel = socket.writableChannel;
     var result = byteChannel.write(content, 0);
     match result {
         int numberOfBytesWritten => {
@@ -32,7 +32,7 @@ function write(io:Socket socket, byte[] content) returns int|error {
 }
 
 function read(io:Socket socket, int size) returns (byte[], int)|error {
-    io:ByteChannel byteChannel = socket.byteChannel;
+    io:ReadableByteChannel byteChannel = socket.readableChannel;
     var result = byteChannel.read(size);
     match result {
         (byte[], int) content => {
@@ -68,10 +68,11 @@ function bindSocketForSamePort(int localPort) returns error? {
         }
     }
 }
+
 function readRecord(io:Socket socket) returns string[]|error {
-    io:ByteChannel byteChannel = socket.byteChannel;
-    io:CharacterChannel characterChannel = new(byteChannel, "UTF-8");
-    io:DelimitedTextRecordChannel rChannel = new io:DelimitedTextRecordChannel(characterChannel, rs = "\r\n", fs = ",");
+    io:ReadableByteChannel byteChannel = socket.readableChannel;
+    io:ReadableCharacterChannel characterChannel = new(byteChannel, "UTF-8");
+    io:ReadableTextRecordChannel rChannel = new io:ReadableTextRecordChannel(characterChannel, rs = "\r\n", fs = ",");
     if (rChannel.hasNext()){
         var records = rChannel.getNext();
         match records {

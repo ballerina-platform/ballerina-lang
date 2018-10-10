@@ -1,0 +1,4 @@
+// The `try` block contains the operations you need to execute. The `catch` block is used to handle the exceptions that are
+// thrown by the operations in the `try` block. You can define many `catch` blocks to catch the different error types that
+// are thrown. The `finally` block is always executed even if errors are thrown or not. Therefore, you can add all the crucial
+// operations to the `finally` block.
