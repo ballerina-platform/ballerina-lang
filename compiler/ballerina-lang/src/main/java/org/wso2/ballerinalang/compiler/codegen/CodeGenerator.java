@@ -832,6 +832,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldVarRef fieldVarRef) {
+        final int except = 0; // signals not to throw an exception in case the field could not be found
         String fieldName = fieldVarRef.varSymbol.name.value;
         RegIndex fieldNameRegIndex = createStringLiteral(fieldName, null, env);
 
@@ -843,7 +844,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-        loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex, 0);
+        loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex, except);
     }
 
     @Override

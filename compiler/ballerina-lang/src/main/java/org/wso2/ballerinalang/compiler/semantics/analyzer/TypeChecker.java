@@ -1827,20 +1827,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.errType;
         }
 
-        // If it's an index-based access, the return type is a nil-able.
-        if (varReferExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            Set<BType> types = new LinkedHashSet<>();
-            BType restFieldType = ((BRecordType) structType).restFieldType;
-            if (restFieldType.tag == TypeTags.UNION) {
-                BUnionType type = (BUnionType) restFieldType;
-                types.addAll(type.memberTypes);
-            } else {
-                types.add(restFieldType);
-            }
-            types.add(symTable.nilType);
-            return new BUnionType(null, types, true);
-        }
-
         return ((BRecordType) structType).restFieldType;
     }
 
