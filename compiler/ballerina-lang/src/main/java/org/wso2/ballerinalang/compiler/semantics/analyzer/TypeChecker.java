@@ -1774,8 +1774,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
+            indexExpr.type = symTable.errType;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
-            return symTable.errType;
+            return indexExpr.type;
         }
 
         return checkExpr(indexExpr, this.env, symTable.stringType);
@@ -1829,8 +1830,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
+            indexExpr.type = symTable.errType;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
-            return symTable.errType;
+            return indexExpr.type;
         }
 
         return checkExpr(indexExpr, this.env, symTable.intType);
@@ -2115,6 +2117,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 if (indexBasedAccessExpr.lhsVar) {
+                    indexExpr.type = symTable.errType;
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
                     break;
                 }
@@ -2130,9 +2133,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.ERROR:
-                // Do nothing
+                indexBasedAccessExpr.indexExpr.type = symTable.errType;
                 break;
             default:
+                indexBasedAccessExpr.indexExpr.type = symTable.errType;
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
                         indexBasedAccessExpr.expr.type);
         }
