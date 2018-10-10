@@ -41,7 +41,7 @@ import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOpera
 public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivity {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaLanguageServerPreloadingActivity.class);
-    private static final String launcherScriptPath = "lib/resources/composer/language-server-launcher";
+    private static final String launcherScriptPath = "lib/tools/lang-server/launcher";
 
     /**
      * Preloading of the ballerina plugin.

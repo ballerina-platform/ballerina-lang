@@ -71,8 +71,10 @@ function testExternalTimeBatchwindow5() {
         from inputStream window externalTimeBatchWindow("inputStream.timestamp", 1000, startTime = 1000, timeOut = 1200)
         select inputStream.timestamp, inputStream.name, count() as count
         group by inputStream.school
-        => (TeacherOutput [] emp) {
-            outputStream.publish(emp);
+        => (TeacherOutput [] teachers) {
+            foreach t in teachers {
+                outputStream.publish(t);
+            }
         }
     }
 }

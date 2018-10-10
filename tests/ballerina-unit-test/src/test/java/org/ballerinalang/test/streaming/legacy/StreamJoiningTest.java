@@ -65,7 +65,7 @@ public class StreamJoiningTest {
                 51, 9);
         BAssertUtil.validateError(resultNegative, 2,
                 "unreachable code",
-                57, 5);
+                59, 5);
     }
 
 

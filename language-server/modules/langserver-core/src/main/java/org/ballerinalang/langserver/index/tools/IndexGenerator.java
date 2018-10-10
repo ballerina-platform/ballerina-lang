@@ -95,7 +95,7 @@ public class IndexGenerator {
         File file = new File(Objects.requireNonNull(classLoader.getResource("")).getFile());
         String saveDumpPath = file.getAbsolutePath().replace("classes", "");
         LSIndexImpl.getInstance()
-                .saveIndexDump(Paths.get(saveDumpPath + "lib/resources/composer/lang-server-index.sql"));
+                .saveIndexDump(Paths.get(saveDumpPath + "lib/tools/lang-server/resources/lang-server-index.sql"));
     }
 
     private void insertBLangPackages(List<BPackageSymbolDTO> packageSymbolDTOs) {
