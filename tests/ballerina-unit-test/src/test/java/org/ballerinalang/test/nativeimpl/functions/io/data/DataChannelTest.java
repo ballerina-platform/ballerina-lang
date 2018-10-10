@@ -47,12 +47,14 @@ public class DataChannelTest {
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
-    @Test(description = "read and write fixed size integers", dataProvider = "Endianness")
+    @Test(description = "read and write fixed size integers", dataProvider = "endianness")
     public void processFixedInteger(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/integer.bin";
         //Will initialize the channel
         int value = 123;
-        BValue[] args = {new BInteger(value), new BString(sourceToWrite), new BString(order.toString())};
+        BValue[] args = {new BInteger(value),
+                new BString(sourceToWrite),
+                new BString(order.toString())};
         BRunUtil.invokeStateful(dataChannel, "testWriteFixedSignedInt", args);
 
         BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
@@ -61,7 +63,7 @@ public class DataChannelTest {
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
 
-    @Test(description = "read and write var integers")
+    @Test(description = "read and write var integers", dataProvider = "endianness")
     public void processVarInteger(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/varint.bin";
         //Will initialize the channel
@@ -75,7 +77,7 @@ public class DataChannelTest {
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
 
-    @Test(description = "read and write fixed size float values")
+    @Test(description = "read and write fixed size float values", dataProvider = "endianness")
     public void processFixedFloat(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/float.bin";
         //Will initialize the channel
@@ -89,7 +91,7 @@ public class DataChannelTest {
         Assert.assertEquals(value, ((BFloat) result[0]).floatValue());
     }
 
-    @Test(description = "read and write bool")
+    @Test(description = "read and write bool", dataProvider = "endianness")
     public void processBool(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/boolean.bin";
         BValue[] args = {new BBoolean(false), new BString(sourceToWrite), new BString(order.toString())};
@@ -101,7 +103,7 @@ public class DataChannelTest {
         Assert.assertEquals(false, ((BBoolean) result[0]).booleanValue());
     }
 
-    @Test(description = "read and write string")
+    @Test(description = "read and write string", dataProvider = "endianness")
     public void processString(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/string.bin";
         String content = "Ballerina";
@@ -118,9 +120,8 @@ public class DataChannelTest {
     }
 
     @DataProvider(name = "Endianness")
-    public static Object[][] endianness() {
+    public Object[][] endianness() {
         return new Object[][]{{ByteOrder.BIG_ENDIAN}, {ByteOrder.LITTLE_ENDIAN}};
-
     }
 
 }

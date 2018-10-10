@@ -64,10 +64,10 @@ public class DataChannel implements IOChannel {
      */
     private byte[] reverse(ByteBuffer buffer) {
         byte[] contentArr = buffer.array();
-        int length = contentArr.length;
+        int length = buffer.limit();
         byte[] reverseContent = new byte[length];
-        for (int count = 0; buffer.limit() < buffer.position(); count++) {
-            reverseContent[count] = contentArr[length - count];
+        for (int count = 0; count < length; count++) {
+            reverseContent[count] = contentArr[(length - 1) - count];
         }
         return reverseContent;
     }
@@ -83,8 +83,13 @@ public class DataChannel implements IOChannel {
             channel.read(buffer);
         } while (buffer.hasRemaining() && !channel.hasReachedEnd());
         if (order.equals(ByteOrder.LITTLE_ENDIAN)) {
+            int bufferPosition = buffer.position();
+            int limit = buffer.limit();
             byte[] reverseContent = reverse(buffer);
-            buffer.put(reverseContent, 0, reverseContent.length);
+            buffer.rewind();
+            buffer.put(reverseContent, 0, limit);
+            buffer.position(bufferPosition);
+            buffer.limit(limit);
         }
     }
 
@@ -239,9 +244,11 @@ public class DataChannel implements IOChannel {
      */
     private void write(ByteBuffer buffer) throws IOException {
         if (order.equals(ByteOrder.LITTLE_ENDIAN)) {
-            reverse(buffer);
+            byte[] reverse = reverse(buffer);
+            channel.write(ByteBuffer.wrap(reverse));
+        } else {
+            channel.write(buffer);
         }
-        channel.write(buffer);
     }
 
     /**
