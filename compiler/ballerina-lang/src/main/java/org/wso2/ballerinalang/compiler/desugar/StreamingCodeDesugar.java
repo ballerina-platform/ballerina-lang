@@ -972,8 +972,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
                 if (streamAliasMap.containsKey(variableName)) {
                     variableName = streamAliasMap.get(variableName);
+                    ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
                 }
-                ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
                 streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
                 invocation.argExprs.set(i, streamEventParameter);
             }
@@ -986,8 +986,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
                 if (streamAliasMap.containsKey(variableName)) {
                     variableName = streamAliasMap.get(variableName);
+                    ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
                 }
-                ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
                 streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
                 invocation.requiredArgs.set(i, streamEventParameter);
             }
