@@ -965,22 +965,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //converting BLangFieldBaseAccess to BLangLiteral of string type, in argExprs
         BLangLiteral streamEventParameter;
-        for (int i = 0; i < invocation.argExprs.size(); i++){
+        for (int i = 0; i < invocation.argExprs.size(); i++) {
             BLangExpression exp = invocation.argExprs.get(i);
-            if(exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 streamEventParameter = createStringLiteral(exp.pos,
-                                                           ((BLangFieldBasedAccess) exp).expr+ "." +
+                                                           ((BLangFieldBasedAccess) exp).expr + "." +
                                                            ((BLangFieldBasedAccess) exp).field.value);
                 invocation.argExprs.set(i, streamEventParameter);
             }
         }
 
         //converting BLangFieldBaseAccess to BLangLiteral of string type, in requiredArgs
-        for (int i = 0; i < invocation.requiredArgs.size(); i++){
+        for (int i = 0; i < invocation.requiredArgs.size(); i++) {
             BLangExpression exp = invocation.requiredArgs.get(i);
-            if(exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 streamEventParameter = createStringLiteral(exp.pos,
-                                                           ((BLangFieldBasedAccess) exp).expr+ "." +
+                                                           ((BLangFieldBasedAccess) exp).expr + "." +
                                                            ((BLangFieldBasedAccess) exp).field.value);
                 invocation.requiredArgs.set(i, streamEventParameter);
             }

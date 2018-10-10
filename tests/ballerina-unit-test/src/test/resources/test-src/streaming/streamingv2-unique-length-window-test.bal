@@ -66,7 +66,9 @@ function testUniqueLengthwindow() {
         select inputStream.timestamp, inputStream.name, count() as count
         group by inputStream.school
         => (TeacherOutput [] emp) {
-            outputStream.publish(emp);
+            foreach e in emp {
+                outputStream.publish(e);
+            }
         }
     }
 }
