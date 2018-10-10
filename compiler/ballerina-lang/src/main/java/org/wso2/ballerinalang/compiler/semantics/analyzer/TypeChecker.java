@@ -514,6 +514,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
+                    // The owner of the variable ref should be an invokable symbol.
+                    // It's set here because the arrow expression changes to an invokable only at desugar
+                    // and is not an invokable at this phase.
                     symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
                             env.enclPkg.packageID, null, symbol.owner);
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
@@ -567,7 +570,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // if enclosing env's node is arrow expression
             return env.enclEnv;
         }
-        if (env.enclInvokable == encInvokable && env.enclInvokable != null) {
+        if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
         }
         return env;
