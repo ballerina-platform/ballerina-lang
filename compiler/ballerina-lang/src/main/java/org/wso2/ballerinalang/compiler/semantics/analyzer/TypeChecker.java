@@ -1774,11 +1774,27 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
+            indexExpr.type = symTable.errType;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
-            return symTable.errType;
+            return indexExpr.type;
         }
 
         return checkExpr(indexExpr, this.env, symTable.stringType);
+    }
+
+    private BType checkTypeForIndexBasedAccess(BLangIndexBasedAccess indexBasedAccessExpr, BType actualType) {
+        // index based map/record access always returns a nil-able type
+        if (actualType.tag == TypeTags.ANY || actualType.tag == TypeTags.JSON) {
+            return actualType;
+        }
+
+        if (indexBasedAccessExpr.leafNode && indexBasedAccessExpr.lhsVar) {
+            return actualType;
+        }
+
+        BUnionType type = new BUnionType(null, new LinkedHashSet<>(getTypesList(actualType)), true);
+        type.memberTypes.add(symTable.nilType);
+        return type;
     }
 
     private BType checkStructFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BType structType) {
@@ -1829,8 +1845,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
+            indexExpr.type = symTable.errType;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
-            return symTable.errType;
+            return indexExpr.type;
         }
 
         return checkExpr(indexExpr, this.env, symTable.intType);
@@ -2063,22 +2080,25 @@ public class TypeChecker extends BLangNodeVisitor {
         BType indexExprType;
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
-            case TypeTags.RECORD:
                 indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
                 if (indexExprType.tag == TypeTags.STRING) {
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
                     actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
                 }
                 break;
+            case TypeTags.RECORD:
+                indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
+                if (indexExprType.tag == TypeTags.STRING) {
+                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                    actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
+                    actualType = checkTypeForIndexBasedAccess(indexBasedAccessExpr, actualType);
+                }
+                break;
             case TypeTags.MAP:
                 indexExprType = checkExpr(indexExpr, this.env, symTable.stringType);
                 if (indexExprType.tag == TypeTags.STRING) {
                     actualType = ((BMapType) varRefType).getConstraint();
-
-                    // index based map access always returns a nillable type
-                    if (actualType.tag != TypeTags.ANY && actualType.tag != TypeTags.JSON) {
-                        actualType = new BUnionType(null, new LinkedHashSet<>(getTypesList(actualType)), true);
-                    }
+                    actualType = checkTypeForIndexBasedAccess(indexBasedAccessExpr, actualType);
                 }
                 break;
             case TypeTags.JSON:
@@ -2115,6 +2135,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 if (indexBasedAccessExpr.lhsVar) {
+                    indexExpr.type = symTable.errType;
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
                     break;
                 }
@@ -2130,9 +2151,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.ERROR:
-                // Do nothing
+                indexBasedAccessExpr.indexExpr.type = symTable.errType;
                 break;
             default:
+                indexBasedAccessExpr.indexExpr.type = symTable.errType;
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
                         indexBasedAccessExpr.expr.type);
         }

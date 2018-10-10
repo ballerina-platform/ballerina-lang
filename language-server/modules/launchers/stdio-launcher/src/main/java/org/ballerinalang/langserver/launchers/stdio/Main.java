@@ -34,7 +34,6 @@ public class Main {
         LogManager.getLogManager().reset();
         Logger globalLogger = Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
         globalLogger.setLevel(java.util.logging.Level.OFF);
-        org.apache.log4j.LogManager.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
         startServer(System.in, System.out);
     }
 

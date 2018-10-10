@@ -43,7 +43,9 @@ function initRealtimeProductionAlert() {
         => (MaterialUsage[] materialUsages) {
         // `materialUsages` is the output that matches the defined streaming rules. It is published to the `materialUsageStream` stream.
         // The selected clause should match the structure of the `MaterialUsage` type.
-            materialUsageStream.publish(materialUsages);
+            foreach usage in materialUsages {
+                materialUsageStream.publish(usage);
+            }
         }
     }
 }

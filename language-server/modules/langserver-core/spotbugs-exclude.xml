@@ -52,4 +52,10 @@
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.command.CommandExecutor" />
+        <OR>
+            <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" />
+        </OR>
+    </Match>
 </FindBugsFilter>
