@@ -11,10 +11,7 @@ service<http:Service> echo66 bind testEP {
         consumes: ["application/xml"]
     }
     echo1(endpoint conn, http:Request req) {
-        http:Response res = new;
-        json responseJson = { "msg": "wso2" };
-        res.setJsonPayload(responseJson);
-        _ = conn->respond(res);
+        _ = conn->respond({ "msg": "wso2" });
     }
 
     @http:ResourceConfig {
@@ -23,10 +20,7 @@ service<http:Service> echo66 bind testEP {
         produces: ["text/xml", "application/xml "]
     }
     echo2(endpoint conn, http:Request req) {
-        http:Response res = new;
-        json responseJson = { "msg": "wso22" };
-        res.setJsonPayload(responseJson);
-        _ = conn->respond(res);
+        _ = conn->respond({ "msg": "wso22" });
     }
 
     @http:ResourceConfig {
@@ -36,10 +30,7 @@ service<http:Service> echo66 bind testEP {
         produces: ["text/css", "application/json"]
     }
     echo3(endpoint conn, http:Request req) {
-        http:Response res = new;
-        json responseJson = { "msg": "wso222" };
-        res.setJsonPayload(responseJson);
-        _ = conn->respond(res);
+        _ = conn->respond({ "msg": "wso222" });
     }
 
     @http:ResourceConfig {
@@ -49,18 +40,12 @@ service<http:Service> echo66 bind testEP {
         produces: ["Application/JsON"]
     }
     echo4(endpoint conn, http:Request req) {
-        http:Response res = new;
-        json responseJson = { "msg": "wso222" };
-        res.setJsonPayload(responseJson);
-        _ = conn->respond(res);
+        _ = conn->respond({ "msg": "wso222" });
     }
 }
 
 service<http:Service> echo67 bind testEP {
     echo1(endpoint conn, http:Request req) {
-        http:Response res = new;
-        json responseJson = { "echo33": "echo1" };
-        res.setJsonPayload(responseJson);
-        _ = conn->respond(res);
+        _ = conn->respond({ "echo33": "echo1" });
     }
 }
