@@ -232,20 +232,17 @@ public class HttpDispatcher {
                         BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;
+                    } else if (validArrayType((BArrayType) entityBodyType)) {
+                        bjson = getBJsonValue(inRequestEntity);
+                        return getRecordOrObjectArray(entityBodyType, bjson);
                     } else {
                         throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
                                 ((BArrayType) entityBodyType).getElementType().getName());
                     }
                 case TypeTags.OBJECT_TYPE_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
-                    bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-                    EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
-                    try {
-                        return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
-                    } catch (NullPointerException ex) {
-                        throw new BallerinaConnectorException("cannot convert payload to struct type: " +
-                                entityBodyType.getName());
-                    }
+                    bjson = getBJsonValue(inRequestEntity);
+                    return getRecordOrObject(entityBodyType, bjson);
                 default:
                         //Do nothing
             }
@@ -253,6 +250,35 @@ public class HttpDispatcher {
             throw new BallerinaConnectorException("Error in reading payload : " + ex.getMessage());
         }
         return null;
+    }
+
+    private static boolean validArrayType(BArrayType entityBodyType) {
+        return (entityBodyType.getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) ||
+                (entityBodyType.getElementType().getTag() == TypeTags.OBJECT_TYPE_TAG);
+    }
+
+    private static BValue getRecordOrObject(BType entityBodyType, BValue bjson) {
+        try {
+            return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
+        } catch (NullPointerException ex) {
+            throw new BallerinaConnectorException("cannot convert payload to struct type: " +
+                    entityBodyType.getName());
+        }
+    }
+
+    private static BValue getRecordOrObjectArray(BType entityBodyType, BValue bjson) {
+        try {
+            return JSONUtils.convertJSONToBArray(bjson, (BArrayType) entityBodyType);
+        } catch (NullPointerException ex) {
+            throw new BallerinaConnectorException("cannot convert payload to an array of type: " +
+                    entityBodyType.getName());
+        }
+    }
+
+    private static BValue getBJsonValue(BMap<String, BValue> inRequestEntity) {
+        BValue bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+        EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+        return bjson;
     }
 
     public static boolean shouldDiffer(HttpResource httpResource) {

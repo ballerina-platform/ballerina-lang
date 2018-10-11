@@ -77,13 +77,19 @@ public class SignatureParams {
         int type = entityBodyParam.getVarType().getTag();
         if (type == TypeTags.OBJECT_TYPE_TAG || type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG
                 || type == TypeTags.XML_TAG || type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG
-                && ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.BYTE_TAG)) {
+                && validArrayType(entityBodyParam))) {
             this.entityBody = entityBodyParam;
             paramCount++;
         } else {
             throw new BallerinaConnectorException("incompatible entity-body type : " +
                     entityBodyParam.getVarType().getName());
         }
+    }
+
+    private boolean validArrayType(ParamDetail entityBodyParam) {
+        return ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.BYTE_TAG ||
+                ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG ||
+                ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.OBJECT_TYPE_TAG;
     }
 
     ParamDetail getEntityBody() {
