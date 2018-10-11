@@ -2,7 +2,7 @@
 
 import ballerina/io;
 
-@readonly string lastName;
+string lastName;
 
 type Employee record {
     string name;

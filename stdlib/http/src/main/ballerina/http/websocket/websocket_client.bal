@@ -24,12 +24,12 @@
 # + attributes - A map to store connection related attributes
 public type WebSocketClient object {
 
-    @readonly public string id;
-    @readonly public string negotiatedSubProtocol;
-    @readonly public boolean isSecure;
-    @readonly public boolean isOpen;
-    @readonly public Response response;
-    @readonly public map attributes;
+    public string id;
+    public string negotiatedSubProtocol;
+    public boolean isSecure;
+    public boolean isOpen;
+    public Response response;
+    public map attributes;
 
     private WebSocketConnector conn;
     private WebSocketClientEndpointConfig config;

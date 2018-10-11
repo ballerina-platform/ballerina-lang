@@ -1,4 +1,4 @@
-@readonly string NAME;
+string NAME;
 
 public function getName () returns string | ()  {
       return NAME;

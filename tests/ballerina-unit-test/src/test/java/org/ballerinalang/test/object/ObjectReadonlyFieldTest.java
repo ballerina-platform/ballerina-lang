@@ -40,7 +40,7 @@ public class ObjectReadonlyFieldTest {
         compileResult = BCompileUtil.compile("test-src/object/object-readonly-field.bal");
     }
 
-    @Test(description = "Test object with readonly field which is in a different package")
+    @Test(description = "Test object with readonly field which is in a different package", enabled = false)
     public void testReadOnlyAccessInDifferentPackage() {
         CompileResult compileResultNegative = BCompileUtil
                 .compile("test-src/object/object-readonly-field-negative.bal");
@@ -53,7 +53,7 @@ public class ObjectReadonlyFieldTest {
                 "annotation 'ballerina/builtin:readonly' is not allowed in service", 24, 1);
     }
 
-    @Test(description = "Test object with readonly field which is in a same package")
+    @Test(description = "Test object with readonly field which is in a same package", enabled = false)
     public void testReadOnlyObjFieldAccessInSamePackage() {
 
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadOnlyObjFieldAccessInSamePackage");
@@ -68,7 +68,7 @@ public class ObjectReadonlyFieldTest {
         Assert.assertEquals(returns[2].stringValue(), "john");
     }
 
-    @Test(description = "Test object with readonly global variable which is in a same package")
+    @Test(description = "Test object with readonly global variable which is in a same package", enabled = false)
     public void testReadOnlyGlobalVarAccessInSamePackage() {
 
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadOnlyGlobalVarAccessInSamePackage");

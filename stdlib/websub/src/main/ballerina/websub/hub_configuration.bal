@@ -30,14 +30,14 @@ final string DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/subscriptionsdb";
 final string DEFAULT_DB_USERNAME = "ballerina";
 final string DEFAULT_DB_PASSWORD = "ballerina";
 
-@readonly string hubHost;
-@readonly int hubPort;
-@readonly int hubLeaseSeconds;
-@readonly string hubSignatureMethod;
-@readonly boolean hubRemotePublishingEnabled;
-@readonly RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
-@readonly boolean hubTopicRegistrationRequired;
-@readonly string hubPublicUrl;
+string hubHost;
+int hubPort;
+int hubLeaseSeconds;
+string hubSignatureMethod;
+boolean hubRemotePublishingEnabled;
+RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
+boolean hubTopicRegistrationRequired;
+string hubPublicUrl;
 
 final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
 final string hubDatabaseUrl = config:getAsString("b7a.websub.hub.db.url", default = DEFAULT_DB_URL);
@@ -45,9 +45,9 @@ final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.usernam
 final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
-@readonly boolean hubSslEnabled;
-@readonly http:ServiceSecureSocket? hubServiceSecureSocket = ();
-@readonly http:SecureSocket? hubClientSecureSocket = ();
+boolean hubSslEnabled;
+http:ServiceSecureSocket? hubServiceSecureSocket = ();
+http:SecureSocket? hubClientSecureSocket = ();
 
 # Function to bind and start the Ballerina WebSub Hub service.
 #

@@ -26,9 +26,9 @@
 # + protocol - The protocol associated with the service endpoint
 public type Listener object {
 
-    @readonly public Remote remote;
-    @readonly public Local local;
-    @readonly public string protocol;
+    public Remote remote;
+    public Local local;
+    public string protocol;
 
     private Connection conn;
     private ServiceEndpointConfiguration config;
@@ -62,8 +62,8 @@ public type Listener object {
 # + host - The remote host name/IP
 # + port - The remote port
 public type Remote record {
-    @readonly string host;
-    @readonly int port;
+    string host;
+    int port;
     !...
 };
 
@@ -72,8 +72,8 @@ public type Remote record {
 # + host - The local host name/IP
 # + port - The local port
 public type Local record {
-    @readonly string host;
-    @readonly int port;
+    string host;
+    int port;
     !...
 };
 
@@ -183,11 +183,11 @@ function Listener::init (ServiceEndpointConfiguration c) {
 # + attributes - A `map` to store connection related attributes
 public type WebSocketListener object {
 
-    @readonly public string id;
-    @readonly public string negotiatedSubProtocol;
-    @readonly public boolean isSecure;
-    @readonly public boolean isOpen;
-    @readonly public map attributes;
+    public string id;
+    public string negotiatedSubProtocol;
+    public boolean isSecure;
+    public boolean isOpen;
+    public map attributes;
 
     private WebSocketConnector conn;
     private ServiceEndpointConfiguration config;

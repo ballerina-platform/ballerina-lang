@@ -42,10 +42,10 @@ public type Filter abstract object {
 # + attributes - Attributes to share between filters
 public type FilterContext object {
 
-    @readonly public typedesc serviceType;
-    @readonly public string serviceName;
-    @readonly public string resourceName;
-    @readonly public map attributes;
+    public typedesc serviceType;
+    public string serviceName;
+    public string resourceName;
+    public map attributes;
 
     public new(serviceType, serviceName, resourceName) {}
 };

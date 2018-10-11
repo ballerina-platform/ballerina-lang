@@ -1,6 +1,6 @@
 import pkg1;
 
-@readonly string READ_ONLY_VAR;
+string READ_ONLY_VAR;
 final string FINAL_VAR = "Final variable";
 
 type Info record {
