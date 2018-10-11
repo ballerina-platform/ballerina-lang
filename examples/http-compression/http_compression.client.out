@@ -1,4 +1,5 @@
 # To invoke the autoCompress Service, use the following curl command.
+# Here the `Accept-Encoding` header is specified as `deflate`.
 $ curl -v --output - http://localhost:9090/autoCompress -H "Accept-Encoding:deflate"
 > GET /autoCompress HTTP/1.1
 > Host: localhost:9090
@@ -15,9 +16,8 @@ x��V
 * Connection #0 to host localhost left intact
 �,HU�Rr,-�WH��-(J-.���S�����	�
 
-
-# To invoke the alwaysCompress Service, use the following curl command.
-# Here the "Accept-Encoding" header is not specified.
+# To invoke the alwaysCompress Service to get the JSON payload, use the following curl command.
+# Here the `Accept-Encoding` header is not specified.
 $ curl -v --output - http://localhost:9090/alwaysCompress/getJson
 > GET /alwaysCompress/getJson HTTP/1.1
 > Host: localhost:9090
@@ -31,8 +31,8 @@ $ curl -v --output - http://localhost:9090/alwaysCompress/getJson
 * Connection #0 to host localhost left intact
 {"Type":"Always but constrained by content-type"}
 
-
-# To invoke the alwaysCompress Service, use the following curl command.
+# To invoke the alwaysCompress Service to get the String payload, use the following curl command.
+# Here the `Accept-Encoding` header is not specified.
 $ curl -v --output - http://localhost:9090/alwaysCompress/getString
 > GET /alwaysCompress/getString HTTP/1.1
 > Host: localhost:9090
