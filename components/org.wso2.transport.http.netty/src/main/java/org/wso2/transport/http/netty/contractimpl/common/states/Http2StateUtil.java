@@ -40,6 +40,19 @@ public class Http2StateUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(Http2StateUtil.class);
 
+    /**
+     * Write HTTP2 headers.
+     *
+     * @param ctx                the channel handler context
+     * @param outboundMsgHolder  the outbound message holder
+     * @param http2ClientChannel the client channel related to the handler
+     * @param encoder            the HTTP2 connection encoder
+     * @param streamId           the id of the stream
+     * @param headers            the HTTP headers
+     * @param http2Headers       the HTTP2 headers
+     * @param endStream          is this the end of stream
+     * @throws Http2Exception if a protocol-related error occurred
+     */
     public static void writeHttp2Headers(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder,
                                          Http2ClientChannel http2ClientChannel, Http2ConnectionEncoder encoder,
                                          int streamId, HttpHeaders headers, Http2Headers http2Headers,
@@ -62,25 +75,58 @@ public class Http2StateUtil {
         }
     }
 
+    /**
+     * Initiate HTTP2 stream.
+     *
+     * @param ctx                the channel handler context
+     * @param connection         the HTTP2 connection
+     * @param http2ClientChannel the client channel related to the handler
+     * @param outboundMsgHolder  the outbound message holder
+     * @return stream id of next stream
+     * @throws Http2Exception if a protocol-related error occurred
+     */
     public static int initiateStream(ChannelHandlerContext ctx, Http2Connection connection,
                                      Http2ClientChannel http2ClientChannel,
                                      OutboundMsgHolder outboundMsgHolder) throws Http2Exception {
-        int id = getNextStreamId(connection);
-        http2ClientChannel.putInFlightMessage(id, outboundMsgHolder);
+        int streamId = getNextStreamId(connection);
+        createStream(connection, streamId);
+        http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
         http2ClientChannel.getDataEventListeners()
-                .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, id));
-        return id;
+                .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, streamId));
+        return streamId;
     }
 
-    private static synchronized int getNextStreamId(Http2Connection connection) throws Http2Exception {
-        int nextStreamId = connection.local().incrementAndGetNextStreamId();
-        connection.local().createStream(nextStreamId, false);
+    /**
+     * Return the stream id of next stream.
+     *
+     * @param conn the HTTP2 connection
+     * @return the next stream id
+     */
+    private static synchronized int getNextStreamId(Http2Connection conn) {
+        return conn.local().incrementAndGetNextStreamId();
+    }
+
+    /**
+     * Create stream with given stream id.
+     *
+     * @param conn     the HTTP2 connection
+     * @param streamId the id of the stream
+     * @throws Http2Exception if a protocol-related error occurred
+     */
+    private static synchronized void createStream(Http2Connection conn, int streamId) throws Http2Exception {
+        conn.local().createStream(streamId, false);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Stream created streamId: {}", nextStreamId);
+            LOG.debug("Stream created streamId: {}", streamId);
         }
-        return nextStreamId;
     }
 
+    /**
+     * Add push promise message.
+     *
+     * @param http2PushPromise   the HTTP2 push promise
+     * @param http2ClientChannel the client channel related to the handler
+     * @param outboundMsgHolder  the outbound message holder
+     */
     public static void onPushPromiseRead(Http2PushPromise http2PushPromise, Http2ClientChannel http2ClientChannel,
                                          OutboundMsgHolder outboundMsgHolder) {
         int streamId = http2PushPromise.getStreamId();
