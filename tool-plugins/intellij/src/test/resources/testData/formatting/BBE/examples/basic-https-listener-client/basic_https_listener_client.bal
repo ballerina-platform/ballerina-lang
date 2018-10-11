@@ -27,7 +27,7 @@ service helloWorld bind helloWorldEP {
         http:Response res = new;
         res.setPayload("Hello World!");
         caller->respond(res) but {
-                    error e => log:printError("Failed to respond", err = e) };
+            error e => log:printError("Failed to respond", err = e) };
     }
 }
 

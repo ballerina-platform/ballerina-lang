@@ -163,6 +163,20 @@ public class ArrowExprTest {
         Assert.assertEquals(returns[0].stringValue(), "DoReMeFa");
     }
 
+    @Test(description = "Test arrow expression inside a record")
+    public void testArrowExprInRecord() {
+        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprInRecord");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+    }
+
+    @Test(description = "Test arrow expression inside an object")
+    public void testArrowExprInObject() {
+        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprInObject");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+    }
+
     @Test(description = "Test compile time errors for arrow expression")
     public void testNegativeArrowExpr() {
         int i = 0;

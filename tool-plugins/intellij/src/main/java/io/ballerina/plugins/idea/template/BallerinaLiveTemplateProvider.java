@@ -28,12 +28,12 @@ public class BallerinaLiveTemplateProvider implements DefaultLiveTemplatesProvid
     @NotNull
     @Override
     public String[] getDefaultLiveTemplateFiles() {
-        return new String[]{"/liveTemplates/Ballerina"};
+        return new String[] { "/liveTemplates/Ballerina" };
     }
 
     @Nullable
     @Override
     public String[] getHiddenLiveTemplateFiles() {
-        return new String[]{"/liveTemplates/BallerinaHidden"};
+        return new String[] { "/liveTemplates/BallerinaHidden" };
     }
 }

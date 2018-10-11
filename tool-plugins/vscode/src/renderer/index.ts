@@ -18,10 +18,10 @@
  */
 import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection } from 'vscode';
 import * as _ from 'lodash';
-import { StaticProvider } from './content-provider';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../lang-client';
 import { WebViewRPCHandler } from '../utils';
+import BallerinaExtension from '../core/ballerina-extension';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -40,10 +40,11 @@ function updateWebView(ast: BallerinaAST, docUri: Uri, stale: boolean): void {
 	}
 }
 
-export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
-	workspace.onDidChangeTextDocument(_.debounce((e: TextDocumentChangeEvent) => {
-        if (activeEditor && (e.document === activeEditor.document) &&
-            e.document.fileName.endsWith('.bal')) {
+function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangClient): void {
+	const didChangeDisposable = workspace.onDidChangeTextDocument(
+			_.debounce((e: TextDocumentChangeEvent) => {
+		if (activeEditor && (e.document === activeEditor.document) &&
+			e.document.fileName.endsWith('.bal')) {
 			if (preventDiagramUpdate) {
 				return;
 			}
@@ -59,7 +60,8 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 		}
 	}, DEBOUNCE_WAIT));
 
-	window.onDidChangeActiveTextEditor((activatedEditor: TextEditor | undefined) => {
+	const changeActiveEditorDisposable =  window.onDidChangeActiveTextEditor(
+			(activatedEditor: TextEditor | undefined) => {
 		if (window.activeTextEditor && activatedEditor 
 					&& (activatedEditor.document === window.activeTextEditor.document) 
 					&& activatedEditor.document.fileName.endsWith('.bal')) {
@@ -76,96 +78,109 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 		}
 	});
 
-	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		if (previewPanel) {
-			previewPanel.reveal(ViewColumn.Two, true);
-			return;
+	if (previewPanel) {
+		previewPanel.reveal(ViewColumn.Two, true);
+		return;
+	}
+	// Create and show a new webview
+	previewPanel = window.createWebviewPanel(
+		'ballerinaDiagram',
+		"Ballerina Diagram",
+		{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
+		{
+			enableScripts: true,
+			retainContextWhenHidden: true,
 		}
-		// Create and show a new webview
-        previewPanel = window.createWebviewPanel(
-            'ballerinaDiagram',
-            "Ballerina Diagram",
-            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
-            {
-				enableScripts: true,
-				retainContextWhenHidden: true,
+	);
+	const editor = window.activeTextEditor;
+	if(!editor) {
+		return;
+	}
+	activeEditor = editor;
+	WebViewRPCHandler.create([
+		{
+			methodName: 'getAST',
+			handler: (args: any[]) => {
+				return langClient.getAST(args[0]);
 			}
-		);
-		const editor = window.activeTextEditor;
-		if(!editor) {
-            return "";
-		}
-		activeEditor = editor;
-		WebViewRPCHandler.create([
-			{
-				methodName: 'getAST',
-				handler: (args: any[]) => {
-					return langClient.getAST(args[0]);
-				}
-			},
-			{
-				methodName: 'getEndpoints',
-				handler: (args: any[]) => {
-					return langClient.getEndpoints();
-				}
-			},
-			{
-				methodName: 'parseFragment',
-				handler: (args: any[]) => {
-					return langClient.parseFragment({
-						enclosingScope: args[0].enclosingScope,
-						expectedNodeType: args[0].expectedNodeType,
-						source: args[0].source
-					});
-				}
-			},
-			{
-				methodName: 'revealRange',
-				handler: (args: any[]) => {
-					if (activeEditor) {
-						const start = new Position(args[0] - 1, args[1] - 1);
-						const end = new Position(args[2] - 1, args[3]);
-						activeEditor.revealRange(new Range(start, end));
-						activeEditor.selection = new Selection(start, end);
-					}
-					return Promise.resolve();
-				}
+		},
+		{
+			methodName: 'getEndpoints',
+			handler: (args: any[]) => {
+				return langClient.getEndpoints();
 			}
-		], previewPanel.webview);
-		const html = render(context, langClient, editor.document.uri);
-		if (previewPanel && html) {
-			previewPanel.webview.html = html;
+		},
+		{
+			methodName: 'parseFragment',
+			handler: (args: any[]) => {
+				return langClient.parseFragment({
+					enclosingScope: args[0].enclosingScope,
+					expectedNodeType: args[0].expectedNodeType,
+					source: args[0].source
+				});
+			}
+		},
+		{
+			methodName: 'revealRange',
+			handler: (args: any[]) => {
+				if (activeEditor) {
+					const start = new Position(args[0] - 1, args[1] - 1);
+					const end = new Position(args[2] - 1, args[3]);
+					activeEditor.revealRange(new Range(start, end));
+					activeEditor.selection = new Selection(start, end);
+				}
+				return Promise.resolve();
+			}
 		}
-		// Handle messages from the webview
-        previewPanel.webview.onDidReceiveMessage(message => {
-            switch (message.command) {
-				case 'astModified':
-					if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
-						preventDiagramUpdate = true;
-						const ast = JSON.parse(message.ast);
-						langClient.triggerASTDidChange(ast, activeEditor.document.uri)
-							.then(() => {
-								preventDiagramUpdate = false;
-							});	
-					}
-                    return;
-            }
-		}, undefined, context.subscriptions);
-		previewPanel.onDidDispose(() => {
-			previewPanel = undefined;
-		});
-    });
-	context.subscriptions.push(diagramRenderDisposable);
+	], previewPanel.webview);
+	const html = render(context, langClient, editor.document.uri);
+	if (previewPanel && html) {
+		previewPanel.webview.html = html;
+	}
+	// Handle messages from the webview
+	previewPanel.webview.onDidReceiveMessage(message => {
+		switch (message.command) {
+			case 'astModified':
+				if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
+					preventDiagramUpdate = true;
+					const ast = JSON.parse(message.ast);
+					langClient.triggerASTDidChange(ast, activeEditor.document.uri)
+						.then(() => {
+							preventDiagramUpdate = false;
+						});	
+				}
+				return;
+		}
+	}, undefined, context.subscriptions);
+
+	previewPanel.onDidDispose(() => {
+		previewPanel = undefined;
+		didChangeDisposable.dispose();
+		changeActiveEditorDisposable.dispose();
+	});
 }
 
-export function errored(context: ExtensionContext) {
-	const provider = new StaticProvider();
-	let registration = workspace.registerTextDocumentContentProvider('ballerina-static', provider);
-
+export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		let uri = Uri.parse('ballerina-static:///resources/pages/error.html');
-		commands.executeCommand('vscode.previewHtml', uri, ViewColumn.Two, 'Ballerina Diagram');
+		return BallerinaExtension.onReady()
+		.then(() => {
+			const { experimental } = langClient.initializeResult!.capabilities;
+			const serverProvidesAST = experimental && experimental.astProvider;
+
+			if (!serverProvidesAST) {
+				BallerinaExtension.showMessageServerMissingCapability();
+				return {};
+			}
+			showDiagramEditor(context, langClient);
+		})
+		.catch((e) => {
+			if (!BallerinaExtension.isValidBallerinaHome()) {
+				BallerinaExtension.showMessageInvalidBallerinaHome();
+			} else {
+				BallerinaExtension.showPluginActivationError();
+			}
+		});
 	});
 
-	context.subscriptions.push(diagramRenderDisposable, registration);
+	context.subscriptions.push(diagramRenderDisposable);
 }

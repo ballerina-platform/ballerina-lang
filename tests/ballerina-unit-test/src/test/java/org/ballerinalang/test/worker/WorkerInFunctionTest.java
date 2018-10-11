@@ -26,6 +26,10 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+
 /**
  * Test cases for usages of worker in functions.
  */
@@ -51,4 +55,32 @@ public class WorkerInFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    @Test(description = "Test value returning from multiple workers", enabled = false)
+    public void testMultipleReturnsVM() throws IOException {
+        PrintStream original = System.out;
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
+            CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
+            System.setOut(new PrintStream(outContent));
+            BRunUtil.invoke(result, "testMultipleReturnsVM");
+            String expected = "error: worker 'w";
+            Assert.assertTrue(outContent.toString().trim().startsWith(expected));
+        } finally {
+            System.setOut(original);
+        }
+    }
+
+    @Test(description = "Test nil value returning from multiple workers")
+    public void testMultipleNilReturnsVM() throws IOException {
+        PrintStream original = System.out;
+        for (int i = 0; i < 100; i++) {
+            try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
+                CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
+                System.setOut(new PrintStream(outContent));
+                BRunUtil.invoke(result, "testMultipleNilReturnsVM");
+                Assert.assertEquals(outContent.toString(), "Done\n");
+            } finally {
+                System.setOut(original);
+            }
+        }
+    }
 }

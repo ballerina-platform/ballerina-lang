@@ -56,6 +56,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.CALLABLE_UNIT_SIGNATU
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH_CLAUSES;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL_TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMA;
@@ -66,7 +68,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DIV;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_DESCRIPTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_COLON;
@@ -272,7 +273,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(XMLNS).spaceIf(true)
                 .around(RETURNS).spaceIf(true)
                 .around(VERSION).spaceIf(true)
-                .around(DOCUMENTATION).spaceIf(true)
                 .around(DEPRECATED).spaceIf(true)
 
                 .around(VAR).spaceIf(true)
@@ -343,6 +343,10 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(YEAR).spaceIf(true)
                 .around(FOREVER).spaceIf(true)
 
+                //Channel keyword
+                .between(CHANNEL, LT).spaceIf(false)
+                .between(CHANNEL_TYPE, IDENTIFIER).spaceIf(true)
+
                 // Common tokens
                 .before(COMMA).spaceIf(false)
                 .after(COMMA).spaceIf(true)
@@ -358,6 +362,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(SIMPLE_TYPE_NAME, EQUAL_GT).spaceIf(true)
                 .after(ANNOTATION_ATTACHMENT).spaceIf(true)
                 .between(FUNCTION, SIMPLE_TYPE_NAME).spaceIf(true)
+                .between(FUNCTION, LEFT_PARENTHESIS).spaceIf(true)
                 .around(SIMPLE_TYPE_NAME).spaceIf(false)
                 .between(NAME_REFERENCE, RECORD_LITERAL).spaceIf(true)
                 .around(NAME_REFERENCE).spaceIf(false)

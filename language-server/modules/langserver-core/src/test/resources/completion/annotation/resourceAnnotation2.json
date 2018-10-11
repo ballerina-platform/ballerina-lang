@@ -6,6 +6,64 @@
   "source": "annotation/source/resourceAnnotation2.bal",
   "items": [
     {
+      "label":"swagger:ResourceInfo",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"swagger:ResourceInfo {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/swagger;\n"
+        }
+      ]
+    },
+    {
+      "label":"grpc:ResourceConfig",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"grpc:ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label":"Param",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"Param {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"interruptible",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"interruptible",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"http:ResourceConfig",
       "detail":"Annotation",
       "sortText":"110",

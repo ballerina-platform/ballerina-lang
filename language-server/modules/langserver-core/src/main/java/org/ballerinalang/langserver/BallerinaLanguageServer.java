@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
@@ -76,6 +77,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         LSGlobalContext lsGlobalContext = new LSGlobalContext();
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
+        lsGlobalContext.put(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY, new DiagnosticsHelper());
         this.textService = new BallerinaTextDocumentService(lsGlobalContext);
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext); 
@@ -102,7 +104,8 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
                 CommandConstants.CMD_ADD_ALL_DOC,
                 CommandConstants.CMD_CREATE_FUNCTION,
                 CommandConstants.CMD_CREATE_VARIABLE,
-                CommandConstants.CMD_CREATE_CONSTRUCTOR));
+                CommandConstants.CMD_CREATE_CONSTRUCTOR,
+                CommandConstants.CMD_PULL_PACKAGE));
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
@@ -129,6 +132,12 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         if (experimentalCapabilities != null && experimentalCapabilities.get("introspection")) {
             ballerinaTraceListener.startListener();
         }
+
+        // Set AST provider and examples provider capabilities
+        HashMap<String, Boolean> experimentalServerCapabilities = new HashMap<String, Boolean>();
+        experimentalServerCapabilities.put("astProvider", true);
+        experimentalServerCapabilities.put("examplesProvider", true);
+        res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
         return CompletableFuture.supplyAsync(() -> res);
     }
@@ -182,8 +191,8 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     // Private Methods
 
     private void initLSIndex() {
-        String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/resources/composer/lang-server-index.sql")
-                .toString();
+        String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/tools/lang-server/resources/" +
+                "lang-server-index.sql").toString();
         LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
 

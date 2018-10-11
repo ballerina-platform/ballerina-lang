@@ -69,6 +69,11 @@ public abstract class Channel implements IOChannel {
      */
     private Buffer contentBuffer;
 
+    /**
+     * Specifies whether the channel is readable.
+     */
+    private boolean readable;
+
     private static final Logger log = LoggerFactory.getLogger(Channel.class);
 
     /**
@@ -246,6 +251,14 @@ public abstract class Channel implements IOChannel {
             content = Arrays.copyOfRange(content, 0, contentLength);
         }
         return content;
+    }
+
+    public void setReadable(boolean readable) {
+        this.readable = readable;
+    }
+
+    public boolean isReadable() {
+        return readable;
     }
 
     /**
