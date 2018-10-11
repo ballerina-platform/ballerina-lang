@@ -147,7 +147,7 @@ fi
 
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/bre/lib/*
 
-CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/lib/resources/composer/services/*
+CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/lib/tools/lang-server/lib/*
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
