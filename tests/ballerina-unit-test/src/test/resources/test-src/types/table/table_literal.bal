@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/h2;
 import ballerina/io;
-import ballerina/jdbc;
 import ballerina/sql;
 
 type Person record {
@@ -75,9 +75,10 @@ function testEmptyTableCreate() returns (int, int) {
 }
 
 function checkTableCount(string tablePrefix) returns (int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:h2:mem:TABLEDB",
-        username: "sa",
+    endpoint h2:Client testDB {
+        name: "TABLEDB",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
