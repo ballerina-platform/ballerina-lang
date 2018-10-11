@@ -252,11 +252,24 @@ public class HttpDispatcher {
         return null;
     }
 
+    /**
+     * Check the validity of array type in data binding scenario.
+     *
+     * @param entityBodyType Represents ballerina array type
+     * @return a boolean indicating the validity of the array type
+     */
     private static boolean validArrayType(BArrayType entityBodyType) {
         return (entityBodyType.getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) ||
                 (entityBodyType.getElementType().getTag() == TypeTags.OBJECT_TYPE_TAG);
     }
 
+    /**
+     * Convert a json to the relevant record or object.
+     *
+     * @param entityBodyType Represents entity body type
+     * @param bjson          Represents the json value that needs to be converted
+     * @return the relevant ballerina record or object
+     */
     private static BValue getRecordOrObject(BType entityBodyType, BValue bjson) {
         try {
             return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
@@ -266,6 +279,13 @@ public class HttpDispatcher {
         }
     }
 
+    /**
+     * Convert a json array to the relevant record or object array.
+     *
+     * @param entityBodyType Represents entity body type
+     * @param bjson          Represents the json array that needs to be converted
+     * @return the relevant ballerina record or object array
+     */
     private static BValue getRecordOrObjectArray(BType entityBodyType, BValue bjson) {
         try {
             return JSONUtils.convertJSONToBArray(bjson, (BArrayType) entityBodyType);
@@ -275,6 +295,12 @@ public class HttpDispatcher {
         }
     }
 
+    /**
+     * Given an inbound request entity construct the ballerina json.
+     *
+     * @param inRequestEntity Represents inbound request entity
+     * @return a ballerina json value
+     */
     private static BValue getBJsonValue(BMap<String, BValue> inRequestEntity) {
         BValue bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
         EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);

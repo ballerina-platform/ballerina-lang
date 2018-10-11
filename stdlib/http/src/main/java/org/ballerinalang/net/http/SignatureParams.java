@@ -86,6 +86,12 @@ public class SignatureParams {
         }
     }
 
+    /**
+     * Check the validity of array type in data binding scenario.
+     *
+     * @param entityBodyParam Represents resource parameter details
+     * @return a boolean indicating the validity of the array type
+     */
     private boolean validArrayType(ParamDetail entityBodyParam) {
         return ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.BYTE_TAG ||
                 ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG ||
