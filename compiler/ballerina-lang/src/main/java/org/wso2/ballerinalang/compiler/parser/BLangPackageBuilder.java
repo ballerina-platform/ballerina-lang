@@ -822,23 +822,10 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addVariableDefStatement(DiagnosticPos pos,
-                                 Set<Whitespace> ws,
-                                 String identifier,
-                                 boolean exprAvailable,
-                                 boolean endpoint) {
+    void addVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
-        // TODO : Remove endpoint logic from here.
-        Set<Whitespace> wsOfSemiColon = null;
-        if (endpoint) {
-            var.addWS(endpointVarWs);
-            var.addWS(endpointKeywordWs);
-            endpointVarWs = null;
-            endpointKeywordWs = null;
-        } else {
-            wsOfSemiColon = removeNthFromLast(ws, 0);
-        }
+        Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
         var.pos = pos;
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
@@ -846,7 +833,6 @@ public class BLangPackageBuilder {
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
-
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);

@@ -935,7 +935,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean exprAvailable = ctx.ASSIGN() != null;
         this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                exprAvailable, false);
+                exprAvailable);
     }
 
     @Override
