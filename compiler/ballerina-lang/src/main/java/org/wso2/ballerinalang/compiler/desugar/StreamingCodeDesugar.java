@@ -156,6 +156,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String ORDER_BY_FIELD_ATTR = "fieldFuncs";
     private static final String ORDER_TYPE_ASC = "ASCENDING";
+    private static final String STR_ENDING = "ENDING";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -275,8 +276,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BLangOrderByVariable orderByVariable = (BLangOrderByVariable) node;
             orderingFuncArrExpr.exprs.add(createOrderingFunctionPointer((BLangExpression) orderByVariable
                     .getVariableReference()));
-            String fieldOrderType = orderByVariable.getOrderByType();
-            if (fieldOrderType == null || fieldOrderType.isEmpty()) {
+            String fieldOrderType = orderByVariable.getOrderByType() + STR_ENDING;
+            if (fieldOrderType.isEmpty()) {
                 fieldOrderType = ORDER_TYPE_ASC;
             }
             orderingTypeArrExpr.exprs.add(ASTBuilderUtil.createLiteral(orderByVariable.pos, symTable.stringType,

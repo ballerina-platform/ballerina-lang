@@ -85,7 +85,6 @@ function foo() {
 }
 
 function printTeachers(TeacherOutput e) {
-    io:println(e);
     addToGlobalEmployeeArray(e);
 }
 
