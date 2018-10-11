@@ -265,19 +265,19 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private void mergeAst(BLangCompilationUnit ast, BLangCompilationUnit swaggerAst) {
         swaggerAst.getTopLevelNodes().stream().forEach(topLevelNode -> {
 
-            if(topLevelNode instanceof ImportPackageNode){
-                if(!hasImport(ast, (ImportPackageNode) topLevelNode)){
+            if (topLevelNode instanceof ImportPackageNode) {
+                if (!hasImport(ast, (ImportPackageNode) topLevelNode)) {
                     ast.addTopLevelNode(topLevelNode);
                 }
             }
 
-            if(topLevelNode instanceof ServiceNode) {
+            if (topLevelNode instanceof ServiceNode) {
                 ServiceNode swaggerService = (ServiceNode) topLevelNode;
                 List<ServiceNode> serviceList = new ArrayList<>();
-                for(TopLevelNode astNode : ast.getTopLevelNodes()) {
-                    if(astNode instanceof ServiceNode) {
+                for (TopLevelNode astNode : ast.getTopLevelNodes()) {
+                    if (astNode instanceof ServiceNode) {
                         ServiceNode astService = (ServiceNode) astNode;
-                        if(astService.getName().getValue().equals(swaggerService.getName().getValue())){
+                        if (astService.getName().getValue().equals(swaggerService.getName().getValue())) {
                             mergeServices(astService, swaggerService);
                         } else {
                             serviceList.add(swaggerService);
@@ -295,9 +295,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         mergeAnnotations(originService, targetService);
 
         List<ResourceNode> targetServices = new ArrayList<>();
-        for(ResourceNode targetResource : targetService.getResources()){
-            for(ResourceNode originResource : originService.getResources()){
-                if(matchResource(originResource, targetResource)){
+        for (ResourceNode targetResource : targetService.getResources()) {
+            for (ResourceNode originResource : originService.getResources()) {
+                if (matchResource(originResource, targetResource)) {
                     mergeAnnotations(originResource, targetResource);
                 } else {
                     targetServices.add(targetResource);
@@ -308,28 +308,31 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         targetServices.forEach(service -> originService.addResource(service));
     }
 
-    private void mergeAnnotations(AnnotatableNode targetNode, AnnotatableNode sourceNode){
-        for(AnnotationAttachmentNode sourceNodeAttachment : sourceNode.getAnnotationAttachments()) {
+    private void mergeAnnotations(AnnotatableNode targetNode, AnnotatableNode sourceNode) {
+        for (AnnotationAttachmentNode sourceNodeAttachment : sourceNode.getAnnotationAttachments()) {
 
             AnnotationAttachmentNode matchedTargetNode = findAttachmentNode(targetNode, sourceNodeAttachment);
 
-            if(matchedTargetNode != null) {
-                if(sourceNodeAttachment.getExpression() instanceof BLangRecordLiteral &&
+            if (matchedTargetNode != null) {
+                if (sourceNodeAttachment.getExpression() instanceof BLangRecordLiteral &&
                         matchedTargetNode.getExpression() instanceof BLangRecordLiteral) {
 
                     BLangRecordLiteral sourceRecord = (BLangRecordLiteral) sourceNodeAttachment.getExpression();
                     BLangRecordLiteral matchedTargetRecord = (BLangRecordLiteral) matchedTargetNode.getExpression();
 
                     List<BLangRecordLiteral.BLangRecordKeyValue> ooo = new ArrayList<>();
-                    for(BLangRecordLiteral.BLangRecordKeyValue sourceKeyValue : sourceRecord.getKeyValuePairs()){
-                        for (BLangRecordLiteral.BLangRecordKeyValue matchedKeyValue : matchedTargetRecord.getKeyValuePairs()){
+                    for (BLangRecordLiteral.BLangRecordKeyValue sourceKeyValue : sourceRecord.getKeyValuePairs()) {
+                        for (BLangRecordLiteral.BLangRecordKeyValue matchedKeyValue :
+                                matchedTargetRecord.getKeyValuePairs()) {
                             int matchedKeyValuePairIndex = 0;
-                            if((matchedKeyValue.key!= null && matchedKeyValue.key.expr instanceof BLangSimpleVarRef)){
+                            if ((matchedKeyValue.key != null &&
+                                    matchedKeyValue.key.expr instanceof BLangSimpleVarRef)) {
                                 BLangSimpleVarRef matchedKey = (BLangSimpleVarRef) matchedKeyValue.key.expr;
                                 BLangSimpleVarRef sourceKey = (BLangSimpleVarRef) sourceKeyValue.key.expr;
 
-                                if(matchedKey.variableName.getValue().equals(sourceKey.variableName.getValue())) {
-                                    matchedTargetRecord.getKeyValuePairs().set(matchedKeyValuePairIndex, sourceKeyValue);
+                                if (matchedKey.variableName.getValue().equals(sourceKey.variableName.getValue())) {
+                                    matchedTargetRecord.getKeyValuePairs().set(matchedKeyValuePairIndex,
+                                            sourceKeyValue);
                                 } else {
                                     ooo.add(sourceKeyValue);
                                 }
@@ -347,11 +350,13 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         }
     }
 
-    private AnnotationAttachmentNode findAttachmentNode(AnnotatableNode targetNode, AnnotationAttachmentNode sourceNodeAttachment) {
+    private AnnotationAttachmentNode findAttachmentNode(AnnotatableNode targetNode,
+                                                        AnnotationAttachmentNode sourceNodeAttachment) {
         AnnotationAttachmentNode matchedNode = null;
-        for(AnnotationAttachmentNode attachmentNode : targetNode.getAnnotationAttachments()) {
-            if(sourceNodeAttachment.getAnnotationName().getValue().equals(attachmentNode.getAnnotationName().getValue()) &&
-                    sourceNodeAttachment.getPackageAlias().getValue().equals(attachmentNode.getPackageAlias().getValue())) {
+        for (AnnotationAttachmentNode attachmentNode : targetNode.getAnnotationAttachments()) {
+            if (sourceNodeAttachment.getAnnotationName().getValue().equals(
+                    attachmentNode.getAnnotationName().getValue()) && sourceNodeAttachment.getPackageAlias()
+                    .getValue().equals(attachmentNode.getPackageAlias().getValue())) {
                 matchedNode = attachmentNode;
                 break;
             }
@@ -366,7 +371,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
      * @return true if matched else false
      */
     private boolean matchResource(ResourceNode astResource, ResourceNode swaggerResource) {
-        if(astResource.getName().getValue().equals(swaggerResource.getName().getValue())) {
+        if (astResource.getName().getValue().equals(swaggerResource.getName().getValue())) {
             return true;
         }
         return false;
@@ -374,7 +379,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
     /**
      *
-     * Util method to check if given node is an existing import in current AST model
+     * Util method to check if given node is an existing import in current AST model.
      * @param originAst - current AST model
      * @param mergePackage - Import Node
      * @return - boolean status
@@ -382,15 +387,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private boolean hasImport(BLangCompilationUnit originAst, ImportPackageNode mergePackage) {
         boolean importFound = false;
 
-        for(TopLevelNode originNode : originAst.getTopLevelNodes()) {
+        for (TopLevelNode originNode : originAst.getTopLevelNodes()) {
             if (originNode instanceof ImportPackageNode) {
                 ImportPackageNode originPackage = (ImportPackageNode) originNode;
 
                 if (originPackage.getOrgName().getValue().equals(mergePackage.getOrgName().getValue())) {
                     if (originPackage.getPackageName().size() == mergePackage.getPackageName().size()) {
-                        List<IdentifierNode> packageNameList = originPackage.getPackageName().stream().filter(pkgName ->
-                                mergePackage.getPackageName().contains(pkgName)).collect(Collectors.toList());
-                        if (packageNameList.size() > 0 && packageNameList.size() == mergePackage.getPackageName().size()) {
+                        List<IdentifierNode> packageNameList = originPackage.getPackageName().stream()
+                                .filter(pkgName -> mergePackage.getPackageName().contains(pkgName))
+                                .collect(Collectors.toList());
+                        if (packageNameList.size() > 0 &&
+                                packageNameList.size() == mergePackage.getPackageName().size()) {
                             importFound = true;
                         }
                     }
