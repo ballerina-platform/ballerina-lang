@@ -1424,7 +1424,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             refactoredVarRef = createMapVariableIndexAccessExpr(mapVarArgs.get(mapVarArgs.size() - 1).symbol,
                     ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, "OUTPUT." + varRefExpr
                             .variableName.value));
-            refactoredVarRef = generateConversionExpr(refactoredVarRef, expType, symResolver);
+            refactoredVarRef = Desugar.addConversionExprIfRequired(refactoredVarRef, expType, types, symTable,
+                    symResolver);
         } else {
             refactoredVarRef = varRefExpr;
         }
