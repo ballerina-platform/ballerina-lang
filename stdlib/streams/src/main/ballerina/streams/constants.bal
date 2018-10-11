@@ -22,3 +22,5 @@ public EventType EXPIRED = "EXPIRED";
 public string DEFAULT = "DEFAULT";
 public string DELIMITER = ".";
 public string DELIMITER_REGEX = "\\.";
+public string ASCENDING = "ascending";
+public string DESCENDING = "descending";

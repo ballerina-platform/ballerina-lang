@@ -48,9 +48,9 @@ public class BLangOrderByVariable extends BLangNode implements OrderByVariableNo
     @Override
     public void setOrderByType(boolean isAscending, boolean isDescending) {
         if (isAscending) {
-            this.orderByType = "asc";
+            this.orderByType = "ascending";
         } else if (isDescending) {
-            this.orderByType = "desc";
+            this.orderByType = "descending";
         } else {
             this.orderByType = "";
         }

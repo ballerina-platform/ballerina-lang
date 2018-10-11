@@ -1323,6 +1323,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         break;
                 }
             }
+        } else {
+            typeChecker.checkExpr(invocationExpr, env);
         }
     }
 
