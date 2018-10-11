@@ -212,7 +212,6 @@
                             <descriptors>
                                 <descriptor>assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>IndexDB</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

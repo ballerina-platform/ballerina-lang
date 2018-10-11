@@ -50,8 +50,10 @@ function testJoinQuery() {
         join twitterStream window lengthWindow(1) as twitter
         on stock.symbol == twitter.company
         select stock.symbol as symbol, twitter.tweet as tweet, stock.price as price
-        => (StockWithPrice[] emp) {
-            stockWithPriceStream.publish(emp);
+        => (StockWithPrice[] prices) {
+            foreach p in prices {
+                stockWithPriceStream.publish(p);
+            }
         }
     }
 }
