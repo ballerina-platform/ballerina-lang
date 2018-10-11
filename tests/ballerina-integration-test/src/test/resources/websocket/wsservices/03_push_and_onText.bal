@@ -20,7 +20,7 @@ import ballerina/log;
 
 service<http:WebSocketService> onTextString bind { port: 9080 } {
 
-    onText(endpoint caller, string data, boolean final) {
+    onText(endpoint caller, string data, boolean isFinal) {
         _ = caller->pushText(data);
     }
 }
