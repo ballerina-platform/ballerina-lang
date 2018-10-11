@@ -259,7 +259,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                orderByObjSymbol.pkgID, orderingFuncArrayType, env.scope.owner);
 
         //create RHS expression for the ordering function array
-        BLangArrayLiteral orderingFuncArrExpr = (BLangArrayLiteral)TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral orderingFuncArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         orderingFuncArrExpr.exprs = new ArrayList<>();
         orderingFuncArrExpr.type = orderingFuncArrayType;
 
@@ -376,7 +376,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         refactoredExpr = createCheckedExpr((BLangTypeConversionExpr) refactoredExpr);
                     }
                     expressionList.add(refactoredExpr);
-                } else if (expression.getKind() == NodeKind.INVOCATION){
+                } else if (expression.getKind() == NodeKind.INVOCATION) {
                     expressionList.add(refactorInvocationAfterSelect((BLangInvocation) expression));
                 } else {
                     expressionList.add(expression);
@@ -461,7 +461,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         indexAccessExpr.type = outputEventType;
         BLangTypeConversionExpr outputTypeConversionExpr = generateConversionExpr(mapVarRef, outputEventType,
                 symResolver);
-        BLangCheckedExpr outputCheckedExpr = createCheckedConversionExpr(outputTypeConversionExpr);
+        BLangCheckedExpr outputCheckedExpr = createCheckedExpr(outputTypeConversionExpr);
         BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(outputLambdaFunc.function.pos, foreachBody);
         assignment.setExpression(outputCheckedExpr);
         assignment.varRef = indexAccessExpr;
@@ -1595,7 +1595,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isInHaving) {
                     BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
                     expressionList.add(refactorVarRefAfterSelect(varRef, varRef.symbol.type));
-                } else if (expression.getKind() == NodeKind.INVOCATION){
+                } else if (expression.getKind() == NodeKind.INVOCATION) {
                     expressionList.add(refactorInvocationWithIndexBasedArgs(mapVarSymbol, (BLangInvocation)
                             expression));
                 } else {

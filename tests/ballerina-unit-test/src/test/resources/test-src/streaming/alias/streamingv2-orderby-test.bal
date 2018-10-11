@@ -77,7 +77,9 @@ function foo() {
         from inputStream where inputStream.age > 2 window lengthBatchWindow(5) as input
         select input.name, input.age, input.status, sum (input.age) as sumAge, count() as count
         group by input.name order by status ascending, age descending => (TeacherOutput [] o) {
-            outputStream.publish(o);
+            foreach x in o {
+                outputStream.publish(x);
+            }
         }
     }
 }
