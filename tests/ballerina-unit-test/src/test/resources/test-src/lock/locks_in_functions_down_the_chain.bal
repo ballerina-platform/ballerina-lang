@@ -11,8 +11,8 @@ function lockWithinLock() returns string {
         }
     }
     worker w2 {
+        runtime:sleep(100);
         lock {
-            runtime:sleep(200);
             lockString = lockString + "w2w2";
             lockLevel2("w2v");
             return lockString;
