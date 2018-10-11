@@ -58,8 +58,8 @@ class BallerinaExtension {
         this.context = context;
     }
 
-    init(): Promise<BallerinaExtension> {
-        return new Promise((resolve, reject) => {
+    init(): void {
+        try {
             // Register pre init handlers.
             this.registerPreInitHandlers();
 
@@ -71,8 +71,7 @@ class BallerinaExtension {
                     // Ballerina home in setting is invalid show message and quit.
                     // Prompt to correct the home. // TODO add auto ditection.
                     this.showMessageInvalidBallerinaHome();
-                    // Return error
-                    reject();
+                    return;
                 }
             } else {
                 // If ballerina home is not set try to auto ditect ballerina home.
@@ -81,7 +80,7 @@ class BallerinaExtension {
                 if (!this.ballerinaHome) {
                     this.showMessageInstallBallerina();
                     log("Unable to auto ditect ballerina home.");
-                    reject();
+                    return;
                 }
             }
 
@@ -100,7 +99,6 @@ class BallerinaExtension {
             const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                 if (stateChangeEvent.newState === LS_STATE.Stopped) {
                     this.showPluginActivationError();
-                    reject();
                 }
             });
 
@@ -109,9 +107,19 @@ class BallerinaExtension {
             this.langClient.onReady().then(fullfilled => {
                 disposeDidChange.dispose();
                 this.context!.subscriptions.push(disposable);
-                resolve();
             });
-        });
+        } catch {
+            // If any failure occurs while intializing show an error messege
+            this.showPluginActivationError();
+        }
+    }
+
+    onReady(): Promise<void> {
+        if (!this.langClient) {
+            return Promise.reject('BallerinaExtension is not initialized');
+        }
+
+        return this.langClient.onReady();
     }
 
     showPluginActivationError(): any {
@@ -225,7 +233,7 @@ class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        if (fs.existsSync(path.join(homePath, 'lib', 'resources', 'composer'))) {
+        if (fs.existsSync(path.join(homePath, 'lib', 'tools', 'lang-server'))) {
             return true;
         }
         return false;

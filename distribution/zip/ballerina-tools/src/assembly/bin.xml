@@ -39,12 +39,6 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-composer-web-zip/ballerina-composer-web-${project.version}
-            </directory>
-            <outputDirectory>lib</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>
                 ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
@@ -53,13 +47,13 @@
             <directory>
                 ${project.build.directory}/api-docs
             </directory>
-            <outputDirectory>docs/api/ballerina</outputDirectory>
+            <outputDirectory>docs/ballerina</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/ballerina-examples-zip/ballerina-examples-${ballerina.version}/examples
+                ../../../examples
             </directory>
-            <outputDirectory>docs/examples</outputDirectory>
+            <outputDirectory>examples</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
@@ -67,36 +61,25 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
+        <!-- Lang-Server specific files -->
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lib
+            </directory>
+            <outputDirectory>lib/tools/lang-server/lib</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/resources
+            </directory>
+            <outputDirectory>lib/tools/lang-server/resources</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
         <file>
             <source>bin/version.txt</source>
             <outputDirectory>lib/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>bin/composer</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>755</fileMode>
-        </file>
-        <file>
-            <source>bin/composer.bat</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>resources/language-server-launcher.sh</source>
-            <outputDirectory>lib/resources/composer/language-server-launcher/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>755</fileMode>
-        </file>
-        <file>
-            <source>resources/language-server-launcher.bat</source>
-            <outputDirectory>lib/resources/composer/language-server-launcher/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -119,28 +102,16 @@
             <fileMode>644</fileMode>
         </file>
 
-        <!-- Composer specific files -->
+        <!-- Lang-Server specific files -->
         <file>
-            <source>
-                ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/netty-transports.yml
-            </source>
-            <outputDirectory>lib/resources/composer/services</outputDirectory>
+            <source>resources/language-server-launcher.sh</source>
+            <outputDirectory>lib/tools/lang-server/launcher/</outputDirectory>
             <filtered>true</filtered>
-            <fileMode>644</fileMode>
+            <fileMode>755</fileMode>
         </file>
         <file>
-            <source>
-                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lang-server-index.sql
-            </source>
-            <outputDirectory>lib/resources/composer</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>
-                ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/deployment.yaml
-            </source>
-            <outputDirectory>lib/resources/composer/services</outputDirectory>
+            <source>resources/language-server-launcher.bat</source>
+            <outputDirectory>lib/tools/lang-server/launcher/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -171,13 +142,15 @@
             </includes>
             <unpack>false</unpack>
         </dependencySet>
-
-        <!-- Composer specific artifacts -->
+        <!-- Lang-Server specific jars -->
         <dependencySet>
-            <outputDirectory>lib/resources/composer/services</outputDirectory>
+            <outputDirectory>lib/tools/lang-server/lib</outputDirectory>
             <includes>
-                <include>org.ballerinalang:composer-server-distribution:jar</include>
+                <include>org.ballerinalang:language-server-compiler:jar</include>
+                <include>org.ballerinalang:language-server-core:jar</include>
+                <include>org.ballerinalang:language-server-stdio-launcher:jar</include>
             </includes>
+            <unpack>false</unpack>
         </dependencySet>
     </dependencySets>
 </assembly>

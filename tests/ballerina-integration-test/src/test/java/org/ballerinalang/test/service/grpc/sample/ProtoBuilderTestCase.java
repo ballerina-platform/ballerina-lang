@@ -50,7 +50,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
     @Test(description = "Test compiler plugin for unary service with primitive params.")
     public void testUnaryServiceWithPrimitiveParams() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "unary_server.bal");
+                "07_unary_server.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertUnaryCompileResult(result);
     }
@@ -58,7 +58,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
     @Test(description = "Test compiler plugin for unary service with header params.")
     public void testUnaryServiceWithHeaderParams() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "unary_service_with_headers.bal");
+                "08_unary_service_with_headers.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertUnaryCompileResult(result);
     }
@@ -66,7 +66,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
     @Test(description = "Test compiler plugin for server streaming service.")
     public void testServerStreamingService() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "server_streaming_service.bal");
+                "06_server_streaming_service.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertUnaryCompileResult(result);
     }
@@ -74,7 +74,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
     @Test(description = "Test compiler plugin for client streaming service.")
     public void testClientStreamingService() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "client_streaming_service.bal");
+                "04_client_streaming_service.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertStreamingCompileResult(result);
     }
@@ -82,7 +82,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
     @Test(description = "Test compiler plugin for bidirectional streaming service.")
     public void testBidirectionStreamingService() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "bidirectional_streaming_service.bal");
+                "03_bidirectional_streaming_service.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertStreamingCompileResult(result);
     }
@@ -90,7 +90,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
     @Test(description = "Test compiler plugin for unary service with array field params.")
     public void testUnaryServiceWithArrayFieldParams() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "array_field_type_service.bal");
+                "02_array_field_type_service.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertUnaryCompileResult(result);
     }
@@ -98,7 +98,7 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
     @Test(description = "Test compiler plugin for unary service with custom type params.")
     public void testUnaryServiceWithCustomTypeParams() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
-                "advanced_type_service.bal");
+                "01_advanced_type_service.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertUnaryCompileResult(result);
     }

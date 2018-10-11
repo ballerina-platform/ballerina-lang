@@ -110,22 +110,23 @@ class TreeBuilder {
             }
         }
 
-        if (kind === 'Transaction') {
-            if (node && node.condition && node.condition.value) {
-                const retry = (node.failedBody ? node.failedBody.statements.filter(isRetry)[0] : null) ||
-                    (node.committedBody ? node.committedBody.statements.filter(isRetry)[0] : null) ||
-                    node.transactionBody.statements.filter(isRetry)[0];
-                if (retry) {
-                    retry.count = node.condition.value;
-                }
+        if (kind === 'Transaction' && node.condition && node.condition.value) {
+            const retry = (node.failedBody ? node.failedBody.statements.filter(isRetry)[0] : null) ||
+                (node.committedBody ? node.committedBody.statements.filter(isRetry)[0] : null) ||
+                node.transactionBody.statements.filter(isRetry)[0];
+            if (retry) {
+                retry.count = node.condition.value;
             }
         }
 
         if ((kind === 'XmlCommentLiteral' ||
                 kind === 'XmlElementLiteral' ||
                 kind === 'XmlTextLiteral' ||
-                kind === 'XmlPiLiteral') && node.ws && node.ws[0] &&
-            node.ws[0].text.includes('xml') && node.ws[0].text.includes('`')) {
+                kind === 'XmlPiLiteral')
+            && node.ws
+            && node.ws[0]
+            && node.ws[0].text.includes('xml')
+            && node.ws[0].text.includes('`')) {
             node.root = true;
             node.startLiteral = node.ws[0].text;
         }
@@ -167,10 +168,8 @@ class TreeBuilder {
             }
         }
 
-        if (kind === 'Annotation') {
-            if (node.attachmentPoints && node.attachmentPoints.length <= 0) {
-                node.noAttachmentPoints = true;
-            }
+        if (kind === 'Annotation' && node.attachmentPoints && node.attachmentPoints.length <= 0) {
+            node.noAttachmentPoints = true;
         }
 
         if (kind === 'AnnotationAttachment' && node.packageAlias.value === 'builtin') {
@@ -186,15 +185,20 @@ class TreeBuilder {
         }
 
         if (kind === 'Import') {
-            if (node.alias && node.alias.value && node.packageName && node.packageName.length) {
-                if ((node.alias.value !== node.packageName[node.packageName.length - 1].value)) {
-                    node.userDefinedAlias = true;
-                }
+            if (node.alias
+                && node.alias.value
+                && node.packageName
+                && node.packageName.length
+                && (node.alias.value !== node.packageName[node.packageName.length - 1].value)) {
+                node.userDefinedAlias = true;
             }
 
-            if ((node.packageName.length === 2 && node.packageName[0].value === 'transactions' &&
-                    node.packageName[1].value === 'coordinator') || (node.alias && node.alias.value &&
-                    node.alias.value.startsWith('.'))) {
+            if ((node.packageName.length === 2
+                    && node.packageName[0].value === 'transactions'
+                    && node.packageName[1].value === 'coordinator')
+                || (node.alias
+                    && node.alias.value
+                    && node.alias.value.startsWith('.'))) {
                 node.isInternal = true;
             }
         }
@@ -203,11 +207,11 @@ class TreeBuilder {
             node.global = true;
         }
 
-        if (node.kind === 'VariableDef' && node.variable.typeNode) {
-            if (node.variable.typeNode.kind === 'EndpointType') {
-                node.variable.endpoint = true;
-                node.endpoint = true;
-            }
+        if (node.kind === 'VariableDef'
+            && node.variable.typeNode
+            && (node.variable.typeNode.kind === 'EndpointType')) {
+            node.variable.endpoint = true;
+            node.endpoint = true;
         }
 
         if (node.kind === 'Variable') {
@@ -219,15 +223,11 @@ class TreeBuilder {
                 node.isAnonType = true;
             }
 
-            if (node.initialExpression && node.initialExpression.async) {
-                if (node.ws) {
-                    for (let i = 0; i < node.ws.length; i++) {
-                        if (node.ws[i].text === 'start') {
-                            if (node.initialExpression.ws) {
-                                node.initialExpression.ws.splice(0, 0, node.ws[i]);
-                                node.ws.splice(i, 1);
-                            }
-                        }
+            if (node.initialExpression && node.initialExpression.async && node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if ((node.ws[i].text === 'start') && node.initialExpression.ws) {
+                        node.initialExpression.ws.splice(0, 0, node.ws[i]);
+                        node.ws.splice(i, 1);
                     }
                 }
             }
@@ -263,21 +263,24 @@ class TreeBuilder {
                 node.isServiceTypeUnavailable = true;
             }
 
-            if (!node.anonymousEndpointBind && node.boundEndpoints && node.boundEndpoints.length <= 0
+            if (!node.anonymousEndpointBind
+                && node.boundEndpoints
+                && node.boundEndpoints.length <= 0
                 && !_.find(node.ws, (ws) => ws.text === 'bind')) {
                 node.bindNotAvailable = true;
             }
         }
 
         // Mark the first argument ad a service endpoint.
-        if (node.kind === 'Resource' && node.parameters[0]) {
-            if (node.parameters[0].ws && _.find(node.parameters[0].ws, (ws) => ws.text === 'endpoint')) {
-                const endpointParam = node.parameters[0];
-                const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
-                endpointParam.serviceEndpoint = true;
-                endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
-                endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
-            }
+        if (node.kind === 'Resource'
+            && node.parameters[0]
+            && node.parameters[0].ws
+            && _.find(node.parameters[0].ws, (ws) => ws.text === 'endpoint')) {
+            const endpointParam = node.parameters[0];
+            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
+            endpointParam.serviceEndpoint = true;
+            endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
+            endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
         }
 
         // Add the positions for the join and timeout bodies.
@@ -292,10 +295,11 @@ class TreeBuilder {
         }
 
         // Check if sorrounded by curlies
-        if (node.kind === 'MatchPatternClause' || node.kind === 'MatchExpressionPatternClause') {
-            if (node.ws && node.ws.length > 2) {
-                node.withCurlies = true;
-            }
+        if ((node.kind === 'MatchPatternClause'
+                || node.kind === 'MatchExpressionPatternClause')
+            && node.ws
+            && node.ws.length > 2) {
+            node.withCurlies = true;
         }
 
         // Check if sorrounded by parantheses
@@ -405,20 +409,16 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'ObjectType') {
-            if (node.initFunction) {
-                if (!node.initFunction.ws) {
-                    node.initFunction.defaultConstructor = true;
-                } else {
-                    node.initFunction.isConstructor = true;
-                }
+        if (node.kind === 'ObjectType' && node.initFunction) {
+            if (!node.initFunction.ws) {
+                node.initFunction.defaultConstructor = true;
+            } else {
+                node.initFunction.isConstructor = true;
             }
         }
 
-        if (node.kind === 'RecordType') {
-            if (node.restFieldType) {
-                node.isRestFieldAvailable = true;
-            }
+        if (node.kind === 'RecordType' && node.restFieldType) {
+            node.isRestFieldAvailable = true;
         }
 
         if (node.kind === 'TypeInitExpr') {
@@ -442,15 +442,13 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'Return') {
-            if (node.expression && node.expression.kind === 'Literal') {
-                if (node.expression.value === '()') {
-                    node.noExpressionAvailable = true;
-                }
+        if (node.kind === 'Return' && node.expression && node.expression.kind === 'Literal') {
+            if (node.expression.value === '()') {
+                node.noExpressionAvailable = true;
+            }
 
-                if (node.expression.value === 'null') {
-                    node.expression.emptyParantheses = true;
-                }
+            if (node.expression.value === 'null') {
+                node.expression.emptyParantheses = true;
             }
         }
 
@@ -478,10 +476,8 @@ class TreeBuilder {
         }
 
         // Tag rest variable nodes
-        if (node.kind === 'Function' || node.kind === 'Resource') {
-            if (node.restParameters) {
-                node.restParameters.rest = true;
-            }
+        if ((node.kind === 'Function' || node.kind === 'Resource') && node.restParameters) {
+            node.restParameters.rest = true;
         }
 
         if (node.kind === 'PostIncrement') {
@@ -492,23 +488,19 @@ class TreeBuilder {
             node.identifierAvailable = true;
         }
 
-        if (node.kind === 'StreamAction' && node.invokableBody) {
-            if (node.invokableBody.functionNode) {
-                node.invokableBody.functionNode.isStreamAction = true;
-            }
+        if (node.kind === 'StreamAction' && node.invokableBody && node.invokableBody.functionNode) {
+            node.invokableBody.functionNode.isStreamAction = true;
         }
 
         if (node.kind === 'StreamingInput' && node.alias) {
             node.aliasAvailable = true;
         }
 
-        if (node.kind === 'IntRangeExpr') {
-            if (node.ws && node.ws.length > 0) {
-                if (node.ws[0].text === '[') {
-                    node.isWrappedWithBracket = true;
-                } else if (node.ws[0].text === '(') {
-                    node.isWrappedWithParenthesis = true;
-                }
+        if (node.kind === 'IntRangeExpr' && node.ws && node.ws.length > 0) {
+            if (node.ws[0].text === '[') {
+                node.isWrappedWithBracket = true;
+            } else if (node.ws[0].text === '(') {
+                node.isWrappedWithParenthesis = true;
             }
         }
 
@@ -527,22 +519,23 @@ class TreeBuilder {
                 node.value = node.ws[0].text;
             }
 
-            if ((node.value === 'nil' || node.value === 'null') && node.ws
-                && node.ws.length < 3 && node.ws[0] && node.ws[0].text === '(') {
+            if ((node.value === 'nil' || node.value === 'null')
+                && node.ws
+                && node.ws.length < 3
+                && node.ws[0]
+                && node.ws[0].text === '(') {
                 node.emptyParantheses = true;
             }
         }
 
-        if (node.kind === 'Foreach') {
-            if (node.ws && _.find(node.ws, (ws) => ws.text === '(')) {
-                node.withParantheses = true;
-            }
+        if (node.kind === 'Foreach' && node.ws && _.find(node.ws, (ws) => ws.text === '(')) {
+            node.withParantheses = true;
         }
 
-        if (node.kind === 'Endpoint') {
-            if (node.ws && _.find(node.ws, (ws) => ws.text === '=')) {
-                node.isConfigAssignment = true;
-            }
+        if (node.kind === 'Endpoint'
+            && node.ws
+            && _.find(node.ws, (ws) => ws.text === '=')) {
+            node.isConfigAssignment = true;
         }
 
         if (node.kind === 'UserDefinedType') {
@@ -557,27 +550,25 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'ArrayType') {
-            if (node.dimensions > 0 && node.ws) {
-                node.dimensionAsString = "";
-                let startingBracket;
-                let endingBracket;
-                let content = "";
+        if (node.kind === 'ArrayType' && node.dimensions > 0 && node.ws) {
+            node.dimensionAsString = "";
+            let startingBracket;
+            let endingBracket;
+            let content = "";
 
-                for (let j = 0; j < node.ws.length; j++) {
-                    if (node.ws[j].text === '[') {
-                        startingBracket = node.ws[j];
-                    } else if (node.ws[j].text === ']') {
-                        endingBracket = node.ws[j];
-                        node.dimensionAsString += startingBracket.text + content +
-                            endingBracket.ws + endingBracket.text;
+            for (let j = 0; j < node.ws.length; j++) {
+                if (node.ws[j].text === '[') {
+                    startingBracket = node.ws[j];
+                } else if (node.ws[j].text === ']') {
+                    endingBracket = node.ws[j];
+                    node.dimensionAsString += startingBracket.text + content +
+                        endingBracket.ws + endingBracket.text;
 
-                        content = "";
-                        startingBracket = null;
-                        endingBracket = null;
-                    } else if (startingBracket) {
-                        content += node.ws[j].ws + node.ws[j].text;
-                    }
+                    content = "";
+                    startingBracket = null;
+                    endingBracket = null;
+                } else if (startingBracket) {
+                    content += node.ws[j].ws + node.ws[j].text;
                 }
             }
         }
@@ -652,12 +643,13 @@ class TreeBuilder {
             }
         };
 
-        if (node.kind === 'StringTemplateLiteral') {
-            if (node.ws && node.ws[0] &&
-                node.ws[0].text.includes('string') && node.ws[0].text.includes('`')) {
-                node.startTemplate = node.ws[0].text;
-                literalWSAssignForTemplates(1, 2, node.expressions, node.ws, 2);
-            }
+        if (node.kind === 'StringTemplateLiteral'
+            && node.ws
+            && node.ws[0]
+            && node.ws[0].text.includes('string')
+            && node.ws[0].text.includes('`')) {
+            node.startTemplate = node.ws[0].text;
+            literalWSAssignForTemplates(1, 2, node.expressions, node.ws, 2);
         }
 
         if (kind === 'XmlCommentLiteral' && node.ws) {
@@ -691,16 +683,12 @@ class TreeBuilder {
             }
         }
 
-        if (kind === 'PatternStreamingInput') {
-            if (node.ws && node.ws[0].text === '(') {
-                node.enclosedInParenthesis = true;
-            }
+        if (kind === 'PatternStreamingInput' && node.ws && node.ws[0].text === '(') {
+            node.enclosedInParenthesis = true;
         }
 
-        if (kind === 'SelectClause') {
-            if (!node.ws) {
-                node.notVisible = true;
-            }
+        if (kind === 'SelectClause' && !node.ws) {
+            node.notVisible = true;
         }
 
         if (kind === 'OrderByVariable') {

@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -46,6 +47,7 @@ import java.util.concurrent.CompletableFuture;
 class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
+    private DiagnosticsHelper diagnosticsHelper;
     private LSGlobalContext lsGlobalContext;
     private LSCompiler lsCompiler;
 
@@ -53,6 +55,7 @@ class BallerinaWorkspaceService implements WorkspaceService {
         this.lsGlobalContext = globalContext;
         this.ballerinaLanguageServer = this.lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.workspaceDocumentManager = this.lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+        this.diagnosticsHelper = this.lsGlobalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
         this.lsCompiler = new LSCompiler(workspaceDocumentManager);
     }
 
@@ -110,6 +113,7 @@ class BallerinaWorkspaceService implements WorkspaceService {
         executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
         executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
         executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
+        executeCommandContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
 
         return CompletableFuture.supplyAsync(() -> CommandExecutor.executeCommand(params, executeCommandContext));
     }
