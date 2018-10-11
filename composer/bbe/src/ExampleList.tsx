@@ -18,7 +18,7 @@
 import * as React from 'react';
 import { Grid, Input } from 'semantic-ui-react';
 import { cloneDeep, debounce } from 'lodash';
-import { BallerinaExampleCategory } from './types';
+import { BallerinaExampleCategory } from './model';
 
 export interface SamplesListState {
     samples? : Array<BallerinaExampleCategory>;
