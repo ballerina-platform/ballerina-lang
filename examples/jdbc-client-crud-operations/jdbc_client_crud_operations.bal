@@ -134,9 +134,6 @@ public function main() {
     io:println("\nThe update operation - Drop the tables and procedures");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
-
-    // Finally, close the connection pool.
-    testDB.stop();
 }
 
 // Function to handle return of the update operation.
