@@ -16,8 +16,8 @@
  * under the License.
  */
 import { EventEmitter } from 'events';
-import { DebugChannel } from './DebugChannel';
-import { DebugPoint } from './DebugPoint';
+import { DebugChannel } from './channel';
+import { BreakPoint } from './breakpoint';
 
 /**
  * DebugManager
@@ -26,7 +26,7 @@ import { DebugPoint } from './DebugPoint';
  */
 export class DebugManager extends EventEmitter {
 
-    private _debugPoints : Array<DebugPoint> = [];
+    private _breakPoints : Array<BreakPoint> = [];
     private _channel: DebugChannel | undefined;
     private _active: boolean = false;
     private _endpoint: string | undefined;
@@ -203,8 +203,8 @@ export class DebugManager extends EventEmitter {
      */
     addBreakPoint(lineNumber: number, fileName: string, packagePath: string) {
         // log.debug('debug point added', lineNumber, fileName, packagePath);
-        const point = new DebugPoint({ fileName, lineNumber, packagePath });
-        this._debugPoints.push(point);
+        const point = new BreakPoint({ fileName, lineNumber, packagePath });
+        this._breakPoints.push(point);
         this.emit('breakpoint-added', point);
     }
     /**
@@ -216,7 +216,7 @@ export class DebugManager extends EventEmitter {
      */
     removeBreakPoint(lineNumber: number, fileName: string, packagePath: string) {
         // log.debug('debug point removed', lineNumber, fileName);
-        const point = new DebugPoint({ fileName, lineNumber, packagePath });
+        const point = new BreakPoint({ fileName, lineNumber, packagePath });
         // _.remove(this.debugPoints, item => item.fileName === point.fileName && item.lineNumber === point.lineNumber);
         this.emit('breakpoint-removed', point);
     }
@@ -230,7 +230,7 @@ export class DebugManager extends EventEmitter {
         try {
             const message = { 
                 command: 'SET_POINTS',
-                points: this._debugPoints 
+                points: this._breakPoints 
             };
             this.sendMessage(message);
         } catch (e) {
@@ -246,7 +246,7 @@ export class DebugManager extends EventEmitter {
      * @memberof DebugManager
      */
     hasBreakPoint(lineNumber: number, fileName: string) {
-        return !!this._debugPoints.find(point => point.lineNumber === lineNumber && point.fileName === fileName);
+        return !!this._breakPoints.find(point => point.lineNumber === lineNumber && point.fileName === fileName);
     }
 
     /**
@@ -257,7 +257,7 @@ export class DebugManager extends EventEmitter {
      * @memberof DebugManager
      */
     getDebugPoints(fileName: string) {
-        const breakpoints = this._debugPoints.filter(breakpoint => breakpoint.fileName === fileName);
+        const breakpoints = this._breakPoints.filter(breakpoint => breakpoint.fileName === fileName);
 
         const breakpointsLineNumbers = breakpoints.map(breakpoint => breakpoint.lineNumber);
         return breakpointsLineNumbers;
@@ -269,7 +269,7 @@ export class DebugManager extends EventEmitter {
      * @memberof DebugManager
      */
     removeAllBreakpoints(fileName: string) {
-        this._debugPoints = this._debugPoints.filter(item => item.fileName !== fileName);
+        this._breakPoints = this._breakPoints.filter(item => item.fileName !== fileName);
         this.publishBreakpoints();
     }
 
@@ -277,12 +277,12 @@ export class DebugManager extends EventEmitter {
      * Create and return breakpoint object
      * @param {Integer} lineNumber - Line number of the breakpoint
      * @param {String} fileName - File name of the breakpoint
-     * @returns {DebugPoint}
+     * @returns {BreakPoint}
      *
      * @memberof DebugManager
      */
     createDebugPoint(lineNumber: number, fileName: string) {
-        return new DebugPoint({ fileName, lineNumber });
+        return new BreakPoint({ fileName, lineNumber });
     }
 }
 

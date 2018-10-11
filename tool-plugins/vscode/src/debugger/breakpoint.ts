@@ -15,29 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-export interface DebugPointDefinition {
+export interface BreakPointDefinition {
     fileName: string;
     lineNumber: number;
     packagePath?: string;
 }
 
 /**
- * @description DebugPoint class
- * @class DebugPoint
+ * @description BreakPoint class
+ * @class BreakPoint
  */
-export class DebugPoint {
+export class BreakPoint {
 
     public fileName: string;
     public lineNumber: number;
     public packagePath?: string;
 
     /**
-     * @description Creates an instance of DebugPoint.
-     * @param {DebugPointDefinition} args - DebugPoint properties
+     * @description Creates an instance of BreakPoint.
+     * @param {BreakPointDefinition} args - BreakPoint properties
      *
-     * @memberof DebugPoint
+     * @memberof BreakPoint
      */
-    constructor(args: DebugPointDefinition) {
+    constructor(args: BreakPointDefinition) {
         this.fileName = args.fileName || '';
         this.lineNumber = args.lineNumber || 0;
         this.packagePath = args.packagePath || '.';

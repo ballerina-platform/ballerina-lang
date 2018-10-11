@@ -17,43 +17,22 @@
  * under the License.
  *
  */
-import {
-	ExtensionContext, debug,
-	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult
-} from 'vscode';
+import { ExtensionContext } from 'vscode';
 import { } from 'vscode-debugadapter';
-import { BallerinaPluginConfig, getPluginConfig } from './config';
-import { activate as activateRenderer } from './renderer';
-import { activate as activateSamples } from './examples';
-import BallerinaExtension from './core/ballerina-extension';
-
-const debugConfigResolver: DebugConfigurationProvider = {
-	resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
-		: ProviderResult<DebugConfiguration> {
-		if (!config['ballerina.home']) {
-			// If ballerina.home is not defined in in debug config get it from workspace configs
-			const workspaceConfig: BallerinaPluginConfig = getPluginConfig();
-			if (workspaceConfig.home) {
-				config['ballerina.home'] = workspaceConfig.home;
-			} else {
-				config['ballerina.home'] = BallerinaExtension.getBallerinaHome();
-			}
-		}
-		return config;
-	}
-};
+import { activate as activateDiagram } from './diagram'; 
+import { activate as activateBBE } from './bbe';
+import { BallerinaExtInstance } from './core';
+import { activateDebugConfigProvider } from './debugger';
 
 export function activate(context: ExtensionContext): void {
 
-	BallerinaExtension.setContext(context);
-	BallerinaExtension.init();
+	BallerinaExtInstance.setContext(context);
+	BallerinaExtInstance.init();
 	// start the features.
-	activateRenderer(context, BallerinaExtension.langClient!);
-	activateSamples(context, BallerinaExtension.langClient!);
-
-	/*if (!config.debugLog) {
-		clientOptions.outputChannel = dropOutputChannel;
-	}*/
-
-	context.subscriptions.push(debug.registerDebugConfigurationProvider('ballerina', debugConfigResolver));
+	// Enable Ballerina diagram
+	activateDiagram(context, BallerinaExtInstance.langClient!);
+	// Enable Ballerina by examples
+	activateBBE(context, BallerinaExtInstance.langClient!);
+	// Enable Ballerina Debug Config Provider
+	activateDebugConfigProvider(context);
 }

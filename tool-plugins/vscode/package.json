@@ -75,7 +75,7 @@
             {
                 "type": "ballerina",
                 "label": "Ballerina Debug",
-                "program": "./out/src/debugger/index.js",
+                "program": "./out/src/debugger/start.js",
                 "runtime": "node",
                 "configurationAttributes": {
                     "attach": {
