@@ -31,15 +31,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for user defined sealed record types in Ballerina.
+ * Test cases for user defined closed record types in Ballerina.
  */
-public class SealedRecordTest {
+public class ClosedRecordTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/record/sealed_record.bal");
+        compileResult = BCompileUtil.compile("test-src/record/closed_record.bal");
     }
 
     @Test(description = "Test using expressions as index for record arrays")
