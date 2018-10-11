@@ -135,7 +135,9 @@ public class StateUtil {
                                                   String errorMsg) {
         // Response is processing, but inbound request is not completed yet. So removing the read interest
         channel.config().setAutoRead(false);
-        handleIncompleteInboundMessage(outboundResponseListener.getInboundRequestMsg(), errorMsg);
+        if (outboundResponseListener.getInboundRequestMsg().getIoException() == null) {
+            handleIncompleteInboundMessage(outboundResponseListener.getInboundRequestMsg(), errorMsg);
+        }
 
         // It is an application error. Therefore connection needs to be closed once the response is sent.
         outboundResponseListener.setKeepAliveConfig(KeepAliveConfig.NEVER);
