@@ -120,6 +120,8 @@ public class BLangVMStructs {
                 if (value != null) {
                     if (value instanceof String) {
                         return new BDecimal(new Decimal((String) value));
+                    } else if (value instanceof Decimal) {
+                        return new BDecimal((Decimal) value);
                     } else if (value instanceof BDecimal) {
                         return (BDecimal) value;
                     }

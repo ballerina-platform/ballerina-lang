@@ -956,12 +956,14 @@ public class PackageInfoReader {
                 codeAttributeInfo.setMaxDoubleLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxStringLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxIntLocalVars(dataInStream.readShort());
+                codeAttributeInfo.setMaxDecimalLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxRefLocalVars(dataInStream.readShort());
 
                 codeAttributeInfo.setMaxLongRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxDoubleRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxStringRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxIntRegs(dataInStream.readShort());
+                codeAttributeInfo.setMaxDecimalRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxRefRegs(dataInStream.readShort());
                 return codeAttributeInfo;
 
@@ -972,6 +974,7 @@ public class PackageInfoReader {
                 varCountAttributeInfo.setMaxDoubleVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxStringVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxIntVars(dataInStream.readShort());
+                varCountAttributeInfo.setMaxDecimalVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxRefVars(dataInStream.readShort());
                 return varCountAttributeInfo;
 

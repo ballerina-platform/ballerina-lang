@@ -20,6 +20,7 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.program.WorkerDataIndex;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * This represents the local variables that are available to a worker. 
@@ -35,6 +36,8 @@ public class WorkerData {
     public String[] stringRegs;
     
     public int[] intRegs;
+
+    public Decimal[] decimalRegs;
 
     public BRefType<?>[] refRegs;
 
@@ -52,6 +55,9 @@ public class WorkerData {
         }
         if (ci.maxIntRegs > 0) {
             this.intRegs = new int[ci.maxIntRegs];
+        }
+        if (ci.maxDecimalRegs > 0) {
+            this.decimalRegs = new Decimal[ci.maxDecimalRegs];
         }
         if (ci.maxBValueRegs > 0) {
             this.refRegs = new BRefType[ci.maxBValueRegs];
