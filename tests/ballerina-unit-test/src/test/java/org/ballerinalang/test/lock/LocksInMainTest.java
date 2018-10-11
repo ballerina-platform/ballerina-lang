@@ -209,7 +209,7 @@ public class LocksInMainTest {
         assertEquals(returns.length, 1);
         assertSame(returns[0].getClass(), BString.class);
         String result = returns[0].stringValue();
-        assertTrue( "w1w1w1vw2w2w2v".equals(result) || "w2w2w2v".equals(result));
+        assertTrue("w1w1w1vw2w2w2v".equals(result) || "w2w2w2v".equals(result));
     }
 
     @Test(description = "Tests returning inside lock statement")
