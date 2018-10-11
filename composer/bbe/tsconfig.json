@@ -7,7 +7,7 @@
       "sourceMap": true,
       "jsx": "react",
       "moduleResolution": "node",
-      "rootDir": "src",
+      "rootDirs": ["src", "stories"],
       "forceConsistentCasingInFileNames": true,
       "noImplicitReturns": true,
       "noImplicitThis": true,

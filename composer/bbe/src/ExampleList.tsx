@@ -130,7 +130,7 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                                 ref={(ref) => {
                                     this.searchInput = ref;
                                 }}
-                                loading={!this.state.samples}
+                                loading={!this.state || !this.state.samples}
                                 placeholder='Search'
                                 onChange={this.onSearchQueryEdit}
                                 
@@ -141,7 +141,7 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                 <Grid.Row className='welcome-content-wrapper'>
                     <Grid.Column mobile={16} tablet={16} computer={16} className='rightContainer'>
                         <Grid>
-                            {this.state.samples &&
+                            {this.state && this.state.samples &&
                                 <Grid.Row columns={4} className='sample-wrapper'>
                                     {
                                         this.getColumnContents().map((column) => {
