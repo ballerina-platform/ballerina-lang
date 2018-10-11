@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
 /**
  * @since 0.87
  */
@@ -37,6 +39,10 @@ public interface StructureType {
     int getBooleanField(int index);
 
     void setBooleanField(int index, int value);
+
+    Decimal getDecimalField(int index);
+
+    void setDecimalField(int index, Decimal value);
 
     BRefType getRefField(int index);
 

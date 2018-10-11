@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * This class is used hold the global memory area of a running Ballerina program.
@@ -102,6 +103,22 @@ public class GlobalMemoryArea {
 
     public void unlockBooleanField(int pkgIndex, int varIndex) {
         globalMemBlock[pkgIndex].unlockBooleanField(varIndex);
+    }
+
+    public Decimal getDecimalField(int pkgIndex, int varIndex) {
+        return globalMemBlock[pkgIndex].getDecimalField(varIndex);
+    }
+
+    public void setDecimalField(int pkgIndex, int varIndex, Decimal value) {
+        globalMemBlock[pkgIndex].setDecimalField(varIndex, value);
+    }
+
+    public boolean lockDecimalField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
+        return globalMemBlock[pkgIndex].lockDecimalField(ctx, varIndex);
+    }
+
+    public void unlockDecimalField(int pkgIndex, int varIndex) {
+        globalMemBlock[pkgIndex].unlockDecimalField(varIndex);
     }
 
     public BRefType getRefField(int pkgIndex, int varIndex) {

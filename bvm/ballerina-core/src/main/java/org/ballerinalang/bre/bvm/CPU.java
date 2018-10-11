@@ -47,6 +47,7 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
+import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -292,18 +293,21 @@ public class CPU {
                     case InstructionCodes.FMOVE:
                     case InstructionCodes.SMOVE:
                     case InstructionCodes.BMOVE:
+                    case InstructionCodes.DMOVE:
                     case InstructionCodes.RMOVE:
                     case InstructionCodes.IALOAD:
                     case InstructionCodes.BIALOAD:
                     case InstructionCodes.FALOAD:
                     case InstructionCodes.SALOAD:
                     case InstructionCodes.BALOAD:
+                    case InstructionCodes.DALOAD:
                     case InstructionCodes.RALOAD:
                     case InstructionCodes.JSONALOAD:
                     case InstructionCodes.IGLOAD:
                     case InstructionCodes.FGLOAD:
                     case InstructionCodes.SGLOAD:
                     case InstructionCodes.BGLOAD:
+                    case InstructionCodes.DGLOAD:
                     case InstructionCodes.RGLOAD:
                     case InstructionCodes.MAPLOAD:
                     case InstructionCodes.JSONLOAD:
@@ -1207,7 +1211,9 @@ public class CPU {
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
+        BDecimalArray bDecimalArray;
         BMap<String, BRefType> bMap;
+
         switch (opcode) {
             case InstructionCodes.IMOVE:
                 lvIndex = operands[0];
@@ -1228,6 +1234,11 @@ public class CPU {
                 lvIndex = operands[0];
                 i = operands[1];
                 sf.intRegs[i] = sf.intRegs[lvIndex];
+                break;
+            case InstructionCodes.DMOVE:
+                lvIndex = operands[0];
+                i = operands[1];
+                sf.decimalRegs[i] = sf.decimalRegs[lvIndex];
                 break;
             case InstructionCodes.RMOVE:
                 lvIndex = operands[0];
@@ -1294,6 +1305,18 @@ public class CPU {
                     handleError(ctx);
                 }
                 break;
+            case InstructionCodes.DALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bDecimalArray = Optional.of((BDecimalArray) sf.refRegs[i]).get();
+                try {
+                    sf.decimalRegs[k] = bDecimalArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
+                break;
             case InstructionCodes.RALOAD:
                 i = operands[0];
                 j = operands[1];
@@ -1344,6 +1367,12 @@ public class CPU {
                 i = operands[1];
                 j = operands[2];
                 sf.intRegs[j] = ctx.programFile.globalMemArea.getBooleanField(pkgIndex, i);
+                break;
+            case InstructionCodes.DGLOAD:
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.decimalRegs[j] = ctx.programFile.globalMemArea.getDecimalField(pkgIndex, i);
                 break;
             case InstructionCodes.RGLOAD:
                 pkgIndex = operands[0];
