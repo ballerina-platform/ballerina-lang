@@ -34,6 +34,8 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
+
 /**
  * State between start and end of inbound response entity body read.
  */
@@ -56,7 +58,8 @@ public class ReceivingEntityBody implements SenderState {
 
     @Override
     public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
-        LOG.warn("writeOutboundRequestBody is not a dependant action of this state");
+        // Response is already receiving, hence the outgoing data frames need to be released.
+        releaseContent(httpContent);
     }
 
     @Override

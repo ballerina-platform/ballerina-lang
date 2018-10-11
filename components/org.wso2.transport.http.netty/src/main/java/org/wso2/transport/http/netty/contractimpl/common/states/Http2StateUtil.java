@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.contractimpl.common.states;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2Connection;
@@ -144,5 +145,14 @@ public class Http2StateUtil {
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
         http2PushPromise.setOutboundMsgHolder(outboundMsgHolder);
         outboundMsgHolder.addPromise(http2PushPromise);
+    }
+
+    /**
+     * Release the {@link io.netty.buffer.ByteBuf} content.
+     *
+     * @param httpContent the HTTP2 content
+     */
+    public static void releaseContent(HttpContent httpContent) {
+        httpContent.release();
     }
 }

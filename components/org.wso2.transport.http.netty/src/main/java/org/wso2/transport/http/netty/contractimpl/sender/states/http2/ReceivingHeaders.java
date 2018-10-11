@@ -52,6 +52,8 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
 
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
+
 /**
  * State between start and end of inbound response headers read.
  */
@@ -74,7 +76,8 @@ public class ReceivingHeaders implements SenderState {
 
     @Override
     public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
-        LOG.warn("writeOutboundRequestBody is not a dependant action of this state");
+        // Response is already receiving, hence the outgoing data frames need to be released.
+        releaseContent(httpContent);
     }
 
     @Override
