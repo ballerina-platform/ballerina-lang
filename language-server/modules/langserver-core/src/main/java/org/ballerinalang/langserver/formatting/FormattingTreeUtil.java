@@ -1827,7 +1827,9 @@ public class FormattingTreeUtil {
         // skip to make formatting fault tolerance till fully implemented.
         boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
                 (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
-                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean())
+                || (!(node.has("isObjectType") && node.get("isObjectType").getAsBoolean())
+                && !(node.has("isRecordType") && node.get("isRecordType").getAsBoolean())));
 
         if (skip) {
             node.addProperty(SKIP_FORMATTING, true);
