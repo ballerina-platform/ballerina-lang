@@ -157,6 +157,10 @@ FieldBasedAccessExpr
    |                 <expression.source> . <fieldName.value>
    ;
 
+FiniteTypeNode
+   : <valueSet-joined-by|>*
+   ;
+
 Foreach
    : <withParantheses?> foreach ( <variables-joined-by,>* in <collection.source> ) { <body.source> }
    |                    foreach   <variables-joined-by,>* in <collection.source>   { <body.source> }
@@ -634,21 +638,6 @@ TypeConversionExpr
    | < <typeNode.source> > <expression.source>
    ;
 
-TypeDefinition
-   : <notVisible?>
-   : <isObjectType?>                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <isAbstractKeywordAvailable?abstract> object { <typeNode.source> }                           ;
-   : <isObjectType?>                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <isAbstractKeywordAvailable?abstract> object { <typeNode.source> }                           ;
-   | <isRecordType?> <isRecordKeywordAvailable?>                              <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                       record { <typeNode.source> }                           ;
-   | <isRecordType?> <isRecordKeywordAvailable?>                                                                        <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                       record { <typeNode.source> }                           ;
-   | <isRecordType?>                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                              { <typeNode.source> }                           ;
-   | <isRecordType?>                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                              { <typeNode.source> }                           ;
-   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>    | <valueSet-joined-by|>* ;
-   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>    | <valueSet-joined-by|>* ;
-   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>                             ;
-   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>                             ;
-   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                                       <valueSet-joined-by|>* ;
-   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                                       <valueSet-joined-by|>* ;
-   ;
 
 ObjectType
    : <fields>* <initFunction.source> <functions>*
@@ -708,12 +697,12 @@ ValueType
    ;
 
 Variable
-   : <isAnonType?> <endWithSemicolon?> <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>                                ;
-   : <isAnonType?> <endWithSemicolon?>                                           <annotationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>                                ;
-   | <isAnonType?> <endWithComma?>     <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>                                ,
-   | <isAnonType?> <endWithComma?>                                               <annotationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>                                ,
-   | <isAnonType?>                     <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>
-   | <isAnonType?>                                                               <annotationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>
+   : <isAnonType?> <endWithSemicolon?> <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>*                     <const?const> <final?final>    record    { <typeNode.source> }          <name.value>                                ;
+   : <isAnonType?> <endWithSemicolon?>                                           <annotationAttachments>* <deprecatedAttachments>*                     <const?const> <final?final>    record    { <typeNode.source> }          <name.value>                                ;
+   | <isAnonType?> <endWithComma?>     <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>*                     <const?const> <final?final>    record    { <typeNode.source> }          <name.value>                                ,
+   | <isAnonType?> <endWithComma?>                                               <annotationAttachments>* <deprecatedAttachments>*                     <const?const> <final?final>    record    { <typeNode.source> }          <name.value>                                ,
+   | <isAnonType?>                     <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>*                     <const?const> <final?final>    record    { <typeNode.source> }          <name.value>
+   | <isAnonType?>                                                               <annotationAttachments>* <deprecatedAttachments>*                     <const?const> <final?final>    record    { <typeNode.source> }          <name.value>
    | <noVisibleName?>                                                                                                                                                                <typeNode.source>
    | <endpoint?>                                                                                                                                           endpoint                  <typeNode.source>            <name.value> {  <initialExpression.source> ; }
    | <endpoint?>                                                                                                                                           endpoint                  <typeNode.source>            <name.value> {                               }
@@ -722,12 +711,12 @@ Variable
    | <defaultable?>                                                <annotationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source>            <name.value> =  <initialExpression.source>
    | <defaultable?>      <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>*                                                                                              <name.value> =  <initialExpression.source>
    | <defaultable?>                                                <annotationAttachments>* <deprecatedAttachments>*                                                                                              <name.value> =  <initialExpression.source>
-   | <global?>           <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const>     <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source> ;
-   | <global?>                                                     <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const>     <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source> ;
-   | <global?>           <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                                   <typeNode.source>            <name.value> =  <initialExpression.source> ;
-   | <global?>                                                     <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                                   <typeNode.source>            <name.value> =  <initialExpression.source> ;
-   | <global?>           <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                                   <typeNode.source>            <name.value>                                ;
-   | <global?>                                                     <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                                   <typeNode.source>            <name.value>                                ;
+   | <global?>           <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <final?final>     <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source> ;
+   | <global?>                                                     <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <final?final>    <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source> ;
+   | <global?>           <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <final?final>                                  <typeNode.source>            <name.value> =  <initialExpression.source> ;
+   | <global?>                                                     <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <final?final>                                  <typeNode.source>            <name.value> =  <initialExpression.source> ;
+   | <global?>           <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <final?final>                                  <typeNode.source>            <name.value>                                ;
+   | <global?>                                                     <annotationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <final?final>                                  <typeNode.source>            <name.value>                                ;
    | <global?>           <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source>            <name.value>                                ;
    | <global?>                                                     <annotationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source>            <name.value>                                ;
    | <endWithSemicolon?>                                                                                                                                <safeAssignment?>            <typeNode.source>            <name.value> =? <initialExpression.source>  ;
