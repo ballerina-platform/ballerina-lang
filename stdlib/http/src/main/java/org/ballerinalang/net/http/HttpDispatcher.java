@@ -262,7 +262,7 @@ public class HttpDispatcher {
         try {
             return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
         } catch (NullPointerException ex) {
-            throw new BallerinaConnectorException("cannot convert payload to struct type: " +
+            throw new BallerinaConnectorException("cannot convert payload to record type: " +
                     entityBodyType.getName());
         }
     }
