@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO for BPackageSymbol
+ * DAO for BPackageSymbol.
  * 
  * @since 0.983.0
  */
