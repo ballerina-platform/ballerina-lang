@@ -1,5 +1,5 @@
 {
-  "name": "@ballerina/examples",
+  "name": "@ballerina/ballerina-by-examples",
   "version": "0.982.1",
   "description": "Provides components for displaying Ballerina By Examples",
   "main": "lib/index.js",
