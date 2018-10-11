@@ -5,9 +5,9 @@ string lockString = "";
 function lockWithinLock() returns string {
     worker w1 {
         lock {
+            runtime:sleep(200);
             lockString = lockString + "w1w1";
             lockLevel2("w1v");
-            runtime:sleep(100);
         }
     }
     worker w2 {
