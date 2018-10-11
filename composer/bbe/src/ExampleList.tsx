@@ -22,6 +22,7 @@ import { BallerinaExampleCategory } from './model';
 
 export interface SamplesListState {
     samples? : Array<BallerinaExampleCategory>;
+    searchQuery? : string;
 }
 
 export interface SamplesListProps {
@@ -38,14 +39,14 @@ export interface SamplesListProps {
 export class SamplesList extends React.Component<SamplesListProps, SamplesListState> {
 
     private _availableSamples: undefined | Array<BallerinaExampleCategory>;
-    private searchInput: undefined | any;
+    private searchInput: null | Input;
     private onSearchQueryEdit: () => void;
 
     constructor(props: SamplesListProps, context: SamplesListState) {
         super(props, context);
         this.onSearchQueryEdit = debounce(() => {
-            if (this.searchInput && this._availableSamples) {
-                const searchQuery = this.searchInput.inputRef.value.toLowerCase();
+            const { searchQuery } = this.state;
+            if (searchQuery != undefined && this._availableSamples) {
                 let samples = cloneDeep(this._availableSamples);
                 samples = samples.filter((sampleCategory) => {
                     if (!sampleCategory.title.toLowerCase().includes(searchQuery)) {
@@ -132,8 +133,12 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                                 }}
                                 loading={!this.state || !this.state.samples}
                                 placeholder='Search'
-                                onChange={this.onSearchQueryEdit}
-                                
+                                onChange={(event: React.SyntheticEvent<HTMLInputElement>) => {
+                                    this.setState({
+                                        searchQuery: event.currentTarget.value
+                                    });
+                                    this.onSearchQueryEdit();
+                                }}
                             />
                         </div>
                     </Grid.Column>
