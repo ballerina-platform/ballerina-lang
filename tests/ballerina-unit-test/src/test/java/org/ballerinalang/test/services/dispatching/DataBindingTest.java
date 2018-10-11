@@ -146,8 +146,7 @@ public class DataBindingTest {
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.stringValue(), "[{\"name\":\"wso2\", \"age\":12}, " +
-                "{\"name\":\"ballerina\", \"age\":3}]");
+        Assert.assertEquals(bJson.stringValue(), "[{\"name\":\"wso2\", \"age\":12}, {\"name\":\"ballerina\", \"age\":3}]");
     }
 
     @Test(description = "Test data binding without content-type header")
