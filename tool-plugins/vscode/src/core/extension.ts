@@ -31,9 +31,9 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE } from "vscode-languageclient";
-import { getServerOptions } from '../server';
-import { ExtendedLangClient } from "../lang-client";
-import { log } from '../logger';
+import { getServerOptions } from '../server/server';
+import { ExtendedLangClient } from "../client/index";
+import { log } from '../utils/index';
 import { AssertionError } from "assert";
 import * as compareVersions from 'compare-versions';
 class BallerinaExtension {
@@ -290,4 +290,4 @@ class BallerinaExtension {
 
 }
 
-export default new BallerinaExtension();
+export const BallerinaExtInstance = new BallerinaExtension();

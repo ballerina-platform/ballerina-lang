@@ -1,4 +1,4 @@
-import { ExtendedLangClient } from '../lang-client';
+import { ExtendedLangClient } from '../client/lang-client';
 import { Uri, ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent } from '../utils';
 

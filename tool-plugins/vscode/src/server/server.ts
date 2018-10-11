@@ -19,9 +19,9 @@
  */
 import * as path from 'path';
 import { sync } from 'glob';
-import { log } from './logger';
+import { log } from '../utils/logger';
 import { ServerOptions } from 'vscode-languageclient';
-import { getPluginConfig } from './config';
+import { getPluginConfig } from '../utils/config';
 
 const libPath: string = '/bre/lib/*';
 const jrePath: string = '/bre/lib/jre*';

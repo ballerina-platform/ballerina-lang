@@ -19,9 +19,9 @@
 import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { BallerinaAST, ExtendedLangClient } from '../lang-client';
+import { BallerinaAST, ExtendedLangClient } from '../client';
+import { BallerinaExtInstance } from '../core';
 import { WebViewRPCHandler } from '../utils';
-import BallerinaExtension from '../core/ballerina-extension';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -162,22 +162,22 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		return BallerinaExtension.onReady()
+		return BallerinaExtInstance.onReady()
 		.then(() => {
 			const { experimental } = langClient.initializeResult!.capabilities;
 			const serverProvidesAST = experimental && experimental.astProvider;
 
 			if (!serverProvidesAST) {
-				BallerinaExtension.showMessageServerMissingCapability();
+				BallerinaExtInstance.showMessageServerMissingCapability();
 				return {};
 			}
 			showDiagramEditor(context, langClient);
 		})
 		.catch((e) => {
-			if (!BallerinaExtension.isValidBallerinaHome()) {
-				BallerinaExtension.showMessageInvalidBallerinaHome();
+			if (!BallerinaExtInstance.isValidBallerinaHome()) {
+				BallerinaExtInstance.showMessageInvalidBallerinaHome();
 			} else {
-				BallerinaExtension.showPluginActivationError();
+				BallerinaExtInstance.showPluginActivationError();
 			}
 		});
 	});
