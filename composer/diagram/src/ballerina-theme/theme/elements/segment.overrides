@@ -1,0 +1,13 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.ui.inverted.segment {
+  background: @invertedBackgroundColor;
+  border-radius: 0;
+}
+
+.ui.inverted.segment > .ui.header {
+  color         : @gray-100;
+  font-wight    : 400;
+}

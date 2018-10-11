@@ -17,6 +17,7 @@
  *
  */
 
+// import 'font-ballerina/css/font-ballerina.css';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React, { createElement } from 'react';
 import { DragDropContext } from 'react-dnd';
@@ -26,11 +27,12 @@ import ReactDOM from 'react-dom';
 import { Dimmer, Loader } from 'semantic-ui-react';
 import SamplesList from './samples/List';
 
-import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
-import DesignView from 'plugins/ballerina/views/design-view.jsx';
+import Diagram from 'plugins/ballerina/diagram/diagram';
+import DesignView from 'plugins/ballerina/views/design-view';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder.js';
 import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
-import '../src/ballerina-theme/semantic.less';
+import './ballerina-theme/semantic.less';
+import './scss/themes/default.scss';
 
 const BalDiagram = DragDropContext(HTML5Backend)(Diagram);
 const BallerinaDesignView = DragDropContext(HTML5Backend)(DesignView);
@@ -44,6 +46,7 @@ function renderStaticDiagram(target, modelJson, props = {}) {
         editMode: true,
         height: 300,
         width: 300,
+        zoom: 1
     };
     target.classList.add('composer-library');
     Object.assign(defaultProps, props);

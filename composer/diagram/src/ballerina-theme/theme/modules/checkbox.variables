@@ -1,0 +1,28 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+@checkboxActiveBackground: @primaryColor;
+@checkboxActiveBorderColor: @primaryColor;
+@checkboxActiveCheckColor: @white;
+
+/* Focused Checkbox */
+@checkboxActiveFocusBackground: @primaryColorFocus;
+@checkboxActiveFocusBorderColor: @primaryColorFocus;
+@checkboxActiveFocusCheckColor: @white;
+@checkboxTransition: none;
+
+/* Radio */
+@radioActiveBackground: @white;
+@radioActiveBorderColor: @primaryColor;
+@radioActiveBulletColor: @primaryColor;
+
+/* Focused Radio */
+@radioActiveFocusBackground: @white;
+@radioActiveFocusBorderColor: @primaryColorFocus;
+@radioActiveFocusBulletColor: @primaryColorFocus;
+
+/* Slider */
+@sliderOnLineColor: @primaryColor;
+
+/* Focused Slider */
+@sliderOnFocusLineColor: @primaryColorFocus;
