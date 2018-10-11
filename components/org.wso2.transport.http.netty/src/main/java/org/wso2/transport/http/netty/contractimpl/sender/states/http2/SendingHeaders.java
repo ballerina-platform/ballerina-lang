@@ -41,7 +41,10 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.io.IOException;
+
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.initiateStream;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
@@ -87,7 +90,12 @@ public class SendingHeaders implements SenderState {
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                            Http2MessageStateContext http2MessageStateContext) {
-        LOG.warn("readInboundResponseHeaders is not a dependant action of this state");
+        // This is an action due to an application error. When the initial frames of the response is being received
+        // before sending the complete request.
+        outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
+                isServerPush, http2MessageStateContext);
     }
 
     @Override
