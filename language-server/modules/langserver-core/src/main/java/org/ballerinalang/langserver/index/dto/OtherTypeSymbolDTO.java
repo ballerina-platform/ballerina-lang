@@ -73,9 +73,9 @@ public final class OtherTypeSymbolDTO {
 
         private int packageId = -1;
 
-        private String name;
+        private String name = "";
 
-        private String fields;
+        private String fields = "";
 
         private CompletionItem completionItem;
 

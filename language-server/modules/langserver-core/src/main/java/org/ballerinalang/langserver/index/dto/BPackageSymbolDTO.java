@@ -19,6 +19,8 @@ package org.ballerinalang.langserver.index.dto;
 
 /**
  * DTO for BPackageSymbol.
+ * 
+ * @since 0.983.0
  */
 public final class BPackageSymbolDTO {
     
@@ -52,16 +54,19 @@ public final class BPackageSymbolDTO {
     public String getVersion() {
         return version;
     }
-    
+
+    /**
+     * Builder for BPackageSymbolDTO.
+     */
     public static class BPackageSymbolDTOBuilder {
 
         private int id = -1;
 
-        private String name;
+        private String name = "";
 
-        private String orgName;
+        private String orgName = "";
 
-        private String version;
+        private String version = "";
 
         public BPackageSymbolDTOBuilder setId(int id) {
             this.id = id;

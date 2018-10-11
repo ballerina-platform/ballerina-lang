@@ -22,6 +22,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 /**
  * DTO for BObjectTypeSymbol.
+ * 
+ * @since 0.983.0
  */
 public final class BObjectTypeSymbolDTO {
 
@@ -52,24 +54,6 @@ public final class BObjectTypeSymbolDTO {
         this.isPrivate = isPrivate;
         this.completionItem = completionItem;
     }
-
-    //    public BObjectTypeSymbolDTO(int packageId, String name, String fields, ObjectType type, boolean isPrivate,
-//                                CompletionItem completionItem) {
-//        this.packageId = packageId;
-//        this.name = name;
-//        this.fields = fields;
-//        this.type = type;
-//        this.isPrivate = isPrivate;
-//        this.completionItem = completionItem;
-//    }
-//
-//    public BObjectTypeSymbolDTO(int packageId, String name, String fields, boolean isPrivate) {
-//        this.packageId = packageId;
-//        this.name = name;
-//        this.fields = fields;
-//        this.isPrivate = isPrivate;
-//    }
-
 
     public int getId() {
         return id;
@@ -102,7 +86,10 @@ public final class BObjectTypeSymbolDTO {
     public CompletionItem getCompletionItem() {
         return completionItem;
     }
-    
+
+    /**
+     * Builder for BObjectTypeSymbolDTO.
+     */
     public static class BObjectTypeSymbolDTOBuilder {
 
         private int id = -1;
@@ -113,9 +100,9 @@ public final class BObjectTypeSymbolDTO {
 
         private boolean isPrivate;
 
-        private String name;
+        private String name = "";
 
-        private String fields;
+        private String fields = "";
 
         private ObjectType type;
 

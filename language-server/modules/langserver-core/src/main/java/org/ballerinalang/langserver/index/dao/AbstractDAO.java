@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ import java.util.List;
  * 
  * @since 0.983.0
  */
-public abstract class AbstractDAO<T> {
+abstract class AbstractDAO<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractDAO.class);
     
@@ -44,16 +45,19 @@ public abstract class AbstractDAO<T> {
 
     /**
      * Insert a single entry to Index DB.
-     * 
+     *
      * @param dto   DTO to insert in to the index DB
+     * @return {@link Integer}  generated ID
+     * @throws LSIndexException Exception while index access
      */
-    public abstract void insert(T dto);
+    public abstract int insert(T dto) throws LSIndexException;
 
     /**
      * Insert a list of entries in Index DB.
      *
      * @param dtoList           List of entries to be inserted
      * @return {@link List}     List of generated IDs
+     * @throws LSIndexException Exception while index access
      */
     public abstract List<Integer> insertBatch(java.util.List<T> dtoList) throws LSIndexException;
 
@@ -61,8 +65,9 @@ public abstract class AbstractDAO<T> {
      * Get all the entries in the corresponding table.
      *
      * @return {@link List}     List of retrieved entries
+     * @throws LSIndexException Exception while index access
      */
-    public abstract List<T> getAll();
+    public abstract List<T> getAll() throws LSIndexException;
 
     /**
      * Get a single entry from id.
@@ -71,6 +76,30 @@ public abstract class AbstractDAO<T> {
      * @return {@link T}    Retrieved entry
      */
     public abstract T get(int id);
+
+    /**
+     * Release the resources.
+     * 
+     * @param resultSet     Result Set to close
+     * @param statement     statement to close
+     */
+    public void releaseResources(ResultSet resultSet, Statement statement) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                logger.error("Error while closing the result set");
+            }
+        }
+        
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                logger.error("Error while closing the prepared statement");
+            }
+        }
+    }
 
     /**
      * Get the list of generated keys(ids) from the result set.

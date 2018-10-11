@@ -21,6 +21,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 /**
  * DTO for RecordTypeSymbol.
+ * 
+ * @since 0.983.0
  */
 public final class BRecordTypeSymbolDTO {
     
@@ -71,7 +73,7 @@ public final class BRecordTypeSymbolDTO {
     }
 
     /**
-     * Builder for BRecordTypeSymbolDTO
+     * Builder for BRecordTypeSymbolDTO.
      */
     public static class BRecordTypeSymbolDTOBuilder {
 
@@ -79,9 +81,9 @@ public final class BRecordTypeSymbolDTO {
 
         private int packageId;
 
-        private String name;
+        private String name = "";
 
-        private String fields;
+        private String fields = "";
 
         private boolean isPrivate;
 

@@ -57,7 +57,7 @@ public final class BLangServiceDTO {
 
         private int packageId = -1;
 
-        private String name;
+        private String name = "";
 
         public BLangServiceDTOBuilder setId(int id) {
             this.id = id;

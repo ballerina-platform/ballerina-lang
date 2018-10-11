@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
@@ -44,17 +43,15 @@ public final class BLangPackageContent {
 
     private List<BInvokableSymbol> bInvokableSymbols = new ArrayList<>();
 
-    private List<BServiceSymbol> bServiceSymbols = new ArrayList<>();
 
     private BLangPackageContent(BPackageSymbolDTO packageSymbolDTO, List<BRecordTypeSymbol> recordTypeSymbols,
                                List<BTypeSymbol> otherTypeSymbols, List<BObjectTypeSymbol> objectTypeSymbols,
-                               List<BInvokableSymbol> bInvokableSymbols, List<BServiceSymbol> bServiceSymbols) {
+                               List<BInvokableSymbol> bInvokableSymbols) {
         this.packageSymbolDTO = packageSymbolDTO;
         this.recordTypeSymbols = recordTypeSymbols;
         this.otherTypeSymbols = otherTypeSymbols;
         this.objectTypeSymbols = objectTypeSymbols;
         this.bInvokableSymbols = bInvokableSymbols;
-        this.bServiceSymbols = bServiceSymbols;
     }
 
     public BPackageSymbolDTO getPackageSymbolDTO() {
@@ -77,10 +74,6 @@ public final class BLangPackageContent {
         return bInvokableSymbols;
     }
 
-    public List<BServiceSymbol> getbServiceSymbols() {
-        return bServiceSymbols;
-    }
-
     /**
      * Builder for BLangPackageContent.
      */
@@ -95,8 +88,6 @@ public final class BLangPackageContent {
         private List<BObjectTypeSymbol> objectTypeSymbols = new ArrayList<>();
 
         private List<BInvokableSymbol> bInvokableSymbols = new ArrayList<>();
-
-        private List<BServiceSymbol> bServiceSymbols = new ArrayList<>();
 
         public BLangPackageContentBuilder setPackageSymbolDTO(BPackageSymbolDTO packageSymbolDTO) {
             this.packageSymbolDTO = packageSymbolDTO;
@@ -122,15 +113,10 @@ public final class BLangPackageContent {
             this.bInvokableSymbols = bInvokableSymbols;
             return this;
         }
-
-        public BLangPackageContentBuilder setbServiceSymbols(List<BServiceSymbol> bServiceSymbols) {
-            this.bServiceSymbols = bServiceSymbols;
-            return this;
-        }
         
         public BLangPackageContent build() {
             return new BLangPackageContent(this.packageSymbolDTO, this.recordTypeSymbols, this.otherTypeSymbols,
-                    this.objectTypeSymbols, this.bInvokableSymbols, this.bServiceSymbols);
+                    this.objectTypeSymbols, this.bInvokableSymbols);
         }
     }
 }

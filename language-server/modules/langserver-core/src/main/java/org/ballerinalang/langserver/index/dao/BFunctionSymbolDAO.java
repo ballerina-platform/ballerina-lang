@@ -17,12 +17,13 @@
 */
 package org.ballerinalang.langserver.index.dao;
 
-import org.ballerinalang.langserver.common.utils.index.DTOUtil;
+import org.ballerinalang.langserver.index.DTOUtil;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -45,7 +46,8 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
      * @param dto DTO to insert in to the index DB
      */
     @Override
-    public void insert(BFunctionSymbolDTO dto) {
+    public int insert(BFunctionSymbolDTO dto) {
+        return -1;
     }
 
     /**
@@ -53,13 +55,16 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
      *
      * @param dtoList List of entries to be inserted
      * @return {@link List}     List of generated IDs
+     * @throws LSIndexException Exception while index access
      */
     @Override
     public List<Integer> insertBatch(List<BFunctionSymbolDTO> dtoList) throws LSIndexException {
         String query = "INSERT INTO bLangFunction (packageId, objectId, name, completionItem, private, attached) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
+        PreparedStatement statement = null;
+        ResultSet rs = null;
         try {
-            PreparedStatement statement = this.connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            statement = this.connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             for (BFunctionSymbolDTO dto : dtoList) {
                 statement.setInt(1, dto.getPackageId());
                 statement.setInt(2, dto.getObjectId());
@@ -70,9 +75,12 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
                 statement.addBatch();
             }
             statement.executeBatch();
-            return this.getGeneratedKeys(statement.getResultSet());
+            rs = statement.getGeneratedKeys();
+            return this.getGeneratedKeys(rs);
         } catch (SQLException e) {
             throw new LSIndexException("Error while inserting BLang Function in to Index");
+        } finally {
+            this.releaseResources(rs, statement);
         }
     }
 
@@ -80,9 +88,10 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
      * Get all the entries in the corresponding table.
      *
      * @return {@link List}     List of retrieved entries
+     * @throws LSIndexException Exception while index access
      */
     @Override
-    public List<BFunctionSymbolDTO> getAll() {
+    public List<BFunctionSymbolDTO> getAll() throws LSIndexException {
         return null;
     }
 
@@ -95,5 +104,36 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
     @Override
     public BFunctionSymbolDTO get(int id) {
         return null;
+    }
+
+    /**
+     * Get all the endpoint actions.
+     *
+     * @return {@link List}         List of retrieved actions
+     * @throws LSIndexException     Exception while accessing Index
+     */
+    public List<BFunctionSymbolDTO> getAllActions() throws LSIndexException {
+        List<BFunctionSymbolDTO> funcDTOs = new ArrayList<>();
+        String query = "SELECT p.ID, o.ID, f.NAME FROM BLANGOBJECT as o JOIN BLANGPACKAGE as p ON p.ID = o.PACKAGEID " +
+                "JOIN BLANGFUNCTION as f ON f.OBJECTID   = o.ACTIONHOLDERID  WHERE o.TYPE  = 1 AND p.NAME LIKE ? AND " +
+                "o.NAME LIKE ?";
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            statement = this.connection.prepareStatement(query);
+            rs = statement.executeQuery();
+            BFunctionSymbolDTO funcDTO = new BFunctionSymbolDTO.BFunctionDTOBuilder()
+                    .setPackageId(rs.getInt(1))
+                    .setObjectId(rs.getInt(2))
+                    .setName(rs.getString(3))
+                    .build();
+            funcDTOs.add(funcDTO);
+            
+            return funcDTOs;
+        } catch (SQLException e) {
+            throw new LSIndexException("Error retrieving actions from index");
+        } finally {
+            this.releaseResources(rs, statement);
+        }
     }
 }

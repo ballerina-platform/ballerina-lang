@@ -94,7 +94,7 @@ public final class BFunctionSymbolDTO {
 
         private boolean isAttached;
 
-        private String name;
+        private String name = "";
 
         private CompletionItem completionItem;
 
@@ -134,7 +134,7 @@ public final class BFunctionSymbolDTO {
         }
         
         public BFunctionSymbolDTO build() {
-            return new BFunctionSymbolDTO(this.id, this.objectId, this.packageId, this.isPrivate,
+            return new BFunctionSymbolDTO(this.id, this.packageId, this.objectId, this.isPrivate,
                     this.isAttached, this.name, this.completionItem);
         }
     }

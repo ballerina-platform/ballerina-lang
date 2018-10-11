@@ -34,4 +34,20 @@ public enum ObjectType {
     public int getValue() {
         return this.type;
     }
+
+    /**
+     * Get the enum value from ordinal.
+     *
+     * @param ordinal   ordinal value to query.
+     * @return {@link ObjectType}   Object Type
+     */
+    public static ObjectType get(int ordinal) {
+        for (ObjectType objectType : ObjectType.values()) {
+            if (objectType.getValue() == ordinal) {
+                return objectType;
+            }
+        }
+        
+        return null;
+    }
 }

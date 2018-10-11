@@ -57,7 +57,7 @@ public final class BLangResourceDTO {
 
         private int serviceId;
 
-        private String name;
+        private String name = "";
 
         public BLangResourceDTOBuilder setId(int id) {
             this.id = id;

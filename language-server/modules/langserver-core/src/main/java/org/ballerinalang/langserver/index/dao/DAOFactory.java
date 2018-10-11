@@ -17,24 +17,33 @@
 */
 package org.ballerinalang.langserver.index.dao;
 
+import java.sql.Connection;
+
 /**
  * DAO factory to produce Various DAOs.
  * 
  * @since 0.983.0
  */
 public class DAOFactory {
-    public static AbstractDAO get(DAOType type) {
+
+    private Connection connection;
+
+    public DAOFactory(Connection connection) {
+        this.connection = connection;
+    }
+
+    public AbstractDAO get(DAOType type) {
         switch (type) {
             case FUNCTION_SYMBOL:
-                return new BFunctionSymbolDAO();
+                return new BFunctionSymbolDAO(this.connection);
             case OBJECT_TYPE:
-                return new BObjectTypeSymbolDAO();
+                return new BObjectTypeSymbolDAO(this.connection);
             case OTHER_TYPE_SYMBOL:
-                return new OtherTypeSymbolDAO();
+                return new BOtherTypeSymbolDAO(this.connection);
             case PACKAGE_SYMBOL:
-                return new BPackageSymbolDAO();
+                return new BPackageSymbolDAO(this.connection);
             case RECORD_TYPE_SYMBOL:
-                return new BRecordTypeSymbolDAO();
+                return new BRecordTypeSymbolDAO(this.connection);
             default:
                 // Should not come to this point and if so, there is a bug.
                 return null;

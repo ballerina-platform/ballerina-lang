@@ -17,22 +17,25 @@
 */
 package org.ballerinalang.langserver.index.dao;
 
-import org.ballerinalang.langserver.common.utils.index.DTOUtil;
+import org.ballerinalang.langserver.index.DTOUtil;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
 /**
- * DAO for BRecordTypeSymbol
+ * DAO for BRecordTypeSymbol.
+ * 
+ * @since 0.983.0
  */
 public class BRecordTypeSymbolDAO extends AbstractDAO<BRecordTypeSymbolDTO> {
     
-    public BRecordTypeSymbolDAO(Connection connection) {
+    BRecordTypeSymbolDAO(Connection connection) {
         super(connection);
     }
 
@@ -42,8 +45,8 @@ public class BRecordTypeSymbolDAO extends AbstractDAO<BRecordTypeSymbolDTO> {
      * @param dto DTO to insert in to the index DB
      */
     @Override
-    public void insert(BRecordTypeSymbolDTO dto) {
-        
+    public int insert(BRecordTypeSymbolDTO dto) {
+        return -1;
     }
 
     /**
@@ -51,14 +54,17 @@ public class BRecordTypeSymbolDAO extends AbstractDAO<BRecordTypeSymbolDTO> {
      *
      * @param dtoList List of entries to be inserted
      * @return {@link List}     List of generated IDs
+     * @throws LSIndexException Exception while index access
      */
     @Override
     public List<Integer> insertBatch(List<BRecordTypeSymbolDTO> dtoList) throws LSIndexException {
+        PreparedStatement statement = null;
+        ResultSet rs = null;
         String query = "INSERT INTO bLangRecord (packageId, name, fields, private, completionItem) VALUES " +
                 "(?, ?, ?, ?, ?)";
 
         try {
-            PreparedStatement statement = this.connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            statement = this.connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
             for (BRecordTypeSymbolDTO dto : dtoList) {
                 statement.setInt(1, dto.getPackageId());
@@ -69,10 +75,12 @@ public class BRecordTypeSymbolDAO extends AbstractDAO<BRecordTypeSymbolDTO> {
                 statement.addBatch();
             }
             statement.executeBatch();
-            
-            return this.getGeneratedKeys(statement.getResultSet());
+            rs = statement.getGeneratedKeys();
+            return this.getGeneratedKeys(rs);
         } catch (SQLException e) {
             throw new LSIndexException("Error while inserting BLang Record in to Index");
+        } finally {
+            this.releaseResources(rs, statement);
         }
     }
 
@@ -80,9 +88,10 @@ public class BRecordTypeSymbolDAO extends AbstractDAO<BRecordTypeSymbolDTO> {
      * Get all the entries in the corresponding table.
      *
      * @return {@link List}     List of retrieved entries
+     * @throws LSIndexException Exception while index access
      */
     @Override
-    public List<BRecordTypeSymbolDTO> getAll() {
+    public List<BRecordTypeSymbolDTO> getAll() throws LSIndexException {
         return null;
     }
 
