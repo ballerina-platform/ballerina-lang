@@ -234,14 +234,14 @@ public class HttpDispatcher {
                         return blobDataSource;
                     } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
                         bjson = getBJsonValue(inRequestEntity);
-                        return getRecordOrObjectArray(entityBodyType, bjson);
+                        return getRecordArray(entityBodyType, bjson);
                     } else {
                         throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
                                 ((BArrayType) entityBodyType).getElementType().getName());
                     }
                 case TypeTags.RECORD_TYPE_TAG:
                     bjson = getBJsonValue(inRequestEntity);
-                    return getRecordOrObject(entityBodyType, bjson);
+                    return getRecord(entityBodyType, bjson);
                 default:
                         //Do nothing
             }
@@ -252,13 +252,13 @@ public class HttpDispatcher {
     }
 
     /**
-     * Convert a json to the relevant record or object.
+     * Convert a json to the relevant record type.
      *
      * @param entityBodyType Represents entity body type
      * @param bjson          Represents the json value that needs to be converted
      * @return the relevant ballerina record or object
      */
-    private static BValue getRecordOrObject(BType entityBodyType, BValue bjson) {
+    private static BValue getRecord(BType entityBodyType, BValue bjson) {
         try {
             return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
         } catch (NullPointerException ex) {
@@ -268,13 +268,13 @@ public class HttpDispatcher {
     }
 
     /**
-     * Convert a json array to the relevant record or object array.
+     * Convert a json array to the relevant record array.
      *
      * @param entityBodyType Represents entity body type
      * @param bjson          Represents the json array that needs to be converted
      * @return the relevant ballerina record or object array
      */
-    private static BValue getRecordOrObjectArray(BType entityBodyType, BValue bjson) {
+    private static BValue getRecordArray(BType entityBodyType, BValue bjson) {
         try {
             return JSONUtils.convertJSONToBArray(bjson, (BArrayType) entityBodyType);
         } catch (NullPointerException ex) {
