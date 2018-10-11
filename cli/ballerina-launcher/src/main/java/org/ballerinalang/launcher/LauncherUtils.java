@@ -137,7 +137,7 @@ public class LauncherUtils {
 
         if (runServicesOnly) {
             if (args.length > 0) {
-                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+                throw LauncherUtils.createUsageExceptionWithHelp("arguments not allowed for services");
             }
             runServices(programFile);
         } else {

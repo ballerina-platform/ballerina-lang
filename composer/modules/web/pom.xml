@@ -63,18 +63,6 @@
                             </descriptors>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>electron-distribution</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attached</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>${basedir}/assembly/electron-bin.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -147,36 +135,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm run build (compile)</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <skip>${skipClientSideBuild}</skip>
-                            <executable>${npm.executable}</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>${npm.build.command}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm run build (compile) Electron</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <skip>${skipClientSideBuild}</skip>
-                            <executable>${npm.executable}</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>build-electron</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm run build (compile) library</id>
                         <goals>
                             <goal>exec</goal>
@@ -191,23 +149,6 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <!--Commenting as these are integration tests and should be moved to tools.-->
-                    <!--<execution>-->
-                        <!--<id>npm run test (test)</id>-->
-                        <!--<goals>-->
-                            <!--<goal>exec</goal>-->
-                        <!--</goals>-->
-                        <!--<phase>test</phase>-->
-                        <!--<configuration>-->
-                            <!--<executable>npm</executable>-->
-                            <!--<arguments>-->
-                                <!--<argument>run</argument>-->
-                                <!--<argument>test</argument>-->
-                                <!--<argument>&#45;&#45;</argument>-->
-                                <!--<argument>&#45;&#45;skipTests=${maven.test.skip}</argument>-->
-                            <!--</arguments>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
                 </executions>
             </plugin>
             <plugin>
@@ -266,13 +207,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>electron-build</id>
-            <properties>
-                <!-- for electron the build command should be build-electron -->
-                <npm.build.command>build-electron</npm.build.command>
-            </properties>
-        </profile>
         <profile>
             <id>skip-client</id>
             <properties>
