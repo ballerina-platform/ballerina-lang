@@ -240,6 +240,53 @@ function check2DStringArrayEqualityNegative() returns boolean {
     return s1 == s2 || !(s1 != s2) || s3 == s4 || !(s3 != s4) || (s5 == s6) || !(s5 != s6);
 }
 
+function checkMapEqualityPositive() returns boolean {
+    map m1;
+    map m2;
+
+    map<string> m3;
+    map<string> m4;
+
+    map<float> m5;
+    map<float> m6;
+
+    boolean equals = m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
+
+    m1["one"] = 1;
+    m2.one = 1;
+    m2["two"] = "two";
+    m1["two"] = "two";
+    m1["three"] = 3.0;
+    m2["three"] = 3.0;
+
+    m3.last = "last";
+    m3["a"] = "a";
+    m4.a = "a";
+    m4["last"] = "last";
+
+    m5["one"] = 1.0;
+    m6.one = 1.0;
+
+    equals = equals && m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
+    return equals;
+}
+
+function checkMapEqualityNegative() returns boolean {
+    map m1;
+    map m2;
+
+    m1.one = "hi";
+    m2.one = "hello";
+
+    map<int> m3;
+    map<int> m4;
+
+    m3.one = 1;
+    m4.two = 2;
+
+    return m1 == m2 || !(m1 != m2) || m3 == m4 || !(m3 != m4);
+}
+
 function checkJsonEqualityPositive(json a, json b) returns boolean {
     return (a == b) && !(a != b);
 }

@@ -31,3 +31,15 @@ function checkEqualityOfClosedArraysOfDifferentSize() returns boolean {
 
     return bool1 && bool2;
 }
+
+function checkEqualityOfMapsOfDifferentConstraintTypes() returns boolean {
+    map a;
+    map<string> b;
+    boolean bool1 = a == b;
+
+    map<int> c;
+    map<float> d;
+    boolean bool2 = c == d;
+
+    return bool1 && bool2;
+}
