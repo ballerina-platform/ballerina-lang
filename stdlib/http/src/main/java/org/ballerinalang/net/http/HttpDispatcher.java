@@ -232,14 +232,13 @@ public class HttpDispatcher {
                         BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;
-                    } else if (validArrayType((BArrayType) entityBodyType)) {
+                    } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
                         bjson = getBJsonValue(inRequestEntity);
                         return getRecordOrObjectArray(entityBodyType, bjson);
                     } else {
                         throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
                                 ((BArrayType) entityBodyType).getElementType().getName());
                     }
-                case TypeTags.OBJECT_TYPE_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                     bjson = getBJsonValue(inRequestEntity);
                     return getRecordOrObject(entityBodyType, bjson);
@@ -250,17 +249,6 @@ public class HttpDispatcher {
             throw new BallerinaConnectorException("Error in reading payload : " + ex.getMessage());
         }
         return null;
-    }
-
-    /**
-     * Check the validity of array type in data binding scenario.
-     *
-     * @param entityBodyType Represents ballerina array type
-     * @return a boolean indicating the validity of the array type
-     */
-    private static boolean validArrayType(BArrayType entityBodyType) {
-        return (entityBodyType.getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) ||
-                (entityBodyType.getElementType().getTag() == TypeTags.OBJECT_TYPE_TAG);
     }
 
     /**
