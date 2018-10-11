@@ -19,6 +19,8 @@ type AssertError record {
 #
 # + errorMessage - Custom message for the ballerina error
 # + category - error category
+#
+# + return - an AssertError with custom message and category
 public function createBallerinaError(string errorMessage, string category) returns error {
     error e = { message : errorMessage };
     return e;
@@ -37,7 +39,7 @@ public function assertTrue(boolean condition, string msg = "Assertion Failed!") 
 # Asserts whether the given condition is false. If it is not, a AssertError is thrown with the given errorMessage.
 #
 # + condition - Boolean condition to evaluate
-# + errorMessage - Assertion error message
+# + msg - Assertion error message
 public function assertFalse(boolean condition, string msg = "Assertion Failed!") {
     if (condition) {
         throw createBallerinaError(msg, assertFailureErrorCategory);
