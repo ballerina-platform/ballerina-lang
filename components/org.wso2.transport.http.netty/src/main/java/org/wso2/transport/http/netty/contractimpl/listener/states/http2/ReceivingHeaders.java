@@ -73,14 +73,15 @@ public class ReceivingHeaders implements ListenerState {
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
                 notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
             }
+            http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
         } else {
             // Construct new HTTP Request
             HttpCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
             sourceReqCMsg.setHttp2MessageStateContext(http2MessageStateContext);
             http2SourceHandler.getStreamIdRequestMap().put(streamId, sourceReqCMsg); // storing to add HttpContent later
             notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
+            http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
         }
-        http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
     }
 
     @Override
