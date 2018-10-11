@@ -16,8 +16,10 @@ function genObjectFileFromChannel(io:ByteChannel byteChannel, string destFilePat
     checkValidBirChannel(reader);
     bir:ConstPoolParser cpParser = new(reader);
     bir:BirChannelReader birReader = new(reader, cpParser.parse());
-    bir:PackageParser p = new(birReader);
-    genPackage(p.parsePackage(), destFilePath, dumpLLVMIR);
+
+    bir:TypeParser typeParser = new (birReader);
+    bir:PackageParser pkgParser = new(birReader, typeParser);
+    genPackage(pkgParser.parsePackage(), destFilePath, dumpLLVMIR);
 }
 
 function parseArgs(string[] args) returns (string, string) {

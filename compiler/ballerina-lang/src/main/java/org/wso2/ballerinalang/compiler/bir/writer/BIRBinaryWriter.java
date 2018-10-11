@@ -24,8 +24,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -50,6 +48,7 @@ public class BIRBinaryWriter {
 
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
+        BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
 
         // Write the package details in the form of constant pool entry
         int orgCPIndex = addStringCPEntry(birPackage.org.value);
@@ -59,7 +58,7 @@ public class BIRBinaryWriter {
         birbuf.writeInt(pkgIndex);
 
         // Write functions
-        writeFunctions(birbuf, birPackage.functions);
+        writeFunctions(birbuf, typeWriter, birPackage.functions);
 
         // Write the constant pool entries.
         // TODO Only one constant pool is available for now. This will change in future releases
@@ -78,12 +77,12 @@ public class BIRBinaryWriter {
 
     // private methods
 
-    private void writeFunctions(ByteBuf buf, List<BIRNode.BIRFunction> birFunctionList) {
+    private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRNode.BIRFunction> birFunctionList) {
         buf.writeInt(birFunctionList.size());
-        birFunctionList.forEach(func -> writeFunction(buf, func));
+        birFunctionList.forEach(func -> writeFunction(buf, typeWriter, func));
     }
 
-    private void writeFunction(ByteBuf buf, BIRNode.BIRFunction birFunction) {
+    private void writeFunction(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRFunction birFunction) {
         // Function name CP Index
         buf.writeInt(addStringCPEntry(birFunction.name.value));
         // Function definition or a declaration
@@ -93,7 +92,8 @@ public class BIRBinaryWriter {
         buf.writeByte(birFunction.visibility.value());
 
         // Function type as a CP Index
-        buf.writeInt(addFuncSignature(birFunction.type));
+        birFunction.type.accept(typeWriter);
+
         // Arg count
         buf.writeInt(birFunction.argsCount);
         // Local variables
@@ -115,20 +115,5 @@ public class BIRBinaryWriter {
 
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new StringCPEntry(value));
-    }
-
-    private int addFuncSignature(BInvokableType funcType) {
-        String funcSig = generateFunctionSig(funcType.paramTypes, funcType.retType);
-        return this.cp.addCPEntry(new StringCPEntry(funcSig));
-    }
-
-    private String generateSig(List<BType> types) {
-        StringBuilder builder = new StringBuilder();
-        types.forEach(t -> builder.append(t.getDesc()));
-        return builder.toString();
-    }
-
-    private String generateFunctionSig(List<BType> paramTypes, BType retType) {
-        return "(" + generateSig(paramTypes) + ")(" + retType.getDesc() + ")";
     }
 }
