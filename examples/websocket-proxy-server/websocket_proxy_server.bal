@@ -34,7 +34,7 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
 
         endpoint http:WebSocketClient clientEp =
                         getAssociatedClientEndpoint(caller);
-        clientEp->pushText(text, final = finalFrame)
+        clientEp->pushText(text, isFinal = finalFrame)
             but { error e => log:printError(
                      "Error occurred when sending text message", err = e) };
     }
@@ -44,7 +44,7 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
 
         endpoint http:WebSocketClient clientEp =
                         getAssociatedClientEndpoint(caller);
-        clientEp->pushBinary(data, final = finalFrame)
+        clientEp->pushBinary(data, isFinal = finalFrame)
             but { error e => log:printError(
                      "Error occurred when sending binary message", err = e) };
     }
@@ -82,7 +82,7 @@ service<http:WebSocketClientService> ClientService {
 
         endpoint http:WebSocketListener serverEp =
                         getAssociatedServerEndpoint(caller);
-        serverEp->pushText(text, final = finalFrame)
+        serverEp->pushText(text, isFinal = finalFrame)
             but { error e => log:printError(
                      "Error occurred when sending text message", err = e) };
     }
@@ -92,7 +92,7 @@ service<http:WebSocketClientService> ClientService {
 
         endpoint http:WebSocketListener serverEp =
                         getAssociatedServerEndpoint(caller);
-        serverEp->pushBinary(data, final = finalFrame)
+        serverEp->pushBinary(data, isFinal = finalFrame)
             but { error e => log:printError(
                      "Error occurred when sending binary message", err = e) };
     }

@@ -22,8 +22,8 @@ service<http:WebSocketService> basic bind { port: 9090 } {
     }
 
     // This resource is triggered when a new text frame is received from a client.
-    onText(endpoint caller, string text, boolean final) {
-        io:println("\ntext message: " + text + " & final fragment: " + final);
+    onText(endpoint caller, string text, boolean isFinal) {
+        io:println("\ntext message: " + text + " & final fragment: " + isFinal);
 
         if (text == "ping") {
             io:println("Pinging...");
