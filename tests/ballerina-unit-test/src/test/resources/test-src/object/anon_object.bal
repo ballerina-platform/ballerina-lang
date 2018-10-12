@@ -68,10 +68,10 @@ function testAnonObjectWithFunctionAsLocalVar () returns string {
 public type Person object {
     public int age;
     public string name;
-    public int length;
+    public int lengthVal;
     public string kind;
 
-    public new (age, name, length) {
+    public new (age, name, lengthVal) {
 
     }
 
@@ -87,7 +87,7 @@ function Person::getKind() returns string {
 }
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string, string) {
-    object { public int age; public string name; public int length; public string kind;
+    object { public int age; public string name; public int lengthVal; public string kind;
     public new (age, name, string value) {
         kind = " hello " + value;
     }
@@ -101,7 +101,7 @@ function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string,
 }
 
 function testAnonObjectWithRecordLiteral() returns (int, string) {
-    object { public record {int age; string name;} details; private int length; private string kind;
+    object { public record {int age; string name;} details; private int lengthVal; private string kind;
     new (details, kind) {
     }
     function getName () returns string { return details.name; }} value = new ({age:8, name:"sanjiva"}, "passed kind");
@@ -112,7 +112,7 @@ function testAnonObjectWithRecordLiteral() returns (int, string) {
 type Foo object {
     public record {int age; string name;} details;
 
-    private int length;
+    private int lengthVal;
     private string kind;
 
     new (details, kind) {

@@ -347,6 +347,10 @@ public class BTable implements BRefType<Object>, BCollection {
         return true;
     }
 
+    public int length() {
+        return tableProvider.getRowCount(tableName);
+    }
+
     /**
      * Provides iterator implementation for table values.
      *

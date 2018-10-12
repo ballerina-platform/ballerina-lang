@@ -178,9 +178,9 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
     worker w3 {
         try { 
             int i = 0;
-            int length;
+            int lengthVal;
             while (i < n) {
-                length = lengthof intMap.keys();
+                lengthVal = lengthof intMap.keys();
                 i++;
             }
         } catch (error e) {

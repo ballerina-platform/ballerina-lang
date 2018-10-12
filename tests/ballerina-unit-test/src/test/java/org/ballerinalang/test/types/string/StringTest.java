@@ -268,7 +268,7 @@ public class StringTest {
     @Test
     public void testLength() {
         BValue[] args = {new BString("Bandwagon")};
-        BValue[] returns = BRunUtil.invoke(result, "length", args);
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfStr", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
     }
@@ -277,7 +277,7 @@ public class StringTest {
             expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
     public void testLengthofNull() {
         BValue[] args = {new BString(null)};
-        BRunUtil.invoke(result, "length", args);
+        BRunUtil.invoke(result, "lengthOfStr", args);
     }
 
     @Test

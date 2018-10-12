@@ -1164,6 +1164,12 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (iExpr.lengthOperationInvocation) {
+            BLangInvocation lengthInvocation = createLengthInvocation(iExpr);
+            result = rewriteExpr(lengthInvocation);
+            return;
+        }
+
         // Reorder the arguments to match the original function signature.
         reorderArguments(iExpr);
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
@@ -1217,6 +1223,14 @@ public class Desugar extends BLangNodeVisitor {
                         iExpr.symbol, iExpr.type, iExpr.async);
                 break;
         }
+    }
+
+    private BLangInvocation createLengthInvocation(BLangInvocation invocation) {
+        List<BLangExpression> args = new ArrayList<>();
+        String functionName = "length";
+        args.add(invocation.expr);
+        BType retType = invocation.type;
+        return createInvocationNode(functionName, args, retType);
     }
 
     public void visit(BLangTypeInit typeInitExpr) {

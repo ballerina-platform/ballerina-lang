@@ -3,9 +3,9 @@ function arrayLengthAccessTestAssignmentCase (int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length;
-    length = lengthof arr;
-    return length;
+    int lengthVal;
+    lengthVal = lengthof arr;
+    return lengthVal;
 }
 
 function arrayLengthAccessTestFunctionInvocationCase(int x, int y) returns (int) {
@@ -13,9 +13,9 @@ function arrayLengthAccessTestFunctionInvocationCase(int x, int y) returns (int)
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length;
-    length = arrayLength(lengthof arr);
-    return length;
+    int lengthVal;
+    lengthVal = arrayLength(lengthof arr);
+    return lengthVal;
 }
 
 
@@ -28,8 +28,8 @@ function arrayLengthAccessTestVariableDefinitionCase(int x, int y) returns (int)
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length = arrayLength(lengthof arr);
-    return length;
+    int lengthVal = arrayLength(lengthof arr);
+    return lengthVal;
 }
 
 function arrayLengthAccessTestArrayInitializerCase(int x, int y) returns (int) {
@@ -47,9 +47,9 @@ function arrayLengthAccessTestMapInitializerCase(int x, int y) returns (int) {
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length":lengthof arr};
-    int length;
-    length =check <int> tempMap["length"];
-    return length;
+    int lengthVal;
+    lengthVal =check <int> tempMap["length"];
+    return lengthVal;
 }
 
 function arrayLengthAccessTestReturnStatementCase(int x, int y) returns (int) {
@@ -78,8 +78,8 @@ function arrayLengthAccessTestTypeCastExpressionCase(int x, int y) returns (int)
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length = lengthof arr;
-    return length;
+    int lengthVal = lengthof arr;
+    return lengthVal;
 }
 
 function arrayLengthAccessTestIfConditionCase(int x, int y) returns (int) {
@@ -124,9 +124,9 @@ function arrayLengthAccessTestStructFieldAccessCase(int x, int y) returns (int) 
 function arrayLengthAccessNullArrayCase(int x, int y) returns (int) {
     int z = x + y;
     int[] arr;
-    int length;
-    length = lengthof arr;
-    return length;
+    int lengthVal;
+    lengthVal = lengthof arr;
+    return lengthVal;
 }
 
 type Person record {
