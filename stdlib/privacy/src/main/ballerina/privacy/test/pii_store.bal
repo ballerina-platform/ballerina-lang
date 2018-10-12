@@ -15,7 +15,7 @@
 // under the License.
 
 public type PIIStore abstract object {
-    function pseudonymize(string pii) returns string|error;
-    function depseudonymize(string id) returns string|error;
-    function delete(string id) returns ()|error;
+    public function pseudonymize(string pii) returns string|error;
+    public function depseudonymize(string id) returns string|error;
+    public function delete(string id) returns error?;
 };

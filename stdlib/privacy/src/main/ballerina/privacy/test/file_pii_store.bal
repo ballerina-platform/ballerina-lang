@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/io;
 import ballerina/internal;
 import ballerina/system;
@@ -23,15 +24,15 @@ public type PIIFileFormat "CSV"|"TDF";
 @final public PIIFileFormat TDF = "TDF";
 
 public type FilePIIStore object {
-    string path;
-    PIIFileFormat fileFormat;
-    string encoding;
+    public string path;
+    public PIIFileFormat fileFormat;
+    public string encoding;
 
     public new(path, fileFormat, encoding = "UTF-8") {
 
     }
 
-    function pseudonymize (string pii) returns string|error {
+    public function pseudonymize (string pii) returns string|error {
         string[] pseudoRecord = [system:uuid(), pii];
         if (fileFormat == TDF) {
             return writeDelimitedRecord(path, encoding, "TDF", pseudoRecord);
@@ -40,7 +41,7 @@ public type FilePIIStore object {
         }
     }
 
-    function depseudonymize (string id) returns string|error {
+    public function depseudonymize (string id) returns string|error {
         if (fileFormat == TDF) {
             return searchDelimitedRecord(path, encoding, "TDF", id);
         } else {
@@ -48,7 +49,7 @@ public type FilePIIStore object {
         }
     }
 
-    function delete (string id) returns ()|error {
+    public function delete (string id) returns error? {
         if (fileFormat == TDF) {
             return deleteDelimitedRecord(path, encoding, "TDF", id);
         } else {
@@ -58,9 +59,9 @@ public type FilePIIStore object {
 };
 
 function writeDelimitedRecord(string filePath, string encoding, string fmt, string[] pseudoRecord) returns string|error {
-    io:ByteChannel byteChannel = io:openFile(filePath, io:APPEND);
-    io:CharacterChannel characterChannel = new(byteChannel, encoding);
-    io:DelimitedTextRecordChannel delimitedRecordChannel = new(characterChannel, rs = fmt);
+    io:WritableByteChannel byteChannel = io:openWritableFile(filePath, append = true);
+    io:WritableCharacterChannel characterChannel = new(byteChannel, encoding);
+    io:WritableTextRecordChannel delimitedRecordChannel = new(characterChannel, fmt = fmt);
     
     var writeResult = delimitedRecordChannel.write(pseudoRecord);
     var closeResult = delimitedRecordChannel.close();
@@ -72,13 +73,12 @@ function writeDelimitedRecord(string filePath, string encoding, string fmt, stri
             return pseudoRecord[0];
         }
     }
-    return "";
 }
 
 function searchDelimitedRecord(string filePath, string encoding, string fmt, string id) returns string|error {
-    io:ByteChannel byteChannel = io:openFile(filePath, io:READ);
-    io:CharacterChannel characterChannel = new(byteChannel, encoding);
-    io:DelimitedTextRecordChannel delimitedRecordChannel = new(characterChannel, rs = fmt);
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
+    io:ReadableCharacterChannel characterChannel = new(byteChannel, encoding);
+    io:ReadableTextRecordChannel delimitedRecordChannel = new(characterChannel, fmt = fmt);
 
     while(delimitedRecordChannel.hasNext()) {
         var readResult = delimitedRecordChannel.getNext();
@@ -103,13 +103,13 @@ function deleteDelimitedRecord(string filePath, string encoding, string fmt, str
     var searchResult = searchDelimitedRecord(filePath, encoding, fmt, id);
     match searchResult {
         string => {
-            io:ByteChannel byteChannel = io:openFile(filePath, io:READ);
-            io:CharacterChannel characterChannel = new(byteChannel, encoding);
-            io:DelimitedTextRecordChannel delimitedRecordChannel = new(characterChannel, rs = fmt);
+            io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
+            io:ReadableCharacterChannel characterChannel = new(byteChannel, encoding);
+            io:ReadableTextRecordChannel delimitedRecordChannel = new(characterChannel, fmt = fmt);
 
-            io:ByteChannel tempFileByteChannel = io:openFile(filePath + ".temp", io:WRITE);
-            io:CharacterChannel tempFileCharacterChannel = new(tempFileByteChannel, encoding);
-            io:DelimitedTextRecordChannel tempFileDelimitedRecordChannel = new(tempFileCharacterChannel, rs = fmt);
+            io:WritableByteChannel tempFileByteChannel = io:openWritableFile(filePath + ".temp", append = false);
+            io:WritableCharacterChannel tempFileCharacterChannel = new(tempFileByteChannel, encoding);
+            io:WritableTextRecordChannel tempFileDelimitedRecordChannel = new(tempFileCharacterChannel, fmt = fmt);
 
             while(delimitedRecordChannel.hasNext()) {
                 var readResult = delimitedRecordChannel.getNext();

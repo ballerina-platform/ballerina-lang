@@ -14,3 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jdbc;
+import ballerina/mysql;
+import ballerina/h2;
+import ballerina/sql;
+
+public type DatabasePIIStore object {
+    public jdbc:Client client;
+    public string insertQuery;
+
+    public new(client, insertQuery) {
+    }
+
+    public function pseudonymize(string pii) returns string|error {
+        return "";
+    }
+    public function depseudonymize(string id) returns string|error {
+        return "";
+    }
+    public function delete(string id) returns error? {
+        return ();
+    }
+};

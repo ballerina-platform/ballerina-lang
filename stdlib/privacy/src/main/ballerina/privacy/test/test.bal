@@ -1,5 +1,18 @@
+import ballerina/io;
+import ballerina/test;
+import ballerina/http;
+import ballerina/math;
 
-public function main(string... args) {
-    FilePIIStore pii = new("./test.file", CSV);
-    var pseudoResult = pseudonymize(check <PIIStore>pii, "ayoma");
+xmlns "http://services.samples/xsd" as axis;
+
+function ex(string s) {
+
+}
+
+function createAccountDetails() {
+    xml createReq = xml `<axis:accountHolderName>BallerinaUser</axis:accountHolderName>`;
+    ex(axis:accountHolderName);
+    if (1 == 1) {
+       ex(axis:accountHolderName);
+    }
 }
