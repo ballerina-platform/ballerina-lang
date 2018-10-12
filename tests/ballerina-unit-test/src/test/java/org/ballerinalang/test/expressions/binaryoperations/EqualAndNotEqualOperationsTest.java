@@ -22,6 +22,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -88,6 +90,24 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected ints to be identified as not equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two equal bytes", dataProvider = "equalByteValues")
+    public void testByteEqualityPositive(int i, int j) {
+        BValue[] args = {new BByte((byte) i), new BByte((byte) i)};
+        BValue[] returns = BRunUtil.invoke(result, "checkByteEqualityPositive", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected bytes to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal bytes", dataProvider = "unequalByteValues")
+    public void testByteEqualityNegative(int i, int j) {
+        BValue[] args = {new BByte((byte) i), new BByte((byte) j)};
+        BValue[] returns = BRunUtil.invoke(result, "checkByteEqualityNegative", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected bytes to be identified as not equal");
     }
 
     @Test(description = "Test equals/unequals operation with two equal floats", dataProvider = "equalFloatValues")
@@ -235,6 +255,24 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
                            "Expected 2D int array values to be identified as not equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two equal 2D byte arrays")
+    public void test2DByteArrayEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "check2DByteArrayEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected 2D byte array values to be identified as" +
+                " equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal 2D byte arrays")
+    public void test2DByteArrayEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "check2DByteArrayEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected 2D byte array values to be identified as not equal");
     }
 
     @Test(description = "Test equals/unequals operation with two equal 2D float arrays")
@@ -396,6 +434,23 @@ public class EqualAndNotEqualOperationsTest {
         };
     }
 
+    @DataProvider(name = "equalByteValues")
+    public Object[][] equalByteValues() {
+        return new Object[][]{
+                {0, 0},
+                {10, 10},
+                {255, 255}
+        };
+    }
+
+    @DataProvider(name = "unequalByteValues")
+    public Object[][] unequalByteValues() {
+        return new Object[][]{
+                {0, 255},
+                {12, 122}
+        };
+    }
+
     @DataProvider(name = "equalFloatValues")
     public Object[][] equalFloatValues() {
         return new Object[][]{
@@ -463,7 +518,8 @@ public class EqualAndNotEqualOperationsTest {
                 {new BFloatArray(new double[]{1.11, 12.2, 3.0}), new BFloatArray(new double[]{1.11, 12.2, 3.0})},
                 {new BStringArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
                         new BStringArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""})},
-                {new BBooleanArray(new int[]{0, 1}), new BBooleanArray(new int[]{0, 1})}
+                {new BBooleanArray(new int[]{0, 1}), new BBooleanArray(new int[]{0, 1})},
+                {new BByteArray(new byte[]{0, 25, 23}), new BByteArray(new byte[]{0, 25, 23})}
         };
     }
 
@@ -484,7 +540,10 @@ public class EqualAndNotEqualOperationsTest {
                         new BStringArray(new String[]{"\"first\"", "\"hi\"", "\"from\"", "\"ballerina\""})},
                 {new BBooleanArray(new int[]{0, 1}), new BBooleanArray(new int[]{1, 0})},
                 {new BBooleanArray(new int[]{0, 1, 1}), new BBooleanArray(new int[]{0, 1})},
-                {new BBooleanArray(new int[]{0, 1}), new BBooleanArray(new int[]{0, 1, 0})}
+                {new BBooleanArray(new int[]{0, 1}), new BBooleanArray(new int[]{0, 1, 0})},
+                {new BByteArray(new byte[]{0, 123, 22}), new BByteArray(new byte[]{0, 22, 123})},
+                {new BByteArray(new byte[]{0, 123, 22, 9}), new BByteArray(new byte[]{0, 123, 22})},
+                {new BByteArray(new byte[]{0, 123, 22}), new BByteArray(new byte[]{0, 123})}
         };
     }
 

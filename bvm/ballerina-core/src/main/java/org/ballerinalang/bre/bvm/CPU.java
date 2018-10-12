@@ -3806,9 +3806,9 @@ public class CPU {
         switch (lhsValue.getType().getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
-                // for non-object JSON values
                 BRefType lhsRef = (BRefType) lhsValue;
                 BRefType rhsRef = (BRefType) rhsValue;
                 if (null == lhsRef.value() && null == rhsRef.value()) {

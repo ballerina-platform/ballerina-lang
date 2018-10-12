@@ -30,6 +30,14 @@ function checkIntEqualityNegative(int a, int b) returns boolean {
     return (a == b) || !(a != b);
 }
 
+function checkByteEqualityPositive(byte a, byte b) returns boolean {
+    return (a == b) && !(a != b);
+}
+
+function checkByteEqualityNegative(byte a, byte b) returns boolean {
+    return (a == b) || !(a != b);
+}
+
 function checkFloatEqualityPositive(float a, float b) returns boolean {
     return (a == b) && !(a != b);
 }
@@ -83,6 +91,12 @@ function check1DClosedArrayEqualityPositive() returns boolean {
     float[1] f3 = [12.3];
     float[!...] f4 = [12.3];
 
+    byte[3] by1;
+    byte[3] by2;
+
+    byte[4] by3 = [0, 10, 100, 255];
+    byte[!...] by4 = [0, 10, 100, 255];
+
     string[15] s1;
     string[15] s2;
 
@@ -103,6 +117,7 @@ function check1DClosedArrayEqualityPositive() returns boolean {
 
     return (b1 == b2) && !(b1 != b2) && (b3 == b4) && !(b3 != b4) &&
         (i1 == i2) && !(i1 != i2) && (i3 == i4) && !(i3 != i4) &&
+        (by1 == by2) && !(by1 != by2) && (by3 == by4) && !(by3 != by4) &&
         (f1 == f2) && !(f1 != f2) && (f3 == f4) && !(f3 != f4) &&
         (s1 == s2) && !(s1 != s2) && (s3 == s4) && !(s3 != s4) &&
         (a1 == a2) && !(a1 != a2) && (a3 == a4) && !(a3 != a4);
@@ -114,6 +129,9 @@ function check1DClosedArrayEqualityNegative() returns boolean {
 
     int[2] i1 = [123, 45678];
     int[2] i2 = [123, 45674];
+
+    byte[4] by1 = [123, 145, 255, 0];
+    byte[4] by2 = [123, 45, 255, 0];
 
     float[1] f1 = [12.3];
     float[!...] f2 = [12.2];
@@ -130,8 +148,8 @@ function check1DClosedArrayEqualityNegative() returns boolean {
     any[6] a1 = ["hi", 1, true, 54.3, j1, m1];
     any[6] a2 = ["hi", 1, true, 54.3, j2, m2];
 
-    return (b1 == b2) || !(b1 != b2) || (i1 == i2) || !(i1 != i2) || (f1 == f2) || !(f1 != f2) ||
-        (s1 == s2) || !(s1 != s2) || (a1 == a2) || !(a1 != a2);
+    return (b1 == b2) || !(b1 != b2) || (i1 == i2) || !(i1 != i2) || (by1 == by2) || !(by1 != by2) ||
+        (f1 == f2) || !(f1 != f2) || (s1 == s2) || !(s1 != s2) || (a1 == a2) || !(a1 != a2);
 }
 
 function check1DAnyArrayEqualityPositive() returns boolean {
@@ -174,10 +192,7 @@ function check2DBooleanArrayEqualityNegative() returns boolean {
     boolean[][] b3 = [[], [true, false, false], [false]];
     boolean[][] b4 = [[], [true, false, false]];
 
-    boolean[][] b5 = [[], [true, false, false], [false]];
-    boolean[][] b6 = [[], [true, false, false], [false], [true, true]];
-
-    return b1 == b2 || !(b1 != b2) || b3 == b4 || !(b3 != b4) || (b5 == b6) || !(b5 != b6);
+    return b1 == b2 || !(b1 != b2) || b3 == b4 || !(b3 != b4);
 }
 
 function check2DIntArrayEqualityPositive() returns boolean {
@@ -194,10 +209,24 @@ function check2DIntArrayEqualityNegative() returns boolean {
     int[][] i3 = [[1], [], [100, 1200000, 9475883]];
     int[][] i4 = [[1], []];
 
-    int[][] i5 = [[1], [], [100, 1200000, 9475883]];
-    int[][] i6 = [[1], [], [100, 1200000, 9475883], [1111, 4085759, 2305684]];
+    return i1 == i2 || !(i1 != i2) || i3 == i4 || !(i3 != i4);
+}
 
-    return i1 == i2 || !(i1 != i2) || i3 == i4 || !(i3 != i4) || (i5 == i6) || !(i5 != i6);
+function check2DByteArrayEqualityPositive() returns boolean {
+    byte[][] b1 = [[1, 100], [0, 255, 45], []];
+    byte[][] b2 = [[1, 100], [0, 255, 45], []];
+
+    return b1 == b2 && !(b1 != b2);
+}
+
+function check2DByteArrayEqualityNegative() returns boolean {
+    byte[][] b1 = [[1, 100], [0, 255, 145], []];
+    byte[][] b2 = [[1, 100], [0, 255, 45], []];
+
+    byte[][] b3 = [[1, 100], [0, 255, 45], [23, 234]];
+    byte[][] b4 = [[1, 100], [0, 255, 45]];
+
+    return b1 == b2 || !(b1 != b2) || b3 == b4 || !(b3 != b4);
 }
 
 function check2DFloatArrayEqualityPositive() returns boolean {
@@ -214,10 +243,7 @@ function check2DFloatArrayEqualityNegative() returns boolean {
     float[][] f3 = [[1.221], [], [10.0, 123.45, 9.475883]];
     float[][] f4 = [[1.221], []];
 
-    float[][] f5 = [[1.221], [], [10.0, 123.45, 9.475883]];
-    float[][] f6 = [[1.221], [], [10.0, 123.45, 9.475883], [11.11, 408575.9, 23.05684]];
-
-    return f1 == f2 || !(f1 != f2) || f3 == f4 || !(f3 != f4) || (f5 == f6) || !(f5 != f6);
+    return f1 == f2 || !(f1 != f2) || f3 == f4 || !(f3 != f4);
 }
 
 function check2DStringArrayEqualityPositive() returns boolean {
@@ -234,10 +260,7 @@ function check2DStringArrayEqualityNegative() returns boolean {
     string[][] s3 = [[], ["hello", "from", "ballerina"], ["ballet shoes"]];
     string[][] s4 = [[], ["hello", "from", "ballerina"]];
 
-    string[][] s5 = [[], ["hello", "from", "ballerina"], ["ballet shoes"]];
-    string[][] s6 = [[], ["hello", "from", "ballerina"], ["ballet shoes"], ["recital", "it is time"]];
-
-    return s1 == s2 || !(s1 != s2) || s3 == s4 || !(s3 != s4) || (s5 == s6) || !(s5 != s6);
+    return s1 == s2 || !(s1 != s2) || s3 == s4 || !(s3 != s4);
 }
 
 function checkMapEqualityPositive() returns boolean {
