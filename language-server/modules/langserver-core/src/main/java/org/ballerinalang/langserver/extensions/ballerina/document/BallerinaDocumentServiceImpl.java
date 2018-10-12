@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -97,52 +98,81 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaASTOASChangeResponse> astOasChange(BallerinaASTOASChangeRequest request) {
-        BallerinaASTOASChangeResponse reply = new BallerinaASTOASChangeResponse();
+    public void swaggerDefDidChange(BallerinaASTOASChangeRequest request) {
         String fileUri = request.getDocumentIdentifier().getUri();
         Path formattingFilePath = new LSDocument(fileUri).getPath();
         Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
 
         try {
-            String swaggerSource = request.getOasDefinition();
-            File temp = File.createTempFile("tempfile", ".json");
-            BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
-            bw.write(swaggerSource);
-            bw.close();
+            //Generate compilation unit for provided Open Api Sep JSON
+            File tempOasJsonFile = getSwaggerFile(request.getOasDefinition());
+            CodeGenerator generator = new CodeGenerator();
+            List<GenSrcFile> oasSource = generator.generate(GeneratorConstants.GenType.MOCK,
+                    tempOasJsonFile.getPath());
+            BallerinaFile oasFile = LSCompiler.compileContent(oasSource.get(0).getContent(),
+                    CompilerPhase.CODE_ANALYZE);
+            Optional<BLangPackage> oasFilePackage = oasFile.getBLangPackage();
 
             String fileContent = documentManager.getFileContent(compilationPath);
+            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
+            int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
+            int totalLines = contentComponents.length;
+            Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
+
             BallerinaFile ballerinaFile = LSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
             Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
-            ArrayList<String> services = new ArrayList<String>();
-
-
-            CodeGenerator generator = new CodeGenerator();
-            List<GenSrcFile> source = generator.generate(GeneratorConstants.GenType.MOCK, temp.getPath());
-
-            BallerinaFile swaggerFile = LSCompiler.compileContent(source.get(0).getContent(),
-                    CompilerPhase.CODE_ANALYZE);
-
 
             if (bLangPackage.isPresent() && bLangPackage.get().symbol != null) {
-                BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
-                        .findFirst()
-                        .orElse(null);
-                BLangCompilationUnit swaggerCompilationUnit = swaggerFile.getBLangPackage().get().getCompilationUnits()
+                BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits()
+                        .stream().findFirst().orElse(null);
+                BLangCompilationUnit oasCompilationUnit = oasFilePackage.get().getCompilationUnits()
                         .stream().findFirst().orElse(null);
 
-                mergeAst(compilationUnit, swaggerCompilationUnit);
-                reply.setOasAST(TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>()));
+                mergeAst(compilationUnit, oasCompilationUnit);
+                TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
+
+                // generate source for the new ast.
+                JsonObject ast = TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>())
+                        .getAsJsonObject();
+                SourceGen sourceGen = new SourceGen(0);
+                sourceGen.build(ast, null, "CompilationUnit");
+                String textEditContent = sourceGen.getSourceOf(ast, false, false);
+
+                // create text edit
+                TextEdit textEdit = new TextEdit(range, textEditContent);
+                WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+                ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
+                TextDocumentEdit textDocumentEdit = new TextDocumentEdit(request.getDocumentIdentifier(),
+                        Collections.singletonList(textEdit));
+                workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+                applyWorkspaceEditParams.setEdit(workspaceEdit);
+
+                ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
             }
 
         } catch (Exception ex) {
-            reply.isIsError(true);
             logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
 
-        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    /**
+     * A Util method to create a temporary swagger JSON file to be used to convert into ballerina definition.
+     *
+     * @param oasDefinition Swagger JSON string for file creation.
+     * @return Temporary file created with provided string
+     * @throws IOException
+     */
+    private File getSwaggerFile(String oasDefinition) throws IOException {
+        File oasTempFile = File.createTempFile("oasTempFile", ".json");
+        BufferedWriter bw = new BufferedWriter(new FileWriter(oasTempFile));
+        bw.write(oasDefinition);
+        bw.close();
+        return oasTempFile;
     }
 
     @Override
@@ -267,7 +297,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             if (topLevelNode instanceof ImportPackageNode) {
                 if (!hasImport(ast, (ImportPackageNode) topLevelNode)) {
-                    ast.addTopLevelNode(topLevelNode);
+                    ast.getTopLevelNodes().add(0,topLevelNode);
                 }
             }
 
@@ -279,12 +309,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                         ServiceNode astService = (ServiceNode) astNode;
                         if (astService.getName().getValue().equals(swaggerService.getName().getValue())) {
                             mergeServices(astService, swaggerService);
-                        } else {
-                            serviceList.add(swaggerService);
                         }
                     }
                 }
-                serviceList.forEach(service -> ast.addTopLevelNode(service));
             }
 
         });
@@ -293,15 +320,19 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
     private void mergeServices(ServiceNode originService, ServiceNode targetService) {
         mergeAnnotations(originService, targetService);
-
         List<ResourceNode> targetServices = new ArrayList<>();
+
         for (ResourceNode targetResource : targetService.getResources()) {
+            boolean matched = false;
             for (ResourceNode originResource : originService.getResources()) {
                 if (matchResource(originResource, targetResource)) {
+                    matched = true;
                     mergeAnnotations(originResource, targetResource);
-                } else {
-                    targetServices.add(targetResource);
                 }
+            }
+
+            if (!matched) {
+                targetServices.add(targetResource);
             }
         }
 
@@ -320,28 +351,29 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     BLangRecordLiteral sourceRecord = (BLangRecordLiteral) sourceNodeAttachment.getExpression();
                     BLangRecordLiteral matchedTargetRecord = (BLangRecordLiteral) matchedTargetNode.getExpression();
 
-                    List<BLangRecordLiteral.BLangRecordKeyValue> ooo = new ArrayList<>();
                     for (BLangRecordLiteral.BLangRecordKeyValue sourceKeyValue : sourceRecord.getKeyValuePairs()) {
-                        for (BLangRecordLiteral.BLangRecordKeyValue matchedKeyValue :
-                                matchedTargetRecord.getKeyValuePairs()) {
-                            int matchedKeyValuePairIndex = 0;
-                            if ((matchedKeyValue.key != null &&
-                                    matchedKeyValue.key.expr instanceof BLangSimpleVarRef)) {
+                        int matchedKeyValuePairIndex = 0;
+                        BLangRecordLiteral.BLangRecordKeyValue matchedObj = null;
+
+                        for (BLangRecordLiteral.BLangRecordKeyValue matchedKeyValue : matchedTargetRecord.getKeyValuePairs()) {
+                            if ((matchedKeyValue.key != null && matchedKeyValue.key.expr instanceof BLangSimpleVarRef)) {
                                 BLangSimpleVarRef matchedKey = (BLangSimpleVarRef) matchedKeyValue.key.expr;
                                 BLangSimpleVarRef sourceKey = (BLangSimpleVarRef) sourceKeyValue.key.expr;
-
                                 if (matchedKey.variableName.getValue().equals(sourceKey.variableName.getValue())) {
-                                    matchedTargetRecord.getKeyValuePairs().set(matchedKeyValuePairIndex,
-                                            sourceKeyValue);
-                                } else {
-                                    ooo.add(sourceKeyValue);
+                                    matchedObj = matchedKeyValue;
+                                    break;
                                 }
                             }
                             matchedKeyValuePairIndex++;
                         }
-                    }
 
-                    ((BLangRecordLiteral) matchedTargetNode.getExpression()).keyValuePairs.addAll(ooo);
+                        if(matchedObj != null) {
+                            matchedTargetRecord.getKeyValuePairs().set(matchedKeyValuePairIndex,sourceKeyValue);
+                        } else {
+                            ((BLangRecordLiteral) matchedTargetNode.getExpression()).keyValuePairs.add(sourceKeyValue);
+                        }
+
+                    }
                 }
             } else {
                 targetNode.addAnnotationAttachment(sourceNodeAttachment);

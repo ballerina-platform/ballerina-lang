@@ -17,7 +17,7 @@
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
 
-import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 
 /**
  * Represents a Ballerina swagger change request.
@@ -27,16 +27,15 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 public class BallerinaASTOASChangeRequest {
 
     private String oasDefinition;
-    private TextDocumentIdentifier documentIdentifier;
+    private VersionedTextDocumentIdentifier documentIdentifier;
 
-    public TextDocumentIdentifier getDocumentIdentifier() {
+    public VersionedTextDocumentIdentifier getDocumentIdentifier() {
         return documentIdentifier;
     }
 
-    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
+    public void setDocumentIdentifier(VersionedTextDocumentIdentifier documentIdentifier) {
         this.documentIdentifier = documentIdentifier;
     }
-
 
     public String getOasDefinition() {
         return this.oasDefinition;
