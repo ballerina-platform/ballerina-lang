@@ -127,6 +127,8 @@
                                 <argument>run</argument>
                                 <argument>test</argument>
                             </arguments>
+                            <skip>${skipTests}</skip>
+                            <skip>${maven.test.skip}</skip>
                         </configuration>
                     </execution>
                     <execution>

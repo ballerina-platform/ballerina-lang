@@ -32,12 +32,10 @@ const IS_APPVEYOR = process.env['APPVEYOR'] === 'true';
 
 suite('Ballerina Debug Adapter', () => {
 
-
     const PROJECT_ROOT = Path.join(__dirname, '../../../');
 
-    const DEBUG_ADAPTER = Path.join(PROJECT_ROOT, 'out/src/debugger/index.js');
+    const DEBUG_ADAPTER = Path.join(PROJECT_ROOT, 'out/src/debugger/start.js');
     const DATA_ROOT = Path.join(PROJECT_ROOT, 'test/data/');
-
 
     let dc: DebugClientEx;
 
@@ -97,7 +95,6 @@ suite('Ballerina Debug Adapter', () => {
             };
 
             dc.on('output', (res) => {
-                console.log(res.body.output);
                 if (res.body.output.indexOf("started HTTP/WS") > -1) {
                     http.get('http://0.0.0.0:9090/hello/sayHello');
                 }
@@ -120,7 +117,6 @@ suite('Ballerina Debug Adapter', () => {
             };
 
             dc.on('output', (res) => {
-                console.log(res.body.output);
                 if (res.body.output.indexOf("started HTTP/WS") > -1) {
                     http.get('http://0.0.0.0:9090/hello/sayHello');
                 }
@@ -141,7 +137,6 @@ suite('Ballerina Debug Adapter', () => {
             };
 
             dc.on('output', (res) => {
-                console.log(res.body.output);
                 if (res.body.output.indexOf("started HTTP/WS") > -1) {
                     http.get('http://0.0.0.0:9090/hello/sayHello');
                 }

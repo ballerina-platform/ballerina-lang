@@ -233,7 +233,7 @@ class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        if (fs.existsSync(path.join(homePath, 'lib', 'tools', 'lang-server'))) {
+        if (fs.existsSync(path.join(homePath))) {
             return true;
         }
         return false;

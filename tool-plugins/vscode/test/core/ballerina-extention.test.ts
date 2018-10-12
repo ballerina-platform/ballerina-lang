@@ -23,7 +23,7 @@ import * as assert from 'assert';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
-import { BallerinaExtInstance } from './extension';
+import { BallerinaExtInstance } from '../../src/core/';
 import { getBallerinaHome, getBallerinaVersion } from '../test-util';
 
 // Ballerina tools distribution will be copied to following location by maven
@@ -39,13 +39,13 @@ suite("Ballerina Extension Core Tests", function () {
         assert.equal(BallerinaExtInstance.isValidBallerinaHome(testBallerinaHome + '../'), false);
     });
 
-    test("Test autoDetectBallerinaHome", done => {
+    test("Test autoDetectBallerinaHome", () => {
         // Following should not throw an error all times.
         const path:string = BallerinaExtInstance.autoDetectBallerinaHome();
         if (path.length > 0) {
-            assert.equal(BallerinaExtInstance.isValidBallerinaHome(path), true);
+            const a = BallerinaExtInstance.isValidBallerinaHome(path);
+            assert.equal(a, true);
         }
-        done();
     });
 
     test("Test getBallerinaVersion", function () {
