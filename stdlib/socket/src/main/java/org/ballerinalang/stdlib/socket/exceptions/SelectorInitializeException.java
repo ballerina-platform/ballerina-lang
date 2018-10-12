@@ -16,23 +16,19 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.socket.tcp;
-
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+package org.ballerinalang.stdlib.socket.exceptions;
 
 /**
- * Socket callback for service resource execution.
+ * This is the runtime exception throws during the
+ * {@link java.nio.channels.Selector} initialization if any error occurs.
  *
  * @since 0.983.0
  */
-public class TCPSocketCallableUnitCallback implements CallableUnitCallback {
-    @Override
-    public void notifySuccess() {
-    }
+public class SelectorInitializeException extends RuntimeException {
 
-    @Override
-    public void notifyFailure(BMap<String, BValue> error) {
+    private static final long serialVersionUID = -7133629416112859176L;
+
+    public SelectorInitializeException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

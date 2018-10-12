@@ -25,9 +25,8 @@ import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
-import org.ballerinalang.stdlib.socket.tcp.client.SocketConnectCallbackRegistry;
+import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,27 +35,23 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import static java.nio.channels.SelectionKey.OP_ACCEPT;
-import static java.nio.channels.SelectionKey.OP_CONNECT;
-import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CALLER_ACTION;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ACCEPT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CLOSE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_READ_READY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * This will manage the Selector instance and handle the accept, read and write operations.
@@ -82,12 +77,11 @@ public class SelectorManager {
      */
     private static class SelectorManagerHolder {
         private static SelectorManager manager;
-
         static {
             try {
                 manager = new SelectorManager();
             } catch (IOException e) {
-                throw new BallerinaException(e);
+                throw new SelectorInitializeException("Unable to initialize the selector", e);
             }
         }
     }
@@ -96,9 +90,9 @@ public class SelectorManager {
      * This method will return SelectorManager singleton instance.
      *
      * @return {@link SelectorManager} instance
-     * @throws BallerinaException when unable to open a selector
+     * @throws SelectorInitializeException when unable to open a selector
      */
-    public static SelectorManager getInstance() throws BallerinaException {
+    public static SelectorManager getInstance() throws SelectorInitializeException {
         return SelectorManagerHolder.manager;
     }
 
@@ -107,18 +101,25 @@ public class SelectorManager {
      *
      * @param socketService A {@link SocketService} instance which contains the resources,
      *                      packageInfo and A {@link SelectableChannel}.
+     * @param interest The interest set for the resulting key
      * @throws ClosedChannelException       {@inheritDoc}
-     * @throws IllegalBlockingModeException {@inheritDoc}
      * @throws CancelledKeyException        {@inheritDoc}
-     * @throws IllegalArgumentException     {@inheritDoc}
      */
-    public void registerChannel(SocketService socketService) throws ClosedChannelException {
+    public void registerChannel(SocketService socketService, int interest) throws ClosedChannelException {
         SelectableChannel channel = socketService.getSocketChannel();
-        int ops = OP_ACCEPT;
-        if (channel instanceof SocketChannel) {
-            ops = OP_CONNECT;
-        }
-        channel.register(selector, ops, socketService);
+        channel.register(selector, interest, socketService);
+    }
+
+    /**
+     * Register the given SelectableChannel instance like ServerSocketChannel or SocketChannel in the selector instance.
+     *
+     * @param channel  A {@link SocketChannel} instance which interest to register against the given ops.
+     * @param interest The interest set for the resulting key
+     * @throws ClosedChannelException       {@inheritDoc}
+     * @throws CancelledKeyException        {@inheritDoc}
+     */
+    public void registerChannel(SocketChannel channel, int interest) throws ClosedChannelException {
+        channel.register(selector, interest);
     }
 
     /**
@@ -147,8 +148,8 @@ public class SelectorManager {
                     Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
                     while (keyIterator.hasNext()) {
                         SelectionKey key = keyIterator.next();
-                        keyIterator.remove();
                         performAction(key);
+                        keyIterator.remove();
                     }
                 } catch (Throwable e) {
                     log.error("An error occurred in selector loop: " + e.getMessage(), e);
@@ -165,9 +166,6 @@ public class SelectorManager {
             onAccept(key);
         } else if (key.isReadable()) {
             onReadReady(key);
-        } else if (key.isConnectable()) {
-        } else if (key.isWritable()) {
-            System.out.println("Write");
         }
     }
 
@@ -191,8 +189,8 @@ public class SelectorManager {
                 .getProgramFile();
         SocketChannel socketChannel = (SocketChannel) socketService.getSocketChannel();
         BMap<String, BValue> tcpSocketMeta = getTcpSocketMeta(programFile, socketChannel);
-        ByteBuffer buffer = ByteBuffer.allocate(socketChannel.socket().getReceiveBufferSize());
-        final int read = socketChannel.read(buffer);
+        ByteBuffer buffer = ByteBuffer.allocate(socketChannel.socket().getReceiveBufferSize() * 2);
+        int read = socketChannel.read(buffer);
         if (read == -1) {
             socketChannel.close();
             unRegisterChannel(socketChannel);
@@ -209,10 +207,7 @@ public class SelectorManager {
     private BValue[] getAcceptMethodSignature(SocketChannel client, ProgramFile programFile) {
         BMap<String, BValue> tcpSocketMeta = getTcpSocketMeta(programFile, client);
         BMap<String, BValue> endpoint = getCallerAction(programFile, client);
-        BValue[] signatureParams = new BValue[2];
-        signatureParams[0] = endpoint;
-        signatureParams[1] = tcpSocketMeta;
-        return signatureParams;
+        return new BValue[] { endpoint, tcpSocketMeta };
     }
 
     private BMap<String, BValue> getCallerAction(ProgramFile programFile, SelectableChannel client) {
@@ -230,9 +225,8 @@ public class SelectorManager {
         int localPort = socket.getLocalPort();
         String remoteHost = socket.getInetAddress().getHostAddress();
         String localHost = socket.getLocalAddress().getHostAddress();
-        return BLangConnectorSPIUtil
-                .createBStruct(programFile, SOCKET_PACKAGE, "TCPSocketMeta", remotePort, localPort, remoteHost,
-                        localHost);
+        Object[] fields = { remotePort, localPort, remoteHost, localHost };
+        return BLangConnectorSPIUtil.createBStruct(programFile, SOCKET_PACKAGE, "TCPSocketMeta", fields);
     }
 
     private byte[] getByteArrayFromByteBuffer(ByteBuffer content) {
@@ -243,18 +237,9 @@ public class SelectorManager {
         return bytesArray;
     }
 
-    private boolean isConnectPending(SocketConnectCallbackRegistry connectCallbackRegistry, SelectionKey key)
-            throws IOException {
-        SocketChannel channel = (SocketChannel) key.attachment();
-        if (!channel.finishConnect()) {
-            return true;
-        }
-        log.debug("Successfully connected to the remote server.");
-        channel.register(selector, OP_READ);
-        connectCallbackRegistry.getCallback(channel.hashCode()).notifyConnect();
-        return false;
-    }
-
+    /**
+     * Stop the selector loop.
+     */
     public void stop() {
         try {
             if (log.isDebugEnabled()) {

@@ -32,16 +32,23 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.UnsupportedAddressTypeException;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
- * Start server connector.
+ * Start server socket listener.
+ *
+ * @since 0.983.0
  */
 
 @BallerinaFunction(
@@ -52,6 +59,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         isPublic = true
 )
 public class Start extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(Start.class);
 
     @Override
     public void execute(Context context) {
@@ -69,8 +77,14 @@ public class Start extends BlockingNativeCallableUnit {
             final SelectorManager selectorManager = SelectorManager.getInstance();
             selectorManager.start();
             context.setReturnValues();
-        } catch (Throwable e) {
-            throw new BallerinaException(e);
+        } catch (AlreadyBoundException e) {
+            throw new BallerinaException("Server socket service is already bound to a port");
+        } catch (UnsupportedAddressTypeException e) {
+            log.error("Address not supported", e);
+            throw new BallerinaException("Provided address not supported");
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to start the socket service");
         }
     }
 }

@@ -31,7 +31,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 /**
  * Get the client responder instance binds to the service endpoint.
  *
- * @since 1.0.0
+ * @since 0.983.0
  */
 
 @BallerinaFunction(

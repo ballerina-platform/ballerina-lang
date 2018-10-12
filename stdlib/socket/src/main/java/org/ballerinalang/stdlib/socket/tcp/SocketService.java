@@ -23,6 +23,12 @@ import org.ballerinalang.connector.api.Resource;
 import java.nio.channels.SelectableChannel;
 import java.util.Map;
 
+/**
+ * This will hold the ServerSocketChannel or client SocketChannel
+ * and the associate resources for the service that server or client belong.
+ *
+ * @since 0.983.0
+ */
 public class SocketService {
 
     private SelectableChannel socketChannel;

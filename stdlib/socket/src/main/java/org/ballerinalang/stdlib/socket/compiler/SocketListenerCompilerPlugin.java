@@ -42,7 +42,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 /**
  * Compiler plugin for validating Directory Listener.
  *
- * @since 0.982.0
+ * @since 0.983.0
  */
 @SupportEndpointTypes(
         value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Listener")}
@@ -59,20 +59,20 @@ public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
         final ExpressionNode configurationExpression = endpointNode.getConfigurationExpression();
-//        if (NodeKind.RECORD_LITERAL_EXPR.equals(configurationExpression.getKind())) {
-//            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) configurationExpression;
-//            for (BLangRecordLiteral.BLangRecordKeyValue config : recordLiteral.getKeyValuePairs()) {
-//                final String key = ((BLangSimpleVarRef) config.getKey()).variableName.value;
-//                if ("".equals(key)) {
-//                    final Object value = ((BLangLiteral) config.getValue()).getValue();
-//                    if (value == null || value.toString().isEmpty()) {
-//                        String msg = "'" + "test" + "' field empty.";
-//                        dlog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
+        if (NodeKind.RECORD_LITERAL_EXPR.equals(configurationExpression.getKind())) {
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) configurationExpression;
+            for (BLangRecordLiteral.BLangRecordKeyValue config : recordLiteral.getKeyValuePairs()) {
+                final String key = ((BLangSimpleVarRef) config.getKey()).variableName.value;
+                if ("".equals(key)) {
+                    final Object value = ((BLangLiteral) config.getValue()).getValue();
+                    if (value == null || value.toString().isEmpty()) {
+                        String msg = "'" + "test" + "' field empty.";
+                        dlog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Override

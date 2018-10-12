@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
+import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,11 @@ import java.nio.channels.SocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
+/**
+ * 'close' method implementation of the socket server listener's caller action.
+ *
+ * @since 0.983.0
+ */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "socket",
@@ -53,7 +59,8 @@ public class Close extends BlockingNativeCallableUnit {
             socketChannel.close();
             SelectorManager.getInstance().unRegisterChannel(socketChannel);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Unable to close the connection", e);
+            context.setReturnValues(SocketUtils.createError(context, "Unable to close the client socket connection"));
         }
         context.setReturnValues();
     }

@@ -28,10 +28,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.channels.CancelledKeyException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ServerSocketChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,9 +47,12 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_READ_READY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 /**
- * Register file listener service.
+ * Register socket listener service.
+ *
+ * @since 0.983.0
  */
 @BallerinaFunction(
         orgName = "ballerina",
@@ -55,16 +63,22 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         isPublic = true
 )
 public class Register extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(Register.class);
 
     @Override
     public void execute(Context context) {
         try {
             final SocketService socketService = getSocketService(context);
             final SelectorManager selectorManager = SelectorManager.getInstance();
-            selectorManager.registerChannel(socketService);
+            selectorManager.registerChannel(socketService, OP_ACCEPT);
             context.setReturnValues();
-        } catch (Throwable e) {
-            throw new BallerinaException(e);
+        } catch (SelectorInitializeException e) {
+            log.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to initialize the selector");
+        } catch (ClosedChannelException e) {
+            throw new BallerinaException("Server socket not in an open state");
+        }  catch (CancelledKeyException e) {
+            throw new BallerinaException("Server socket registration is failed");
         }
     }
 

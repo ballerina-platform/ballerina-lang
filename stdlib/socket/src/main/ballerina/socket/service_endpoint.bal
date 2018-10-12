@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-
+# Represents service endpoint where socket server service registered and start.
 public type Listener object {
 
     private CallerAction callerAction;
@@ -29,23 +28,41 @@ public type Listener object {
     public extern function getCallerActions() returns CallerAction;
 };
 
+# Represents the socket server endpoint configuration.
+#
+# + interface - the interface that server with to bind
+# + port - the port that server wish to bind
 public type ListenerEndpointConfiguration record {
     string? interface;
     int port;
+    !...
 };
 
+# Provides the socket related actions for interacting with caller.
 public type CallerAction object {
 
-    public extern function read() returns byte[]|error;
-
+    # Write given data to the client socket.
+    #
+    # + content - - the content that wish to send to the client socket
+    # + return - - number of byte got written or an error if encounters an error while writing
     public extern function write(byte[] content) returns int|error;
 
+    # Close the client socket connection.
+    #
+    # + return - - an error if encounters an error while closing the connection or returns nil otherwise
     public extern function close() returns error?;
 };
 
+# Contains the meta information related to the client socket.
+#
+# + remotePort - the remote port number to which this socket is connected
+# + localPort - the local port number to which this socket is bound
+# + remoteAddress - the remote IP address string in textual presentation to which the socket is connected
+# + localAddress - the local IP address string in textual presentation to which the socket is bound
 public type TCPSocketMeta record {
     int remotePort;
     int localPort;
     string remoteAddress;
     string localAddress;
+    !...
 };

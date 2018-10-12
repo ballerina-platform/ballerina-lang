@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
+import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,11 @@ import java.nio.channels.SocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
+/**
+ * 'Write' method implementation of the socket server listener's caller action.
+ *
+ * @since 0.983.0
+ */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "socket",
@@ -56,16 +62,25 @@ public class Write extends BlockingNativeCallableUnit {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
         final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
         BByteArray content = (BByteArray) context.getRefArgument(1);
-        ByteBuffer buffer = ByteBuffer.wrap(content.getBytes());
-        try {
-            final int write = socketChannel.write(buffer);
-        } catch (ClosedChannelException e) {
-            System.out.println("e.getMessage() = " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("e.getMessage() = " + e.getMessage());
-        } catch (NotYetConnectedException e) {
-            System.out.println("e.getMessage() = " + e.getMessage());
+        byte[] byteContent = content.getBytes();
+        if (log.isDebugEnabled()) {
+            log.debug("No of byte going to write[" + socketChannel.hashCode() + "]: " + byteContent.length);
         }
-        context.setReturnValues(new BInteger(1));
+        ByteBuffer buffer = ByteBuffer.wrap(byteContent);
+        int write;
+        try {
+            write = socketChannel.write(buffer);
+            if (log.isDebugEnabled()) {
+                log.debug("No of byte written for the client[" + socketChannel.hashCode() + "]: " + write);
+            }
+            context.setReturnValues(new BInteger(write));
+        } catch (ClosedChannelException e) {
+            context.setReturnValues(SocketUtils.createError(context, "Client socket close already."));
+        } catch (IOException e) {
+            context.setReturnValues(SocketUtils.createError(context, "Write failed."));
+            log.error("Unable to perform write[" + socketChannel.hashCode() + "]", e);
+        } catch (NotYetConnectedException e) {
+            context.setReturnValues(SocketUtils.createError(context, "Client socket not connected yet."));
+        }
     }
 }

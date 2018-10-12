@@ -30,6 +30,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -38,7 +40,9 @@ import java.nio.channels.ServerSocketChannel;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
- * Initialize endpoints.
+ * Initialize the server socket endpoint.
+ *
+ * @since 0.983.0
  */
 @BallerinaFunction(
         orgName = "ballerina",
@@ -51,6 +55,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         isPublic = true
 )
 public class Init extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(Init.class);
 
     @Override
     public void execute(Context context) {
@@ -63,9 +68,10 @@ public class Init extends BlockingNativeCallableUnit {
             BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
             serviceEndpoint.addNativeData(SocketConstants.LISTENER_CONFIG, endpointConfig);
         } catch (SocketException e) {
-            throw new BallerinaException("Unable to reuse the socket port.");
+            throw new BallerinaException("Unable to bind the socket port");
         } catch (IOException e) {
-            throw new BallerinaException(e);
+            log.error("Unable to initiate the server socket", e);
+            throw new BallerinaException("Unable to initiate the socket service");
         }
         context.setReturnValues();
     }
