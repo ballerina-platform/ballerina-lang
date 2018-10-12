@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 import ballerina/streams;
 
 type Teacher record {
@@ -25,51 +25,49 @@ type Teacher record {
     string school;
 };
 
-type TeacherOutput record{
+type TeacherOutput record {
     string name;
     int count;
 };
 
 int index = 0;
-stream<Teacher> inputStreamTimeBatchTest2;
-stream<TeacherOutput > outputStreamTimeBatchTest2;
+stream<Teacher> inputStreamUniqueLengthTest3;
+stream<TeacherOutput> outputStreamUniqueLengthTest3;
 TeacherOutput[] globalEmployeeArray = [];
 
-function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
+function startUniqueLengthwindowTest3() returns TeacherOutput[] {
 
     Teacher[] teachers = [];
     Teacher t1 = { name: "Mohan", age: 30, status: "single", school: "Hindu College" };
-    Teacher t2 = { name: "Raja", age: 45, status: "single", school: "Hindu College" };
-    Teacher t3 = { name: "Naveen", age: 35, status: "single", school: "Hindu College" };
-    Teacher t4 = { name: "Amal", age: 50, status: "married", school: "Hindu College" };
-    Teacher t5 = { name: "Nimal", age: 55, status: "married", school: "Hindu College" };
+    Teacher t2 = { name: "Raja", age: 35, status: "single", school: "Hindu College" };
+    Teacher t3 = { name: "Naveen", age: 45, status: "single", school: "Hindu College" };
 
-    testTimeBatchwindow();
+    teachers[0] = t1;
+    teachers[1] = t2;
+    teachers[2] = t3;
 
-    outputStreamTimeBatchTest2.subscribe(printTeachers);
+    testUniqueLengthwindow();
 
-    inputStreamTimeBatchTest2.publish(t1);
-    inputStreamTimeBatchTest2.publish(t2);
-    runtime:sleep(1200);
-    inputStreamTimeBatchTest2.publish(t3);
-    inputStreamTimeBatchTest2.publish(t4);
-    runtime:sleep(3000);
-    inputStreamTimeBatchTest2.publish(t5);
+    outputStreamUniqueLengthTest3.subscribe(printTeachers);
+    foreach t in teachers {
+        inputStreamUniqueLengthTest3.publish(t);
+        runtime:sleep(500);
+    }
 
-    runtime:sleep(1500);
+    runtime:sleep(1000);
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
-function testTimeBatchwindow() {
+function testUniqueLengthwindow() {
 
     forever {
-        from inputStreamTimeBatchTest2 window timeBatchWindow(1000)
-        select inputStreamTimeBatchTest2.name, count() as count
-        group by inputStreamTimeBatchTest2.school
+        from inputStreamUniqueLengthTest3 window uniqueLengthWindow(inputStreamUniqueLengthTest3.age, 4) as input
+        select input.timestamp, input.name, count() as count
+        group by input.school
         => (TeacherOutput [] emp) {
             foreach e in emp {
-                outputStreamTimeBatchTest2.publish(e);
+                outputStreamUniqueLengthTest3.publish(e);
             }
         }
     }

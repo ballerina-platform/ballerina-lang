@@ -35,15 +35,15 @@ import org.testng.annotations.Test;
  */
 public class BallerinaStreamsV2UniqueLengthWindowTest {
 
-    private CompileResult result1, result2;
+    private CompileResult result1, result2, resultWithAlias;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
         result1 = BCompileUtil.compile("test-src/streaming/streamingv2-unique-length-window-test.bal");
-
-        System.setProperty("enable.siddhiRuntime", "false");
         result2 = BCompileUtil.compile("test-src/streaming/streamingv2-unique-length-window-test2.bal");
+        resultWithAlias = BCompileUtil.
+                compile("test-src/streaming/alias/streamingv2-unique-length-window-test.bal");
     }
 
     @Test(description = "Test uniqueLength window query")
@@ -77,5 +77,21 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
 
         Assert.assertEquals(employee1.get("name").stringValue(), "Naveen");
         Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 2);
+    }
+
+    @Test(description = "Test uniqueLength window query with stream alias")
+    public void testUniqueLengthQueryWithAlias() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startUniqueLengthwindowTest3");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee0.get("count")).intValue(), 1);
+
+        Assert.assertEquals(employee1.get("name").stringValue(), "Naveen");
+        Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 3);
     }
 }
