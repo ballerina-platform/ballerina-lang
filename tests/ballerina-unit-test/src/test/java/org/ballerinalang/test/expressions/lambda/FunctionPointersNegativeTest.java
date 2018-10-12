@@ -53,7 +53,7 @@ public class FunctionPointersNegativeTest {
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "undefined function 'getFullName' in object 'Person'", 17, 16);
+        BAssertUtil.validateError(result, 0, "undefined field 'getFullName' in record 'Person'", 17, 16);
 
     }
 
@@ -62,6 +62,6 @@ public class FunctionPointersNegativeTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-incorrect-arg-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "undefined field 'getFullName' in record 'Person'", 16, 39);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 16, 39);
     }
 }
