@@ -1,12 +1,37 @@
 {
     "name": "@ballerina/extended-language-client",
-    "version": "1.0.0",
+    "version": "0.982.0",
     "description": "",
-    "main": "index.js",
+    "main": "./lib/extended-language-client.js",
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "tsc -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "watch": "tsc -watch -p ./",
+        "test": "npm run compile && mocha --compilers ts:ts-node/register",
+        "test:w": "npm test -- -w"
     },
     "author": "ballerina.io",
-    "license": "Apache-2.0"
-  }
-  
+    "license": "Apache-2.0",
+    "engines": {
+        "vscode": "^1.26.1"
+    },
+    "devDependencies": {
+        "@types/chai": "^3.4.29",
+        "chai": "^3.5.0",
+        "@types/glob": "^5.0.36",
+        "@types/lodash": "^4.14.116",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "istanbul": "^0.4.5",
+        "mocha": "^5.2.0",
+        "remap-istanbul": "^0.12.0",
+        "tslint": "^5.8.0",
+        "typescript": "^2.9.1",
+        "ts-node": "^7.0.1"
+    },
+    "dependencies": {
+        "lodash": "^4.14.1",
+        "vscode": "^1.1.21",
+        "vscode-languageclient": "^5.1.0"
+    }
+}
