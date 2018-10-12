@@ -619,18 +619,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                                 Stream.of(memBType))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
+        // If the union type node contain any constants defined without the type node, the result type will have noType
+        // in the member list.
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
-
-        if (memberTypes.contains(symTable.noType)) {
-            resultType = symTable.noType;
-            return;
-        }
-
         BUnionType unionType = new BUnionType(unionTypeSymbol, memberTypes,
                 memberTypes.contains(symTable.nilType));
         unionTypeSymbol.type = unionType;
-
         resultType = unionType;
     }
 

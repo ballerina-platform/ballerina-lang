@@ -73,4 +73,25 @@ public class ConstantsTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
+
+    @Test
+    public void testConstantsWithoutTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstantsWithoutTypes");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
+    @Test
+    public void testConstantsWithTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstantsWithTypes");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+    }
+
+    @Test
+    public void testMixed() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMixed");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+    }
 }

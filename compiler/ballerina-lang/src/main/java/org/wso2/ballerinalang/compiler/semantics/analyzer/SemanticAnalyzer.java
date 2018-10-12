@@ -147,6 +147,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -318,8 +319,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             analyzeDef(typeDefinition.typeNode, typeDefEnv);
+        } else if (typeDefinition.typeNode.getKind() == NodeKind.UNION_TYPE_NODE &&
+                ((BUnionType) typeDefinition.symbol.type).memberTypes.contains(symTable.noType)) {
+            // If the type definition's type node contains at least one constants which has been defined without the
+            // type, this code segment will be executed. These member types' type is set to noType and this will be
+            // updated to the proper type here.
+            BUnionType symbolType = (BUnionType) typeDefinition.symbol.type;
+            // Remove no type from the members.
+            symbolType.memberTypes.remove(symTable.noType);
+            // Get the member type nodes from the type node and iterate through them.
+            List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
+            for (BLangType memberTypeNode : memberTypeNodes) {
+                // Resolve the type node.
+                BType type = symResolver.resolveTypeNode(memberTypeNode, env);
+                // Update the member type node's type.
+                memberTypeNode.type = type;
+                // Add the type to symbol type's member types.
+                symbolType.memberTypes.add(type);
+            }
         }
-
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoint = AttachPoint.TYPE;
             annotationAttachment.accept(this);

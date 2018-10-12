@@ -833,6 +833,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
             if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE ||
+                    typeDef.typeNode.getKind() == NodeKind.UNION_TYPE_NODE ||
                     (typeDef.symbol.kind != SymbolKind.OBJECT && typeDef.symbol.kind != SymbolKind.RECORD)) {
                 continue;
             }
@@ -875,7 +876,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineMembers(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
-            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE ||
+                    typeDef.typeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
                 continue;
             }
             if (typeDef.symbol.kind == SymbolKind.OBJECT) {
