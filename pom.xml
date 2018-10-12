@@ -604,6 +604,22 @@
                 <type>zip</type>
             </dependency>
 
+            <!-- ballerina-privacy -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-privacy</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-privacy</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina-reflect -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1661,6 +1677,7 @@
                 <module>stdlib/jms</module>
                 <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
+                <module>stdlib/privacy</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
@@ -1745,6 +1762,7 @@
                 <module>stdlib/jms</module>
                 <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
+                <module>stdlib/privacy</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
@@ -1825,6 +1843,7 @@
                 <module>stdlib/jms</module>
                 <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
+                <module>stdlib/privacy</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
