@@ -23,7 +23,7 @@ import * as assert from 'assert';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
-import { ballerinaExtInstance } from './extension';
+import { ballerinaExtInstance } from '../../src/core';
 import { getBallerinaHome, getBallerinaVersion } from '../test-util';
 
 // Ballerina tools distribution will be copied to following location by maven
