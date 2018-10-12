@@ -20,7 +20,7 @@ import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEdi
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../client';
-import { ballerinaExtInstance, BallerinaExtension } from '../core';
+import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
 
 const DEBOUNCE_WAIT = 500;

@@ -89,7 +89,7 @@ export class BallerinaExtension {
             this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
-            })
+            });
 
             // if Home is found load Language Server.
             this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
@@ -165,7 +165,7 @@ export class BallerinaExtension {
     }
 
     getBallerinaVersion(ballerinaHome: string): Promise<string> {
-        if (!this.ballerinaHome) {
+        if (!ballerinaHome) {
             throw new AssertionError({
                 message: "Trying to get ballerina version without setting ballerina home."
             });
@@ -178,8 +178,8 @@ export class BallerinaExtension {
             exec(command, (err, stdout, stderr) => {
                 const version = stdout.length > 0 ? stdout : stderr;
                 resolve(version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
-            })
-        })
+            });
+        });
     }
 
     showMessageInstallBallerina(): any {
@@ -233,7 +233,7 @@ export class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        if (fs.existsSync(path.join(homePath, 'lib', 'tools', 'lang-server'))) {
+        if (fs.existsSync(path.join(homePath))) {
             return true;
         }
         return false;
