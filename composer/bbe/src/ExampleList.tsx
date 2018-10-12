@@ -22,6 +22,7 @@ import { BallerinaExampleCategory } from './model';
 
 export interface SamplesListState {
     samples? : Array<BallerinaExampleCategory>;
+    searchQuery? : string;
 }
 
 export interface SamplesListProps {
@@ -38,14 +39,14 @@ export interface SamplesListProps {
 export class SamplesList extends React.Component<SamplesListProps, SamplesListState> {
 
     private _availableSamples: undefined | Array<BallerinaExampleCategory>;
-    private searchInput: undefined | any;
+    private searchInput: null | Input;
     private onSearchQueryEdit: () => void;
 
     constructor(props: SamplesListProps, context: SamplesListState) {
         super(props, context);
         this.onSearchQueryEdit = debounce(() => {
-            if (this.searchInput && this._availableSamples) {
-                const searchQuery = this.searchInput.inputRef.value.toLowerCase();
+            const { searchQuery } = this.state;
+            if (searchQuery != undefined && this._availableSamples) {
                 let samples = cloneDeep(this._availableSamples);
                 samples = samples.filter((sampleCategory) => {
                     if (!sampleCategory.title.toLowerCase().includes(searchQuery)) {
@@ -61,9 +62,7 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
     }
 
     componentDidMount() {
-        if (this.searchInput) {
-            this.searchInput.focus();
-        }
+        this.focusOnSearchInput();
         this.props.getSamples().then((samples) => {
             this._availableSamples = samples;
             this.setState({
@@ -81,6 +80,12 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
         });
     }
 
+    focusOnSearchInput() {
+        if (this.searchInput) {
+            this.searchInput.focus();
+        }
+    }
+
     getColumnContents() {
 
         const columns: Array<Array<BallerinaExampleCategory>> = [];
@@ -96,12 +101,13 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
 
     renderColumnItem(column: BallerinaExampleCategory) {
         return (
-            <ul>
+            <ul key={column.title}>
                 <li className='title'>{column.title}</li>
                 <ul>
                     {
                         column.samples.map((sample) => {
-                            return (<li className='list-item'>
+                            return (
+                            <li className='list-item' key={sample.url}>
                                 <a
                                     href='#'
                                     onClick={
@@ -132,8 +138,12 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                                 }}
                                 loading={!this.state || !this.state.samples}
                                 placeholder='Search'
-                                onChange={this.onSearchQueryEdit}
-                                
+                                onChange={(event: React.SyntheticEvent<HTMLInputElement>) => {
+                                    this.setState({
+                                        searchQuery: event.currentTarget.value
+                                    });
+                                    this.onSearchQueryEdit();
+                                }}
                             />
                         </div>
                     </Grid.Column>
@@ -144,9 +154,9 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                             {this.state && this.state.samples &&
                                 <Grid.Row columns={4} className='sample-wrapper'>
                                     {
-                                        this.getColumnContents().map((column) => {
+                                        this.getColumnContents().map((column, index) => {
                                             return (
-                                                <Grid.Column mobile={16} tablet={8} computer={4}>
+                                                <Grid.Column key={index} mobile={16} tablet={8} computer={4}>
                                                     {column.map(columnItem => this.renderColumnItem(columnItem))}
                                                 </Grid.Column>
                                             );

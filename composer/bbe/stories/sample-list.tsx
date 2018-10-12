@@ -1,16 +1,13 @@
 import * as React from 'react';
 import { storiesOf } from '@storybook/react';
-import { SamplesList, BallerinaExampleCategory} from './../src';
+import { SamplesList } from './../src';
+import getBBEs from './bbes';
 
-function getSamples() {
-  return Promise.resolve(new Array<BallerinaExampleCategory>());
-}
 function openSample(url: string) {
-
 }
 
-storiesOf('Button', module)
-  .add("", () => (
-    <SamplesList getSamples={getSamples} openSample={openSample} />
+storiesOf('Ballerina By Example', module)
+  .add("Example List Page", () => (
+    <SamplesList getSamples={getBBEs} openSample={openSample} />
   ));
   
