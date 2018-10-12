@@ -44,7 +44,9 @@ function testOutputRateLimitQuery() {
         select name, age, status
         output first every 3 events
         => (Employee[] emp) {
-            employeeStream1.publish(emp);
+            foreach e in emp {
+                employeeStream1.publish(e);
+            }
         }
     }
 }

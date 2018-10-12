@@ -151,6 +151,7 @@
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
         </classes>
     </test>
 

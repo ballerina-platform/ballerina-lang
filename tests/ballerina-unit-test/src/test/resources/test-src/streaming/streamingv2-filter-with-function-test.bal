@@ -57,8 +57,10 @@ function testFilterQuery() {
     forever {
         from inputStream where inputStream.age > getMaxAgeLimit()
         select inputStream.name, inputStream.age, inputStream.status, inputStream.batch, inputStream.school
-        => (Teacher[] emp) {
-            outputStream.publish(emp);
+        => (Teacher[] teachers) {
+            foreach t in teachers {
+                outputStream.publish(t);
+            }
         }
     }
 }

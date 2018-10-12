@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for user defined sealed record types in Ballerina.
+ * Test cases for user defined closed record types in Ballerina.
  */
 public class ClosedRecordTest {
 
