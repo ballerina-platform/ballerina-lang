@@ -6,8 +6,8 @@ import getBBEs from './bbes';
 function openSample(url: string) {
 }
 
-storiesOf('Button', module)
-  .add("", () => (
+storiesOf('Ballerina By Example', module)
+  .add("Example List Page", () => (
     <SamplesList getSamples={getBBEs} openSample={openSample} />
   ));
   

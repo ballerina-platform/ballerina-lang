@@ -1,17 +1,21 @@
 import * as React from 'react';
-import { SamplesList, BallerinaExampleCategory} from '../src';
+import { SamplesList } from '../src';
 import { create } from 'react-test-renderer';
+import getBBEs from './../stories/bbes';
 
 test('SamplesList renders properly', () => {
-    function getSamples() {
-        return Promise.resolve(new Array<BallerinaExampleCategory>());
-    }
     function openSample(url: string) {
 
     }
+    var focusOnInputSpy = jest.fn();
+    jest
+        .spyOn(SamplesList.prototype, 'focusOnSearchInput')
+        .mockImplementation(focusOnInputSpy);
+
     const component = create(
-        <SamplesList getSamples={getSamples} openSample={openSample} />
+        <SamplesList getSamples={getBBEs} openSample={openSample} />
     );
     let tree = component.toJSON();
     expect(tree).toMatchSnapshot();
+    expect(focusOnInputSpy).toHaveBeenCalled();
 });

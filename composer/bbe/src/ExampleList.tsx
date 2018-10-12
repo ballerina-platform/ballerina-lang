@@ -62,9 +62,7 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
     }
 
     componentDidMount() {
-        if (this.searchInput) {
-            this.searchInput.focus();
-        }
+        this.focusOnSearchInput();
         this.props.getSamples().then((samples) => {
             this._availableSamples = samples;
             this.setState({
@@ -82,6 +80,12 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
         });
     }
 
+    focusOnSearchInput() {
+        if (this.searchInput) {
+            this.searchInput.focus();
+        }
+    }
+
     getColumnContents() {
 
         const columns: Array<Array<BallerinaExampleCategory>> = [];
@@ -97,12 +101,13 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
 
     renderColumnItem(column: BallerinaExampleCategory) {
         return (
-            <ul>
+            <ul key={column.title}>
                 <li className='title'>{column.title}</li>
                 <ul>
                     {
                         column.samples.map((sample) => {
-                            return (<li className='list-item'>
+                            return (
+                            <li className='list-item' key={sample.url}>
                                 <a
                                     href='#'
                                     onClick={
@@ -149,9 +154,9 @@ export class SamplesList extends React.Component<SamplesListProps, SamplesListSt
                             {this.state && this.state.samples &&
                                 <Grid.Row columns={4} className='sample-wrapper'>
                                     {
-                                        this.getColumnContents().map((column) => {
+                                        this.getColumnContents().map((column, index) => {
                                             return (
-                                                <Grid.Column mobile={16} tablet={8} computer={4}>
+                                                <Grid.Column key={index} mobile={16} tablet={8} computer={4}>
                                                     {column.map(columnItem => this.renderColumnItem(columnItem))}
                                                 </Grid.Column>
                                             );
