@@ -103,7 +103,7 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
                         .setId(rs.getInt(1))
                         .setName(rs.getString(2))
                         .setOrgName(rs.getString(3))
-                        .setVersion(rs.getString(3))
+                        .setVersion(rs.getString(4))
                         .build();
                 pkgDTOs.add(dto);
             }
