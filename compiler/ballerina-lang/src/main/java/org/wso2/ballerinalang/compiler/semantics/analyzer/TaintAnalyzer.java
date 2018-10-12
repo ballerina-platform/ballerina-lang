@@ -1433,7 +1433,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * @param taintedStatus Tainted status.
      */
     private void setTaintedStatus(BLangVariableReference varNode, TaintedStatus taintedStatus) {
-        if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || !varNode.symbol.tainted)) {
+        if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || (varNode.symbol != null
+                && !varNode.symbol.tainted))) {
             setTaintedStatus(varNode.symbol, taintedStatus);
         }
     }
