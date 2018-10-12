@@ -89,6 +89,24 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Const Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getConstKeywordSnippet() {
+        return new SnippetBlock("const ");
+    }
+
+    /**
+     * Get Final Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFinalKeywordSnippet() {
+        return new SnippetBlock("final ");
+    }
+
+    /**
      * Get Import Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

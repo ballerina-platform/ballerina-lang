@@ -90,11 +90,31 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"const",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"const ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"final",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"final ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"public",
       "detail":"Keyword",
       "sortText":"210",
       "insertText":"public ",
       "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"channel",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"channel"
     },
     {
       "label":"xml",

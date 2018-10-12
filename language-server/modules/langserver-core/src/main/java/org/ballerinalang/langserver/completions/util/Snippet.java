@@ -62,6 +62,10 @@ public enum Snippet {
 
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 
+    KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
+
+    KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
+
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
     KW_LENGTHOF(SnippetGenerator.getLengthofKeywordSnippet()),
