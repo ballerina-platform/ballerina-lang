@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -41,7 +42,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.TreeMap;
 
 /**
  * Utility methods for storing/fetching channel messages.
@@ -66,12 +69,12 @@ public class DatabaseUtils {
             stmt = con.prepareStatement(ChannelConstants.INSERT);
             stmt.setString(1, channelName);
             if (keyType != null) {
-                setParam(stmt, key, keyType, 2);
+                setParam(stmt, key, keyType, 2, true);
             } else {
                 stmt.setNull(2, Types.VARCHAR);
             }
 
-            setParam(stmt, value, valType, 3);
+            setParam(stmt, value, valType, 3, false);
             stmt.execute();
         } catch (SQLException e) {
             throw new BallerinaException("error in saving received channel message " + e.getMessage(), e);
@@ -100,7 +103,7 @@ public class DatabaseUtils {
 
             if (keyType != null) {
                 prpStmt = con.prepareStatement(ChannelConstants.SELECT);
-                setParam(prpStmt, key, keyType, 2);
+                setParam(prpStmt, key, keyType, 2, true);
             } else {
                 prpStmt = con.prepareStatement(ChannelConstants.SELECT_NULL);
             }
@@ -299,7 +302,8 @@ public class DatabaseUtils {
 
     }
 
-    private static void setParam(PreparedStatement stmt, BValue value, BType bType, int index) throws SQLException {
+    private static void setParam(PreparedStatement stmt, BValue value, BType bType, int index, boolean isKey)
+            throws SQLException {
 
         int type = bType.getTag();
 
@@ -320,7 +324,24 @@ public class DatabaseUtils {
                 stmt.setByte(index, ((BByte) value).byteValue());
                 break;
             default:
-                stmt.setString(index, value.toString());
+                if (isKey && value instanceof BMap) {
+                    stmt.setString(index, sortBMap(((BMap) value).getMap()));
+                } else {
+                    stmt.setString(index, value.toString());
+                }
+
         }
+    }
+
+    /**
+     * Sort a given map to the keys' order and return string value of the map.
+     * @param map the map to be sorted
+     * @return string value of the sorted map
+     */
+    public static String sortBMap(LinkedHashMap map) {
+
+        TreeMap<String, String> result = new TreeMap<>();
+        result.putAll(map);
+        return result.toString();
     }
 }

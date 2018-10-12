@@ -101,6 +101,9 @@ import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
@@ -844,16 +847,57 @@ public class HttpUtil {
         if (contentEncoding != null) {
             return;
         }
-        String compressionValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
+
+        Struct compressionConfig = configAnnot.getValue().getStructField(ANN_CONFIG_ATTR_COMPRESSION);
+        CompressionConfigState compressionState = getCompressionState(
+                compressionConfig.getStringField(ANN_CONFIG_ATTR_COMPRESSION_ENABLE));
+
+        if (compressionState == CompressionConfigState.NEVER) {
+            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, HTTP_TRANSFER_ENCODING_IDENTITY);
+            return;
+        }
+
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
-        if (ALWAYS.equalsIgnoreCase(compressionValue)) {
-            if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
+        List<String> contentTypesAnnotationValues = getAsStringList(
+                compressionConfig.getArrayField(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES));
+        String contentType = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+
+        if (contentTypesAnnotationValues.isEmpty() || isContentTypeMatched(contentTypesAnnotationValues, contentType)) {
+            if (compressionState == CompressionConfigState.ALWAYS &&
+                    (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue))) {
                 outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
             }
-        } else if (NEVER.equalsIgnoreCase(compressionValue)) {
-            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
-                    HTTP_TRANSFER_ENCODING_IDENTITY);
+        } else {
+            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, HTTP_TRANSFER_ENCODING_IDENTITY);
         }
+    }
+
+    public static CompressionConfigState getCompressionState(String compressionState) {
+        switch (compressionState) {
+            case AUTO:
+                return CompressionConfigState.AUTO;
+            case ALWAYS:
+                return CompressionConfigState.ALWAYS;
+            case NEVER:
+                return CompressionConfigState.NEVER;
+            default:
+                return null;
+        }
+    }
+
+    private static boolean isContentTypeMatched(List<String> contentTypes, String contentType) {
+        return contentType != null && contentTypes.stream().anyMatch(contentType.toLowerCase()::contains);
+    }
+
+    private static List<String> getAsStringList(Value[] values) {
+        List<String> valuesList = new ArrayList<>();
+        if (values == null) {
+            return valuesList;
+        }
+        for (Value val : values) {
+            valuesList.add(val.getStringValue().trim().toLowerCase());
+        }
+        return valuesList;
     }
 
     public static String getListenerInterface(String host, int port) {
@@ -916,17 +960,19 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
-    public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HttpCarbonMessage reqMsg) {
+    public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HttpCarbonMessage reqMsg,
+                                             HttpCarbonMessage outboundResponseMsg) {
         serverConnectionStructCheck(reqMsg);
-        methodInvocationCheck(connectionStruct, reqMsg);
+        int statusCode = (int) outboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        methodInvocationCheck(connectionStruct, reqMsg, statusCode);
     }
 
-    private static void methodInvocationCheck(BMap<String, BValue> bStruct, HttpCarbonMessage reqMsg) {
+    private static void methodInvocationCheck(BMap<String, BValue> bStruct, HttpCarbonMessage reqMsg, int statusCode) {
         if (bStruct.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
 
-        if (!is100ContinueRequest(reqMsg)) {
+        if (!is100ContinueRequest(reqMsg, statusCode)) {
             bStruct.addNativeData(METHOD_ACCESSED, true);
         }
     }
@@ -937,9 +983,9 @@ public class HttpUtil {
         }
     }
 
-    private static boolean is100ContinueRequest(HttpCarbonMessage reqMsg) {
+    private static boolean is100ContinueRequest(HttpCarbonMessage reqMsg, int statusCode) {
         return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
-                reqMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
+                reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {

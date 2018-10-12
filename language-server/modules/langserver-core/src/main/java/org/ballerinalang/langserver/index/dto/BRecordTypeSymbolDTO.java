@@ -21,8 +21,12 @@ import org.eclipse.lsp4j.CompletionItem;
 
 /**
  * DTO for RecordTypeSymbol.
+ * 
+ * @since 0.983.0
  */
-public class BRecordTypeSymbolDTO {
+public final class BRecordTypeSymbolDTO {
+    
+    private int id;
     
     private int packageId;
     
@@ -34,13 +38,18 @@ public class BRecordTypeSymbolDTO {
 
     private CompletionItem completionItem;
 
-    public BRecordTypeSymbolDTO(int packageId, String name, String fields, boolean isPrivate,
+    private BRecordTypeSymbolDTO(int id, int packageId, String name, String fields, boolean isPrivate,
                                 CompletionItem completionItem) {
+        this.id = id;
         this.packageId = packageId;
         this.name = name;
         this.fields = fields;
         this.isPrivate = isPrivate;
         this.completionItem = completionItem;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public int getPackageId() {
@@ -61,5 +70,58 @@ public class BRecordTypeSymbolDTO {
 
     public CompletionItem getCompletionItem() {
         return completionItem;
+    }
+
+    /**
+     * Builder for BRecordTypeSymbolDTO.
+     */
+    public static class BRecordTypeSymbolDTOBuilder {
+
+        private int id;
+
+        private int packageId;
+
+        private String name = "";
+
+        private String fields = "";
+
+        private boolean isPrivate;
+
+        private CompletionItem completionItem;
+
+        public BRecordTypeSymbolDTOBuilder setId(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public BRecordTypeSymbolDTOBuilder setPackageId(int packageId) {
+            this.packageId = packageId;
+            return this;
+        }
+
+        public BRecordTypeSymbolDTOBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public BRecordTypeSymbolDTOBuilder setFields(String fields) {
+            this.fields = fields;
+            return this;
+        }
+
+        public BRecordTypeSymbolDTOBuilder setPrivate(boolean aPrivate) {
+            isPrivate = aPrivate;
+            return this;
+        }
+
+        public BRecordTypeSymbolDTOBuilder setCompletionItem(CompletionItem completionItem) {
+            this.completionItem = completionItem;
+            return this;
+        }
+        
+        public BRecordTypeSymbolDTO build() {
+            return new BRecordTypeSymbolDTO(this.id, this.packageId, this.name, this.fields,
+                    this.isPrivate, this.completionItem);
+        }
     }
 }

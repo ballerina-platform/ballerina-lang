@@ -70,6 +70,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 }
 
 # This function will invoke the method to push the package.
+# + args - Arguments passed
 public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[13];

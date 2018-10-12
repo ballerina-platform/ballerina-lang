@@ -83,8 +83,9 @@ public class SourceGenTest {
             Assert.assertEquals(actual, expected, "Generated source didn't match the expected for file: " +
                     file.getName());
         } catch (Exception e) {
+            // This error being catch to print failing source-gen file.
             Assert.fail("Exception occurred while processing file: " + file.getName() + "\nException:" +
-                    e.toString());
+                                e.toString(), e);
         }
     }
 

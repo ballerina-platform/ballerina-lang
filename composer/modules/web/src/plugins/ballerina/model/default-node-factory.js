@@ -96,10 +96,12 @@ export const WsResources = [
  * @param {Fragment} fragment Source Fragment
  */
 function getNodeForFragment(fragment) {
-    const parsedJson = FragmentUtils.parseFragment(fragment);
-    const node = TreeBuilder.build(parsedJson);
-    node.clearWS();
-    return node;
+    return FragmentUtils.parseFragment(fragment)
+        .then((parsedJson) => {
+            const node = TreeBuilder.build(parsedJson);
+            node.clearWS();
+            return node;
+        });
 }
 
 function getStaticDefaultNode(fragmentName, keepWhiteSpace) {

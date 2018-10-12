@@ -36,11 +36,10 @@ public class FileContentConstants {
                                                 "\n" +
                                                 "    # A resource is an invokable API method\n" +
                                                 "    # Accessible at '/hello/sayHello\n" +
-                                                "    #'caller' is the client invoking this resource \n" +
+                                                "    # 'caller' is the client invoking this resource \n" +
                                                 "\n" +
                                                 "    # + caller - Server Connector\n" +
                                                 "    # + request - Request\n" +
-                                                "\n" +
                                                 "    sayHello (endpoint caller, http:Request request) {\n" +
                                                 "\n" +
                                                 "        // Create object to carry data back to caller\n" +
@@ -60,6 +59,7 @@ public class FileContentConstants {
                                                         "\n" +
                                                         "# Prints `Hello World`.\n" +
                                                         "\n" +
+                                                        "# + args - Arguments passed\n" +
                                                         "public function main(string... args) {\n" +
                                                         "    io:println(\"Hello World!\");\n" +
                                                         "}\n";

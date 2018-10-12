@@ -216,6 +216,7 @@ function getDateCreated(json jsonObj) returns string {
 }
 
 # This function invokes the method to search for packages.
+# + args - Arguments passed
 public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[2];

@@ -1496,7 +1496,8 @@ public class PackageInfoReader {
                     for (int count = 0; count < childCount; count++) {
                         childScopeMap.add(((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue());
                     }
-                    packageInfo.addInstruction(new InstructionCompensate(opcode, name, childScopeMap));
+                    int retRegIndex = codeStream.readInt();
+                    packageInfo.addInstruction(new InstructionCompensate(opcode, name, childScopeMap, retRegIndex));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
@@ -1598,6 +1599,13 @@ public class PackageInfoReader {
                 BField structField = new BField(fieldType,
                         fieldInfo.getName(), fieldInfo.flags);
                 structFields[i] = structField;
+            }
+
+            if (structType.getTag() == TypeTags.RECORD_TYPE_TAG && !((BRecordType) structType).sealed) {
+                RecordTypeInfo recTypeInfo = (RecordTypeInfo) structureTypeInfo;
+                String restTypeDesc = recTypeInfo.getRestFieldTypeSignature();
+                BType restFieldType = getBTypeFromDescriptor(packageInfo, restTypeDesc);
+                recTypeInfo.getType().restFieldType = restFieldType;
             }
 
             VarTypeCountAttributeInfo attributeInfo = (VarTypeCountAttributeInfo)

@@ -46,7 +46,9 @@ function testFilterQuery() {
         select name, age, status
         => (Employee[] emp) {
             io:println("Filterted event received #: "+ i);
-            employeeStream4.publish(emp);
+            foreach e in emp {
+                employeeStream4.publish(e);
+            }
         }
     }
 }
@@ -64,7 +66,7 @@ function startInlineOperationQuery() returns (Employee[]) {
     teacherStream7.publish(t2);
     teacherStream7.publish(t3);
 
-    runtime:sleep(1000);
+    runtime:sleep(3000);
 
     return globalEmployeeArray;
 }
