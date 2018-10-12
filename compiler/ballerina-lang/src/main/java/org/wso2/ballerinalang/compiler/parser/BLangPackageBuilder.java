@@ -83,6 +83,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -1422,11 +1423,23 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    private VariableNode generateBasicVarNode(DiagnosticPos pos,
-                                              Set<Whitespace> ws,
-                                              String identifier,
-                                              boolean exprAvailable) {
-        return generateBasicVarNode(pos, ws, identifier, exprAvailable, true);
+    private VariableNode generateConstantNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                              boolean isTypeAvailable) {
+        BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
+        constantNode.pos = pos;
+        IdentifierNode name = this.createIdentifier(identifier);
+        constantNode.setName(name);
+        constantNode.addWS(ws);
+        if (isTypeAvailable) {
+            constantNode.setTypeNode(this.typeNodeStack.pop());
+        }
+        constantNode.setInitialExpression(this.exprNodeStack.pop());
+        return constantNode;
+    }
+
+    private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                              boolean isExpressionAvailable) {
+        return generateBasicVarNode(pos, ws, identifier, isExpressionAvailable, true);
     }
 
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
@@ -1445,15 +1458,12 @@ public class BLangPackageBuilder {
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isExpressionAvailable,
-                           boolean isPublic, boolean isTypeAvailable, boolean isConst, boolean isFinal) {
+                           boolean isPublic, boolean isTypeAvailable, boolean isFinal) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, isExpressionAvailable,
                 isTypeAvailable);
         attachAnnotations(var);
         if (isPublic) {
             var.flagSet.add(Flag.PUBLIC);
-        }
-        if (isConst) {
-            var.flagSet.add(Flag.CONST);
         }
         if (isFinal) {
             var.flagSet.add(Flag.FINAL);
@@ -1462,6 +1472,19 @@ public class BLangPackageBuilder {
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
+    }
+
+    void addConstant(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isPublic,
+                     boolean isTypeAvailable) {
+        BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, isTypeAvailable);
+        attachAnnotations(constantNode);
+        constantNode.flagSet.add(Flag.CONST);
+        if (isPublic) {
+            constantNode.flagSet.add(Flag.PUBLIC);
+        }
+        attachMarkdownDocumentations(constantNode);
+        attachDeprecatedNode(constantNode);
+        this.compUnit.addTopLevelNode(constantNode);
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,

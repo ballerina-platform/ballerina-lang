@@ -36,6 +36,7 @@ definition
     |   typeDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   constantDefinition
     |   globalEndpointDefinition
     ;
 
@@ -148,9 +149,12 @@ annotationDefinition
     :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
+constantDefinition
+    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    ;
+
 globalVariableDefinition
     :   PUBLIC? typeName Identifier (ASSIGN expression)? SEMICOLON
-    |   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
     |   PUBLIC? FINAL (typeName|VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier SEMICOLON
     ;

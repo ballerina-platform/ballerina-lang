@@ -136,6 +136,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -284,6 +285,10 @@ public class TreeBuilder {
 
     public static VariableNode createVariableNode() {
         return new BLangVariable();
+    }
+
+    public static VariableNode createConstantNode() {
+        return new BLangConstant();
     }
 
     public static EndpointNode createEndpointNode() {

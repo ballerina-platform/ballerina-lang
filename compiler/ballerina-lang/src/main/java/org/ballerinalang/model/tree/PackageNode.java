@@ -40,6 +40,8 @@ public interface PackageNode extends Node {
 
     List<? extends VariableNode> getGlobalVariables();
 
+    List<? extends VariableNode> getConstants();
+
     void addGlobalVariable(VariableNode globalVar);
 
     List<? extends ServiceNode> getServices();

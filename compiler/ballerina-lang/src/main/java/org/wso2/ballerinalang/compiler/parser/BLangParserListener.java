@@ -671,6 +671,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 getCurrentPosFromIdentifier(ctx.Identifier()), publicAnnotation, isTypeAttached);
     }
 
+    @Override
+    public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isTypeAvailable = ctx.typeName() != null;
+        this.pkgBuilder.addConstant(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
+                isTypeAvailable);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -680,12 +691,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         boolean isPublic = ctx.PUBLIC() != null;
-        boolean isConst = ctx.CONST() != null;
         boolean isFinal = ctx.FINAL() != null;
         boolean isTypeAvailable = ctx.typeName() != null || ctx.channelType() != null;
         boolean isExpressionAvailable = ctx.expression() != null;
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                isExpressionAvailable, isPublic, isTypeAvailable, isConst, isFinal);
+                isExpressionAvailable, isPublic, isTypeAvailable, isFinal);
     }
 
     @Override

@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -186,6 +187,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
+
+        pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
 
         // Define type definitions.
         this.typePrecedence = 0;
@@ -820,6 +823,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case ENDPOINT:
                 pkgNode.globalEndpoints.add((BLangEndpoint) node);
+                break;
+            case CONSTANT:
+                pkgNode.constants.add((BLangConstant) node);
                 break;
         }
     }

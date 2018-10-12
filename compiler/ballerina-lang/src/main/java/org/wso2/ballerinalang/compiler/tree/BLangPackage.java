@@ -49,11 +49,13 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangPackage extends BLangNode implements PackageNode {
+
     public List<BLangCompilationUnit> compUnits;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangEndpoint> globalEndpoints;
     public List<BLangVariable> globalVars;
+    public List<BLangConstant> constants;
     public List<BLangService> services;
     public List<BLangFunction> functions;
     public List<BLangTypeDefinition> typeDefinitions;
@@ -79,6 +81,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.xmlnsList = new ArrayList<>();
         this.globalEndpoints = new ArrayList<>();
         this.globalVars = new ArrayList<>();
+        this.constants = new ArrayList<>();
         this.services = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.typeDefinitions = new ArrayList<>();
@@ -118,6 +121,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangVariable> getGlobalVariables() {
         return globalVars;
+    }
+
+    @Override
+    public List<BLangConstant> getConstants() {
+        return constants;
     }
 
     @Override

@@ -328,6 +328,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAnnotationDefinition(BallerinaParser.AnnotationDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#constantDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#constantDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#globalVariableDefinition}.
 	 * @param ctx the parse tree
 	 */

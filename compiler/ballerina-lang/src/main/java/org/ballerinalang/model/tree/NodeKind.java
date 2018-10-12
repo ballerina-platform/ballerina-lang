@@ -44,6 +44,7 @@ public enum NodeKind {
     TABLE,
     TABLE_COLUMN,
     VARIABLE,
+    CONSTANT,
     WORKER,
     XMLNS,
     CHANNEL,

@@ -419,6 +419,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE,
                 new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
 
+        pkgNode.constants.forEach(this::createPackageVarInfo);
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
         pkgNode.annotations.forEach(this::createAnnotationInfoEntry);
@@ -433,6 +434,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         pkgNode.topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
+                        pkgLevelNode.getKind() != NodeKind.CONSTANT &&
                         pkgLevelNode.getKind() != NodeKind.XMLNS)
                 .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
 
