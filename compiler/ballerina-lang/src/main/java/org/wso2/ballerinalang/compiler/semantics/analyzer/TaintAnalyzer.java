@@ -1989,8 +1989,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (varRefExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || varRefExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
                 || varRefExpr.getKind() == NodeKind.BRACED_TUPLE_EXPR
-                || varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                || varRefExpr.getKind() == NodeKind.VARIABLE_DEF) {
+                || (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) varRefExpr).pkgSymbol.tag != SymTag.XMLNS)) {
             visitAssignment(varRefExpr, varTaintedStatus, varRefExpr.pos);
         }
     }
