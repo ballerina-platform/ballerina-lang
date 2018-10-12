@@ -1,0 +1,20 @@
+.react-autosuggest__input {
+    padding: 5px 10px;
+    border: 1px solid #aaa;
+}
+
+.react-autosuggest__suggestions-container {
+    background-color: #fff;
+    overflow-x: hidden;
+    z-index: 5;
+}
+
+.react-autosuggest__suggestions-list {
+    margin: 0;
+    padding: 10px;
+    list-style-type: none;
+}
+
+.suggestions-text-rect {
+    fill: #eee;
+}

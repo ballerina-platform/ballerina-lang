@@ -1,0 +1,29 @@
+{
+  "name": "@ballerina/distribution",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode=development"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@ballerina/diagram": "file:../diagram",
+    "react-dom": "^16.2.0",
+    "react": "^16.2.0"
+  },
+  "devDependencies": {
+    "css-loader": "^1.0.0",
+    "sass-loader": "^6.0.3",
+    "node-sass": "^4.7.2",
+    "less": "^2.7.2",
+    "less-loader": "^4.0.5",
+    "url-loader": "^0.5.8",
+    "semantic-ui-less": "^2.3.2",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
+  }
+}

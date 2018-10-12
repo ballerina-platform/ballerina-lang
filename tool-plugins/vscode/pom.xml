@@ -116,6 +116,22 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>run tests</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>test</argument>
+                            </arguments>
+                            <skip>${skipTests}</skip>
+                            <skip>${maven.test.skip}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>vsix-package</id>
                         <goals>
                             <goal>exec</goal>

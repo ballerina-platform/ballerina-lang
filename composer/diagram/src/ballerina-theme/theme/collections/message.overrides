@@ -1,0 +1,8 @@
+/*******************************
+        Site Overrides
+*******************************/
+.ui.negative.message{
+    background-color: #222;
+    color: #fd5f5c;
+    box-shadow: none;
+}

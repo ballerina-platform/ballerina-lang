@@ -23,7 +23,7 @@ import * as assert from 'assert';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
-import ballerinaExtention from '../../src/core/ballerina-extension';
+import { BallerinaExtInstance } from '../../src/core/';
 import { getBallerinaHome, getBallerinaVersion } from '../test-util';
 
 // Ballerina tools distribution will be copied to following location by maven
@@ -35,21 +35,22 @@ suite("Ballerina Extension Core Tests", function () {
 
 
     test("Test isValidBallerinaHome", function () {
-        assert.equal(ballerinaExtention.isValidBallerinaHome(testBallerinaHome), true);
-        assert.equal(ballerinaExtention.isValidBallerinaHome(testBallerinaHome + '../'), false);
+        assert.equal(BallerinaExtInstance.isValidBallerinaHome(testBallerinaHome), true);
+        assert.equal(BallerinaExtInstance.isValidBallerinaHome(testBallerinaHome + '../'), false);
     });
 
-    test("Test autoDitectBallerinaHome", function () {
+    test("Test autoDetectBallerinaHome", () => {
         // Following should not throw an error all times.
-        const path = ballerinaExtention.autoDitectBallerinaHome();
-        if (path) {
-            assert.equal(ballerinaExtention.isValidBallerinaHome(path), true);
+        const path:string = BallerinaExtInstance.autoDetectBallerinaHome();
+        if (path.length > 0) {
+            const a = BallerinaExtInstance.isValidBallerinaHome(path);
+            assert.equal(a, true);
         }
     });
 
     test("Test getBallerinaVersion", function () {
-        ballerinaExtention.getBallerinaVersion(testBallerinaHome).then(ditected=>{
-            assert.equal(ditected, testBallerinaVersion);
+        BallerinaExtInstance.getBallerinaVersion(testBallerinaHome).then(detected=>{
+            assert.equal(detected, testBallerinaVersion);
         });
     });
 
