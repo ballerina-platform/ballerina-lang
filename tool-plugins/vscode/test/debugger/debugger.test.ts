@@ -98,7 +98,7 @@ suite('Ballerina Debug Adapter', () => {
 
             dc.on('output', (res) => {
                 console.log(res.body.output);
-                if (res.body.output.indexOf("ballerina: started HTTP") > -1) {
+                if (res.body.output.indexOf("started HTTP/WS") > -1) {
                     http.get('http://0.0.0.0:9090/hello/sayHello');
                 }
             });
@@ -121,7 +121,7 @@ suite('Ballerina Debug Adapter', () => {
 
             dc.on('output', (res) => {
                 console.log(res.body.output);
-                if (res.body.output.indexOf("ballerina: started HTTP") > -1) {
+                if (res.body.output.indexOf("started HTTP/WS") > -1) {
                     http.get('http://0.0.0.0:9090/hello/sayHello');
                 }
             });
@@ -142,7 +142,7 @@ suite('Ballerina Debug Adapter', () => {
 
             dc.on('output', (res) => {
                 console.log(res.body.output);
-                if (res.body.output.indexOf("ballerina: started HTTP") > -1) {
+                if (res.body.output.indexOf("started HTTP/WS") > -1) {
                     http.get('http://0.0.0.0:9090/hello/sayHello');
                 }
             });
