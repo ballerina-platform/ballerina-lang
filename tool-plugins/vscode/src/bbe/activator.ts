@@ -20,7 +20,7 @@ import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, work
 import * as path from 'path';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../client';
-import { BallerinaExtInstance } from '../core';
+import { ballerinaExtInstance, BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
 
 let examplesPanel: WebviewPanel | undefined;
@@ -58,7 +58,7 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
         switch (message.command) {
             case 'openExample':
                 const url = JSON.parse(message.url);
-                const ballerinaHome = BallerinaExtInstance.getBallerinaHome();
+                const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
                 if (ballerinaHome) {
                     const folderPath = path.join(ballerinaHome, 'examples', url);
                     const filePath = path.join(folderPath, `${url.replace(/-/g, '_')}.bal`);
@@ -77,25 +77,27 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
     });
 }
 
-export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
+export function activate(ballerinaExtInstance: BallerinaExtension) {
+    let context = <ExtensionContext> ballerinaExtInstance.context;
+    let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
     const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
-        BallerinaExtInstance.onReady()
+        ballerinaExtInstance.onReady()
         .then(() => {
             const { experimental } = langClient.initializeResult!.capabilities;
             const serverProvidesExamples = experimental && experimental.examplesProvider;
 
             if (!serverProvidesExamples) {
-                BallerinaExtInstance.showMessageServerMissingCapability();
+                ballerinaExtInstance.showMessageServerMissingCapability();
                 return;
             }
 
             showExamples(context, langClient);
         })
 		.catch((e) => {
-			if (!BallerinaExtInstance.isValidBallerinaHome()) {
-				BallerinaExtInstance.showMessageInvalidBallerinaHome();
+			if (!ballerinaExtInstance.isValidBallerinaHome()) {
+				ballerinaExtInstance.showMessageInvalidBallerinaHome();
 			} else {
-				BallerinaExtInstance.showPluginActivationError();
+				ballerinaExtInstance.showPluginActivationError();
 			}
 		});
     });

@@ -18,21 +18,19 @@
  *
  */
 import { ExtensionContext } from 'vscode';
-import { } from 'vscode-debugadapter';
 import { activate as activateDiagram } from './diagram'; 
 import { activate as activateBBE } from './bbe';
-import { BallerinaExtInstance } from './core';
+import { ballerinaExtInstance } from './core';
 import { activateDebugConfigProvider } from './debugger';
 
 export function activate(context: ExtensionContext): void {
-
-	BallerinaExtInstance.setContext(context);
-	BallerinaExtInstance.init();
+	ballerinaExtInstance.setContext(context);
+	ballerinaExtInstance.init();
 	// start the features.
 	// Enable Ballerina diagram
-	activateDiagram(context, BallerinaExtInstance.langClient!);
+	activateDiagram(ballerinaExtInstance);
 	// Enable Ballerina by examples
-	activateBBE(context, BallerinaExtInstance.langClient!);
+	activateBBE(ballerinaExtInstance);
 	// Enable Ballerina Debug Config Provider
-	activateDebugConfigProvider(context);
+	activateDebugConfigProvider(ballerinaExtInstance);
 }

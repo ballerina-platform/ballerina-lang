@@ -20,7 +20,7 @@ import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEdi
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../client';
-import { BallerinaExtInstance } from '../core';
+import { ballerinaExtInstance, BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
@@ -160,24 +160,26 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 	});
 }
 
-export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
+export function activate(ballerinaExtInstance: BallerinaExtension) {
+    let context = <ExtensionContext> ballerinaExtInstance.context;
+    let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		return BallerinaExtInstance.onReady()
+		return ballerinaExtInstance.onReady()
 		.then(() => {
 			const { experimental } = langClient.initializeResult!.capabilities;
 			const serverProvidesAST = experimental && experimental.astProvider;
 
 			if (!serverProvidesAST) {
-				BallerinaExtInstance.showMessageServerMissingCapability();
+				ballerinaExtInstance.showMessageServerMissingCapability();
 				return {};
 			}
 			showDiagramEditor(context, langClient);
 		})
 		.catch((e) => {
-			if (!BallerinaExtInstance.isValidBallerinaHome()) {
-				BallerinaExtInstance.showMessageInvalidBallerinaHome();
+			if (!ballerinaExtInstance.isValidBallerinaHome()) {
+				ballerinaExtInstance.showMessageInvalidBallerinaHome();
 			} else {
-				BallerinaExtInstance.showPluginActivationError();
+				ballerinaExtInstance.showPluginActivationError();
 			}
 		});
 	});

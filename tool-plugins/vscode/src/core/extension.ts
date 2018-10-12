@@ -36,7 +36,7 @@ import { ExtendedLangClient } from "../client/index";
 import { log } from '../utils/index';
 import { AssertionError } from "assert";
 import * as compareVersions from 'compare-versions';
-class BallerinaExtension {
+export class BallerinaExtension {
 
     public ballerinaHome: string;
     public extention: Extension<any>;
@@ -290,4 +290,4 @@ class BallerinaExtension {
 
 }
 
-export const BallerinaExtInstance = new BallerinaExtension();
+export const ballerinaExtInstance = new BallerinaExtension();
