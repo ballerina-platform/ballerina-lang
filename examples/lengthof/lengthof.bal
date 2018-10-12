@@ -3,11 +3,11 @@ import ballerina/io;
 public function main() {
     // This creates an integer array with several integer elements.
     int[] intArray = [1, 2, 3];
-    int length;
+    int lengthVal;
 
     // This prints the length of the integer array created. The length is calculated using the `lengthof` unary operator.
-    length = lengthof intArray;
-    io:println("Integer array size: ", length);
+    lengthVal = lengthof intArray;
+    io:println("Integer array size: ", lengthVal);
 
     // This creates a JSON array with several JSON elements.
     json jsonArray = [
@@ -16,8 +16,8 @@ public function main() {
     ];
 
     // This prints the length of the created JSON array.
-    length = lengthof jsonArray;
-    io:println("JSON array size: ", length);
+    lengthVal = lengthof jsonArray;
+    io:println("JSON array size: ", lengthVal);
 
     // This creates an `int` constrained map.
     map<int> strMap;
@@ -26,21 +26,21 @@ public function main() {
     strMap["C"] = 3;
 
     // This prints the length of the created map.
-    length = lengthof strMap;
-    io:println("Map size: ", length);
+    lengthVal = lengthof strMap;
+    io:println("Map size: ", lengthVal);
 
     // This creates a string.
     string myStr = "My name is Peter Parker";
     
     // This prints the length of the string.
-    length = lengthof myStr;
-    io:println("String size: ", length);
+    lengthVal = lengthof myStr;
+    io:println("String size: ", lengthVal);
 
     xml x1 = xml `<book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>
                     <!--Price: $10-->
                   </book>`;
-    length = lengthof x1.*.elements();
-    io:println("XML child elements size: ", length);
+    lengthVal = lengthof x1.*.elements();
+    io:println("XML child elements size: ", lengthVal);
 }

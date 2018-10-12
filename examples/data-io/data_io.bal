@@ -11,8 +11,8 @@ public type Person record {
 //Serialize record into binary
 function serialize(Person p, io:WritableByteChannel byteChannel) {
     io:WritableDataChannel dc = new io:WritableDataChannel(byteChannel);
-    var length = lengthof p.name.toByteArray("UTF-8");
-    var lengthResult = dc.writeInt32(length);
+    var lengthVal = lengthof p.name.toByteArray("UTF-8");
+    var lengthResult = dc.writeInt32(lengthVal);
     var nameResult = dc.writeString(p.name, "UTF-8");
     var ageResult = dc.writeInt16(p.age);
     var incomeResult = dc.writeFloat64(p.income);
