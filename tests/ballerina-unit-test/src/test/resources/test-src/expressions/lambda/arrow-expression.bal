@@ -176,14 +176,20 @@ function testArrowExprInObject() returns int {
     return f.lambda(6);
 }
 
-string logString = "Global Text";
+string packageVar = "Global Text";
 
 function testArrowExprWithNoArguments() returns string {
-    function () returns string lambda = () => "Some Text " + logString;
+    function () returns string lambda = () => "Some Text " + packageVar;
     return lambda();
 }
 
 function testArrowExprWithNoArgumentsAndStrTemplate() returns string {
-    function () returns string lambda = () => string`Some Text {{logString}}`;
+    function () returns string lambda = () => string`Some Text {{packageVar}}`;
+    return lambda();
+}
+
+function testArrowExprWithNoArgumentsAndClosure() returns string {
+    string closureVar = "Closure Text";
+    function () returns string lambda = () => "Some Text " + packageVar + " " + closureVar;
     return lambda();
 }

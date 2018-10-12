@@ -191,6 +191,13 @@ public class ArrowExprTest {
         Assert.assertEquals((returns[0]).stringValue(), "Some Text Global Text");
     }
 
+    @Test(description = "Test arrow expression with no arguments and closure var")
+    public void testArrowExprWithNoArgumentsAndClosure() {
+        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithNoArgumentsAndClosure");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals((returns[0]).stringValue(), "Some Text Global Text Closure Text");
+    }
+
     @Test(description = "Test compile time errors for arrow expression")
     public void testNegativeArrowExpr() {
         int i = 0;
