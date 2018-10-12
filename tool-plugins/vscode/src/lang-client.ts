@@ -131,14 +131,14 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("ballerinaDocument/swaggerDef", req);
     }
 
-    getBallerinaASTforOas(oasJson: string, uri: Uri): Thenable<BallerinaAstOasChangeResponse> {
+    triggerSwaggerDefChange(oasJson: string, uri: Uri): void {
         const req: BallerinaAstOasChangeRequest = {
             oasDefinition: oasJson,
             documentIdentifier: {
                 uri: uri.toString()
             },
         }
-        return this.sendRequest("ballerinaDocument/astOasChange", req)
+        return this.sendNotification("ballerinaDocument/swaggerDefDidChange", req);
     }
 
     getServiceListForActiveFile(uri: Uri): Thenable<BallerinaServiceListResponse> {
