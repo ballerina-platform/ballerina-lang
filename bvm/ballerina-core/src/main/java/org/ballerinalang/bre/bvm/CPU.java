@@ -393,8 +393,6 @@ public class CPU {
                     case InstructionCodes.BR_TRUE:
                     case InstructionCodes.BR_FALSE:
                     case InstructionCodes.GOTO:
-                    case InstructionCodes.SEQ_NULL:
-                    case InstructionCodes.SNE_NULL:
                         execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
                         break;
                     case InstructionCodes.INT_RANGE:
@@ -1151,24 +1149,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] != null) {
-                    sf.intRegs[j] = 1;
-                } else {
-                    sf.intRegs[j] = 0;
-                }
-                break;
-            case InstructionCodes.SEQ_NULL:
-                i = operands[0];
-                j = operands[1];
-                if (sf.stringRegs[i] == null) {
-                    sf.intRegs[j] = 1;
-                } else {
-                    sf.intRegs[j] = 0;
-                }
-                break;
-            case InstructionCodes.SNE_NULL:
-                i = operands[0];
-                j = operands[1];
-                if (sf.stringRegs[i] != null) {
                     sf.intRegs[j] = 1;
                 } else {
                     sf.intRegs[j] = 0;

@@ -1194,8 +1194,6 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSEQSTORE:
                 case InstructionCodes.TYPELOAD:
-                case InstructionCodes.SEQ_NULL:
-                case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.BI2ANY:

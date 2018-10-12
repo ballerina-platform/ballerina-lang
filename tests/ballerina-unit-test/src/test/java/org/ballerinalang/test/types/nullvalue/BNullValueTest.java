@@ -78,7 +78,7 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(9));
     }
 
-    @Test(description = "Test null value of a array")
+    @Test(description = "Test non-optional array")
     public void testArrayNotNull() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testArrayNotNull", new BValue[]{});
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 9);

@@ -270,21 +270,9 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
         defineBinaryOperator(OperatorKind.EQUAL, jsonType, nilType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, jsonType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, xmlType, nilType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nilType, xmlType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, tableType, nilType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nilType, tableType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, streamType, nilType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nilType, streamType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, anyType, nilType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, anyType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, mapType, nilType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nilType, mapType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nilType, arrayType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, arrayType, nilType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, nilType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, stringType, nilType, booleanType, InstructionCodes.SEQ_NULL);
-        defineBinaryOperator(OperatorKind.EQUAL, nilType, stringType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, byteType, byteType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
@@ -292,21 +280,9 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, jsonType, nilType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, jsonType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, xmlType, nilType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, xmlType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, tableType, nilType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, tableType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, streamType, nilType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, streamType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, anyType, nilType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, anyType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, mapType, nilType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, mapType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, arrayType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, arrayType, nilType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, nilType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, nilType, booleanType, InstructionCodes.SNE_NULL);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, stringType, booleanType, InstructionCodes.SNE_NULL);
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);

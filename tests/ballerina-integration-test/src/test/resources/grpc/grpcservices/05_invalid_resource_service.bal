@@ -38,7 +38,7 @@ service HelloWorld98 bind ep98 {
     testInt(endpoint caller, string age) {
         io:println("age: " + age);
         int displayAge;
-        if (age == null) {
+        if (age == "") {
             displayAge = -1;
         } else {
             displayAge = 1;

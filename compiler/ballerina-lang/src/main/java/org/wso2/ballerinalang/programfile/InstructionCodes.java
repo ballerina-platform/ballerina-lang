@@ -155,9 +155,6 @@ public interface InstructionCodes {
     int FPLOAD = 126;
     int VFPLOAD = 127;
 
-    int SEQ_NULL = 128;
-    int SNE_NULL = 129;
-
     // Type Conversion related instructions
     int I2F = 130;
     int I2S = 131;
