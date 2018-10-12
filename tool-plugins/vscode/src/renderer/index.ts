@@ -112,9 +112,9 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 				return langClient.getBallerinaOASDef(args[0], args[1]);
 			}
 		},{
-			methodName: 'onOasChange',
+			methodName: 'triggerSwaggerDefChange',
 			handler: (args: any[]) => {
-				return langClient.getBallerinaASTforOas(args[0], args[1]);
+				return langClient.triggerSwaggerDefChange(args[0], args[1]);
 			}
 		}], oasEditorPanel.webview)
 

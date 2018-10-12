@@ -136,7 +136,7 @@ class SwaggerVisualizer extends React.Component {
     }
 
     onAddOperation(operationsObj) {
-        const { onAddOperation } = this.props;
+        const { onAddOperation, onDidChange } = this.props;
         const path = operationsObj.path;
 
         this.setState(prevState => ({
@@ -165,6 +165,8 @@ class SwaggerVisualizer extends React.Component {
             
             //Exposed event for post add resource event
             onAddOperation(operationsObj, this.state.oasJson);
+
+            onDidChange(EVENTS.ADD_OPERATION, operationsObj, this.state.oasJson);
 
             this.setState({
                 actionState: {

@@ -29,9 +29,7 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
         }
 
         function onDidJsonChange(event, changedObj, oasJson) {
-            webViewRPCHandler.invokeRemoteMethod('onOasChange', [JSON.stringify(oasJson), docUri], (resp) => {
-                console.log(resp);
-            });
+            webViewRPCHandler.invokeRemoteMethod('triggerSwaggerDefChange', [JSON.stringify(oasJson), docUri]);
         }
 
         function drawAPIEditor() {
