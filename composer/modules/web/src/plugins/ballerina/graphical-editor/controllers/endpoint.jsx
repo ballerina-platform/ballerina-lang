@@ -32,8 +32,8 @@ class ActionBox extends React.Component {
 
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {
-            const { editor } = this.context;
-            editor.goToSource(model);
+            const { goToSource } = this.context;
+            goToSource(model);
         };
 
         return (
@@ -52,13 +52,7 @@ class ActionBox extends React.Component {
 
 ActionBox.contextTypes = {
     config: PropTypes.instanceOf(Object),
-    editor: PropTypes.shape({
-        isFileOpenedInEditor: PropTypes.func,
-        getEditorByID: PropTypes.func,
-        setActiveEditor: PropTypes.func,
-        getActiveEditor: PropTypes.func,
-        getDefaultContent: PropTypes.func,
-    }).isRequired,
+    goToSource: PropTypes.func.isRequired,
     designer: PropTypes.instanceOf(Object),
 };
 

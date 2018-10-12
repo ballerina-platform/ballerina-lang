@@ -109,7 +109,7 @@ public class UnionTypeTest {
     public void testAmbiguousAssignment() {
         int i = 0;
         Assert.assertEquals(negativeResult.getErrorCount(), 4);
-        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'OpenBar|error'", 46, 24);
+        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'OpenBar|OpenFoo'", 46, 26);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|ClosedFoo'", 47, 30);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|OpenBar'", 48, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 51, 31);

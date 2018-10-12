@@ -56,7 +56,7 @@ public class ConstrainedMapTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 9);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'map<int>', found 'map'", 3, 12);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 7, 44);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string?', found 'int'", 13, 23);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'int'", 13, 23);
         BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'map<int>', found 'map<string>'",
                 19, 12);
         BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'map<Person>', " +

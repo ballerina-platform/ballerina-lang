@@ -36,12 +36,6 @@ public interface BallerinaObjectFieldDefinition extends BallerinaCompositeElemen
   BallerinaDeprecatedAttachment getDeprecatedAttachment();
 
   @Nullable
-  BallerinaDocumentationAttachment getDocumentationAttachment();
-
-  @Nullable
-  BallerinaDocumentationString getDocumentationString();
-
-  @Nullable
   PsiElement getAssign();
 
   @Nullable
@@ -50,7 +44,7 @@ public interface BallerinaObjectFieldDefinition extends BallerinaCompositeElemen
   @Nullable
   PsiElement getSemicolon();
 
-  @Nullable
+  @NotNull
   PsiElement getIdentifier();
 
   @Nullable

@@ -60,6 +60,12 @@ public class BallerinaObjectTypeNameImpl extends BallerinaTypeNameImpl implement
   }
 
   @Override
+  @Nullable
+  public PsiElement getAbstract() {
+    return findChildByType(ABSTRACT);
+  }
+
+  @Override
   @NotNull
   public PsiElement getObject() {
     return notNullChild(findChildByType(OBJECT));

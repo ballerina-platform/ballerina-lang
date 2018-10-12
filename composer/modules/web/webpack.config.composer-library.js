@@ -157,7 +157,7 @@ const config = [{
             $: 'jquery',
             jQuery: 'jquery',
         }),
-        new webpack.WatchIgnorePlugin([path.resolve(__dirname, './font/dist/')]),
+        new webpack.WatchIgnorePlugin([path.resolve(__dirname, './library/dist/font-ballerina/')]),
         new WebfontPlugin({
             files: path.resolve(__dirname, './font/font-ballerina/icons/**/*.svg'),
             cssTemplateFontPath: '../fonts/',
@@ -195,7 +195,7 @@ const config = [{
         */
     ],
     devServer: {
-        contentBase: path.join(__dirname, "dist"),
+        contentBase: path.join(__dirname,"library", "dist"),
     },
     externals: {
         jsdom: 'window',
@@ -273,7 +273,7 @@ if (process.env.NODE_ENV === 'production') {
     // Add UglifyJsPlugin only when we build for production.
     // uglyfying slows down webpack build so we avoid in when in development
     config[0].plugins.push(new UglifyJsPlugin({
-        sourceMap: false,
+        sourceMap: true,
         parallel: true,
         uglifyOptions: {
             mangle: {

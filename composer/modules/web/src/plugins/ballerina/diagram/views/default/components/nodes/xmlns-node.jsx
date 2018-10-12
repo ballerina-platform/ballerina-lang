@@ -52,10 +52,12 @@ class XmlnsNode extends React.Component {
      * */
     handleSetter(value) {
         if (!_.isNil(value)) {
-            const parsedJson = FragmentUtil.createStatementFragment(value);
-            const newXmlNsNode = TreeBuilder.build(
-                FragmentUtil.parseFragment(parsedJson), this.parent, this.parent.kind);
-            this.parent.replaceStatements(this, newXmlNsNode);
+            const fragment = FragmentUtil.createStatementFragment(value);
+            FragmentUtil.parseFragment(fragment)
+                .then((parsedJson) => {
+                    const newXmlNsNode = TreeBuilder.build(parsedJson, this.parent, this.parent.kind);
+                    this.parent.replaceStatements(this, newXmlNsNode);
+                });
         }
     }
 

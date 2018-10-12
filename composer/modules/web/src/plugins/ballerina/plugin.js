@@ -267,18 +267,20 @@ class BallerinaPlugin extends Plugin {
                                 const onFixPackage = () => {
                                     const pkgName = `package ${correctPkg};`;
                                     const fragment = FragmentUtils.createTopLevelNodeFragment(pkgName);
-                                    const parsedJson = FragmentUtils.parseFragment(fragment);
-                                    // If there's no packageDeclaration node, then create one
-                                    if (ast.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
-                                        ast.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
-                                    } else {
-                                        // If a packageDeclaratioNode already exists then -
-                                        // remove that node, and add a new one
-                                        const pkgDeclarationNode =
-                                            ast.filterTopLevelNodes({ kind: 'PackageDeclaration' })[0];
-                                        ast.removeTopLevelNodes(pkgDeclarationNode, true);
-                                        ast.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
-                                    }
+                                    FragmentUtils.parseFragment(fragment)
+                                        .then((parsedJson) => {
+                                            // If there's no packageDeclaration node, then create one
+                                            if (ast.filterTopLevelNodes({ kind: 'PackageDeclaration' }).length === 0) {
+                                                ast.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
+                                            } else {
+                                                // If a packageDeclaratioNode already exists then -
+                                                // remove that node, and add a new one
+                                                const pkgDeclarationNode =
+                                                    ast.filterTopLevelNodes({ kind: 'PackageDeclaration' })[0];
+                                                ast.removeTopLevelNodes(pkgDeclarationNode, true);
+                                                ast.addTopLevelNodes(TreeBuilder.build(parsedJson), 0);
+                                            }
+                                        });
                                 };
 
                                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {

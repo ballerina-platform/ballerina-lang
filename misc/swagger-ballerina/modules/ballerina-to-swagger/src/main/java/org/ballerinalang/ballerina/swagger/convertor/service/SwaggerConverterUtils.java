@@ -39,10 +39,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -199,18 +198,22 @@ public class SwaggerConverterUtils {
         String source = FileUtils.readFileToString(servicePath.toFile(), "UTF-8");
         return source;
     }
-
-    private static void writeFile(Path path, String content)
-            throws FileNotFoundException, UnsupportedEncodingException {
-        PrintWriter writer = null;
-
-        try {
-            writer = new PrintWriter(path.toString(), "UTF-8");
+    
+    /**
+     * Write content to a file.
+     * @param path Path of the file.
+     * @param content The content.
+     * @throws IOException Error when creating or writing the file.
+     */
+    private static void writeFile(Path path, String content) throws IOException {
+        Path parentPath = path.getParent();
+        if (null != parentPath && Files.exists(parentPath)) {
+            Files.createDirectories(parentPath);
+        }
+        Files.deleteIfExists(path);
+        Files.createFile(path);
+        try (PrintWriter writer = new PrintWriter(path.toString(), "UTF-8")) {
             writer.print(content);
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
         }
     }
 

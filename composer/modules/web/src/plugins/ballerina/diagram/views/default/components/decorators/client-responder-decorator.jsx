@@ -24,6 +24,8 @@ import './statement-decorator.css';
 import Breakpoint from './breakpoint';
 import Node from '../../../../../model/tree/node';
 import ArrowDecorator from './arrow-decorator';
+import SizingUtils from '../../sizing-util';
+import TreeUtil from '../../../../../model/tree-util';
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -98,12 +100,16 @@ class ClientResponderDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { viewState, expression, isBreakpoint } = this.props;
+        const { viewState, model, isBreakpoint } = this.props;
+        const { designer } = this.context;
+
+        let expression = viewState.displayParameterText;
 
         const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';').trim();
 
         let backwardArrowStart;
         let backwardArrowEnd;
+
         if (viewState.isClientResponder) {
             if (viewState.components.invocation) {
                 backwardArrowStart = Object.assign({}, viewState.components.invocation.end);
@@ -111,6 +117,41 @@ class ClientResponderDecorator extends React.Component {
                     + viewState.components['statement-box'].h - 10;
                 backwardArrowEnd = Object.assign({}, viewState.components.invocation.start);
                 backwardArrowEnd.y = backwardArrowStart.y;
+            }
+
+            if (TreeUtil.isVariableDef(model) ||
+                TreeUtil.isAssignment(model) ||
+                TreeUtil.isExpressionStatement(model)) {
+                let exp;
+
+                if (TreeUtil.isVariableDef(model)) {
+                    exp = model.getVariable().getInitialExpression();
+                } else {
+                    exp = model.getExpression();
+                }
+
+                if (TreeUtil.isMatchExpression(exp) || TreeUtil.isCheckExpr(exp)) {
+                    exp = exp.getExpression();
+                }
+
+                const functionNameWidth = new SizingUtils().getTextWidth(exp.getFunctionName(), 0);
+                const nodeWidth = designer.config.clientLine.width + designer.config.lifeLine.gutter.h;
+
+                if (functionNameWidth.w > nodeWidth) {
+                    const truncatedFunctionNameWidth = new SizingUtils().getTextWidth(
+                        exp.getFunctionName(), 0, nodeWidth);
+                    expression = (<tspan>
+                        {truncatedFunctionNameWidth.text}
+                    </tspan>);
+                } else {
+                    const displayExpressionWidth = nodeWidth - functionNameWidth.w;
+                    const expressionDisplayText = new SizingUtils().getTextWidth(model.viewState.displayParameterText, 0,
+                        displayExpressionWidth).text;
+                    expression = (<tspan>
+                        {exp.getFunctionName()}
+                        (<tspan className='client-responder-parameter-text'>{expressionDisplayText}</tspan>)
+                    </tspan>);
+                }
             }
         }
 
@@ -123,8 +164,7 @@ class ClientResponderDecorator extends React.Component {
             >
                 <g>
                     <text
-                        x={viewState.components.invocation.end.x
-                            + this.context.designer.config.statement.gutter.h}
+                        x={viewState.components.invocation.end.x + this.context.designer.config.statement.gutter.h}
                         y={viewState.components.invocation.end.y - 5}
                     >
                         {expression}
@@ -157,7 +197,7 @@ ClientResponderDecorator.propTypes = {
     }).isRequired,
     children: PropTypes.node,
     model: PropTypes.instanceOf(Node).isRequired,
-    expression: PropTypes.string.isRequired,
+    displayText: PropTypes.string.isRequired,
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
 };

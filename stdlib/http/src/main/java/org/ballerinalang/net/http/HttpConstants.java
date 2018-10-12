@@ -28,6 +28,11 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class HttpConstants {
 
+    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/http] started HTTPS/WSS endpoint ";
+    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/http] started HTTP/WS endpoint ";
+    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTPS/WSS endpoint ";
+    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTP/WS endpoint ";
+
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
     public static final String EXTRA_PATH_INFO = "EXTRA_PATH_INFO";
@@ -107,6 +112,8 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
     public static final String ANN_CONFIG_ATTR_COMPRESSION = "compression";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLE = "enable";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES = "contentTypes";
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
