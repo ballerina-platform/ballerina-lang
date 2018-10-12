@@ -177,7 +177,7 @@ public class HoverUtil {
         } else {
             hover = new Hover();
             List<Either<String, MarkedString>> contents = new ArrayList<>();
-            contents.add(Either.forLeft(""));
+            contents.add(Either.forRight(new MarkedString("", "")));
             hover.setContents(contents);
         }
         return hover;
@@ -200,7 +200,7 @@ public class HoverUtil {
 
         return value.toString();
     }
-    
+
     private static String getReturnValueDescription(String returnVal) {
         return "- " + returnVal.trim() + "\r\n";
     }
@@ -248,7 +248,7 @@ public class HoverUtil {
         }
 
         List<Either<String, MarkedString>> contents = new ArrayList<>();
-        contents.add(Either.forLeft(content.toString()));
+        contents.add(Either.forRight(new MarkedString("", content.toString())));
         hover.setContents(contents);
 
         return hover;
@@ -297,7 +297,7 @@ public class HoverUtil {
     private static Hover getDefaultHoverObject() {
         Hover hover = new Hover();
         List<Either<String, MarkedString>> contents = new ArrayList<>();
-        contents.add(Either.forLeft(""));
+        contents.add(Either.forRight(new MarkedString("", "")));
         hover.setContents(contents);
 
         return hover;

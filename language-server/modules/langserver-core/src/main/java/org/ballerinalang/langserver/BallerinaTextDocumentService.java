@@ -192,7 +192,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
                 hover = new Hover();
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
-                contents.add(Either.forLeft(""));
+                contents.add(Either.forRight(new MarkedString("", "")));
                 hover.setContents(contents);
             } finally {
                 lock.ifPresent(Lock::unlock);
