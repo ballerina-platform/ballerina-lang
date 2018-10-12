@@ -20,9 +20,10 @@ package org.ballerinalang.auth.ldap.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.auth.ldap.CommonLDAPConfiguration;
-import org.ballerinalang.auth.ldap.LDAPConnectionContext;
 import org.ballerinalang.auth.ldap.UserStoreException;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.naming.CompositeName;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
@@ -39,6 +40,8 @@ public class LDAPUtils {
 
     private static final Log LOG = LogFactory.getLog(LDAPUtils.class);
 
+    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+
     /**
      * Checks whether a given string is null or empty after the trim.
      *
@@ -54,16 +57,17 @@ public class LDAPUtils {
      *
      * @param userName          Given username
      * @param ldapConfiguration LDAP user store configurations
-     * @param connectionSource  LDAPConnectionContext
+     * @param dirContext  Directory naming context
      * @return Associated name for the given username
      * @throws UserStoreException if there is any exception occurs during the process
+     * @throws NamingException if there is any exception occurs during the process
      */
     public static String getNameInSpaceForUsernameFromLDAP(String userName, CommonLDAPConfiguration ldapConfiguration,
-                                  LDAPConnectionContext connectionSource) throws UserStoreException {
+                                  DirContext dirContext) throws UserStoreException, NamingException {
         String userSearchFilter = ldapConfiguration.getUserNameSearchFilter();
         userSearchFilter = userSearchFilter.replace("?", LDAPUtils.escapeSpecialCharactersForFilter(userName));
         String searchBase = ldapConfiguration.getUserSearchBase();
-        return LDAPUtils.getNameInSpaceForUserName(userName, searchBase, userSearchFilter, connectionSource);
+        return LDAPUtils.getNameInSpaceForUserName(userName, searchBase, userSearchFilter, dirContext);
     }
 
     /**
@@ -72,12 +76,13 @@ public class LDAPUtils {
      * @param userName         Given username
      * @param searchBase       LDAP search base
      * @param searchFilter     LDAP search filter
-     * @param connectionSource LDAPConnectionContext
+     * @param dirContext Directory naming context
      * @return Associated name for the given username
      * @throws UserStoreException if there is any exception occurs during the process
+     * @throws NamingException if there is any exception occurs during the process
      */
     public static String getNameInSpaceForUserName(String userName, String searchBase,
-                          String searchFilter, LDAPConnectionContext connectionSource) throws UserStoreException {
+                          String searchFilter, DirContext dirContext) throws UserStoreException, NamingException {
 
         boolean debug = LOG.isDebugEnabled();
 
@@ -86,21 +91,10 @@ public class LDAPUtils {
         }
 
         String userDN = null;
-        DirContext dirContext = null;
         NamingEnumeration<SearchResult> answer = null;
         try {
-            dirContext = connectionSource.getContext();
             SearchControls searchCtls = new SearchControls();
             searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-            if (LOG.isDebugEnabled()) {
-                try {
-                    LOG.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: "
-                            + dirContext.getNameInNamespace());
-                } catch (NamingException e) {
-                    LOG.debug("Error while getting DN of search base", e);
-                }
-            }
             String[] searchBases = searchBase.split("#");
             for (String base : searchBases) {
                 answer = dirContext.search(escapeDNForSearch(base), searchFilter, searchCtls);
@@ -118,13 +112,8 @@ public class LDAPUtils {
             if (debug) {
                 LOG.debug("Name in space for " + userName + " is " + userDN);
             }
-        } catch (InvalidNameException e) {
-            throw new UserStoreException(e);
-        } catch (NamingException e) {
-            throw new UserStoreException(e);
         } finally {
             LDAPUtils.closeNamingEnumeration(answer);
-            LDAPUtils.closeContext(dirContext);
         }
         return userDN;
     }
@@ -208,5 +197,64 @@ public class LDAPUtils {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Check whether provided url is ldaps or not.
+     *
+     * @param url LDAP server url
+     * @return {@code true} if the url is an ldaps: url.
+     */
+    public static boolean isLdapsUrl(String url) {
+        return (null != url) && (url.length() > 7) && url.substring(0, 8).equalsIgnoreCase("ldaps://");
+    }
+
+    /**
+     * Replace system property holders in the property values.
+     * e.g. Replace ${carbon.home} with value of the carbon.home system property.
+     *
+     * @param value string value to substitute
+     * @return String substituted string
+     */
+    public static String substituteVariables(String value) {
+        Matcher matcher = varPattern.matcher(value);
+        boolean found = matcher.find();
+        if (!found) {
+            return value;
+        }
+        StringBuffer sb = new StringBuffer();
+        do {
+            String sysPropKey = matcher.group(1);
+            String sysPropValue = getSystemVariableValue(sysPropKey, null);
+            if (sysPropValue == null || sysPropValue.length() == 0) {
+                throw new RuntimeException("System property " + sysPropKey + " is not specified");
+            }
+            // Due to reported bug under CARBON-14746
+            sysPropValue = sysPropValue.replace("\\", "\\\\");
+            matcher.appendReplacement(sb, sysPropValue);
+        } while (matcher.find());
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * A utility which allows reading variables from the environment or System properties.
+     * If the variable in available in the environment as well as a System property, the System property takes
+     * precedence.
+     *
+     * @param variableName System/environment variable name
+     * @param defaultValue default value to be returned if the specified system variable is not specified.
+     * @return value of the system/environment variable
+     */
+    private static String getSystemVariableValue(String variableName, String defaultValue) {
+        String value;
+        if (System.getProperty(variableName) != null) {
+            value = System.getProperty(variableName);
+        } else if (System.getenv(variableName) != null) {
+            value = System.getenv(variableName);
+        } else {
+            value = defaultValue;
+        }
+        return value;
     }
 }

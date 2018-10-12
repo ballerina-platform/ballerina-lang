@@ -186,7 +186,6 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
                         match provider.authStoreProviderConfig {
                             auth:LdapAuthProviderConfig authStoreProviderConfig => {
                                 auth:LDAPAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig);
-                                auth:initLDAPConnectionContext(ldapAuthStoreProvider);
                                 authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
                             }
                             () => {
@@ -237,7 +236,6 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
             match authProvider.authStoreProviderConfig {
                         auth:LdapAuthProviderConfig authStoreProviderConfig => {
                         auth:LDAPAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig);
-                        auth:initLDAPConnectionContext(ldapAuthStoreProvider);
                         if (authProvider.propagateToken) {
                             auth:LDAPJwtAuthProvider configAuthProvider =
                                         new(getInferredJwtAuthProviderConfig(authProvider),ldapAuthStoreProvider);

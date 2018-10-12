@@ -1546,6 +1546,20 @@
                 <artifactId>mysql</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
+
+            <!-- Embedded Apache DS dependencies -->
+            <dependency>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-all</artifactId>
+                <version>${apache.directory.server.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.directory.shared</groupId>
+                        <artifactId>shared-ldap</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -2353,6 +2367,7 @@
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <apache.directory.server.version>1.5.5</apache.directory.server.version>
     </properties>
 
 </project>

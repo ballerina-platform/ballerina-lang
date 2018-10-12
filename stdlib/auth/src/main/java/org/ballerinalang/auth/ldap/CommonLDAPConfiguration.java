@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.auth.ldap;
 
+import java.io.File;
+
 /**
  * Ballerina LDAP user store configurations.
  */
@@ -37,6 +39,10 @@ public class CommonLDAPConfiguration {
     private String groupNameSearchFilter;
     private String groupNameListFilter;
     private String membershipAttribute;
+    private File trustStore;
+    private String trustStoreFile;
+    private String trustStorePassword;
+    private String trustedCertFile;
     private boolean userRolesCacheEnabled;
     private boolean connectionPoolingEnabled;
     private int ldapConnectionTimeout;
@@ -201,5 +207,37 @@ public class CommonLDAPConfiguration {
 
     public void setRetryAttempts(int retryAttempts) {
         this.retryAttempts = retryAttempts;
+    }
+
+    public String getTrustStoreFile() {
+        return trustStoreFile;
+    }
+
+    public void setTrustStoreFile(String trustStoreFile) {
+        this.trustStoreFile = trustStoreFile;
+    }
+
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
+    public void setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+    }
+
+    public String getTrustedCertFile() {
+        return trustedCertFile;
+    }
+
+    public void setTrustedCertFile(String trustedCertFile) {
+        this.trustedCertFile = trustedCertFile;
+    }
+
+    public File getTrustStore() {
+        return trustStore;
+    }
+
+    public void setTrustStore(File trustStore) {
+        this.trustStore = trustStore;
     }
 }

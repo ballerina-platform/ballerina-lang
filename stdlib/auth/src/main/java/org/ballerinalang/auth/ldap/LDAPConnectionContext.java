@@ -21,9 +21,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.auth.ldap.nativeimpl.InitLDAPConnectionContext;
 import org.ballerinalang.auth.ldap.util.LDAPUtils;
-import org.ballerinalang.auth.ldap.util.Secret;
 
 import java.util.Hashtable;
+import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -38,17 +38,11 @@ public class LDAPConnectionContext {
     private static final Log LOG = LogFactory.getLog(InitLDAPConnectionContext.class);
     private Hashtable environment;
 
-    public LDAPConnectionContext(CommonLDAPConfiguration ldapConfiguration) throws UserStoreException {
+    public LDAPConnectionContext(CommonLDAPConfiguration ldapConfiguration) {
 
         String connectionURL = ldapConfiguration.getConnectionURL();
-
         String connectionName = ldapConfiguration.getConnectionName();
         String connectionPassword = ldapConfiguration.getConnectionPassword();
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Connection Name :: " + connectionName + ", Connection URL :: " + connectionURL);
-        }
-
         environment = new Hashtable();
 
         environment.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -67,10 +61,14 @@ public class LDAPConnectionContext {
         }
 
         // Enable connection pooling if property is set in user-mgt.xml
-        boolean isLDAPConnectionPoolingEnabled =
-                ldapConfiguration.isConnectionPoolingEnabled();
+        boolean isLDAPConnectionPoolingEnabled = ldapConfiguration.isConnectionPoolingEnabled();
 
         environment.put("com.sun.jndi.ldap.connect.pool", isLDAPConnectionPoolingEnabled ? "true" : "false");
+
+        if (LDAPUtils.isLdapsUrl(connectionURL)) {
+            environment.put(Context.SECURITY_PROTOCOL, "ssl");
+            environment.put("java.naming.ldap.factory.socket", LDAPSSLSocketFactory.class.getName());
+        }
 
         // Set connect timeout if provided in configuration. Otherwise set default value
         String connectTimeout = String.valueOf(ldapConfiguration.getLdapConnectionTimeout());
@@ -101,28 +99,17 @@ public class LDAPConnectionContext {
      * @param userDN   user DN
      * @param password user password
      * @return returns the LdapContext instance if credentials are valid
-     * @throws UserStoreException if there is any exception occurs, while obtaining the secret
      * @throws NamingException    in case of an exception, when obtaining the LDAP context
      */
-    public LdapContext getContextWithCredentials(String userDN, Object password)
-            throws UserStoreException, NamingException {
-        Secret credentialObj = null;
-        try {
-            credentialObj = Secret.getSecret(password);
-            // Create a temp env for this particular authentication session by copying the original env
-            Hashtable<String, Object> tempEnv = new Hashtable<>();
-            tempEnv.putAll(environment);
-            // Replace connection name and password with the passed credentials to this method
-            tempEnv.put(javax.naming.Context.SECURITY_PRINCIPAL, userDN);
-            tempEnv.put(javax.naming.Context.SECURITY_CREDENTIALS, credentialObj.getBytes());
-            return getContextForEnvironmentVariables(tempEnv);
-        } catch (UserStoreException e) {
-            throw new UserStoreException("Unsupported credential type", e);
-        } finally {
-            if (credentialObj != null) {
-                credentialObj.clear();
-            }
-        }
+    public LdapContext getContextWithCredentials(String userDN, byte[] password)
+            throws NamingException {
+        // Create a temp env for this particular authentication session by copying the original env
+        Hashtable<String, Object> tempEnv = new Hashtable<>();
+        tempEnv.putAll(environment);
+        // Replace connection name and password with the passed credentials to this method
+        tempEnv.put(javax.naming.Context.SECURITY_PRINCIPAL, userDN);
+        tempEnv.put(javax.naming.Context.SECURITY_CREDENTIALS, password);
+        return getContextForEnvironmentVariables(tempEnv);
     }
 
     private LdapContext getContextForEnvironmentVariables(Hashtable<?, ?> environment) throws NamingException {

@@ -40,7 +40,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -53,7 +52,7 @@ import javax.naming.ldap.Rdn;
 /**
  * Provides the scopes of a given user.
  *
- * @since 0.982.0
+ * @since 0.983.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "auth",
@@ -66,6 +65,7 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
     private static final Log LOG = LogFactory.getLog(GetLDAPScopesOfUser.class);
     private LDAPConnectionContext connectionSource;
     private CommonLDAPConfiguration ldapConfiguration;
+    private DirContext ldapConnectionContext;
 
     @Override
     public void execute(Context context) {
@@ -73,26 +73,26 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
         try {
             BMap<String, BValue> authStore = ((BMap<String, BValue>) context.getRefArgument(0));
             connectionSource = (LDAPConnectionContext) authStore.getNativeData(LDAPConstants.LDAP_CONNECTION_SOURCE);
+            ldapConnectionContext = (DirContext) authStore.getNativeData(LDAPConstants.LDAP_CONNECTION_CONTEXT);
             ldapConfiguration = (CommonLDAPConfiguration) authStore.getNativeData(LDAPConstants.LDAP_CONFIGURATION);
-
             String userName = context.getStringArgument(0);
-            String[] externalRoles = doGetGroupsListOfUser(userName, "*", ldapConfiguration);
+            String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration);
             context.setReturnValues(new BStringArray(externalRoles));
-        } catch (UserStoreException e) {
+        } catch (UserStoreException | NamingException e) {
             context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+            context.setReturnValues(new BStringArray());
         }
-
     }
 
-    private String[] doGetGroupsListOfUser(String userName, String filter,
-                                           CommonLDAPConfiguration ldapAuthConfig) throws UserStoreException {
+    private String[] doGetGroupsListOfUser(String userName, CommonLDAPConfiguration ldapAuthConfig)
+            throws UserStoreException, NamingException {
         // Get the effective search base
         String searchBase = ldapAuthConfig.getGroupSearchBase();
         return getLDAPGroupsListOfUser(userName, searchBase, ldapAuthConfig);
     }
 
-    private String[] getLDAPGroupsListOfUser(String userName, String searchBase,
-                                             CommonLDAPConfiguration ldapAuthConfig) throws UserStoreException {
+    private String[] getLDAPGroupsListOfUser(String userName, String searchBase, CommonLDAPConfiguration ldapAuthConfig)
+            throws UserStoreException, NamingException {
         if (userName == null) {
             throw new BallerinaException("userName value is null.");
         }
@@ -111,18 +111,13 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
 
         String membershipValue;
         if (nameInSpace != null) {
-            try {
-                LdapName ldn = new LdapName(nameInSpace);
-                if (LDAPConstants.MEMBER_UID.equals(ldapAuthConfig.getMembershipAttribute())) {
-                    // membership value of posixGroup is not DN of the user
-                    List rdns = ldn.getRdns();
-                    membershipValue = ((Rdn) rdns.get(rdns.size() - 1)).getValue().toString();
-                } else {
-                    membershipValue = escapeLdapNameForFilter(ldn);
-                }
-            } catch (InvalidNameException e) {
-                LOG.error("Error while creating LDAP name from: " + nameInSpace);
-                throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
+            LdapName ldn = new LdapName(nameInSpace);
+            if (LDAPConstants.MEMBER_UID.equals(ldapAuthConfig.getMembershipAttribute())) {
+                // membership value of posixGroup is not DN of the user
+                List rdns = ldn.getRdns();
+                membershipValue = ((Rdn) rdns.get(rdns.size() - 1)).getValue().toString();
+            } else {
+                membershipValue = escapeLdapNameForFilter(ldn);
             }
         } else {
             return new String[0];
@@ -148,10 +143,9 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
     }
 
     private List<String> getListOfNames(String searchBases, String searchFilter, SearchControls searchCtls,
-                                        String property, boolean appendDn) throws UserStoreException {
+                                        String property, boolean appendDn) throws NamingException {
 
         List<String> names = new ArrayList<String>();
-        DirContext dirContext = null;
         NamingEnumeration<SearchResult> answer = null;
 
         if (LOG.isDebugEnabled()) {
@@ -160,33 +154,26 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
         }
 
         try {
-            dirContext = connectionSource.getContext();
             // handle multiple search bases
             String[] searchBaseArray = searchBases.split("#");
             for (String searchBase : searchBaseArray) {
-                try {
-                    answer = dirContext.search(LDAPUtils.escapeDNForSearch(searchBase), searchFilter, searchCtls);
-                    while (answer.hasMoreElements()) {
-                        SearchResult searchResult = answer.next();
-                        if (searchResult.getAttributes() == null) {
-                            continue;
-                        }
-                        Attribute attr = searchResult.getAttributes().get(property);
-                        if (attr == null) {
-                            continue;
-                        }
-                        for (Enumeration vals = attr.getAll(); vals.hasMoreElements(); ) {
-                            String name = (String) vals.nextElement();
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Found user: " + name);
-                            }
-                            names.add(name);
-                        }
+                answer = ldapConnectionContext.search(LDAPUtils.escapeDNForSearch(searchBase),
+                        searchFilter, searchCtls);
+                while (answer.hasMoreElements()) {
+                    SearchResult searchResult = answer.next();
+                    if (searchResult.getAttributes() == null) {
+                        continue;
                     }
-                } catch (NamingException e) {
-                    // ignore
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(e);
+                    Attribute attr = searchResult.getAttributes().get(property);
+                    if (attr == null) {
+                        continue;
+                    }
+                    for (Enumeration vals = attr.getAll(); vals.hasMoreElements(); ) {
+                        String name = (String) vals.nextElement();
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Found user: " + name);
+                        }
+                        names.add(name);
                     }
                 }
 
@@ -198,7 +185,6 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
             }
         } finally {
             LDAPUtils.closeNamingEnumeration(answer);
-            LDAPUtils.closeContext(dirContext);
         }
         return names;
     }
@@ -211,8 +197,8 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
      * @throws UserStoreException if there is any exception occurs during the process
      */
     private String getNameInSpaceForUserName(String userName, CommonLDAPConfiguration ldapConfiguration)
-            throws UserStoreException {
-        return LDAPUtils.getNameInSpaceForUsernameFromLDAP(userName, ldapConfiguration, this.connectionSource);
+            throws UserStoreException, NamingException {
+        return LDAPUtils.getNameInSpaceForUsernameFromLDAP(userName, ldapConfiguration, this.ldapConnectionContext);
     }
 
     /**

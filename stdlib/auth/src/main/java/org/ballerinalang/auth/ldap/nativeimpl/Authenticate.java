@@ -24,7 +24,6 @@ import org.ballerinalang.auth.ldap.LDAPConnectionContext;
 import org.ballerinalang.auth.ldap.LDAPConstants;
 import org.ballerinalang.auth.ldap.UserStoreException;
 import org.ballerinalang.auth.ldap.util.LDAPUtils;
-import org.ballerinalang.auth.ldap.util.Secret;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -36,14 +35,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import javax.naming.AuthenticationException;
+import java.nio.charset.Charset;
 import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 
 /**
  * Ballerina function to authenticate users with LDAP user store.
  *
- * @since 0.982.0
+ * @since 0.983.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "auth",
@@ -58,85 +58,67 @@ public class Authenticate extends BlockingNativeCallableUnit {
     private static final Log LOG = LogFactory.getLog(Authenticate.class);
     private LDAPConnectionContext connectionSource;
     private CommonLDAPConfiguration ldapConfiguration;
+    private DirContext ldapConnectionContext;
 
     @Override
     public void execute(Context context) {
-
         BMap<String, BValue> authStore = ((BMap<String, BValue>) context.getRefArgument(0));
+        String userName = context.getStringArgument(0);
+        byte[] credential = context.getStringArgument(1).getBytes(Charset.forName("UTF-8"));
         connectionSource = (LDAPConnectionContext) authStore.getNativeData(LDAPConstants.LDAP_CONNECTION_SOURCE);
+        ldapConnectionContext = (DirContext) authStore.getNativeData(LDAPConstants.LDAP_CONNECTION_CONTEXT);
         ldapConfiguration = (CommonLDAPConfiguration) authStore.getNativeData(LDAPConstants.LDAP_CONFIGURATION);
 
-        String userName = context.getStringArgument(0);
-        String credential = context.getStringArgument(1);
-
-        if (userName == null || credential == null) {
+        if (LDAPUtils.isNullOrEmptyAfterTrim(userName)) {
             context.setReturnValues(new BBoolean(false));
-            throw new BallerinaException("username or credential value is null.");
+            throw new BallerinaException("username or credential value is empty or null.");
         }
 
-        userName = userName.trim();
-        Secret credentialObj = null;
-
         try {
-            credentialObj = Secret.getSecret(credential);
-            if (userName.isEmpty() || credentialObj.isEmpty()) {
-                throw new BallerinaException("username or credential value is empty.");
-            }
-
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Authenticating user " + userName);
             }
-            boolean bValue = false;
-            String name = null;
-
-            name = LDAPUtils.getNameInSpaceForUsernameFromLDAP(userName, ldapConfiguration, this.connectionSource);
+            String name = LDAPUtils.getNameInSpaceForUsernameFromLDAP(userName.trim(), ldapConfiguration, this
+                    .ldapConnectionContext);
             if (name != null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Authenticating with " + name);
                 }
-                bValue = this.bindAsUser(userName, name, credentialObj);
+                boolean bValue = this.bindAsUser(name, credential);
+                context.setReturnValues(new BBoolean(bValue));
+            } else {
+                context.setReturnValues(new BBoolean(false));
             }
-            context.setReturnValues(new BBoolean(bValue));
         } catch (NamingException e) {
             String errorMessage = "Cannot bind user : " + userName;
             if (LOG.isDebugEnabled()) {
                 LOG.debug(errorMessage, e);
             }
             // TODO: Return errors when auth framework support returning errors.
-            throw new BallerinaException(errorMessage, e);
+            context.setReturnValues(new BBoolean(false));
         } catch (UserStoreException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(e.getMessage(), e);
             }
-            throw new BallerinaException(e.getMessage(), e);
-        } finally {
-            if (credentialObj != null) {
-                credentialObj.clear();
-            }
+            context.setReturnValues(new BBoolean(false));
         }
     }
 
-    private boolean bindAsUser(String userName, String dn, Object credentials)
+    private boolean bindAsUser(String dn, byte[] credentials)
             throws NamingException, UserStoreException {
 
-        boolean isAuthed = false;
-        boolean debug = LOG.isDebugEnabled();
+        boolean isAuthenticated;
         LdapContext cxt = null;
         try {
             cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
-            isAuthed = true;
-        } catch (AuthenticationException e) {
-            if (debug) {
-                LOG.debug("Authentication failed " + e);
-                LOG.debug("Clearing cache for DN: " + dn);
-            }
+            isAuthenticated = true;
         } finally {
             LDAPUtils.closeContext(cxt);
         }
 
-        if (debug) {
-            LOG.debug("User: " + dn + " is authnticated: " + isAuthed);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("User: " + dn + " is authnticated: " + isAuthenticated);
         }
-        return isAuthed;
+        return isAuthenticated;
     }
 }

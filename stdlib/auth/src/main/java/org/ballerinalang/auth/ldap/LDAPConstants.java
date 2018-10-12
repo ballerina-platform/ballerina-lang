@@ -52,5 +52,18 @@ public class LDAPConstants {
     public static final String USER_ROLE_CACHE_ENABLE = "userRolesCacheEnabled";
     public static final String LDAP_CONFIGURATION = "ldapConfiguration";
     public static final String LDAP_CONNECTION_SOURCE = "connectionSource";
+    public static final String LDAP_CONNECTION_CONTEXT = "connectionContext";
     public static final String LDAP_AUTH_PROVIDER_CONFIG = "ldapAuthProviderConfig";
+    public static final String SECURE_AUTH_STORE_CONFIG = "secureClientSocket";
+
+    public static final String AUTH_STORE_CONFIG_TRUST_STORE = "trustStore";
+    public static final String FILE_PATH = "path";
+    public static final String PASSWORD = "password";
+    public static final String AUTH_STORE_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
+    public static final String TLS = "TLS";
+    public static final String PKCS_STORE_TYPE = "PKCS12";
+    public static final String LDAP_TRUST_STORE_FILE_PATH = "ballerina.ldap.trustStoreFilePath";
+    public static final String LDAP_TRUST_STORE_PASSWORD = "ballerina.ldap.trustStorePassword";
+    public static final String LDAP_TRUST_STORE_TRUST_CERTIFICATES = "ballerina.ldap.trustedCertFile";
+
 }
