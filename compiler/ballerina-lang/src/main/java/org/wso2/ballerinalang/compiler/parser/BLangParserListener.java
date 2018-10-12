@@ -397,8 +397,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-        this.pkgBuilder.startVarList();
+        if (ctx.arrowParam() != null) {
+            this.pkgBuilder.startVarList();
+        }
     }
 
     @Override

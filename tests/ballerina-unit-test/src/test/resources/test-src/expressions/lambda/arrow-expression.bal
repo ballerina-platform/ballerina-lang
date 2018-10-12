@@ -175,3 +175,15 @@ function testArrowExprInObject() returns int {
     Bar f = new;
     return f.lambda(6);
 }
+
+string logString = "Global Text";
+
+function testArrowExprWithNoArguments() returns string {
+    function () returns string lambda = () => "Some Text " + logString;
+    return lambda();
+}
+
+function testArrowExprWithNoArgumentsAndStrTemplate() returns string {
+    function () returns string lambda = () => string`Some Text {{logString}}`;
+    return lambda();
+}
