@@ -24,3 +24,5 @@ public EventType CURRENT = "CURRENT";
 public EventType TIMER = "TIMER";
 public string DELIMITER = ".";
 public string DELIMITER_REGEX = "\\.";
+public string ASCENDING = "ascending";
+public string DESCENDING = "descending";

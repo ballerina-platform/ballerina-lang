@@ -1305,20 +1305,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (variableReferenceNode != null) {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
-        if (!isSiddhiRuntimeEnabled && (isGroupByAvailable || isWindowAvailable)) {
-            for (BLangExpression arg : invocationExpr.argExprs) {
-                typeChecker.checkExpr(arg, env);
-                switch (arg.getKind()) {
-                    case NAMED_ARGS_EXPR:
-                        invocationExpr.namedArgs.add(arg);
-                        break;
-                    case REST_ARGS_EXPR:
-                        invocationExpr.restArgs.add(arg);
-                        break;
-                    default:
-                        invocationExpr.requiredArgs.add(arg);
-                        break;
+        if (!isSiddhiRuntimeEnabled) {
+            if ((isGroupByAvailable || isWindowAvailable)) {
+                for (BLangExpression arg : invocationExpr.argExprs) {
+                    typeChecker.checkExpr(arg, env);
+                    switch (arg.getKind()) {
+                        case NAMED_ARGS_EXPR:
+                            invocationExpr.namedArgs.add(arg);
+                            break;
+                        case REST_ARGS_EXPR:
+                            invocationExpr.restArgs.add(arg);
+                            break;
+                        default:
+                            invocationExpr.requiredArgs.add(arg);
+                            break;
+                    }
                 }
+            } else {
+                typeChecker.checkExpr(invocationExpr, env);
             }
         }
     }

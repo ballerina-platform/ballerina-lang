@@ -15,23 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.index.dto;
+package org.ballerinalang.langserver.index;
 
 /**
- * Enum for ObjectType.
+ * Exception representing error occurred while processing operation on the LS Index.
+ * 
+ * @since 0.983.0
  */
-public enum ObjectType {
-    ENDPOINT(1),
-    ACTION_HOLDER(2),
-    OBJECT(3);
+public class LSIndexException extends Exception {
 
-    private int type;
-
-    ObjectType(int type) {
-        this.type = type;
+    public LSIndexException(String message) {
+        super(message);
     }
 
-    public int getValue() {
-        return this.type;
+    public LSIndexException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public LSIndexException(Throwable cause) {
+        super(cause);
+    }
+
+    public LSIndexException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

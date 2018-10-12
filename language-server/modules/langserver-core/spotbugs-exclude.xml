@@ -29,6 +29,12 @@
         </OR>
     </Match>
     <Match>
+        <Package name="org.ballerinalang.langserver.index.dao"/>
+        <OR>
+            <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+        </OR>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.LSContextManager" />
         <OR>
             <Bug pattern="NP_NULL_PARAM_DEREF" />
