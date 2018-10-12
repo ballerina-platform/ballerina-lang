@@ -53,7 +53,7 @@ public class TopLevelResolver extends AbstractItemResolver {
         if (this.isAnnotationStart(ctx)) {
             completionItems.addAll(CompletionItemResolver
                     .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
-        } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.PUBLIC_KEYWORD)) {
+        } else if (poppedTokens.size() >= 1 && isAccessModifierToken(poppedTokens.get(0))) {
             completionItems.addAll(addTopLevelItems(ctx));
             completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (itemResolver == null
@@ -108,6 +108,10 @@ public class TopLevelResolver extends AbstractItemResolver {
                 ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
         completionItems.add(getStaticItem(ItemResolverConstants.TYPE_TYPE, Snippet.KW_TYPE,
                 ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
+        completionItems.add(getStaticItem(ItemResolverConstants.CONST_KEYWORD, Snippet.KW_CONST,
+                ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
+        completionItems.add(getStaticItem(ItemResolverConstants.FINAL_KEYWORD, Snippet.KW_FINAL,
+                ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
         completionItems.add(getStaticItem(ItemResolverConstants.PUBLIC_KEYWORD, Snippet.KW_PUBLIC,
                 ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
 
@@ -128,5 +132,11 @@ public class TopLevelResolver extends AbstractItemResolver {
         }
 
         return completionItems;
+    }
+    
+    private boolean isAccessModifierToken(String token) {
+        return token.equals(ItemResolverConstants.PUBLIC_KEYWORD)
+                || token.equals(ItemResolverConstants.CONST_KEYWORD)
+                || token.equals(ItemResolverConstants.FINAL_KEYWORD);
     }
 }
