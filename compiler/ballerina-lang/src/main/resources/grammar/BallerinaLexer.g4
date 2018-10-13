@@ -119,6 +119,8 @@ TRY         : 'try' ;
 CATCH       : 'catch' ;
 FINALLY     : 'finally' ;
 THROW       : 'throw' ;
+PANIC       : 'panic' ;
+TRAP        : 'trap' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;

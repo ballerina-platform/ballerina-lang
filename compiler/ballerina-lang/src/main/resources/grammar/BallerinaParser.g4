@@ -292,6 +292,7 @@ statement
     |   forkJoinStatement
     |   tryCatchStatement
     |   throwStatement
+    |   panicStatement
     |   returnStatement
     |   workerInteractionStatement
     |   expressionStmt
@@ -473,25 +474,34 @@ timeoutClause
     :   TIMEOUT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS  LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// Depricated since 0.983.0, use trap expressoin. TODO : Remove this.
 tryCatchStatement
     :   TRY LEFT_BRACE statement* RIGHT_BRACE catchClauses
     ;
 
+// TODO : Remove this.
 catchClauses
     :   catchClause+ finallyClause?
     |   finallyClause
     ;
 
+// TODO : Remove this.
 catchClause
     :   CATCH LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// TODO : Remove this.
 finallyClause
     :   FINALLY LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// Depricated since 0.983.0, use panic instead. TODO : Remove this.
 throwStatement
     :   THROW expression SEMICOLON
+    ;
+
+panicStatement
+    :   PANIC expression SEMICOLON
     ;
 
 returnStatement
@@ -647,6 +657,7 @@ expression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
+    |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeName                                                            # typeAccessExpression
@@ -659,6 +670,10 @@ typeInitExpr
 
 errorConstructorExpr
     :   TYPE_ERROR LEFT_PARENTHESIS expression (COMMA expression)? RIGHT_PARENTHESIS
+    ;
+
+trapExpr
+    :   TRAP expression
     ;
 
 awaitExpression

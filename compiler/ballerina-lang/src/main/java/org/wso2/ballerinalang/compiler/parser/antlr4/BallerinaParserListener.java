@@ -1088,6 +1088,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitThrowStatement(BallerinaParser.ThrowStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#panicStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPanicStatement(BallerinaParser.PanicStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#panicStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPanicStatement(BallerinaParser.PanicStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#returnStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -1624,6 +1634,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code trapExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterTrapExpression(BallerinaParser.TrapExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code trapExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code tableLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1835,6 +1857,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#trapExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterTrapExpr(BallerinaParser.TrapExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#trapExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitTrapExpr(BallerinaParser.TrapExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code awaitExpr}
 	 * labeled alternative in {@link BallerinaParser#awaitExpression}.
