@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -131,7 +132,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final EndpointSPIAnalyzer endpointSPIAnalyzer;
     private final Types types;
     private List<BLangTypeDefinition> unresolvedTypes;
-    private List<BLangTypeDefinition> unresolvedMemberTypes;
+    private List<BLangTypeDefinition> typesWithUnresolvedMembers;
     private int typePrecedence;
 
     private SymbolEnv env;
@@ -196,7 +197,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type definitions.
         this.typePrecedence = 0;
-        defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
+        defineTypeNodes(pkgNode.typeDefinitions, new LinkedList<>(), pkgEnv);
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
@@ -325,12 +326,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
     }
 
-    private void defineTypeNodes(List<BLangTypeDefinition> typeDefs, SymbolEnv env) {
+    private void defineTypeNodes(List<BLangTypeDefinition> typeDefs,
+                                 List<BLangTypeDefinition> typesWithUnresolvedMembers, SymbolEnv env) {
         if (typeDefs.size() == 0) {
             // Some types might contain other types as values which has been defined later. In such cases, we need to
             // update the type properly. At this point, we have finished visiting all type definitions. So we iterate
             // through the list and generate types of members again.
-            for (BLangTypeDefinition typeDefinition : unresolvedMemberTypes) {
+            for (BLangTypeDefinition typeDefinition : typesWithUnresolvedMembers) {
                 BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
                 if (definedType.tsymbol.tag == SymTag.UNION_TYPE) {
                     BUnionType symbolType = (BUnionType) typeDefinition.symbol.type;
@@ -351,16 +353,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         this.unresolvedTypes = new ArrayList<>();
-        this.unresolvedMemberTypes = new ArrayList<>();
+        this.typesWithUnresolvedMembers = new ArrayList<>();
 
         for (BLangTypeDefinition typeDef : typeDefs) {
             defineNode(typeDef, env);
         }
+
+        typesWithUnresolvedMembers.addAll(this.typesWithUnresolvedMembers);
+        this.typesWithUnresolvedMembers.clear();
+
         if (typeDefs.size() <= unresolvedTypes.size()) {
             dlog.error(typeDefs.get(0).pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, unresolvedTypes);
             return;
         }
-        defineTypeNodes(unresolvedTypes, env);
+        defineTypeNodes(unresolvedTypes, typesWithUnresolvedMembers, env);
     }
 
     @Override
@@ -374,7 +380,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BUnionType unionType = (BUnionType) definedType;
             for (BType memberType : unionType.memberTypes) {
                 if (memberType == symTable.noType) {
-                    this.unresolvedMemberTypes.add(typeDefinition);
+                    this.typesWithUnresolvedMembers.add(typeDefinition);
                 }
             }
         }
