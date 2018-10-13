@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -229,8 +230,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+        // We need to visit constants first because otherwise the type will be not set for constants which has been
+        // defined without a type. Then if these are used to define a type, type will not be set for these types.
+        // Then we need to visit type definitions. Otherwise member types will not be set properly.
+        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream()
+                .filter(pkgLevelNode1 -> !(pkgLevelNode1.getKind() == NodeKind.FUNCTION &&
+                        ((BLangFunction) pkgLevelNode1).flagSet.contains(Flag.LAMBDA)))
+                .collect(Collectors.toList());
+
+        topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
+                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+
+        topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION)
+                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+
+        topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.TYPE_DEFINITION)
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         while (pkgNode.lambdaFunctions.peek() != null) {

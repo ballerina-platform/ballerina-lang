@@ -89,9 +89,16 @@ public class ConstantsTest {
     }
 
     @Test
-    public void testMixed() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMixed");
+    public void testMixedWithLiteral() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMixedWithLiteral");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+    }
+
+    @Test
+    public void testMixedWithObject() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMixedWithObject");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
 }

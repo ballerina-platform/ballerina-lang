@@ -22,11 +22,6 @@ function concatConstants() returns string {
 
 // -------------------------------------
 
-const GET = "GET";
-const POST = "POST";
-
-type HttpRequest "GET"|"POST";
-
 function typeTest() returns int {
     HttpRequest req = "POST";
     int value = validate(req);
@@ -42,12 +37,12 @@ function validate(HttpRequest req) returns int {
     return 0;
 }
 
+type HttpRequest "GET"|"POST";
+
+const GET = "GET";
+const POST = "POST";
+
 // -------------------------------------
-
-const A = "a";
-const B = "b";
-
-type AB A|B;
 
 function testConstantsWithoutTypes() returns int {
     AB b = B;
@@ -64,12 +59,12 @@ function validateAB(AB ab) returns int {
     return 0;
 }
 
+type AB A|B;
+
+const A = "a";
+const string B = "b";
+
 // -------------------------------------
-
-const string C = "c";
-const string D = "d";
-
-type CD C|D;
 
 function testConstantsWithTypes() returns int {
     CD c = C;
@@ -86,14 +81,14 @@ function validateCD(CD cd) returns int {
     return 0;
 }
 
+type CD C|D;
+
+const C = "c";
+const string D = "d";
+
 // -------------------------------------
 
-const E = "e";
-const string F = "f";
-
-type EFG E|F|"G";
-
-function testMixed() returns int {
+function testMixedWithLiteral() returns int {
     EFG g = "G";
     int value = validateEFG(g);
     return value;
@@ -109,3 +104,45 @@ function validateEFG(EFG efg) returns int {
     }
     return 0;
 }
+
+type EFG E|F|"G";
+
+const E = "e";
+const string F = "f";
+
+//// -------------------------------------
+
+function testMixedWithObject() returns int {
+
+    K k = new;
+
+    // Todo - add check for var assignment.
+    HIJ value1 = k.getHIJ(true);
+    HIJ value2 = k.getHIJ(false);
+
+    return 0;
+}
+
+type K object {
+
+    function getHIJ(boolean b) returns HIJ {
+        if (b) {
+            var h = new H("Ballerina");
+            return h;
+        }
+        return I;
+    }
+
+};
+
+type HIJ H|I|J;
+
+type H object {
+    string s;
+
+    public new(s) {}
+};
+
+const I = "i";
+
+const string J = "j";

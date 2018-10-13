@@ -277,10 +277,10 @@ public class Desugar extends BLangNodeVisitor {
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
 
-        pkgNode.constants.forEach(v -> {
-            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
+        pkgNode.constants.forEach(c -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(c);
             if (assignment.expr == null) {
-                assignment.expr = getInitExpr(v);
+                assignment.expr = getInitExpr(c);
             }
             if (assignment.expr != null) {
                 pkgNode.initFunction.body.stmts.add(assignment);
