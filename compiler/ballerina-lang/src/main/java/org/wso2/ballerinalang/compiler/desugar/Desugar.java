@@ -190,6 +190,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -1748,12 +1749,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO: Fix me.
-        result = errorConstructorExpr;
-        //        errorConstructorExpr.messageExpr = rewriteExpr(errorConstructorExpr.messageExpr);
-        //        errorConstructorExpr.detailsExpr = rewriteExprs(errorConstructorExpr.detailsExpr);
-        //        result = errorConstructorExpr;
+    public void visit(BLangErrorConstructorExpr errConstExpr) {
+        errConstExpr.messageExpr = rewriteExpr(errConstExpr.messageExpr);
+        errConstExpr.detailsExpr = rewriteExpr(Optional.ofNullable(errConstExpr.detailsExpr)
+                .orElseGet(() -> ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType)));
+        result = errConstExpr;
     }
 
     @Override

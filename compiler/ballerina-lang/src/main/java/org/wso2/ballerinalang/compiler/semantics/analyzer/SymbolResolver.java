@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -87,6 +89,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -685,8 +688,24 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorTypeNode) {
-        // TODO : Fix me.
-        resultType = symTable.errorType;
+        BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
+                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
+        BType detailType = Optional.ofNullable(errorTypeNode.detailType)
+                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.mapType);
+
+        if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+            resultType = symTable.errorType;
+            return;
+        }
+
+        // Define user define error type.
+        BErrorTypeSymbol errorTypeSymbol = Symbols
+                .createErrorSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID,
+                        null, env.scope.owner);
+        BErrorType errorType = new BErrorType(errorTypeSymbol, reasonType, detailType);
+        errorTypeSymbol.type = errorType;
+
+        resultType = errorType;
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {

@@ -22,9 +22,6 @@ import org.ballerinalang.model.tree.expressions.ErrorConstructorNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Implementation of @{@link ErrorConstructorNode}.
  *
@@ -33,7 +30,7 @@ import java.util.List;
 public class BLangErrorConstructorExpr extends BLangExpression implements ErrorConstructorNode {
 
     public BLangExpression messageExpr;
-    public List<BLangExpression> detailsExpr = new ArrayList<>();
+    public BLangExpression detailsExpr;
 
     @Override
     public ExpressionNode getReasonExpression() {
@@ -41,7 +38,7 @@ public class BLangErrorConstructorExpr extends BLangExpression implements ErrorC
     }
 
     @Override
-    public List<BLangExpression> getDetailsExpression() {
+    public BLangExpression getDetailsExpression() {
         return detailsExpr;
     }
 

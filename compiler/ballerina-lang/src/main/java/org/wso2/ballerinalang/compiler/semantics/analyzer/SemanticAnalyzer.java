@@ -907,7 +907,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCatch bLangCatch) {
         SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
         analyzeNode(bLangCatch.param, catchBlockEnv);
-        if (!this.types.checkStructEquivalency(bLangCatch.param.type, symTable.errorType)) {
+        if (bLangCatch.param.type.tag != TypeTags.ERROR) {
             dlog.error(bLangCatch.param.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType,
                     bLangCatch.param.type);
         }

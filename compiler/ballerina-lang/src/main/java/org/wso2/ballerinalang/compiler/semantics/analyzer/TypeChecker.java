@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -132,6 +133,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -1362,9 +1364,32 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO: Fix me.
-        resultType = symTable.errorType;
+        final boolean isExpectedErrorType = expType.tag == TypeTags.ERROR;
+        final BErrorType expectedResultType = isExpectedErrorType ? (BErrorType) expType : symTable.errorType;
+
+        // No matter what message expression has to be exist and it's type should be string type.
+        Optional.ofNullable(errorConstructorExpr.messageExpr).map(expr -> checkExpr(expr, env, symTable.stringType))
+                .orElseThrow(AssertionError::new);
+
+        Optional.ofNullable(errorConstructorExpr.detailsExpr).ifPresent(expr -> {
+            if (isExpectedErrorType) {
+                checkExpr(expr, env, expectedResultType.detailType);
+            }
+            // Give correct error message.
+            BType givenType = checkExpr(expr, env, symTable.noType);
+            if (givenType.tag != TypeTags.MAP && givenType.tag != TypeTags.RECORD) {
+                dlog.error(expr.pos, DiagnosticCode.REQUIRE_ERROR_MAPPING_VALUE);
+            }
+        });
+
+        if (!isExpectedErrorType) {
+            dlog.error(errorConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, expType);
+            resultType = symTable.semanticError;
+            return;
+        }
+        resultType = expType;
     }
+
     // Private methods
 
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {

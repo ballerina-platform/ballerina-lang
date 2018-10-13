@@ -907,7 +907,7 @@ public class BLangPackageBuilder {
         errorConstExpr.pos = pos;
         errorConstExpr.addWS(ws);
         if (detailsExprAvailable) {
-            errorConstExpr.detailsExpr.add((BLangExpression) exprNodeStack.pop());
+            errorConstExpr.detailsExpr = (BLangExpression) exprNodeStack.pop();
         }
         errorConstExpr.messageExpr = (BLangExpression) exprNodeStack.pop();
         this.addExpressionNode(errorConstExpr);

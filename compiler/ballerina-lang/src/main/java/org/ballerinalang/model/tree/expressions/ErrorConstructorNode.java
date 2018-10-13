@@ -35,9 +35,8 @@ public interface ErrorConstructorNode extends ExpressionNode {
 
     /**
      * Provides details expression as a list.
-     * (Avoid to null check)
      *
-     * @return empty list if details expression is null, else details expression as a list.
+     * @return details expression.
      */
-    List<? extends ExpressionNode> getDetailsExpression();
+    ExpressionNode getDetailsExpression();
 }

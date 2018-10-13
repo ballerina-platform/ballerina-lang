@@ -1170,10 +1170,6 @@ public class Types {
                 return false;
             }
             BErrorType source = (BErrorType) s;
-            if (source.tag == TypeTags.ERROR) {
-                // TODO : Fix me. temporary fix for migration.
-                return true;
-            }
             return isSameType(source.reasonType, t.reasonType) && isSameType(source.detailType, t.detailType);
         }
 
