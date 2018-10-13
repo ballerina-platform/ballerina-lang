@@ -1,5 +1,7 @@
 import ballerina/system;
 
+final var name = "Ballerina";
+
 final string envVar = system:getEnv("env_var");
 final string varFunc = dummyStringFunction();
 final string str = "ballerina is $$$";

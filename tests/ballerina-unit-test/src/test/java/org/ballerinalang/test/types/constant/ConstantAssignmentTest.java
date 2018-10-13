@@ -105,11 +105,13 @@ public class ConstantAssignmentTest {
 
     @Test
     public void testConstantAssignmentNegative() {
-        // Todo - Fix duplicate errors issue
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: expected 'int', found 'float'", 1, 16);
         BAssertUtil.validateError(negativeCompileResult, 1, "incompatible types: expected 'float', found 'string'", 3,
                 31);
-        BAssertUtil.validateError(negativeCompileResult, 2,
-                "incompatible types: expected 'int', found 'string'", 5, 27);
+        BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: expected 'int', found 'string'", 5,
+                27);
+        BAssertUtil.validateError(negativeCompileResult, 3, "cannot assign a value to final 'name'", 5,
+                27);
     }
 }
