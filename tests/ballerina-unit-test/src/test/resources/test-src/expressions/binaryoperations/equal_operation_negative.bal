@@ -43,3 +43,19 @@ function checkEqualityOfMapsOfDifferentConstraintTypes() returns boolean {
 
     return bool1 && bool2;
 }
+
+function checkEqualityOfRecordsOfDifferentTypes() returns boolean {
+    Employee e = { name: "Maryam" };
+    Person p = { name: "Maryam" };
+    return e == p;
+}
+
+type Employee record {
+    string name;
+    int id;
+};
+
+type Person record {
+    string name;
+    int id;
+};

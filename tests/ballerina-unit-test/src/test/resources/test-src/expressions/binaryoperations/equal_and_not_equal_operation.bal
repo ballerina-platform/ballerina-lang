@@ -14,6 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type OpenEmployee record {
+    string name;
+    int id;
+};
+
+type ClosedEmployee record {
+    string name;
+    int id;
+};
+
 function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {
     return (a == b) && !(a != b);
 }
@@ -60,6 +70,67 @@ function checkEqualityToNilPositive(any a) returns boolean {
 
 function checkEqualityToNilNegative(any a) returns boolean {
     return (a == ()) || !(a != ());
+}
+
+function checkOpenRecordEqualityPositive() returns boolean {
+    OpenEmployee e1 = { name: "Em", id: 4000 };
+    OpenEmployee e2 = { name: "Em", id: 4000 };
+
+    OpenEmployee e3 = { name: "Em" };
+    OpenEmployee e4 = { name: "Em" };
+
+    OpenEmployee e5 = { name: "Em", id: 4000, dept: "finance" };
+    OpenEmployee e6 = { name: "Em", id: 4000, dept: "finance" };
+
+    OpenEmployee e7 = {};
+    OpenEmployee e8 = {};
+
+    return (e1 == e2) && !(e1 != e2) && (e3 == e4) && !(e3 != e4) && (e5 == e6) && !(e5 != e6) &&
+        (e7 == e8) && !(e7 != e8);
+}
+
+function checkOpenRecordEqualityNegative() returns boolean {
+    OpenEmployee e1 = { name: "Em", id: 4000 };
+    OpenEmployee e2 = {};
+
+    OpenEmployee e3 = { name: "Em", id: 4000 };
+    OpenEmployee e4 = { name: "Em", area: 51 };
+
+    OpenEmployee e5 = { name: "Em", id: 4000 };
+    OpenEmployee e6 = { name: "Em", id: 4100 };
+
+    OpenEmployee e7 = { name: "Em", id: 4000, dept: "finance" };
+    OpenEmployee e8 = { name: "Em", id: 4000, dept: "hr" };
+
+    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || (e5 == e6) || !(e5 != e6) ||
+        (e7 == e8) || !(e7 != e8);
+}
+
+
+function checkClosedRecordEqualityPositive() returns boolean {
+    ClosedEmployee e1 = { name: "Em", id: 4000 };
+    ClosedEmployee e2 = { name: "Em", id: 4000 };
+
+    ClosedEmployee e3 = { name: "Em" };
+    ClosedEmployee e4 = { name: "Em" };
+
+    ClosedEmployee e5 = {};
+    ClosedEmployee e6 = {};
+
+    return (e1 == e2) && !(e1 != e2) && (e3 == e4) && !(e3 != e4) && (e5 == e6) && !(e5 != e6);
+}
+
+function checkClosedRecordEqualityNegative() returns boolean {
+    ClosedEmployee e1 = { name: "Em", id: 4000 };
+    ClosedEmployee e2 = {};
+
+    ClosedEmployee e3 = { name: "Em", id: 4000 };
+    ClosedEmployee e4 = { name: "Em" };
+
+    ClosedEmployee e5 = { name: "Em" };
+    ClosedEmployee e6 = { name: "Em", id: 4100 };
+
+    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || (e5 == e6) || !(e5 != e6);
 }
 
 function check1DArrayEqualityPositive(boolean[]|int[]|float[]|string[] a, boolean[]|int[]|float[]|string[] b)

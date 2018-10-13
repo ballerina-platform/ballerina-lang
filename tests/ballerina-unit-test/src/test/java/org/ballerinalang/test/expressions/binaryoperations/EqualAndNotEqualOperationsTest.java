@@ -157,12 +157,46 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test(description = "Test equals/unequals operation with nil and non-nil values", dataProvider = "nonNilBValues")
-    public void testStringEqualityNegative(BValue b) {
+    public void testEqualityToNilNegative(BValue b) {
         BValue[] returns = BRunUtil.invoke(result, "checkEqualityToNilNegative", new BValue[]{b});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected value to be identified as not equal to " +
                 "nil");
+    }
+
+    @Test(description = "Test equals/unequals operation with two equal open records")
+    public void testOpenRecordsEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkOpenRecordEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal open records")
+    public void testOpenRecordsEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkOpenRecordEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as not " +
+                "equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two equal closed records")
+    public void testClosedRecordsEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkClosedRecordEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected closed records to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal closed records")
+    public void testClosedRecordsEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkClosedRecordEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected closed records to be identified as " +
+                "not equal");
     }
 
     @Test(description = "Test equals/unequals operation with two equal arrays", dataProvider = "equalArrayValues")
@@ -410,12 +444,13 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equal expression with errors")
     public void testEqualStmtNegativeCase() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '==' not defined for 'int[2]' and 'int[1]'", 26, 21);
         validateError(resultNegative, 2, "operator '==' not defined for 'float[3]' and 'float[2]'", 30, 21);
         validateError(resultNegative, 3, "operator '==' not defined for 'map' and 'map<string>'", 38, 21);
         validateError(resultNegative, 4, "operator '==' not defined for 'map<int>' and 'map<float>'", 42, 21);
+        validateError(resultNegative, 5, "operator '==' not defined for 'Employee' and 'Person'", 50, 12);
     }
 
     @DataProvider(name = "equalIntValues")

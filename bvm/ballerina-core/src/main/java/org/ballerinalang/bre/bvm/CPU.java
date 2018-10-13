@@ -3842,6 +3842,7 @@ public class CPU {
                 return true;
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 return isEqual((BMap) lhsValue, (BMap) rhsValue);
         }
         return false;
@@ -3872,6 +3873,25 @@ public class CPU {
                 return false;
             }
         }
+        return true;
+    }
+
+    /**
+     * Check if two records are deeply equal.
+     *
+     * @param lhsStruct     The left hand side record value
+     * @param rhsStruct     The right hand side record value
+     * @param recordType    The record type
+     * @return True if equal, else false
+     */
+    private static boolean isEqual(BMap<String, BValue> lhsStruct, BMap<String, BValue> rhsStruct,
+                                   BStructureType recordType) {
+        for (BField field: recordType.getFields()) {
+            if (!isEqual(lhsStruct.get(field.fieldName), rhsStruct.get(field.fieldName))) {
+                return false;
+            }
+        }
+
         return true;
     }
 
