@@ -75,8 +75,10 @@ function foo() {
         from inputStream where inputStream.age > 25
         select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
         group by inputStream.name
-        => (TeacherOutput [] o) {
-            outputStream.publish(o);
+        => (TeacherOutput [] teachers) {
+            foreach t in teachers {
+                outputStream.publish(t);
+            }
         }
     }
 }

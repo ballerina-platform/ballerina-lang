@@ -45,9 +45,7 @@ service<http:Service> actionService bind { port: 9090 } {
         handleResponse(response);
 
         //Get a byte channel to a given file.
-        io:Mode permission = "r";
-        io:ByteChannel byteChannel = io:openFile("./files/logo.png",
-            permission);
+        io:ReadableByteChannel byteChannel = io:openReadableFile("./files/logo.png");
 
         //POST action with byte channel as payload. Xince the file path is static
         //`untaint` is used to denote that the byte channel is trusted .

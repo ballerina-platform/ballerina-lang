@@ -47,7 +47,8 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "readFloat32",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableDataChannel",
+                structPackage = "ballerina/io"),
         args = {@Argument(name = "len", type = TypeKind.STRING)},
         isPublic = true
 )
