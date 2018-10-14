@@ -279,12 +279,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.constants.forEach(c -> {
             BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(c);
-            if (assignment.expr == null) {
-                assignment.expr = getInitExpr(c);
-            }
-            if (assignment.expr != null) {
-                pkgNode.initFunction.body.stmts.add(assignment);
-            }
+            pkgNode.initFunction.body.stmts.add(assignment);
         });
 
         pkgNode.globalVars.forEach(v -> {
@@ -325,7 +320,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             if (typeDef.symbol.tag == SymTag.OBJECT) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                
+
                 objectTypeNode.functions.forEach(f -> {
                     if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
                         pkgNode.functions.add(f);

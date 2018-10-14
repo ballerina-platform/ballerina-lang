@@ -446,9 +446,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Set type for compiler time constants which were defined without types.
         if (varNode.symbol != null && (varNode.symbol.flags & Flags.CONST) == Flags.CONST &&
                 varNode.type == symTable.noType) {
-            BType rhsType = typeChecker.checkExpr(varNode.expr, this.env, expType);
-            varNode.symbol.type = rhsType;
-            varNode.type = rhsType;
+            if (varNode.typeNode == null) {
+                BType rhsType = typeChecker.checkExpr(varNode.expr, this.env, expType);
+                varNode.symbol.type = rhsType;
+                varNode.type = rhsType;
+            } else {
+                typeChecker.checkExpr(varNode.expr, this.env, expType);
+
+                BType type = symResolver.resolveTypeNode(varNode.typeNode, env);
+                varNode.symbol.type = type;
+                varNode.type = type;
+            }
             return;
         }
 

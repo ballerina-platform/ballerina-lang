@@ -110,7 +110,7 @@ type EFG E|F|"G";
 const E = "e";
 const string F = "f";
 
-//// -------------------------------------
+// -------------------------------------
 
 function testMixedWithObject() returns int {
 
@@ -146,7 +146,7 @@ const I = "i";
 
 const string J = "j";
 
-//// -------------------------------------
+// -------------------------------------
 
 function testMixedWithFinal() returns int {
     L l = 10;
@@ -158,3 +158,21 @@ type L M|N;
 final var M = "m";
 
 type N int;
+
+// -------------------------------------
+
+function checkTypeAsParam() returns int {
+    return checkValue(STRING);
+}
+
+function checkValue(ValueType vType) returns int {
+    if (vType == STRING) {
+        return 1;
+    }
+    return 2;
+}
+
+type ValueType "STRING"|"INT";
+
+const ValueType STRING = "STRING";
+const ValueType INT = "INT";
