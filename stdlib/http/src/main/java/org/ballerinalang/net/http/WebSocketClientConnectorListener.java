@@ -75,4 +75,8 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
         WebSocketDispatcher.dispatchIdleTimeout(connectionInfo);
     }
 
+    @Override
+    public void onClose(WebSocketConnection webSocketConnection) {
+        WebSocketUtil.setListenerOpenField(connectionInfo);
+    }
 }

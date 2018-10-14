@@ -56,11 +56,6 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>language-server-stdio-launcher</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-composer-web</artifactId>
             <classifier>ballerina-composer-library</classifier>
             <version>${project.version}</version>
@@ -168,7 +163,6 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.basedir}/server-build" includeemptydirs="true" />
                                 <delete dir="${project.basedir}/target" includeemptydirs="true" />
                             </target>
                         </configuration>
@@ -209,26 +203,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <id>copy-server</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>language-server-stdio-launcher</artifactId>
-                                    <version>${ballerina.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/server-build/</outputDirectory>
-                                    <destFileName>language-server-stdio-launcher.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>copy-distribution</id>
                         <phase>generate-resources</phase>

@@ -23,6 +23,11 @@ import org.wso2.transport.http.netty.contract.PortBindingEventListener;
 
 import java.io.PrintStream;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.HTTPS_ENDPOINT_STARTED;
+import static org.ballerinalang.net.grpc.GrpcConstants.HTTPS_ENDPOINT_STOPPED;
+import static org.ballerinalang.net.grpc.GrpcConstants.HTTP_ENDPOINT_STARTED;
+import static org.ballerinalang.net.grpc.GrpcConstants.HTTP_ENDPOINT_STOPPED;
+
 /**
  * Server Connector Port Binding Listener.
  *
@@ -35,17 +40,17 @@ public class ServerConnectorPortBindingListener implements PortBindingEventListe
 
     public void onOpen(String serverConnectorId, boolean isHttps) {
         if (isHttps) {
-            console.println("ballerina: started HTTPS/WSS endpoint " + serverConnectorId);
+            console.println(HTTPS_ENDPOINT_STARTED + serverConnectorId);
         } else {
-            console.println("ballerina: started HTTP/WS endpoint " + serverConnectorId);
+            console.println(HTTP_ENDPOINT_STARTED + serverConnectorId);
         }
     }
 
     public void onClose(String serverConnectorId, boolean isHttps) {
         if (isHttps) {
-            console.println("ballerina: stopped HTTPS/WSS endpoint " + serverConnectorId);
+            console.println(HTTPS_ENDPOINT_STOPPED + serverConnectorId);
         } else {
-            console.println("ballerina: stopped HTTP/WS endpoint " + serverConnectorId);
+            console.println(HTTP_ENDPOINT_STOPPED + serverConnectorId);
         }
     }
 

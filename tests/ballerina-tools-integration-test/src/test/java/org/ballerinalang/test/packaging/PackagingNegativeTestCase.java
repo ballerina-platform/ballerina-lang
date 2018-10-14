@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.packaging;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -330,6 +331,66 @@ public class PackagingNegativeTestCase extends BaseTest {
                           new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
+    @Test(description = "Test pushing a package with an invalid org-name")
+    public void testPushWithInvalidOrg() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithInvalidOrg");
+        initProject(projectPath);
+
+        // Remove org-name from manifest
+        Path manifestFilePath = projectPath.resolve("Ballerina.toml");
+        if (Files.exists(manifestFilePath)) {
+            String content = "[project]\n org-name = \"foo-bar\"\n version = \"0.0.2\"";
+            writeToFile(manifestFilePath, content);
+        }
+        String msg = "error: invalid organization name provided 'foo-bar'. Only lowercase alphanumerics and " +
+                "underscores are allowed in an organization name and the maximum length is 256 characters";
+
+        String[] clientArgs = {packageName};
+
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
+    }
+
+    @Test(description = "Test installing a package with an invalid org-name",
+            dependsOnMethods = "testPushWithInvalidOrg")
+    public void testInstallWithInvalidOrg() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithInvalidOrg");
+        String msg = "error: invalid organization name provided 'foo-bar'. Only lowercase alphanumerics and " +
+                "underscores are allowed in an organization name and the maximum length is 256 characters";
+
+        String[] clientArgs = {packageName};
+        balClient.runMain("install", clientArgs, envVariables, new String[0], new LogLeecher[]{new LogLeecher(msg)},
+                          projectPath.toString());
+    }
+
+    @Test(description = "Test pushing a package with an invalid package name")
+    public void testPushWithInvalidPkg() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithInvalidPkg");
+        initProject(projectPath);
+
+        // Rename package-name
+        Path invalidPkgPath = projectPath.resolve("hello-pkg");
+        Files.createDirectories(invalidPkgPath);
+        FileUtils.copyDirectory(projectPath.resolve(packageName).toFile(), invalidPkgPath.toFile());
+        String msg = "error: invalid package name provided 'hello-pkg'. Only alphanumerics, underscores and periods " +
+                "are allowed in a package name and the maximum length is 256 characters";
+
+        String[] clientArgs = {"hello-pkg"};
+        balClient.runMain("push", clientArgs, envVariables, new String[0], new LogLeecher[]{new LogLeecher(msg)},
+                          projectPath.toString());
+    }
+
+    @Test(description = "Test installing a package with an invalid package name",
+            dependsOnMethods = "testPushWithInvalidPkg")
+    public void testInstallWithInvalidPkg() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithInvalidPkg");
+        String msg = "error: invalid package name provided 'hello-pkg'. Only alphanumerics, underscores and periods " +
+                "are allowed in a package name and the maximum length is 256 characters";
+
+        String[] clientArgs = {"hello-pkg"};
+        balClient.runMain("install", clientArgs, envVariables, new String[0], new LogLeecher[]{new LogLeecher(msg)},
+                          projectPath.toString());
+    }
     /**
      * Init project used to test the scenario.
      *

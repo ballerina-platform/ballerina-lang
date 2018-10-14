@@ -35,7 +35,7 @@ public class WebSubBaseTest extends BaseTest {
 
     @BeforeGroups(value = "websub-test", alwaysRun = true)
     public void init() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{8080, 8081, 9191};
+        int[] requiredPorts = new int[]{8080, 9191, 8081};
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websub").getAbsolutePath();
         publisherServerInstance = new BServerInstance(balServer);
