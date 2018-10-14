@@ -382,6 +382,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
                 } else if (linkConstituents[1].contains("rel=\"self\"")) {
                     if (topic != "") {
                         websubError = {message:"Link Header contains > 1 self URLs"};
+                        return websubError;
                     } else {
                         topic = url;
                     }
