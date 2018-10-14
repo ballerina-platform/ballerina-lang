@@ -1540,6 +1540,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addThrowStmt(getCurrentPos(ctx), getWS(ctx));
     }
 
+    @Override
+    public void exitPanicStatement(BallerinaParser.PanicStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addPanicStmt(getCurrentPos(ctx), getWS(ctx));
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -3095,6 +3104,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createTrapExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

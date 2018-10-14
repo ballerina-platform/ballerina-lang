@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -897,11 +898,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {
-        analyzeStmt(tryCatchFinally.tryBody, env);
-        tryCatchFinally.catchBlocks.forEach(c -> analyzeNode(c, env));
-        if (tryCatchFinally.finallyBody != null) {
-            analyzeStmt(tryCatchFinally.finallyBody, env);
-        }
+        dlog.error(tryCatchFinally.pos, DiagnosticCode.TRY_STMT_NOT_SUPPORTED);
     }
 
     public void visit(BLangCatch bLangCatch) {
@@ -1139,10 +1136,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangThrow throwNode) {
-        this.typeChecker.checkExpr(throwNode.expr, env);
-        if (throwNode.expr.type.tag != TypeTags.ERROR) {
-            dlog.error(throwNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType,
-                    throwNode.expr.type);
+        dlog.error(throwNode.pos, DiagnosticCode.THROW_STMT_NOT_SUPPORTED);
+    }
+
+    @Override
+    public void visit(BLangPanic panicNode) {
+        this.typeChecker.checkExpr(panicNode.expr, env);
+        if (panicNode.expr.type.tag != TypeTags.ERROR) {
+            dlog.error(panicNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, panicNode.expr.type);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,15 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree.statements;
-
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+package org.ballerinalang.model.tree.expressions;
 
 /**
- * @since 0.94
- *
- * @deprecated since 0.983.0, use {@link PanicNode} instead.
+ * This represents the trap expression node.
+ * 
+ * @since 0.983.0
  */
-public interface ThrowNode extends StatementNode {
-    ExpressionNode getExpressions();
+public interface TrapExpressionNode extends ExpressionNode {
+
+    ExpressionNode getExpression();
+
 }

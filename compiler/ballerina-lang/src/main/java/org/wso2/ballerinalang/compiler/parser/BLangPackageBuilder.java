@@ -175,6 +175,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -909,7 +910,7 @@ public class BLangPackageBuilder {
         if (detailsExprAvailable) {
             errorConstExpr.detailsExpr = (BLangExpression) exprNodeStack.pop();
         }
-        errorConstExpr.messageExpr = (BLangExpression) exprNodeStack.pop();
+        errorConstExpr.reasonExpr = (BLangExpression) exprNodeStack.pop();
         this.addExpressionNode(errorConstExpr);
     }
 
@@ -973,6 +974,15 @@ public class BLangPackageBuilder {
         throwNode.addWS(ws);
         throwNode.expr = (BLangExpression) throwExpr;
         addStmtToCurrentBlock(throwNode);
+    }
+
+    void addPanicStmt(DiagnosticPos poc, Set<Whitespace> ws) {
+        ExpressionNode errorExpr = this.exprNodeStack.pop();
+        BLangPanic panicNode = (BLangPanic) TreeBuilder.createPackageNode();
+        panicNode.pos = poc;
+        panicNode.addWS(ws);
+        panicNode.expr = (BLangExpression) errorExpr;
+        addStmtToCurrentBlock(panicNode);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {
@@ -1278,6 +1288,14 @@ public class BLangPackageBuilder {
     }
 
     void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangAwaitExpr awaitExpr = TreeBuilder.createAwaitExpressionNode();
+        awaitExpr.pos = pos;
+        awaitExpr.addWS(ws);
+        awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(awaitExpr);
+    }
+
+    void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangAwaitExpr awaitExpr = TreeBuilder.createAwaitExpressionNode();
         awaitExpr.pos = pos;
         awaitExpr.addWS(ws);

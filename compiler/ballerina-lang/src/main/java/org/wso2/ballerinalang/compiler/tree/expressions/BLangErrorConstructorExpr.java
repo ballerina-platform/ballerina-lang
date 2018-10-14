@@ -29,12 +29,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangErrorConstructorExpr extends BLangExpression implements ErrorConstructorNode {
 
-    public BLangExpression messageExpr;
+    public BLangExpression reasonExpr;
     public BLangExpression detailsExpr;
 
     @Override
     public ExpressionNode getReasonExpression() {
-        return messageExpr;
+        return reasonExpr;
     }
 
     @Override

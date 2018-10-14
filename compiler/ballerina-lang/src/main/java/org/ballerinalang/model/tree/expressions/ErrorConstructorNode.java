@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
-import java.util.List;
-
 /**
  * Represents Error Constructor Node in Ballerina.
  *

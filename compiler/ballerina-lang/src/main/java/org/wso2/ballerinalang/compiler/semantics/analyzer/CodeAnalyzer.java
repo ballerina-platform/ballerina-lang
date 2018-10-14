@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -104,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -735,9 +737,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangThrow throwNode) {
-        this.checkStatementExecutionValidity(throwNode);
+        /* ignore */
+    }
+
+    public void visit(BLangPanic panicNode) {
+        this.checkStatementExecutionValidity(panicNode);
         this.statementReturns = true;
-        analyzeExpr(throwNode.expr);
+        analyzeExpr(panicNode.expr);
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -770,27 +776,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
-        this.checkStatementExecutionValidity(tryNode);
-        analyzeNode(tryNode.tryBody, env);
-        boolean tryCatchReturns = this.statementReturns;
-        this.resetStatementReturns();
-        List<BType> caughtTypes = new ArrayList<>();
-        for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
-            if (caughtTypes.contains(bLangCatch.getParameter().type)) {
-                dlog.error(bLangCatch.getParameter().pos, DiagnosticCode.DUPLICATED_ERROR_CATCH,
-                        bLangCatch.getParameter().type);
-            }
-            caughtTypes.add(bLangCatch.getParameter().type);
-            analyzeNode(bLangCatch.body, env);
-            tryCatchReturns = tryCatchReturns && this.statementReturns;
-            this.resetStatementReturns();
-        }
-        if (tryNode.finallyBody != null) {
-            analyzeNode(tryNode.finallyBody, env);
-            this.statementReturns = tryCatchReturns || this.statementReturns;
-        } else {
-            this.statementReturns = tryCatchReturns;
-        }
+        /* ignore */
     }
 
     public void visit(BLangCatch catchNode) {
@@ -932,6 +918,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAwaitExpr awaitExpr) {
         analyzeExpr(awaitExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        analyzeExpr(trapExpr.expr);
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
