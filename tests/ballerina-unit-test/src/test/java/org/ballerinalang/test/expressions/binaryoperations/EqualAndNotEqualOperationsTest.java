@@ -362,6 +362,22 @@ public class EqualAndNotEqualOperationsTest {
                            "Expected map values to be identified as not equal");
     }
 
+    @Test(description = "Test equals/unequals operation with two equal tuple values")
+    public void testTupleEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkTupleEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected tuple values to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal tuple values")
+    public void testTupleEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkTupleEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected tuple values to be identified as not equal");
+    }
 
     @Test(description = "Test equals/unequals operation with two equal json values", dataProvider = "equalJsonValues")
     public void testJsonEqualityPositive(BValue i, BValue j) {

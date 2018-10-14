@@ -381,6 +381,29 @@ function checkMapEqualityNegative() returns boolean {
     return m1 == m2 || !(m1 != m2) || m3 == m4 || !(m3 != m4);
 }
 
+function checkTupleEqualityPositive() returns boolean {
+    (string, int) t1 = ("", 0);
+    (string, int) t2 = ("", 0);
+
+    (string, int, OpenEmployee) t3 = ("hi", 0, { name: "Em" });
+    (string, int, OpenEmployee) t4 = ("hi", 0, { name: "Em" });
+
+    return t1 == t2 && !(t1 != t2) && t3 == t4 && !(t3 != t4);
+}
+
+function checkTupleEqualityNegative() returns boolean {
+    (boolean, int) t1 = (false, 0);
+    (boolean, int) t2 = (true, 0);
+
+    (float, int, float) t3 = (1.0, 0, 1.1);
+    (float, int, float) t4 = (1.1, 0, 1.0);
+
+    (string, ClosedEmployee) t5 = ("hi", { nickname: "EmZee" });
+    (string, ClosedEmployee) t6 = ("hi", { nickname: "Em" });
+
+    return t1 == t2 || !(t1 != t2) || t3 == t4 || !(t3 != t4) || t5 == t6 || !(t5 != t6);
+}
+
 function checkJsonEqualityPositive(json a, json b) returns boolean {
     return (a == b) && !(a != b);
 }
