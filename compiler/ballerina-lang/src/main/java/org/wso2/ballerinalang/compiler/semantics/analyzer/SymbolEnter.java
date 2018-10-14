@@ -354,6 +354,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     // Add the type to symbol type's member types.
                     symbolType.memberTypes.add(type);
                 }
+                typeDefinition.precedence = this.typePrecedence++;
             }
             return;
         }
