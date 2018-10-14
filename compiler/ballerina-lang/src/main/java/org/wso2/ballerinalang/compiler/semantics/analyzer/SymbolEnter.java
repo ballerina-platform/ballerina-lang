@@ -334,20 +334,25 @@ public class SymbolEnter extends BLangNodeVisitor {
             // through the list and generate types of members again.
             for (BLangTypeDefinition typeDefinition : typesWithUnresolvedMembers) {
                 BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
-                if (definedType.tsymbol.tag == SymTag.UNION_TYPE) {
-                    BUnionType symbolType = (BUnionType) typeDefinition.symbol.type;
-                    // Remove no type from the members.
-                    symbolType.memberTypes.remove(symTable.noType);
-                    // Get the member type nodes from the type node and iterate through them.
-                    List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
-                    for (BLangType memberTypeNode : memberTypeNodes) {
-                        // Resolve the type node.
-                        BType type = symResolver.resolveTypeNode(memberTypeNode, env);
-                        // Update the member type node's type.
-                        memberTypeNode.type = type;
-                        // Add the type to symbol type's member types.
-                        symbolType.memberTypes.add(type);
-                    }
+                if (definedType.tsymbol.tag != SymTag.UNION_TYPE) {
+                    continue;
+                }
+                BUnionType symbolType = (BUnionType) typeDefinition.symbol.type;
+                if (!symbolType.memberTypes.contains(symTable.noType)) {
+                    continue;
+                }
+                // Remove no type from the members.
+                symbolType.memberTypes.remove(symTable.noType);
+                // Get the member type nodes from the type node and iterate through them.
+                List<BLangType> memberTypeNodes =
+                        ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
+                for (BLangType memberTypeNode : memberTypeNodes) {
+                    // Resolve the type node.
+                    BType type = symResolver.resolveTypeNode(memberTypeNode, env);
+                    // Update the member type node's type.
+                    memberTypeNode.type = type;
+                    // Add the type to symbol type's member types.
+                    symbolType.memberTypes.add(type);
                 }
             }
             return;

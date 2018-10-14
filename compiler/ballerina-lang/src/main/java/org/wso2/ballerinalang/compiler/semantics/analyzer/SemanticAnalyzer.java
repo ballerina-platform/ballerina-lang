@@ -343,17 +343,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // type, this code segment will be executed. These member types' type is set to noType and this will be
             // updated to the proper type here.
             BUnionType symbolType = (BUnionType) typeDefinition.symbol.type;
-            // Remove no type from the members.
-            symbolType.memberTypes.remove(symTable.noType);
-            // Get the member type nodes from the type node and iterate through them.
-            List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
-            for (BLangType memberTypeNode : memberTypeNodes) {
-                // Resolve the type node.
-                BType type = symResolver.resolveTypeNode(memberTypeNode, env);
-                // Update the member type node's type.
-                memberTypeNode.type = type;
-                // Add the type to symbol type's member types.
-                symbolType.memberTypes.add(type);
+            if (symbolType.memberTypes.contains(symTable.noType)) {
+                // Remove no type from the members.
+                symbolType.memberTypes.remove(symTable.noType);
+                // Get the member type nodes from the type node and iterate through them.
+                List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
+                for (BLangType memberTypeNode : memberTypeNodes) {
+                    // Resolve the type node.
+                    BType type = symResolver.resolveTypeNode(memberTypeNode, env);
+                    // Update the member type node's type.
+                    memberTypeNode.type = type;
+                    // Add the type to symbol type's member types.
+                    symbolType.memberTypes.add(type);
+                }
             }
         }
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
