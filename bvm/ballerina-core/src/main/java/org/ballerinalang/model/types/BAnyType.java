@@ -46,11 +46,6 @@ public class BAnyType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_ANY);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.ANY_TAG;
     }

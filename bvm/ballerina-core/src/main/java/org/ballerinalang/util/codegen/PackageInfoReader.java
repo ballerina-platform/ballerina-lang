@@ -614,10 +614,8 @@ public class PackageInfoReader {
 
                 // Read action signature
                 int resSigCPIndex = dataInStream.readInt();
-                resourceInfo.setSignatureCPIndex(resSigCPIndex);
                 UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
                 String resSig = resSigUTF8Entry.getValue();
-                resourceInfo.setSignature(resSig);
                 setCallableUnitSignature(packageInfo, resourceInfo, resSig);
 
                 // Read parameter names

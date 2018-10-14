@@ -58,15 +58,6 @@ public class BTableType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        if (constraint == null) {
-            return new TypeSignature(TypeSignature.SIG_TABLE);
-        } else {
-            return new TypeSignature(TypeSignature.SIG_TABLE, constraint.getPackagePath(), constraint.getName());
-        }
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.TABLE_TAG;
     }

@@ -111,11 +111,6 @@ public class BArrayType extends BType implements BIndexedType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_ARRAY, elementType.getSig());
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.ARRAY_TAG;
     }
