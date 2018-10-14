@@ -105,13 +105,15 @@ public class ConstantAssignmentTest {
 
     @Test
     public void testConstantAssignmentNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 5);
         BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: expected 'int', found 'float'", 1, 16);
         BAssertUtil.validateError(negativeCompileResult, 1, "incompatible types: expected 'float', found 'string'", 3,
                 31);
         BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: expected 'int', found 'string'", 5,
                 27);
-        BAssertUtil.validateError(negativeCompileResult, 3, "cannot assign a value to final 'name'", 5,
-                27);
+        BAssertUtil.validateError(negativeCompileResult, 3, "cannot assign a value to final 'name'", 12,
+                5);
+        BAssertUtil.validateError(negativeCompileResult, 4, "cannot assign a value to final 'age'", 13,
+                5);
     }
 }

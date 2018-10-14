@@ -116,9 +116,8 @@ function testMixedWithObject() returns int {
 
     K k = new;
 
-    // Todo - add check for var assignment.
     HIJ value1 = k.getHIJ(true);
-    HIJ value2 = k.getHIJ(false);
+    var value2 = k.getHIJ(false);
 
     return 0;
 }
@@ -146,3 +145,16 @@ type H object {
 const I = "i";
 
 const string J = "j";
+
+//// -------------------------------------
+
+function testMixedWithFinal() returns int {
+    L l = 10;
+    return 0;
+}
+
+type L M|N;
+
+final var M = "m";
+
+type N int;

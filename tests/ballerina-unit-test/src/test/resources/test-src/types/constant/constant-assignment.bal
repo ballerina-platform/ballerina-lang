@@ -1,6 +1,15 @@
 import ballerina/system;
 
+type AB A|B;
+
+const A = "a";
+const string B = "b";
+
 final var name = "Ballerina";
+final var age = 10;
+final var val = A;
+
+final AB a = A;
 
 final string envVar = system:getEnv("env_var");
 final string varFunc = dummyStringFunction();

@@ -243,11 +243,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.VARIABLE)
+                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+
+        topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION)
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE)
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.TYPE_DEFINITION)
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
@@ -439,7 +444,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariable varNode) {
         // Set type for compiler time constants which were defined without types.
-        if (((Flags.asMask(varNode.flagSet) & Flags.CONST) == Flags.CONST) && (varNode.type == symTable.noType)) {
+        if (varNode.symbol != null && (varNode.symbol.flags & Flags.CONST) == Flags.CONST &&
+                varNode.type == symTable.noType) {
+            BType rhsType = typeChecker.checkExpr(varNode.expr, this.env, expType);
+            varNode.symbol.type = rhsType;
+            varNode.type = rhsType;
+            return;
+        }
+
+        if (varNode.symbol != null && (varNode.symbol.flags & Flags.FINAL) == Flags.FINAL &&
+                varNode.type == symTable.noType) {
             BType rhsType = typeChecker.checkExpr(varNode.expr, this.env, expType);
             varNode.symbol.type = rhsType;
             varNode.type = rhsType;
