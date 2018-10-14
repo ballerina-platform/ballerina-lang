@@ -34,6 +34,7 @@ public class ItemResolverConstants {
     public static final String RETRY = "retry";
     public static final String TRY = "try";
     public static final String WHILE = "while";
+    public static final String ERROR = "error   Error Declaration";
     public static final String LOCK = "lock";
     public static final String BIND = "bind";
     public static final String ENDPOINT = "endpoint";

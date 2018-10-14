@@ -444,6 +444,16 @@ public class SnippetGenerator {
 
         return new SnippetBlock(snippet);
     }
+
+    /**
+     * Get Error Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getErrorDefinitionSnippet() {
+        String snippet = "error ${1:name} = { description: \"${2}\" };";
+        return new SnippetBlock(snippet);
+    }
     
     // Iterable Operations Snippets
 

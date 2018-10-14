@@ -66,6 +66,13 @@ public class StatementContextResolver extends AbstractItemResolver {
             varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             completionItems.add(varKeyword);
 
+            // Add the error snippet
+            CompletionItem error = new CompletionItem();
+            Snippet.DEF_ERROR.getBlock().populateCompletionItem(error, supportSnippet);
+            error.setLabel(ItemResolverConstants.ERROR);
+            error.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+            completionItems.add(error);
+
             // Add the statement templates
             itemList = SymbolFilters.get(StatementTemplateFilter.class).filterItems(context);
             // Statement Template filter always populates the left of Either

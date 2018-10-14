@@ -110,7 +110,8 @@ public class TopLevelResolver extends AbstractItemResolver {
                 ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
         completionItems.add(getStaticItem(ItemResolverConstants.PUBLIC_KEYWORD, Snippet.KW_PUBLIC,
                 ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
-
+        completionItems.add(getStaticItem(ItemResolverConstants.ERROR, Snippet.DEF_ERROR,
+                                          ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
         return completionItems;
     }
 

@@ -51,7 +51,9 @@ public enum Snippet {
     DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
 
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
-    
+
+    DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),
+
 
     // Expressions Snippets
     EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),

@@ -81,6 +81,13 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             varKeyword.setLabel(ItemResolverConstants.VAR_KEYWORD);
             varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             completionItems.add(varKeyword);
+
+            // Add the error snippet
+            CompletionItem error = new CompletionItem();
+            Snippet.DEF_ERROR.getBlock().populateCompletionItem(error, isSnippet);
+            error.setLabel(ItemResolverConstants.ERROR);
+            error.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+            completionItems.add(error);
         }
         
         completionItems.addAll(this.getCompletionsFromEither(itemList));
