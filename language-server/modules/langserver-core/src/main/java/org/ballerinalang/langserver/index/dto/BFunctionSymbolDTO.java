@@ -20,31 +20,34 @@ package org.ballerinalang.langserver.index.dto;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
- * DTO for RecordTypeSymbol.
+ * DTO for BInvokableSymbol.
  * 
  * @since 0.983.0
  */
-public final class BRecordTypeSymbolDTO {
-    
+public final class BFunctionSymbolDTO {
+
     private int id;
-    
+
     private int packageId;
-    
-    private String name;
-    
-    private String fields;
+
+    private int objectId;
 
     private boolean isPrivate;
 
+    private boolean isAttached;
+
+    private String name;
+
     private CompletionItem completionItem;
 
-    private BRecordTypeSymbolDTO(int id, int packageId, String name, String fields, boolean isPrivate,
-                                CompletionItem completionItem) {
+    public BFunctionSymbolDTO(int id, int packageId, int objectId, boolean isPrivate, boolean isAttached,
+                              String name, CompletionItem completionItem) {
         this.id = id;
         this.packageId = packageId;
-        this.name = name;
-        this.fields = fields;
+        this.objectId = objectId;
         this.isPrivate = isPrivate;
+        this.isAttached = isAttached;
+        this.name = name;
         this.completionItem = completionItem;
     }
 
@@ -56,16 +59,20 @@ public final class BRecordTypeSymbolDTO {
         return packageId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getFields() {
-        return fields;
+    public int getObjectId() {
+        return objectId;
     }
 
     public boolean isPrivate() {
         return isPrivate;
+    }
+
+    public boolean isAttached() {
+        return isAttached;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public CompletionItem getCompletionItem() {
@@ -73,55 +80,62 @@ public final class BRecordTypeSymbolDTO {
     }
 
     /**
-     * Builder for BRecordTypeSymbolDTO.
+     * Builder for BFunctionSymbolDTO.
      */
-    public static class BRecordTypeSymbolDTOBuilder {
+    public static class BFunctionDTOBuilder {
 
-        private int id;
+        private int id = -1;
 
-        private int packageId;
+        private int packageId = -1;
 
-        private String name = "";
-
-        private String fields = "";
+        private int objectId = -1;
 
         private boolean isPrivate;
 
+        private boolean isAttached;
+
+        private String name = "";
+
         private CompletionItem completionItem;
 
-        public BRecordTypeSymbolDTOBuilder setId(int id) {
+        public BFunctionDTOBuilder setId(int id) {
             this.id = id;
             return this;
         }
 
-        public BRecordTypeSymbolDTOBuilder setPackageId(int packageId) {
+        public BFunctionDTOBuilder setPackageId(int packageId) {
             this.packageId = packageId;
             return this;
         }
 
-        public BRecordTypeSymbolDTOBuilder setName(String name) {
-            this.name = name;
+        public BFunctionDTOBuilder setObjectId(int objectId) {
+            this.objectId = objectId;
             return this;
         }
 
-        public BRecordTypeSymbolDTOBuilder setFields(String fields) {
-            this.fields = fields;
-            return this;
-        }
-
-        public BRecordTypeSymbolDTOBuilder setPrivate(boolean aPrivate) {
+        public BFunctionDTOBuilder setPrivate(boolean aPrivate) {
             isPrivate = aPrivate;
             return this;
         }
 
-        public BRecordTypeSymbolDTOBuilder setCompletionItem(CompletionItem completionItem) {
+        public BFunctionDTOBuilder setAttached(boolean attached) {
+            isAttached = attached;
+            return this;
+        }
+
+        public BFunctionDTOBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public BFunctionDTOBuilder setCompletionItem(CompletionItem completionItem) {
             this.completionItem = completionItem;
             return this;
         }
         
-        public BRecordTypeSymbolDTO build() {
-            return new BRecordTypeSymbolDTO(this.id, this.packageId, this.name, this.fields,
-                    this.isPrivate, this.completionItem);
+        public BFunctionSymbolDTO build() {
+            return new BFunctionSymbolDTO(this.id, this.packageId, this.objectId, this.isPrivate,
+                    this.isAttached, this.name, this.completionItem);
         }
     }
 }

@@ -16,10 +16,13 @@
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
 import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.ballerinalang.langserver.index.LSIndexQueryProcessor;
+import org.ballerinalang.langserver.index.dao.BObjectTypeSymbolDAO;
+import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
+import org.ballerinalang.langserver.index.dao.DAOType;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
-import org.ballerinalang.langserver.index.dto.PackageIDDTO;
+import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +39,10 @@ import java.util.stream.Collectors;
 public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
 
     private static final Logger logger = LoggerFactory.getLogger(BallerinaSymbolServiceImpl.class);
+    private final LSIndexImpl lsIndex;
 
     public BallerinaSymbolServiceImpl(LSGlobalContext lsGlobalContext) {
+        this.lsIndex = lsGlobalContext.get(LSGlobalContextKeys.LS_INDEX_KEY);
     }
 
     @Override
@@ -52,17 +57,16 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
     private List<Endpoint> getEndpoints() {
         final List<Endpoint> endpoints = new ArrayList<>();
         try {
-            LSIndexImpl lsIndex = LSIndexImpl.getInstance();
-            LSIndexQueryProcessor lsIndexQueryProcessor = lsIndex.getQueryProcessor();
-            List<PackageIDDTO> allPackages = lsIndexQueryProcessor.getAllPackages();
-            List<BObjectTypeSymbolDTO> allEndpoints = lsIndexQueryProcessor.getAllEndpoints();
-            allPackages.forEach(packageIDDTO -> {
-                String pkgName = packageIDDTO.getName();
-                String orgName = packageIDDTO.getOrgName();
-                List<Endpoint> endpointsList = allEndpoints
-                        .stream()
-                        .filter(endpoint -> endpoint.getPackageId() == packageIDDTO.getId())
-                        .map(bObjectTypeSymbolDTO -> new Endpoint(bObjectTypeSymbolDTO.getName(), pkgName, orgName))
+            BPackageSymbolDAO pkgDAO = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL));
+            BObjectTypeSymbolDAO objDAO = ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE));
+
+            List<BPackageSymbolDTO> pkgDTOs = pkgDAO.getAll();
+            List<BObjectTypeSymbolDTO> allEndpoints = objDAO.getAllEndpoints();
+
+            pkgDTOs.forEach(pkgDTO -> {
+                List<Endpoint> endpointsList = allEndpoints.stream()
+                        .filter(endpoint -> endpoint.getPackageId() == pkgDTO.getId())
+                        .map(objDTO -> new Endpoint(objDTO.getName(), pkgDTO.getName(), pkgDTO.getOrgName()))
                         .collect(Collectors.toList());
                 endpoints.addAll(endpointsList);
             });
