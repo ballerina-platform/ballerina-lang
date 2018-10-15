@@ -21,11 +21,13 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.tracer.BSpan;
+import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.TracersStore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_TRACE_CONTEXT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
@@ -36,7 +38,6 @@ import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_HEADER;
 
 /**
  * Util class to hold tracing specific util methods.
@@ -68,10 +69,15 @@ public class TracingUtils {
             span.setActionName(observerContext.getResourceName());
             Map<String, String> httpHeaders =
                     (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
+
+            // Get the tracing headers based on the tracing implementation
+            BTracer bTracer = TracersStore.getInstance().getTracer(span.getConnectorName());
+            List<String> tracingHeaders = bTracer.getTracingHeaders();
+
             if (httpHeaders != null) {
                 httpHeaders.entrySet().stream()
-                        .filter(c -> TRACE_HEADER.equals(c.getKey()))
-                        .forEach(e -> span.addProperty(KEY_TRACE_CONTEXT, e.getValue()));
+                        .filter(c -> tracingHeaders.contains(c.getKey()))
+                        .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
             }
         }
 

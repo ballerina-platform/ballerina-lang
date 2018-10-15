@@ -1105,7 +1105,7 @@ public class HttpUtil {
     public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
         Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
         observerContext.ifPresent(ctx -> {
-            HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx, TraceConstants.TRACE_HEADER));
+            HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx));
             ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
             ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
             ctx.addTag(TAG_KEY_PEER_ADDRESS,

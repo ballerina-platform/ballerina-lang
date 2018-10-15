@@ -20,8 +20,6 @@ package org.ballerinalang.util.tracer;
 
 import io.opentracing.propagation.TextMap;
 
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -32,15 +30,8 @@ public class RequestExtractor implements TextMap {
 
     private Map<String, String> headers;
 
-    public RequestExtractor(String headers) {
-        this.headers = new HashMap<>();
-        if (headers != null) {
-            String decodedString = new String(Base64.getDecoder().decode(headers));
-            for (String keyValueHeader: decodedString.split(",")) {
-                String[] splitKeyValueHeader = keyValueHeader.split("=");
-                this.headers.put(splitKeyValueHeader[0], splitKeyValueHeader[1]);
-            }
-        }
+    public RequestExtractor(Map<String, String> headers) {
+        this.headers = headers;
     }
 
     @Override

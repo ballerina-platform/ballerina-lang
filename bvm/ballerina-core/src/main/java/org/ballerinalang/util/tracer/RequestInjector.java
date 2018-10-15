@@ -46,9 +46,7 @@ public class RequestInjector implements TextMap {
         carrier.put(key, value);
     }
 
-    public String getCarrierString() {
-        byte[] encoded = Base64.getEncoder()
-                .encode(carrier.toString().substring(1, carrier.toString().length() - 1).getBytes());
-        return new String(encoded);
+    public Map<String, String> getCarrier() {
+        return this.carrier;
     }
 }
