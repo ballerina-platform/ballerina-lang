@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -39,6 +40,7 @@ import java.util.List;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
+import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ACCEPT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CLOSE;
@@ -76,14 +78,14 @@ public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
                     final Object value = ((BLangLiteral) config.getValue()).getValue();
                     Long port = (Long) value;
                     if (port <= 0) {
-                        String msg = "'" + CONFIG_FIELD_PORT + "' must be a positive integer value";
+                        String msg = String.format("'%s' must be a positive integer value", CONFIG_FIELD_PORT);
                         diagnosticLog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
                         break;
                     }
                 }
             }
             if (!isPortPresent) {
-                String msg = "'" + CONFIG_FIELD_PORT + "' is a mandatory configuration field";
+                String msg = String.format("'%s' is a mandatory configuration field", CONFIG_FIELD_PORT);
                 diagnosticLog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
             }
         }
@@ -104,19 +106,21 @@ public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
                 validateOnReadReady(serviceName, resource, diagnosticLog);
                 break;
             case LISTENER_RESOURCE_ON_CLOSE:
+                validateOnClose(serviceName, resource, diagnosticLog);
+                break;
             case LISTENER_RESOURCE_ON_ERROR:
-                validateOnErrorOrClose(serviceName, resource, diagnosticLog);
+                validateOnError(serviceName, resource, diagnosticLog);
                 break;
             default:
         }
     }
 
-    private void validateOnReadReady(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+    private void validateOnError(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
         final List<BLangVariable> readReadyParams = resource.getParameters();
-        if (readReadyParams.size() != 3) {
-            String msg =
-                    "Invalid resource signature for " + resource.getName().getValue() + " in service " + serviceName
-                            + ". Parameters should be an 'endpoint', 'socket:TCPSocketMeta' and 'byte[]'";
+        if (readReadyParams.size() != 2) {
+            String msg = String.format("Invalid resource signature for %s in service %s. "
+                            + "Parameters should be an 'endpoint' and 'error'",
+                    resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
@@ -124,42 +128,50 @@ public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
         if (caller.getKind().equals(OBJECT) && caller instanceof BStructureType) {
             validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
         }
-        BType metaInfo = readReadyParams.get(1).getTypeNode().type;
-        if (OBJECT.equals(metaInfo.getKind()) && metaInfo instanceof BStructureType) {
-            validateMetaInfo(serviceName, resource, diagnosticLog, (BStructureType) metaInfo, "Second");
-        }
-        BType content = readReadyParams.get(2).getTypeNode().type;
-        if (ARRAY.equals(content.getKind()) && content instanceof BArrayType) {
-            if (!"byte".equals(((BArrayType) content).eType.tsymbol.toString())) {
-                String msg =
-                        "Invalid resource signature for " + resource.getName().getValue() + " in service " + serviceName
-                                + ". Third parameter should be a byte[]";
+        BType error = readReadyParams.get(1).getTypeNode().type;
+        if (RECORD.equals(error.getKind()) && error instanceof BRecordType) {
+            if (!"error".equals(error.tsymbol.toString())) {
+                String msg = String.format("Invalid resource signature for %s in service %s. "
+                        + "The second parameter should be an 'error'", resource.getName().getValue(), serviceName);
                 diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             }
         }
     }
 
-    private void validateOnErrorOrClose(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
-        final List<BLangVariable> parameters = resource.getParameters();
-        if (parameters.size() != 1) {
-            String msg =
-                    "Invalid resource signature for " + resource.getName().getValue() + " in service " + serviceName
-                            + ". The parameter should be a 'socket:TCPSocketMeta'";
+    private void validateOnReadReady(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+        final List<BLangVariable> readReadyParams = resource.getParameters();
+        if (readReadyParams.size() != 2) {
+            String msg = String.format("Invalid resource signature for %s in service %s. "
+                            + "Parameters should be an 'endpoint' and 'byte[]'",
+                    resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
-        BType metaInfo = parameters.get(0).getTypeNode().type;
-        if (OBJECT.equals(metaInfo.getKind()) && metaInfo instanceof BStructureType) {
-            validateMetaInfo(serviceName, resource, diagnosticLog, (BStructureType) metaInfo, "First");
+        BType caller = readReadyParams.get(0).type;
+        if (caller.getKind().equals(OBJECT) && caller instanceof BStructureType) {
+            validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
         }
+        BType content = readReadyParams.get(1).getTypeNode().type;
+        if (ARRAY.equals(content.getKind()) && content instanceof BArrayType) {
+            if (!"byte".equals(((BArrayType) content).eType.tsymbol.toString())) {
+                String msg = String
+                        .format("Invalid resource signature for %s in service %s. Third parameter should be a byte[]",
+                                resource.getName().getValue(), serviceName);
+                diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
+            }
+        }
+    }
+
+    private void validateOnClose(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+        validateOnAccept(serviceName, resource, diagnosticLog);
     }
 
     private void validateOnAccept(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
         final List<BLangVariable> acceptParams = resource.getParameters();
-        if (acceptParams.size() != 2) {
-            String msg =
-                    "Invalid resource signature for " + resource.getName().getValue() + " in service " + serviceName
-                            + ". Parameters should be an 'endpoint'  and 'socket:TCPSocketMeta'";
+        if (acceptParams.size() != 1) {
+            String msg = String.format("Invalid resource signature for %s in service %s. "
+                            + "The parameter should be an 'endpoint'",
+                    resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
@@ -167,28 +179,13 @@ public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
         if (caller.getKind().equals(OBJECT) && caller instanceof BStructureType) {
             validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
         }
-        BType metaInfo = acceptParams.get(1).getTypeNode().type;
-        if (OBJECT.equals(metaInfo.getKind()) && metaInfo instanceof BStructureType) {
-            validateMetaInfo(serviceName, resource, diagnosticLog, (BStructureType) metaInfo, "Second");
-        }
-    }
-
-    private void validateMetaInfo(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog,
-            BStructureType event, String position) {
-        if (!"socket".equals(event.tsymbol.pkgID.name.value) || !"TCPSocketMeta".equals(event.tsymbol.name.value)) {
-            String msg =
-                    "Invalid resource signature for " + resource.getName().getValue() + " in service " + serviceName
-                            + ". " + position + " parameter should be a 'socket:TCPSocketMeta'";
-            diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
-        }
     }
 
     private void validateEndpointCaller(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog,
             BStructureType event) {
         if (!"ballerina/socket:Listener".equals(event.tsymbol.toString())) {
-            String msg =
-                    "Invalid resource signature for " + resource.getName().getValue() + " in service " + serviceName
-                            + ". First parameter should be an 'endpoint'";
+            String msg = String.format("Invalid resource signature for %s in service %s. "
+                    + "The parameter should be an 'endpoint'", resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
         }
     }

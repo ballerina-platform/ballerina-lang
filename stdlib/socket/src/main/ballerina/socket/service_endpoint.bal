@@ -15,9 +15,20 @@
 // under the License.
 
 # Represents service endpoint where socket server service registered and start.
+#
+# + remotePort - the remote port number to which this socket is connected
+# + localPort - the local port number to which this socket is bound
+# + remoteAddress - the remote IP address string in textual presentation to which the socket is connected
+# + localAddress - the local IP address string in textual presentation to which the socket is bound
+# + id - a unique identification to identify each connection between server and the client
 public type Listener object {
 
     private CallerAction callerAction;
+    @readonly public int remotePort;
+    @readonly public int localPort;
+    @readonly public string remoteAddress;
+    @readonly public string localAddress;
+    @readonly public int id;
 
     public extern function init(ListenerEndpointConfiguration config);
 
@@ -51,18 +62,4 @@ public type CallerAction object {
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
     public extern function close() returns error?;
-};
-
-# Contains the meta information related to the client socket.
-#
-# + remotePort - the remote port number to which this socket is connected
-# + localPort - the local port number to which this socket is bound
-# + remoteAddress - the remote IP address string in textual presentation to which the socket is connected
-# + localAddress - the local IP address string in textual presentation to which the socket is bound
-public type TCPSocketMeta record {
-    int remotePort;
-    int localPort;
-    string remoteAddress;
-    string localAddress;
-    !...
 };

@@ -33,4 +33,10 @@ public class SocketConstants {
     public static final String CONFIG_FIELD_INTERFACE = "interface";
     public static final String CONFIG_FIELD_PORT = "port";
     public static final String LISTENER_CONFIG = "config";
+
+    public static final String REMOTE_PORT = "remotePort";
+    public static final String LOCAL_PORT = "localPort";
+    public static final String REMOTE_ADDRESS = "remoteAddress";
+    public static final String LOCAL_ADDRESS = "localAddress";
+    public static final String ID = "id";
 }
