@@ -67,12 +67,6 @@ public class BallerinaFieldDefinitionImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
   }

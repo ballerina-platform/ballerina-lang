@@ -16,7 +16,6 @@
 
 import ballerina/runtime;
 import ballerina/streams;
-import ballerina/reflect;
 
 type InputRecord record {
     string id;
@@ -72,10 +71,12 @@ function startAggregationQuery() returns (OutputRecord[]) {
 
 function streamFunc() {
 
-    function (map) outputFunc = function (map m) {
-        // just cast input map into the output type
-        OutputRecord o = check <OutputRecord>m;
-        outputStream.publish(o);
+    function (map[]) outputFunc = function (map[] events) {
+        foreach m in events {
+            // just cast input map into the output type
+            OutputRecord o = check <OutputRecord>m;
+            outputStream.publish(o);
+        }
     };
 
     // register output function

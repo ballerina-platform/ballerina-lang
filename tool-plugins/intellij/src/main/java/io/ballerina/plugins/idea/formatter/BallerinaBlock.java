@@ -304,6 +304,10 @@ public class BallerinaBlock extends AbstractBlock {
                 (parentElementType == BallerinaTypes.ASSIGNMENT_STATEMENT ||
                         parentElementType == BallerinaTypes.VARIABLE_DEFINITION_STATEMENT)) {
             return Indent.getNormalIndent();
+        } else if ((childElementType == BallerinaTypes.LAMBDA_FUNCTION_EXPRESSION
+                || childElementType == BallerinaTypes.ARROW_FUNCTION_EXPRESSION)
+                && parentElementType == BallerinaTypes.VARIABLE_DEFINITION_STATEMENT) {
+            return Indent.getNormalIndent();
         } else if ((childElementType == BallerinaTypes.TABLE_COLUMN_DEFINITION
                 || childElementType == BallerinaTypes.TABLE_DATA_ARRAY)
                 && parentElementType == BallerinaTypes.TABLE_LITERAL) {

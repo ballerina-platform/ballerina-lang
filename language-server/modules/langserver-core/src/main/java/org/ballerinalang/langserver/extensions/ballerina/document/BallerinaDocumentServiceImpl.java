@@ -53,6 +53,8 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
 
 /**
  * Implementation of Ballerina Document extension for Language Server.
+ *
+ * @since 0.981.2
  */
 public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 

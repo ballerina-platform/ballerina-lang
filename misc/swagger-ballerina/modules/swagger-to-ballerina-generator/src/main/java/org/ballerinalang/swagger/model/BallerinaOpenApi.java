@@ -28,6 +28,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
+import org.ballerinalang.swagger.utils.CodegenUtils;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -110,7 +111,7 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
                 if (operation.getValue().getOperationId() == null) {
                     String pathName = path.getKey().substring(1); // need to drop '/' prefix from the key, ex:'/path'
                     String operationId = operation.getKey() + StringUtils.capitalize(pathName);
-                    operation.getValue().setOperationId(operationId);
+                    operation.getValue().setOperationId(CodegenUtils.normalizeForBIdentifier(operationId));
                 }
             });
             paths.add(new AbstractMap.SimpleEntry<>(path.getKey(), balPath));

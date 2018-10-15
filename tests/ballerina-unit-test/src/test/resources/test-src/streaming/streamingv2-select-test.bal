@@ -62,8 +62,10 @@ function testSelectQuery() {
     forever {
         from inputStream
         select inputStream.name as teacherName, inputStream.age
-        => (TeacherOutput[] emp) {
-            outputStream.publish(emp);
+        => (TeacherOutput[] teachers) {
+            foreach t in teachers {
+                outputStream.publish(t);
+            }
         }
     }
 }

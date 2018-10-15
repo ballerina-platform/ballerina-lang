@@ -287,28 +287,19 @@ export function getOperatorLattice() {
  * parse fragment.
  *
  * @param {string} fragment - source fragment.
- * @return {object} fragment details to be sent to fragment parser.
+ * @return {Promise} fragment parser response.
  * */
-
-// TODO: Use axios and Promises for api call
 export function parseFragment(fragment) {
-    let data = {};
-    $.ajax({
-        type: 'POST',
-        context: this,
-        url: getServiceEndpoint('ballerina-parser') + '/model/parse-fragment',
-        data: JSON.stringify(fragment),
-        contentType: 'application/json; charset=utf-8',
-        async: false,
-        dataType: 'json',
-        success(response) {
-            data = response;
-        },
-        error() {
-            data = { error: 'Unable to call fragment parser Backend.' };
-        },
+    const endpoint = `${getServiceEndpoint('ballerina-parser')}/model/parse-fragment`;
+    return new Promise((resolve, reject) => {
+        axios.post(endpoint, fragment, { headers: CONTENT_TYPE_JSON_HEADER })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject({
+                error: 'Unable to call fragment parser Backend.',
+                cause: error,
+            }));
     });
-    return data;
 }
 
 /**

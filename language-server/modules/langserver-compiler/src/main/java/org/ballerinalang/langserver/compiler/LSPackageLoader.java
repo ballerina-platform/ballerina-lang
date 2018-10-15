@@ -148,10 +148,10 @@ public class LSPackageLoader {
     }
 
     public static List<BallerinaPackage> getSdkPackages() {
-        return sdkPackages;
+        return new ArrayList<>(sdkPackages);
     }
 
     public static List<BallerinaPackage> getHomeRepoPackages() {
-        return homeRepoPackages;
+        return new ArrayList<>(homeRepoPackages);
     }
 }

@@ -155,3 +155,23 @@ function testNestedArrowExpression4() returns string {
     var lambda4 = lambda3(22, "Me");
     return lambda4(24, "Fa");
 }
+
+int k = 10;
+
+type Foo record {
+    function (int) returns int lambda = (i) => i * k;
+};
+
+type Bar object {
+    function (int) returns int lambda = (i) => i * k;
+};
+
+function testArrowExprInRecord() returns int {
+    Foo f;
+    return f.lambda(5);
+}
+
+function testArrowExprInObject() returns int {
+    Bar f = new;
+    return f.lambda(6);
+}

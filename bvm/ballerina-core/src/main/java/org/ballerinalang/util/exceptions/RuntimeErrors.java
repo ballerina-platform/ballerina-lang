@@ -41,7 +41,7 @@ public enum RuntimeErrors {
     SERVER_CONNECTOR_ALREADY_EXIST("server.connector.already.exist", "RUNTIME_0016"),
     INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "RUNTIME_0017"),
     CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT("connector.input.types.are.not.equivalent", "RUNTIME_0018"),
-    UNKNOWN_FIELD_JSON_STURCT("unknown.field.in.json.struct", "RUNTIME_0019"),
+    UNKNOWN_FIELD_JSON_STRUCT("unknown.field.in.json.struct", "RUNTIME_0019"),
     INVALID_RETRY_COUNT("invalid.retry.count", "RUNTIME_0020"),
     NOT_ENOUGH_FORMAT_ARGUMENTS("not.enough.format.arguments", "RUNTIME_0021"),
     INVALID_FORMAT_SPECIFIER("invalid.format.specifier", "RUNTIME_0022"),

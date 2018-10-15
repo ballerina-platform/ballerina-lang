@@ -1,0 +1,2 @@
+// Ballerina supports declaring variables using the `var` keyword, followed by the variable name. The type of the declared variable is inferred
+// from the expression on the right-hand side.

@@ -80,19 +80,19 @@ public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 # Options to compress using gzip or deflate.
 #
 # `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-#         outbound request/response accept-encoding option
-# `ALWAYS`: Always set accept-encoding in outbound request/response
-# `NEVER`: Never set accept-encoding header in outbound request/response
+#         outbound request/response accept-encoding/content-encoding option
+# `ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response
+# `NEVER`: Never set accept-encoding/content-encoding header in outbound request/response
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
 # When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-# outbound request/response accept-encoding option.
+# outbound request/response accept-encoding/content-encoding option.
 @final public Compression COMPRESSION_AUTO = "AUTO";
 
-# Always set accept-encoding in outbound request/response.
+# Always set accept-encoding/content-encoding in outbound request/response.
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
 
-# Never set accept-encoding header in outbound request/response.
+# Never set accept-encoding/content-encoding header in outbound request/response.
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
@@ -162,6 +162,16 @@ public type ServiceOcspStapling record {
     !...
 };
 
+# A record for providing configurations for content compression.
+#
+# + enable - The status of compression
+# + contentTypes - Content types which are allowed for compression
+public type CompressionConfig record {
+    Compression enable = COMPRESSION_AUTO;
+    string[] contentTypes;
+    !...
+};
+
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////
@@ -173,7 +183,7 @@ public type ServiceOcspStapling record {
 //TODO: Make the error nillable
 public extern function parseHeader (string headerValue) returns (string, map)|error;
 
-function buildRequest(Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns Request {
+function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
     Request request = new;
     match message {
         () => {}
@@ -182,13 +192,13 @@ function buildRequest(Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[
         xml xmlContent => {request.setXmlPayload(xmlContent);}
         json jsonContent => {request.setJsonPayload(jsonContent);}
         byte[] blobContent => {request.setBinaryPayload(blobContent);}
-        io:ByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
+        io:ReadableByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
         mime:Entity[] bodyParts => {request.setBodyParts(bodyParts);}
     }
     return request;
 }
 
-function buildResponse(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns Response {
+function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Response {
     Response response = new;
     match message {
         () => {}
@@ -197,7 +207,7 @@ function buildResponse(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entit
         xml xmlContent => {response.setXmlPayload(xmlContent);}
         json jsonContent => {response.setJsonPayload(jsonContent);}
         byte[] blobContent => {response.setBinaryPayload(blobContent);}
-        io:ByteChannel byteChannelContent => {response.setByteChannel(byteChannelContent);}
+        io:ReadableByteChannel byteChannelContent => {response.setByteChannel(byteChannelContent);}
         mime:Entity[] bodyParts => {response.setBodyParts(bodyParts);}
     }
     return response;

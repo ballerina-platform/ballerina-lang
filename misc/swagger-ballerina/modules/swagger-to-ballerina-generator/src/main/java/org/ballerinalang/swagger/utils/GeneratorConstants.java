@@ -66,15 +66,18 @@ public class GeneratorConstants {
 
     public static final String UNTITLED_SERVICE = "UntitledAPI";
     public static final List<String> RESERVED_KEYWORDS = Collections.unmodifiableList(
-            Arrays.asList("package", "import", "as", "public", "private", "native", "service", "resource", "function",
-                    "object", "annotation", "parameter", "transformer", "worker", "endpoint", "bind", "xmlns",
-                    "returns", "version", "documentation", "deprecated", "from", "on", "group", "by", "having", "order",
-                    "where", "followed", "into", "set", "for", "window", "query", "expired", "current", "every",
-                    "within", "snapshot", "inner", "outer", "right", "left", "full", "unidirectional", "reduce",
-                    "forever", "int", "float", "boolean", "string", "blob", "map", "json", "xml", "table", "stream",
-                    "any", "typedesc", "type", "future", "var", "new", "if", "match", "else", "foreach", "while",
-                    "next", "break", "fork", "join", "some", "all", "timeout", "try", "catch", "finally", "throw",
-                    "return", "transaction", "abort", "fail", "onretry", "retries", "onabort", "oncommit", "lengthof",
-                    "typeof", "with", "in", "lock", "untaint", "async", "await", "but", "check", "done"));
+            Arrays.asList("package", "import", "as", "public", "private", "extern", "service", "resource", "function",
+                    "object", "record", "annotation", "parameter", "transformer", "worker", "endpoint", "bind", "xmlns",
+                    "returns", "version", "deprecated", "channel", "from", "on", "select", "group", "by", "having",
+                    "order", "where", "followed", "insert", "into", "update", "delete", "set", "for", "window", "query",
+                    "expired", "current", "every", "events", "every", "within", "last", "first", "snapshot", "inner",
+                    "output", "outer", "right", "left", "full", "unidirectional", "reduce", "second", "minute", "hour",
+                    "day", "month", "year", "seconds", "minutes", "hours", "days", "months", "years", "forever",
+                    "limit", "acending", "descending", "int", "byte", "float", "boolean", "string", "map", "json",
+                    "xml", "table", "stream", "any", "typedesc", "type", "future", "var", "new", "if", "match", "else",
+                    "foreach", "while", "continue", "break", "fork", "join", "some", "all", "timeout", "try", "catch",
+                    "finally", "throw", "return", "transaction", "abort", "retry", "onretry", "retries", "onabort",
+                    "oncommit", "lengthof", "with", "in", "lock", "untaint", "start", "await", "but", "check", "done",
+                    "scope", "compensation", "primarykey"));
 
 }

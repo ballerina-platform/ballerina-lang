@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 3,
+    "line": 2,
     "character": 1
   },
   "source": "annotation/source/endpointAnnotation1.bal",
@@ -10,7 +10,22 @@
       "detail":"Annotation",
       "sortText":"110",
       "insertText":"swagger:ClientEndpoint",
-      "insertTextFormat":"Snippet"
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/swagger;\n"
+        }
+      ]
     }
   ]
 }

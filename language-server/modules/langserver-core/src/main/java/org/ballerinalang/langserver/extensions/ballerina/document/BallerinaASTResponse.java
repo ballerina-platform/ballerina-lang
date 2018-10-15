@@ -19,6 +19,8 @@ import com.google.gson.JsonElement;
 
 /**
  * Represents a Ballerina AST response.
+ *
+ * @since 0.981.2
  */
 public class BallerinaASTResponse {
     private JsonElement ast;

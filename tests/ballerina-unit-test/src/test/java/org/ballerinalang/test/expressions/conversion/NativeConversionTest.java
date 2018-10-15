@@ -94,7 +94,16 @@ public class NativeConversionTest {
 
     @Test
     public void testMapToStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStruct");
+        testMapToStruct(compileResult, "testMapToStruct");
+    }
+
+    @Test
+    public void testNestedMapToNestedStruct() {
+        testMapToStruct(compileResult, "testNestedMapToNestedStruct");
+    }
+
+    private void testMapToStruct(CompileResult compileResult, String functionName) {
+        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
 
@@ -232,11 +241,15 @@ public class NativeConversionTest {
         Assert.assertEquals(result[0].toString(), "{\"name\":\"Supun\", \"age\":25, \"gpa\":2.81, \"status\":true}");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*cannot convert 'map' to type 'Person: error while mapping 'info': " +
-                  "incompatible types: expected 'json', found 'map'.*")
-    public void testIncompatibleMapToStruct() {
-        BRunUtil.invoke(compileResult, "testIncompatibleMapToStruct");
+    @Test(description = "Test converting a map to a record, with a map value for a JSON field")
+    public void testMapToStructWithMapValueForJsonField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructWithMapValueForJsonField");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> personStruct = (BMap<String, BValue>) returns[0];
+
+        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", age:25, parent:null, "
+                + "info:{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, "
+                + "marks:[87, 94, 72], a:null, score:0.0, alive:false, children:null}");
     }
 
     @Test(description = "Test converting a map with missing field to a struct")
@@ -515,14 +528,14 @@ public class NativeConversionTest {
     public void testEmptyMaptoStructWithDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMaptoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\", a:45, f:5.3, b:true, j:null, blb:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\", a:45, f:5.3, b:true, j:null, blb:[]}");
     }
 
     @Test
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:[]}");
     }
 
     @Test

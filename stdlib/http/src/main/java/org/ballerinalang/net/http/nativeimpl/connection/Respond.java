@@ -73,7 +73,6 @@ public class Respond extends ConnectionAction {
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
         DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
@@ -82,6 +81,7 @@ public class Respond extends ConnectionAction {
         outboundResponseMsg.setSequenceId(inboundRequestMsg.getSequenceId());
         setCacheControlHeader(outboundResponseStruct, outboundResponseMsg);
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
+        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg, outboundResponseMsg);
 
         // Based on https://tools.ietf.org/html/rfc7232#section-4.1
         if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {

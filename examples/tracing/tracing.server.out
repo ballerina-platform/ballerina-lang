@@ -1,0 +1,12 @@
+# Jaeger is the default tracing tool used in Ballerina. To start the Jaeger execute the below command.
+$ docker run -d -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 jaegertracing/all-in-one:latest
+
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command with `--observe` param.
+$ ballerina run --observe tracing.bal
+ballerina: started publishing tracers to Jaeger on localhost:5775
+Initiating service(s) in 'ballerina-home/lib/balx/prometheus/reporter.balx'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9797
+ballerina: started Prometheus HTTP endpoint 0.0.0.0:9797
+Initiating service(s) in 'tracing.bal'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9234
