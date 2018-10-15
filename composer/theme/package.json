@@ -1,0 +1,20 @@
+{
+  "name": "@ballerina/theme",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run build-font",
+    "build-font": "node src/font-ballerina/build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "webfont": "^8.1.4",
+    "webfont-webpack-plugin": "^0.2.2",
+    "webfonts-generator": "^0.4.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
+  }
+}

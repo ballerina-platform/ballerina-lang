@@ -1,6 +1,6 @@
-const diagram = require('@ballerina/diagram');
+import { renderEditableDiagram } from "@ballerina/diagram";
 
-const testJson = {
+const testJson : any = {
     "ast": {
         "id": "0f6a3dab-00a8-4976-9a4a-2141eb167bd9",
         "kind": "CompilationUnit",
@@ -130,4 +130,7 @@ const testJson = {
     "parseSuccess": true
 }
 
-diagram.renderStaticDiagram(document.getElementById('diagram'), testJson.ast)
+renderEditableDiagram(
+    document.getElementById('diagram'),
+    'test.bal', 700, 500,
+    () => {return Promise.resolve(testJson)});
