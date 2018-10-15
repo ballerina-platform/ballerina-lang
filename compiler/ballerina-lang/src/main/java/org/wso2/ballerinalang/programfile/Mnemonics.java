@@ -115,7 +115,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SEQ] = "seq";
         mnemonics[InstructionCodes.BEQ] = "beq";
         mnemonics[InstructionCodes.REQ] = "req";
-        mnemonics[InstructionCodes.TEQ] = "teq";
+        mnemonics[InstructionCodes.TYPE_CHECK] = "teq";
         mnemonics[InstructionCodes.INE] = "ine";
         mnemonics[InstructionCodes.FNE] = "fne";
         mnemonics[InstructionCodes.SNE] = "sne";
@@ -246,6 +246,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SCOPE_END] = "scope_end";
         mnemonics[InstructionCodes.COMPENSATE] = "compensate";
         mnemonics[InstructionCodes.LOOP_COMPENSATE] = "loop_compensate";
+
+        mnemonics[InstructionCodes.TYPE_CHECK] = "type_check";
     }
 
     public static String getMnem(int opcode) {

@@ -98,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -1358,6 +1359,18 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);
+    }
+
+    @Override
+    public void visit(BLangTypeCheckExpr typeCheckExpr) {
+        typeCheckExpr.typeNode.type = symResolver.resolveTypeNode(typeCheckExpr.typeNode, env);
+        checkExpr(typeCheckExpr.expr, env);
+
+        if (!types.isAssignable(typeCheckExpr.typeNode.type, typeCheckExpr.expr.type)) {
+            dlog.error(typeCheckExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeCheckExpr.typeNode.type);
+        }
+
+        resultType = types.checkType(typeCheckExpr, symTable.booleanType, expType);
     }
 
     // Private methods

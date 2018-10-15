@@ -137,6 +137,7 @@ SCOPE       : 'scope';
 COMPENSATION: 'compensation';
 COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
+IS          : 'is' ;
 
 // Separators
 

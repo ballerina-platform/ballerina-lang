@@ -362,6 +362,7 @@ public class CPU {
                     case InstructionCodes.IRSHIFT:
                     case InstructionCodes.ILSHIFT:
                     case InstructionCodes.IURSHIFT:
+                    case InstructionCodes.TYPE_CHECK:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1828,6 +1829,18 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
+                break;
+            case InstructionCodes.TYPE_CHECK:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[j];
+                BValue value = sf.refRegs[i];
+                if (value == null) {
+                    sf.intRegs[k] = typeRefCPEntry.getType().getTag() == TypeTags.NULL_TAG ? 1 : 0;
+                } else {
+                    sf.intRegs[k] = isSameType(sf.refRegs[i].getType(), typeRefCPEntry.getType()) ? 1 : 0;
+                }
                 break;
             default:
                 throw new UnsupportedOperationException();
