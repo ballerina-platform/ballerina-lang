@@ -249,6 +249,26 @@ function check1DAnyArrayEqualityNegative() returns boolean {
     return (a == b) || !(a != b);
 }
 
+function checkOpenClosedArrayEqualityPositive() returns boolean {
+    string[!...] a = ["a", "bcd", "ef"];
+    string[] b = ["a", "bcd", "ef"];
+
+    (int|float)[] c = [5, 4.12, 54, 23.1];
+    (float|int)[4] d = [5, 4.12, 54, 23.1];
+
+    return (a == b) && !(a != b) && (c == d) && !(c != d);
+}
+
+function checkOpenClosedArrayEqualityNegative() returns boolean {
+    boolean[] a = [true, false];
+    boolean[3] b = [true, false, false];
+
+    string[] c = ["true", "false", "false", "true"];
+    string[4] d = ["true", "false", "false", "false"];
+
+    return (a == b) || !(a != b) || (c == d) || !(c != d);
+}
+
 function check2DBooleanArrayEqualityPositive() returns boolean {
     boolean[][] b1 = [[], [true, false, false], [false]];
     boolean[][] b2 = [[], [true, false, false], [false]];

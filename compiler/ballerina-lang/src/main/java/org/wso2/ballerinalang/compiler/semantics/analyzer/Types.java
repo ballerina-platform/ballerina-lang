@@ -1461,6 +1461,12 @@ public class Types {
                 break;
             case TypeTags.ARRAY:
                 BType arrayElementType = ((BArrayType) bType).getElementType();
+
+                // add an unsealed array to allow comparison between closed and open arrays
+                if (((BArrayType) bType).getSize() != -1) {
+                    memberTypes.add(new BArrayType(arrayElementType));
+                }
+
                 if (arrayElementType.tag == TypeTags.UNION) {
                     Set<BType> elementUnionTypes = getMemberTypesRecursive(arrayElementType);
                     elementUnionTypes.forEach(elementUnionType -> {

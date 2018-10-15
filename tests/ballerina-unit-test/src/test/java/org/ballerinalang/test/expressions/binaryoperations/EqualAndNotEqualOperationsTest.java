@@ -255,6 +255,23 @@ public class EqualAndNotEqualOperationsTest {
                            "Expected any array values to be identified as not equal");
     }
 
+    @Test(description = "Test equals/unequals operation with equal open and closed arrays")
+    public void testOpenClosedArrayEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkOpenClosedArrayEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected array values to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with unequal open and closed arrays")
+    public void testOpenClosedArrayEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkOpenClosedArrayEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected array values to be identified as " +
+                "not equal");
+    }
+
     @Test(description = "Test equals/unequals operation with two equal 2D boolean arrays")
     public void test2DBooleanArrayEqualityPositive() {
         BValue[] returns = BRunUtil.invoke(result, "check2DBooleanArrayEqualityPositive", new BValue[0]);
