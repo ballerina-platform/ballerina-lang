@@ -10,6 +10,7 @@
   },
   "scripts": {
     "compile": "tsc -p ./",
+    "build": "npm run compile",
     "watch": "tsc -watch -p ./",
     "test": "jest",
     "storybook": "start-storybook -p 9001 -c .storybook"
