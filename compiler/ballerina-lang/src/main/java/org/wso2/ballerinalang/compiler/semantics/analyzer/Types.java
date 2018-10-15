@@ -1321,7 +1321,7 @@ public class Types {
      * @return Flag indicating whether the given type has a default value
      */
     public boolean defaultValueExists(DiagnosticPos pos, BType type) {
-        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.asMask(EnumSet.of(Flag.DEFAULTABLE)))) {
+        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEFAULTABLE)) {
             return true;
         }
 
@@ -1343,7 +1343,7 @@ public class Types {
             result = (type.tsymbol.flags & Flags.DEFAULTABLE) == Flags.DEFAULTABLE;
             typeStack.pop();
             if (result) {
-                type.tsymbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
+                type.tsymbol.flags |= Flags.DEFAULTABLE;
             }
             return result;
         }

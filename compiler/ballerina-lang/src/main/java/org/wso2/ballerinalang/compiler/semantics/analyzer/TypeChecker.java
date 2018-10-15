@@ -126,7 +126,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -398,7 +397,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> matchedTypeList = getRecordCompatibleType(expType, recordLiteral);
 
-        boolean hasInvalidFieldIndex = false;
+        boolean hasInvalidFieldIndex = false; // Keeps track of whether there are fields for which type checking failed
         if (matchedTypeList.isEmpty()) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
         } else if (matchedTypeList.size() > 1) {
@@ -406,28 +405,18 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
                 BType type = checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0));
-                hasInvalidFieldIndex = type.tag == TypeTags.ERROR;
+                hasInvalidFieldIndex |= type.tag == TypeTags.ERROR;
             }
             actualType = matchedTypeList.get(0);
         }
 
         resultType = types.checkType(recordLiteral, actualType, expType);
 
+        // If the record literal is of record type and types are validated for the fields, check if there are any
+        // required fields missing.
         if (recordLiteral.type.tag == TypeTags.RECORD && !hasInvalidFieldIndex) {
-            BRecordType recordType = (BRecordType) recordLiteral.type;
-            int maskOptional = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-            int maskDefaultable = Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
-
-            recordType.fields.forEach(field -> {
-                boolean hasField = recordLiteral.keyValuePairs.stream().anyMatch(
-                        keyVal -> field.name.value.equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
-
-                if (!hasField && !Symbols.isFlagOn(field.symbol.flags, maskOptional) &&
-                        (!types.defaultValueExists(recordLiteral.pos, field.type) &&
-                                !Symbols.isFlagOn(field.symbol.flags, maskDefaultable))) {
-                    dlog.error(recordLiteral.pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
-                }
-            });
+            checkMissingRequiredFields((BRecordType) recordLiteral.type, recordLiteral.keyValuePairs,
+                                       recordLiteral.pos);
         }
     }
 
@@ -470,6 +459,22 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private void checkMissingRequiredFields(BRecordType type, List<BLangRecordKeyValue> keyValuePairs,
+                                            DiagnosticPos pos) {
+        type.fields.forEach(field -> {
+            // Check if `field` is explicitly assigned a value in the record literal
+            boolean hasField = keyValuePairs.stream().anyMatch(
+                    keyVal -> field.name.value.equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
+
+            // If a required field is missing and it's not defaultable, it's a compile error
+            if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                    (!types.defaultValueExists(pos, field.type) &&
+                            !Symbols.isFlagOn(field.symbol.flags, Flags.DEFAULTABLE))) {
+                dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
+            }
+        });
     }
 
     private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {
