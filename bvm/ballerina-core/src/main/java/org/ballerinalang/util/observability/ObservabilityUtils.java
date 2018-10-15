@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
@@ -267,14 +268,15 @@ public class ObservabilityUtils {
                 : serviceInfoType.getPackagePath() + PACKAGE_SEPARATOR + serviceInfoType.getName();
     }
 
-    public static void logMessageToActiveSpan(Context context, String logLevel, String logMessage, boolean isError) {
+    public static void logMessageToActiveSpan(Context context, String logLevel, Supplier<String> logMessage,
+                                              boolean isError) {
         if (tracingEnabled) {
             Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
             if (observerContext.isPresent()) {
                 BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
                 if (span != null) {
                     HashMap<String, Object> logs = new HashMap<>(1);
-                    logs.put(logLevel, logMessage);
+                    logs.put(logLevel, logMessage.get());
                     if (!isError) {
                         span.log(logs);
                     } else {
