@@ -224,7 +224,7 @@ public class Hub {
                         hubPackageInfo.getFunctionInfo("isHubPersistenceEnabled"), args)[0]).stringValue());
 
                     PrintStream console = System.err;
-                    console.println("ballerina: Default Ballerina WebSub Hub started up at " + hubUrl);
+                    console.println("[ballerina/websub] Default Ballerina WebSub Hub started up at " + hubUrl);
                     setHubProgramFile(hubProgramFile);
                     started = true;
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);

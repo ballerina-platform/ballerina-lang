@@ -87,10 +87,8 @@
     </properties>
 
     <modules>
-        <module>modules/server</module>
         <module>modules/web</module>
-        <module>modules/integration-tests</module>
-        <module>modules/distribution</module>
+        <!--<module>modules/integration-tests</module>-->
     </modules>
 
 </project>

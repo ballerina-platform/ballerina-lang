@@ -36,7 +36,7 @@ import java.io.File;
  */
 public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
-    private static final String MOCK_SDK_VERSION = "0.981.0";
+    private static final String MOCK_SDK_VERSION = "0.982.0";
 
     protected static String getTestDataPath(String path) {
         return "src/test/resources/testData/" + path;
