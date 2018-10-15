@@ -20,12 +20,12 @@ public function main() {
     io:println("The status code: ", statusCode1);
 
 
-    // Consider a scenario where the `secondResponse` is null.
+    // Consider a scenario where the `secondResponse` is nil.
     Response|error|() secondResponse = ();
 
-    // The error lifting operator lifts null by default. If the `secondResponse`
-    // is null, it stops navigating the rest of the fields and the value
-    // of the `secondResponse!status!code` expression evaluates to null.
+    // The error lifting operator lifts nil by default. If the `secondResponse`
+    // is nil, it stops navigating the rest of the fields and the value
+    // of the `secondResponse!status!code` expression evaluates to nil.
     int|error|() statusCode2 = secondResponse!status!code;
     io:println("The status code: ", statusCode2);
 }

@@ -120,11 +120,6 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-examples</artifactId>
-            <type>zip</type>
-        </dependency>
     </dependencies>
 
     <build>
@@ -144,17 +139,25 @@
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+                <executions>
                     <execution>
-                        <id>unpack-examples</id>
-                        <phase>generate-resources</phase>
+                        <id>copy-ballerina-examples</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>unpack-dependencies</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>
-                                ballerina-examples
-                            </includeArtifactIds>
                             <outputDirectory>src/test/resources/sourceGen</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>../../../examples</directory>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
@@ -209,7 +212,6 @@
                             <descriptors>
                                 <descriptor>assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>IndexDB</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

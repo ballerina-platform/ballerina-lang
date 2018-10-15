@@ -356,6 +356,8 @@ public class BLangPackageBuilder {
 
     private Stack<ScopeNode> scopeNodeStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> finiteTypeWsStack = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -1568,6 +1570,10 @@ public class BLangPackageBuilder {
         }
     }
 
+    void endFiniteType(Set<Whitespace> ws) {
+        finiteTypeWsStack.push(ws);
+    }
+
     void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                            boolean publicType) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
@@ -1583,6 +1589,7 @@ public class BLangPackageBuilder {
 
         while (!typeNodeStack.isEmpty()) {
             BLangType memberType = (BLangType) typeNodeStack.pop();
+            members.addWS(memberType.getWS());
             if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
                 members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
             } else {
@@ -1592,6 +1599,7 @@ public class BLangPackageBuilder {
 
         if (!exprNodeStack.isEmpty()) {
             BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+            finiteTypeNode.addWS(finiteTypeWsStack.pop());
             while (!exprNodeStack.isEmpty()) {
                 finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
             }
@@ -1606,7 +1614,6 @@ public class BLangPackageBuilder {
 
                 typeDef.typeNode = finiteTypeNode;
                 typeDef.pos = pos;
-                typeDef.addWS(ws);
                 this.compUnit.addTopLevelNode(typeDef);
 
                 members.memberTypeNodes.add(createUserDefinedType(pos, ws,
@@ -1624,6 +1631,10 @@ public class BLangPackageBuilder {
             typeDefinition.typeNode = memberArray[0];
         } else {
             typeDefinition.typeNode = members;
+        }
+
+        if (finiteTypeWsStack.size() > 0) {
+            typeDefinition.addWS(finiteTypeWsStack.pop());
         }
 
         typeDefinition.pos = pos;

@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.command;
 
 import com.google.gson.internal.LinkedTreeMap;
+import org.apache.commons.io.IOUtils;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -26,11 +27,14 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -54,13 +58,20 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
@@ -73,6 +84,10 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
  */
 public class CommandExecutor {
     private static final Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
+
+    // A newCachedThreadPool with a limited max-threads
+    private static ExecutorService executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L,
+                                                                     TimeUnit.SECONDS, new SynchronousQueue<>());
 
     private static final String ARG_KEY = "argumentK";
 
@@ -109,6 +124,9 @@ public class CommandExecutor {
                     break;
                 case CommandConstants.CMD_CREATE_CONSTRUCTOR:
                     result = executeCreateObjectConstructor(context);
+                    break;
+                case CommandConstants.CMD_PULL_PACKAGE:
+                    result = executePullPackage(context);
                     break;
                 default:
                     // Do Nothing
@@ -454,6 +472,81 @@ public class CommandExecutor {
 
         return applySingleTextEdit(constructorSnippet, range, textDocumentIdentifier,
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+    }
+
+    private static Object executePullPackage(LSServiceOperationContext context) {
+        executor.submit(() -> {
+            // Derive package name and document uri
+            String packageName = "";
+            String documentUri = "";
+            for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+                String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
+                String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+                if (argKey.equals(CommandConstants.ARG_KEY_PKG_NAME)) {
+                    packageName = argVal;
+                } else if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
+                    documentUri = argVal;
+                }
+            }
+            // If no package, or no doc uri; then just skip
+            if (packageName.isEmpty() || documentUri.isEmpty()) {
+                return;
+            }
+            // Execute `ballerina pull` command
+            String ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME).resolve("bin").resolve("ballerina").toString();
+            ProcessBuilder processBuilder = new ProcessBuilder(ballerinaHome, "pull", packageName);
+            LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+            DiagnosticsHelper diagnosticsHelper = context.get(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY);
+            try {
+                notifyClient(client, MessageType.Info, "Pulling '" + packageName + "' from the Ballerina Central...");
+                Process process = processBuilder.start();
+                InputStream inputStream = process.getInputStream();
+                // Consume and skip input-stream
+                int data = inputStream.read();
+                while (data != -1) {
+                    data = inputStream.read();
+                }
+                // Check error stream for errors
+                InputStream errorStream = process.getErrorStream();
+                String error = IOUtils.toString(errorStream, StandardCharsets.UTF_8);
+
+                if (error == null || error.isEmpty()) {
+                    notifyClient(client, MessageType.Info, "Pulling success for the '" + packageName + "' package!");
+                    clearDiagnostics(client, lsCompiler, diagnosticsHelper, documentUri);
+                } else {
+                    notifyClient(client, MessageType.Error,
+                                 "Pulling failed for the '" + packageName + "' package!\n" + error);
+                }
+            } catch (IOException e) {
+                notifyClient(client, MessageType.Error, "Pulling failed for the '" + packageName + "' package!");
+            }
+        });
+        return new Object();
+    }
+
+    /**
+     * Sends a message to the language server client.
+     *
+     * @param client      Language Server client
+     * @param messageType message type
+     * @param message     message
+     */
+    private static void notifyClient(LanguageClient client, MessageType messageType, String message) {
+        client.showMessage(new MessageParams(messageType, message));
+    }
+
+    /**
+     * Clears diagnostics of the client by sending an text edit event.
+     *
+     * @param client Language Server client
+     * @param diagnosticsHelper diagnostics helper
+     */
+    private static void clearDiagnostics(LanguageClient client, LSCompiler lsCompiler,
+                                         DiagnosticsHelper diagnosticsHelper, String documentUri) {
+        Path filePath = Paths.get(URI.create(documentUri));
+        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+        diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, filePath, compilationPath);
     }
 
     /**

@@ -1,25 +1,34 @@
 import ballerina/io;
 
-io:CSVChannel? csvChannel;
-
 type Employee record {
     string id;
     string name;
     float salary;
 };
 
-function initCSVChannel(string filePath, io:Mode permission, string encoding, io:Separator fieldSeparator) {
-    io:ByteChannel byteChannel = io:openFile(filePath, permission);
-    io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
-    csvChannel = untaint new io:CSVChannel(charChannel, fs = fieldSeparator);
+io:ReadableCSVChannel? rch;
+io:WritableCSVChannel? wch;
+
+function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
+    io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
+    io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
+    rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
 }
 
-function initOpenCsv(string filePath, io:Mode permission, string encoding, io:Separator fs, int nHeaders = 0) {
-    csvChannel = untaint io:openCsvFile(filePath, fieldSeparator=fs, skipHeaders = nHeaders);
+function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
+    io:WritableByteChannel byteChannel = untaint io:openWritableFile(filePath);
+    io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
+    wch = new io:WritableCSVChannel(charChannel, fs = fieldSeparator);
+}
+
+function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) {
+    io:ReadableByteChannel byteChannel = untaint io:openReadableFile(filePath);
+    io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
+    rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = nHeaders);
 }
 
 function nextRecord() returns (string[]|error) {
-    var result = csvChannel.getNext();
+    var result = rch.getNext();
     match result {
         string[] fields => {
             return fields;
@@ -35,23 +44,23 @@ function nextRecord() returns (string[]|error) {
 }
 
 function writeRecord(string[] fields) {
-    var result = csvChannel.write(fields);
+    var result = wch.write(fields);
 }
 
 function close() {
-    var err = csvChannel.close();
+    _ = rch.close();
+    _ = wch.close();
 }
 
 
 function hasNextRecord() returns boolean? {
-    return csvChannel.hasNext();
+    return rch.hasNext();
 }
 
-function getTable(string filePath, io:Mode permission, string encoding, io:Separator fieldSeperator) returns float|error
-{
-    io:ByteChannel byteChannel = io:openFile(filePath, permission);
-    io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
-    io:CSVChannel csv = new io:CSVChannel(charChannel, fs = fieldSeperator);
+function getTable(string filePath, string encoding, io:Separator fieldSeperator) returns float|error {
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
+    io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
+    io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fs = fieldSeperator);
     float total;
     match csv.getTable(Employee) {
         table<Employee> tb => {

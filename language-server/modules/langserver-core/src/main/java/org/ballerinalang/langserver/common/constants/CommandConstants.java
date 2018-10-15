@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.common.constants;
 
+import java.util.regex.Pattern;
+
 /**
  * Constants related to {@link org.eclipse.lsp4j.Command}.
  * @since v0.964.0
@@ -23,7 +25,8 @@ public class CommandConstants {
     public static final String UNDEFINED_PACKAGE = "undefined package";
     public static final String UNDEFINED_FUNCTION = "undefined function";
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
-
+    public static final String UNRESOLVED_PACKAGE = "cannot resolve package";
+    public static final Pattern UNRESOLVED_PACKAGE_PATTERN = Pattern.compile("cannot resolve package '(.*)'");
 
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
@@ -60,6 +63,7 @@ public class CommandConstants {
 
     public static final String CREATE_CONSTRUCTOR_TITLE = "Create Constructor";
 
+    public static final String PULL_PKG_TITLE = "Pull from Ballerina Central";
 
     // Commands List
     public static final String CMD_IMPORT_PACKAGE = "IMPORT_PKG";
@@ -73,4 +77,6 @@ public class CommandConstants {
     public static final String CMD_ADD_ALL_DOC = "ADD_ALL_DOC";
 
     public static final String CMD_CREATE_CONSTRUCTOR = "CREATE_CONSTRUCTOR";
+
+    public static final String CMD_PULL_PACKAGE = "PULL_PACKAGE";
 }

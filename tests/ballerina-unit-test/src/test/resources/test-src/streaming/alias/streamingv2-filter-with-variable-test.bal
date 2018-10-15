@@ -49,7 +49,7 @@ function startFilterQuery() returns (Teacher[]) {
         inputStream.publish(t);
     }
 
-    runtime:sleep(1000);
+    runtime:sleep(3000);
     return globalEmployeeArray;
 }
 
@@ -58,8 +58,10 @@ function testFilterQuery() {
     forever {
         from inputStream where inputStream.age > maxAgeLimit as input
         select input.name, input.age, input.status, input.batch, input.school
-        => (Teacher[] emp) {
-            outputStream.publish(emp);
+        => (Teacher[] teachers) {
+            foreach t in teachers {
+                outputStream.publish(t);
+            }
         }
     }
 }

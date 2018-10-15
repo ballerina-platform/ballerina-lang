@@ -1,16 +1,25 @@
 import ballerina/io;
 
-io:DelimitedTextRecordChannel? txtChannel;
+io:ReadableTextRecordChannel? rch;
+io:WritableTextRecordChannel? wch;
 
-function initDelimitedRecordChannel(string filePath, io:Mode permission, string encoding, string recordSeperator,
+function initReadableChannel(string filePath, string encoding, string recordSeperator,
                                     string fieldSeperator) {
-    io:ByteChannel byteChannel = io:openFile(filePath, permission);
-    io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
-    txtChannel = untaint new io:DelimitedTextRecordChannel(charChannel, fs = fieldSeperator, rs = recordSeperator);
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
+    io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
+    rch = untaint new io:ReadableTextRecordChannel(charChannel, fs = fieldSeperator, rs = recordSeperator);
 }
 
+function initWritableChannel(string filePath, string encoding, string recordSeperator,
+                             string fieldSeperator) {
+    io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
+    io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
+    wch = untaint new io:WritableTextRecordChannel(charChannel, fs = fieldSeperator, rs = recordSeperator);
+}
+
+
 function nextRecord() returns (string[]|error) {
-    var result = txtChannel.getNext();
+    var result = rch.getNext();
     match result {
         string[] fields => {
             return fields;
@@ -26,14 +35,18 @@ function nextRecord() returns (string[]|error) {
 }
 
 function writeRecord(string[] fields) {
-    var result = txtChannel.write(fields);
+    var result = wch.write(fields);
 }
 
-function close() {
-    var err = txtChannel.close();
+function closeReadableChannel() {
+    var err = rch.close();
+}
+
+function closeWritableChannel() {
+    var err = wch.close();
 }
 
 
 function hasNextRecord() returns boolean? {
-    return txtChannel.hasNext();
+    return rch.hasNext();
 }

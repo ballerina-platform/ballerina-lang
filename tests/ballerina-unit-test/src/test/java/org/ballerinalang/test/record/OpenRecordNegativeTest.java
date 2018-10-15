@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 
 /**
  * Negative test cases for open records.
+ *
+ * @since 0.982.1
  */
 public class OpenRecordNegativeTest {
 
@@ -55,5 +57,12 @@ public class OpenRecordNegativeTest {
         BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 5, 12);
         BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 12, 14);
         BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 20, 5);
+    }
+
+    @Test(description = "Test record literal with repeated keys")
+    public void testDuplicatedKeysInRecordLiteral() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/open_record_duplicated_key.bal");
+        BAssertUtil.validateError(compileResult, 0, "invalid usage of record literal: " +
+                "duplicate key 'noOfChildren'", 8, 58);
     }
 }

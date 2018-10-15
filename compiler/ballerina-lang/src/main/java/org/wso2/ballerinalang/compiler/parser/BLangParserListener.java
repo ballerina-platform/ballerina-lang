@@ -438,6 +438,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitFiniteType(BallerinaParser.FiniteTypeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endFiniteType(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;

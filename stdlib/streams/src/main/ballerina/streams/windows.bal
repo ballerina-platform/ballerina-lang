@@ -807,3 +807,185 @@ public function externalTimeBatchWindow(function(StreamEvent[]) nextProcessPoint
         replaceTimestampWithBatchEndTime);
     return timeWindow1;
 }
+
+public type TimeLengthWindow object {
+
+    public int timeInMilliSeconds;
+    public int length;
+    private int count = 0;
+    public LinkedList expiredEventChunk;
+    public function (StreamEvent[]) nextProcessorPointer;
+    public task:Timer? timer;
+
+    public new (nextProcessorPointer, timeInMilliSeconds, length) {
+        expiredEventChunk = new;
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        foreach event in streamEvents {
+            streamEventChunk.addLast(event);
+        }
+
+        if (streamEventChunk.getFirst() == null) {
+            return;
+        }
+
+        lock {
+            int currentTime = time:currentTime().time;
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                expiredEventChunk.resetToFront();
+                while (expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = check <StreamEvent>expiredEventChunk.next();
+                    int timeDiff = expiredEvent.timestamp - currentTime + timeInMilliSeconds;
+                    if (timeDiff <= 0) {
+                        expiredEventChunk.removeCurrent();
+                        count--;
+                        expiredEvent.timestamp = currentTime;
+                        streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    } else {
+                        break;
+                    }
+                }
+
+                expiredEventChunk.resetToFront();
+                if (streamEvent.eventType == CURRENT) {
+                    StreamEvent clonedEvent = streamEvent.clone();
+                    clonedEvent.eventType = EXPIRED;
+                    if (count < length) {
+                        count++;
+                        expiredEventChunk.addLast(clonedEvent);
+                    } else {
+                        StreamEvent firstEvent = check <StreamEvent>expiredEventChunk.removeFirst();
+                        if (firstEvent != null) {
+                            firstEvent.timestamp = currentTime;
+                            streamEventChunk.insertBeforeCurrent(firstEvent);
+                            expiredEventChunk.addLast(clonedEvent);
+                        }
+                    }
+                    timer = new task:Timer(self.invokeProcess, self.handleError, timeInMilliSeconds);
+                } else {
+                    streamEventChunk.removeCurrent();
+                }
+
+            }
+        }
+        if (streamEventChunk.getSize() != 0) {
+            StreamEvent[] events = [];
+            streamEventChunk.resetToFront();
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = check <StreamEvent> streamEventChunk.next();
+                events[lengthof events] = streamEvent;
+            }
+            nextProcessorPointer(events);
+        }
+    }
+
+    public function invokeProcess() returns error? {
+        StreamEvent timerEvent = new (("timer", {}), "TIMER", time:currentTime().time);
+        StreamEvent[] timerEventWrapper = [];
+        timerEventWrapper[0] = timerEvent;
+        process(timerEventWrapper);
+        _ = timer.stop();
+        return ();
+    }
+
+    public function handleError(error e) {
+        io:println("Error occured", e);
+    }
+
+};
+
+public function timeLengthWindow(function(StreamEvent[]) nextProcessPointer, int timeLength, int length)
+                    returns TimeLengthWindow {
+    TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, timeLength, length);
+    return timeLengthWindow1;
+}
+
+public type UniqueLengthWindow object {
+
+    public string uniqueKey;
+    public int length;
+    public int count = 0;
+    private map uniqueMap;
+    public LinkedList expiredEventChunk;
+    public function (StreamEvent[]) nextProcessorPointer;
+
+    public new (nextProcessorPointer, uniqueKey, length) {
+        expiredEventChunk = new;
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        foreach event in streamEvents {
+            streamEventChunk.addLast(event);
+        }
+
+        if (streamEventChunk.getFirst() == null) {
+            return;
+        }
+
+        lock {
+            int currentTime = time:currentTime().time;
+            streamEventChunk.resetToFront();
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = check<StreamEvent>streamEventChunk.next();
+                StreamEvent clonedEvent = streamEvent.clone();
+                clonedEvent.eventType = EXPIRED;
+                StreamEvent eventClonedForMap = clonedEvent.clone();
+
+                string str  = <string>eventClonedForMap.data[uniqueKey];
+                StreamEvent? oldEvent;
+                if(uniqueMap[str] != null) {
+                    oldEvent = check<StreamEvent>uniqueMap[str];
+                }
+                uniqueMap[str] = eventClonedForMap;
+
+                if (oldEvent == null) {
+                    count++;
+                }
+                if ((count <= length) && (oldEvent == null)) {
+                    expiredEventChunk.addLast(clonedEvent);
+                } else {
+                    if (oldEvent != null) {
+                        while (expiredEventChunk.hasNext()) {
+                            StreamEvent firstEventExpired = check<StreamEvent>expiredEventChunk.next();
+                            if (firstEventExpired.data[uniqueKey] == oldEvent.data[uniqueKey]) {
+                                expiredEventChunk.removeCurrent();
+                            }
+                        }
+                        expiredEventChunk.addLast(clonedEvent);
+                        streamEventChunk.insertBeforeCurrent(oldEvent);
+                        oldEvent.timestamp = currentTime;
+                    } else {
+                        StreamEvent firstEvent = check <StreamEvent>expiredEventChunk.removeFirst();
+                        if (firstEvent != null) {
+                            firstEvent.timestamp = currentTime;
+                            streamEventChunk.insertBeforeCurrent(firstEvent);
+                            expiredEventChunk.addLast(clonedEvent);
+                        } else {
+                            streamEventChunk.insertBeforeCurrent(clonedEvent);
+                        }
+                    }
+                }
+            }
+        }
+        if (streamEventChunk.getSize() != 0) {
+            StreamEvent[] events = [];
+            streamEventChunk.resetToFront();
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = check <StreamEvent> streamEventChunk.next();
+                events[lengthof events] = streamEvent;
+            }
+            nextProcessorPointer(events);
+        }
+    }
+};
+
+public function uniqueLengthWindow(function(StreamEvent[]) nextProcessPointer, string uniqueKey, int length)
+                    returns UniqueLengthWindow {
+    UniqueLengthWindow uniqueLengthWindow1 = new(nextProcessPointer, uniqueKey, length);
+    return uniqueLengthWindow1;
+}
