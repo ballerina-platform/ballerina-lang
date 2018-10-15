@@ -29,13 +29,12 @@ public class FileSystemSourceInput implements CompilerInput {
 
     @Override
     public String getEntryName() {
-        // For non-default packages, we need to return the file path relative to the package root
-        // This is to distinguish files with the same name but in different folders
-        // For default package, returning only the filename is sufficient
+        // We need to return the file path relative to the package root.
+        // This is to distinguish files with the same name but in different folders.
         if (packageRoot != null) {
             File pkgRoot = new File(packageRoot.toString());
             File file = new File(path.toString());
-            // Find the file path relative to the package root
+            // Find the file path relative to the package root.
             return pkgRoot.toURI().relativize(file.toURI()).getPath();
         } else {
             Path fileName = path.getFileName();
