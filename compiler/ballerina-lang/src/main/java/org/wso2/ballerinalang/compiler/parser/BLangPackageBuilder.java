@@ -144,6 +144,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -3394,5 +3395,14 @@ public class BLangPackageBuilder {
 
     void startOnCompensationBlock() {
         startFunctionDef();
+    }
+
+    public void createTypeTestExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTypeCheckExpr typeCheckExpr = (BLangTypeCheckExpr) TreeBuilder.createTypeCheckExpressionNode();
+        typeCheckExpr.expr = (BLangExpression) this.exprNodeStack.pop();
+        typeCheckExpr.typeNode = (BLangType) this.typeNodeStack.pop();
+        typeCheckExpr.pos = pos;
+        typeCheckExpr.addWS(ws);
+        addExpressionNode(typeCheckExpr);
     }
 }

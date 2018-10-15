@@ -2015,6 +2015,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createTypeTestExpression(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitBracedOrTupleExpression(BallerinaParser.BracedOrTupleExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
