@@ -39,7 +39,9 @@ public class UtilSymbolKeys {
 
     public static final String SEMI_COLON_SYMBOL_KEY = ";";
 
-    public static final String ACTION_INVOCATION_SYMBOL_KEY = "->";
+    public static final String RIGHT_ARROW_SYMBOL_KEY = "->";
+
+    public static final String LEFT_ARROW_SYMBOL_KEY = "<-";
 
     public static final String BANG_SYMBOL_KEY = "!";
 
