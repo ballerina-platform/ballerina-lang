@@ -69,6 +69,17 @@ public class LoggerTest {
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
 
+    @Test(description = "Test case for error level logging for lambda through the log API", enabled = false)
+    public void testLogErrorLambda() throws IOException {
+        consoleOutput.reset();
+        final String logMsg = "Test error log";
+        final String expectedLog = "ERROR [] - " + logMsg + " \n";
+
+        BRunUtil.invoke(result, "testErrorLambda", new BValue[]{new BString(logMsg)});
+
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+    }
+
     @Test(description = "Test case for warn level logging through the log API", enabled = false)
     public void testLogWarn() throws IOException {
         consoleOutput.reset();
@@ -76,6 +87,17 @@ public class LoggerTest {
         final String expectedLog = "WARN [] - " + logMsg + " \n";
 
         BRunUtil.invoke(result, "testWarn", new BValue[]{new BString(logMsg)});
+
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+    }
+
+    @Test(description = "Test case for warn level logging for lambda through the log API", enabled = false)
+    public void testLogWarnLambda() throws IOException {
+        consoleOutput.reset();
+        final String logMsg = "Test warn log";
+        final String expectedLog = "WARN [] - " + logMsg + " \n";
+
+        BRunUtil.invoke(result, "testWarnLambda", new BValue[]{new BString(logMsg)});
 
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
@@ -91,6 +113,17 @@ public class LoggerTest {
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
 
+    @Test(description = "Test case for info level logging for lambda through the log API", enabled = false)
+    public void testLogInfoLambda() throws IOException {
+        consoleOutput.reset();
+        final String logMsg = "Test info log";
+        final String expectedLog = "INFO [] - " + logMsg + " \n";
+
+        BRunUtil.invoke(result, "testInfoLambda", new BValue[]{new BString(logMsg)});
+
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+    }
+
     @Test(description = "Test case for debug level logging through the log API", enabled = false)
     public void testLogDebug() throws IOException {
         consoleOutput.reset();
@@ -102,6 +135,18 @@ public class LoggerTest {
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }
 
+
+    @Test(description = "Test case for debug level logging for lambda through the log API", enabled = false)
+    public void testLogDebugLambda() throws IOException {
+        consoleOutput.reset();
+        final String logMsg = "Test debug log";
+        final String expectedLog = "DEBUG [] - " + logMsg + " \n";
+
+        BRunUtil.invoke(result, "testDebugLambda", new BValue[]{new BString(logMsg)});
+
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+    }
+
     @Test(description = "Test case for trace level logging through the log API", enabled = false)
     public void testLogTrace() throws IOException {
         consoleOutput.reset();
@@ -109,6 +154,17 @@ public class LoggerTest {
         final String expectedLog = "TRACE [] - " + logMsg + " \n";
 
         BRunUtil.invoke(result, "testTrace", new BValue[]{new BString(logMsg)});
+
+        Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
+    }
+
+    @Test(description = "Test case for trace level logging for lambda through the log API", enabled = false)
+    public void testLogTraceLambda() throws IOException {
+        consoleOutput.reset();
+        final String logMsg = "Test trace log";
+        final String expectedLog = "TRACE [] - " + logMsg + " \n";
+
+        BRunUtil.invoke(result, "testTraceLambda", new BValue[]{new BString(logMsg)});
 
         Assert.assertEquals(consoleOutput.toString().substring(timestampFormat.length() + 1), expectedLog);
     }

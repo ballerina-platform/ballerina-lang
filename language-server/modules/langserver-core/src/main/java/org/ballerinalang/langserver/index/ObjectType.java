@@ -15,36 +15,39 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.index.dto;
-
-import java.util.List;
+package org.ballerinalang.langserver.index;
 
 /**
- * DTO to represent Type.
+ * Enum for ObjectType.
  */
-public class TypeDTO {
-    
-    private PackageIDDTO packageIDDTO;
-    
-    private String name;
-    
-    private List<TypeDTO> memberTypes;
+public enum ObjectType {
+    ENDPOINT(1),
+    ACTION_HOLDER(2),
+    OBJECT(3);
 
-    public TypeDTO(PackageIDDTO packageIDDTO, String name, List<TypeDTO> memberTypes) {
-        this.packageIDDTO = packageIDDTO;
-        this.name = name;
-        this.memberTypes = memberTypes;
+    private int type;
+
+    ObjectType(int type) {
+        this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public int getValue() {
+        return this.type;
     }
 
-    public List<TypeDTO> getMemberTypes() {
-        return memberTypes;
-    }
-
-    public PackageIDDTO getPackageIDDTO() {
-        return packageIDDTO;
+    /**
+     * Get the enum value from ordinal.
+     *
+     * @param ordinal   ordinal value to query.
+     * @return {@link ObjectType}   Object Type
+     */
+    public static ObjectType get(int ordinal) {
+        for (ObjectType objectType : ObjectType.values()) {
+            if (objectType.getValue() == ordinal) {
+                return objectType;
+            }
+        }
+        
+        return null;
     }
 }
