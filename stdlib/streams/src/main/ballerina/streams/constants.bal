@@ -15,7 +15,7 @@
 // under the License.
 
 public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
-public type JoinType "INNER"|"LEFT"|"RIGHT"|"FULL";
+public type JoinType "JOIN"|"LEFTOUTERJOIN"|"RIGHTOUTERJOIN"|"FULLOUTERJOIN";
 public string OUTPUT = "OUTPUT";
 public EventType RESET = "RESET";
 public EventType EXPIRED = "EXPIRED";

@@ -159,4 +159,12 @@ public class MapInitializerExprTest {
         Assert.assertEquals(mapValue.get("key1").stringValue(), "Cat");
         Assert.assertEquals(mapValue.get("key2").stringValue(), "Dog");
     }
+
+    @Test
+    public void testEmptyMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMap", new BValue[] {});
+
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>, "empty map initialization with {}");
+        Assert.assertEquals(((BMap) returns[0]).size(), 0, "incorrect empty map size");
+    }
 }
