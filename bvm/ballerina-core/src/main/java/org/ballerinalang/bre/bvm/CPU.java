@@ -118,6 +118,7 @@ import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.PrintStream;
@@ -319,12 +320,14 @@ public class CPU {
                     case InstructionCodes.FASTORE:
                     case InstructionCodes.SASTORE:
                     case InstructionCodes.BASTORE:
+                    case InstructionCodes.DASTORE:
                     case InstructionCodes.RASTORE:
                     case InstructionCodes.JSONASTORE:
                     case InstructionCodes.IGSTORE:
                     case InstructionCodes.FGSTORE:
                     case InstructionCodes.SGSTORE:
                     case InstructionCodes.BGSTORE:
+                    case InstructionCodes.DGSTORE:
                     case InstructionCodes.RGSTORE:
                     case InstructionCodes.MAPSTORE:
                     case InstructionCodes.JSONSTORE:
@@ -334,28 +337,36 @@ public class CPU {
                     case InstructionCodes.IADD:
                     case InstructionCodes.FADD:
                     case InstructionCodes.SADD:
+                    case InstructionCodes.DADD:
                     case InstructionCodes.XMLADD:
                     case InstructionCodes.ISUB:
                     case InstructionCodes.FSUB:
+                    case InstructionCodes.DSUB:
                     case InstructionCodes.IMUL:
                     case InstructionCodes.FMUL:
+                    case InstructionCodes.DMUL:
                     case InstructionCodes.IDIV:
                     case InstructionCodes.FDIV:
+                    case InstructionCodes.DDIV:
                     case InstructionCodes.IMOD:
                     case InstructionCodes.FMOD:
+                    case InstructionCodes.DMOD:
                     case InstructionCodes.INEG:
                     case InstructionCodes.FNEG:
+                    case InstructionCodes.DNEG:
                     case InstructionCodes.BNOT:
                     case InstructionCodes.IEQ:
                     case InstructionCodes.FEQ:
                     case InstructionCodes.SEQ:
                     case InstructionCodes.BEQ:
+                    case InstructionCodes.DEQ:
                     case InstructionCodes.REQ:
                     case InstructionCodes.TEQ:
                     case InstructionCodes.INE:
                     case InstructionCodes.FNE:
                     case InstructionCodes.SNE:
                     case InstructionCodes.BNE:
+                    case InstructionCodes.DNE:
                     case InstructionCodes.RNE:
                     case InstructionCodes.TNE:
                     case InstructionCodes.IAND:
@@ -1418,7 +1429,9 @@ public class CPU {
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
+        BDecimalArray bDecimalArray;
         BMap<String, BRefType> bMap;
+
         switch (opcode) {
             case InstructionCodes.IASTORE:
                 i = operands[0];
@@ -1480,6 +1493,18 @@ public class CPU {
                     handleError(ctx);
                 }
                 break;
+            case InstructionCodes.DASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bDecimalArray = Optional.of((BDecimalArray) sf.refRegs[i]).get();
+                try {
+                    bDecimalArray.add(sf.longRegs[j], sf.decimalRegs[k]);
+                } catch (Exception e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
+                break;
             case InstructionCodes.RASTORE:
                 i = operands[0];
                 j = operands[1];
@@ -1536,6 +1561,12 @@ public class CPU {
                 i = operands[1];
                 j = operands[2];
                 ctx.programFile.globalMemArea.setBooleanField(pkgIndex, j, sf.intRegs[i]);
+                break;
+            case InstructionCodes.DGSTORE:
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setDecimalField(pkgIndex, j, sf.decimalRegs[i]);
                 break;
             case InstructionCodes.RGSTORE:
                 pkgIndex = operands[0];
@@ -1599,6 +1630,12 @@ public class CPU {
                 k = operands[2];
                 sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
                 break;
+            case InstructionCodes.DADD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.decimalRegs[k] = sf.decimalRegs[i].add(sf.decimalRegs[j]);
+                break;
             case InstructionCodes.XMLADD:
                 i = operands[0];
                 j = operands[1];
@@ -1621,6 +1658,12 @@ public class CPU {
                 k = operands[2];
                 sf.doubleRegs[k] = sf.doubleRegs[i] - sf.doubleRegs[j];
                 break;
+            case InstructionCodes.DSUB:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.decimalRegs[k] = sf.decimalRegs[i].subtract(sf.decimalRegs[j]);
+                break;
             case InstructionCodes.IMUL:
                 i = operands[0];
                 j = operands[1];
@@ -1632,6 +1675,12 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.doubleRegs[k] = sf.doubleRegs[i] * sf.doubleRegs[j];
+                break;
+            case InstructionCodes.DMUL:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.decimalRegs[k] = sf.decimalRegs[i].multiply(sf.decimalRegs[j]);
                 break;
             case InstructionCodes.IDIV:
                 i = operands[0];
@@ -1657,6 +1706,18 @@ public class CPU {
 
                 sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
                 break;
+            case InstructionCodes.DDIV:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.decimalRegs[j].compareTo(Decimal.ZERO) == 0) {
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+                    handleError(ctx);
+                    break;
+                }
+
+                sf.decimalRegs[k] = sf.decimalRegs[i].divide(sf.decimalRegs[j]);
+                break;
             case InstructionCodes.IMOD:
                 i = operands[0];
                 j = operands[1];
@@ -1681,6 +1742,18 @@ public class CPU {
 
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
                 break;
+            case InstructionCodes.DMOD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.decimalRegs[j].compareTo(Decimal.ZERO) == 0) {
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+                    handleError(ctx);
+                    break;
+                }
+
+                sf.decimalRegs[k] = sf.decimalRegs[i].reminder(sf.decimalRegs[j]);
+                break;
             case InstructionCodes.INEG:
                 i = operands[0];
                 j = operands[1];
@@ -1690,6 +1763,11 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.doubleRegs[j] = -sf.doubleRegs[i];
+                break;
+            case InstructionCodes.DNEG:
+                i = operands[0];
+                j = operands[1];
+                sf.decimalRegs[j] = sf.decimalRegs[i].negate();
                 break;
             case InstructionCodes.BNOT:
                 i = operands[0];
@@ -1719,6 +1797,12 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.intRegs[i] == sf.intRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.DEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) == 0 ? 1 : 0;
                 break;
             case InstructionCodes.REQ:
                 i = operands[0];
@@ -1763,6 +1847,12 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.intRegs[i] != sf.intRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.DNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) != 0 ? 1 : 0;
                 break;
             case InstructionCodes.RNE:
                 i = operands[0];
