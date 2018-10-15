@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -347,7 +348,15 @@ public class BTable implements BRefType<Object>, BCollection {
         return true;
     }
 
+    /**
+     * Returns the length or the number of rows of the table if the table is not null.
+     *
+     * @return number of rows of the table
+     */
     public int length() {
+        if (tableName == null) {
+            throw new BLangNullReferenceException("Failed to invoke 'length' operation on a null reference");
+        }
         return tableProvider.getRowCount(tableName);
     }
 

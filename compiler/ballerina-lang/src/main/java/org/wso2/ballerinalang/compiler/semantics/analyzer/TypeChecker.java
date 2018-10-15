@@ -116,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -1536,10 +1537,24 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
+    /**
+     * Check if the invocation node is trying to invoke the builtin length operation and check if the expression can
+     * invoke the particular function.
+     *
+     * @param iExpr invocation node
+     * @return true if it is invoking the length operation and false otherwise
+     */
     private boolean isLengthInvocation(BLangInvocation iExpr) {
-        return "length".equals(iExpr.name.value) && canHaveLengthInvocation(iExpr.expr.type.tag);
+        return Constants.BUILTIN_LENGTH_OPERATION.equals(iExpr.name.value) &&
+                canHaveLengthInvocation(iExpr.expr.type.tag);
     }
 
+    /**
+     * Check for nodes that can invoke the builtin length operation.
+     *
+     * @param iExpr integer value of the expression tag
+     * @return true if the particular tag can invoke the length operation and false otherwise
+     */
     private boolean canHaveLengthInvocation(int iExpr) {
         switch (iExpr) {
             case TypeTags.ARRAY:

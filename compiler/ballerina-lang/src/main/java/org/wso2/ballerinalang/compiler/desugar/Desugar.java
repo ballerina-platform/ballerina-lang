@@ -170,6 +170,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1225,12 +1226,17 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Create invocation node for length.
+     *
+     * @param invocation invocation node
+     * @return invocation node created
+     */
     private BLangInvocation createLengthInvocation(BLangInvocation invocation) {
         List<BLangExpression> args = new ArrayList<>();
-        String functionName = "length";
         args.add(invocation.expr);
         BType retType = invocation.type;
-        return createInvocationNode(functionName, args, retType);
+        return createInvocationNode(Constants.BUILTIN_LENGTH_OPERATION, args, retType);
     }
 
     public void visit(BLangTypeInit typeInitExpr) {

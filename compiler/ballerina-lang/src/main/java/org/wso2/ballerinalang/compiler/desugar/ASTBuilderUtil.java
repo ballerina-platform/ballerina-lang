@@ -642,6 +642,12 @@ public class ASTBuilderUtil {
         return dupVarSymbol;
     }
 
+    /**
+     * Duplicate the invokable symbol and add the public flag to the flag set.
+     *
+     * @param invokableSymbol original invokable symbol
+     * @return duplicated invokable symbol
+     */
     public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(Flags.PUBLIC, invokableSymbol.name,
                                                                       invokableSymbol.pkgID, invokableSymbol.type,
@@ -658,8 +664,8 @@ public class ASTBuilderUtil {
         dupFuncSymbol.scope = invokableSymbol.scope;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                                                prevFuncType.retType, prevFuncType.tsymbol);
+        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.retType,
+                                                prevFuncType.tsymbol);
         return dupFuncSymbol;
     }
 

@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 
 /**
  * Extern function to get length of any type.
@@ -42,7 +43,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Length extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
-        Object obj =  ctx.getRefArgument(0);
+        Object obj = ctx.getNullableRefArgument(0);
+        // Check if the length 'operation' is called on a null reference if so throw a BLangNullReference exception
+        if (obj == null) {
+            throw new BLangNullReferenceException("Failed to invoke 'length' operation on a null reference");
+        }
         long length = 0;
         if (obj instanceof BNewArray) { // Arrays, Tuples and Json
             length = ((BNewArray) obj).size();
