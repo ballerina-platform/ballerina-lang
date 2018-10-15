@@ -243,6 +243,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.XMLNS)
+                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+
+        topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.VARIABLE)
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
@@ -253,6 +257,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE)
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.XMLNS)
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.TYPE_DEFINITION)
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 

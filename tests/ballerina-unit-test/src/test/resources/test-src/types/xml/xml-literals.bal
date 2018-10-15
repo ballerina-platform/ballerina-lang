@@ -137,7 +137,7 @@ function testInvalidElementName_2() returns (xml) {
     return x1;
 }
 
-function testIvalidAttributeName() returns (xml) {
+function testInvalidAttributeName() returns (xml) {
     string v1 = "foo>bar";
     xml x1 = xml `<foo {{v1}}="attribute value">hello</foo>`;
 
