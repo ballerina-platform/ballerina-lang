@@ -19,8 +19,9 @@ package org.ballerinalang.auth.ldap.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ballerinalang.auth.ldap.CommonLDAPConfiguration;
+import org.ballerinalang.auth.ldap.CommonLdapConfiguration;
 import org.ballerinalang.auth.ldap.UserStoreException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,11 +37,11 @@ import javax.naming.directory.SearchResult;
 /**
  * Utility class for LDAP related common operations.
  */
-public class LDAPUtils {
+public class LdapUtils {
 
-    private static final Log LOG = LogFactory.getLog(LDAPUtils.class);
-
+    private static final Log LOG = LogFactory.getLog(LdapUtils.class);
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+    private static final ThreadLocal<String> socketFactoryName = new ThreadLocal<>();
 
     /**
      * Checks whether a given string is null or empty after the trim.
@@ -62,12 +63,12 @@ public class LDAPUtils {
      * @throws UserStoreException if there is any exception occurs during the process
      * @throws NamingException if there is any exception occurs during the process
      */
-    public static String getNameInSpaceForUsernameFromLDAP(String userName, CommonLDAPConfiguration ldapConfiguration,
+    public static String getNameInSpaceForUsernameFromLDAP(String userName, CommonLdapConfiguration ldapConfiguration,
                                   DirContext dirContext) throws UserStoreException, NamingException {
         String userSearchFilter = ldapConfiguration.getUserNameSearchFilter();
-        userSearchFilter = userSearchFilter.replace("?", LDAPUtils.escapeSpecialCharactersForFilter(userName));
+        userSearchFilter = userSearchFilter.replace("?", LdapUtils.escapeSpecialCharactersForFilter(userName));
         String searchBase = ldapConfiguration.getUserSearchBase();
-        return LDAPUtils.getNameInSpaceForUserName(userName, searchBase, userSearchFilter, dirContext);
+        return LdapUtils.getNameInSpaceForUserName(userName, searchBase, userSearchFilter, dirContext);
     }
 
     /**
@@ -101,7 +102,7 @@ public class LDAPUtils {
                 if (!(answer.hasMore())) {
                     continue;
                 }
-                SearchResult userObj = (SearchResult) answer.next();
+                SearchResult userObj = answer.next();
                 if (userObj != null) {
                     //no need to decode since , if decoded the whole string, can't be encoded again
                     //eg CN=Hello\,Ok=test\,test, OU=Industry
@@ -113,7 +114,7 @@ public class LDAPUtils {
                 LOG.debug("Name in space for " + userName + " is " + userDN);
             }
         } finally {
-            LDAPUtils.closeNamingEnumeration(answer);
+            LdapUtils.closeNamingEnumeration(answer);
         }
         return userDN;
     }
@@ -256,5 +257,21 @@ public class LDAPUtils {
             value = defaultValue;
         }
         return value;
+    }
+
+    public static String getServiceNameFromThreadLocal() {
+        String result = socketFactoryName.get();
+        if (result == null) {
+            throw new BallerinaException("Cannot infer the ssl context related to the service");
+        }
+        return result;
+    }
+
+    public static void setServiceName(String serviceName) {
+        socketFactoryName.set(serviceName);
+    }
+
+    public static void removeServiceName() {
+        socketFactoryName.remove();
     }
 }

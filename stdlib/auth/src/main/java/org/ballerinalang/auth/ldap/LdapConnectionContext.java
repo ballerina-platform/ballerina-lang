@@ -15,45 +15,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.auth.ldap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.ballerinalang.auth.ldap.nativeimpl.InitLDAPConnectionContext;
-import org.ballerinalang.auth.ldap.util.LDAPUtils;
+import org.ballerinalang.auth.ldap.util.LdapUtils;
 
 import java.util.Hashtable;
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import static javax.naming.Context.INITIAL_CONTEXT_FACTORY;
+import static javax.naming.Context.SECURITY_AUTHENTICATION;
+import static javax.naming.Context.SECURITY_CREDENTIALS;
+import static javax.naming.Context.SECURITY_PRINCIPAL;
+import static javax.naming.Context.SECURITY_PROTOCOL;
+
 /**
  * LDAP connection context representation.
  */
-public class LDAPConnectionContext {
+public class LdapConnectionContext {
 
-    private static final Log LOG = LogFactory.getLog(InitLDAPConnectionContext.class);
     private Hashtable environment;
 
-    public LDAPConnectionContext(CommonLDAPConfiguration ldapConfiguration) {
+    public LdapConnectionContext(CommonLdapConfiguration ldapConfiguration) {
 
         String connectionURL = ldapConfiguration.getConnectionURL();
         String connectionName = ldapConfiguration.getConnectionName();
         String connectionPassword = ldapConfiguration.getConnectionPassword();
         environment = new Hashtable();
-
-        environment.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        environment.put(javax.naming.Context.SECURITY_AUTHENTICATION, "simple");
+        environment.put(INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        environment.put(SECURITY_AUTHENTICATION, "simple");
 
         if (connectionName != null) {
-            environment.put(javax.naming.Context.SECURITY_PRINCIPAL, connectionName);
+            environment.put(SECURITY_PRINCIPAL, connectionName);
         }
 
         if (connectionPassword != null) {
-            environment.put(javax.naming.Context.SECURITY_CREDENTIALS, connectionPassword);
+            environment.put(SECURITY_CREDENTIALS, connectionPassword);
         }
 
         if (connectionURL != null) {
@@ -65,9 +66,9 @@ public class LDAPConnectionContext {
 
         environment.put("com.sun.jndi.ldap.connect.pool", isLDAPConnectionPoolingEnabled ? "true" : "false");
 
-        if (LDAPUtils.isLdapsUrl(connectionURL)) {
-            environment.put(Context.SECURITY_PROTOCOL, "ssl");
-            environment.put("java.naming.ldap.factory.socket", LDAPSSLSocketFactory.class.getName());
+        if (LdapUtils.isLdapsUrl(connectionURL)) {
+            environment.put(SECURITY_PROTOCOL, LdapConstants.SSL);
+            environment.put("java.naming.ldap.factory.socket", LdapSslSocketFactory.class.getName());
         }
 
         // Set connect timeout if provided in configuration. Otherwise set default value
@@ -76,10 +77,10 @@ public class LDAPConnectionContext {
         if (!connectTimeout.trim().isEmpty()) {
             environment.put("com.sun.jndi.ldap.connect.timeout", connectTimeout);
         } else {
-            environment.put("com.sun.jndi.ldap.connect.timeout", "5000");
+            environment.put("com.sun.jndi.ldap.connect.timeout", LdapConstants.DEFAULT_CONNECTION_TIME_OUT);
         }
 
-        if (!LDAPUtils.isNullOrEmptyAfterTrim(readTimeout)) {
+        if (!LdapUtils.isNullOrEmptyAfterTrim(readTimeout)) {
             environment.put("com.sun.jndi.ldap.read.timeout", readTimeout);
         }
     }
@@ -107,8 +108,8 @@ public class LDAPConnectionContext {
         Hashtable<String, Object> tempEnv = new Hashtable<>();
         tempEnv.putAll(environment);
         // Replace connection name and password with the passed credentials to this method
-        tempEnv.put(javax.naming.Context.SECURITY_PRINCIPAL, userDN);
-        tempEnv.put(javax.naming.Context.SECURITY_CREDENTIALS, password);
+        tempEnv.put(SECURITY_PRINCIPAL, userDN);
+        tempEnv.put(SECURITY_CREDENTIALS, password);
         return getContextForEnvironmentVariables(tempEnv);
     }
 

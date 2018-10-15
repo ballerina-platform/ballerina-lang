@@ -17,6 +17,7 @@
 
 import ballerina/auth;
 import ballerina/log;
+import ballerina/system;
 
 # Defines Secure Listener endpoint.
 #
@@ -26,9 +27,11 @@ public type SecureListener object {
 
     public SecureEndpointConfiguration config;
     public Listener httpListener;
+    private string instanceId;
 
     new() {
         httpListener = new;
+        instanceId = system:uuid();
     }
 
     # Gets called when the endpoint is being initialize during package init time.
@@ -73,6 +76,8 @@ public type SecureListener object {
 #                          connection. By default 10 requests can be pipelined on a single cinnection and user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + authProviders - The array of authentication providers which are used to authenticate the users
+# + positiveAuthzCache - Caching configurations for positive authorizations
+# + negativeAuthzCache - Caching configurations for negative authorizations
 public type SecureEndpointConfiguration record {
     string host;
     int port = 9090;
@@ -84,6 +89,23 @@ public type SecureEndpointConfiguration record {
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
     AuthProvider[]? authProviders;
+    AuthCacheConfig positiveAuthzCache;
+    AuthCacheConfig negativeAuthzCache;
+    !...
+};
+
+# Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
+#
+# + enabled - Specifies whether authorization caching is enabled. Caching is enabled by default.
+# + capacity - The capacity of the cache
+# + expiryTimeMillis - The number of milliseconds to keep an entry in the cache
+# + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
+#                    between 0 (exclusive) and 1 (inclusive).
+public type AuthCacheConfig record {
+    boolean enabled = true;
+    int capacity = 100;
+    int expiryTimeMillis = 5 * 1000; // 5 seconds;
+    float evictionFactor = 1;
     !...
 };
 
@@ -103,7 +125,7 @@ public type SecureEndpointConfiguration record {
 # + keyPassword - The Key password
 # + expTime - Expiry time
 # + signingAlg - The signing algorithm which is used to sign the JWT token
-# + propagateToken - `true` if propagating authentication info as JWT
+# + propagateJwt - `true` if propagating authentication info as JWT
 public type AuthProvider record {
     string scheme;
     string id;
@@ -119,26 +141,26 @@ public type AuthProvider record {
     string keyPassword;
     int expTime;
     string signingAlg;
-    boolean propagateToken;
+    boolean propagateJwt;
     !...
 };
 
 function SecureListener::init(SecureEndpointConfiguration c) {
-    addAuthFiltersForSecureListener(c);
+    addAuthFiltersForSecureListener(c, self.instanceId);
     self.httpListener.init(c);
 }
 
 # Add authn and authz filters
 #
 # + config - `SecureEndpointConfiguration` instance
-function addAuthFiltersForSecureListener(SecureEndpointConfiguration config) {
+function addAuthFiltersForSecureListener(SecureEndpointConfiguration config, string instanceId) {
     // add authentication and authorization filters as the first two filters.
     // if there are any other filters specified, those should be added after the authn and authz filters.
     if (config.filters == null) {
         // can add authn and authz filters directly
-        config.filters = createAuthFiltersForSecureListener(config);
+        config.filters = createAuthFiltersForSecureListener(config, instanceId);
     } else {
-        Filter[] newFilters = createAuthFiltersForSecureListener(config);
+        Filter[] newFilters = createAuthFiltersForSecureListener(config, instanceId);
         // add existing filters next
         int i = 0;
         while (i < lengthof config.filters) {
@@ -153,19 +175,18 @@ function addAuthFiltersForSecureListener(SecureEndpointConfiguration config) {
 #
 # + config - `SecureEndpointConfiguration` instance
 # + return - Array of Filters comprising of authn and authz Filters
-function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) returns (Filter[]) {
+function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, string instanceId) returns (Filter[]) {
     // parse and create authentication handlers
     AuthHandlerRegistry registry;
     match config.authProviders {
         AuthProvider[] providers => {
-            int i = 1;
             foreach provider in providers {
                 if (lengthof provider.id > 0) {
-                    registry.add(provider.id, createAuthHandler(provider));
+                    registry.add(provider.id, createAuthHandler(provider, instanceId));
                 } else {
-                    registry.add(provider.scheme + "-" + i, createAuthHandler(provider));
+                    string providerId = system:uuid();
+                    registry.add(providerId, createAuthHandler(provider, instanceId));
                 }
-                i++;
             }
         }
         () => {
@@ -176,7 +197,10 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
     Filter[] authFilters = [];
     AuthnHandlerChain authnHandlerChain = new(registry);
     AuthnFilter authnFilter = new(authnHandlerChain);
-    cache:Cache authzCache = new(expiryTimeMillis = 300000);
+    cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis, capacity =
+        config.positiveAuthzCache.capacity, evictionFactor = config.positiveAuthzCache.evictionFactor);
+    cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis, capacity =
+        config.negativeAuthzCache.capacity, evictionFactor = config.negativeAuthzCache.evictionFactor);
     auth:AuthStoreProvider authStoreProvider;
     match config.authProviders {
         AuthProvider[] providers => {
@@ -185,7 +209,8 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
                     if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
                         match provider.authStoreProviderConfig {
                             auth:LdapAuthProviderConfig authStoreProviderConfig => {
-                                auth:LDAPAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig);
+                                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig,
+                                    instanceId);
                                 authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
                             }
                             () => {
@@ -207,7 +232,7 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
             // No auth providers configured.
         }
     }
-    HttpAuthzHandler authzHandler = new(authStoreProvider, authzCache);
+    HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
     AuthzFilter authzFilter = new(authzHandler);
     authFilters[0] = authnFilter;
     authFilters[1] = authzFilter;
@@ -221,11 +246,11 @@ function createBasicAuthHandler() returns HttpAuthnHandler {
     return <HttpAuthnHandler>basicAuthHandler;
 }
 
-function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
+function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
         auth:AuthStoreProvider authStoreProvider;
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
-            if (authProvider.propagateToken) {
+            if (authProvider.propagateJwt) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
                 authStoreProvider = <auth:AuthStoreProvider>configAuthProvider;
             } else {
@@ -234,22 +259,21 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
             }
         } else if (authProvider.authStoreProvider == AUTH_PROVIDER_LDAP) {
             match authProvider.authStoreProviderConfig {
-                        auth:LdapAuthProviderConfig authStoreProviderConfig => {
-                        auth:LDAPAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig);
-                        if (authProvider.propagateToken) {
-                            auth:LDAPJwtAuthProvider configAuthProvider =
-                                        new(getInferredJwtAuthProviderConfig(authProvider),ldapAuthStoreProvider);
-                            authStoreProvider = <auth:AuthStoreProvider>configAuthProvider;
-                        } else {
-                            authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
-                        }
+                auth:LdapAuthProviderConfig authStoreProviderConfig => {
+                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig, instanceId);
+                    if (authProvider.propagateJwt) {
+                        auth:LdapJwtAuthProvider ldapAuthProvider =
+                                    new(getInferredJwtAuthProviderConfig(authProvider),ldapAuthStoreProvider);
+                        authStoreProvider = <auth:AuthStoreProvider>ldapAuthProvider;
+                    } else {
+                        authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
                     }
-                    () => {
-                        error e = {message: "Authstore config not provided for : " + authProvider.authStoreProvider };
-                        throw e;
-                    }
+                }
+                () => {
+                    error e = {message: "Authstore config not provided for : " + authProvider.authStoreProvider };
+                    throw e;
+                }
             }
-
         } else {
             // other auth providers are unsupported yet
             error e = {message: "Invalid auth provider: " + authProvider.authStoreProvider };

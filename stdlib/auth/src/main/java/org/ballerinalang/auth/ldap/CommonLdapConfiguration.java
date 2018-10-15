@@ -15,14 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.auth.ldap;
 
-import java.io.File;
+import java.util.List;
 
 /**
  * Ballerina LDAP user store configurations.
  */
-public class CommonLDAPConfiguration {
+public class CommonLdapConfiguration extends SslTrustConfiguration {
 
     private String domainName;
     private String connectionURL;
@@ -33,16 +34,12 @@ public class CommonLDAPConfiguration {
     private String userNameAttribute;
     private String userNameSearchFilter;
     private String userNameListFilter;
-    private String groupSearchBase;
+    private List<String> groupSearchBase;
     private String groupEntryObjectClass;
     private String groupNameAttribute;
     private String groupNameSearchFilter;
     private String groupNameListFilter;
     private String membershipAttribute;
-    private File trustStore;
-    private String trustStoreFile;
-    private String trustStorePassword;
-    private String trustedCertFile;
     private boolean userRolesCacheEnabled;
     private boolean connectionPoolingEnabled;
     private int ldapConnectionTimeout;
@@ -121,11 +118,11 @@ public class CommonLDAPConfiguration {
         this.userNameListFilter = userNameListFilter;
     }
 
-    public String getGroupSearchBase() {
+    public List<String> getGroupSearchBase() {
         return groupSearchBase;
     }
 
-    public void setGroupSearchBase(String groupSearchBase) {
+    public void setGroupSearchBase(List<String> groupSearchBase) {
         this.groupSearchBase = groupSearchBase;
     }
 
@@ -207,37 +204,5 @@ public class CommonLDAPConfiguration {
 
     public void setRetryAttempts(int retryAttempts) {
         this.retryAttempts = retryAttempts;
-    }
-
-    public String getTrustStoreFile() {
-        return trustStoreFile;
-    }
-
-    public void setTrustStoreFile(String trustStoreFile) {
-        this.trustStoreFile = trustStoreFile;
-    }
-
-    public String getTrustStorePassword() {
-        return trustStorePassword;
-    }
-
-    public void setTrustStorePassword(String trustStorePassword) {
-        this.trustStorePassword = trustStorePassword;
-    }
-
-    public String getTrustedCertFile() {
-        return trustedCertFile;
-    }
-
-    public void setTrustedCertFile(String trustedCertFile) {
-        this.trustedCertFile = trustedCertFile;
-    }
-
-    public File getTrustStore() {
-        return trustStore;
-    }
-
-    public void setTrustStore(File trustStore) {
-        this.trustStore = trustStore;
     }
 }

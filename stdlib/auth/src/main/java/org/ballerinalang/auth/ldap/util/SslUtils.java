@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.auth.ldap.util;
 
-import org.ballerinalang.auth.ldap.LDAPConstants;
+import org.ballerinalang.auth.ldap.LdapConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,16 +40,53 @@ import javax.net.ssl.TrustManagerFactory;
  * Utility class for handle ssl related LDAP operations.
  */
 public class SslUtils {
+
     private static final Logger LOG = LoggerFactory.getLogger(SslUtils.class.getSimpleName());
 
-    public static SSLContext getSslContextForCertificateFile(String fileName) throws NoSuchAlgorithmException,
+    /**
+     * Creates an SSLContext based on provided trust certificate chain file path.
+     *
+     * @param filePath Path to the certificate file.
+     * @return SSLContext created from the given certificate file.
+     * @throws NoSuchAlgorithmException When the particular cryptographic algorithm is not available in the environment.
+     * @throws KeyStoreException When an exception occurs during the keystore creation process.
+     * @throws KeyManagementException  When an exception occurs dealing with key management.
+     * @throws IOException To signal that an I/O exception of some sort has occurred.
+     * @throws CertificateException To indicate one of a variety of certificate problems.
+     */
+    public static SSLContext getSslContextForCertificateFile(String filePath) throws NoSuchAlgorithmException,
             KeyStoreException, KeyManagementException, IOException, CertificateException {
-        KeyStore keyStore = SslUtils.getKeyStore(fileName);
-        SSLContext sslContext = SSLContext.getInstance(LDAPConstants.TLS);
+        KeyStore keyStore = SslUtils.getKeyStore(filePath);
+        SSLContext sslContext = SSLContext.getInstance(LdapConstants.TLS);
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
                 TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init(keyStore);
         sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+        return sslContext;
+    }
+
+    /**
+     * Creates an SSLContext based on provided trust store file path and the password.
+     *
+     * @param trustStoreFilePath Path to the trust store file.
+     * @param trustStorePassword Trust store password.
+     * @return SSLContext created from the given trust store and password.
+     * @throws NoSuchAlgorithmException When the particular cryptographic algorithm is not available in the environment.
+     * @throws KeyStoreException When an exception occurs during the keystore creation process.
+     * @throws KeyManagementException  When an exception occurs dealing with key management.
+     * @throws IOException To signal that an I/O exception of some sort has occurred.
+     */
+    public static SSLContext createClientSslContext(String trustStoreFilePath, String trustStorePassword) throws
+            NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+        TrustManager[] trustManagers;
+        File trustStoreFile = new File(LdapUtils.substituteVariables(trustStoreFilePath));
+        KeyStore tks = getKeyStore(trustStoreFile, trustStorePassword);
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(tks);
+        trustManagers = tmf.getTrustManagers();
+
+        SSLContext sslContext = SSLContext.getInstance(LdapConstants.TLS);
+        sslContext.init(null, trustManagers, null);
         return sslContext;
     }
 
@@ -58,63 +95,30 @@ public class SslUtils {
         KeyStore keyStore;
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream(LDAPUtils.substituteVariables(fileName));
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            inputStream = new FileInputStream(LdapUtils.substituteVariables(fileName));
+            CertificateFactory cf = CertificateFactory.getInstance(LdapConstants.X_509);
             Certificate ca = cf.generateCertificate(inputStream);
-            keyStore = KeyStore.getInstance(LDAPConstants.PKCS_STORE_TYPE);
+            keyStore = KeyStore.getInstance(LdapConstants.PKCS_STORE_TYPE);
             keyStore.load(null, null);
-            keyStore.setCertificateEntry("ca", ca);
+            keyStore.setCertificateEntry(LdapConstants.CERTIFICATE_ALIAS, ca);
         } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                LOG.debug("ca={}", e);
+            if (inputStream != null) {
+                inputStream.close();
             }
         }
         return keyStore;
     }
 
-    public static KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
+    private static KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
         KeyStore ks = null;
         if (keyStore != null && keyStorePassword != null) {
             try (InputStream is = new FileInputStream(keyStore)) {
-                ks = KeyStore.getInstance(LDAPConstants.PKCS_STORE_TYPE);
+                ks = KeyStore.getInstance(LdapConstants.PKCS_STORE_TYPE);
                 ks.load(is, keyStorePassword.toCharArray());
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
                 throw new IOException(e);
             }
         }
         return ks;
-    }
-
-    public static SSLContext createClientSslContext(String trustStoreFilePath, String trustStorePassword) throws
-            NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
-
-        TrustManager[] trustManagers = null;
-        File trustStoreFile = new File(LDAPUtils.substituteVariables(trustStoreFilePath));
-        KeyStore tks = getKeyStore(trustStoreFile, trustStorePassword);
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(tks);
-        trustManagers = tmf.getTrustManagers();
-
-        SSLContext sslContext = SSLContext.getInstance(LDAPConstants.TLS);
-        sslContext.init(null, trustManagers, null);
-        return sslContext;
-    }
-
-    public static SSLContext getSslContext() throws NoSuchAlgorithmException, KeyStoreException,
-            KeyManagementException, IOException, CertificateException {
-        String trustStoreFilePath = System.getProperty(LDAPConstants.LDAP_TRUST_STORE_FILE_PATH);
-        String trustStorePassword = System.getProperty(LDAPConstants.LDAP_TRUST_STORE_PASSWORD);
-        String trustedCertFile = System.getProperty(LDAPConstants.LDAP_TRUST_STORE_TRUST_CERTIFICATES);
-        if (!LDAPUtils.isNullOrEmptyAfterTrim(trustStoreFilePath) && !LDAPUtils.isNullOrEmptyAfterTrim
-                (trustStorePassword)) {
-            return SslUtils.createClientSslContext(trustStoreFilePath, trustStorePassword);
-        } else if (!LDAPUtils.isNullOrEmptyAfterTrim(trustedCertFile)) {
-            return SslUtils.getSslContextForCertificateFile(trustedCertFile);
-        }
-        return SSLContext.getDefault();
     }
 }

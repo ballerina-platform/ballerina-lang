@@ -18,38 +18,30 @@
 
 package org.ballerinalang.auth.ldap;
 
+import org.ballerinalang.auth.ldap.util.LdapUtils;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
-import static org.ballerinalang.auth.ldap.util.SslUtils.getSslContext;
-
 /**
  * SSL socket factory will be used connect to secure LDAP servers.
  */
-public class LDAPSSLSocketFactory extends SSLSocketFactory {
+public class LdapSslSocketFactory extends SSLSocketFactory {
 
     private SSLSocketFactory socketFactory;
 
-    public LDAPSSLSocketFactory() {
-        try {
-            SSLContext sslContext = getSslContext();
-            socketFactory = sslContext.getSocketFactory();
-        } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
-                | CertificateException | IOException e) {
-            //TODO: handle properly
-        }
+    public LdapSslSocketFactory() {
+        SSLContext sslContext = SslContextTrustManager.getInstance().getSSLContext(LdapUtils
+                .getServiceNameFromThreadLocal());
+        socketFactory = sslContext.getSocketFactory();
     }
 
     public static SocketFactory getDefault() {
-        return new LDAPSSLSocketFactory();
+        return new LdapSslSocketFactory();
     }
 
     @Override

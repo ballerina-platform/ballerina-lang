@@ -22,10 +22,10 @@ import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
-public type LDAPJwtAuthProvider object {
+public type LdapJwtAuthProvider object {
 
     public InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig;
-    public LDAPAuthStoreProvider ldapAuthProvider;
+    public LdapAuthStoreProvider ldapAuthProvider;
 
     public new(ldapJwtAuthProviderConfig,ldapAuthProvider) {
     }

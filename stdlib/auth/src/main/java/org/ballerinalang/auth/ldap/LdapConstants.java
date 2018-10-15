@@ -15,12 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.auth.ldap;
 
 /**
  * Constants to be used in LDAP user stores.
  */
-public class LDAPConstants {
+public class LdapConstants {
 
     public static final String DOMAIN_NAME = "domainName";
     // LDAP connection related constants
@@ -54,6 +55,7 @@ public class LDAPConstants {
     public static final String LDAP_CONNECTION_SOURCE = "connectionSource";
     public static final String LDAP_CONNECTION_CONTEXT = "connectionContext";
     public static final String LDAP_AUTH_PROVIDER_CONFIG = "ldapAuthProviderConfig";
+    public static final String ENDPOINT_INSTANCE_ID = "instanceId";
     public static final String SECURE_AUTH_STORE_CONFIG = "secureClientSocket";
 
     public static final String AUTH_STORE_CONFIG_TRUST_STORE = "trustStore";
@@ -61,9 +63,10 @@ public class LDAPConstants {
     public static final String PASSWORD = "password";
     public static final String AUTH_STORE_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
     public static final String TLS = "TLS";
+    public static final String SSL = "ssl";
     public static final String PKCS_STORE_TYPE = "PKCS12";
-    public static final String LDAP_TRUST_STORE_FILE_PATH = "ballerina.ldap.trustStoreFilePath";
-    public static final String LDAP_TRUST_STORE_PASSWORD = "ballerina.ldap.trustStorePassword";
-    public static final String LDAP_TRUST_STORE_TRUST_CERTIFICATES = "ballerina.ldap.trustedCertFile";
-
+    public static final String X_509 = "X.509";
+    public static final String DEFAULT_CONNECTION_TIME_OUT = "5000";
+    public static final String UTF_8_CHARSET = "UTF-8";
+    public static final String CERTIFICATE_ALIAS = "ca";
 }

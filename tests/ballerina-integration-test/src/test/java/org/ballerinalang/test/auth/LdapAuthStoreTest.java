@@ -30,16 +30,17 @@ import java.util.Map;
  * Test cases for ldap user store based authentication/authorization scenarios.
  */
 @Test(groups = "auth-test")
-public class LDAPAuthStoreTest extends AuthBaseTest {
+public class LdapAuthStoreTest extends AuthBaseTest {
 
     private final int servicePort = 9096;
+    private final int authzServicePort = 9097;
 
     @Test(description = "Test authenticate and authorize request against ldap auth store")
     public void testAuthenticationWithInvalidCredentials() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTp2aWppdGhhQDEyMw==");
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "hello/disableAuthz"), headersMap);
+                "ldapAuth/disableAuthz"), headersMap);
         assertResponse(response, 401, "Authentication failure");
     }
 
@@ -48,7 +49,7 @@ public class LDAPAuthStoreTest extends AuthBaseTest {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "hello/disableAuthz"), headersMap);
+                "ldapAuth/disableAuthz"), headersMap);
         assertResponse(response, 200, "Hello, World!!!");
     }
 
@@ -57,7 +58,7 @@ public class LDAPAuthStoreTest extends AuthBaseTest {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "hello/enableAuthz"), headersMap);
+                "ldapAuth/enableAuthz"), headersMap);
         assertResponse(response, 200, "Hello, World!!!");
     }
 
@@ -65,8 +66,8 @@ public class LDAPAuthStoreTest extends AuthBaseTest {
     public void testAuthorizatioFailureWithLDAPAuthstore() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "hello/failAuthz"), headersMap);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(authzServicePort,
+                "auth/failAuthz"), headersMap);
         assertResponse(response, 403, "Authorization failure");
     }
 

@@ -111,7 +111,7 @@ documentation {
     F{{keyPassword}} The Key password
     F{{expTime}} Expiry time
     F{{signingAlg}} The signing algorithm which is used to sign the JWT token
-    F{{propagateToken}} `true` if propagating authentication info as JWT
+    F{{propagateJwt}} `true` if propagating authentication info as JWT
 }
 public type AuthProvider record {
     string scheme,
@@ -127,7 +127,7 @@ public type AuthProvider record {
     string keyPassword,
     int expTime,
     string signingAlg,
-    boolean propagateToken,
+    boolean propagateJwt,
 };
 
 function SecureListener::init(SecureEndpointConfiguration c) {
@@ -208,7 +208,7 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
         auth:AuthStoreProvider authStoreProvider;
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
-            if (authProvider.propagateToken) {
+            if (authProvider.propagateJwt) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getConfigJwtAuthProviderConfig(authProvider));
                 authStoreProvider = <auth:AuthStoreProvider>configAuthProvider;
             } else {

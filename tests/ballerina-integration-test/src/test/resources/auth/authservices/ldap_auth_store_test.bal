@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/auth;
 import ballerina/http;
 
@@ -11,7 +27,7 @@ auth:LdapAuthProviderConfig ldapAuthProviderConfig = {
     userNameAttribute: "uid",
     userNameSearchFilter: "(&(objectClass=person)(uid=?))",
     userNameListFilter: "(objectClass=person)",
-    groupSearchBase: "ou=Groups,dc=ballerina,dc=io",
+    groupSearchBase: ["ou=Groups,dc=ballerina,dc=io"],
     groupEntryObjectClass: "groupOfNames",
     groupNameAttribute: "cn",
     groupNameSearchFilter: "(&(objectClass=groupOfNames)(cn=?))",
@@ -25,9 +41,9 @@ auth:LdapAuthProviderConfig ldapAuthProviderConfig = {
 };
 
 http:AuthProvider basicAuthProvider = {
-    id: "basic1",
-    scheme: "basic",
-    authStoreProvider: "ldap",
+    id: "basic01",
+    scheme: http:AUTHN_SCHEME_BASIC,
+    authStoreProvider: http:AUTH_PROVIDER_LDAP,
     authStoreProviderConfig: ldapAuthProviderConfig
 };
 
@@ -37,7 +53,7 @@ endpoint http:SecureListener ep {
 };
 
 @http:ServiceConfig {
-    basePath: "/hello",
+    basePath: "/ldapAuth",
     authConfig: {
         authentication: { enabled: true }
     }

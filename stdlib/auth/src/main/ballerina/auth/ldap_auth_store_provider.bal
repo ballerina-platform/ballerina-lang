@@ -52,7 +52,7 @@ public type LdapAuthProviderConfig record {
     string userNameAttribute;
     string userNameSearchFilter;
     string userNameListFilter;
-    string groupSearchBase;
+    string[] groupSearchBase;
     string groupEntryObjectClass;
     string groupNameAttribute;
     string groupNameSearchFilter;
@@ -88,13 +88,16 @@ public type TrustStore record {
 };
 
 # Represents Ballerina configuration for LDAP based auth store provider
-public type LDAPAuthStoreProvider object {
+#TODO make name camel case
+public type LdapAuthStoreProvider object {
 
     public LdapAuthProviderConfig ldapAuthProviderConfig;
+    public string instanceId;
 
-    public new (ldapAuthProviderConfig){
+    public new (ldapAuthProviderConfig, instanceId){
         self.ldapAuthProviderConfig = ldapAuthProviderConfig;
-        initLDAPConnectionContext(self);
+        self.instanceId = instanceId;
+        initLdapConnectionContext(self, instanceId);
     }
 
     # Attempts to authenticate with username and password
@@ -138,5 +141,5 @@ public type LDAPAuthStoreProvider object {
 
 # Initailizes LDAP connection context
 #
-# + ldapAuthStoreProvider - LDAPAuthStoreProvider provider object
-public extern function initLDAPConnectionContext(LDAPAuthStoreProvider ldapAuthStoreProvider);
+# + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
+public extern function initLdapConnectionContext(LdapAuthStoreProvider ldapAuthStoreProvider, string instanceId);

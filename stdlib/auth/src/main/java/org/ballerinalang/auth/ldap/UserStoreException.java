@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.auth.ldap;
 
 /**
@@ -27,23 +28,38 @@ public class UserStoreException extends Exception {
      */
     private static final long serialVersionUID = -6057036683816666265L;
 
+    /**
+     * Constructs a new UserStoreException with {@code null} as its detail message.
+     */
     public UserStoreException() {
         super();
     }
 
+    /**
+     * Constructs a new UserStoreException with the specified detail message and
+     * cause.
+     *
+     * @param message the detail message.
+     * @param cause the cause.
+     */
     public UserStoreException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public UserStoreException(String message, boolean convertMessage) {
-        super(message);
-    }
-
-
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message the detail message.
+     */
     public UserStoreException(String message) {
         super(message);
     }
 
+    /**
+     * Constructs a new exception with the specified cause.
+     *
+     * @param  cause the cause.
+     */
     public UserStoreException(Throwable cause) {
         super(cause);
     }
