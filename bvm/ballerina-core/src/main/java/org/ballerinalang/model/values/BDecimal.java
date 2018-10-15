@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 /**
  * The {@code BDecimal} represents a decimal value in Ballerina.
  *
- * @since 0.981.2
+ * @since 0.982
  */
 public final class BDecimal extends BValueType implements BRefType<Decimal> {
 

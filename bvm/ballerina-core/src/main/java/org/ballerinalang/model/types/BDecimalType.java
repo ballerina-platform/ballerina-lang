@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
  * {@code BDecimalType} represents decimal type in Ballerina.
  * This is a 128-bit decimal floating-point number according to the standard IEEE 754-2008 specifications.
  *
- * @since 0.981.2
+ * @since 0.982
  */
 class BDecimalType extends BType {
 

@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 /**
  * The {@code BDecimalArray} represents a decimal array in Ballerina.
  *
- * @since 0.981.2
+ * @since 0.982
  */
 public class BDecimalArray extends BNewArray {
 
