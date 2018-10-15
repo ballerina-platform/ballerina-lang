@@ -18,8 +18,7 @@
 
 import $ from 'jquery';
 import { getServiceEndpoint } from 'api-client/api-client';
-// import codepoints from 'font-ballerina/codepoints.json';
-const codepoints = {}
+import { codepoints } from '@ballerina/theme/font-ballerina';
 
 /**
  * Gets the base name of a file.

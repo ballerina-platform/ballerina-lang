@@ -17,7 +17,6 @@
  *
  */
 
-// import 'font-ballerina/css/font-ballerina.css';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React, { createElement } from 'react';
 import { DragDropContext } from 'react-dnd';
@@ -29,10 +28,11 @@ import SamplesList from './samples/List';
 
 import Diagram from 'plugins/ballerina/diagram/diagram';
 import DesignView from 'plugins/ballerina/views/design-view';
-import TreeBuilder from 'plugins/ballerina/model/tree-builder.js';
+import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
 import './ballerina-theme/semantic.less';
 import './scss/themes/default.scss';
+import '@ballerina/theme/font-ballerina';
 
 const BalDiagram = DragDropContext(HTML5Backend)(Diagram);
 const BallerinaDesignView = DragDropContext(HTML5Backend)(DesignView);

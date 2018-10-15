@@ -1,4 +1,4 @@
-import { renderStaticDiagram } from "@ballerina/diagram";
+import { renderEditableDiagram } from "@ballerina/diagram";
 
 const testJson : any = {
     "ast": {
@@ -130,4 +130,7 @@ const testJson : any = {
     "parseSuccess": true
 }
 
-renderStaticDiagram(document.getElementById('diagram'), testJson.ast)
+renderEditableDiagram(
+    document.getElementById('diagram'),
+    'test.bal', 700, 500,
+    () => {return Promise.resolve(testJson)});
