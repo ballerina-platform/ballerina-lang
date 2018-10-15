@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of TupleVariableReferenceNode.
@@ -56,13 +57,7 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
 
     @Override
     public String toString() {
-//        StringBuilder br = new StringBuilder();
-//        if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
-//            br.append(String.valueOf(pkgAlias)).append(":");
-//        }
-//        br.append(String.valueOf(variableName));
-//        return br.toString();
-        return null; // todo
+        return "(" + expressions.stream().map(ExpressionNode::toString).collect(Collectors.joining(",")) + ")";
     }
 
     @Override

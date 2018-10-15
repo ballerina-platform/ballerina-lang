@@ -34,6 +34,8 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
 
     public List<BLangVariable> memberVariables;
 
+    public boolean isDeclaredWithVar = false;
+
     public BLangTupleVariable() {
         this.docAttachments = new ArrayList<>();
         this.annAttachments = new ArrayList<>();

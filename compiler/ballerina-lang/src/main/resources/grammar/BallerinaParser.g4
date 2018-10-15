@@ -290,7 +290,7 @@ statement
 
 variableDefinitionStatement
     :   typeName Identifier SEMICOLON
-    |   typeName bindingPattern (ASSIGN expression) SEMICOLON
+    |   (typeName | VAR) bindingPattern (ASSIGN expression) SEMICOLON
     ;
 
 recordLiteral
@@ -345,8 +345,7 @@ assignmentStatement
     ;
 
 tupleDestructuringStatement
-    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
-    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
+    :   tupleRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordDestructuringStatement

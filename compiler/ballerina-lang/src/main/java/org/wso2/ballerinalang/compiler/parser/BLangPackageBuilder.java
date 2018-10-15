@@ -702,8 +702,7 @@ public class BLangPackageBuilder {
         return memberVar;
     }
 
-    void addTupleVariable(DiagnosticPos pos,
-                                        Set<Whitespace> ws, int members) {
+    void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members) {
 
         BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
         tupleVariable.pos = pos;
@@ -715,8 +714,7 @@ public class BLangPackageBuilder {
         this.varStack.push(tupleVariable);
     }
 
-    void addRefTupleVariable(DiagnosticPos pos,
-                                        Set<Whitespace> ws, int members) {
+    void addRefTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members) {
         BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
         tupleVarRef.pos = pos;
         tupleVarRef.addWS(ws);
@@ -745,8 +743,8 @@ public class BLangPackageBuilder {
         this.varStack.push(recordVariable);
     }
 
-    void addRefRecordVariable(DiagnosticPos pos, Set<Whitespace> ws,
-                              int members, boolean hasRestParam, boolean closed) {
+    void addRefRecordVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam,
+                              boolean closed) {
         BLangRecordVarRef recordVarRef = (BLangRecordVarRef) TreeBuilder.createRecordVariableReferenceNode();
         recordVarRef.pos = pos;
         recordVarRef.addWS(ws);
@@ -945,7 +943,8 @@ public class BLangPackageBuilder {
 
     void addTupleVariableDefStatement(DiagnosticPos pos,
                                       Set<Whitespace> ws,
-                                      boolean exprAvailable) {
+                                      boolean exprAvailable,
+                                      boolean isDeclaredWithVar) {
         BLangTupleVariable var = (BLangTupleVariable) this.varStack.pop();
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
         Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
@@ -956,7 +955,10 @@ public class BLangPackageBuilder {
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
-        var.setTypeNode(this.typeNodeStack.pop());
+        var.isDeclaredWithVar = isDeclaredWithVar;
+        if (!isDeclaredWithVar) {
+            var.setTypeNode(this.typeNodeStack.pop());
+        }
         addStmtToCurrentBlock(varDefNode);
     }
 
@@ -2095,19 +2097,15 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(assignmentNode);
     }
 
-    void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws,
-                                        boolean isVarsExist, boolean varDeclaration) {
+    void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean varDeclaration) {
         BLangTupleDestructure stmt = (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
         stmt.pos = pos;
         stmt.addWS(ws);
-        if (isVarsExist) {
-            stmt.setDeclaredWithVar(varDeclaration);
-            stmt.expr = (BLangExpression) exprNodeStack.pop();
-            List<ExpressionNode> lExprList = exprNodeListStack.pop();
-            lExprList.forEach(expressionNode -> stmt.varRefs.add((BLangVariableReference) expressionNode));
-            stmt.addWS(commaWsStack.pop());
-        }
-        // TODO: handle ParamList Destructure.
+        stmt.setDeclaredWithVar(varDeclaration);
+        stmt.expr = (BLangExpression) exprNodeStack.pop();
+        List<ExpressionNode> lExprList = exprNodeListStack.pop();
+        lExprList.forEach(expressionNode -> stmt.varRefs.add((BLangVariableReference) expressionNode));
+        stmt.addWS(commaWsStack.pop());
         addStmtToCurrentBlock(stmt);
     }
 

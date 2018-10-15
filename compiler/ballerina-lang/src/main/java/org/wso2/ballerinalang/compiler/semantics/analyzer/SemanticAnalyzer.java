@@ -497,7 +497,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleVariable varNode) {
-        if (varNode.type == null) {
+        SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, null);
+
+        if (varNode.isDeclaredWithVar) {
+            varNode.type = typeChecker.checkExpr(varNode.expr, varInitEnv, symTable.noType);
+        } else if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
@@ -518,7 +522,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // we have no rhs to do type checking
             return;
         }
-        SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, null);
 
         typeChecker.checkExpr(varNode.expr, varInitEnv, varNode.type);
     }

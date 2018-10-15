@@ -1032,7 +1032,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable);
         } else {
-            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable);
+            boolean isDeclaredWithVar = ctx.VAR() != null;
+            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable,
+                    isDeclaredWithVar);
         }
     }
 
@@ -1202,12 +1204,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        // todo : do we need this flag anymore
         boolean isVarDeclaration = false;
-        boolean isVarExist = ctx.variableReferenceList() != null;
-        if (ctx.VAR() != null) {
-            isVarDeclaration = true;
-        }
-        this.pkgBuilder.addTupleDestructuringStatement(getCurrentPos(ctx), getWS(ctx), isVarExist, isVarDeclaration);
+
+        this.pkgBuilder.addTupleDestructuringStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
     }
 
     @Override
