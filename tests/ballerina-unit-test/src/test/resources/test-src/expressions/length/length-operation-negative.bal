@@ -15,7 +15,7 @@
 // under the License.
 
 type Person object {
-    ;public int age;
+    public int age;
     public string firstName;
     public string lastName;
 

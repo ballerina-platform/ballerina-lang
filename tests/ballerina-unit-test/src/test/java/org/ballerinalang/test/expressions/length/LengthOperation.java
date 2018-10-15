@@ -367,8 +367,8 @@ public class LengthOperation {
     @Test(description = "Test invoking length operation on an object")
     public void testNegativeTests() {
         Assert.assertEquals(resNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 12, 24);
-        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 17, 21);
+        BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 28, 24);
+        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 33, 21);
     }
 
 }
