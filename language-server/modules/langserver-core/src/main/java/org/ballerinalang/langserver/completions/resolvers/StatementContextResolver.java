@@ -43,7 +43,7 @@ public class StatementContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
-        if (isInvocationOrFieldAccess(context)) {
+        if (isInvocationOrInteractionOrFieldAccess(context)) {
             itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
             return itemList.isLeft() ? itemList.getLeft() : this.getCompletionItemList(itemList.getRight());
         } else {

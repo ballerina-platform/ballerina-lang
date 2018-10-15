@@ -65,7 +65,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
             Try to get completions for the field from the visible symbols
             Eg: port: config:<cursor>
              */
-            if (this.isInvocationOrFieldAccess(ctx)) {
+            if (this.isInvocationOrInteractionOrFieldAccess(ctx)) {
                 Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
                         SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
                 completionItems.addAll(this.getCompletionItemList(filteredList));
@@ -89,7 +89,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
      * @return {@link Boolean}      Whether invocation or Field Access
      */
     @Override
-    protected boolean isInvocationOrFieldAccess(LSServiceOperationContext context) {
+    protected boolean isInvocationOrInteractionOrFieldAccess(LSServiceOperationContext context) {
         List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
                 .stream()
                 .map(Token::getText)

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
@@ -35,12 +36,17 @@ import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.util.Flags;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,27 +71,59 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         for (String poppedToken : poppedTokens) {
             if (poppedToken.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                     || poppedToken.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                    || poppedToken.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)
+                    || poppedToken.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
+                    || poppedToken.equals(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
                     || poppedToken.equals(UtilSymbolKeys.BANG_SYMBOL_KEY)) {
                 delimiter = poppedToken;
                 break;
             }
         }
-        
+        String symbolToken;
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
-        String tokenBeforeDelimiter = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) - 1);
+        if (poppedTokens.lastIndexOf(delimiter) > 0) {
+            // get token before delimiter
+            symbolToken = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) - 1);
+        } else {
+            // get token after delimiter
+            symbolToken = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) + 1);
+        }
+        List<SymbolInfo> visibleSymbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
+        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+
+        boolean isWorkerInteraction = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
+                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
+
+        boolean isWorkerReply = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter)
+                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
+
+        boolean isActionInvocation = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
+                && symbol.getScopeEntry().symbol instanceof BEndpointVarSymbol;
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
-                || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)
-                || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)) {
-            returnSymbolsInfoList.addAll(FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext,
-                    tokenBeforeDelimiter,
-                    delimiter,
-                    completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+                || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)
+                || isActionInvocation) {
+            returnSymbolsInfoList.addAll(
+                    FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext, symbolToken, delimiter,
+                                                                  visibleSymbols)
+            );
+        } else if (isWorkerInteraction || isWorkerReply) {
+            // Handle worker interactions
+            List<SymbolInfo> filteredList = FilterUtils.getInvocationAndFieldSymbolsOnVar(
+                    completionContext, symbolToken, delimiter, visibleSymbols);
+            filteredList.removeIf(symbolInfo -> {
+                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
+            });
+            if (isWorkerInteraction && !poppedTokens.contains(UtilSymbolKeys.COMMA_SYMBOL_KEY)) {
+                SymbolInfo fork = new SymbolInfo("fork", symbol.getScopeEntry());
+                filteredList.add(fork);
+            }
+            returnSymbolsInfoList.addAll(filteredList);
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList = 
-                    this.getActionsFunctionsAndTypes(completionContext, tokenBeforeDelimiter, delimiter);
+                    this.getActionsFunctionsAndTypes(completionContext, symbolToken, delimiter);
             if (filteredList.isLeft()) {
                 return Either.forLeft(filteredList.getLeft());
             }
