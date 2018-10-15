@@ -158,7 +158,7 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         completionItem.setLabel(varSymbol.getName().getValue());
         completionItem.setInsertText(varSymbol.getName().getValue());
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
-        completionItem.setKind(CompletionItemKind.Unit);
+        completionItem.setKind(CompletionItemKind.Variable);
 
         return completionItem;
     }

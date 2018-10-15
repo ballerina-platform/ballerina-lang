@@ -169,7 +169,7 @@
       "insertText":"error"
     },
     {
-      "label":"error   Error Declaration",
+      "label":"error",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"error ${1:name} \u003d { description: \"${2}\" };"

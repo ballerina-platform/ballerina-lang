@@ -67,12 +67,8 @@ public class TopLevelResolver extends AbstractItemResolver {
         return completionItems;
     }
 
-    private CompletionItem getStaticItem(String label, Snippet snippet, String detail, boolean isSnippet) {
-        CompletionItem item = new CompletionItem();
-        snippet.getBlock().populateCompletionItem(item, isSnippet);
-        item.setLabel(label);
-        item.setDetail(detail);
-        return item;
+    private CompletionItem getStaticItem(Snippet snippet, boolean isSnippet) {
+        return snippet.get().build(new CompletionItem(), isSnippet);
     }
 
     /**
@@ -84,34 +80,20 @@ public class TopLevelResolver extends AbstractItemResolver {
         boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                 .getSnippetSupport();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.add(getStaticItem(ItemResolverConstants.IMPORT, Snippet.KW_IMPORT,
-                ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.FUNCTION, Snippet.DEF_FUNCTION,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.MAIN_FUNCTION, Snippet.DEF_MAIN_FUNCTION,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.SERVICE, Snippet.DEF_SERVICE,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.SERVICE_WEBSOCKET, Snippet.DEF_SERVICE_WEBSOCKET,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.SERVICE_WEBSUB, Snippet.DEF_SERVICE_WEBSUB,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.ANNOTATION, Snippet.DEF_ANNOTATION,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.XMLNS, Snippet.STMT_NAMESPACE_DECLARATION,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.OBJECT_TYPE, Snippet.DEF_OBJECT_SNIPPET,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.RECORD_TYPE, Snippet.DEF_RECORD,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.ENDPOINT, Snippet.DEF_ENDPOINT,
-                ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.TYPE_TYPE, Snippet.KW_TYPE,
-                ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.PUBLIC_KEYWORD, Snippet.KW_PUBLIC,
-                ItemResolverConstants.KEYWORD_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(ItemResolverConstants.ERROR, Snippet.DEF_ERROR,
-                                          ItemResolverConstants.SNIPPET_TYPE, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_IMPORT, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_FUNCTION, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_MAIN_FUNCTION, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_SERVICE, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_SERVICE_WEBSOCKET, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_SERVICE_WEBSUB, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_ANNOTATION, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.STMT_NAMESPACE_DECLARATION, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_OBJECT_SNIPPET, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_RECORD, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_ENDPOINT, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_TYPE, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_PUBLIC, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.DEF_ERROR, snippetCapability));
         return completionItems;
     }
 

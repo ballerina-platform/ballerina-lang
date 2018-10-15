@@ -185,27 +185,17 @@ public abstract class AbstractItemResolver {
         // Add the packages completion items.
         completionItems.addAll(getPackagesCompletionItems(context));
         // Add the check keyword
-        CompletionItem checkKeyword = new CompletionItem();
-        Snippet.KW_CHECK.getBlock().populateCompletionItem(checkKeyword, snippetCapability);
-        checkKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
-        checkKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(checkKeyword);
 
         // Add But keyword item
-        CompletionItem butKeyword = new CompletionItem();
-        Snippet.EXPR_MATCH.getBlock().populateCompletionItem(butKeyword, snippetCapability);
-        butKeyword.setLabel(ItemResolverConstants.BUT);
-        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(butKeyword);
 
         // Add lengthof keyword item
-        CompletionItem lengthofKeyword = new CompletionItem();
-        Snippet.KW_LENGTHOF.getBlock().populateCompletionItem(lengthofKeyword, snippetCapability);
-        lengthofKeyword.setLabel(ItemResolverConstants.LENGTHOF);
-        lengthofKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-
-        completionItems.add(checkKeyword);
-        completionItems.add(butKeyword);
+        CompletionItem lengthofKeyword = Snippet.KW_LENGTHOF.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(lengthofKeyword);
-        
+
         return completionItems;
     }
 
@@ -244,6 +234,7 @@ public abstract class AbstractItemResolver {
                     item.setLabel(orgName + "/" + pkgName);
                     item.setInsertText(CommonUtil.getLastItem(bLangImportPackage.getPackageName()).value);
                     item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                    item.setKind(CompletionItemKind.Module);
                     populatedList.add(orgName + "/" + pkgName);
                     return item;
                 }).collect(Collectors.toList());
@@ -258,6 +249,7 @@ public abstract class AbstractItemResolver {
                 item.setLabel(ballerinaPackage.getFullPackageNameAlias());
                 item.setInsertText(name);
                 item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                item.setKind(CompletionItemKind.Module);
                 item.setAdditionalTextEdits(CommonUtil.getAutoImportTextEdits(ctx, orgName, name));
                 completionItems.add(item);
             }
