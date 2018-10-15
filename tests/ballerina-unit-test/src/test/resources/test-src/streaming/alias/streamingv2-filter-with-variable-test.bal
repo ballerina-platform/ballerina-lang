@@ -49,7 +49,7 @@ function startFilterQuery() returns (Teacher[]) {
         inputStream.publish(t);
     }
 
-    runtime:sleep(1000);
+    runtime:sleep(3000);
     return globalEmployeeArray;
 }
 
