@@ -22,6 +22,8 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapExtractAdapter;
+import io.opentracing.propagation.TextMapInjectAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,11 +79,8 @@ public class TraceManager {
         Map<String, String> carrierMap = new HashMap<>();
         BTracer bTracer = tracerStore.getTracer(serviceName);
         if (bTracer != null && span != null) {
-            Map<String, String> tracerSpecificCarrier = new HashMap<>();
-            RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
+            TextMapInjectAdapter requestInjector = new TextMapInjectAdapter(carrierMap);
             bTracer.getOpenTracer().inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
-            Map<String, String> carrier = requestInjector.getCarrier();
-            carrierMap.putAll(carrier);
         }
         return carrierMap;
     }
@@ -105,12 +104,12 @@ public class TraceManager {
         return spanBuilder.start();
     }
 
-    private Object extractSpanContext(Map<String, String> contextString, String serviceName) {
+    private Object extractSpanContext(Map<String, String> traceContext, String serviceName) {
         SpanContext spanContext = null;
         BTracer bTracer = tracerStore.getTracer(serviceName);
         if (bTracer != null) {
             spanContext = bTracer.getOpenTracer()
-                    .extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(contextString));
+                    .extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(traceContext));
         }
         return spanContext;
     }
