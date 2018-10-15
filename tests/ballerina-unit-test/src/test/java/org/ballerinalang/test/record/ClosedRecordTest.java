@@ -199,9 +199,9 @@ public class ClosedRecordTest {
 
         BAssertUtil.validateError(result, 0,
                                   "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 13, 16);
+                                          "'Person'", 29, 16);
         BAssertUtil.validateError(result, 1,
                                   "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 18, 16);
+                                          "'Person'", 34, 16);
     }
 }

@@ -71,9 +71,9 @@ public class OpenRecordNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
         BAssertUtil.validateError(compileResult, 0,
                                   "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 12, 16);
+                                          "'Person'", 28, 16);
         BAssertUtil.validateError(compileResult, 1,
                                   "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 17, 16);
+                                          "'Person'", 33, 16);
     }
 }
