@@ -51,7 +51,7 @@ public final class BInteger extends BValueType implements BRefType<Long> {
 
     @Override
     public Decimal decimalValue() {
-        return new Decimal(this.value);
+        return new Decimal(stringValue());
     }
 
     @Override

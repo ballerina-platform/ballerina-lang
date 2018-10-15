@@ -1,72 +1,38 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types.util;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
+
+import static java.math.MathContext.DECIMAL128;
 
 public class Decimal extends BigDecimal {
 
-    public Decimal(char[] in, int offset, int len) {
-        super(in, offset, len);
-    }
-
-    public Decimal(char[] in, int offset, int len, MathContext mc) {
-        super(in, offset, len, mc);
-    }
-
-    public Decimal(char[] in) {
-        super(in);
-    }
-
-    public Decimal(char[] in, MathContext mc) {
-        super(in, mc);
-    }
+    public static final Decimal ZERO = new Decimal("0");
 
     public Decimal(String val) {
-        super(val);
+        super(val, DECIMAL128);
     }
 
-    public Decimal(String val, MathContext mc) {
-        super(val, mc);
+    public Decimal add(Decimal augend) {
+        return new Decimal(super.add(augend, DECIMAL128).toString());
     }
 
-    public Decimal(double val) {
-        super(val);
+    public Decimal subtract(Decimal subtrahend) {
+        return new Decimal(super.subtract(subtrahend, DECIMAL128).toString());
     }
 
-    public Decimal(double val, MathContext mc) {
-        super(val, mc);
+    public Decimal multiply(Decimal multiplicand) {
+        return new Decimal(super.multiply(multiplicand, DECIMAL128).toString());
     }
 
-    public Decimal(BigInteger val) {
-        super(val);
+    public Decimal divide(Decimal divisor) {
+        return new Decimal(super.divide(divisor, DECIMAL128).toString());
     }
 
-    public Decimal(BigInteger val, MathContext mc) {
-        super(val, mc);
+    public Decimal negate() {
+        return new Decimal(super.negate().toString());
     }
 
-    public Decimal(BigInteger unscaledVal, int scale) {
-        super(unscaledVal, scale);
-    }
-
-    public Decimal(BigInteger unscaledVal, int scale, MathContext mc) {
-        super(unscaledVal, scale, mc);
-    }
-
-    public Decimal(int val) {
-        super(val);
-    }
-
-    public Decimal(int val, MathContext mc) {
-        super(val, mc);
-    }
-
-    public Decimal(long val) {
-        super(val);
-    }
-
-    public Decimal(long val, MathContext mc) {
-        super(val, mc);
+    public Decimal reminder(Decimal divisor) {
+        return new Decimal(super.remainder(divisor, DECIMAL128).toString());
     }
 }

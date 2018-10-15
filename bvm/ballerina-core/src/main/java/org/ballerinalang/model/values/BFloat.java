@@ -51,7 +51,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public Decimal decimalValue() {
-        return new Decimal(this.value);
+        return new Decimal(stringValue());
     }
 
     @Override

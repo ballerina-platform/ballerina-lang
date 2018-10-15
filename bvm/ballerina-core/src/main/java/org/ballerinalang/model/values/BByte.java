@@ -52,7 +52,7 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public Decimal decimalValue() {
-        return new Decimal(this.value);
+        return new Decimal(stringValue());
     }
 
     @Override

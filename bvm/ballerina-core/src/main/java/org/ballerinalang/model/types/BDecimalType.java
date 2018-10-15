@@ -43,13 +43,13 @@ class BDecimalType extends BType {
     @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getZeroValue() {
-        return (V) new BDecimal(new Decimal(0));
+        return (V) new BDecimal(Decimal.ZERO);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BDecimal(new Decimal(0));
+        return (V) new BDecimal(Decimal.ZERO);
     }
 
     @Override

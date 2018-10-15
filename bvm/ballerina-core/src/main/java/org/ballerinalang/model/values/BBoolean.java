@@ -63,7 +63,7 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
 
     @Override
     public Decimal decimalValue() {
-        return new Decimal(0);
+        return Decimal.ZERO;
     }
 
     @Override

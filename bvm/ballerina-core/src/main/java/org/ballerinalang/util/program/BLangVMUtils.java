@@ -173,7 +173,7 @@ public class BLangVMUtils {
                     break;
                 case TypeTags.DECIMAL_TAG:
                     if (vals[i] == null) {
-                        data.decimalRegs[callersRetRegIndex] = new Decimal(0);
+                        data.decimalRegs[callersRetRegIndex] = Decimal.ZERO;
                         break;
                     }
                     data.decimalRegs[callersRetRegIndex] = ((BDecimal) vals[i]).decimalValue();
@@ -236,7 +236,7 @@ public class BLangVMUtils {
                     break;
                 case TypeTags.DECIMAL_TAG:
                     if (vals[i] == null) {
-                        result.decimalRegs[decimalRegCount++] = new Decimal(0);
+                        result.decimalRegs[decimalRegCount++] = Decimal.ZERO;
                         break;
                     }
                     result.decimalRegs[decimalRegCount++] = ((BDecimal) vals[i]).decimalValue();
