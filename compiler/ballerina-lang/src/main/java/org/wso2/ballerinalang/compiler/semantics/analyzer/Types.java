@@ -1420,44 +1420,102 @@ public class Types {
         return false;
     }
 
-    public boolean isIntersectionExist(BType lhsType,
-                                       BType rhsType) {
+    boolean intersectionExists(BType lhsType, BType rhsType) {
         Set<BType> lhsTypes = new HashSet<>();
         Set<BType> rhsTypes = new HashSet<>();
 
         lhsTypes.addAll(getMemberTypesRecursive(lhsType));
         rhsTypes.addAll(getMemberTypesRecursive(rhsType));
 
-        if (lhsTypes.contains(symTable.anyType) ||
-                rhsTypes.contains(symTable.anyType)) {
+        if (lhsTypes.contains(symTable.anyType) || rhsTypes.contains(symTable.anyType)) {
             return true;
         }
 
         boolean matchFound = lhsTypes
                 .stream()
-                .map(s -> rhsTypes
+                .anyMatch(s -> rhsTypes
                         .stream()
-                        .anyMatch(t -> isSameType(s, t)))
-                .anyMatch(found -> found);
+                        .anyMatch(t -> isSameType(s, t)));
+
+        if (!matchFound && lhsType.tag == TypeTags.TUPLE && rhsType.tag == TypeTags.TUPLE) {
+            matchFound = tupleIntersectionExists((BTupleType) lhsType, (BTupleType) rhsType);
+        }
+
         return matchFound;
     }
 
     private Set<BType> getMemberTypesRecursive(BType bType) {
         Set<BType> memberTypes = new HashSet<>();
-        if (bType.tag == TypeTags.FINITE) {
-            BFiniteType expType = (BFiniteType) bType;
-            expType.valueSpace.forEach(value -> {
-                memberTypes.add(value.type);
-            });
-        } else if (bType.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) bType;
-            unionType.getMemberTypes().forEach(member -> {
-                memberTypes.addAll(getMemberTypesRecursive(member));
-            });
-        } else {
-            memberTypes.add(bType);
+        switch (bType.tag) {
+            case TypeTags.FINITE:
+                BFiniteType expType = (BFiniteType) bType;
+                expType.valueSpace.forEach(value -> {
+                    memberTypes.add(value.type);
+                });
+                break;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) bType;
+                unionType.getMemberTypes().forEach(member -> {
+                    memberTypes.addAll(getMemberTypesRecursive(member));
+                });
+                break;
+            case TypeTags.ARRAY:
+                BType arrayElementType = ((BArrayType) bType).getElementType();
+                if (arrayElementType.tag == TypeTags.UNION) {
+                    Set<BType> elementUnionTypes = getMemberTypesRecursive(arrayElementType);
+                    elementUnionTypes.forEach(elementUnionType -> {
+                        memberTypes.add(new BArrayType(elementUnionType));
+                    });
+                }
+                memberTypes.add(bType);
+                break;
+            case TypeTags.MAP:
+                BType mapConstraintType = ((BMapType) bType).getConstraint();
+                if (mapConstraintType.tag == TypeTags.UNION) {
+                    Set<BType> constraintUnionTypes = getMemberTypesRecursive(mapConstraintType);
+                    constraintUnionTypes.forEach(constraintUnionType -> {
+                        memberTypes.add(new BMapType(TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol));
+                    });
+                }
+                memberTypes.add(bType);
+                break;
+            default:
+                memberTypes.add(bType);
         }
         return memberTypes;
+    }
+
+    private boolean tupleIntersectionExists(BTupleType lhsType, BTupleType rhsType) {
+        if (lhsType.getTupleTypes().size() != rhsType.getTupleTypes().size()) {
+            return false;
+        }
+
+        boolean matchFound;
+        List<BType> lhsMemberTypes = lhsType.getTupleTypes();
+        List<BType> rhsMemberTypes = rhsType.getTupleTypes();
+
+        for (int i = 0; i < lhsType.getTupleTypes().size(); i++) {
+            Set<BType> lhsTypes = new HashSet<>();
+            Set<BType> rhsTypes = new HashSet<>();
+
+            lhsTypes.addAll(getMemberTypesRecursive(lhsMemberTypes.get(i)));
+            rhsTypes.addAll(getMemberTypesRecursive(rhsMemberTypes.get(i)));
+
+            if (lhsTypes.contains(symTable.anyType) || rhsTypes.contains(symTable.anyType)) {
+                matchFound = true;
+            } else {
+                matchFound = lhsTypes
+                        .stream()
+                        .anyMatch(s -> rhsTypes
+                                .stream()
+                                .anyMatch(t -> isSameType(s, t)));
+            }
+
+            if (!matchFound) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

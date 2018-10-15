@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -402,6 +402,111 @@ function checkTupleEqualityNegative() returns boolean {
     (string, ClosedEmployee) t6 = ("hi", { nickname: "Em" });
 
     return t1 == t2 || !(t1 != t2) || t3 == t4 || !(t3 != t4) || t5 == t6 || !(t5 != t6);
+}
+
+function checkUnionConstrainedMapsPositive() returns boolean {
+    map<string|int> m1;
+    map<int> m2;
+
+    boolean equals = m1 == m2 && !(m1 != m2);
+
+    m1["one"] = 1;
+    m1["two"] = 2;
+
+    m2["one"] = 1;
+    m2["two"] = 2;
+
+    equals = equals && m1 == m2 && !(m1 != m2);
+
+    map<string|int> m3;
+    map<int|float|string> m4;
+
+    equals = equals && m3 == m4 && !(m3 != m4);
+
+    m3["one"] = "one";
+    m3["two"] = 2;
+
+    m4["two"] = 2;
+    m4["one"] = "one";
+
+    return equals && m3 == m4 && !(m3 != m4);
+}
+
+function checkUnionConstrainedMapsNegative() returns boolean {
+    map<int|boolean> m1;
+    map<int> m2;
+
+    m1["one"] = true;
+    m1["two"] = 2;
+
+    boolean equals = m1 == m2 || !(m1 != m2);
+
+    m2["two"] = 2;
+
+    return equals || m1 == m2 || !(m1 != m2);
+}
+
+function checkUnionArrayPositive() returns boolean {
+    (string|int)[] a1;
+    int[] a2;
+
+    boolean equals = a1 == a2 && !(a1 != a2);
+
+    a1 = [1, 2000, 937];
+    a2 = [1, 2000, 937];
+
+    equals = equals && a1 == a2 && !(a1 != a2);
+
+    (string|int)[] a3;
+    (int|float|string)[] a4;
+
+    equals = equals && a3 == a4 && !(a3 != a4);
+
+    a3[0] = "one";
+    a3[3] = 3;
+
+    a4[3] = 3;
+    a4[0] = "one";
+
+    return equals && a3 == a4 && !(a3 != a4);
+}
+
+function checkUnionArrayNegative() returns boolean {
+    (string|int)[] a1;
+    int[] a2;
+
+    a1[0] = "true";
+    a1[2] = 2;
+
+    boolean equals = a1 == a2 || !(a1 != a2);
+
+    a2[2] = 2;
+
+    return equals || a1 == a2 || !(a1 != a2);
+}
+
+function checkTupleWithUnionPositive() returns boolean {
+    (int, string|int, boolean) t1 = (1, "ballerina", false);
+    (int, string|int, boolean) t2 = (1, "ballerina", false);
+
+    boolean equals = t1 == t2 && !(t1 != t2);
+
+    (int, string|int, boolean) t3 = (1000, "ballerina", true);
+    (int, int|string, OpenEmployee|boolean|int) t4 = (1000, "ballerina", true);
+
+    return equals && t3 == t4 && !(t3 != t4);
+}
+
+function checkTupleWithUnionNegative() returns boolean {
+    (int, string|int, boolean) t1 = (1, "hi", false);
+    (int, string|int, boolean) t2 = (1, "ballerina", false);
+
+    boolean equals = t1 == t2 || !(t1 != t2);
+
+    (int, string|int, boolean) t3 = (1000, "ballerina", true);
+    (int, int|string, OpenEmployee|boolean|string) t4 = (1000, "ballerina", "true");
+
+    return equals || t3 == t4 || !(t3 != t4);
 }
 
 function checkJsonEqualityPositive(json a, json b) returns boolean {

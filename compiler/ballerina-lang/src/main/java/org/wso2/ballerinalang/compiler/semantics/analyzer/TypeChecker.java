@@ -837,7 +837,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
             return symTable.notFoundSymbol;
         }
-        if (types.isIntersectionExist(lhsType, rhsType)) {
+        if (types.intersectionExists(lhsType, rhsType)) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
                     (types.isValueType(lhsType) && types.isValueType(rhsType))) {
                 return symResolver.createReferenceEqualityOperator(opKind, lhsType, rhsType);

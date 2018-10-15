@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -419,6 +419,61 @@ public class EqualAndNotEqualOperationsTest {
                            "Expected array values to be identified as not equal");
     }
 
+    @Test(description = "Test equals/unequals operation with two union constrained maps")
+    public void testUnionConstrainedMapsPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkUnionConstrainedMapsPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+                          "Expected union constrained maps to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal union constrained maps")
+    public void testUnionConstrainedMapsNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkUnionConstrainedMapsNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected union constrained maps to be identified as not equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two union arrays")
+    public void testUnionArrayPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkUnionArrayPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+                          "Expected union arrays to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal union arrays")
+    public void testUnionArrayNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkUnionArrayNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected union arrays to be identified as not equal");
+    }
+
+
+    @Test(description = "Test equals/unequals operation with two tuples with union type members")
+    public void testTupleWithUnionPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkTupleWithUnionPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+                          "Expected tuples with union type members to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal tuples with union type members")
+    public void testTupleWithUnionNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkTupleWithUnionNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected tuples with union type members to be identified as not equal");
+    }
+
     @Test(description = "Test equals/unequals operation with two equal json objects")
     public void testJsonObjectEqualityPositive() {
         BRefType jsonVal = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
@@ -460,13 +515,19 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equal expression with errors")
     public void testEqualStmtNegativeCase() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
-        validateError(resultNegative, 1, "operator '==' not defined for 'int[2]' and 'int[1]'", 26, 21);
-        validateError(resultNegative, 2, "operator '==' not defined for 'float[3]' and 'float[2]'", 30, 21);
+        validateError(resultNegative, 1, "operator '==' not defined for 'int[2]' and 'string[2]'", 26, 21);
+        validateError(resultNegative, 2, "operator '==' not defined for 'float|int[]' and 'boolean|xml[]'", 30, 21);
         validateError(resultNegative, 3, "operator '==' not defined for 'map' and 'map<string>'", 38, 21);
         validateError(resultNegative, 4, "operator '==' not defined for 'map<int>' and 'map<float>'", 42, 21);
-        validateError(resultNegative, 5, "operator '==' not defined for 'Employee' and 'Person'", 50, 12);
+        validateError(resultNegative, 5, "operator '==' not defined for 'map<string|int>' and 'map<float>'",
+                      46, 21);
+        validateError(resultNegative, 6, "operator '==' not defined for '(string,int)' and '(boolean,float)'",
+                      54, 21);
+        validateError(resultNegative, 7, "operator '==' not defined for '(float|int,int)' and '(boolean,int)'",
+                      58, 21);
+        validateError(resultNegative, 8, "operator '==' not defined for 'Employee' and 'Person'", 66, 12);
     }
 
     @DataProvider(name = "equalIntValues")

@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -20,25 +20,41 @@ function checkEqualityOfTwoTypes() returns boolean {
     return a == b;
 }
 
-function checkEqualityOfClosedArraysOfDifferentSize() returns boolean {
+function checkEqualityOfArraysOfDifferentTypes() returns boolean {
     int[2] a;
-    int[1] b;
+    string[2] b;
     boolean bool1 = a == b;
 
-    float[3] c;
-    float[!...] d = [2.1, 3.4];
+    (float|int)[] c;
+    (boolean|xml)[] d;
     boolean bool2 = c == d;
 
     return bool1 && bool2;
 }
 
-function checkEqualityOfMapsOfDifferentConstraintTypes() returns boolean {
+function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
     map a;
     map<string> b;
     boolean bool1 = a == b;
 
     map<int> c;
     map<float> d;
+    boolean bool2 = c == d;
+
+    map<string|int> e;
+    map<float> f;
+    boolean bool3 = e == f;
+
+    return bool1 && bool2 && bool3;
+}
+
+function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
+    (string, int) a;
+    (boolean, float) b;
+    boolean bool1 = a == b;
+
+    (float|int, int) c;
+    (boolean, int) d;
     boolean bool2 = c == d;
 
     return bool1 && bool2;
