@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.expressions.length;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -27,15 +28,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Class to test functionality of builtin length() operator.
+ * Class to test functionality of the builtin length() operation.
  */
-public class BuiltinLength {
+public class LengthOperation {
 
     private CompileResult result;
+    private CompileResult resNegative;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/length/length.bal");
+        result = BCompileUtil.compile("test-src/expressions/length/length-operation.bal");
+        resNegative = BCompileUtil.compile("test-src/expressions/length/length-operation-negative.bal");
     }
 
     @Test(description = "Test length of array when present in an assignment statement.")
@@ -217,9 +220,9 @@ public class BuiltinLength {
     }
 
     @Test(description = "Test length of empty map")
-    public void lengthOfMapEmpty() {
+    public void lengthOfEmptyMap() {
         BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfMapEmpty", args);
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfEmptyMap", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -319,4 +322,53 @@ public class BuiltinLength {
         int expected = 0;
         Assert.assertEquals(actual, expected);
     }
+
+    @Test(description = "Test length of array when it is null.")
+    public void testArrayLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullArray", args);
+    }
+
+    @Test(description = "Test length of json when reference point to json that is null.",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+    public void testJsonLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullJson", args);
+    }
+
+    @Test(description = "Test length of map when reference point to null map.")
+    public void testMapLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullMap", args);
+    }
+
+    @Test(description = "Test length of table when reference point to null table.",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+    public void testTableLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullTable", args);
+    }
+
+    @Test(description = "Test length of tuple when it is null.")
+    public void testTupleLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullTuple", args);
+    }
+
+    @Test(description = "Test length of xml when it is null.")
+    public void testXMLLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullXML", args);
+    }
+
+    // Negative test cases that fails at compilation
+    @Test(description = "Test invoking length operation on an object")
+    public void testNegativeTests() {
+        Assert.assertEquals(resNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 12, 24);
+        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 17, 21);
+    }
+
 }

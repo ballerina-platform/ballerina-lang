@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 function arrayLengthAccessTestAssignmentCase (int x, int y) returns (int) {
     int[] arr = [];
     arr[0] = x;
@@ -145,7 +161,7 @@ function lengthOfMap () returns (int) {
     return lengthVal;
 }
 
-function lengthOfMapEmpty () returns (int) {
+function lengthOfEmptyMap () returns (int) {
     map namesMap;
     int lengthVal = namesMap.length();
     return lengthVal;
@@ -202,5 +218,41 @@ function lengthOfRecord() returns (int) {
 function lengthOfEmptyRecord() returns (int) {
     Empty emp = {};
     int lengthVal = emp.length();
+    return lengthVal;
+}
+
+function accessLengthOfNullArray() returns (int) {
+    int[] arr;
+    int lengthVal = arr.length();
+    return lengthVal;
+}
+
+function accessLengthOfNullMap() returns (int) {
+    map m;
+    int lengthVal = m.length();
+    return lengthVal;
+}
+
+function accessLengthOfNullJson() returns (int) {
+    json j;
+    int lengthVal = j.length();
+    return lengthVal;
+}
+
+function accessLengthOfNullTable() returns (int) {
+    table t;
+    int lengthVal = t.length();
+    return lengthVal;
+}
+
+function accessLengthOfNullTuple() returns (int) {
+    (int, int )a;
+    int lengthVal = a.length();
+    return lengthVal;
+}
+
+function accessLengthOfNullXML() returns (int) {
+    xml x;
+    int lengthVal = x.length();
     return lengthVal;
 }
