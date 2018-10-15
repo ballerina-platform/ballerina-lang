@@ -3306,14 +3306,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * @return original integer value
      */
     private String getOriginalIntegerValue(BallerinaParser.IntegerLiteralContext integerLiteralContext) {
+        String originalValue = null;
         if (integerLiteralContext.DecimalIntegerLiteral() != null) {
-            return integerLiteralContext.DecimalIntegerLiteral().getText();
+            originalValue = integerLiteralContext.DecimalIntegerLiteral().getText();
         } else if (integerLiteralContext.HexIntegerLiteral() != null) {
-            return integerLiteralContext.HexIntegerLiteral().getText();
+            originalValue = integerLiteralContext.HexIntegerLiteral().getText();
         } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-           return integerLiteralContext.BinaryIntegerLiteral().getText();
+            originalValue = integerLiteralContext.BinaryIntegerLiteral().getText();
         }
-        return "null";
+        return originalValue;
     }
 
     private BLangLambdaFunction getFunctionDefinition(BallerinaParser.ScopeStatementContext ctx) {
