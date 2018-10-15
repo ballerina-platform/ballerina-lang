@@ -77,11 +77,11 @@ public class TraceManager {
 
     public Map<String, String> extractTraceContext(Span span, String serviceName, String headerName) {
         Map<String, String> carrierMap = new HashMap<>();
-        Tracer tracer = tracerStore.getTracer(serviceName);
-        if (tracer != null && span != null) {
+        BTracer bTracer = tracerStore.getTracer(serviceName);
+        if (bTracer != null && span != null) {
             Map<String, String> tracerSpecificCarrier = new HashMap<>();
             RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
-            tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+            bTracer.getOpenTracer().inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
             String carrierString = requestInjector.getCarrierString();
             carrierMap.put(headerName, carrierString);
         }
@@ -90,8 +90,8 @@ public class TraceManager {
 
     private Span startSpan(String spanName, Object spanContextMap,
                            Map<String, String> tags, String serviceName, boolean isParent) {
-        Tracer tracer = tracerStore.getTracer(serviceName);
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(spanName);
+        BTracer bTracer = tracerStore.getTracer(serviceName);
+        Tracer.SpanBuilder spanBuilder = bTracer.getOpenTracer().buildSpan(spanName);
 
         for (Map.Entry<String, String> tag : tags.entrySet()) {
             spanBuilder = spanBuilder.withTag(tag.getKey(), tag.getValue());
@@ -109,9 +109,10 @@ public class TraceManager {
 
     private Object extractSpanContext(String contextString, String serviceName) {
         SpanContext spanContext = null;
-        Tracer tracer = tracerStore.getTracer(serviceName);
-        if (tracer != null) {
-            spanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(contextString));
+        BTracer bTracer = tracerStore.getTracer(serviceName);
+        if (bTracer != null) {
+            spanContext = bTracer.getOpenTracer()
+                    .extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(contextString));
         }
         return spanContext;
     }
