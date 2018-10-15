@@ -880,7 +880,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
 
-        if (indexAccessExpr.indexExpr.type == null || indexAccessExpr.indexExpr.type.tag == TypeTags.ERROR) {
+        if (indexAccessExpr.indexExpr.type.tag == TypeTags.ERROR) {
             return;
         }
 

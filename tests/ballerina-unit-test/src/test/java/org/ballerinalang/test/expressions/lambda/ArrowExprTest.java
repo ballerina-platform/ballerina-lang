@@ -163,10 +163,45 @@ public class ArrowExprTest {
         Assert.assertEquals(returns[0].stringValue(), "DoReMeFa");
     }
 
+    @Test(description = "Test arrow expression inside a record")
+    public void testArrowExprInRecord() {
+        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprInRecord");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+    }
+
+    @Test(description = "Test arrow expression inside an object")
+    public void testArrowExprInObject() {
+        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprInObject");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+    }
+
+    @Test(description = "Test arrow expression with no arguments")
+    public void testArrowExprWithNoArguments() {
+        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithNoArguments");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals((returns[0]).stringValue(), "Some Text Global Text");
+    }
+
+    @Test(description = "Test arrow expression with no arguments and string template")
+    public void testArrowExprWithNoArgumentsAndStrTemplate() {
+        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithNoArgumentsAndStrTemplate");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals((returns[0]).stringValue(), "Some Text Global Text");
+    }
+
+    @Test(description = "Test arrow expression with no arguments and closure var")
+    public void testArrowExprWithNoArgumentsAndClosure() {
+        BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithNoArgumentsAndClosure");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals((returns[0]).stringValue(), "Some Text Global Text Closure Text");
+    }
+
     @Test(description = "Test compile time errors for arrow expression")
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
         BAssertUtil.validateError(resultNegative, i++,
@@ -189,5 +224,7 @@ public class ArrowExprTest {
                 "undefined symbol 'closureVar'", 54, 61);
         BAssertUtil.validateError(resultNegative, i++,
                 "undefined symbol 'm'", 60, 58);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid number of parameters used in arrow expression. expected: '0' but found '1'", 68, 40);
     }
 }
