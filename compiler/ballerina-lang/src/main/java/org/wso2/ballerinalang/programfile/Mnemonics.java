@@ -142,10 +142,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.VCALL] = "ncall";
-        mnemonics[InstructionCodes.THROW] = "throw";
-        mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
         mnemonics[InstructionCodes.FPLOAD] = "fp_load";
+        mnemonics[InstructionCodes.PANIC] = "panic";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
@@ -210,6 +209,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";
         mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
+        mnemonics[InstructionCodes.ERROR] = "error";
 
         mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";

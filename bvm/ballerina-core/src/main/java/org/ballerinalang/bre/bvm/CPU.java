@@ -47,6 +47,7 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -461,7 +462,7 @@ public class CPU {
                             return;
                         }
                         break;
-                    case InstructionCodes.THROW:
+                    case InstructionCodes.PANIC:
                         i = operands[0];
                         if (i >= 0) {
                             BMap<String, BValue> error = (BMap) sf.refRegs[i];
@@ -474,12 +475,6 @@ public class CPU {
                             ctx.setError(error);
                         }
                         handleError(ctx);
-                        break;
-                    case InstructionCodes.ERRSTORE:
-                        i = operands[0];
-                        sf.refRegs[i] = ctx.getError();
-                        // clear error
-                        ctx.setError(null);
                         break;
                     case InstructionCodes.FPCALL:
                         i = operands[0];
@@ -644,6 +639,14 @@ public class CPU {
                         StringCPEntry name = (StringCPEntry) ctx.constPool[operands[2]];
                         BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
                         sf.refRegs[i] = stream;
+                        break;
+                    case InstructionCodes.ERROR:
+                        i = operands[0];
+                        j = operands[1];
+                        k = operands[2];
+                        l = operands[3];
+                        typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[i];
+                        sf.refRegs[l] = new BError(typeRefCPEntry.getType(), sf.stringRegs[j], sf.refRegs[k]);
                         break;
                     case InstructionCodes.NEW_INT_RANGE:
                         createNewIntRange(operands, sf);
@@ -3580,6 +3583,7 @@ public class CPU {
     }
 
     public static void handleError(WorkerExecutionContext ctx) {
+        // TODO: Fix me
         int ip = ctx.ip;
         ip--;
         ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip,

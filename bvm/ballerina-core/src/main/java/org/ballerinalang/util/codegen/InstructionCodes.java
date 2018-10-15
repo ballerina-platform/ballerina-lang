@@ -149,11 +149,10 @@ public interface InstructionCodes {
     int TR_RETRY = 119;
     int CALL = 120;
     int VCALL = 121;
-    int THROW = 123;
-    int ERRSTORE = 124;
-    int FPCALL = 125;
-    int FPLOAD = 126;
-    int VFPLOAD = 127;
+    int FPCALL = 122;
+    int FPLOAD = 123;
+    int VFPLOAD = 124;
+    int PANIC = 125;
 
     int SEQ_NULL = 128;
     int SNE_NULL = 129;
@@ -242,6 +241,7 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
+    int ERROR = 218;
 
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;

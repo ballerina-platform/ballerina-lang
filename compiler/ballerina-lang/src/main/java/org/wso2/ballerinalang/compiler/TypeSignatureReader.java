@@ -48,8 +48,12 @@ public class TypeSignatureReader<T> {
                 typeStack.push(typeCreater.getBasicType(typeChar));
                 return index + 1;
             case 'E':
-                // TODO : Fix me.
-                typeStack.push(typeCreater.getErrorType());
+                index++;    // skip "("
+                index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
+                T reasonType = typeStack.pop();
+                index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
+                T detailsType = typeStack.pop();
+                typeStack.push(typeCreater.getErrorType(reasonType, detailsType));
                 return index + 1;
             case 'R':
                 index++;

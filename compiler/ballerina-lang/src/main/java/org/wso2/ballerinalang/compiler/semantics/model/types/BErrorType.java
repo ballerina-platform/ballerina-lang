@@ -56,7 +56,6 @@ public class BErrorType extends BType implements ErrorType {
 
     @Override
     public String getDesc() {
-        // TODO : Fix me.
-        return TypeDescriptor.SIG_ERROR;
+        return TypeDescriptor.SIG_ERROR + "(" + reasonType.getDesc() + detailType.getDesc() + ")";
     }
 }

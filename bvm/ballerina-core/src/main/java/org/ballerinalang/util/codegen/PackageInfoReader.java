@@ -20,6 +20,7 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -973,16 +974,8 @@ public class PackageInfoReader {
                     int ipFrom = dataInStream.readInt();
                     int ipTo = dataInStream.readInt();
                     int ipTarget = dataInStream.readInt();
-                    int priority = dataInStream.readInt();
-                    int errorStructCPIndex = dataInStream.readInt();
-                    ErrorTableEntry tableEntry = new ErrorTableEntry(ipFrom, ipTo,
-                            ipTarget, priority, errorStructCPIndex);
-
-                    if (errorStructCPIndex != -1) {
-                        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry)
-                                constantPool.getCPEntry(errorStructCPIndex);
-                        tableEntry.setError((TypeDefInfo) structureRefCPEntry.getStructureTypeInfo());
-                    }
+                    int regIndex = dataInStream.readInt();
+                    ErrorTableEntry tableEntry = new ErrorTableEntry(ipFrom, ipTo, ipTarget, regIndex);
                     tableAttributeInfo.addErrorTableEntry(tableEntry);
                 }
                 return tableAttributeInfo;
@@ -1149,8 +1142,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
                 case InstructionCodes.GOTO:
-                case InstructionCodes.THROW:
-                case InstructionCodes.ERRSTORE:
+                case InstructionCodes.PANIC:
                 case InstructionCodes.NEWXMLSEQ:
                 case InstructionCodes.LOOP_COMPENSATE:
                     i = codeStream.readInt();
@@ -1336,6 +1328,7 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.MAPLOAD:
+                case InstructionCodes.ERROR:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1894,8 +1887,11 @@ public class PackageInfoReader {
         }
 
         @Override
-        public BType getErrorType() {
-            return null;
+        public BType getErrorType(BType reasonType, BType detailsType) {
+            if (reasonType == BTypes.typeString && detailsType == BTypes.typeMap) {
+                return BTypes.typeError;
+            }
+            return new BErrorType(reasonType, detailsType);
         }
     }
 
