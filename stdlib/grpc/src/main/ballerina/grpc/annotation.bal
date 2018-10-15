@@ -49,8 +49,8 @@ public annotation<service> ServiceConfig GrpcServiceConfig;
 #                   type is derived from the he value passed to the send() expression.
 public type GrpcResourceConfig record {
     boolean streaming;
-    typedesc requestType;
-    typedesc responseType;
+    typedesc requestType?;
+    typedesc responseType?;
     !...
 };
 
