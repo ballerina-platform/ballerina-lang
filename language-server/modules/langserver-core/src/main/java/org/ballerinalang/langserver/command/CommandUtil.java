@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -207,6 +208,18 @@ public class CommandUtil {
             args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, params.getTextDocument().getUri()));
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_VARIABLE, args));
+        } else if (isUnresolvedPackage(diagnosticMessage)) {
+            Matcher matcher = CommandConstants.UNRESOLVED_PACKAGE_PATTERN.matcher(
+                    diagnosticMessage.toLowerCase(Locale.ROOT)
+            );
+            if (matcher.find() && matcher.groupCount() > 0) {
+                List<Object> args = new ArrayList<>();
+                String pkgName = matcher.group(1);
+                args.add(new CommandArgument(CommandConstants.ARG_KEY_PKG_NAME, pkgName));
+                args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, params.getTextDocument().getUri()));
+                String commandTitle = CommandConstants.PULL_PKG_TITLE;
+                commands.add(new Command(commandTitle, CommandConstants.CMD_PULL_PACKAGE, args));
+            }
         }
         return commands;
     }
@@ -435,6 +448,10 @@ public class CommandUtil {
 
     private static boolean isVariableAssignmentRequired(String diagnosticMessage) {
         return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED);
+    }
+
+    private static boolean isUnresolvedPackage(String diagnosticMessage) {
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNRESOLVED_PACKAGE);
     }
 
     private static BLangInvocation getFunctionNode(CodeActionParams params,

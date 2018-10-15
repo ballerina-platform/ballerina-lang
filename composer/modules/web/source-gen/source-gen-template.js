@@ -126,6 +126,47 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
 
             return docString;
+        case 'TypeDefinition':
+            let typeDefString = "";
+            if (node.ws) {
+                let wsCollection = [];
+                function collectWSFromNode (node) {
+                    for (let childName in node) {
+                        if (childName !== 'position' && childName !== 'parent') {
+                            const child = node[childName];
+                            if (child.kind) {
+                                collectWSFromNode(child);
+                            } else if (child instanceof Array) {
+                                if (childName === 'ws') {
+                                    wsCollection = wsCollection.concat(child);
+                                } else {
+                                    for (let i = 0; i < child.length; i++) {
+                                        const childItem = child[i];
+                                        if (childItem.kind) {
+                                            collectWSFromNode(childItem);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                collectWSFromNode(node);
+
+                wsCollection = wsCollection.sort(function (a, b) {
+                    return a.i - b.i;
+                }).filter(function (item, index, collection) {
+                    return !index || item.i !== collection[index - 1].i;
+                });
+
+                for (let i = 0; i < wsCollection.length; i++) {
+                    typeDefString += wsCollection[i].ws + wsCollection[i].text;
+                }
+            }
+
+            return typeDefString;
+
         /* eslint-disable max-len */
         // auto gen start
 // auto-gen-code

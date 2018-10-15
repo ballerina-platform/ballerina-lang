@@ -1088,14 +1088,23 @@ public class Desugar extends BLangNodeVisitor {
         fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
         BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
         BType varRefType = fieldAccessExpr.expr.type;
-        if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
+        if (varRefType.tag == TypeTags.OBJECT) {
+            if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE &&
+                    ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
+                targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
+                                                             (BVarSymbol) fieldAccessExpr.symbol);
+            } else {
+                targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                                                              (BVarSymbol) fieldAccessExpr.symbol, false);
+            }
+        } else if (varRefType.tag == TypeTags.RECORD) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
                                                              (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                              (BVarSymbol) fieldAccessExpr.symbol);
+                                                              (BVarSymbol) fieldAccessExpr.symbol, true);
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
@@ -1126,7 +1135,8 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
                                                           indexAccessExpr.expr,
                                                           indexAccessExpr.indexExpr,
-                                                          (BVarSymbol) indexAccessExpr.symbol);
+                                                          (BVarSymbol) indexAccessExpr.symbol,
+                                                          false);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr,
                     !indexAccessExpr.type.isNullable());

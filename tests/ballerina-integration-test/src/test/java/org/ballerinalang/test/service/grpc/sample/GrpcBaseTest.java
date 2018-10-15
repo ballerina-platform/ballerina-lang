@@ -41,7 +41,7 @@ public class GrpcBaseTest extends BaseTest {
         String publicCert = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
                         + File.separator + "public.crt").getAbsolutePath();
-        int[] requiredPorts = new int[]{9090, 9092, 9095, 9096, 9098, 9099, 9100, 9101, 8085};
+        int[] requiredPorts = new int[]{9090, 9092, 9095, 9096, 9098, 9099, 9100, 9101, 8085, 9317};
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();

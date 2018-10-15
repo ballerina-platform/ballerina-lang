@@ -22,6 +22,7 @@ import org.quartz.utils.FindbugsSuppressWarnings;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +108,33 @@ public class SourceGen {
                 }
 
                 return docString.toString();
+            case "TypeDefinition":
+                String typeDefString = "";
+                if (node.has("ws")) {
+                    List<JsonObject> wsCollection = new ArrayList<>();
+                    List<JsonObject> mergedWS = new ArrayList<>();
+                    collectWSFromNode(node, wsCollection);
+
+                    Collections.sort(wsCollection, Comparator.comparingInt(a -> a.get("i").getAsInt()));
+
+                    JsonObject prevWS = null;
+                    for (int i = 0; i < wsCollection.size(); i++) {
+                        if (prevWS == null) {
+                            prevWS = wsCollection.get(i);
+                            mergedWS.add(prevWS);
+                        } else if (prevWS.get("i").getAsInt() != wsCollection.get(i).get("i").getAsInt()) {
+                            mergedWS.add(wsCollection.get(i));
+                            prevWS = wsCollection.get(i);
+                        }
+                    }
+
+                    for (JsonObject wsItem : mergedWS) {
+                        typeDefString += wsItem.get("ws").getAsString() + wsItem.get("text").getAsString();
+                    }
+                }
+
+                return typeDefString;
+
             /* eslint-disable max-len */
             // auto gen start
             // auto-gen-code
@@ -201,6 +229,30 @@ public class SourceGen {
             }
         }
         return str.toString();
+    }
+
+    @FindbugsSuppressWarnings
+    public void collectWSFromNode(JsonObject node, List<JsonObject> wsCollection) {
+        for (Map.Entry<String, JsonElement> child : node.entrySet()) {
+            String childName = child.getKey();
+            if (!"position".equals(childName) && !"parent".equals(childName)) {
+                if (child.getValue().isJsonObject() && child.getValue().getAsJsonObject().has("kind")) {
+                    collectWSFromNode(child.getValue().getAsJsonObject(), wsCollection);
+                } else if (child.getValue().isJsonArray()) {
+                    if ("ws".equals(childName)) {
+                        for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
+                            wsCollection.add(wsElement.getAsJsonObject());
+                        }
+                    } else {
+                        for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
+                            if (wsElement.isJsonObject() && wsElement.getAsJsonObject().has("kind")) {
+                                collectWSFromNode(wsElement.getAsJsonObject(), wsCollection);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @FindbugsSuppressWarnings

@@ -1,20 +1,32 @@
 import ballerina/io;
 import ballerina/log;
 
-function close(io:CharacterChannel characterChannel) {
+function close(io:ReadableCharacterChannel|io:WritableCharacterChannel
+               characterChannel) {
     // Close the character channel when done
-    characterChannel.close() but {
-        error e =>
-          log:printError("Error occurred while closing character stream",
-                          err = e)
-    };
+    match characterChannel {
+        io:ReadableCharacterChannel readableChannel => {
+            readableChannel.close() but {
+                error e =>
+                log:printError("Error occurred while closing readable character stream",
+                    err = e)
+            };
+        }
+        io:WritableCharacterChannel writableChannel => {
+            writableChannel.close() but {
+                error e =>
+                log:printError("Error occurred while closing writable character stream",
+                    err = e)
+            };
+        }
+    }
 }
 
 function write(xml content, string path) {
     // Create a byte channel from the given path
-    io:ByteChannel byteChannel = io:openFile(path, io:WRITE);
+    io:WritableByteChannel byteChannel = io:openWritableFile(path);
     // Derive the character channel from the byte Channel
-    io:CharacterChannel ch = new io:CharacterChannel(byteChannel, "UTF8");
+    io:WritableCharacterChannel ch = new io:WritableCharacterChannel(byteChannel, "UTF8");
     // This is how XML content is written via the character channel
     match ch.writeXml(content) {
         error err => {
@@ -30,9 +42,9 @@ function write(xml content, string path) {
 
 function read(string path) returns xml {
     // Create a byte channel from the given path
-    io:ByteChannel byteChannel = io:openFile(path, io:READ);
+    io:ReadableByteChannel byteChannel = io:openReadableFile(path);
     // Derive the character channel from the byte Channel
-    io:CharacterChannel ch = new io:CharacterChannel(byteChannel, "UTF8");
+    io:ReadableCharacterChannel ch = new io:ReadableCharacterChannel(byteChannel, "UTF8");
     // This is how XML content is read from the character channel
     match ch.readXml() {
         xml result => {

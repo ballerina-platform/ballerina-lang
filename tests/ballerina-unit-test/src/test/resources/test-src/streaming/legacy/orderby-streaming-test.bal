@@ -42,7 +42,9 @@ function testOrderBy() {
         from teacherStream window lengthBatch(10)
         select name, age, status order by age
         => (Employee[] emp) {
-            employeeStream.publish(emp);
+            foreach e in emp {
+                employeeStream.publish(e);
+            }
         }
     }
 }
@@ -100,7 +102,9 @@ function testOrderBy2() {
         from teacherStream2 window lengthBatch(10)
         select name, age, status order by age ascending
         => (Employee[] emp) {
-            employeeStream2.publish(emp);
+            foreach e in emp {
+                employeeStream2.publish(e);
+            }
         }
     }
 }
@@ -157,7 +161,9 @@ function testOrderBy3() {
         from teacherStream3 window lengthBatch(10)
         select name, age, status order by age descending
         => (Employee[] emp) {
-            employeeStream3.publish(emp);
+            foreach e in emp {
+                employeeStream3.publish(e);
+            }
         }
     }
 }
@@ -214,7 +220,9 @@ function testOrderBy4() {
         from teacherStream4 window lengthBatch(10)
         select name, age, status order by status, age
         => (Employee[] emp) {
-            employeeStream4.publish(emp);
+            foreach e in emp {
+                employeeStream4.publish(e);
+            }
         }
     }
 }
@@ -271,7 +279,9 @@ function testOrderBy5() {
         from teacherStream5 window lengthBatch(10)
         select name, age, status order by status ascending, age descending
         => (Employee[] emp) {
-            employeeStream5.publish(emp);
+            foreach e in emp {
+                employeeStream5.publish(e);
+            }
         }
     }
 }

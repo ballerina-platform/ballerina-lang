@@ -97,8 +97,7 @@ public class LauncherUtils {
 
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
-        } else if (Files.isRegularFile(fullPath) &&
-                srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
+        } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
@@ -106,6 +105,11 @@ public class LauncherUtils {
                 throw createLauncherException("did you mean to run the package ? If so, either run from the project " +
                                               "folder or use --sourceroot to specify the project path and run the " +
                                               "package");
+            }
+            if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                throw createLauncherException("only packages, " + BLANG_SRC_FILE_SUFFIX + " and " +
+                                                      BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
+                                                      "'ballerina run' command.");
             }
             // If we are trying to run a bal file inside a package from inside a project directory an error is thrown.
             // To differentiate between top level bals and bals inside packages we need to check if the parent of the
@@ -137,7 +141,7 @@ public class LauncherUtils {
 
         if (runServicesOnly) {
             if (args.length > 0) {
-                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+                throw LauncherUtils.createUsageExceptionWithHelp("arguments not allowed for services");
             }
             runServices(programFile);
         } else {
