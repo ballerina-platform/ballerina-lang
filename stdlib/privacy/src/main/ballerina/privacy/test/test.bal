@@ -1,18 +1,24 @@
 import ballerina/io;
-import ballerina/test;
-import ballerina/http;
-import ballerina/math;
 
-xmlns "http://services.samples/xsd" as axis;
+endpoint mysql:Client testDB {
+    host: "localhost",
+    port: 3306,
+    name: "testdb",
+    username: "root",
+    password: "root",
+    poolOptions: { maximumPoolSize: 5 },
+    dbOptions: { useSSL: false }
+};
 
-function ex(string s) {
-
-}
-
-function createAccountDetails() {
-    xml createReq = xml `<axis:accountHolderName>BallerinaUser</axis:accountHolderName>`;
-    ex(axis:accountHolderName);
-    if (1 == 1) {
-       ex(axis:accountHolderName);
+public function main(string... args) {
+    DatabasePIIStore piiStore = new(testDB, "table-name", "id-column-name", "pii-column-name");
+    var pseudoResult = pseudonymize(piiStore, "Private Data");
+    match pseudoResult {
+        string id => {
+            io:println("Pseudo ID: " + id);
+        }
+        error e => {
+            throw e;
+        }
     }
 }
