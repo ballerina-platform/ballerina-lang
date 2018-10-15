@@ -89,6 +89,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         try {
             this.packageNames = Files.list(projectDirPath)
                     .filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
+                    .filter(ProjectDirs::containsSourceFiles)
                     .map(ProjectDirs::getLastComp)
                     .filter(dirName -> !isSpecialDirectory(dirName))
                     .map(Path::toString)

@@ -25,16 +25,15 @@ import { getPluginConfig } from './config';
 
 const libPath: string = '/bre/lib/*';
 const jrePath: string = '/bre/lib/jre*';
-const composerlibPath: string = '/lib/resources/composer/services/*';
+const langServerLibPath: string = '/lib/tools/lang-server/lib/*';
 const main: string = 'org.ballerinalang.langserver.launchers.stdio.Main';
 
 function getClassPath(ballerinaHome: string): string {
     const config = getPluginConfig();
     const customClassPath: string | undefined = config.classpath;
-    const jarPath: string = path.join(__dirname, '..', 'server-build', 'language-server-stdio-launcher.jar');
 	// in windows class path seperated by ';'
 	const sep = process.platform === 'win32' ? ';' : ':';
-    let classpath = path.join(ballerinaHome, composerlibPath) + sep + path.join(ballerinaHome, libPath) + sep + jarPath;
+    let classpath = path.join(ballerinaHome, langServerLibPath) + sep + path.join(ballerinaHome, libPath);
 
     if (customClassPath) {
         classpath =  customClassPath + sep + classpath;

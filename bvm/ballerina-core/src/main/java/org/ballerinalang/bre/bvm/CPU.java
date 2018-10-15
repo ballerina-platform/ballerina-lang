@@ -71,6 +71,8 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
@@ -132,6 +134,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import static org.ballerinalang.runtime.Constants.STATE_ID;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
@@ -824,7 +827,15 @@ public class CPU {
         if (pendingCtx != null) {
             //inject the value to the ctx
             copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
+            if (pendingCtx.context.interruptible) {
+                String stateId = (String) pendingCtx.context.globalProps.get(STATE_ID);
+                PersistenceStore.persistState(new State(pendingCtx.context, stateId, pendingCtx.context.ip + 1));
+            }
             BLangScheduler.resume(pendingCtx.context);
+        }
+        if (ctx.interruptible) {
+            String stateId = (String) ctx.globalProps.get(STATE_ID);
+            PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
         }
     }
 
@@ -849,6 +860,10 @@ public class CPU {
                 receiverType);
         if (value != null) {
             copyArgValueForWorkerReceive(ctx.workerLocal, receiverReg, receiverType, (BRefType) value);
+            if (ctx.interruptible) {
+                String stateId = (String) ctx.globalProps.get(STATE_ID);
+                PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
+            }
             return true;
         }
 

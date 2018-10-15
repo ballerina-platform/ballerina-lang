@@ -17,57 +17,79 @@
 */
 package org.ballerinalang.langserver.index.dto;
 
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * DTO for BPackageSymbol.
+ * 
+ * @since 0.983.0
  */
-public class BPackageSymbolDTO {
+public final class BPackageSymbolDTO {
     
-    private PackageIDDTO packageID;
+    private int id;
     
-    private List<BRecordTypeSymbol> recordTypeSymbols = new ArrayList<>();
+    private String name;
     
-    private List<BTypeSymbol> otherTypeSymbols = new ArrayList<>();
+    private String orgName;
     
-    private List<BObjectTypeSymbol> objectTypeSymbols = new ArrayList<>();
-    
-    private List<BInvokableSymbol> bInvokableSymbols = new ArrayList<>();
-    
-    private List<BServiceSymbol> bServiceSymbols = new ArrayList<>();
-    
-    public BPackageSymbolDTO(PackageIDDTO packageID) {
-        this.packageID = packageID;
+    private String version;
+
+    private BPackageSymbolDTO(int id, String name, String orgName, String version) {
+        this.id = id;
+        this.name = name;
+        this.orgName = orgName;
+        this.version = version;
     }
 
-    public PackageIDDTO getPackageID() {
-        return packageID;
+    public int getId() {
+        return id;
     }
 
-    public List<BRecordTypeSymbol> getRecordTypeSymbols() {
-        return recordTypeSymbols;
+    public String getName() {
+        return name;
     }
 
-    public List<BObjectTypeSymbol> getObjectTypeSymbols() {
-        return objectTypeSymbols;
+    public String getOrgName() {
+        return orgName;
     }
 
-    public List<BInvokableSymbol> getBInvokableSymbols() {
-        return bInvokableSymbols;
+    public String getVersion() {
+        return version;
     }
 
-    public List<BServiceSymbol> getbServiceSymbols() {
-        return bServiceSymbols;
-    }
+    /**
+     * Builder for BPackageSymbolDTO.
+     */
+    public static class BPackageSymbolDTOBuilder {
 
-    public List<BTypeSymbol> getOtherTypeSymbols() {
-        return otherTypeSymbols;
+        private int id = -1;
+
+        private String name = "";
+
+        private String orgName = "";
+
+        private String version = "";
+
+        public BPackageSymbolDTOBuilder setId(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public BPackageSymbolDTOBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public BPackageSymbolDTOBuilder setOrgName(String orgName) {
+            this.orgName = orgName;
+            return this;
+        }
+
+        public BPackageSymbolDTOBuilder setVersion(String version) {
+            this.version = version;
+            return this;
+        }
+        
+        public BPackageSymbolDTO build() {
+            return new BPackageSymbolDTO(this.id, this.name, this.orgName, this.version);
+        }
     }
 }

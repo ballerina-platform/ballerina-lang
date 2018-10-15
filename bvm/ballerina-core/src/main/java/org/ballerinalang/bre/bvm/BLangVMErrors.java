@@ -374,7 +374,7 @@ public class BLangVMErrors {
 
         String msg = msgBVal.stringValue();
         if (msgBVal != null && !msg.isEmpty()) {
-            errorMsg = errorMsg + ", message: " + makeFirstLetterLowerCase(msg);
+            errorMsg = errorMsg + ", message: " + removeJava(makeFirstLetterLowerCase(msg));
         }
 
         return errorMsg;
@@ -387,5 +387,12 @@ public class BLangVMErrors {
         char c[] = s.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
+    }
+
+    private static String removeJava(String s) {
+        if (s == null) {
+            return null;
+        }
+        return s.replaceAll("java", "runtime");
     }
 }
