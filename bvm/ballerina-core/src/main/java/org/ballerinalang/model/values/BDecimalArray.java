@@ -21,6 +21,8 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTypes;
 import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
@@ -29,6 +31,37 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
  * @since 0.981.2
  */
 public class BDecimalArray extends BNewArray {
+
+    private Decimal[] values;
+
+    public BDecimalArray(Decimal[] values) {
+        this.values = values;
+        this.size = values.length;
+        super.arrayType = new BArrayType(BTypes.typeDecimal);
+    }
+
+    public BDecimalArray() {
+        values = (Decimal[]) newArrayInstance(Decimal.class);
+        super.arrayType = new BArrayType(BTypes.typeDecimal);
+    }
+
+    public BDecimalArray(int size) {
+        if (size != -1) {
+            this.size = maxArraySize = size;
+        }
+        values = (Decimal[]) newArrayInstance(Decimal.class);
+        super.arrayType = new BArrayType(BTypes.typeDecimal, size);
+    }
+
+    public void add(long index, Decimal value) {
+        prepareForAdd(index, values.length);
+        values[(int) index] = value;
+    }
+
+    public Decimal get(long index) {
+        rangeCheckForGet(index, size);
+        return values[(int) index];
+    }
 
     @Override
     public void grow(int newLength) {
@@ -43,10 +76,5 @@ public class BDecimalArray extends BNewArray {
     @Override
     public BValue copy() {
         return null;
-    }
-
-    // Dummy Implementation for now
-    public Decimal get(long index) {
-        return new Decimal(0);
     }
 }
