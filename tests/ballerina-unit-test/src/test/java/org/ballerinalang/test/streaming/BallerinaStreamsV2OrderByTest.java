@@ -56,16 +56,16 @@ public class BallerinaStreamsV2OrderByTest {
     }
 
     @Test(description = "Test OrderBy streaming query with Alias")
-    public void testFilterQueryWithAlias() {
+    public void testOrderByQueryWithAlias() {
         executeFunction(resultWithAlias);
     }
 
     @Test(description = "Test orderBy streaming query with functions")
-    public void testFilterQueryWithFunc() {
+    public void testOrderByQueryWithFunc() {
         executeFunction(result2);
     }
     @Test(description = "Test orderBy streaming query with alias with functions")
-    public void testFilterQueryWithFuncWithAlias() {
+    public void testOrderByQueryWithFuncWithAlias() {
         executeFunction(resultWithAlias2);
     }
 
