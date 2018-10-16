@@ -37,11 +37,8 @@ function runNpmCommand(args, cwd) {
 }
 
 function runGitCommand(args, cwd) {
-  // git cmd based on OS
-  const gitCmd = os.platform().startsWith('win') ? 'git.cmd' : 'git';
-
   // execute command sync
-  const spawnResult = cp.spawnSync(gitCmd, args, { env: process.env, cwd, stdio: 'inherit' });
+  const spawnResult = cp.spawnSync('git', args, { env: process.env, cwd, stdio: 'inherit' });
   if (spawnResult.status !== 0) {
       process.kill(process.pid);
   }
