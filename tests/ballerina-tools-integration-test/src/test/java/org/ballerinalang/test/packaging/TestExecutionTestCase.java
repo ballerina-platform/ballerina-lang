@@ -574,7 +574,7 @@ public class TestExecutionTestCase extends BaseTest {
         String testContent = "import ballerina/test;\n" +
                             "import ballerina/io;\n" +
                             "@test:Mock {\n" +
-                            "    packageName: \".\",\n" +
+                            "    moduleName: \".\",\n" +
                             "    functionName: \"intAdd\"\n" +
                             "}\n" +
                             "public function mockIntAdd(int a, int b) returns int {\n" +

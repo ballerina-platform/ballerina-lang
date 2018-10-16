@@ -106,15 +106,15 @@ public class Utils {
     }
 
     /**
-     * Returns the full package name with org name for a given package.
+     * Returns the full module name with org name for a given module.
      *
-     * @param packageName package name
-     * @return full package name with organization name if org name exists
+     * @param moduleName module name
+     * @return full module name with organization name if org name exists
      */
-    public static String getFullPackageName(String packageName) {
+    public static String getFullModuleName(String moduleName) {
         String orgName = registry.getOrgName();
         String version = registry.getVersion();
-        // If the orgName is null there is no package, .bal execution
+        // If the orgName is null there is no module, .bal execution
         if (orgName == null) {
             return ".";
         }
@@ -125,10 +125,10 @@ public class Utils {
         }
 
         if (version == null || version.isEmpty() || version.equals(Names.DEFAULT_VERSION.value)) {
-            return orgName + packageName + Names.VERSION_SEPARATOR + Names.DEFAULT_VERSION.value;
+            return orgName + moduleName + Names.VERSION_SEPARATOR + Names.DEFAULT_VERSION.value;
         }
 
-        return orgName + packageName + Names.VERSION_SEPARATOR + version;
+        return orgName + moduleName + Names.VERSION_SEPARATOR + version;
     }
 
     /**
