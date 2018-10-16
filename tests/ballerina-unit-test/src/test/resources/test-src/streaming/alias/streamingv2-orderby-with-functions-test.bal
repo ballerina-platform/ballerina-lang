@@ -17,7 +17,6 @@
 import ballerina/runtime;
 import ballerina/io;
 import ballerina/streams;
-import ballerina/reflect;
 
 type Teacher record {
     string name;
@@ -30,6 +29,7 @@ type Teacher record {
 type TeacherOutput record {
     string name;
     int age;
+    string status;
     int sumAge;
     int count;
 };
@@ -40,22 +40,22 @@ stream<TeacherOutput> outputStream;
 
 TeacherOutput[] globalTeacherOutputArray = [];
 
-function startAggregationWithGroupByQuery() returns TeacherOutput[] {
+function getAge(int a, int b) returns int {
+    return a * b;
+}
+function startOrderByQuery() returns TeacherOutput[] {
 
     Teacher[] teachers = [];
-    Teacher t1 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher t2 = { name: "Raja", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher t3 = { name: "Bobo", age: 15 , status: "single", batch: "LK2014", school: "Foo College" };
-    teachers[0] = t1;
-    teachers[1] = t2;
-    teachers[2] = t3;
-    teachers[3] = t1;
-    teachers[4] = t1;
-    teachers[5] = t3;
-    teachers[6] = t1;
-    teachers[7] = t2;
-    teachers[8] = t3;
-    teachers[9] = t1;
+    teachers[0] = { name: "A", age: 12, status: "a", batch: "LK2014", school: "X College" };
+    teachers[1] = { name: "g", age: 3, status: "b", batch: "LK2014", school: "X College" };
+    teachers[2] = { name: "f", age: 34, status: "d", batch: "LK2014", school: "X College" };
+    teachers[3] = { name: "C", age: 56, status: "f", batch: "LK2014", school: "X College" };
+    teachers[4] = { name: "E", age: 6, status: "a", batch: "LK2014", school: "X College" };
+    teachers[5] = { name: "B", age: 12, status: "c", batch: "LK2014", school: "X College" };
+    teachers[6] = { name: "m", age: 87, status: "g", batch: "LK2014", school: "X College" };
+    teachers[7] = { name: "D", age: 21, status: "b", batch: "LK2014", school: "X College" };
+    teachers[8] = { name: "i", age: 13, status: "e", batch: "LK2014", school: "X College" };
+    teachers[9] = { name: "h", age: 43, status: "g", batch: "LK2014", school: "X College" };
 
     foo();
 
@@ -67,31 +67,21 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
     while(true) {
         runtime:sleep(500);
         count++;
-        if((lengthof globalTeacherOutputArray) == 7 || count == 10) {
+        if((lengthof globalTeacherOutputArray) == 10 || count == 10) {
             break;
         }
     }
     return globalTeacherOutputArray;
 }
 
-
-//  ------------- Query to be implemented -------------------------------------------------------
-//  from inputStream where inputStream.age > 25
-//  select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
-//  group by inputStream.name
-//      => (TeacherOutput [] o) {
-//            outputStream.publish(o);
-//      }
-//
-
 function foo() {
     forever {
-        from inputStream where inputStream.age > 25 window lengthWindow(5) as input
-        select input.name, input.age, sum (input.age) as sumAge, count() as count
-        group by input.name
-        => (TeacherOutput[] teachers) {
-            foreach t in teachers {
-                outputStream.publish(t);
+        from inputStream where inputStream.age > 2 window lengthBatchWindow(5)
+        select inputStream.name, inputStream.age, inputStream.status, sum (inputStream.age) as sumAge, count() as count
+        group by inputStream.name order by status ascending, getAge(age, getAge(age, 2)) descending => (TeacherOutput
+        [] o) {
+            foreach x in o {
+                outputStream.publish(x);
             }
         }
     }

@@ -357,7 +357,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             refactoredExpr = refactorVarRefAfterSelect(varRef, symTable.anyType);
         } else if (expr.getKind() == NodeKind.INVOCATION) {
             BLangInvocation invocation = (BLangInvocation) expr;
-            refactoredExpr = refactorInvocationAfterSelect(invocation);
+            refactoredExpr = generateConversionExpr(refactorInvocationAfterSelect(invocation), symTable.anyType,
+                    symResolver);
         }
 
         addReturnStmt(expr.pos, lambdaBody, refactoredExpr);
@@ -372,11 +373,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             for (BLangExpression expression : functionArgsList) {
                 if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
-                    BLangExpression refactoredExpr = refactorVarRefAfterSelect(varRef, varRef.symbol.type);
-                    if (refactoredExpr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
-                        refactoredExpr = createCheckedExpr((BLangTypeConversionExpr) refactoredExpr);
-                    }
-                    expressionList.add(refactoredExpr);
+                    expressionList.add(refactorVarRefAfterSelect(varRef, varRef.symbol.type));
                 } else if (expression.getKind() == NodeKind.INVOCATION) {
                     expressionList.add(refactorInvocationAfterSelect((BLangInvocation) expression));
                 } else {
@@ -1424,8 +1421,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             refactoredVarRef = createMapVariableIndexAccessExpr(mapVarArgs.get(mapVarArgs.size() - 1).symbol,
                     ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, "OUTPUT." + varRefExpr
                             .variableName.value));
-            refactoredVarRef = Desugar.addConversionExprIfRequired(refactoredVarRef, expType, types, symTable,
-                    symResolver);
+            refactoredVarRef = generateConversionExpr(refactoredVarRef, expType, symResolver);
+            if (refactoredVarRef.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+                refactoredVarRef = createCheckedExpr((BLangTypeConversionExpr) refactoredVarRef);
+            }
         } else {
             refactoredVarRef = varRefExpr;
         }
