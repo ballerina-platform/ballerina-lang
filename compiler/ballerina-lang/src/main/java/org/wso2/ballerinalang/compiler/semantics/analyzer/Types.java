@@ -1437,8 +1437,8 @@ public class Types {
                         .stream()
                         .anyMatch(t -> isSameType(s, t)));
 
-        if (!matchFound && lhsType.tag == TypeTags.TUPLE && rhsType.tag == TypeTags.TUPLE) {
-            matchFound = tupleIntersectionExists((BTupleType) lhsType, (BTupleType) rhsType);
+        if (!matchFound) {
+            matchFound = tupleIntersectionExistsForStructuredTypes(lhsTypes, rhsTypes);
         }
 
         return matchFound;
@@ -1463,6 +1463,7 @@ public class Types {
                 BType arrayElementType = ((BArrayType) bType).getElementType();
 
                 // add an unsealed array to allow comparison between closed and open arrays
+                // TODO: 10/16/18 improve this, since it will allow comparison between sealed arrays of different sizes
                 if (((BArrayType) bType).getSize() != -1) {
                     memberTypes.add(new BArrayType(arrayElementType));
                 }
@@ -1496,32 +1497,66 @@ public class Types {
             return false;
         }
 
-        boolean matchFound;
         List<BType> lhsMemberTypes = lhsType.getTupleTypes();
         List<BType> rhsMemberTypes = rhsType.getTupleTypes();
 
         for (int i = 0; i < lhsType.getTupleTypes().size(); i++) {
-            Set<BType> lhsTypes = new HashSet<>();
-            Set<BType> rhsTypes = new HashSet<>();
-
-            lhsTypes.addAll(getMemberTypesRecursive(lhsMemberTypes.get(i)));
-            rhsTypes.addAll(getMemberTypesRecursive(rhsMemberTypes.get(i)));
-
-            if (lhsTypes.contains(symTable.anyType) || rhsTypes.contains(symTable.anyType)) {
-                matchFound = true;
-            } else {
-                matchFound = lhsTypes
-                        .stream()
-                        .anyMatch(s -> rhsTypes
-                                .stream()
-                                .anyMatch(t -> isSameType(s, t)));
-            }
-
-            if (!matchFound) {
+            if (!intersectionExists(lhsMemberTypes.get(i), rhsMemberTypes.get(i))) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean tupleIntersectionExistsForStructuredTypes(Set<BType> lhsTypes, Set<BType> rhsTypes) {
+        boolean matchFound = false;
+        for (BType lhsMemberType : lhsTypes) {
+            switch (lhsMemberType.tag) {
+                case TypeTags.TUPLE:
+                    for (BType rhsMemberType : rhsTypes) {
+                        if (rhsMemberType.tag == TypeTags.TUPLE &&
+                                tupleIntersectionExists((BTupleType) lhsMemberType, (BTupleType) rhsMemberType)) {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    break;
+                case TypeTags.ARRAY:
+                    BType lhsArrayElementType = ((BArrayType) lhsMemberType).eType;
+                    if (lhsArrayElementType.tag != TypeTags.TUPLE) {
+                        continue;
+                    }
+                    for (BType rhsMemberType : rhsTypes) {
+                        if (rhsMemberType.tag == TypeTags.ARRAY &&
+                                ((BArrayType) rhsMemberType).eType.tag == TypeTags.TUPLE &&
+                                tupleIntersectionExists((BTupleType) lhsArrayElementType,
+                                                        (BTupleType) ((BArrayType) rhsMemberType).eType)) {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    break;
+                case TypeTags.MAP:
+                    BType lhsMapConstraintType = ((BMapType) lhsMemberType).constraint;
+                    if (lhsMapConstraintType.tag != TypeTags.TUPLE) {
+                        continue;
+                    }
+                    for (BType rhsMemberType : rhsTypes) {
+                        if (rhsMemberType.tag == TypeTags.MAP &&
+                                ((BMapType) rhsMemberType).constraint.tag == TypeTags.TUPLE &&
+                                tupleIntersectionExists((BTupleType) lhsMapConstraintType,
+                                                        (BTupleType) ((BMapType) rhsMemberType).constraint)) {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    break;
+            }
+            if (matchFound) {
+                break;
+            }
+        }
+        return matchFound;
     }
 
     /**

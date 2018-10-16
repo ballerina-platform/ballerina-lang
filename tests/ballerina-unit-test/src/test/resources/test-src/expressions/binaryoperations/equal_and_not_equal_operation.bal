@@ -449,7 +449,20 @@ function checkUnionConstrainedMapsPositive() returns boolean {
     m4["two"] = 2;
     m4["one"] = "one";
 
-    return equals && m3 == m4 && !(m3 != m4);
+    equals = equals && m3 == m4 && !(m3 != m4);
+
+    map<(string|int, float)>|(string,int) m5;
+    map<(string, float)> m6;
+
+    map<(string|int, float)> m7 = {
+        one: ("hi", 100.0),
+        two: ("hello", 21.1)
+    };
+    m5 = m7;
+    m6.two = ("hello", 21.1);
+    m6.one = ("hi", 100.0);
+
+    return equals && m5 == m6 && !(m5 != m6);
 }
 
 function checkUnionConstrainedMapsNegative() returns boolean {
@@ -463,7 +476,20 @@ function checkUnionConstrainedMapsNegative() returns boolean {
 
     m2["two"] = 2;
 
-    return equals || m1 == m2 || !(m1 != m2);
+    equals = equals || m1 == m2 || !(m1 != m2);
+
+    map<(string|int, float)>|(string,int) m3;
+    map<(string, float)> m4;
+
+    map<(string|int, float)> m5 = {
+        one: ("hi", 100),
+        two: ("hello", 21)
+    };
+    m3 = m5;
+    m4.two = ("hello", 21.1);
+    m4.one = ("hi", 100.0);
+
+    return equals || m3 == m4 || !(m3 != m4);
 }
 
 function checkUnionArrayPositive() returns boolean {
@@ -488,7 +514,18 @@ function checkUnionArrayPositive() returns boolean {
     a4[3] = 3;
     a4[0] = "one";
 
-    return equals && a3 == a4 && !(a3 != a4);
+    equals = equals && a3 == a4 && !(a3 != a4);
+
+    ((string, int)|float)[] a5;
+    ((string, int|boolean)|float)[] a6;
+
+    equals = equals && a5 == a6 && !(a5 != a6);
+
+    a5 = [("hi", 1), 3.0];
+    a6[0] = ("hi", 1);
+    a6[1] = 3.0;
+
+    return equals && a5 == a6 && !(a5 != a6);
 }
 
 function checkUnionArrayNegative() returns boolean {
@@ -502,7 +539,12 @@ function checkUnionArrayNegative() returns boolean {
 
     a2[2] = 2;
 
-    return equals || a1 == a2 || !(a1 != a2);
+    equals = equals || a1 == a2 || !(a1 != a2);
+
+    ((string, int)|float)[] a5 = [("hi", 1), 3.0];
+    ((string, int|boolean)|float)[] a6 = [("hi", true), 3.0];
+
+    return equals || a5 == a6 || !(a5 != a6);
 }
 
 function checkTupleWithUnionPositive() returns boolean {
