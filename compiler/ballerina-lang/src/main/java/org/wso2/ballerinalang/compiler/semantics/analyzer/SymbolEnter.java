@@ -199,8 +199,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.typePrecedence = 0;
         defineTypeNodes(pkgNode.typeDefinitions, new LinkedList<>(), pkgEnv);
 
-        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
-
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
         pkgEnv.logErrors = true;
@@ -213,6 +211,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
+
+        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
@@ -688,7 +688,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Reset the name of the symbol to the original var name
             varSymbol.name = varName;
 
-            // This means enclosing type definition is a object type defintion
+            // This means enclosing type definition is a object type definition.
             if (env.enclTypeDefinition != null) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
                 objectTypeNode.initFunction.initFunctionStmts
@@ -733,8 +733,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // If the node is a compile time constant and the RHS is not a simple literal, we log an error. This is done
         // because at the moment, compile time constants only support assigning simple literals.
-        if ((varNode.symbol.flags & Flags.CONST) == Flags.CONST && varNode.expr.getKind() != NodeKind.LITERAL) {
-            dlog.error(varNode.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
+        if ((varNode.symbol.flags & Flags.CONST) == Flags.CONST) {
+            if (varNode.expr.getKind() != NodeKind.LITERAL) {
+                dlog.error(varNode.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
+            } else {
+                // Set the value of the constant to the default value field in the symbol.
+                varSymbol.defaultValue = varNode.expr;
+            }
         }
     }
 

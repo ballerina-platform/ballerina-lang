@@ -148,19 +148,6 @@ const string J = "j";
 
 // -------------------------------------
 
-function testMixedWithFinal() returns int {
-    L l = 10;
-    return 0;
-}
-
-type L M|N;
-
-final var M = "m";
-
-type N int;
-
-// -------------------------------------
-
 function checkTypeAsParam() returns int {
     return checkValue(STRING);
 }

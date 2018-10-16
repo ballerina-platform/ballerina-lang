@@ -103,13 +103,6 @@ public class ConstantsTest {
     }
 
     @Test
-    public void testMixedWithFinal() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMixedWithFinal");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-    }
-
-    @Test
     public void checkTypeAsParam() {
         BValue[] returns = BRunUtil.invoke(compileResult, "checkTypeAsParam");
         Assert.assertNotNull(returns[0]);

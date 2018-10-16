@@ -445,7 +445,8 @@ public class BLangPackageBuilder {
         typeDef.addWS(ws);
         this.compUnit.addTopLevelNode(typeDef);
 
-        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name,
+                true));
     }
 
     private BLangRecordTypeNode populateRecordTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
@@ -509,10 +510,10 @@ public class BLangPackageBuilder {
         typeNode.grouped = true;
     }
 
-    void addUserDefineType(Set<Whitespace> ws) {
+    void addUserDefineType(Set<Whitespace> ws, boolean resolveToConstants) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,
-                (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name);
+                (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name, resolveToConstants);
         userDefinedType.addWS(nameReference.ws);
         addType(userDefinedType);
     }
@@ -1520,7 +1521,8 @@ public class BLangPackageBuilder {
         typeDef.addWS(ws);
         this.compUnit.addTopLevelNode(typeDef);
 
-        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name,
+                true));
     }
 
     private BLangObjectTypeNode populateObjectTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
@@ -1551,8 +1553,9 @@ public class BLangPackageBuilder {
     }
 
     void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
-                           boolean publicType) {
+                           boolean publicType, boolean resolveToConstants) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+
         BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
         identifierNode.pos = identifierPos;
         typeDefinition.setName(identifierNode);
@@ -1593,7 +1596,7 @@ public class BLangPackageBuilder {
                 this.compUnit.addTopLevelNode(typeDef);
 
                 members.memberTypeNodes.add(createUserDefinedType(pos, ws,
-                        (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
+                        (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name, resolveToConstants));
             } else {
                 members.memberTypeNodes.add(finiteTypeNode);
             }
@@ -1752,7 +1755,7 @@ public class BLangPackageBuilder {
 
         // Create an user defined type with object type
         TypeNode objectType = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
-                (BLangIdentifier) createIdentifier(objectName));
+                (BLangIdentifier) createIdentifier(objectName), false);
 
         //Create and add receiver to attached functions
         BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
@@ -2376,7 +2379,7 @@ public class BLangPackageBuilder {
         if (constrained) {
             final BLangNameReference epName = nameReferenceStack.pop();
             serviceNode.setServiceTypeStruct(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
-                    (BLangIdentifier) epName.name));
+                    (BLangIdentifier) epName.name, false));
         }
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
@@ -2734,12 +2737,14 @@ public class BLangPackageBuilder {
     private BLangUserDefinedType createUserDefinedType(DiagnosticPos pos,
                                                        Set<Whitespace> ws,
                                                        BLangIdentifier pkgAlias,
-                                                       BLangIdentifier name) {
+                                                       BLangIdentifier name,
+                                                       boolean resolveToConstants) {
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedType.pos = pos;
         userDefinedType.addWS(ws);
         userDefinedType.pkgAlias = pkgAlias;
         userDefinedType.typeName = name;
+        userDefinedType.resolveToConstants = resolveToConstants;
         return userDefinedType;
     }
 

@@ -65,6 +65,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private List<String> pkgNameComps;
     private String pkgVersion;
 
+    private boolean resolveToConstants = true;
+
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
@@ -438,12 +440,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterFiniteType(BallerinaParser.FiniteTypeContext ctx) {
+        resolveToConstants = true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitFiniteType(BallerinaParser.FiniteTypeContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.endFiniteType(getWS(ctx));
+        resolveToConstants = false;
     }
 
     /**
@@ -457,7 +468,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicObject = ctx.PUBLIC() != null;
         this.pkgBuilder.endTypeDefinition(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                getCurrentPosFromIdentifier(ctx.Identifier()), publicObject);
+                getCurrentPosFromIdentifier(ctx.Identifier()), publicObject, !resolveToConstants);
     }
 
     /**
@@ -686,6 +697,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
+        resolveToConstants = false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -696,6 +715,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isExpressionAvailable = ctx.expression() != null;
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 isExpressionAvailable, isPublic, isTypeAvailable, isFinal);
+        resolveToConstants = true;
     }
 
     @Override
@@ -860,7 +880,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addUserDefineType(getWS(ctx));
+        this.pkgBuilder.addUserDefineType(getWS(ctx), resolveToConstants);
     }
 
     @Override

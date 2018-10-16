@@ -32,7 +32,7 @@ public class ConstantsNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constants-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        Assert.assertEquals(compileResult.getErrorCount(), 11);
         String expectedErrMsg1 = "only simple literals can be assigned to a constant";
         String expectedErrMsg2 = "cannot assign a value to a constant";
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg1, 2, 1);
@@ -42,5 +42,9 @@ public class ConstantsNegativeTest {
         BAssertUtil.validateError(compileResult, 4, expectedErrMsg2, 13, 5);
         BAssertUtil.validateError(compileResult, 5, expectedErrMsg2, 14, 5);
         BAssertUtil.validateError(compileResult, 6, expectedErrMsg2, 19, 9);
+        BAssertUtil.validateError(compileResult, 7, "cannot use variable 'M' in the type descriptor", 33, 8);
+        BAssertUtil.validateError(compileResult, 8, "cannot use variable 'O' in the type descriptor", 33, 12);
+        BAssertUtil.validateError(compileResult, 9, "unknown type 'aa'", 45, 1);
+        BAssertUtil.validateError(compileResult, 10, "unknown type 'cc'", 49, 1);
     }
 }

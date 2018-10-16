@@ -22,3 +22,28 @@ function testWorkerInteractions() {
         30 -> w1;
     }
 }
+
+// -------------------------------------
+
+function testMixedWithFinal() returns int {
+    L l = 10;
+    return 0;
+}
+
+type L M|N|O;
+
+final var M = "m";
+
+type N int;
+
+final string O = "o";
+
+// -------------------------------------
+
+int aa = 10;
+
+aa bb = 2;
+
+const cc = 10;
+
+cc dd = 2;

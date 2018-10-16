@@ -30,9 +30,11 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNode {
+
     public BLangIdentifier pkgAlias;
     public BLangIdentifier typeName;
     public Set<Flag> flagSet;
+    public boolean resolveToConstants;
 
     public BLangUserDefinedType() {
         this.flagSet = new HashSet<>();

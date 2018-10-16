@@ -90,6 +90,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.VARIABLES_CANNOT_BE_USED_IN_TYPE_DESCRIPTOR;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
@@ -741,20 +742,51 @@ public class SymbolResolver extends BLangNodeVisitor {
         // 2) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
         // Only valued types and ANNOTATION type allowed.
         if (env.scope.owner.tag == SymTag.ANNOTATION) {
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                    this.env, typeName, SymTag.ANNOTATION);
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope, this.env, typeName,
+                    SymTag.ANNOTATION);
         }
 
-        // 3) Lookup the current package scope.
+        // 3.1) Lookup the current package scope for types.
         if (symbol == symTable.notFoundSymbol) {
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                    this.env, typeName, SymTag.VARIABLE_NAME);
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope, this.env, typeName, SymTag.TYPE);
         }
 
+        // 3.2) Lookup the current package scope for constants.
+        if (symbol == symTable.notFoundSymbol && userDefinedTypeNode.resolveToConstants) {
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope, this.env, typeName,
+                    SymTag.VARIABLE_NAME);
+        }
+
+        // 4.1) Lookup the root scope for types such as 'error'
         if (symbol == symTable.notFoundSymbol) {
-            // 4) Lookup the root scope for types such as 'error'
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope,
-                    this.env, typeName, SymTag.VARIABLE_NAME);
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName, SymTag.TYPE);
+        }
+
+        // 4.2) Lookup the root scope for constants.
+        if (symbol == symTable.notFoundSymbol && userDefinedTypeNode.resolveToConstants) {
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName,
+                    SymTag.VARIABLE_NAME);
+        }
+
+        if (symbol != symTable.notFoundSymbol && symbol.tag == SymTag.VARIABLE) {
+            if ((symbol.flags & Flags.CONST) != Flags.CONST) {
+                dlog.error(userDefinedTypeNode.pos, VARIABLES_CANNOT_BE_USED_IN_TYPE_DESCRIPTOR, symbol.name.value);
+                return;
+            }
+//            BLangLiteral defaultValue = (BLangLiteral)((BVarSymbol) symbol).defaultValue;
+//            defaultValue.type = symTable.getTypeFromTag(defaultValue.typeTag);
+//
+//            BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
+//                    Flags.asMask(userDefinedTypeNode.flagSet), names.fromString(defaultValue.value.toString()),
+//                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
+//            BFiniteType finiteType = new BFiniteType(typeSymbol);
+//
+//            Set<BLangExpression > valueSpace =  new LinkedHashSet<>();
+//            valueSpace.add(defaultValue);
+//
+//           finiteType.valueSpace = valueSpace;
+//
+//            symbol.type = finiteType;
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
