@@ -7,7 +7,7 @@
     "build": "tsc -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "watch": "tsc -watch -p ./",
-    "test": "npm run build && mocha --compilers ts:ts-node/register",
+    "test": "mocha --compilers ts:ts-node/register",
     "cover": "istanbul cover node_modules/mocha/bin/_mocha test/*.js -- -R spec"
   },
   "author": "ballerina.io",

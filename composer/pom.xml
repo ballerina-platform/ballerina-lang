@@ -80,6 +80,8 @@
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build</argument>
+                                <argument>--</argument>
+                                <argument>--skipTest=${maven.test.skip}</argument>
                             </arguments>
                         </configuration>
                     </execution>

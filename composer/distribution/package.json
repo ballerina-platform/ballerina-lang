@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\"",
     "build": "webpack",
     "build-dev": "webpack --mode=development",
     "watch": "webpack --mode=development --watch --progress --info-verbosity verbose"

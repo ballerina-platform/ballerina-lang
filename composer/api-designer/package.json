@@ -2,11 +2,11 @@
   "name": "@ballerina/api-designer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "echo \"Building api-designer module\"",
     "watch": "echo \"Watching api-designer module\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
   "author": "ballerina.io",
   "license": "Apache-2.0"
