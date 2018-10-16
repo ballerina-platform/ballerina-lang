@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -455,6 +456,10 @@ public class Debugger {
                 variableDTO.setBValue(new BFloat(ctx.programFile.globalMemArea.getFloatField(pkgIndex,
                         packVarInfo.getGlobalMemIndex())));
                 break;
+            case TypeTags.DECIMAL_TAG:
+                variableDTO.setBValue(new BDecimal(ctx.programFile.globalMemArea.getDecimalField(pkgIndex,
+                        packVarInfo.getGlobalMemIndex())));
+                break;
             case TypeTags.STRING_TAG:
                 variableDTO.setBValue(new BString(ctx.programFile.globalMemArea.getStringField(pkgIndex,
                         packVarInfo.getGlobalMemIndex())));
@@ -491,6 +496,9 @@ public class Debugger {
                 break;
             case TypeTags.FLOAT_TAG:
                 variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[variableInfo.getVariableIndex()]));
+                break;
+            case TypeTags.DECIMAL_TAG:
+                variableDTO.setBValue(new BDecimal(ctx.workerLocal.decimalRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.STRING_TAG:
                 variableDTO.setBValue(new BString(ctx.workerLocal.stringRegs[variableInfo.getVariableIndex()]));

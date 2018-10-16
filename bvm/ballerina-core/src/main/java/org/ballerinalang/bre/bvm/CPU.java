@@ -1139,6 +1139,11 @@ public class CPU {
                             TypeTags.FLOAT_TAG);
                     break;
                 }
+                case TypeTags.DECIMAL_TAG: {
+                    fp.addClosureVar(new BClosure(new BDecimal(ctx.workerLocal.decimalRegs[index]), BTypes.typeDecimal),
+                            TypeTags.DECIMAL_TAG);
+                    break;
+                }
                 case TypeTags.BOOLEAN_TAG: {
                     fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1),
                                     BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
@@ -2564,6 +2569,9 @@ public class CPU {
                 case TypeTags.FLOAT_TAG:
                     sf.doubleRegs[target] = ((BFloat) source).floatValue();
                     break;
+                case TypeTags.DECIMAL_TAG:
+                    sf.decimalRegs[target] = ((BDecimal) source).decimalValue();
+                    break;
                 case TypeTags.STRING_TAG:
                     sf.stringRegs[target] = source.stringValue();
                     break;
@@ -2652,6 +2660,9 @@ public class CPU {
                 case TypeTags.FLOAT_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
                     break;
+                case TypeTags.DECIMAL_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockDecimalField(ctx, pkgIndex, regIndex);
+                    break;
                 case TypeTags.STRING_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
                     break;
@@ -2680,6 +2691,9 @@ public class CPU {
                     break;
                 case TypeTags.FLOAT_TAG:
                     ctx.programFile.globalMemArea.unlockFloatField(pkgIndex, regIndex);
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    ctx.programFile.globalMemArea.unlockDecimalField(pkgIndex, regIndex);
                     break;
                 case TypeTags.STRING_TAG:
                     ctx.programFile.globalMemArea.unlockStringField(pkgIndex, regIndex);
@@ -2992,6 +3006,9 @@ public class CPU {
             case TypeTags.FLOAT_TAG:
                 result = new BFloat(data.doubleRegs[reg]);
                 break;
+            case TypeTags.DECIMAL_TAG:
+                result = new BDecimal(data.decimalRegs[reg]);
+                break;
             case TypeTags.STRING_TAG:
                 result = new BString(data.stringRegs[reg]);
                 break;
@@ -3034,6 +3051,9 @@ public class CPU {
                 break;
             case TypeTags.FLOAT_TAG:
                 currentSF.doubleRegs[regIndex] = ((BFloat) passedInValue).floatValue();
+                break;
+            case TypeTags.DECIMAL_TAG:
+                currentSF.decimalRegs[regIndex] = ((BDecimal) passedInValue).decimalValue();
                 break;
             case TypeTags.STRING_TAG:
                 currentSF.stringRegs[regIndex] = (passedInValue).stringValue();
@@ -3150,9 +3170,13 @@ public class CPU {
 
     private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
         if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG ||
+                        lhsType.getTag() == TypeTags.DECIMAL_TAG)) {
             return true;
-        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG &&
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.DECIMAL_TAG)) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.DECIMAL_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
         } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
@@ -3596,6 +3620,8 @@ public class CPU {
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return json != null && json.getType().getTag() == targetType.getTag();
+            case TypeTags.DECIMAL_TAG:
+                return json != null && json.getType().getTag() == TypeTags.FLOAT_TAG;
             case TypeTags.ARRAY_TAG:
                 if (json == null || json.getType().getTag() != TypeTags.ARRAY_TAG) {
                     return false;
@@ -3769,6 +3795,9 @@ public class CPU {
                             continue;
                         case TypeTags.FLOAT_TAG:
                             bStruct.put(key, new BFloat(defaultValAttrInfo.getDefaultValue().getFloatValue()));
+                            continue;
+                        case TypeTags.DECIMAL_TAG:
+                            bStruct.put(key, new BDecimal(defaultValAttrInfo.getDefaultValue().getDecimalValue()));
                             continue;
                         case TypeTags.STRING_TAG:
                             bStruct.put(key, new BString(defaultValAttrInfo.getDefaultValue().getStringValue()));
