@@ -203,6 +203,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // TODO: Do this in a cleaner way
         pkgEnv.logErrors = true;
 
+        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
+
         // Define type def fields (if any)
         defineFields(pkgNode.typeDefinitions, pkgEnv);
 
@@ -211,8 +213,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
-
-        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));

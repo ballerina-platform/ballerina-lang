@@ -446,7 +446,7 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name,
-                true));
+                false, false));
     }
 
     private BLangRecordTypeNode populateRecordTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
@@ -510,10 +510,11 @@ public class BLangPackageBuilder {
         typeNode.grouped = true;
     }
 
-    void addUserDefineType(Set<Whitespace> ws, boolean resolveToConstants) {
+    void addUserDefineType(Set<Whitespace> ws, boolean resolveToConstants, boolean resolveToAnonRecords) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,
-                (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name, resolveToConstants);
+                (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name, resolveToConstants,
+                resolveToAnonRecords);
         userDefinedType.addWS(nameReference.ws);
         addType(userDefinedType);
     }
@@ -1444,9 +1445,9 @@ public class BLangPackageBuilder {
     }
 
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
-                                              Set<Whitespace> ws,
-                                              String identifier,
-                                              boolean exprAvailable) {
+                                                         Set<Whitespace> ws,
+                                                         String identifier,
+                                                         boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
@@ -1522,7 +1523,7 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name,
-                true));
+                false, false));
     }
 
     private BLangObjectTypeNode populateObjectTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
@@ -1553,7 +1554,7 @@ public class BLangPackageBuilder {
     }
 
     void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
-                           boolean publicType, boolean resolveToConstants) {
+                           boolean publicType, boolean resolveToConstants, boolean resolveToAnonRecords) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
         BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
@@ -1596,7 +1597,8 @@ public class BLangPackageBuilder {
                 this.compUnit.addTopLevelNode(typeDef);
 
                 members.memberTypeNodes.add(createUserDefinedType(pos, ws,
-                        (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name, resolveToConstants));
+                        (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name, resolveToConstants,
+                        resolveToAnonRecords));
             } else {
                 members.memberTypeNodes.add(finiteTypeNode);
             }
@@ -1755,7 +1757,7 @@ public class BLangPackageBuilder {
 
         // Create an user defined type with object type
         TypeNode objectType = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
-                (BLangIdentifier) createIdentifier(objectName), false);
+                (BLangIdentifier) createIdentifier(objectName), false, false);
 
         //Create and add receiver to attached functions
         BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
@@ -2379,7 +2381,7 @@ public class BLangPackageBuilder {
         if (constrained) {
             final BLangNameReference epName = nameReferenceStack.pop();
             serviceNode.setServiceTypeStruct(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
-                    (BLangIdentifier) epName.name, false));
+                    (BLangIdentifier) epName.name, false, false));
         }
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
@@ -2738,13 +2740,15 @@ public class BLangPackageBuilder {
                                                        Set<Whitespace> ws,
                                                        BLangIdentifier pkgAlias,
                                                        BLangIdentifier name,
-                                                       boolean resolveToConstants) {
+                                                       boolean resolveToConstants,
+                                                       boolean resolveToAnonRecords) {
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedType.pos = pos;
         userDefinedType.addWS(ws);
         userDefinedType.pkgAlias = pkgAlias;
         userDefinedType.typeName = name;
         userDefinedType.resolveToConstants = resolveToConstants;
+        userDefinedType.resolveToAnonRecords = resolveToAnonRecords;
         return userDefinedType;
     }
 

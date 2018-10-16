@@ -751,7 +751,17 @@ public class SymbolResolver extends BLangNodeVisitor {
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope, this.env, typeName, SymTag.TYPE);
         }
 
-        // 3.2) Lookup the current package scope for constants.
+        // 3.2) Lookup the current package scope for record.
+        if (symbol == symTable.notFoundSymbol && userDefinedTypeNode.resolveToAnonRecords) {
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope, this.env, typeName,
+                    SymTag.VARIABLE_NAME);
+            // If the resolved symbol is a constant, we reset the symbol.
+            if ((symbol.flags & Flags.CONST) == Flags.CONST || symbol.type.tag != TypeTags.RECORD) {
+                symbol = symTable.notFoundSymbol;
+            }
+        }
+
+        // 3.3) Lookup the current package scope for constants.
         if (symbol == symTable.notFoundSymbol && userDefinedTypeNode.resolveToConstants) {
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope, this.env, typeName,
                     SymTag.VARIABLE_NAME);
@@ -762,31 +772,42 @@ public class SymbolResolver extends BLangNodeVisitor {
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName, SymTag.TYPE);
         }
 
-        // 4.2) Lookup the root scope for constants.
+        // 4.2) Lookup the root scope for records.
+        if (symbol == symTable.notFoundSymbol && userDefinedTypeNode.resolveToAnonRecords) {
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName,
+                    SymTag.VARIABLE_NAME);
+            // If the resolved symbol is a constant, we reset the symbol.
+            if ((symbol.flags & Flags.CONST) == Flags.CONST || symbol.type.tag != TypeTags.RECORD) {
+                symbol = symTable.notFoundSymbol;
+            }
+        }
+
+        // 4.3) Lookup the root scope for constants.
         if (symbol == symTable.notFoundSymbol && userDefinedTypeNode.resolveToConstants) {
             symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName,
                     SymTag.VARIABLE_NAME);
         }
 
         if (symbol != symTable.notFoundSymbol && symbol.tag == SymTag.VARIABLE) {
-            if ((symbol.flags & Flags.CONST) != Flags.CONST) {
+            if ((symbol.flags & Flags.CONST) != Flags.CONST && symbol.type.tag != TypeTags.RECORD) {
                 dlog.error(userDefinedTypeNode.pos, VARIABLES_CANNOT_BE_USED_IN_TYPE_DESCRIPTOR, symbol.name.value);
                 return;
             }
-//            BLangLiteral defaultValue = (BLangLiteral)((BVarSymbol) symbol).defaultValue;
-//            defaultValue.type = symTable.getTypeFromTag(defaultValue.typeTag);
-//
-//            BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-//                    Flags.asMask(userDefinedTypeNode.flagSet), names.fromString(defaultValue.value.toString()),
-//                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
-//            BFiniteType finiteType = new BFiniteType(typeSymbol);
-//
-//            Set<BLangExpression > valueSpace =  new LinkedHashSet<>();
-//            valueSpace.add(defaultValue);
-//
-//           finiteType.valueSpace = valueSpace;
-//
-//            symbol.type = finiteType;
+            //            BLangLiteral defaultValue = (BLangLiteral)((BVarSymbol) symbol).defaultValue;
+            //            defaultValue.type = symTable.getTypeFromTag(defaultValue.typeTag);
+            //
+            //            BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
+            //                    Flags.asMask(userDefinedTypeNode.flagSet), names.fromString(defaultValue.value
+            // .toString()),
+            //                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
+            //            BFiniteType finiteType = new BFiniteType(typeSymbol);
+            //
+            //            Set<BLangExpression > valueSpace =  new LinkedHashSet<>();
+            //            valueSpace.add(defaultValue);
+            //
+            //           finiteType.valueSpace = valueSpace;
+            //
+            //            symbol.type = finiteType;
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {

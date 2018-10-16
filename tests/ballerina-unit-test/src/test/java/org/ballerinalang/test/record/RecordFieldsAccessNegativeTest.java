@@ -32,7 +32,7 @@ public class RecordFieldsAccessNegativeTest {
     public void testRecordPrivateFieldsAccess1() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_fields_negative1.bal");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 13);
         String expectedErrMsg1 = "attempt to expose non-public symbol ";
         String expectedErrMsg2 = "attempt to refer to non-accessible symbol ";
 
@@ -46,8 +46,9 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(compileResult, 7, expectedErrMsg2 + "'privatePerson'", 16, 9);
         BAssertUtil.validateError(compileResult, 8, expectedErrMsg2 + "'privatePerson'", 16, 13);
         BAssertUtil.validateError(compileResult, 9, expectedErrMsg2 + "'privatePerson'", 20, 5);
-        BAssertUtil.validateError(compileResult, 10, "unknown type 'privatePerson'", 20, 5);
-        BAssertUtil.validateError(compileResult, 11, "invalid literal for type 'other'", 20, 27);
+        BAssertUtil.validateError(compileResult, 10, expectedErrMsg2 + "'privatePerson'", 20, 5);
+        BAssertUtil.validateError(compileResult, 11, "unknown type 'privatePerson'", 20, 5);
+        BAssertUtil.validateError(compileResult, 12, "invalid literal for type 'other'", 20, 27);
     }
 
     @Test(description = "Test private fields access in record 02")

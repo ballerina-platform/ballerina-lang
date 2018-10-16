@@ -35,6 +35,7 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     public BLangIdentifier typeName;
     public Set<Flag> flagSet;
     public boolean resolveToConstants;
+    public boolean resolveToAnonRecords;
 
     public BLangUserDefinedType() {
         this.flagSet = new HashSet<>();

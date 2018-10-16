@@ -65,7 +65,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private List<String> pkgNameComps;
     private String pkgVersion;
 
-    private boolean resolveToConstants = true;
+    private boolean resolveToConstants;
+    private boolean resolveToAnonRecords;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
                         BDiagnosticSource diagnosticSource) {
@@ -425,6 +426,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) {
+        resolveToConstants = false;
+        resolveToAnonRecords = true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -434,6 +444,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 getCurrentPos(ctx.anyIdentifierName()), ctx.formalParameterList() != null,
                 ctx.returnParameter() != null, ctx.formalParameterList() != null
                         && ctx.formalParameterList().restParameter() != null);
+        resolveToConstants = true;
+        resolveToAnonRecords = false;
     }
 
     /**
@@ -442,6 +454,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void enterFiniteType(BallerinaParser.FiniteTypeContext ctx) {
         resolveToConstants = true;
+        resolveToAnonRecords = true;
     }
 
     /**
@@ -455,6 +468,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.endFiniteType(getWS(ctx));
         resolveToConstants = false;
+        resolveToAnonRecords = false;
     }
 
     /**
@@ -468,7 +482,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicObject = ctx.PUBLIC() != null;
         this.pkgBuilder.endTypeDefinition(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                getCurrentPosFromIdentifier(ctx.Identifier()), publicObject, !resolveToConstants);
+                getCurrentPosFromIdentifier(ctx.Identifier()), publicObject, resolveToConstants, resolveToAnonRecords);
     }
 
     /**
@@ -699,6 +713,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void enterGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) {
         resolveToConstants = false;
+        resolveToAnonRecords = true;
     }
 
     /**
@@ -716,6 +731,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 isExpressionAvailable, isPublic, isTypeAvailable, isFinal);
         resolveToConstants = true;
+        resolveToAnonRecords = false;
     }
 
     @Override
@@ -880,7 +896,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addUserDefineType(getWS(ctx), resolveToConstants);
+        this.pkgBuilder.addUserDefineType(getWS(ctx), resolveToConstants, resolveToAnonRecords);
     }
 
     @Override
@@ -2124,12 +2140,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
+        resolveToConstants = false;
+        resolveToAnonRecords = true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size());
+        resolveToConstants = true;
+        resolveToAnonRecords = false;
     }
 
     @Override
