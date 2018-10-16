@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src -d lib --copy-files"
+    "build": "babel src -d lib --copy-files",
+    "watch": "babel src -d lib --copy-files --watch"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",

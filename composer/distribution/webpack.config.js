@@ -36,5 +36,8 @@ module.exports = {
           exclude: /(node_modules|diagram)/
         }
       ]
+    },
+    watchOptions: {
+      ignored: /(node_modules|build)/
     }
   }
