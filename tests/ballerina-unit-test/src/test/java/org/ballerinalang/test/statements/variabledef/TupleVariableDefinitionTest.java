@@ -142,6 +142,18 @@ public class TupleVariableDefinitionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
+    @Test(description = "Test tuple recursive definition with var on lhs")
+    public void testRecursiveExpressionWithVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns[0].stringValue(), "Bal");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 34);
+        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 9);
