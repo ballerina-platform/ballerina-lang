@@ -159,8 +159,8 @@ public type Person record {
 };
 
 //Serialize record into binary
-function serialize(Person p, io:WritableByteChannel channel) {
-    io:WritableDataChannel dc = new io:WritableDataChannel(channel);
+function serialize(Person p, io:WritableByteChannel byteChannel) {
+    io:WritableDataChannel dc = new io:WritableDataChannel(byteChannel);
     var length = lengthof p.name.toByteArray("UTF-8");
     var lengthResult = dc.writeInt32(length);
     var nameResult = dc.writeString(p.name, "UTF-8");
@@ -171,11 +171,11 @@ function serialize(Person p, io:WritableByteChannel channel) {
 }
 
 //Deserialize record into binary
-function deserialize(io:ReadableByteChannel channel) returns Person {
+function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     Person person;
     int nameLength;
     string nameValue;
-    io:ReadableDataChannel dc = new io:ReadableDataChannel(channel);
+    io:ReadableDataChannel dc = new io:ReadableDataChannel(byteChannel);
     //Read 32 bit singed integer
     match dc.readInt32() {
         int namel => nameLength = namel;
