@@ -2096,12 +2096,11 @@ public class BLangPackageBuilder {
         tempAnnotAttachments.forEach(annotatableNode::addAnnotationAttachment);
     }
 
-    void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isVarDeclaration) {
+    void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         ExpressionNode lExprNode = exprNodeStack.pop();
         BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentNode.setExpression(rExprNode);
-        assignmentNode.setDeclaredWithVar(isVarDeclaration);
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
         assignmentNode.varRef = ((BLangVariableReference) lExprNode);

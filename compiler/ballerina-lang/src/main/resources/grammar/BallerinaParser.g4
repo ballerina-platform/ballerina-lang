@@ -356,7 +356,7 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReference ASSIGN expression SEMICOLON
+    :   variableReference ASSIGN expression SEMICOLON
     ;
 
 tupleDestructuringStatement
