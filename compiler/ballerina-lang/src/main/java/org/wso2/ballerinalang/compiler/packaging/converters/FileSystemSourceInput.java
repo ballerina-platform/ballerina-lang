@@ -36,10 +36,9 @@ public class FileSystemSourceInput implements CompilerInput {
             File file = new File(path.toString());
             // Find the file path relative to the package root.
             return pkgRoot.toURI().relativize(file.toURI()).getPath();
-        } else {
-            Path fileName = path.getFileName();
-            return fileName != null ? fileName.toString() : path.toString();
         }
+        Path fileName = path.getFileName();
+        return fileName != null ? fileName.toString() : path.toString();
     }
 
     @Override
