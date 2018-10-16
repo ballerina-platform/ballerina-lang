@@ -1,15 +1,15 @@
 {
-    "name": "@ballerina/composer",
-    "version": "1.0.0",
-    "description": "",
-    "scripts": {
-      "build": "node build.js"
-    },
-    "author": "ballerina.io",
-    "license": "Apache-2.0",
-    "devDependencies": {
-    },
-    "dependencies": {
-    }
-  }
-  
+  "name": "@ballerina/composer",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "clean": "node scripts/clean.js"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "rimraf": "^2.6.2"
+  },
+  "dependencies": {}
+}

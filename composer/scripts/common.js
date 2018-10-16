@@ -1,13 +1,16 @@
 const fs = require('fs');
-const resolve = require('path').resolve;
 const join = require('path').join;
+const resolve = require('path').resolve;
 const cp = require('child_process');
 const os = require('os');
 
-// submodule root
-const modulesRoot = resolve(__dirname, './');
+// npm cmd based on OS
+const npmCmd = os.platform().startsWith('win') ? 'npm.cmd' : 'npm';
 
-const modules = [
+// submodule root
+const modulesRoot = resolve(__dirname, './../');
+
+const submodules = [
     "theme",
     "api-designer",
     "documentation",
@@ -17,17 +20,20 @@ const modules = [
     "tracing",
     "integration-tests",
     "distribution"	
-];
+]
 
-function runNpmCommand(args, cwd) {
-  // npm cmd based on OS
-  const npmCmd = os.platform().startsWith('win') ? 'npm.cmd' : 'npm';
-
+function runNpmCommandSync(args, cwd) {
   // execute command sync
   const spawnResult = cp.spawnSync(npmCmd, args, { env: process.env, cwd, stdio: 'inherit' });
   if (spawnResult.status !== 0) {
       process.kill(process.pid);
   }
+  return spawnResult;
+}
+
+function runNpmCommand(args, cwd) {
+    // execute command async
+    return cp.spawn(npmCmd, args, { env: process.env, cwd, stdio: 'inherit' });
 }
 
 function runGitCommand(args, cwd) {
@@ -42,7 +48,7 @@ function runGitCommand(args, cwd) {
 }
 
 function forEachSubModule(callback) {
-    modules.forEach(function (mod) {
+    submodules.forEach(function (mod) {
         const modPath = join(modulesRoot, mod);
         // ensure path has package.json
         if (!fs.existsSync(join(modPath, 'package.json'))) {
@@ -52,10 +58,11 @@ function forEachSubModule(callback) {
     });
 }
 
-forEachSubModule((modPath) => {
-    runNpmCommand(["i"], modPath);
-    runNpmCommand(["run", "build"], modPath);
-    // Undo changes to package-lock files. These changes mostly happen
-    // because of differences between npm versions
-    runGitCommand(["checkout", "--", "package-lock.json"], modPath);
-});
+module.exports = {
+    submodules,
+    forEachSubModule,
+    runNpmCommandSync,
+    runNpmCommand,
+    runGitCommand,
+    modulesRoot
+}
