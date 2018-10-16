@@ -1424,8 +1424,8 @@ public class Types {
         Set<BType> lhsTypes = new HashSet<>();
         Set<BType> rhsTypes = new HashSet<>();
 
-        lhsTypes.addAll(getMemberTypesRecursive(lhsType));
-        rhsTypes.addAll(getMemberTypesRecursive(rhsType));
+        lhsTypes.addAll(getAndExpandMemberTypesRecursive(lhsType));
+        rhsTypes.addAll(getAndExpandMemberTypesRecursive(rhsType));
 
         if (lhsTypes.contains(symTable.anyType) || rhsTypes.contains(symTable.anyType)) {
             return true;
@@ -1438,13 +1438,22 @@ public class Types {
                         .anyMatch(t -> isSameType(s, t)));
 
         if (!matchFound) {
-            matchFound = tupleIntersectionExistsForStructuredTypes(lhsTypes, rhsTypes);
+            matchFound = intersectionExistsForComplexStructuredTypes(lhsTypes, rhsTypes);
         }
 
         return matchFound;
     }
 
-    private Set<BType> getMemberTypesRecursive(BType bType) {
+    /**
+     * Retrieves member types of the specified type, expanding maps/arrays of/constrained by unions types to individual
+     * maps/arrays.
+     *
+     * e.g., (string|int)[] would cause three entries --> string[], int[], (string|int)[]
+     *
+     * @param bType the type for which member types needs to be identified
+     * @return  a set containing all the retrieved member types
+     */
+    private Set<BType> getAndExpandMemberTypesRecursive(BType bType) {
         Set<BType> memberTypes = new HashSet<>();
         switch (bType.tag) {
             case TypeTags.FINITE:
@@ -1456,7 +1465,7 @@ public class Types {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) bType;
                 unionType.getMemberTypes().forEach(member -> {
-                    memberTypes.addAll(getMemberTypesRecursive(member));
+                    memberTypes.addAll(getAndExpandMemberTypesRecursive(member));
                 });
                 break;
             case TypeTags.ARRAY:
@@ -1469,7 +1478,7 @@ public class Types {
                 }
 
                 if (arrayElementType.tag == TypeTags.UNION) {
-                    Set<BType> elementUnionTypes = getMemberTypesRecursive(arrayElementType);
+                    Set<BType> elementUnionTypes = getAndExpandMemberTypesRecursive(arrayElementType);
                     elementUnionTypes.forEach(elementUnionType -> {
                         memberTypes.add(new BArrayType(elementUnionType));
                     });
@@ -1479,7 +1488,7 @@ public class Types {
             case TypeTags.MAP:
                 BType mapConstraintType = ((BMapType) bType).getConstraint();
                 if (mapConstraintType.tag == TypeTags.UNION) {
-                    Set<BType> constraintUnionTypes = getMemberTypesRecursive(mapConstraintType);
+                    Set<BType> constraintUnionTypes = getAndExpandMemberTypesRecursive(mapConstraintType);
                     constraintUnionTypes.forEach(constraintUnionType -> {
                         memberTypes.add(new BMapType(TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol));
                     });
@@ -1508,7 +1517,7 @@ public class Types {
         return true;
     }
 
-    private boolean tupleIntersectionExistsForStructuredTypes(Set<BType> lhsTypes, Set<BType> rhsTypes) {
+    private boolean intersectionExistsForComplexStructuredTypes(Set<BType> lhsTypes, Set<BType> rhsTypes) {
         boolean matchFound = false;
         for (BType lhsMemberType : lhsTypes) {
             switch (lhsMemberType.tag) {
@@ -1522,30 +1531,22 @@ public class Types {
                     }
                     break;
                 case TypeTags.ARRAY:
-                    BType lhsArrayElementType = ((BArrayType) lhsMemberType).eType;
-                    if (lhsArrayElementType.tag != TypeTags.TUPLE) {
-                        continue;
-                    }
                     for (BType rhsMemberType : rhsTypes) {
+                        // TODO: 10/16/18 validate for non-anydata element type
                         if (rhsMemberType.tag == TypeTags.ARRAY &&
-                                ((BArrayType) rhsMemberType).eType.tag == TypeTags.TUPLE &&
-                                tupleIntersectionExists((BTupleType) lhsArrayElementType,
-                                                        (BTupleType) ((BArrayType) rhsMemberType).eType)) {
+                                intersectionExists(((BArrayType) lhsMemberType).eType,
+                                                   ((BArrayType) rhsMemberType).eType)) {
                             matchFound = true;
                             break;
                         }
                     }
                     break;
                 case TypeTags.MAP:
-                    BType lhsMapConstraintType = ((BMapType) lhsMemberType).constraint;
-                    if (lhsMapConstraintType.tag != TypeTags.TUPLE) {
-                        continue;
-                    }
                     for (BType rhsMemberType : rhsTypes) {
+                        // TODO: 10/16/18 validate for non-anydata constraint type
                         if (rhsMemberType.tag == TypeTags.MAP &&
-                                ((BMapType) rhsMemberType).constraint.tag == TypeTags.TUPLE &&
-                                tupleIntersectionExists((BTupleType) lhsMapConstraintType,
-                                                        (BTupleType) ((BMapType) rhsMemberType).constraint)) {
+                                intersectionExists(((BMapType) lhsMemberType).constraint,
+                                                   ((BMapType) rhsMemberType).constraint)) {
                             matchFound = true;
                             break;
                         }

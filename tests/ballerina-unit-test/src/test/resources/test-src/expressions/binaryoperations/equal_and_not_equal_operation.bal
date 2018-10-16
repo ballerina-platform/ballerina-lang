@@ -354,6 +354,31 @@ function check2DStringArrayEqualityNegative() returns boolean {
     return s1 == s2 || !(s1 != s2) || s3 == s4 || !(s3 != s4);
 }
 
+function checkComplex2DArrayEqualityPositive() returns boolean {
+    (int, float)[][] a;
+    (int|string, float)[][] b;
+
+    boolean equals = a == b && !(a != b);
+
+    a = [[(1, 3.0)], [(123, 65.4), (234, 23.22)]];
+    b[0] = [(1, 3.0)];
+    b[1] = [(123, 65.4), (234, 23.22)];
+
+    return equals && a == b && !(a != b);
+}
+
+function checkComplex2DArrayEqualityNegative() returns boolean {
+    (int, float)[][] a = [[(123, 65.4), (234, 23.22)]];
+    (int|string, float)[][] b = [[(124, 65.4), (234, 23.22)]];
+
+    boolean equals = a == b || !(a != b);
+
+    b = [[(123, 65.4), (234, 23.22)]];
+    b[2] = [(123, 65.4), (234, 23.22)];
+
+    return equals || a == b || !(a != b);
+}
+
 function checkMapEqualityPositive() returns boolean {
     map m1;
     map m2;
@@ -399,6 +424,36 @@ function checkMapEqualityNegative() returns boolean {
     m4.two = 2;
 
     return m1 == m2 || !(m1 != m2) || m3 == m4 || !(m3 != m4);
+}
+
+function checkComplexMapEqualityPositive() returns boolean {
+    map<map<(boolean, string|float)>> m1;
+    map<map<(boolean, float)|int>> m2;
+
+    boolean equals = m1 == m2 && !(m1 != m2);
+
+    map<(boolean, string|float)> m3 = { one: (true, 3.8), two: (false, 13.8) };
+    m1["one"] = m3;
+
+    map<(boolean, float)|int> m4;
+    m4.one = (true, 3.8);
+    m4.two = (false, 13.8);
+    m2.one = m4;
+
+    return equals && m1 == m2 && !(m1 != m2);
+}
+
+function checkComplexMapEqualityNegative() returns boolean {
+    map<map<(boolean, string|float)>> m1;
+    map<map<(boolean, float)|int>> m2;
+
+    map<(boolean, string|float)> m3 = { one: (true, "3.8"), two: (false, 13.8) };
+    m1.x = m3;
+
+    map<(boolean, float)|int> m4 = { one: (true, 3.8), two: (false, 13.8) };
+    m2.x = m4;
+
+    return m1 == m2 || !(m1 != m2);
 }
 
 function checkTupleEqualityPositive() returns boolean {

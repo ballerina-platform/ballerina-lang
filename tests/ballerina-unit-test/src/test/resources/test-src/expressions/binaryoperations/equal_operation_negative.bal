@@ -33,19 +33,15 @@ function checkEqualityOfArraysOfDifferentTypes() returns boolean {
 }
 
 function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
-    map a;
-    map<string> b;
+    map<int> a;
+    map<float> b;
     boolean bool1 = a == b;
 
-    map<int> c;
+    map<string|int> c;
     map<float> d;
     boolean bool2 = c == d;
 
-    map<string|int> e;
-    map<float> f;
-    boolean bool3 = e == f;
-
-    return bool1 && bool2 && bool3;
+    return bool1 && bool2;
 }
 
 function checkEqualityOfTuplesOfDifferentTypes() returns boolean {

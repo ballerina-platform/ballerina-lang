@@ -362,6 +362,24 @@ public class EqualAndNotEqualOperationsTest {
                            "Expected 2D string array values to be identified as not equal");
     }
 
+    @Test(description = "Test equals/unequals operation with two complex 2D arrays")
+    public void testComplex2DArrayEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkComplex2DArrayEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected complex 2D array values to be identified" +
+                " as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two complex 2D arrays")
+    public void testComplex2DArrayEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkComplex2DArrayEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected complex 2D array values to be identified as not equal");
+    }
+
     @Test(description = "Test equals/unequals operation with two equal map values")
     public void testMapEqualityPositive() {
         BValue[] returns = BRunUtil.invoke(result, "checkMapEqualityPositive", new BValue[0]);
@@ -377,6 +395,23 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
                            "Expected map values to be identified as not equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two equal complex map values")
+    public void testComplexMapEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "checkComplexMapEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected complex map values to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal map values")
+    public void testComplexMapEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "checkComplexMapEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected complex map values to be identified as not equal");
     }
 
     @Test(description = "Test equals/unequals operation with two equal tuple values")
@@ -532,19 +567,18 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equal expression with errors")
     public void testEqualStmtNegativeCase() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '==' not defined for 'int[2]' and 'string[2]'", 26, 21);
         validateError(resultNegative, 2, "operator '==' not defined for 'float|int[]' and 'boolean|xml[]'", 30, 21);
-        validateError(resultNegative, 3, "operator '==' not defined for 'map' and 'map<string>'", 38, 21);
-        validateError(resultNegative, 4, "operator '==' not defined for 'map<int>' and 'map<float>'", 42, 21);
-        validateError(resultNegative, 5, "operator '==' not defined for 'map<string|int>' and 'map<float>'",
-                      46, 21);
-        validateError(resultNegative, 6, "operator '==' not defined for '(string,int)' and '(boolean,float)'",
+        validateError(resultNegative, 3, "operator '==' not defined for 'map<int>' and 'map<float>'", 38, 21);
+        validateError(resultNegative, 4, "operator '==' not defined for 'map<string|int>' and 'map<float>'",
+                      42, 21);
+        validateError(resultNegative, 5, "operator '==' not defined for '(string,int)' and '(boolean,float)'",
+                      50, 21);
+        validateError(resultNegative, 6, "operator '==' not defined for '(float|int,int)' and '(boolean,int)'",
                       54, 21);
-        validateError(resultNegative, 7, "operator '==' not defined for '(float|int,int)' and '(boolean,int)'",
-                      58, 21);
-        validateError(resultNegative, 8, "operator '==' not defined for 'Employee' and 'Person'", 66, 12);
+        validateError(resultNegative, 7, "operator '==' not defined for 'Employee' and 'Person'", 62, 12);
     }
 
     @DataProvider(name = "equalIntValues")
