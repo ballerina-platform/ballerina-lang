@@ -76,13 +76,35 @@
                         <phase>compile</phase>
                         <configuration>
                             <skip>${skipClientSideBuild}</skip>
-                            <executable>npm</executable>
+                            <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build</argument>
                                 <argument>--</argument>
                                 <argument>--skipTest=${maven.test.skip}</argument>
                             </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-npm-executable</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- set executable names based on OS family -->
+                                <condition property="npm.executable" value="npm.cmd" else="npm">
+                                    <os family="windows" />
+                                </condition>
+                            </target>
+                            <exportAntProperties>true</exportAntProperties>
                         </configuration>
                     </execution>
                 </executions>
