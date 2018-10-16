@@ -403,12 +403,16 @@ public class CPU {
                         break;
                     case InstructionCodes.IGT:
                     case InstructionCodes.FGT:
+                    case InstructionCodes.DGT:
                     case InstructionCodes.IGE:
                     case InstructionCodes.FGE:
+                    case InstructionCodes.DGE:
                     case InstructionCodes.ILT:
                     case InstructionCodes.FLT:
+                    case InstructionCodes.DLT:
                     case InstructionCodes.ILE:
                     case InstructionCodes.FLE:
+                    case InstructionCodes.DLE:
                     case InstructionCodes.REQ_NULL:
                     case InstructionCodes.RNE_NULL:
                     case InstructionCodes.BR_TRUE:
