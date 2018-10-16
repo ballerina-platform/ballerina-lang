@@ -194,7 +194,6 @@
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
-        "@types/extended-language-client": "file:../../composer/extended-language-client",
         "decache": "^4.4.0",
         "istanbul": "^0.4.5",
         "mocha": "^5.2.0",
