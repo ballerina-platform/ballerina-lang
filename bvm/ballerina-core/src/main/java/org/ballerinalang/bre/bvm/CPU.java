@@ -915,6 +915,7 @@ public class CPU {
         int doubleIndex = expandDoubleRegs(sf, fp);
         int intIndex = expandIntRegs(sf, fp);
         int stringIndex = expandStringRegs(sf, fp);
+        int decimalIndex = expandDecimalRegs(sf, fp);
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
@@ -932,6 +933,11 @@ public class CPU {
                 case TypeTags.FLOAT_TAG: {
                     sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
                     newArgRegs[argRegIndex++] = doubleIndex++;
+                    break;
+                }
+                case TypeTags.DECIMAL_TAG: {
+                    sf.decimalRegs[decimalIndex] = ((BDecimal) closure.value()).decimalValue();
+                    newArgRegs[argRegIndex++] = decimalIndex++;
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
@@ -968,6 +974,7 @@ public class CPU {
         int doubleIndex = expandDoubleRegs(sf, fp);
         int intIndex = expandIntRegs(sf, fp);
         int stringIndex = expandStringRegs(sf, fp);
+        int decimalIndex = expandDecimalRegs(sf, fp);
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
@@ -985,6 +992,11 @@ public class CPU {
                 case TypeTags.FLOAT_TAG: {
                     sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
                     newArgRegs[argRegIndex++] = doubleIndex++;
+                    break;
+                }
+                case TypeTags.DECIMAL_TAG: {
+                    sf.decimalRegs[decimalIndex] = ((BDecimal) closure.value()).decimalValue();
+                    newArgRegs[argRegIndex++] = decimalIndex++;
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
@@ -1064,6 +1076,21 @@ public class CPU {
             sf.stringRegs = newStringRegs;
         }
         return stringIndex;
+    }
+
+    private static int expandDecimalRegs(WorkerData sf, BFunctionPointer fp) {
+        int decimalIndex = 0;
+        if (fp.getAdditionalIndexCount(BTypes.typeDecimal.getTag()) > 0) {
+            if (sf.decimalRegs == null) {
+                sf.decimalRegs = new Decimal[0];
+            }
+            Decimal[] newDecimalRegs = new Decimal[sf.decimalRegs.length +
+                    fp.getAdditionalIndexCount(BTypes.typeDecimal.getTag())];
+            System.arraycopy(sf.decimalRegs, 0, newDecimalRegs, 0, sf.decimalRegs.length);
+            decimalIndex = sf.decimalRegs.length;
+            sf.decimalRegs = newDecimalRegs;
+        }
+        return decimalIndex;
     }
 
     private static int expandRefRegs(WorkerData sf, BFunctionPointer fp) {
