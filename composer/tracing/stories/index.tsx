@@ -105,6 +105,6 @@ const filters = {
 };
 
 storiesOf('trace logs', module)
-    .add('list traces2', () => {
+    .add('Trace Logs toolbar and component', () => {
         return (<TraceLogs traces={traces} selected='uuid1' filters={filters} clearLogs={()=>{}}/>);
     });
