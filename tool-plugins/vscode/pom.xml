@@ -56,8 +56,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer-web</artifactId>
-            <classifier>ballerina-composer-library</classifier>
+            <artifactId>composer</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -243,8 +242,7 @@
                         </goals>
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
-                            <includeClassifiers>ballerina-composer-library</includeClassifiers>
-                            <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
+                            <includeArtifactIds>composer</includeArtifactIds>
                             <outputDirectory>${project.build.directory}/temp</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
