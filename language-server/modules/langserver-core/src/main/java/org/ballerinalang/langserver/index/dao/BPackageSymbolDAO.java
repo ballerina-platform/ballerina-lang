@@ -121,10 +121,67 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
      *
      * @param id Entry ID to retrieve
      * @return {@link BPackageSymbolDTO}    Retrieved entry
+     * @throws LSIndexException Exception while retrieving entry from index
      */
     @Override
-    public BPackageSymbolDTO get(int id) {
-        return null;
+    public BPackageSymbolDTO get(int id) throws LSIndexException {
+        String query = "SELECT id, name, orgName, version FROM bLangPackage WHERE id = ?";
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+
+        try {
+            statement = this.connection.prepareStatement(query);
+            statement.setInt(1, id);
+            rs = statement.executeQuery();
+            if (rs.next()) {
+                return new BPackageSymbolDTO.BPackageSymbolDTOBuilder()
+                        .setId(rs.getInt(1))
+                        .setName(rs.getString(2))
+                        .setOrgName(rs.getString(3))
+                        .setVersion(rs.getString(4))
+                        .build();
+            } else {
+                throw new LSIndexException("Invalid id provided to retrieve BLang Package Symbol");
+            }
+        } catch (SQLException e) {
+            throw new LSIndexException("Error while retrieving package entry from Index");
+        } finally {
+            this.releaseResources(rs, statement);
+        }
+    }
+
+    @Override
+    public List<BPackageSymbolDTO> get(BPackageSymbolDTO dto) throws LSIndexException {
+        StringBuilder query = new StringBuilder("SELECT id, name, orgName, version FROM bLangPackage WHERE name = ?");
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        List<BPackageSymbolDTO> resultList = new ArrayList<>();
+        if (dto.getOrgName() != null && !dto.getOrgName().isEmpty()) {
+            query.append(" AND orgName = ?");
+        }
+
+        try {
+            statement = this.connection.prepareStatement(query.toString());
+            statement.setString(1, dto.getName());
+            if (dto.getOrgName() != null && !dto.getOrgName().isEmpty()) {
+                statement.setString(2, dto.getOrgName());
+            }
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                BPackageSymbolDTO resultDto = new BPackageSymbolDTO.BPackageSymbolDTOBuilder()
+                        .setId(rs.getInt(1))
+                        .setName(rs.getString(2))
+                        .setOrgName(rs.getString(3))
+                        .setVersion(rs.getString(4))
+                        .build();
+                resultList.add(resultDto);
+            }
+            return resultList;
+        } catch (SQLException e) {
+            throw new LSIndexException("Error retrieving package from Index");
+        } finally {
+            this.releaseResources(rs, statement);
+        }
     }
 
     /**
@@ -195,6 +252,7 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
     public List<BRecordTypeSymbolDTO> getRecords(BPackageSymbolDTO dto, boolean isPrivate) throws LSIndexException {
         ResultSet rs = null;
         PreparedStatement statement = null;
+        int parameterIndex = 0;
         StringBuilder query = new StringBuilder("SELECT p.id, p.name, p.orgName, r.completionItem, r.name, r.private " +
                 "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ?");
         if (dto.getOrgName().isEmpty()) {
@@ -206,11 +264,11 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
 
         try {
             statement = this.connection.prepareStatement(query.toString());
-            statement.setString(1, dto.getName());
+            statement.setString(++parameterIndex, dto.getName());
             if (!dto.getOrgName().isEmpty()) {
-                statement.setString(2, dto.getOrgName());
+                statement.setString(++parameterIndex, dto.getOrgName());
             }
-            statement.setBoolean(3, isPrivate);
+            statement.setBoolean(++parameterIndex, isPrivate);
 
             rs = statement.executeQuery();
             List<BRecordTypeSymbolDTO> recordTypeSymbolDTOs = new ArrayList<>();
@@ -242,6 +300,7 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
     public List<OtherTypeSymbolDTO> getOtherTypes(BPackageSymbolDTO dto) throws LSIndexException {
         PreparedStatement statement = null;
         ResultSet rs = null;
+        int parameterIndex = 0;
         StringBuilder query = new StringBuilder("SELECT p.id, p.name, p.orgName, t.completionItem, t.name " +
                 "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ?");
         if (dto.getOrgName().isEmpty()) {
@@ -253,9 +312,9 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
 
         try {
             statement = this.connection.prepareStatement(query.toString());
-            statement.setString(1, dto.getName());
+            statement.setString(++parameterIndex, dto.getName());
             if (!dto.getOrgName().isEmpty()) {
-                statement.setString(2, dto.getOrgName());
+                statement.setString(++parameterIndex, dto.getOrgName());
             }
             rs = statement.executeQuery();
             List<OtherTypeSymbolDTO> otherTypeSymbolDTOs = new ArrayList<>();
@@ -287,6 +346,7 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
     public List<BObjectTypeSymbolDTO> getObjects(BPackageSymbolDTO dto, boolean isPrivate) throws LSIndexException {
         PreparedStatement statement = null;
         ResultSet rs = null;
+        int parameterIndex = 0;
         StringBuilder query = new StringBuilder("SELECT p.id, p.name, p.orgName, o.completionItem, o.name, " +
                 "o.private FROM (select id, name, orgName FROM bLangPackage WHERE name = ?");
         if (dto.getOrgName().isEmpty()) {
@@ -297,11 +357,11 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
         query.append("AS p INNER JOIN bLangObject AS o WHERE p.id = o.packageId AND o.type = 3 AND o.private = ?");
         try {
             statement = this.connection.prepareStatement(query.toString());
-            statement.setString(1, dto.getName());
+            statement.setString(++parameterIndex, dto.getName());
             if (!dto.getOrgName().isEmpty()) {
-                statement.setString(2, dto.getOrgName());
+                statement.setString(++parameterIndex, dto.getOrgName());
             }
-            statement.setBoolean(3, isPrivate);
+            statement.setBoolean(++parameterIndex, isPrivate);
             
             rs = statement.executeQuery();
             List<BObjectTypeSymbolDTO> objectTypeSymbolDTOs = new ArrayList<>();

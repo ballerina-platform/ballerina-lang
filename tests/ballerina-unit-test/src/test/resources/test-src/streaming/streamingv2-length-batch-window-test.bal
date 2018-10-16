@@ -51,7 +51,15 @@ function startLengthBatchwindowTest1() returns (TeacherOutput[]) {
         inputStreamLengthBatchTest1.publish(t);
     }
 
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEmployeeArray) == 1 || count == 10) {
+            break;
+        }
+    }
+
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
