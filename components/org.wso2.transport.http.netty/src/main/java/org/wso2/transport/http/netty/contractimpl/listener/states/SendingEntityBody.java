@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -48,10 +49,8 @@ import java.util.List;
 import java.util.Queue;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_HEAD_METHOD;
-import static org.wso2.transport.http.netty.contract.Constants
-        .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupContentLengthRequest;
@@ -247,7 +246,14 @@ public class SendingEntityBody implements ListenerState {
                 //ballerina respond() won't start serializing the responses in queue. This is to trigger
                 //that process again.
                 if (outboundResponseMsg.getPipeliningFuture() != null) {
-                    outboundResponseMsg.getPipeliningFuture().notifyPipeliningListener(sourceContext);
+                    EventExecutorGroup pipeliningExecutor = sourceContext.channel().attr(Constants.PIPELINING_EXECUTOR)
+                            .get();
+                    //IMPORTANT:Pipelining logic should never be executed in an I/O thread as it might lead to IO thread
+                    //blocking scenarios in outbound trottling. Here the pipelining logic runs in a thread that belongs
+                    //to pipelining pool.
+                    pipeliningExecutor.execute(() -> outboundResponseMsg.getPipeliningFuture().
+                            notifyPipeliningListener(sourceContext));
+
                 }
             }
         }

@@ -16,6 +16,7 @@
 package org.wso2.transport.http.netty.contract;
 
 import io.netty.util.AttributeKey;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpClientConnector;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -256,14 +257,19 @@ public final class Constants {
             .valueOf("CLIENT_CONNECTOR");
     public static final int REDIRECT_SEE_OTHER_303 = 303;
 
-    public static final AttributeKey<Long> MAX_RESPONSES_ALLOWED_TO_BE_QUEUED =
-            AttributeKey.valueOf("MAX_RESPONSES_ALLOWED_TO_BE_QUEUED");
+    //HTTP 1.1 pipelining related properties
+    public static final AttributeKey<Long> MAX_RESPONSES_ALLOWED_TO_BE_QUEUED = AttributeKey
+            .valueOf("MAX_RESPONSES_ALLOWED_TO_BE_QUEUED");
     public static final AttributeKey<Queue> RESPONSE_QUEUE = AttributeKey.valueOf("RESPONSE_QUEUE");
     public static final AttributeKey<Long> NEXT_SEQUENCE_NUMBER = AttributeKey.valueOf("NEXT_SEQUENCE_NUMBER");
+    public static final AttributeKey<EventExecutorGroup> PIPELINING_EXECUTOR = AttributeKey
+            .valueOf("PIPELINING_EXECUTOR");
     public static final long EXPECTED_SEQUENCE_NUMBER = 1L;
     public static final int NUMBER_OF_INITIAL_EVENTS_HELD = 3;
     public static final int MEANINGFULLY_EQUAL = 0;
     public static final int UNBOUNDED_RESPONSE_QUEUE = -1;
+    public static final String PIPELINING_THREAD_POOL_NAME = "pipelining-pool";
+    public static final int PIPELINING_THREAD_COUNT = 2;
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";

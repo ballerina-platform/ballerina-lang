@@ -38,6 +38,7 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AsciiString;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +96,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private boolean ocspStaplingEnabled = false;
     private boolean pipeliningNeeded;
     private long pipeliningLimit;
+    private EventExecutorGroup pipeliningGroup;
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -209,10 +211,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
         serverPipeline.addLast(Constants.OUTBOUND_THROTTLING_HANDLER, new OutboundThrottlingHandler());
-        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
-                               new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
-                                                 keepAliveConfig, this.serverName, this.allChannels,
-                                       this.pipeliningNeeded, this.pipeliningLimit));
+        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
+                this.interfaceId, this.chunkConfig, keepAliveConfig, this.serverName, this.allChannels,
+                this.pipeliningNeeded, this.pipeliningLimit, this.pipeliningGroup));
         if (socketIdleTimeout >= 0) {
             serverPipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                                      new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS));
@@ -351,6 +352,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setPipeliningLimit(long pipeliningLimit) {
         this.pipeliningLimit = pipeliningLimit;
+    }
+
+    public void setPipeliningThreadGroup(EventExecutorGroup pipeliningGroup) {
+        this.pipeliningGroup = pipeliningGroup;
     }
 
     /**
