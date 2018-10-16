@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
@@ -105,6 +106,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private final LSCompiler lsCompiler;
     private final DiagnosticsHelper diagnosticsHelper;
+    private final LSIndexImpl lsIndex;
     private TextDocumentClientCapabilities clientCapabilities;
 
     private final Debouncer diagPushDebouncer;
@@ -113,6 +115,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
+        this.lsIndex = globalContext.get(LSGlobalContextKeys.LS_INDEX_KEY);
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
         this.lsCompiler = new LSCompiler(documentManager);
     }
@@ -140,6 +143,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
             context.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
             context.put(CompletionKeys.CLIENT_CAPABILITIES_KEY, this.clientCapabilities.getCompletion());
+            context.put(LSGlobalContextKeys.LS_INDEX_KEY, this.lsIndex);
 
             try {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,

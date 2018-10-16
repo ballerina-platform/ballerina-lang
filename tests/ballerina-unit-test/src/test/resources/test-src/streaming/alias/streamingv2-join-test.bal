@@ -31,9 +31,9 @@ type Twitter record {
 };
 
 type StockWithPrice record {
-    string symbol;
-    string tweet;
-    float price;
+    string? symbol;
+    string? tweet;
+    float? price;
 };
 
 StockWithPrice[] globalEventsArray = [];

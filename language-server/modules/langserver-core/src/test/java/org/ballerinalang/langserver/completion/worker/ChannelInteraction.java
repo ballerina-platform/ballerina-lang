@@ -15,36 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.index.dto;
+package org.ballerinalang.langserver.completion.worker;
 
-import java.util.List;
+import org.ballerinalang.langserver.completion.CompletionTest;
+import org.testng.annotations.DataProvider;
 
 /**
- * DTO to represent Type.
+ * Completion item tests for worker channel interactions.
+ * @since 0.983.0
  */
-public class TypeDTO {
-    
-    private PackageIDDTO packageIDDTO;
-    
-    private String name;
-    
-    private List<TypeDTO> memberTypes;
-
-    public TypeDTO(PackageIDDTO packageIDDTO, String name, List<TypeDTO> memberTypes) {
-        this.packageIDDTO = packageIDDTO;
-        this.name = name;
-        this.memberTypes = memberTypes;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<TypeDTO> getMemberTypes() {
-        return memberTypes;
-    }
-
-    public PackageIDDTO getPackageIDDTO() {
-        return packageIDDTO;
+public class ChannelInteraction extends CompletionTest {
+    @DataProvider(name = "completion-data-provider")
+    @Override
+    public Object[][] dataProvider() {
+        return new Object[][] {
+            {"workerChannelReceive.json", "worker"},
+            {"workerChannelSend.json", "worker"},
+        };
     }
 }

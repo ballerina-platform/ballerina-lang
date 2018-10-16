@@ -23,13 +23,6 @@ import java.nio.file.Path;
  * Index Interface for Ballerina Language Server.
  */
 public interface LSIndex {
-    /**
-     * Load the index from a dump index database.
-     * 
-     * @param indexDumpPath     Path to the Index Dump
-     * @return {@link Boolean}  Whether the index loading is successful or not
-     */
-    boolean initFromIndexDump(String indexDumpPath);
 
     /**
      * Load the index database schema from the disk.
