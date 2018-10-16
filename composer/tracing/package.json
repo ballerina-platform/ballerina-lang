@@ -13,13 +13,15 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@babel/core": "^7.1.2",
     "@storybook/addon-actions": "^3.4.11",
-    "@storybook/react": "4.0.0-alpha.3",
+    "@storybook/react": "^4.0.0-rc.0",
     "@types/lodash": "^4.14.116",
     "@types/node": "^10.12.0",
     "@types/react": "^16.0.36",
     "@types/storybook__react": "^3.0.9",
     "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.4",
     "css-loader": "^1.0.0",
     "node-sass": "^4.9.4",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
@@ -28,8 +30,6 @@
     "url-loader": "^1.1.2"
   },
   "dependencies": {
-    "@babel/core": "^7.1.2",
-    "babel-core": "^6.26.3",
     "moment": "^2.22.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
