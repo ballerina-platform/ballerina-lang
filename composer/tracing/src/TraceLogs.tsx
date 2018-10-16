@@ -32,7 +32,7 @@ export interface TraceLogsProps {
     selected: string;
 }
 
-export class TraceLogs extends React.Component<TraceLogsProps, TraceLogsState> {
+export default class TraceLogs extends React.Component<TraceLogsProps, TraceLogsState> {
     static defaultProps = {
         traces : [],
     }

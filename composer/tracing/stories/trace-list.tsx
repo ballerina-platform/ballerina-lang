@@ -1,6 +1,5 @@
-import React from 'react';
+import * as React from 'react';
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
 import 'semantic-ui-css/semantic.min.css';
 import TraceList from '../src/TraceList';
 
@@ -97,7 +96,7 @@ const traces = [{
 
 storiesOf('trace list', module)
   .add('list traces', () => {
-    return (<TraceList traces={traces} />);
+    return (<TraceList traces={traces} selected="" />);
   })
   .add('list traces selected', () => {
     return (<TraceList traces={traces} selected='uuid1' />);
