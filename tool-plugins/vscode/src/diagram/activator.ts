@@ -19,7 +19,7 @@
 import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection } from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
-import { BallerinaAST, ExtendedLangClient } from '../client';
+import { BallerinaAST, ExtendedLangClient } from 'extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
 
