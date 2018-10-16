@@ -51,12 +51,10 @@ public class StreamingActionTest {
 
     @Test(description = "Test streaming action query with errors")
     public void testStreamingActionNegativeArgumentCount() {
-        Assert.assertEquals(resultNegativeInvalidArgumentCount.getErrorCount(), 3);
+        Assert.assertEquals(resultNegativeInvalidArgumentCount.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 0,
-                "mismatched input ','. expecting {'group', 'having', 'order', OUTPUT, '=>'}", 43, 25);
-        BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 1,
                                   "mismatched input ','. expecting ')'", 44, 27);
-        BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 2,
+        BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 1,
                                   "mismatched input ')'. expecting ';'", 44, 34);
     }
 

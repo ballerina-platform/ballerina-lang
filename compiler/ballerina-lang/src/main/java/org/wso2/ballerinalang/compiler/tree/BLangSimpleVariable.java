@@ -38,7 +38,6 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     public BVarSymbol symbol;
 
     public BLangSimpleVariable() {
-        this.docAttachments = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.deprecatedAttachments = new ArrayList<>();

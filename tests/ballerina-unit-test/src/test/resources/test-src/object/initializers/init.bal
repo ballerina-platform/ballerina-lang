@@ -29,3 +29,7 @@ public type student object {
     public function getAge();
 
 };
+
+function student::getAge() {
+    self.age = 20;
+}

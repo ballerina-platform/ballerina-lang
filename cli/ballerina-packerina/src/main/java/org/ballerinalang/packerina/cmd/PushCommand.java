@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.PushUtils;
 import picocli.CommandLine;
 
@@ -43,9 +43,6 @@ public class PushCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-
-    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote Java debugging port")
-    private String javaDebugPort;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
@@ -79,7 +76,7 @@ public class PushCommand implements BLauncherCmd {
             String packageName = argList.get(0);
             PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild);
         } else {
-            throw new BLangCompilerException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
         Runtime.getRuntime().exit(0);
     }

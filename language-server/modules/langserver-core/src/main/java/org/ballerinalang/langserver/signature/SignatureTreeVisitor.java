@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -200,6 +201,19 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         this.blockPositionStack.push(catchNode.pos);
         this.acceptNode(catchNode.body, catchBlockEnv);
         this.blockPositionStack.pop();
+    }
+
+    @Override
+    public void visit(BLangCompoundAssignment assignment) {
+        this.blockPositionStack.push(assignment.pos);
+        this.acceptNode(assignment.varRef, symbolEnv);
+        this.blockPositionStack.pop();
+
+        if (assignment.expr != null) {
+            this.blockPositionStack.push(assignment.expr.pos);
+            acceptNode(assignment.expr, symbolEnv);
+            this.blockPositionStack.pop();
+        }
     }
 
     // Private Methods

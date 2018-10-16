@@ -335,7 +335,7 @@ public class TransactionStmtFlowTest {
 
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BAssertUtil.validateError(resultNegative, 0, "abort cannot be used outside of a transaction block", 3, 5);
         BAssertUtil.validateError(resultNegative, 1, "unreachable code", 12, 9);
         BAssertUtil.validateError(resultNegative, 2, "unreachable code", 27, 17);
@@ -349,6 +349,10 @@ public class TransactionStmtFlowTest {
                 .validateError(resultNegative, 6, "return statement cannot be used to exit from a transaction", 67, 17);
         BAssertUtil
                 .validateError(resultNegative, 7, "done statement cannot be used to exit from a transaction", 82, 13);
+        BAssertUtil
+                .validateError(resultNegative, 8, "return statement cannot be used to exit from a transaction", 98, 25);
+        BAssertUtil.validateError(resultNegative, 9, "return statement cannot be used to exit from a transaction", 103,
+                25);
     }
 
     @Test(description = "Test transaction statement with errors")

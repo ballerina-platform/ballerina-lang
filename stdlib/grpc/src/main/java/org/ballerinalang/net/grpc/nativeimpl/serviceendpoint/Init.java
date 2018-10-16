@@ -32,10 +32,11 @@ import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.Parameter;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.Parameter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,9 +51,13 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.net.http.HttpConstants.ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
@@ -134,30 +139,55 @@ public class Init extends AbstractGrpcNativeFunction {
         Struct protocols = sslConfig.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
         Struct validateCert = sslConfig.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
         Struct ocspStapling = sslConfig.getStructField(ENDPOINT_CONFIG_OCSP_STAPLING);
-        
+        String keyFile = sslConfig.getStringField(ENDPOINT_CONFIG_KEY);
+        String certFile = sslConfig.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = sslConfig.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = sslConfig.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
+
+        if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
+            throw new BallerinaException("Cannot configure both keyStore and keyFile at the same time.");
+        } else if (keyStore == null && (StringUtils.isBlank(keyFile) || StringUtils.isBlank(certFile))) {
+            throw new BallerinaException("Either keystore or certificateKey and server certificates must be provided "
+                    + "for secure connection");
+        }
         if (keyStore != null) {
             String keyStoreFile = keyStore.getStringField(FILE_PATH);
-            String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(keyStoreFile)) {
-                throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
+                throw new BallerinaException("Keystore file location must be provided for secure connection");
             }
+            String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(keyStorePassword)) {
-                throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
+                throw new BallerinaException("Keystore password must be provided for secure connection");
             }
             listenerConfiguration.setKeyStoreFile(keyStoreFile);
             listenerConfiguration.setKeyStorePass(keyStorePassword);
+        } else {
+            listenerConfiguration.setServerKeyFile(keyFile);
+            listenerConfiguration.setServerCertificates(certFile);
+            if (StringUtils.isNotBlank(keyPassword)) {
+                listenerConfiguration.setServerKeyPassword(keyPassword);
+            }
         }
         String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
+        if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
+            throw new BallerinaException(
+                    "Truststore location or trustCertificates must be provided to enable Mutual SSL");
+        }
         if (trustStore != null) {
             String trustStoreFile = trustStore.getStringField(FILE_PATH);
             String trustStorePassword = trustStore.getStringField(PASSWORD);
-            if (StringUtils.isNotBlank(trustStoreFile)) {
-                listenerConfiguration.setTrustStoreFile(trustStoreFile);
+            if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
+                throw new BallerinaException(
+                        "Truststore location must be provided to enable Mutual SSL");
             }
-            if (StringUtils.isNotBlank(trustStorePassword)) {
-                listenerConfiguration.setTrustStorePass(trustStorePassword);
+            if (StringUtils.isBlank(trustStorePassword) && StringUtils.isNotBlank(sslVerifyClient)) {
+                throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
+            listenerConfiguration.setTrustStoreFile(trustStoreFile);
+            listenerConfiguration.setTrustStorePass(trustStorePassword);
+        } else if (StringUtils.isNotBlank(trustCerts)) {
+            listenerConfiguration.setServerTrustCertificates(trustCerts);
         }
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaPatternStreamingEdgeInputImpl extends BallerinaCompositeElementImpl implements BallerinaPatternStreamingEdgeInput {
 
-  public BallerinaPatternStreamingEdgeInputImpl(ASTNode node) {
+  public BallerinaPatternStreamingEdgeInputImpl(@NotNull ASTNode node) {
     super(node);
   }
 

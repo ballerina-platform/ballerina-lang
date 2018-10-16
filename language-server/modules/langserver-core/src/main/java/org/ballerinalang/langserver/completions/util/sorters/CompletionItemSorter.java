@@ -22,9 +22,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -40,19 +38,6 @@ public abstract class CompletionItemSorter {
     public abstract void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems);
 
     /**
-     * Assign the Priorities to the completion items.
-     * @param completionItems - list of completion items
-     * @param itemPriorityMap - Map of item priorities against the Item type
-     */
-    void setPriorities(List<CompletionItem> completionItems, HashMap<String, String> itemPriorityMap) {
-        completionItems.forEach(completionItem -> {
-            if (itemPriorityMap.containsKey(completionItem.getDetail())) {
-                completionItem.setSortText(itemPriorityMap.get(completionItem.getDetail()));
-            }
-        });
-    }
-
-    /**
      * Set the priorities in the default order.
      *
      * @param completionItems list of completion items
@@ -61,11 +46,10 @@ public abstract class CompletionItemSorter {
         completionItems.forEach(this::setPriority);
     }
 
-    CompletionItem getEndpointSnippet() {
+    CompletionItem getEndpointSnippet(boolean snippetCapability) {
         CompletionItem endpointItem = new CompletionItem();
+        Snippet.DEF_ENDPOINT.getBlock().populateCompletionItem(endpointItem, snippetCapability);
         endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-        endpointItem.setInsertText(Snippet.ENDPOINT.toString());
-        endpointItem.setInsertTextFormat(InsertTextFormat.Snippet);
         endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         return endpointItem;
     }

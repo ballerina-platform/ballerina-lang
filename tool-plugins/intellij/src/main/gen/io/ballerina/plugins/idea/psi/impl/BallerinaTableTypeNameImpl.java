@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTableTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaTableTypeName {
 
-  public BallerinaTableTypeNameImpl(ASTNode node) {
+  public BallerinaTableTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

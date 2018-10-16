@@ -5,7 +5,7 @@ import ballerina/io;
 endpoint jms:SimpleQueueSender queueSender {
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'",
-    queueName: "MyQueue"
+    queueName: "MyPropQueue"
 };
 
 public function main (string... args) {

@@ -17,153 +17,135 @@
 */
 package org.ballerinalang.langserver.completions.util;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.SnippetGenerator;
 
 /**
  * Snippet for the Ballerina language constructs.
  */
 public enum Snippet {
-    ABORT("abort;"),
 
-    ANNOTATION_DEFINITION("annotation<${1:attachmentPoint}> ${2:name};"),
+    // Definition Snippets
+    DEF_ANNOTATION(SnippetGenerator.getAnnotationDefSnippet()),
 
-    BIND("bind "),
+    DEF_ENDPOINT(SnippetGenerator.getEndpointSnippet()),
 
-    BREAK("break;"),
+    DEF_FUNCTION(SnippetGenerator.getFunctionDefSnippet()),
 
-    BUT("but {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "};"),
+    DEF_FUNCTION_SIGNATURE(SnippetGenerator.getFunctionSignatureSnippet()),
 
-    CHECK_KEYWORD_SNIPPET("check "),
+    DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
 
-    CONTINUE("continue;"),
+    DEF_NEW_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
 
-    ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
-            + CommonUtil.LINE_SEPARATOR + "};"),
+    DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
 
-    FOREACH("foreach ${1:item} in ${2:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
-            + CommonUtil.LINE_SEPARATOR + "}"),
+    DEF_RECORD(SnippetGenerator.getRecordDefinitionSnippet()),
 
-    FORK("fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
-            + "} join (${2:all}) (map ${3:results}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
-            + CommonUtil.LINE_SEPARATOR + "}"),
+    DEF_RESOURCE(SnippetGenerator.getResourceDefinitionSnippet()),
 
-    FUNCTION("function ${1:name} (${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}"),
+    DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
 
-    FUNCTION_SIGNATURE("function ${1:name} (${2});"),
+    DEF_SERVICE_WEBSOCKET(SnippetGenerator.getWebSocketServiceDefSnippet()),
 
-    IF("if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
+    DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
+
+    DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
     
-    LENGTHOF("lengthof "),
 
-    LOCK("lock {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
+    // Expressions Snippets
+    EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
+    
+    
+    // Keyword Snippets
+    KW_BIND(SnippetGenerator.getBindSnippet()),
 
-    MAIN_FUNCTION("public function main (string... args) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-            + CommonUtil.LINE_SEPARATOR + "}"),
+    KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 
-    MATCH("match "),
+    KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
-    NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
+    KW_LENGTHOF(SnippetGenerator.getLengthofKeywordSnippet()),
 
-    NEW_OBJECT_CONSTRUCTOR("public new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
-            + "}"),
+    KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
-    OBJECT_SNIPPET("type ${1:ObjectName} object {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
-            + CommonUtil.LINE_SEPARATOR + "};"),
+    KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
-    PRIVATE_BLOCK("private {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
+    KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
+    
+    
+    // Statement Snippets
+    STMT_ABORT(SnippetGenerator.getAbortSnippet()),
 
-    PUBLIC_BLOCK("public {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
+    STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 
-    PUBLIC_KEYWORD_SNIPPET("public "),
+    STMT_CONTINUE(SnippetGenerator.getContinueStatmentSnippet()),
 
-    RECORD_SNIPPET("type ${1:RecordName} record {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
-            + "};"),
+    STMT_FOREACH(SnippetGenerator.getForeachSnippet()),
 
-    RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {" + CommonUtil.LINE_SEPARATOR
-            + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}"),
+    STMT_FORK_JOIN(SnippetGenerator.getForkJoinStatementSnippet()),
 
-    RETRY("retry;"),
+    STMT_IF(SnippetGenerator.getIfStatementSnippet()),
 
-    RETURN("return;"),
+    STMT_LOCK(SnippetGenerator.getLockStatementSnippet()),
 
-    SERVICE("service<${1:http:Service}> ${2:serviceName} bind { port: 9090 } {" + CommonUtil.LINE_SEPARATOR
-            + "\t${3:newResource} (endpoint ${4:caller}, " + "${5:http:Request request}) {"
-            + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
+    STMT_MATCH(SnippetGenerator.getMatchStatementSnippet()),
 
-    SERVICE_WEBSOCKET("service<http:WebSocketService> ${1:serviceName} bind { port: 9090 } {"
-            + CommonUtil.LINE_SEPARATOR + "\tonOpen(endpoint caller) {"
-            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-            + "\tonText(endpoint caller, string text, boolean final) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
-            + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-            + "\tonClose(endpoint caller, int statusCode, string reason) {"
-            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
+    STMT_NAMESPACE_DECLARATION(SnippetGenerator.getNamespaceDeclarationSnippet()),
 
-    SERVICE_WEBSUB("service<websub:Service> ${1:websubSubscriber} bind {port: 9090} {" + CommonUtil.LINE_SEPARATOR
-            + "\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {"
-            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-            + "\tonNotification(websub:Notification notification) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
-            + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
+    STMT_RETRY(SnippetGenerator.getRetryStatementSnippet()),
 
-    THROW("throw "),
+    STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
 
-    TRANSACTION("transaction with retries = ${1:1}, oncommit = ${2:onCommitFunction}, "
-            + "onabort = ${3:onAbortFunction} " + "{" + CommonUtil.LINE_SEPARATOR
-            + "\t${4}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
-            + CommonUtil.LINE_SEPARATOR + "}"),
+    STMT_THROW(SnippetGenerator.getThrowStatementSnippet()),
 
-    TRIGGER_WORKER("${1} -> ${2};"),
+    STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),
 
-    TRY_CATCH("try {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
-            + "} catch (${2:error} ${3:err}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
-            + CommonUtil.LINE_SEPARATOR + "}"),
+    STMT_TRY_CATCH(SnippetGenerator.getTryCatchStatementSnippet()),
 
-    VAR_KEYWORD_SNIPPET("var "),
+    STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
-    WHILE("while (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
+    STMT_WORKER_REPLY(SnippetGenerator.getWorkerReplyStatementSnippet()),
 
-    WORKER_REPLY("${1} <- ${2};"),
-
-    WORKER("worker ${1:name} {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
-
-    XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
+    STMT_WORKER_TRIGGER(SnippetGenerator.getWorkerTriggerStatementSnippet()),
 
 
-    // Constants for the Iterable operators
-    ITR_FOREACH("foreach((%params%) => {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-            + CommonUtil.LINE_SEPARATOR + "});"),
+    // Iterable Operation snippets
+    ITR_FOREACH(SnippetGenerator.getIterableForeachSnippet()),
 
-    ITR_MAP("map((%params%) => (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-            + CommonUtil.LINE_SEPARATOR + "});"),
+    ITR_MAP(SnippetGenerator.getIterableMapSnippet()),
 
-    ITR_FILTER("filter((%params%) => (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-            + CommonUtil.LINE_SEPARATOR + "});"),
+    ITR_FILTER(SnippetGenerator.getIterableFilterSnippet()),
 
-    ITR_COUNT("count();"),
+    ITR_COUNT(SnippetGenerator.getIterableCountSnippet()),
 
-    ITR_MIN("min();"),
+    ITR_MIN(SnippetGenerator.getIterableMinSnippet()),
 
-    ITR_MAX("max();"),
+    ITR_MAX(SnippetGenerator.getIterableMaxSnippet()),
 
-    ITR_AVERAGE("average();"),
+    ITR_AVERAGE(SnippetGenerator.getIterableAverageSnippet()),
 
-    ITR_SUM("sum();"),
+    ITR_SUM(SnippetGenerator.getIterableSumSnippet()),
 
 
     // Iterable operators' lambda function parameters
-    ITR_ON_MAP_PARAMS("string k, any v"),
+    ITR_ON_MAP_PARAMS(SnippetGenerator.getIterableOnMapParamSnippet()),
 
-    ITR_ON_JSON_PARAMS("json v"),
+    ITR_ON_JSON_PARAMS(SnippetGenerator.getIterableOnJsonParamSnippet()),
 
-    ITR_ON_XML_PARAMS("xml v");
+    ITR_ON_XML_PARAMS(SnippetGenerator.getIterableOnXmlParamSnippet());
 
-    private String value;
+    private SnippetBlock snippetBlock;
 
-    Snippet(String value) {
-        this.value = value;
+    Snippet(SnippetBlock snippetBlock) {
+        this.snippetBlock = snippetBlock;
     }
 
-    @Override
-    public String toString() {
-        return value;
+    /**
+     * Get the SnippetBlock.
+     *
+     * @return {@link SnippetBlock} SnippetBlock
+     */
+    public SnippetBlock getBlock() {
+        return this.snippetBlock;
     }
 }

@@ -23,10 +23,10 @@ public type Connection object {
 
     # Sends the outbound response to the caller.
     #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public function respond(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
+    public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
         Response response = buildResponse(message);
         match filterContext {
             FilterContext filterCtx => {
@@ -61,6 +61,7 @@ public type Connection object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
+    # + return - WebSocket service endpoint
     public extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener;
 
     # Cancels the handshake.
@@ -83,6 +84,30 @@ public type Connection object {
     # + locations - An array of URLs to which the caller can redirect to
     # + return - Returns an `error` if failed to send the redirect response
     public function redirect(Response response, RedirectCode code, string[] locations) returns error?;
+
+    # Sends the outbound response to the caller with the status 200 OK.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    #             or `mime:Entity[]`
+    # + return - Returns an `error` if failed to respond
+    public function ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error?;
+
+    # Sends the outbound response to the caller with the status 201 Created.
+    #
+    # + uri - Represents the most specific URI for the newly created resource
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    #             or `mime:Entity[]`. This message is optional.
+    # + return - Returns an `error` if failed to respond
+    public function created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error?;
+
+    # Sends the outbound response to the caller with the status 202 Accepted.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    #             or `mime:Entity[]`. This message is optional.
+    # + return - Returns an `error` if failed to respond
+    public function accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error?;
 };
 
 extern function nativeRespond(Connection connection, Response response) returns error?;
@@ -141,5 +166,28 @@ function Connection::redirect(Response response, RedirectCode code, string[] loc
     locationsStr = locationsStr.substring(0, (lengthof locationsStr) - 1);
 
     response.setHeader(LOCATION, locationsStr);
+    return self.respond(response);
+}
+
+function Connection::ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = OK_200;
+    return self.respond(response);
+}
+
+function Connection::created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = CREATED_201;
+    if (uri.length() > 0) {
+        response.setHeader(LOCATION, uri);
+    }
+    return self.respond(response);
+}
+
+function Connection::accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = ACCEPTED_202;
     return self.respond(response);
 }

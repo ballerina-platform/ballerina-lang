@@ -53,12 +53,11 @@ public class LogLeecher {
     /**
      * Feed a log line to check if it matches the expected text.
      *
-     * @param logLIne The log line which was read
+     * @param logLine The log line which was read
      */
-    void feedLine(String logLIne) {
-        if (text.contains(logLIne)) {
+    void feedLine(String logLine) {
+        if (logLine.contains(text)) {
             textFound = true;
-
             synchronized (this) {
                 this.notifyAll();
             }
@@ -81,22 +80,21 @@ public class LogLeecher {
     }
 
     /**
-     * Wait until a specific log is found.
+     * Wait until a specific log is found. The log is checked 10 times upto the timeout given.
      *
      * @param timeout timeout
      * @throws BallerinaTestException if waiting is interrupted
      */
     public void waitForText(long timeout) throws BallerinaTestException {
-
         long startTime = System.currentTimeMillis();
 
         synchronized (this) {
             while (!textFound && !forcedExit) {
                 try {
-                    this.wait(timeout);
-
+                    long waitingTime = timeout / 10;
+                    this.wait(waitingTime);
                     if (System.currentTimeMillis() - startTime > timeout) {
-                        throw new BallerinaTestException("Timeout expired waiting for matching log");
+                        throw new BallerinaTestException("Timeout expired waiting for matching log: " + text);
                     }
                 } catch (InterruptedException e) {
                     throw new BallerinaTestException("Error waiting for text", e);

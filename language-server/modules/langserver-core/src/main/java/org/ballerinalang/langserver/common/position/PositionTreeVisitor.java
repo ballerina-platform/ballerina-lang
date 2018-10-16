@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -902,6 +903,17 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         acceptNode(scopeNode.compensationFunction);
+    }
+
+    @Override
+    public void visit(BLangCompoundAssignment assignment) {
+        setPreviousNode(assignment);
+
+        if (assignment.varRef != null) {
+            acceptNode(assignment.varRef);
+        }
+
+        acceptNode(assignment.expr);
     }
 
     /**

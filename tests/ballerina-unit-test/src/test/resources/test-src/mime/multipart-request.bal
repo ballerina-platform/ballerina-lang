@@ -37,7 +37,7 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -59,7 +59,7 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -81,7 +81,7 @@ service<http:Service> test bind mockEP {
                }
             }
          }
-         _ = caller -> respond(response);
+         _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -103,7 +103,7 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -127,7 +127,7 @@ service<http:Service> test bind mockEP {
                 response.setTextPayload(untaint content);
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -168,7 +168,7 @@ service<http:Service> test bind mockEP {
                 response.setTextPayload(untaint payload);
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 }
 

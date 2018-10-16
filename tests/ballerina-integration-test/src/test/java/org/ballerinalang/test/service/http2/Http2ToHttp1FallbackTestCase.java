@@ -33,6 +33,7 @@ public class Http2ToHttp1FallbackTestCase extends Http2BaseTest {
     @Test(description = "Test HTTP/2.0 to HTTP/1.1 server fallback scenario")
     public void testFallback() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9095, "hello"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
         Assert.assertTrue(responseData.contains("1.1"), responseData);

@@ -240,8 +240,8 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 73, 3);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 78, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 79, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 90, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 91, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 87, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 88, 9);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 99, 5);
         BAssertUtil.validateWarning(compileResult, index, "no documentable return parameter", 100, 1);
     }

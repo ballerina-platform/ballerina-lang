@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ObjectTypeNode;
@@ -25,7 +26,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@code BLangObjectTypeNode} represents a object type node in Ballerina.
@@ -40,8 +43,11 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
     public BLangFunction initFunction;
     public BLangSimpleVariable receiver;
 
+    public Set<Flag> flagSet;
+
     public BLangObjectTypeNode() {
         this.functions = new ArrayList<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
     @Override

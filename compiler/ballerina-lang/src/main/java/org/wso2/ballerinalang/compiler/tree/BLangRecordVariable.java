@@ -37,7 +37,6 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     public boolean isClosed;
 
     public BLangRecordVariable() {
-        this.docAttachments = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.deprecatedAttachments = new ArrayList<>();

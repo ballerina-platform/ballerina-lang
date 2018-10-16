@@ -1,0 +1,3 @@
+// Async functionality in Ballerina is a way to execute operations in an asynchronous manner by returning a `future`.
+// The `future` can be used to extract the result of the async function call (if available), check the running status of an execution,
+// or cancel the operation if needed.

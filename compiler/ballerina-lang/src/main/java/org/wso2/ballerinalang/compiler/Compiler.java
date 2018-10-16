@@ -77,6 +77,9 @@ public class Compiler {
     }
 
     public BLangPackage compile(String sourcePackage, boolean isBuild) {
+        if (!isBuild && !this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
+            throw new BLangCompilerException("no ballerina source files found in package " + sourcePackage);
+        }
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
         if (packageID == null) {
             throw ProjectDirs.getPackageNotFoundError(sourcePackage);
@@ -90,6 +93,9 @@ public class Compiler {
     }
 
     public BLangPackage build(String sourcePackage) {
+        if (!this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
+            throw new BLangCompilerException("no ballerina source files found in package " + sourcePackage);
+        }
         outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {
@@ -145,14 +151,14 @@ public class Compiler {
         List<BLangPackage> packages = pkgIdStream
                 .filter(p -> !SymbolTable.BUILTIN.equals(p))
                 .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
+                .filter(pkgNode -> pkgNode != null) // skip the packages that were not loaded properly
                 .collect(Collectors.toList());
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
         packages.stream()
 //                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
                 .filter(pkgNode -> pkgNode.symbol != null)
-                .forEach(this.compilerDriver::compilePackage
-                );
+                .forEach(this.compilerDriver::compilePackage);
         return packages;
     }
 
@@ -170,6 +176,12 @@ public class Compiler {
     }
 
     private BLangPackage compilePackage(PackageID packageID, boolean isBuild) {
-        return compilePackages(Stream.of(packageID), isBuild).get(0);
+        List<BLangPackage> compiledPackages = compilePackages(Stream.of(packageID), isBuild);
+        // TODO: this should check for dlog.errorCount > 0. But currently some errors are
+        // not getting added to dlog, hence cannot check for error count. Issue #10454.
+        if (compiledPackages.isEmpty()) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
+        return compiledPackages.get(0);
     }
 }

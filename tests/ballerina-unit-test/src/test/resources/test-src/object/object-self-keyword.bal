@@ -5,7 +5,7 @@ public function testObjectWithSelfKeyword () returns (string, string, string, st
 }
 
 type Person object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
 
     private int year = 50;

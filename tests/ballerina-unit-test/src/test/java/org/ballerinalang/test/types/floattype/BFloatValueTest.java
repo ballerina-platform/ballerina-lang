@@ -143,6 +143,14 @@ public class BFloatValueTest {
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 12.0, "Invalid float value returned.");
     }
 
+    @Test(description = "Test int literal")
+    public void testIntLiteralAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntLiteralAssignment");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 12.0, "Invalid float value returned.");
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 15.0, "Invalid float value returned.");
+    }
+
     @Test
     public void testIntegerValue() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);

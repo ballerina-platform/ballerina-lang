@@ -72,6 +72,8 @@ function APIListener::stop() {
 }
 
 # The caller actions for responding to client requests to api listener.
+#
+# + httpCallerActions - HTTP caller actions reference
 public type APIListenerActions object {
 
     public Connection httpCallerActions;
@@ -83,10 +85,10 @@ public type APIListenerActions object {
 
     # Sends the outbound response to the caller.
     #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public function respond(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
+    public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
         return httpCallerActions.respond(message);
     }
 
@@ -110,6 +112,7 @@ public type APIListenerActions object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
+    # + return - WebSocket service endpoint
     public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
         return httpCallerActions.acceptWebSocketUpgrade(headers);
     }

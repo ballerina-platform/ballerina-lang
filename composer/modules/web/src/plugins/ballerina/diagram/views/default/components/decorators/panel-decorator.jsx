@@ -210,18 +210,20 @@ class PanelDecorator extends React.Component {
     setPropertyName() {
         if (this.state.editingTitle) {
             const fragment = FragmentUtils.createExpressionFragment(this.state.editingTitle);
-            const parsedJson = FragmentUtils.parseFragment(fragment);
-            if (!parsedJson.error) {
-                const identifierNode = TreeBuilder.build(parsedJson);
-                if (TreeUtils.isSimpleVariableRef(identifierNode.getVariable().getInitialExpression())) {
-                    this.props.model.setName(identifierNode.getVariable().getInitialExpression().getVariableName());
+            FragmentUtils.parseFragment(fragment)
+            .then((parsedJson) => {
+                if (!parsedJson.error) {
+                    const identifierNode = TreeBuilder.build(parsedJson);
+                    if (TreeUtils.isSimpleVariableRef(identifierNode.getVariable().getInitialExpression())) {
+                        this.props.model.setName(identifierNode.getVariable().getInitialExpression().getVariableName());
+                    }
                 }
-            }
+                this.setState({
+                    titleEditing: false,
+                    editingTitle: this.props.model.getName().value,
+                });
+            });
         }
-        this.setState({
-            titleEditing: false,
-            editingTitle: this.props.model.getName().value,
-        });
     }
 
     togglePublicPrivateFlag() {

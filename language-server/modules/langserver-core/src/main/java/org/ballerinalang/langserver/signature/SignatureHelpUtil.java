@@ -115,7 +115,7 @@ public class SignatureHelpUtil {
         if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD))) {
             functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols);
-        } else if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY))) {
+        } else if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY))) {
             functions = getEndpointActionsByName(idAgainst, visibleSymbols);
         } else {
             functions = visibleSymbols;
@@ -209,7 +209,7 @@ public class SignatureHelpUtil {
                     || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
                 if (">".equals(String.valueOf(c)) && "-".equals(String.valueOf(line.charAt(counter - 1)))) {
-                    delimiter.append(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY);
+                    delimiter.append(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY);
                     counter--;
                 } else {
                     delimiter.append(String.valueOf(c));
@@ -235,7 +235,7 @@ public class SignatureHelpUtil {
         String identifier = "";
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
                 || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)
-                || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
+                || UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)) {
             counter--;
             while (counter > 0) {
                 char c = line.charAt(counter);

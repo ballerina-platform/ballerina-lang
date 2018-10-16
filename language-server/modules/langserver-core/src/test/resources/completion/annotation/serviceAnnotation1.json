@@ -6,6 +6,123 @@
   "source": "annotation/source/serviceAnnotation1.bal",
   "items": [
     {
+      "label":"swagger:ServiceInfo",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"swagger:ServiceInfo {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/swagger;\n"
+        }
+      ]
+    },
+    {
+      "label":"swagger:ClientConfig",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"swagger:ClientConfig {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/swagger;\n"
+        }
+      ]
+    },
+    {
+      "label":"websub:SubscriberServiceConfig",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"websub:SubscriberServiceConfig {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/websub;\n"
+        }
+      ]
+    },
+    {
+      "label":"grpc:ServiceConfig",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"grpc:ServiceConfig {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label":"grpc:ServiceDescriptor",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"grpc:ServiceDescriptor {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label":"interruptible",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"interruptible",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"http:ServiceConfig",
       "detail":"Annotation",
       "sortText":"110",

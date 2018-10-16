@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -29,7 +28,6 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.PackageLoader;
@@ -63,7 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -97,7 +94,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -108,7 +104,6 @@ import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -231,7 +226,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                 AttachPoints.asMask(annotationNode.attachPoints), names.fromIdNode(annotationNode.name),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        annotationSymbol.documentation = getDocAttachment(annotationNode.docAttachments);
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
@@ -277,7 +271,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, env.enclPkg.packageRepository);
+        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
@@ -354,11 +348,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             typeDefSymbol = definedType.tsymbol;
         }
-        typeDefSymbol.documentation = getDocAttachment(typeDefinition.docAttachments);
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
-        typeDefSymbol.flags = Flags.asMask(typeDefinition.flagSet);
+        typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
 
         typeDefinition.symbol = typeDefSymbol;
 
@@ -369,7 +362,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangWorker workerNode) {
         BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
                 names.fromIdNode(workerNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        workerSymbol.documentation = getDocAttachment(workerNode.docAttachments);
         workerSymbol.markdownDocumentation = getMarkdownDocAttachment(workerNode.markdownDocumentationAttachment);
         workerNode.symbol = workerSymbol;
         defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
@@ -379,7 +371,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
-        serviceSymbol.documentation = getDocAttachment(serviceNode.docAttachments);
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceSymbol);
@@ -420,7 +411,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body != null);
-        funcSymbol.documentation = getDocAttachment(funcNode.docAttachments);
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
@@ -600,7 +590,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol actionSymbol = Symbols
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        actionSymbol.documentation = getDocAttachment(actionNode.docAttachments);
         actionSymbol.markdownDocumentation = getMarkdownDocAttachment(actionNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
@@ -612,7 +601,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol resourceSymbol = Symbols
                 .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        resourceSymbol.documentation = getDocAttachment(resourceNode.docAttachments);
         resourceSymbol.markdownDocumentation = getMarkdownDocAttachment(resourceNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         if (!resourceNode.getParameters().isEmpty()
@@ -686,7 +674,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
                 varNode.type, varName, env);
-        varSymbol.documentation = getDocAttachment(varNode.docAttachments);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varSymbol.docTag = varNode.docTag;
         varNode.symbol = varSymbol;
@@ -896,7 +883,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 SymbolEnv objEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
                 defineObjectInitFunction(objTypeNode, objEnv);
                 objTypeNode.functions.forEach(f -> {
-                    f.setReceiver(createReceiver(typeDef.pos, typeDef.symbol.type));
+                    f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, typeDef.symbol.type));
                     defineNode(f, objEnv);
                 });
             } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
@@ -980,6 +967,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    public void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+        symbol.scope = new Scope(symbol);
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
+            env.scope.define(symbol.name, symbol);
+        }
+    }
+
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
@@ -1036,24 +1030,20 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineObjectInitFunction(BLangObjectTypeNode object, SymbolEnv conEnv) {
         BLangFunction initFunction = object.initFunction;
         if (initFunction == null) {
-            initFunction = createInitFunction(object.pos, "", Names.OBJECT_INIT_SUFFIX);
+            return;
         }
 
-        initFunction.attachedFunction = true;
-
         //Set cached receiver to the init function
-        initFunction.receiver = createReceiver(object.pos, object.type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(object.pos, object.type);
 
+        initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
-
-        object.initFunction = initFunction;
-
-        defineNode(object.initFunction, conEnv);
+        defineNode(initFunction, conEnv);
     }
 
     private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        recordTypeNode.initFunction = createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
+        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
 
         recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
         recordTypeNode.initFunction.attachedFunction = true;
@@ -1076,7 +1066,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
-        BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue(),
+        BLangFunction initFunction = ASTBuilderUtil.createInitFunction(service.pos, service.getName().getValue(),
                 Names.INIT_FUNCTION_SUFFIX);
         service.initFunction = initFunction;
         defineNode(service.initFunction, conEnv);
@@ -1198,30 +1188,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void createPackageInitFunctions(BLangPackage pkgNode) {
         String alias = pkgNode.symbol.pkgID.toString();
-        pkgNode.initFunction = createInitFunction(pkgNode.pos, alias,
+        pkgNode.initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
                 Names.INIT_FUNCTION_SUFFIX);
-        pkgNode.startFunction = createInitFunction(pkgNode.pos, alias,
+        pkgNode.startFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
                 Names.START_FUNCTION_SUFFIX);
-        pkgNode.stopFunction = createInitFunction(pkgNode.pos, alias,
+        pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
                 Names.STOP_FUNCTION_SUFFIX);
-    }
-
-    private BLangFunction createInitFunction(DiagnosticPos pos, String name, Name sufix) {
-        BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        initFunction.setName(createIdentifier(name + sufix.getValue()));
-        initFunction.flagSet = EnumSet.of(Flag.PUBLIC);
-        initFunction.pos = pos;
-
-        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        typeNode.pos = pos;
-        typeNode.typeKind = TypeKind.NIL;
-        initFunction.returnTypeNode = typeNode;
-
-        //Create body of the init function
-        BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        body.pos = pos;
-        initFunction.setBody(body);
-        return initFunction;
     }
 
     private IdentifierNode createIdentifier(String value) {
@@ -1292,27 +1264,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private Name getFieldSymbolName(BLangSimpleVariable receiver, BLangSimpleVariable variable) {
         return names.fromString(Symbols.getAttachedFuncSymbolName(
                 receiver.type.tsymbol.name.value, variable.name.value));
-    }
-
-    private DocAttachment getDocAttachment(List<BLangDocumentation> docNodes) {
-        if (docNodes.isEmpty()) {
-            return new DocAttachment();
-        }
-
-        // At max we can have only one doc node.
-        BLangDocumentation docNode = docNodes.get(0);
-
-        DocAttachment docAttachment = new DocAttachment();
-        docAttachment.description = docNode.documentationText;
-        docNode.attributes.forEach(attr -> {
-            DocAttachment.DocAttribute attribute = new DocAttachment
-                    .DocAttribute(attr.documentationField.getValue(),
-                    attr.documentationText,
-                    attr.docTag);
-            docAttachment.attributes.add(attribute);
-
-        });
-        return docAttachment;
     }
 
     private MarkdownDocAttachment getMarkdownDocAttachment(BLangMarkdownDocumentation docNode) {

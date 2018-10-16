@@ -49,4 +49,5 @@ public class SymTag {
     public static final int TUPLE_TYPE = 1 << 23 | TYPE | VARIABLE_NAME;
     public static final int ARRAY_TYPE = 1 << 25 | TYPE | VARIABLE_NAME;
     public static final int SCOPE = 1 << 26;
+    public static final int CHANNEL = 1 << 27;
 }

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlQuotedStringImpl extends BallerinaCompositeElementImpl implements BallerinaXmlQuotedString {
 
-  public BallerinaXmlQuotedStringImpl(ASTNode node) {
+  public BallerinaXmlQuotedStringImpl(@NotNull ASTNode node) {
     super(node);
   }
 

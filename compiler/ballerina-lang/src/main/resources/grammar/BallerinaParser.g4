@@ -10,7 +10,7 @@ options {
 // starting point for parsing a bal file
 compilationUnit
     :   (importDeclaration | namespaceDeclaration)*
-        ((documentationAttachment|documentationString)? deprecatedAttachment? annotationAttachment* definition)*
+        (documentationString? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -19,7 +19,7 @@ packageName
     ;
 
 version
-    : (VERSION Identifier)
+    :   (VERSION Identifier)
     ;
 
 importDeclaration
@@ -53,7 +53,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
     ;
 
 resourceParameterList
@@ -62,7 +62,7 @@ resourceParameterList
     ;
 
 callableUnitBody
-    : LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
     ;
 
 
@@ -71,7 +71,16 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS EQUAL_GT lambdaReturnParameter? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+    ;
+
+arrowFunction
+    :   arrowParam EQUAL_GT expression
+    |   LEFT_PARENTHESIS (arrowParam (COMMA arrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT expression
+    ;
+
+arrowParam
+    :   Identifier
     ;
 
 callableUnitSignature
@@ -83,27 +92,28 @@ typeDefinition
     ;
 
 objectBody
-    :   objectFieldDefinition* objectInitializer? objectFunctions?
+    :   objectMember* objectInitializer? objectMember*
+    ;
+
+objectMember
+    :   objectFieldDefinition
+    |   objectFunctionDefinition
     ;
 
 objectInitializer
-    :   annotationAttachment* (documentationAttachment|documentationString)? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
+    :   documentationString? annotationAttachment* (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
     ;
 
 objectInitializerParameterList
     :   LEFT_PARENTHESIS objectParameterList? RIGHT_PARENTHESIS
     ;
 
-objectFunctions
-    :   objectFunctionDefinition+
-    ;
-
 objectFieldDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
-    :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -131,27 +141,32 @@ objectDefaultableParameter
     ;
 
 objectFunctionDefinition
-    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
-    : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
+    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    |   channelType Identifier SEMICOLON
+    ;
+
+channelType
+    : CHANNEL (LT typeName GT)
     ;
 
 attachmentPoint
-     : SERVICE
-     | RESOURCE
-     | FUNCTION
-     | OBJECT
-     | TYPE
-     | ENDPOINT
-     | PARAMETER
-     | ANNOTATION
-     ;
+    :   SERVICE
+    |   RESOURCE
+    |   FUNCTION
+    |   OBJECT
+    |   TYPE
+    |   ENDPOINT
+    |   PARAMETER
+    |   ANNOTATION
+    ;
 
 workerDeclaration
     :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
@@ -179,7 +194,7 @@ endpointInitlization
     ;
 
 finiteType
-    :  finiteTypeUnit (PIPE finiteTypeUnit)*
+    :   finiteTypeUnit (PIPE finiteTypeUnit)*
     ;
 
 finiteTypeUnit
@@ -194,7 +209,7 @@ typeName
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
-    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                                                # objectTypeNameLabel
+    |   ABSTRACT? OBJECT LEFT_BRACE objectBody RIGHT_BRACE                                      # objectTypeNameLabel
     |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
     ;
 
@@ -361,6 +376,12 @@ compoundOperator
     |   COMPOUND_SUB
     |   COMPOUND_MUL
     |   COMPOUND_DIV
+    |   COMPOUND_BIT_AND
+    |   COMPOUND_BIT_OR
+    |   COMPOUND_BIT_XOR
+    |   COMPOUND_LEFT_SHIFT
+    |   COMPOUND_RIGHT_SHIFT
+    |   COMPOUND_LOGICAL_SHIFT
     ;
 
 postIncrementStatement
@@ -490,20 +511,20 @@ scopeStatement
     ;
 
 scopeClause
-    : SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
+    :   SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 compensationClause
-    : COMPENSATION callableUnitBody
+    :   COMPENSATION callableUnitBody
     ;
 
 compensateStatement
-    :  COMPENSATE Identifier SEMICOLON
+    :   COMPENSATE Identifier SEMICOLON
     ;
 
 // typeName is only message
 forkJoinStatement
-    : FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
+    :   FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
@@ -512,8 +533,8 @@ joinClause
     ;
 
 joinConditions
-    : SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
-    | ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
+    :   SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
+    |   ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
@@ -526,16 +547,16 @@ tryCatchStatement
     ;
 
 catchClauses
-    : catchClause+ finallyClause?
-    | finallyClause
+    :   catchClause+ finallyClause?
+    |   finallyClause
     ;
 
 catchClause
-    :  CATCH LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   CATCH LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 finallyClause
-    : FINALLY LEFT_BRACE statement* RIGHT_BRACE
+    :   FINALLY LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 throwStatement
@@ -551,15 +572,15 @@ workerInteractionStatement
     |   workerReply
     ;
 
-// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
+// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
 triggerWorker
-    :   expression RARROW Identifier SEMICOLON        #invokeWorker
+    :   expression RARROW Identifier (COMMA expression)? SEMICOLON        #invokeWorker
     |   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 
-// below left Identifier is of type WORKER and the right Identifier is of type message
+// below left Identifier is of type WORKER or CHANNEL and the right Identifier is of type message
 workerReply
-    :   expression LARROW Identifier SEMICOLON
+    :   expression LARROW Identifier (COMMA expression)? SEMICOLON
     ;
 
 variableReference
@@ -572,23 +593,23 @@ variableReference
     ;
 
 field
-    : (DOT | NOT) (Identifier | MUL)
+    :   (DOT | NOT) (Identifier | MUL)
     ;
 
 index
-    : LEFT_BRACKET expression RIGHT_BRACKET
+    :   LEFT_BRACKET expression RIGHT_BRACKET
     ;
 
 xmlAttrib
-    : AT (LEFT_BRACKET expression RIGHT_BRACKET)?
+    :   AT (LEFT_BRACKET expression RIGHT_BRACKET)?
     ;
 
 functionInvocation
-    : functionNameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    :   functionNameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
-    : (DOT | NOT) anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    :   (DOT | NOT) anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocationArgList
@@ -602,7 +623,7 @@ invocationArg
     ;
 
 actionInvocation
-    : START? nameReference RARROW functionInvocation
+    :   START? nameReference RARROW functionInvocation
     ;
 
 expressionList
@@ -618,21 +639,21 @@ transactionStatement
     ;
 
 transactionClause
-    : TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
+    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 transactionPropertyInitStatement
-    : retriesStatement
-    | oncommitStatement
-    | onabortStatement
+    :   retriesStatement
+    |   oncommitStatement
+    |   onabortStatement
     ;
 
 transactionPropertyInitStatementList
-    : transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
+    :   transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
     ;
 
 lockStatement
-    : LOCK LEFT_BRACE statement* RIGHT_BRACE
+    :   LOCK LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 onretryClause
@@ -676,6 +697,7 @@ expression
     |   START? variableReference                                            # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
@@ -703,9 +725,9 @@ awaitExpression
     ;
 
 shiftExpression
-    : GT shiftExprPredicate GT
-    | LT shiftExprPredicate LT
-    | GT shiftExprPredicate GT shiftExprPredicate GT
+    :   GT shiftExprPredicate GT
+    |   LT shiftExprPredicate LT
+    |   GT shiftExprPredicate GT shiftExprPredicate GT
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
@@ -729,11 +751,11 @@ functionNameReference
     ;
 
 returnParameter
-    : RETURNS annotationAttachment* typeName
+    :   RETURNS annotationAttachment* typeName
     ;
 
 lambdaReturnParameter
-    : annotationAttachment* typeName
+    :   annotationAttachment* typeName
     ;
 
 parameterTypeNameList
@@ -793,8 +815,8 @@ emptyTupleLiteral
     ;
 
 blobLiteral
-    : Base16BlobLiteral
-    | Base64BlobLiteral
+    :   Base16BlobLiteral
+    |   Base64BlobLiteral
     ;
 
 namedArgs
@@ -956,7 +978,7 @@ selectExpression
     ;
 
 groupByClause
-    : GROUP BY variableReferenceList
+    :   GROUP BY variableReferenceList
     ;
 
 havingClause
@@ -976,8 +998,8 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   expression whereClause? functionInvocation* windowClause? functionInvocation* whereClause? (AS
-    alias=Identifier)?
+    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
+        whereClause? (AS alias=Identifier)?
     ;
 
 joinStreamingInput
@@ -985,8 +1007,8 @@ joinStreamingInput
     ;
 
 outputRateLimit
-    : OUTPUT (ALL | LAST | FIRST) EVERY ( DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS )
-    | OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
+    :   OUTPUT (ALL | LAST | FIRST) EVERY ( DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS )
+    |   OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
     ;
 
 patternStreamingInput
@@ -1014,20 +1036,20 @@ orderByType
     ;
 
 joinType
-    : LEFT OUTER JOIN
-    | RIGHT OUTER JOIN
-    | FULL OUTER JOIN
-    | OUTER JOIN
-    | INNER? JOIN
+    :   LEFT OUTER JOIN
+    |   RIGHT OUTER JOIN
+    |   FULL OUTER JOIN
+    |   OUTER JOIN
+    |   INNER? JOIN
     ;
 
 timeScale
-    : SECOND | SECONDS
-    | MINUTE | MINUTES
-    | HOUR | HOURS
-    | DAY | DAYS
-    | MONTH | MONTHS
-    | YEAR | YEARS
+    :   SECOND | SECONDS
+    |   MINUTE | MINUTES
+    |   HOUR | HOURS
+    |   DAY | DAYS
+    |   MONTH | MONTHS
+    |   YEAR | YEARS
     ;
 
 // Deprecated parsing.
@@ -1059,42 +1081,6 @@ tripleBackTickDeprecatedInlineCode
     :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
-documentationAttachment
-    :   DocumentationTemplateStart documentationTemplateContent? DocumentationTemplateEnd
-    ;
-
-documentationTemplateContent
-    :   docText? documentationTemplateAttributeDescription+
-    |   docText
-    ;
-
-documentationTemplateAttributeDescription
-    :   DocumentationTemplateAttributeStart Identifier? DocumentationTemplateAttributeEnd docText?
-    ;
-
-docText
-    :   documentationTemplateInlineCode (DocumentationTemplateText | documentationTemplateInlineCode)*
-    |   DocumentationTemplateText  (DocumentationTemplateText | documentationTemplateInlineCode)*
-    ;
-
-documentationTemplateInlineCode
-    :   singleBackTickDocInlineCode
-    |   doubleBackTickDocInlineCode
-    |   tripleBackTickDocInlineCode
-    ;
-
-singleBackTickDocInlineCode
-    :   SBDocInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
-    ;
-
-doubleBackTickDocInlineCode
-    :   DBDocInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
-    ;
-
-tripleBackTickDocInlineCode
-    :   TBDocInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
-    ;
-
 // Markdown documentation
 documentationString
     :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
@@ -1105,27 +1091,27 @@ documentationLine
     ;
 
 parameterDocumentationLine
-    :   (ParameterDocumentationStart parameterDocumentation) (DocumentationLineStart parameterDescription)*
+    :   parameterDocumentation parameterDescriptionLine*
     ;
 
 returnParameterDocumentationLine
-    :   (ReturnParameterDocumentationStart returnParameterDocumentation) (DocumentationLineStart returnParameterDescription)*
+    :   returnParameterDocumentation returnParameterDescriptionLine*
     ;
 
 documentationContent
     :   documentationText?
     ;
 
-parameterDescription
-    :   documentationText?
+parameterDescriptionLine
+    :   DocumentationLineStart documentationText?
     ;
 
-returnParameterDescription
-    :   documentationText?
+returnParameterDescriptionLine
+    :   DocumentationLineStart documentationText?
     ;
 
 documentationText
-    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | DocumentationEscapedCharacters | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
+    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
     ;
 
 documentationReference
@@ -1141,19 +1127,15 @@ definitionReferenceType
     ;
 
 parameterDocumentation
-    :   docParameterName DescriptionSeparator docParameterDescription
+    :   ParameterDocumentationStart docParameterName DescriptionSeparator documentationText?
     ;
 
 returnParameterDocumentation
-    :   docParameterDescription
+    :   ReturnParameterDocumentationStart documentationText?
     ;
 
 docParameterName
     :   ParameterName
-    ;
-
-docParameterDescription
-    :   documentationText?
     ;
 
 singleBacktickedBlock

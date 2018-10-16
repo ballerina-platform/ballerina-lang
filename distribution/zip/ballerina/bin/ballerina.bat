@@ -72,34 +72,22 @@ for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (
      set "BALLERINA_CLI_WIDTH=%%b"
   )
 )
+
+if defined BAL_JAVA_DEBUG goto commandDebug
+
 rem ----- Process the input command -------------------------------------------
-
-rem Slurp the command line arguments. This loop allows for an unlimited number
-rem of arguments (up to the command line limit, anyway).
-
-:setupArgs
-if ""%1""=="""" goto doneStart
-
-if ""%1""==""java.debug""    goto commandDebug
-if ""%1""==""-java.debug""   goto commandDebug
-if ""%1""==""--java.debug""  goto commandDebug
-
-shift
-goto setupArgs
-
+goto doneStart
 
 rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
-shift
-set DEBUG_PORT=%1
-if "%DEBUG_PORT%"=="" goto noDebugPort
-if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option.
-set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%
+if "%BAL_JAVA_DEBUG%"=="" goto noDebugPort
+if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable.
+set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
 echo Please start the remote debugging client to continue...
 goto runServer
 
 :noDebugPort
-echo Please specify the debug port after the --java.debug option
+echo Please specify the debug port for the BAL_JAVA_DEBUG variable
 goto end
 
 :doneStart
