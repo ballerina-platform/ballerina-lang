@@ -649,6 +649,11 @@ public class CPU {
                         j = operands[2];
                         sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
                         break;
+                    case InstructionCodes.DNEWARRAY:
+                        i = operands[0];
+                        j = operands[2];
+                        sf.refRegs[i] = new BDecimalArray((int) sf.longRegs[j]);
+                        break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];
                         cpIndex = operands[1];
@@ -718,6 +723,14 @@ public class CPU {
                         callersSF = ctx.workerResult;
                         callersRetRegIndex = ctx.retRegIndexes[i];
                         callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
+                        break;
+                    case InstructionCodes.DRET:
+                        i = operands[0];
+                        j = operands[1];
+                        currentSF = ctx.workerLocal;
+                        callersSF = ctx.workerResult;
+                        callersRetRegIndex = ctx.retRegIndexes[i];
+                        callersSF.decimalRegs[callersRetRegIndex] = currentSF.decimalRegs[j];
                         break;
                     case InstructionCodes.RRET:
                         i = operands[0];
