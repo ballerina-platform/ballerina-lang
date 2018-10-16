@@ -20,4 +20,4 @@ forEachSubModule((modPath) => {
 });
 
 const rimraf = require('rimraf');
-rimraf.sync(join(modulesRoot, 'extended-language-client', 'node_modules'));
+runNpmCommandSync(["pack", "."], join(modulesRoot, 'extended-language-client'));
