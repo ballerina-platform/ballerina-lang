@@ -49,8 +49,8 @@ public class CodegenUtils {
     /**
      * Resolves path to write generated main source files.
      *
-     * @param pkg source package
-     * @param path output path without package name
+     * @param pkg module
+     * @param path output path without module name
      * @return path to write generated source files
      */
     public static Path getSourcePath(String pkg, String path) {
@@ -62,7 +62,7 @@ public class CodegenUtils {
     /**
      * Resolves path to write generated implementation source files.
      *
-     * @param pkg source package
+     * @param pkg module
      * @param srcPath resolved path for main source files
      * @return path to write generated source files
      */

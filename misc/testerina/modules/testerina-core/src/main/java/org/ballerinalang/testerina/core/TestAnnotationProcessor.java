@@ -234,7 +234,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
         if (suite == null) {
-            throw new BallerinaException("No test suite found for [package]: " + programFile.getEntryPkgName());
+            throw new BallerinaException("No test suite found for [module]: " + programFile.getEntryPkgName());
         }
         suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
                 TesterinaFunction.Type.INIT));

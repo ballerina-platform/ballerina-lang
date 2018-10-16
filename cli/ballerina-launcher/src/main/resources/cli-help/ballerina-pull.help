@@ -1,13 +1,13 @@
 NAME
-    Ballerina pull - Download package from Ballerina Central 
+    Ballerina pull - Download modules from Ballerina Central
 
 SYNOPSIS
-    ballerina pull <org-name>/<package-name>[:version]
+    ballerina pull <org-name>/<module-name>[:version]
 
 DESCRIPTION
-     Downloads the given package from Ballerina Central 
+     Downloads the given module from Ballerina Central
      (https://central.ballerina.io/) repository and installs to home
-     repository. By default, package will be placed within the 
+     repository. By default, the module will be placed within the
      .ballerina home repository of the user. 
 
 OPTIONS
@@ -17,5 +17,5 @@ EXAMPLES
      Download Gmail connector by WSO2 from Ballerina Central 
      $ ballerina pull wso2/gmail
 
-     Download Bar package by Foo organization from Ballerina Central
+     Download Bar module by Foo organization from Ballerina Central
      $ ballerina pull foo/bar
