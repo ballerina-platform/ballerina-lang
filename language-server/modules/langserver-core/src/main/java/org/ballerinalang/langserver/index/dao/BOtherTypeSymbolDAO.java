@@ -98,9 +98,15 @@ public class BOtherTypeSymbolDAO extends AbstractDAO<OtherTypeSymbolDTO> {
      *
      * @param id Entry ID to retrieve
      * @return {@link OtherTypeSymbolDTO}    Retrieved entry
+     * @throws LSIndexException Exception while retrieving entry from index
      */
     @Override
-    public OtherTypeSymbolDTO get(int id) {
+    public OtherTypeSymbolDTO get(int id) throws LSIndexException {
+        return null;
+    }
+
+    @Override
+    public List<OtherTypeSymbolDTO> get(OtherTypeSymbolDTO dto) throws LSIndexException {
         return null;
     }
 }
