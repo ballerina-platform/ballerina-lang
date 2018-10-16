@@ -23,7 +23,6 @@ import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.observability.ObservabilityUtils;
 
 /**
  * Extern function ballerina.log:printInfo.
@@ -33,19 +32,14 @@ import org.ballerinalang.util.observability.ObservabilityUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "log",
         functionName = "printInfo",
-        args = {@Argument(name = "msg", type = TypeKind.STRING)},
+        args = {@Argument(name = "msg", type = TypeKind.ANY)},
         isPublic = true
 )
 public class LogInfo extends AbstractLogFunction {
 
     public void execute(Context ctx) {
-        String pkg = getPackagePath(ctx);
-        String logMessage = getLogMessage(ctx, 0);
-        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
-            getLogger(pkg).info(logMessage);
-        }
-        ObservabilityUtils.logMessageToActiveSpan(ctx, BLogLevel.INFO.name(), logMessage, false);
-
-        ctx.setReturnValues();
+        logMessage(ctx, BLogLevel.INFO, (pkg, message) -> {
+            getLogger(pkg).info(message);
+        });
     }
 }
