@@ -4,8 +4,8 @@
   "description": "Extended language client for Ballerina LS",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
+    "build": "npm run vscode-postinstall && tsc -p ./",
+    "vscode-postinstall": "node ./node_modules/vscode/bin/install",
     "watch": "tsc -watch -p ./",
     "test-coverage": "npm run test",
     "test": "mocha --compilers ts:ts-node/register",
