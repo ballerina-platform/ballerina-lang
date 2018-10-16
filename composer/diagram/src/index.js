@@ -24,7 +24,6 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import { Dimmer, Loader } from 'semantic-ui-react';
-import SamplesList from './samples/List';
 
 import Diagram from 'plugins/ballerina/diagram/diagram';
 import DesignView from 'plugins/ballerina/views/design-view';
@@ -183,21 +182,9 @@ function renderEditableDiagram(target, docUri, width, height,
     ReactDOM.render(BalDiagramElement, target);
 }
 
-function renderSamplesList(target, getSamples, openSample, openLink) {
-    const props = {
-        getSamples,
-        openSample,
-        openLink,
-    };
-    target.classList.add('composer-library');
-    const SamplesListElement = createElement(SamplesList, props);
-    ReactDOM.render(SamplesListElement, target);
-}
-
 export {
     renderStaticDiagram,
     renderEditableDiagram,
-    renderSamplesList,
     TreeBuilder,
     BallerinaDesignView,
     BallerinaDiagram,
