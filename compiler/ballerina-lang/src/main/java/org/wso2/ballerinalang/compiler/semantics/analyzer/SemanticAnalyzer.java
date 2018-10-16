@@ -737,11 +737,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAssignment assignNode) {
-        if (assignNode.isDeclaredWithVar()) {
-            handleAssignNodeWithVar(assignNode.pos, assignNode.varRef, assignNode.safeAssignment, assignNode.expr);
-            return;
-        }
-
         if (assignNode.varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             ((BLangIndexBasedAccess) assignNode.varRef).leafNode = true;
         }
@@ -1781,44 +1776,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleAssignNodeWithVar(DiagnosticPos pos,
-                                         BLangExpression varRefExpr,
-                                         boolean safeAssignment,
-                                         BLangExpression rhsExpr) {
-        // The lhs supports only simpleVarRef expression only.
-        if (varRefExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
-            varRefExpr.type = this.symTable.errType;
-            return;
-        }
-        BType rhsType = typeChecker.checkExpr(rhsExpr, this.env, expType);
-
-        if (!validateVariableDefinition(rhsExpr)) {
-            rhsType = symTable.errType;
-        }
-
-        // Check variable symbol if exists.
-        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
-        simpleVarRef.lhsVar = true;
-        Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (varName != Names.IGNORE) {
-            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            if (symbol != symTable.notFoundSymbol) {
-                dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
-                return;
-            }
-        } else {
-            dlog.error(simpleVarRef.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
-            return;
-        }
-
-        // Define the new variable
-        BVarSymbol varSymbol = this.symbolEnter.defineVarSymbol(simpleVarRef.pos,
-                Collections.emptySet(), rhsType, varName, env);
-        simpleVarRef.symbol = varSymbol;
-        simpleVarRef.type = varSymbol.type;
-    }
-
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
         boolean error = true;
         NodeKind retryKind = retryCountExpr.getKind();
@@ -1888,14 +1845,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // var a = [ x, y, ... ];
         // var a = { x : y };
         // var a = new ;
-        // var a = ( 1, 2, .. );
         final NodeKind kind = expr.getKind();
         if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
                 || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
-            dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
-            return false;
-        }
-        if (kind == NodeKind.BRACED_TUPLE_EXPR && ((BLangBracedOrTupleExpr) expr).expressions.size() > 1) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
         }
