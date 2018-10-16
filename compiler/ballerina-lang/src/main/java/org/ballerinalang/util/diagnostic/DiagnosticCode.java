@@ -293,6 +293,7 @@ public enum DiagnosticCode {
     ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION("arrow.expression.not.supported.iterable.operation"),
     
     INCOMPATIBLE_TYPE_CHECK("incompatible.type.check"),
+    UNNECESSARY_CONDITION("unnecessary.condition"),
     ;
 
     private String value;

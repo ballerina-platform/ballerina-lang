@@ -1366,10 +1366,6 @@ public class TypeChecker extends BLangNodeVisitor {
         typeCheckExpr.typeNode.type = symResolver.resolveTypeNode(typeCheckExpr.typeNode, env);
         checkExpr(typeCheckExpr.expr, env);
 
-        if (!types.isAssignable(typeCheckExpr.typeNode.type, typeCheckExpr.expr.type)) {
-            dlog.error(typeCheckExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeCheckExpr.typeNode.type);
-        }
-
         resultType = types.checkType(typeCheckExpr, symTable.booleanType, expType);
     }
 

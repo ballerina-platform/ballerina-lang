@@ -467,7 +467,7 @@ public class Types {
             return false;
         }
 
-        return checkFieldEquivalency(lhsType, rhsType);
+        return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
@@ -1197,7 +1197,8 @@ public class Types {
         return true;
     }
 
-    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType) {
+    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType,
+                                          List<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
                 Collectors.toMap(BField::getName, field -> field));
 
@@ -1208,7 +1209,7 @@ public class Types {
                 return false;
             }
 
-            if (!isSameType(rhsField.type, lhsField.type)) {
+            if (!isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
         }

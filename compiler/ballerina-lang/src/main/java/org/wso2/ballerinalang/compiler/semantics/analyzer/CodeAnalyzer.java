@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -1157,7 +1158,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeCheckExpr typeCheckExpr) {
-        // TODO
+        analyzeNode(typeCheckExpr.expr, env);
+        if (typeCheckExpr.typeNode.type == symTable.errType) {
+            return;
+        }
+
+        // Check whether the condition is always true.
+        if (isTypeCheckAlwaysTrue(typeCheckExpr.expr.type, typeCheckExpr.typeNode.type)) {
+            dlog.error(typeCheckExpr.pos, DiagnosticCode.UNNECESSARY_CONDITION);
+            return;
+        }
+
+        // Check whether the target type can ever be present as the type of the source.
+        // It'll be only possible iff, the target type has been assigned to the source
+        // variable at some point. To do that, a value of target type should be assignable 
+        // to the type of the source variable.
+        if (!types.isAssignable(typeCheckExpr.typeNode.type, typeCheckExpr.expr.type)) {
+            dlog.error(typeCheckExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeCheckExpr.expr.type,
+                    typeCheckExpr.typeNode.type);
+        }
     }
 
     // private methods
@@ -1347,6 +1366,52 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             existingArgs.add(namedArg.name);
         });
+    }
+
+    private boolean isTypeCheckAlwaysTrue(BType sourceType, BType targetType) {
+        if (targetType.tag == TypeTags.ANY) {
+            return true;
+        }
+
+        // If the variable is of value-type, and assignable to target type, then type check will
+        // always evaluate to true. This is checked only for value types. Because for ref-types, the
+        // storage type could be different even if the compile-time types are same/assignable.
+        if (types.isValueType(sourceType)) {
+            return types.isAssignable(sourceType, targetType);
+        }
+
+        switch (sourceType.tag) {
+            case TypeTags.ARRAY:
+                if (targetType.tag == TypeTags.ARRAY) {
+                    return isTypeCheckAlwaysTrue(((BArrayType) sourceType).eType, ((BArrayType) targetType).eType);
+                } else if (targetType.tag == TypeTags.JSON) {
+                    return isTypeCheckAlwaysTrue(((BArrayType) sourceType).eType, targetType);
+                }
+                return false;
+            case TypeTags.UNION:
+                // If the var is of union type, and each type is assignable to target type, then
+                // also this condition will always evaluate to true.
+                Set<BType> memberTypes = ((BUnionType) sourceType).memberTypes;
+                return memberTypes.stream().allMatch(type -> isTypeCheckAlwaysTrue(type, targetType));
+            case TypeTags.TUPLE:
+                if (targetType.tag != TypeTags.TUPLE) {
+                    return false;
+                }
+                List<BType> sourceTypes = ((BTupleType) sourceType).tupleTypes;
+                List<BType> targetTypes = ((BTupleType) targetType).tupleTypes;
+                for (int i = 0; i < sourceTypes.size(); i++) {
+                    // If at least one sub type cannot be statically validate for a match, then
+                    // the tuple type cannot be statically validated.
+                    if (!isTypeCheckAlwaysTrue(sourceTypes.get(i), targetTypes.get(i))) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.NIL:
+                return types.isAssignable(sourceType, targetType);
+            default:
+                return false;
+        }
     }
 
     /**
