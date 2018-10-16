@@ -30,7 +30,8 @@ import static java.math.MathContext.DECIMAL128;
  */
 public class Decimal extends BigDecimal {
 
-    public static final Decimal ZERO = new Decimal("0");
+    public static final Decimal ZERO = new Decimal("0.0");
+    public static final Decimal ONE = new Decimal("1.0");
 
     public Decimal(String val) {
         super(val, DECIMAL128);

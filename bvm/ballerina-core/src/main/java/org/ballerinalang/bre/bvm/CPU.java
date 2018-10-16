@@ -591,17 +591,25 @@ public class CPU {
                     case InstructionCodes.I2F:
                     case InstructionCodes.I2S:
                     case InstructionCodes.I2B:
+                    case InstructionCodes.I2D:
                     case InstructionCodes.I2BI:
                     case InstructionCodes.BI2I:
                     case InstructionCodes.F2I:
                     case InstructionCodes.F2S:
                     case InstructionCodes.F2B:
+                    case InstructionCodes.F2D:
                     case InstructionCodes.S2I:
                     case InstructionCodes.S2F:
                     case InstructionCodes.S2B:
+                    case InstructionCodes.S2D:
                     case InstructionCodes.B2I:
                     case InstructionCodes.B2F:
                     case InstructionCodes.B2S:
+                    case InstructionCodes.B2D:
+                    case InstructionCodes.D2I:
+                    case InstructionCodes.D2F:
+                    case InstructionCodes.D2S:
+                    case InstructionCodes.D2B:
                     case InstructionCodes.DT2XML:
                     case InstructionCodes.DT2JSON:
                     case InstructionCodes.T2MAP:
@@ -2256,6 +2264,11 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = sf.longRegs[i] != 0 ? 1 : 0;
                 break;
+            case InstructionCodes.I2D:
+                i = operands[0];
+                j = operands[1];
+                sf.decimalRegs[j] = new BInteger(sf.longRegs[i]).decimalValue();
+                break;
             case InstructionCodes.I2BI:
                 i = operands[0];
                 j = operands[1];
@@ -2285,6 +2298,11 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = sf.doubleRegs[i] != 0.0 ? 1 : 0;
                 break;
+            case InstructionCodes.F2D:
+                i = operands[0];
+                j = operands[1];
+                sf.decimalRegs[j] = new BFloat(sf.doubleRegs[i]).decimalValue();
+                break;
             case InstructionCodes.S2I:
                 i = operands[0];
                 j = operands[1];
@@ -2312,6 +2330,17 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
                 break;
+            case InstructionCodes.S2D:
+                i = operands[0];
+                j = operands[1];
+
+                str = sf.stringRegs[i];
+                try {
+                    sf.refRegs[j] = new BDecimal(new Decimal(str));
+                } catch (NumberFormatException e) {
+                    handleTypeConversionError(ctx, sf, j, TypeConstants.STRING_TNAME, TypeConstants.DECIMAL_TNAME);
+                }
+                break;
             case InstructionCodes.B2I:
                 i = operands[0];
                 j = operands[1];
@@ -2326,6 +2355,31 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.stringRegs[j] = sf.intRegs[i] == 1 ? "true" : "false";
+                break;
+            case InstructionCodes.B2D:
+                i = operands[0];
+                j = operands[1];
+                sf.decimalRegs[j] = sf.intRegs[i] == 1 ? Decimal.ONE : Decimal.ZERO;
+                break;
+            case InstructionCodes.D2I:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = new BDecimal(sf.decimalRegs[i]).intValue();
+                break;
+            case InstructionCodes.D2F:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = new BDecimal(sf.decimalRegs[i]).floatValue();
+                break;
+            case InstructionCodes.D2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = sf.decimalRegs[i].toString();
+                break;
+            case InstructionCodes.D2B:
+                i = operands[0];
+                j = operands[1];
+                sf.intRegs[j] = sf.decimalRegs[i].compareTo(Decimal.ZERO) != 0 ? 1 : 0;
                 break;
             case InstructionCodes.DT2XML:
                 i = operands[0];
