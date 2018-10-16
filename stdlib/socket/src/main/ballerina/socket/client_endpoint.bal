@@ -20,17 +20,21 @@
 # + localPort - the local port number to which this socket is bound
 # + remoteAddress - the remote IP address string in textual presentation to which the socket is connected
 # + localAddress - the local IP address string in textual presentation to which the socket is bound
-# + id - a unique identification to identify each connection between server and the client
-public type Listener object {
+public type Client object {
 
     private CallerAction callerAction;
+    private ClientEndpointConfiguration config;
     @readonly public int remotePort;
     @readonly public int localPort;
     @readonly public string remoteAddress;
     @readonly public string localAddress;
-    @readonly public int id;
 
-    public extern function init(ListenerEndpointConfiguration config);
+    public function init(ClientEndpointConfiguration clientConfig) {
+        self.config = clientConfig;
+        self.initEndpoint(clientConfig);
+    }
+
+    extern function initEndpoint(ClientEndpointConfiguration clientConfig);
 
     public extern function register(typedesc serviceType);
 
@@ -39,27 +43,14 @@ public type Listener object {
     public extern function getCallerActions() returns CallerAction;
 };
 
-# Represents the socket server endpoint configuration.
+# Configuration for socket client endpoint.
 #
-# + interface - the interface that server with to bind
-# + port - the port that server wish to bind
-public type ListenerEndpointConfiguration record {
-    string? interface;
+# + host - Target service URL
+# + port - Port number of the remote service
+# + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages from the server.
+public type ClientEndpointConfiguration record {
+    string host;
     int port;
+    typedesc? callbackService;
     !...
-};
-
-# Provides the socket related actions for interacting with caller.
-public type CallerAction object {
-
-    # Write given data to the client socket.
-    #
-    # + content - - the content that wish to send to the client socket
-    # + return - - number of byte got written or an error if encounters an error while writing
-    public extern function write(byte[] content) returns int|error;
-
-    # Close the client socket connection.
-    #
-    # + return - - an error if encounters an error while closing the connection or returns nil otherwise
-    public extern function close() returns error?;
 };

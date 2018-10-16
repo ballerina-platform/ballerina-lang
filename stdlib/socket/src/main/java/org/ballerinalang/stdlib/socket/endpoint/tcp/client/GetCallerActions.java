@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.socket.endpoint.tcp.listener;
+package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
- * Get the connection responder instance binds to the service endpoint.
+ * Get the connection responder instance binds to the client socket endpoint.
  *
  * @since 0.983.0
  */
@@ -38,7 +38,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         orgName = "ballerina",
         packageName = "socket",
         functionName = "getCallerActions",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Client", structPackage = SOCKET_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "CallerAction", structPackage =
                 SOCKET_PACKAGE)},
         isPublic = true
