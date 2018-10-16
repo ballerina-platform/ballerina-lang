@@ -28,14 +28,14 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>composer</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina - Composer</name>
+    <name>Ballerina - Composer Library</name>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wso2.msf4j.example</groupId>
-                <artifactId>stockquote-fatjar</artifactId>
-                <version>${msf4j.examples.version}</version>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-stdio-launcher</artifactId>
+                <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -44,11 +44,26 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>-Dfile.encoding=UTF-8</argLine>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>node build</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <skip>${skipClientSideBuild}</skip>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -72,44 +87,15 @@
                 </executions>
             </plugin>
         </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.antlr</groupId>
-                    <artifactId>antlr4-maven-plugin</artifactId>
-                    <version>${antlr.maven.plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>antlr4</goal>
-                            </goals>
-                            <configuration>
-                                <listener>true</listener>
-                                <visitor>false</visitor>
-                                <encoding>${file.encoding}</encoding>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
 
     <properties>
-        <msf4j.examples.version>2.1.0</msf4j.examples.version>
         <antlr.maven.plugin.version>4.5.1</antlr.maven.plugin.version>
         <maven.checkstyleplugin.excludes>**/parser/*,**/${native.constructs.provider.class}.java</maven.checkstyleplugin.excludes>
-
         <!-- Maven plugins -->
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
     </properties>
-
-    <modules>
-        <module>modules/web</module>
-        <!--<module>modules/integration-tests</module>-->
-    </modules>
 
 </project>
