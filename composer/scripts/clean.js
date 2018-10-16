@@ -1,8 +1,8 @@
 const { forEachSubModule, runNpmCommandSync, modulesRoot } = require('./common');
+runNpmCommandSync(["i"], modulesRoot);
 const rimraf = require('rimraf');
 const join = require('path').join;
 
-runNpmCommandSync(["i"], modulesRoot);
 
 forEachSubModule((modPath) => {
     rimraf.sync(join(modPath, 'node_modules'));
