@@ -14,8 +14,8 @@
         ],
         "env": {
             "LSDEBUG": "false",
-            "DIAGRAM_DEBUG": "false",
-            "DIAGRAM_DEV_HOST": "http://localhost:8081"
+            "COMPOSER_DEBUG": "false",
+            "COMPOSER_DEV_HOST": "http://localhost:8081"
         },
         "outFiles": [
             "${workspaceFolder}/out/**/*.js"
@@ -29,7 +29,7 @@
         "runtimeExecutable": "${execPath}",
         "env": {
             "LSDEBUG": "false",
-            "DIAGRAM_DEBUG": "false"
+            "COMPOSER_DEBUG": "false"
         },
         "args": [
             "--extensionDevelopmentPath=${workspaceFolder}",

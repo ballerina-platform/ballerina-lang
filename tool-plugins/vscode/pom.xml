@@ -75,19 +75,6 @@
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>backup-package-lock</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <executable>node</executable>
-                            <arguments>
-                                <argument>./scripts/npm-preinstall</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm-install</id>
                         <goals>
                             <goal>exec</goal>
@@ -98,19 +85,6 @@
                             <arguments>
                                 <argument>install</argument>
                                 <argument>--unsafe-perm</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>replace-package-lock</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <executable>node</executable>
-                            <arguments>
-                                <argument>./scripts/npm-postinstall</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -202,9 +176,9 @@
                         </goals>
                         <configuration>
                             <target name="copy resources">
-                                <mkdir dir="${project.basedir}/resources/diagram" />
-                                <copy todir="${project.basedir}/resources/diagram" overwrite="true" flatten="true">
-                                    <fileset dir="${project.build.directory}/temp">
+                                <mkdir dir="${project.basedir}/resources/composer" />
+                                <copy todir="${project.basedir}/resources/composer" overwrite="true" flatten="true">
+                                    <fileset dir="${project.build.directory}/composer">
                                         <include name="**/*.js" />
                                         <include name="**/*.css" />
                                     </fileset>
@@ -243,7 +217,7 @@
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
                             <includeArtifactIds>composer</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/temp</outputDirectory>
+                            <outputDirectory>${project.build.directory}/composer</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
