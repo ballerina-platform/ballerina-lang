@@ -47,6 +47,7 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
@@ -564,11 +565,13 @@ public class CPU {
                     case InstructionCodes.F2ANY:
                     case InstructionCodes.S2ANY:
                     case InstructionCodes.B2ANY:
+                    case InstructionCodes.D2ANY:
                     case InstructionCodes.ANY2I:
                     case InstructionCodes.ANY2BI:
                     case InstructionCodes.ANY2F:
                     case InstructionCodes.ANY2S:
                     case InstructionCodes.ANY2B:
+                    case InstructionCodes.ANY2D:
                     case InstructionCodes.ARRAY2JSON:
                     case InstructionCodes.JSON2ARRAY:
                     case InstructionCodes.ANY2JSON:
@@ -1123,6 +1126,12 @@ public class CPU {
                 k = operands[2];
                 sf.intRegs[k] = sf.doubleRegs[i] > sf.doubleRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.DGT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) > 0 ? 1 : 0;
+                break;
 
             case InstructionCodes.IGE:
                 i = operands[0];
@@ -1135,6 +1144,12 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.doubleRegs[i] >= sf.doubleRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.DGE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) >= 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.ILT:
@@ -1149,6 +1164,12 @@ public class CPU {
                 k = operands[2];
                 sf.intRegs[k] = sf.doubleRegs[i] < sf.doubleRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.DLT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) < 0 ? 1 : 0;
+                break;
 
             case InstructionCodes.ILE:
                 i = operands[0];
@@ -1161,6 +1182,12 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.doubleRegs[i] <= sf.doubleRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.DLE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) <= 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.REQ_NULL:
@@ -2104,6 +2131,11 @@ public class CPU {
                 j = operands[1];
                 sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
                 break;
+            case InstructionCodes.D2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BDecimal(sf.decimalRegs[i]);
+                break;
             case InstructionCodes.ANY2I:
                 i = operands[0];
                 j = operands[1];
@@ -2128,6 +2160,11 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.intRegs[j] = ((BBoolean) sf.refRegs[i]).booleanValue() ? 1 : 0;
+                break;
+            case InstructionCodes.ANY2D:
+                i = operands[0];
+                j = operands[1];
+                sf.decimalRegs[j] = ((BValueType) sf.refRegs[i]).decimalValue();
                 break;
             case InstructionCodes.ANY2JSON:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeJSON);
