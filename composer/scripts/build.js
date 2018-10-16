@@ -1,4 +1,5 @@
 const { forEachSubModule, runNpmCommandSync, runGitCommand, modulesRoot } = require('./common');
+runNpmCommandSync(["i"], modulesRoot);
 const join = require('path').join;
 
 const args = process.argv.slice(2);
