@@ -35,7 +35,7 @@ import java.util.HashSet;
  * Class implements @{@link SerializationBValueProvider} to provide the mapping between {@link HashSet} and
  * {@link BValue} representation of it.
  *
- * @since 0.982.1
+ * @since 0.983.0
  */
 public class HashSetBValueProvider implements SerializationBValueProvider<HashSet> {
 
