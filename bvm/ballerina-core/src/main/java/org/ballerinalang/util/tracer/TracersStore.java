@@ -37,7 +37,7 @@ import static org.ballerinalang.util.tracer.TraceConstants.TRACER_NAME_CONFIG;
 public class TracersStore {
 
     private TracerGenerator tracer;
-    private Map<String, BTracer> tracerStore;
+    private Map<String, Tracer> tracerStore;
     private static final PrintStream consoleError = System.err;
     private static TracersStore instance = new TracersStore();
 
@@ -83,20 +83,20 @@ public class TracersStore {
      * @param serviceName name of service of whose trace implementations are needed
      * @return trace implementations i.e: zipkin, jaeger
      */
-    public BTracer getTracer(String serviceName) {
+    public Tracer getTracer(String serviceName) {
         if (tracerStore.containsKey(serviceName)) {
             return tracerStore.get(serviceName);
         } else {
-            BTracer bTracer = null;
+            Tracer openTracer = null;
             if (tracer != null) {
                 try {
-                    bTracer = tracer.generate(serviceName);
+                    openTracer = tracer.generate(serviceName);
                 } catch (Throwable e) {
                     consoleError.println("error: error getting tracer for " + tracer.name + ". " + e.getMessage());
                 }
             }
-            tracerStore.put(serviceName, bTracer);
-            return bTracer;
+            tracerStore.put(serviceName, openTracer);
+            return openTracer;
         }
     }
 
@@ -112,9 +112,8 @@ public class TracersStore {
             this.tracer = tracer;
         }
 
-        BTracer generate(String serviceName) {
-            Tracer tracer = this.tracer.getTracer(name, serviceName);
-            return new BTracer(tracer, this.tracer.getTracingHeaders());
+        Tracer generate(String serviceName) {
+            return tracer.getTracer(name, serviceName);
         }
     }
 

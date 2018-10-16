@@ -29,8 +29,6 @@ import org.ballerinalang.util.tracer.OpenTracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.DEFAULT_REPORTER_FLUSH_INTERVAL;
@@ -108,11 +106,6 @@ public class OpenTracingExtension implements OpenTracer {
                         Boolean.FALSE, hostname, port, reporterFlushInterval, reporterBufferSize
                 )
         ).getTracerBuilder().withScopeManager(NoOpScopeManager.INSTANCE).build();
-    }
-
-    @Override
-    public List<String> getTracingHeaders() {
-        return new ArrayList<>();
     }
 
     @Override

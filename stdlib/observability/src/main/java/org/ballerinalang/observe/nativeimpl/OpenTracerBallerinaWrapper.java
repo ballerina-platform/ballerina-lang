@@ -19,6 +19,7 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import io.opentracing.Tracer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
@@ -27,7 +28,6 @@ import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.observability.TracingUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.tracer.BTracer;
 import org.ballerinalang.util.tracer.TracersStore;
 
 import java.util.HashMap;
@@ -84,8 +84,8 @@ public class OpenTracerBallerinaWrapper {
         } else {
             serviceName = UNKNOWN_SERVICE;
         }
-        BTracer bTracer = tracerStore.getTracer(serviceName);
-        if (bTracer == null) {
+        Tracer tracer = tracerStore.getTracer(serviceName);
+        if (tracer == null) {
             return -1;
         }
 

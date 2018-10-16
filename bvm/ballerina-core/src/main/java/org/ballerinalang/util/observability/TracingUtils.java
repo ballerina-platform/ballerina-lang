@@ -21,11 +21,8 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.tracer.BSpan;
-import org.ballerinalang.util.tracer.BTracer;
-import org.ballerinalang.util.tracer.TracersStore;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
@@ -70,13 +67,8 @@ public class TracingUtils {
             Map<String, String> httpHeaders =
                     (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
 
-            // Get the tracing headers based on the tracing implementation
-            BTracer bTracer = TracersStore.getInstance().getTracer(span.getConnectorName());
-            List<String> tracingHeaders = bTracer.getTracingHeaders();
-
             if (httpHeaders != null) {
-                httpHeaders.entrySet().stream()
-                        .filter(c -> tracingHeaders.contains(c.getKey()))
+                httpHeaders.entrySet()
                         .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
             }
         }

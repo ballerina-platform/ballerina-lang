@@ -49,11 +49,6 @@ public class BMockTracer implements OpenTracer {
     }
 
     @Override
-    public List<String> getTracingHeaders() {
-        return new ArrayList<>();
-    }
-
-    @Override
     public String getName() {
         return NAME;
     }
