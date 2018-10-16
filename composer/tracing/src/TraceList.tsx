@@ -106,6 +106,7 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                         return (
                             <Grid.Row
                                 className={ this.props.selected === record.id ? 'active clickable' : 'clickable'}
+                                key={record.id}
                                 // onClick={() => this.props.onToggleDetails(record.id)}
                             >
                                 <Grid.Column

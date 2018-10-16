@@ -4,6 +4,7 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
+    "test-coverage": "npm run test -- --coverage",
     "test": "echo \"Error: no test specified\"",
     "build": "babel src -d lib --copy-files",
     "watch": "babel src -d lib --copy-files --watch"

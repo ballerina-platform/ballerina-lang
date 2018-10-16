@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\"",
+    "test-coverage": "npm run test -- --coverage",
     "build": "webpack",
     "build-dev": "webpack --mode=development",
     "watch": "webpack --mode=development --watch --progress --info-verbosity verbose"

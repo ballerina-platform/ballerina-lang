@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "echo \"Building integration tests module\"",
-    "test": "echo \"Error: no test specified\""
+    "test": "echo \"Error: no test specified\"",
+    "test-coverage": "npm run test -- --coverage"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0"

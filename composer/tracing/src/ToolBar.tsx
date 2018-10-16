@@ -108,7 +108,7 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
                             value: 'all',
                         });
                         return (
-                            <span className={`filter-${key} pull-right`}>
+                            <span className={`filter-${key} pull-right`} key={key}>
                                 <label htmlFor='dropdown'>{filters[key]}</label>
                                 <Dropdown
                                     direction='left'

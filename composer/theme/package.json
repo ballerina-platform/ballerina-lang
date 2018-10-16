@@ -7,6 +7,7 @@
     "build": "npm run build-font",
     "build-font": "node src/font-ballerina/build.js",
     "test": "echo \"Error: no test specified\"",
+    "test-coverage": "npm run test -- --coverage",
     "watch": "watch \"npm run build\" src"
   },
   "author": "ballerina.io",
