@@ -16,10 +16,10 @@ public type TestConfig record {
 };
 
 @Description { value:"Configuration of the function to be mocked."}
-@Field {value:"packageName: Name of the package that the function to be mocked resides in"}
+@Field {value:"moduleName: Name of the module that the function to be mocked resides in"}
 @Field {value:"functionName: Name of the function to be mocked"}
 public type MockConfig record {
-    string packageName = ".";
+    string moduleName = ".";
     string functionName;
 };
 

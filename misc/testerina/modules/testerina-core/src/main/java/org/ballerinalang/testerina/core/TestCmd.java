@@ -82,7 +82,7 @@ public class TestCmd implements BLauncherCmd {
     private List<String> disableGroupList;
 
     @CommandLine.Option(names = "--exclude-modules", split = ",", description = "modules to be excluded")
-    private List<String> excludedPackageList;
+    private List<String> excludedModuleList;
 
     public void execute() {
         if (helpFlag) {
@@ -139,7 +139,7 @@ public class TestCmd implements BLauncherCmd {
         }
 
         Path[] paths = sourceFileList.stream()
-                .filter(source -> excludedPackageList == null || !excludedPackageList.contains(source))
+                .filter(source -> excludedModuleList == null || !excludedModuleList.contains(source))
                 .map(Paths::get)
                 .sorted()
                 .toArray(Path[]::new);

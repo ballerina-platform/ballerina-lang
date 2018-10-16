@@ -5,7 +5,7 @@ import ballerina/test;
 @test:Mock {
     // Since we don't have a package declaration, `.` is the current package
     // We can include any package here e.g : `ballerina/io`
-    packageName: ".",
+    moduleName: ".",
     functionName: "intAdd"
 }
 // The mock function's signature should match with the actual function's signature.
