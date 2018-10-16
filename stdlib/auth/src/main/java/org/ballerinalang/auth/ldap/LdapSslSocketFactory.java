@@ -29,6 +29,8 @@ import javax.net.ssl.SSLSocketFactory;
 
 /**
  * SSL socket factory will be used connect to secure LDAP servers.
+ *
+ * @since 0.983.0
  */
 public class LdapSslSocketFactory extends SSLSocketFactory {
 
@@ -36,7 +38,7 @@ public class LdapSslSocketFactory extends SSLSocketFactory {
 
     public LdapSslSocketFactory() {
         SSLContext sslContext = SslContextTrustManager.getInstance().getSSLContext(LdapUtils
-                .getServiceNameFromThreadLocal());
+                .getInstanceIdFromThreadLocal());
         socketFactory = sslContext.getSocketFactory();
     }
 

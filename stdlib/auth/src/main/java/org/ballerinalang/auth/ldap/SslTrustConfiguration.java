@@ -25,6 +25,8 @@ import java.io.File;
 
 /**
  * SSL configuration for HTTP connection.
+ *
+ * @since 0.983.0
  */
 public class SslTrustConfiguration {
 

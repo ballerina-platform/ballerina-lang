@@ -38,6 +38,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Utility class for handle ssl related LDAP operations.
+ *
+ * @since 0.983.0
  */
 public class SslUtils {
 

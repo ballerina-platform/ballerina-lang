@@ -1,11 +1,14 @@
 package org.ballerinalang.langserver.common.utils;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -47,6 +50,7 @@ public class FilterUtils {
                                                                      List<SymbolInfo> symbolInfos) {
         ArrayList<SymbolInfo> resultList = new ArrayList<>();
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         SymbolInfo variable = getVariableByName(variableName, symbolInfos);
 
         if (variable == null) {
@@ -57,9 +61,17 @@ public class FilterUtils {
         BSymbol bVarSymbol = variable.getScopeEntry().symbol;
 
         if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol
-                && delimiter.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)
+                && delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
                 && ((BEndpointVarSymbol) bVarSymbol).getClientFunction.type instanceof BInvokableType) {
+            // Handling action invocations ep -> ...
             resultList.addAll(getEndpointActions((BEndpointVarSymbol) variable.getScopeEntry().symbol));
+        } else if (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
+                || delimiter.equals(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
+                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext) {
+            // Handling worker-interactions eg. msg -> ... || msg <- ...
+            List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            filteredList.removeIf(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol);
+            resultList.addAll(filteredList);
         } else if (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.BANG_SYMBOL_KEY)) {
             String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
@@ -186,7 +198,7 @@ public class FilterUtils {
      * @param symbols list of symbol info
      * @return {@link SymbolInfo}   Symbol Info extracted
      */
-    private static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
+    public static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
         return symbols.stream()
                 .filter(symbolInfo -> symbolInfo.getSymbolName().equals(name))
                 .findFirst()

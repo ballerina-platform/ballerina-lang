@@ -20,6 +20,8 @@ package org.ballerinalang.auth.ldap;
 
 /**
  * Constants to be used in LDAP user stores.
+ *
+ * @since 0.983.0
  */
 public class LdapConstants {
 

@@ -36,6 +36,8 @@ import javax.naming.directory.SearchResult;
 
 /**
  * Utility class for LDAP related common operations.
+ *
+ * @since 0.983.0
  */
 public class LdapUtils {
 
@@ -85,12 +87,9 @@ public class LdapUtils {
     public static String getNameInSpaceForUserName(String userName, String searchBase,
                           String searchFilter, DirContext dirContext) throws UserStoreException, NamingException {
 
-        boolean debug = LOG.isDebugEnabled();
-
         if (userName == null) {
             throw new UserStoreException("userName value is null.");
         }
-
         String userDN = null;
         NamingEnumeration<SearchResult> answer = null;
         try {
@@ -110,7 +109,7 @@ public class LdapUtils {
                     break;
                 }
             }
-            if (debug) {
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Name in space for " + userName + " is " + userDN);
             }
         } finally {
@@ -135,17 +134,11 @@ public class LdapUtils {
      * Closes the directory context.
      *
      * @param dirContext directory context needs be closed
-     * @throws UserStoreException if a naming exception is encountered
+     * @throws NamingException if a naming exception is encountered
      */
-    public static void closeContext(DirContext dirContext) throws UserStoreException {
-        try {
-            if (dirContext != null) {
-                dirContext.close();
-            }
-        } catch (NamingException e) {
-            String errorMessage = "Error in closing connection context.";
-            LOG.error(errorMessage, e);
-            throw new UserStoreException(e);
+    public static void closeContext(DirContext dirContext) throws NamingException {
+        if (dirContext != null) {
+            dirContext.close();
         }
     }
 
@@ -153,15 +146,11 @@ public class LdapUtils {
      * Closes the used NamingEnumerations to free up resources.
      *
      * @param namingEnumeration enumeration needs to be closed
+     * @throws NamingException if a naming exception is encountered
      */
-    public static void closeNamingEnumeration(NamingEnumeration<?> namingEnumeration) {
+    public static void closeNamingEnumeration(NamingEnumeration<?> namingEnumeration) throws NamingException {
         if (namingEnumeration != null) {
-            try {
-                namingEnumeration.close();
-            } catch (NamingException e) {
-                String errorMessage = "Error in closing NamingEnumeration.";
-                LOG.error(errorMessage, e);
-            }
+            namingEnumeration.close();
         }
     }
 
@@ -172,7 +161,6 @@ public class LdapUtils {
      * @return String by replacing the special characters
      */
     public static String escapeSpecialCharactersForFilter(String dnPartial) {
-
         dnPartial = dnPartial.replace("\\*", "*");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < dnPartial.length(); i++) {
@@ -259,7 +247,12 @@ public class LdapUtils {
         return value;
     }
 
-    public static String getServiceNameFromThreadLocal() {
+    /**
+     * Takes instance id of the service from the thread local.
+     *
+     * @return service instance id.
+     */
+    public static String getInstanceIdFromThreadLocal() {
         String result = socketFactoryName.get();
         if (result == null) {
             throw new BallerinaException("Cannot infer the ssl context related to the service");

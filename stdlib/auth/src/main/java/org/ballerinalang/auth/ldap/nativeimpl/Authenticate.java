@@ -102,7 +102,7 @@ public class Authenticate extends BlockingNativeCallableUnit {
         }
     }
 
-    private boolean bindAsUser(String dn, byte[] credentials) throws NamingException, UserStoreException {
+    private boolean bindAsUser(String dn, byte[] credentials) throws NamingException {
         boolean isAuthenticated;
         LdapContext cxt = null;
         try {

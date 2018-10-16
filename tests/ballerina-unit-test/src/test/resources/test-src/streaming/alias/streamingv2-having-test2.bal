@@ -47,7 +47,14 @@ function startFilterQuery() returns (Employee[]) {
         inputStream.publish(e);
     }
 
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+            break;
+        }
+    }
     return globalEmployeeArray;
 }
 
@@ -58,7 +65,9 @@ function testFilterQuery() {
         select input.name, input.age
         having getAge(age) > getMaxAge() && getAge(age) > 25
         => (Employee[] emp) {
-            outputStream.publish(emp);
+            foreach e in emp {
+                outputStream.publish(e);
+            }
         }
     }
 }

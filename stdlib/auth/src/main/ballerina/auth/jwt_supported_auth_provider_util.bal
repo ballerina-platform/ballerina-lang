@@ -22,10 +22,31 @@ import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
+# Represents JWT configurations.
+#
+# + issuer - Identifier of the token issuer
+# + audience - Identifier of the token recipients
+# + expTime - JWT token expiry time
+# + keyAlias - Token signed key alias
+# + keyPassword - Token signed key password
+# + keyStoreFilePath - Path to the trust store file
+# + keyStorePassword - Key store password
+# + signingAlg - The signing algorithm which is used to sign the JWT token
+public type InferredJwtAuthProviderConfig record {
+    string issuer;
+    string audience;
+    int expTime;
+    string keyAlias;
+    string keyPassword;
+    string keyStoreFilePath;
+    string keyStorePassword;
+    string signingAlg;
+    !...
+};
+
 function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig) {
     internal:JwtHeader header = createHeader(authConfig);
     internal:JwtPayload payload = createPayload(username, authConfig);
-
     internal:JWTIssuerConfig config = createJWTIssueConfig(authConfig);
     match internal:issue(header, payload, config) {
         string token => {
@@ -68,15 +89,3 @@ function createJWTIssueConfig(InferredJwtAuthProviderConfig authConfig) returns 
     };
     return config;
 }
-
-public type InferredJwtAuthProviderConfig record {
-    string issuer;
-    string audience;
-    int expTime;
-    string keyAlias;
-    string keyPassword;
-    string keyStoreFilePath;
-    string keyStorePassword;
-    string signingAlg;
-    !...
-};

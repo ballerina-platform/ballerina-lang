@@ -20,6 +20,8 @@ package org.ballerinalang.auth.ldap;
 
 /**
  * The exception to throw when there is a problem with the user store.
+ *
+ * @since 0.983.0
  */
 public class UserStoreException extends Exception {
 
