@@ -877,6 +877,14 @@ public class SourceGen {
         }
 
         if ("UserDefinedType".equals(kind)) {
+
+            if (node.has("ws") && node.getAsJsonArray("ws").get(0)
+                    .getAsJsonObject().get("text").getAsString().equals("*") && node.getAsJsonArray("ws")
+                    .get(node.getAsJsonArray("ws").size() - 1).getAsJsonObject().get("text")
+                    .getAsString().equals(";")) {
+                node.addProperty("isTypeReference", true);
+            }
+
             if (node.has("ws") && node.has("nullable") && node.get("nullable").getAsBoolean()) {
                 for (JsonElement ws : node.getAsJsonArray("ws")) {
                     if (ws.getAsJsonObject().get("text").getAsString().equals("?")) {

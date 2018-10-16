@@ -640,7 +640,7 @@ TypeConversionExpr
 
 
 ObjectType
-   : <fields>* <initFunction.source> <functions>*
+   : <typeReferences>* <fields>* <initFunction.source> <functions>*
    ;
 
 RecordType
@@ -678,6 +678,8 @@ UnionTypeNode
 
 UserDefinedType
    : <isAnonType?> <anonType.source>
+   | <isTypeReference?>                      * <packageAlias.value> : <typeName.value>     ;
+   | <isTypeReference?>                      *                        <typeName.value>     ;
    | <nullableOperatorAvailable?> <grouped?> ( <packageAlias.value> : <typeName.value> ? )
    | <nullableOperatorAvailable?>              <packageAlias.value> : <typeName.value> ?
    | <nullableOperatorAvailable?> <grouped?> (                        <typeName.value> ? )
