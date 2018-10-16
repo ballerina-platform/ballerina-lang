@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,7 +47,8 @@ public class ClosedRecordOptionalFieldsTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/record/closed_record_optional_fields_negatives.bal");
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        BAssertUtil.validateError(negativeResult, i++, "a default value specified for optional field 'age'", 22, 5);
         BAssertUtil.validateError(negativeResult, i++, "missing non-defaultable required record field 'adrs'", 35, 17);
         BAssertUtil.validateError(negativeResult, i, "variable 'p2' is not initialized", 36, 5);
     }
@@ -105,6 +107,12 @@ public class ClosedRecordOptionalFieldsTest {
         Assert.assertNull(person.get("lname"));
         Assert.assertNull(person.get("age"));
         Assert.assertNull(person.get("adrs"));
+    }
+
+    @Test(description = "Test non-defaultable optional field access", expectedExceptions =
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*cannot find key 'adrs'.*")
+    public void testOptionalNonDefField2() {
+        BRunUtil.invoke(compileResult, "testOptionalNonDefField2");
     }
 
     @Test(description = "Test defaultable user defined type as an optional field")

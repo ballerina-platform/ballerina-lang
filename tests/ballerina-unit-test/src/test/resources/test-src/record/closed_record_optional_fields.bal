@@ -19,7 +19,6 @@ type CountryCode "LK"|"USA"|"UK";
 type Person record {
     string fname = "default";
     string lname?;
-    int age? = 999;
     Address adrs;
     !...
 };
@@ -45,7 +44,6 @@ function testNonDefReqField2() returns Person {
 type Person2 record {
     string fname = "default";
     string lname?;
-    int age? = 999;
     Address2 adrs;
     !...
 };
@@ -66,7 +64,6 @@ function testDefaultableReqField() returns Person2 {
 type Person3 record {
     string fname = "default";
     string lname?;
-    int age? = 999;
     Address3 adrs?;
     !...
 };
@@ -83,11 +80,15 @@ function testOptionalNonDefField() returns Person3 {
     return p;
 }
 
+function testOptionalNonDefField2() {
+    Person3 p = {};
+    Address3 a = p.adrs;
+}
+
 // When adrs is an optional defaultable field
 type Person4 record {
     string fname = "default";
     string lname?;
-    int age? = 999;
     Address4 adrs?;
     !...
 };
