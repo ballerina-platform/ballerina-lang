@@ -155,3 +155,41 @@ function testNestedArrowExpression4() returns string {
     var lambda4 = lambda3(22, "Me");
     return lambda4(24, "Fa");
 }
+
+int k = 10;
+
+type Foo record {
+    function (int) returns int lambda = (i) => i * k;
+};
+
+type Bar object {
+    function (int) returns int lambda = (i) => i * k;
+};
+
+function testArrowExprInRecord() returns int {
+    Foo f;
+    return f.lambda(5);
+}
+
+function testArrowExprInObject() returns int {
+    Bar f = new;
+    return f.lambda(6);
+}
+
+string packageVar = "Global Text";
+
+function testArrowExprWithNoArguments() returns string {
+    function () returns string lambda = () => "Some Text " + packageVar;
+    return lambda();
+}
+
+function testArrowExprWithNoArgumentsAndStrTemplate() returns string {
+    function () returns string lambda = () => string`Some Text {{packageVar}}`;
+    return lambda();
+}
+
+function testArrowExprWithNoArgumentsAndClosure() returns string {
+    string closureVar = "Closure Text";
+    function () returns string lambda = () => "Some Text " + packageVar + " " + closureVar;
+    return lambda();
+}

@@ -49,7 +49,7 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
 
         Class itemSorterClass;
-        if (isInvocationOrFieldAccess(context)) {
+        if (isInvocationOrInteractionOrFieldAccess(context)) {
             itemSorterClass = ActionAndFieldAccessContextItemSorter.class;
             itemList = SymbolFilters.get(DelimiterBasedContentFilter.class)
                     .filterItems(context);

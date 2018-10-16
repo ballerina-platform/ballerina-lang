@@ -24,6 +24,11 @@ import org.wso2.transport.http.netty.contract.PortBindingEventListener;
 
 import java.io.PrintStream;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTPS_ENDPOINT_STARTED;
+import static org.ballerinalang.net.http.HttpConstants.HTTPS_ENDPOINT_STOPPED;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ENDPOINT_STARTED;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ENDPOINT_STOPPED;
+
 /**
  * An implementation of the LifeCycleEventListener. This can be used to listen to the HTTP connector life cycle events.
  *
@@ -37,18 +42,18 @@ public class HttpConnectorPortBindingListener implements PortBindingEventListene
     @Override
     public void onOpen(String serverConnectorId, boolean isHttps) {
         if (isHttps) {
-            console.println("ballerina: started HTTPS/WSS endpoint " + serverConnectorId);
+            console.println(HTTPS_ENDPOINT_STARTED + serverConnectorId);
         } else {
-            console.println("ballerina: started HTTP/WS endpoint " + serverConnectorId);
+            console.println(HTTP_ENDPOINT_STARTED + serverConnectorId);
         }
     }
 
     @Override
     public void onClose(String serverConnectorId, boolean isHttps) {
         if (isHttps) {
-            console.println("ballerina: stopped HTTPS/WSS endpoint " + serverConnectorId);
+            console.println(HTTPS_ENDPOINT_STOPPED + serverConnectorId);
         } else {
-            console.println("ballerina: stopped HTTP/WS endpoint " + serverConnectorId);
+            console.println(HTTP_ENDPOINT_STOPPED + serverConnectorId);
         }
     }
 

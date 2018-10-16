@@ -26,8 +26,8 @@ type Teacher record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<Teacher > outputStream;
+stream<Teacher> inputStreamTimeWindowTest;
+stream<Teacher > outputStreamTimeWindowTest;
 Teacher[] globalEmployeeArray = [];
 
 function startTimeWindowTest() returns (Teacher[]) {
@@ -41,9 +41,9 @@ function startTimeWindowTest() returns (Teacher[]) {
 
     testTimeWindow();
 
-    outputStream.subscribe(printTeachers);
+    outputStreamTimeWindowTest.subscribe(printTeachers);
     foreach t in teachers {
-        inputStream.publish(t);
+        inputStreamTimeWindowTest.publish(t);
     }
 
     runtime:sleep(1000);
@@ -54,11 +54,12 @@ function startTimeWindowTest() returns (Teacher[]) {
 function testTimeWindow() {
 
     forever {
-        from inputStream window timeWindow(1000)
-        select inputStream.name, inputStream.age, inputStream.status, inputStream.school
+        from inputStreamTimeWindowTest window timeWindow(1000)
+        select inputStreamTimeWindowTest.name, inputStreamTimeWindowTest.age, inputStreamTimeWindowTest.status, inputStreamTimeWindowTest
+        .school
         => (Teacher [] emp) {
             foreach e in emp {
-                outputStream.publish(e);
+                outputStreamTimeWindowTest.publish(e);
             }
         }
     }
