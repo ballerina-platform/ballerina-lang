@@ -77,3 +77,16 @@ function testRecordInsideTuple() returns (string, int, boolean) {
     string fullName = a + " " + name;
     return (fullName, theAge, b);
 }
+
+function testTupleVarDef() returns (string, int, boolean) {
+    var (a, (b, c)) = ("Ballerina", (123, true));
+
+    return (a, b, c);
+}
+
+function testTupleVarRef() returns (string, int, boolean) {
+    var (a, (b, c)) = ("Ballerina", (123, true));
+    ((a, b), c) = (("UpdatedBallerina", 453), false);
+
+    return (a, b, c);
+}

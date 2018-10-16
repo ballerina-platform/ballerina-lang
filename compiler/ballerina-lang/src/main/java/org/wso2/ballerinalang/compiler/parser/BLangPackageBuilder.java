@@ -714,13 +714,13 @@ public class BLangPackageBuilder {
         this.varStack.push(tupleVariable);
     }
 
-    void addRefTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+    void addTupleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int members) {
         BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
         tupleVarRef.pos = pos;
         tupleVarRef.addWS(ws);
         for (int i = 0; i < members; i++) {
             final BLangExpression expr = (BLangExpression) this.exprNodeStack.pop();
-            tupleVarRef.expressions.add(expr);
+            tupleVarRef.expressions.add(0, expr);
         }
         this.exprNodeStack.push(tupleVarRef);
 
@@ -2103,9 +2103,8 @@ public class BLangPackageBuilder {
         stmt.addWS(ws);
         stmt.setDeclaredWithVar(varDeclaration);
         stmt.expr = (BLangExpression) exprNodeStack.pop();
-        List<ExpressionNode> lExprList = exprNodeListStack.pop();
-        lExprList.forEach(expressionNode -> stmt.varRefs.add((BLangVariableReference) expressionNode));
-        stmt.addWS(commaWsStack.pop());
+        stmt.varRef = (BLangExpression) exprNodeStack.pop();
+        stmt.addWS(ws);
         addStmtToCurrentBlock(stmt);
     }
 

@@ -731,18 +731,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure tupleDeStmt) {
-        if (tupleDeStmt.isDeclaredWithVar()) {
-            handleAssignNodeWithVarDeStructure(tupleDeStmt);
-            return;
-        }
+        BType expType = getTypeOfVarReferenceInAssignment(tupleDeStmt.varRef);
 
-        // Check each LHS expression.
-        List<BType> expTypes = new ArrayList<>();
-        for (BLangExpression expr : tupleDeStmt.varRefs) {
-            expTypes.add(getTypeOfVarReferenceInAssignment(expr));
-        }
-
-        expType = new BTupleType(expTypes);
         typeChecker.checkExpr(tupleDeStmt.expr, this.env, expType);
     }
 
@@ -1703,73 +1693,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         simpleVarRef.type = varSymbol.type;
     }
 
-    private void handleAssignNodeWithVarDeStructure(BLangTupleDestructure tupleDeNode) {
-        int ignoredCount = 0;
-
-        List<Name> newVariables = new ArrayList<Name>();
-        List<BType> expTypes = new ArrayList<>();
-        // Check each LHS expression.
-        for (int i = 0; i < tupleDeNode.varRefs.size(); i++) {
-            BLangExpression varRef = tupleDeNode.varRefs.get(i);
-            // If the assignment is declared with "var", then lhs supports only simpleVarRef expressions only.
-            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
-                expTypes.add(symTable.errType);
-                continue;
-            }
-            // Check variable symbol if exists.
-            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
-            ((BLangVariableReference) varRef).lhsVar = true;
-            Name varName = names.fromIdNode(simpleVarRef.variableName);
-            if (varName == Names.IGNORE) {
-                ignoredCount++;
-                simpleVarRef.type = this.symTable.noType;
-                expTypes.add(symTable.noType);
-                continue;
-            }
-
-            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            if (symbol == symTable.notFoundSymbol) {
-                newVariables.add(varName);
-                expTypes.add(symTable.noType);
-            } else {
-                dlog.error(varRef.pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
-                expTypes.add(symbol.type);
-            }
-        }
-
-        if (ignoredCount == tupleDeNode.varRefs.size()) {
-            dlog.error(tupleDeNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-        }
-
-        List<BType> rhsTypes;
-        BType expType = new BTupleType(expTypes);
-        BType rhsType = typeChecker.checkExpr(tupleDeNode.expr, this.env, expType);
-        if (rhsType != symTable.errType && rhsType.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) rhsType;
-            rhsTypes = tupleType.tupleTypes;
-        } else {
-            dlog.error(tupleDeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES_EXP_TUPLE, rhsType);
-            rhsTypes = typeChecker.getListWithErrorTypes(tupleDeNode.varRefs.size());
-        }
-
-        // visit all lhs expressions
-        for (int i = 0; i < tupleDeNode.varRefs.size(); i++) {
-            BLangExpression varRef = tupleDeNode.varRefs.get(i);
-            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                continue;
-            }
-            BType actualType = rhsTypes.get(i);
-            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
-            Name varName = names.fromIdNode(simpleVarRef.variableName);
-            if (newVariables.contains(varName)) {
-                // define new variables
-                this.symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), actualType, varName, env);
-            }
-            typeChecker.checkExpr(simpleVarRef, env);
-        }
-    }
-
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
         boolean error = true;
         NodeKind retryKind = retryCountExpr.getKind();
@@ -1858,7 +1781,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
                 expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
                 expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR &&
+                expr.getKind() != NodeKind.TUPLE_VARIABLE_REF) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, expr);
             return symTable.errType;
         }

@@ -534,7 +534,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
-        // todo
+        List<BType> results = new ArrayList<>();
+        for (int i = 0; i < varRefExpr.expressions.size(); i++) {
+            results.add(checkExpr(varRefExpr.expressions.get(i), env, symTable.noType));
+        }
+        BType actualType = new BTupleType(results);
+        resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
     /**

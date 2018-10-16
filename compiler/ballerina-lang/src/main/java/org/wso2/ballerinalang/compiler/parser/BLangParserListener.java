@@ -931,7 +931,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addRefTupleVariable(getCurrentPos(ctx), getWS(ctx), ctx.bindingRefPattern().size());
+        this.pkgBuilder.addTupleVariableReference(getCurrentPos(ctx), getWS(ctx), ctx.bindingRefPattern().size());
     }
 
     @Override
