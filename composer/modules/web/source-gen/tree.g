@@ -248,10 +248,10 @@ Function
    ;
 
 FunctionType
-   : <hasReturn?> <withParantheses?> ( function ( <paramTypeNode-joined-by,>* ) <returnKeywordExists?returns> <returnTypeNode.source> )
-   : <hasReturn?>                      function ( <paramTypeNode-joined-by,>* ) <returnKeywordExists?returns> <returnTypeNode.source>
-   |              <withParantheses?> ( function ( <paramTypeNode-joined-by,>* ) )
-   |                                   function ( <paramTypeNode-joined-by,>* )
+   : <hasReturn?> <withParantheses?> ( function ( <params-joined-by,>* ) <returnKeywordExists?returns> <returnTypeNode.source> )
+   : <hasReturn?>                      function ( <params-joined-by,>* ) <returnKeywordExists?returns> <returnTypeNode.source>
+   |              <withParantheses?> ( function ( <params-joined-by,>* ) )
+   |                                   function ( <params-joined-by,>* )
    ;
 
 GroupBy
