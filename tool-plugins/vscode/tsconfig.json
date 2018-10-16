@@ -21,6 +21,7 @@
     },
     "exclude": [
         "node_modules",
+        "node_modules/extended-language-client/node_modules/vscode",
         ".vscode-test"
     ]
 }

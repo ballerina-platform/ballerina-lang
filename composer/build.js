@@ -1,30 +1,44 @@
-var fs = require('fs');
-var resolve = require('path').resolve;
-var join = require('path').join;
-var cp = require('child_process');
-var os = require('os');
+const fs = require('fs');
+const resolve = require('path').resolve;
+const join = require('path').join;
+const cp = require('child_process');
+const os = require('os');
 
 // submodule root
-var modulesRoot = resolve(__dirname, './');
+const modulesRoot = resolve(__dirname, './');
+
+const modules = [
+    "theme",
+    "api-designer",
+    "documentation",
+    "bbe",
+    "diagram",
+    "extended-language-client",
+    "tracing",
+    "integration-tests",
+    "distribution"	
+];
 
 function runNpmCommand(args, cwd) {
   // npm cmd based on OS
-  var npmCmd = os.platform().startsWith('win') ? 'npm.cmd' : 'npm';
+  const npmCmd = os.platform().startsWith('win') ? 'npm.cmd' : 'npm';
 
   // execute command sync
-  cp.spawnSync(npmCmd, args, { env: process.env, cwd, stdio: 'inherit' });
+  const spawnResult = cp.spawnSync(npmCmd, args, { env: process.env, cwd, stdio: 'inherit' });
+  if (spawnResult.status !== 0) {
+      process.kill(process.pid);
+  }
 }
 
 function forEachSubModule(callback) {
-    fs.readdirSync(modulesRoot)
-        .forEach(function (mod) {
-            var modPath = join(modulesRoot, mod);
-            // ensure path has package.json
-            if (!fs.existsSync(join(modPath, 'package.json'))) {
-                return;
-            }
-            callback(modPath);
-        });
+    modules.forEach(function (mod) {
+        const modPath = join(modulesRoot, mod);
+        // ensure path has package.json
+        if (!fs.existsSync(join(modPath, 'package.json'))) {
+            return;
+        }
+        callback(modPath);
+    });
 }
 
 forEachSubModule((modPath) => {
