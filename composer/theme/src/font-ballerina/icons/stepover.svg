@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="stepover" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path  d="M9.4607544,10.7399292c0.1028442,1.2126465-0.796936,2.2790527-2.0097046,2.3818359
+	c-1.2126465,0.1027832-2.2791138-0.7969971-2.3818359-2.0097046C4.9664307,9.899353,5.8662109,8.8330078,7.0789185,8.7301636
+	C8.291626,8.6273804,9.3579712,9.5271606,9.4607544,10.7399292z M12.4191895,2.9925537
+	c-1.4389648-1.3424072-3.3430786-2.1223755-5.3424072-2.1223755c-2.6251221,0-5.0632324,1.305542-6.5219727,3.4915161
+	C0.3474731,4.6727295,0.1609497,5.0014648,0,5.3395996l1.4451904,0.6876221
+	c0.1276245-0.2682495,0.276062-0.5297852,0.4412231-0.7772827c1.1612549-1.7399902,3.1013184-2.7793579,5.1903687-2.7793579
+	c1.5133667,0,2.9628296,0.5556641,4.0864258,1.5292358L9.4557495,5.3692017l4.3303833,0.7441406L14,1.7247314L12.4191895,2.9925537z
+	"/>
+</svg>

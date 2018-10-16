@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="apple" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M4.5556226,3.2999902c1.1000104,0,1.7999902,0.6000099,2.7000103,0.6000099
+	c0.8999896,0,1.3999896-0.6000099,2.6999803-0.6000099c1,0,2,0.5,2.7000093,1.4000201
+	c-2.3999901,1.2999897-2,4.6999798,0.3999901,5.5999794C12.7556334,11,12.5556231,11.3999901,12.1556225,12
+	c-0.6000099,0.8999901-1.3999901,2-2.5,2c-0.8999901,0-1.2000093-0.6000099-2.3999901-0.6000099
+	c-1.3000197,0-1.5,0.6000099-2.5,0.6000099s-1.80002-1-2.4000199-1.8999901c-1.5999801-2.5-1.7999899-5.5-0.7999898-7.1000099
+	C2.2556326,3.8999901,3.4556127,3.2999902,4.5556226,3.2999902z M9.5556231,0
+	c0.2000093,0.8999901-0.2000103,1.7000098-0.6000099,2.2999897c-0.5,0.6000099-1.3999906,1.1000099-2.1999803,1.1000099
+	C6.655623,2.6000099,6.9556127,1.7000098,7.4556127,1.2000098C7.9556127,0.5,8.8556128,0.1000099,9.5556231,0z"/>
+</svg>

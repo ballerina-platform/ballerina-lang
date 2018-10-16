@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="grip" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M6.306818,2.5984848H3.7083333V0H6.306818V2.5984848z M6.306818,3.8005052H3.7083333v2.5984845H6.306818V3.8005052z
+	 M6.306818,7.6010103H3.7083333v2.598485H6.306818V7.6010103z M6.306818,11.401515H3.7083333V14H6.306818V11.401515z M10.306818,0
+	H7.7083335v2.5984848h2.5984845V0z M10.306818,3.8005052H7.7083335v2.5984845h2.5984845V3.8005052z M10.306818,7.6010103H7.7083335
+	v2.598485h2.5984845V7.6010103z M10.306818,11.401515H7.7083335V14h2.5984845V11.401515z"/>
+</svg>
