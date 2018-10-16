@@ -54,7 +54,14 @@ function startTimeLengthwindowTest1() returns (TeacherOutput[]) {
         runtime:sleep(500);
     }
 
-    runtime:sleep(1000);
+    int index2 = 0;
+    while (index2 < 10) {
+        runtime:sleep(500);
+        if (index2 == 10 || lengthof globalEmployeeArray == 3) {
+            break;
+        }
+        index2 += 1;
+    }
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
