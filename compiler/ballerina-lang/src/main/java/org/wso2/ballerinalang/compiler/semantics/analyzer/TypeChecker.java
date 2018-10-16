@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
@@ -126,11 +127,13 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -529,7 +532,67 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
-        // todo
+        List<BField> fields = new ArrayList<>();
+        boolean unresolvedReference = false;
+        for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
+            checkExpr(recordRefField.variableReference, env);
+            BVarSymbol bVarSymbol = getVarSymbolFromVarRef(recordRefField.variableReference);
+            if (bVarSymbol == null) {
+                unresolvedReference = true;
+                continue;
+            }
+            fields.add(new BField(names.fromIdNode(recordRefField.variableName), bVarSymbol, false));
+        }
+
+        if (varRefExpr.restParam != null) {
+            BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+            checkExpr(restParam, env);
+            BVarSymbol bVarSymbol = getVarSymbolFromVarRef(restParam);
+            if (bVarSymbol == null) {
+                unresolvedReference = true;
+            } else {
+                fields.add(new BField(names.fromIdNode(
+                        ((BLangSimpleVarRef) restParam).variableName), bVarSymbol, false));
+            }
+        }
+
+        if (unresolvedReference) {
+            resultType = symTable.errType;
+            return;
+        }
+
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
+                null, env.scope.owner);
+        BRecordType bRecordType = new BRecordType(recordSymbol);
+        bRecordType.fields = fields;
+        recordSymbol.type = bRecordType;
+        varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,bRecordType, env.scope.owner);
+
+        if (varRefExpr.isClosed) {
+            bRecordType.sealed = true;
+        }
+
+        if (varRefExpr.restParam != null) {
+            bRecordType.restFieldType = symTable.mapType;
+        }
+
+
+        resultType = bRecordType;
+    }
+
+    private BVarSymbol getVarSymbolFromVarRef(BLangExpression varRef) {
+        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangSimpleVarRef) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangRecordVarRef) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
+        }
+
+        dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN);
+        return null;
     }
 
     @Override

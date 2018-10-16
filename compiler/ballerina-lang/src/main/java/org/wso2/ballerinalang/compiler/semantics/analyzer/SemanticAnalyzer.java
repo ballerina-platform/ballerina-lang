@@ -552,7 +552,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 boolean foundMatch = false;
                 if (varNode.expr != null && varNode.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
 
-                    // If record variable has !... the same amount of fields must be there in the record literal of lhs
+                    // If record variable has !... the same amount of fields must be there in the record literal of rhs
                     if (varNode.isClosed) {
                         if (varNode.variableList.size() != ((BLangRecordLiteral) varNode.expr).keyValuePairs.size()) {
                             dlog.error(varNode.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN,
@@ -745,9 +745,126 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordDestructure recordDeStmt) {
-        // todo
+
+        // recursively visit the var refs and create the record type
+        BType recordType = typeChecker.checkExpr(recordDeStmt.varRef, env);
+        if (recordDeStmt.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            BLangRecordLiteral rhsLiteral = (BLangRecordLiteral) recordDeStmt.expr;
+            checkRecordVarRefEquivalency(recordDeStmt.pos, recordType, rhsLiteral);
+        } else {
+            checkRecordVarRefEquivalency(recordDeStmt.pos, recordType, recordDeStmt.expr);
+        }
     }
 
+    /**
+     *
+     * When rhs is a record literal, this method will recursively check the type of each field in the
+     * record literal against the record var ref fields.
+     *
+     * @param pos diagnostic pos
+     * @param recordType type of the record var ref
+     * @param rhsLiteral the record literal in the rhs
+     */
+    private void checkRecordVarRefEquivalency(DiagnosticPos pos, BType recordType, BLangRecordLiteral rhsLiteral) {
+        if (recordType.tag != TypeTags.RECORD) {
+            return;
+        }
+
+        BRecordType expRecordType = (BRecordType) recordType;
+
+        if (expRecordType.fields.size() > rhsLiteral.keyValuePairs.size()) {
+            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF);
+            return;
+        }
+
+        if (expRecordType.sealed && expRecordType.fields.size() != rhsLiteral.keyValuePairs.size()) {
+            dlog.error(pos, DiagnosticCode.TOO_MANY_PATTERNS_TO_MATCH_CLOSED_RECORD_REF);
+            return;
+        }
+
+        for (BLangRecordKeyValue recordLiteralKeyValue : rhsLiteral.keyValuePairs) {
+            // check if the field in the rhs record literal is present in the record var ref
+            List<BField> expField = expRecordType.fields.stream()
+                    .filter(field -> field.name.getValue().equals(recordLiteralKeyValue.key.toString()))
+                    .collect(Collectors.toList());
+            if (expField.isEmpty()) {
+                if (expRecordType.sealed) {
+                    dlog.error(pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, recordLiteralKeyValue.key);
+                }
+                return;
+            }
+
+            if (expField.size() > 1) {
+                dlog.error(pos, DiagnosticCode.MULTIPLE_RECORD_REF_PATTERN_FOUND, recordLiteralKeyValue.key);
+                return;
+            }
+
+            if (recordLiteralKeyValue.valueExpr.getKind() == NodeKind.LITERAL) {
+                typeChecker.checkExpr(recordLiteralKeyValue.valueExpr, this.env, expField.get(0).type);
+            } else if (recordLiteralKeyValue.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) recordLiteralKeyValue.valueExpr;
+                checkRecordVarRefEquivalency(recordLiteral.pos, expField.get(0).type, recordLiteral);
+            } else {
+                checkRecordVarRefEquivalency(recordLiteralKeyValue.valueExpr.pos,
+                        expField.get(0).type, recordLiteralKeyValue.valueExpr);
+            }
+        }
+    }
+
+    /**
+     *
+     * When rhs is an expression of type record, this method will check the type of each field in the
+     * record type against the record var ref fields.
+     *
+     * @param pos diagnostic pos
+     * @param recordType type of the record var ref
+     * @param rhsExpr the expression on the rhs that returns a record type
+     */
+    private void checkRecordVarRefEquivalency(DiagnosticPos pos, BType recordType, BLangExpression rhsExpr) {
+        typeChecker.checkExpr(rhsExpr, this.env);
+
+        if (rhsExpr.type.tag != TypeTags.RECORD) {
+            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, "record type", rhsExpr.type);
+            return;
+        }
+
+        BRecordType rhsRecordType = (BRecordType) rhsExpr.type;
+        if (recordType.tag != TypeTags.RECORD) {
+            return;
+        }
+
+        BRecordType expRecordType = (BRecordType) recordType;
+        if (expRecordType.fields.size() > rhsRecordType.fields.size()) {
+            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF);
+            return;
+        }
+
+        if (expRecordType.sealed &&
+                (!rhsRecordType.sealed || expRecordType.fields.size() != rhsRecordType.fields.size())) {
+            dlog.error(pos, DiagnosticCode.TOO_MANY_PATTERNS_TO_MATCH_CLOSED_RECORD_REF);
+            return;
+        }
+
+        for (BField rhsField : rhsRecordType.fields) {
+            List<BField> expField = expRecordType.fields.stream()
+                    .filter(x -> x.name.getValue().equals(rhsField.name.toString()))
+                    .collect(Collectors.toList());
+
+            if (expField.isEmpty()) {
+                if (expRecordType.sealed) {
+                    dlog.error(pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, rhsField.name);
+                }
+                return;
+            }
+
+            if (expField.size() > 1) {
+                dlog.error(pos, DiagnosticCode.MULTIPLE_RECORD_REF_PATTERN_FOUND, rhsField.name);
+                return;
+            }
+
+            types.checkType(pos, rhsField.type, expField.get(0).type, DiagnosticCode.INCOMPATIBLE_TYPES);
+        }
+    }
 
     private void checkConstantAssignment(BLangExpression varRef) {
         if (varRef.type == symTable.errType) {

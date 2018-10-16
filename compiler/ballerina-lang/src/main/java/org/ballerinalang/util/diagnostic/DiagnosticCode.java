@@ -197,6 +197,12 @@ public enum DiagnosticCode {
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
 
+    NO_MATCHING_RECORD_REF_PATTERN("no.matching.record.ref.found"),
+    MULTIPLE_RECORD_REF_PATTERN_FOUND("multiple.matching.record.ref.found"),
+    NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF("not.enough.patterns.to.match.record.ref"),
+    TOO_MANY_PATTERNS_TO_MATCH_CLOSED_RECORD_REF("too.many.patterns.to.match.closed.record.ref"),
+
+
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
     XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed"),

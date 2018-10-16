@@ -127,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -651,6 +652,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BLangExpression varRefExpr = stmt.varRefs.get(varIndex);
             visitAssignment(varRefExpr, taintedStatus, stmt.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangRecordDestructure stmt) {
+        stmt.expr.accept(this);
+        // Propagate tainted status of each variable separately (when multi returns are used).
+//        for (int varIndex = 0; varIndex < stmt.varRefs.size(); varIndex++) {
+//            BLangExpression varRefExpr = stmt.varRefs.get(varIndex);
+//            visitAssignment(varRefExpr, taintedStatus, stmt.pos);
+//        }
     }
 
     @Override

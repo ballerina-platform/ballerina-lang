@@ -773,13 +773,11 @@ public class BLangPackageBuilder {
     void addFieldRefBindingMemberVar(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                      boolean bindingPattern) {
         BLangExpression expression;
-        if (bindingPattern) {
-            expression = (BLangExpression) this.exprNodeStack.pop();
-        } else {
-            BLangSimpleVarRef rhsVar = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-            rhsVar.variableName = (BLangIdentifier) createIdentifier(identifier);
-            expression = rhsVar;
+        if (!bindingPattern) {
+            addNameReference(pos, ws, null, identifier);
+            createSimpleVariableReference(pos, ws);
         }
+        expression = (BLangExpression) this.exprNodeStack.pop();
 
         BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
         keyValue.variableName = (BLangIdentifier) createIdentifier(identifier);

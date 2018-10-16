@@ -154,6 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -1024,6 +1025,11 @@ public class Desugar extends BLangNodeVisitor {
             assignmentStmt.expr = assignmentExpr;
         }
         result = rewrite(blockStmt, env);
+    }
+
+    @Override
+    public void visit(BLangRecordDestructure stmt) {
+        result = stmt;
     }
 
     @Override
