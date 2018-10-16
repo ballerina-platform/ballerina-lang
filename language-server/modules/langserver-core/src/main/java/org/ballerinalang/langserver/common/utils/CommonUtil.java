@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -30,6 +31,11 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.index.LSIndexException;
+import org.ballerinalang.langserver.index.LSIndexImpl;
+import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
+import org.ballerinalang.langserver.index.dao.DAOType;
+import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -88,6 +94,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -445,6 +452,34 @@ public class CommonUtil {
                 + orgName + UtilSymbolKeys.SLASH_KEYWORD_KEY + pkgName + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
+    }
+    
+    /**
+     * Fill the completion items extracted from LS Index db with the auto import text edits.
+     * Here the Completion Items are mapped against the respective package ID.
+     * @param completionsMap    Completion Map to evaluate
+     * @param ctx               Lang Server Operation Context
+     * @return {@link List} List of modified completion items
+     */
+    public static List<CompletionItem> fillCompletionWithPkgImport(HashMap<Integer, ArrayList<CompletionItem>>
+                                                                           completionsMap, LSContext ctx) {
+        LSIndexImpl lsIndex = ctx.get(LSGlobalContextKeys.LS_INDEX_KEY);
+        List<CompletionItem> returnList = new ArrayList<>();
+        completionsMap.forEach((integer, completionItems) -> {
+            try {
+                BPackageSymbolDTO dto = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL))
+                        .get(integer);
+                completionItems.forEach(completionItem -> {
+                    List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits(ctx, dto.getOrgName(), dto.getName());
+                    completionItem.setAdditionalTextEdits(textEdits);
+                    returnList.add(completionItem);
+                });
+            } catch (LSIndexException e) {
+                logger.error("Error While retrieving Package Symbol for text edits");
+            }
+        });
+        
+        return returnList;
     }
 
     /**

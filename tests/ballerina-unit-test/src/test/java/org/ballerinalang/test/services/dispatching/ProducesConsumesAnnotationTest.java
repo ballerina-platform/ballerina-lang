@@ -19,7 +19,6 @@
 package org.ballerinalang.test.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
@@ -193,5 +192,18 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo33").stringValue(), "echo1", "No media types");
+    }
+
+    @Test(description = "Test case insensitivity of produces and consumes annotation values")
+    public void testCaseInSensitivityOfProduceAndConsume() {
+        String path = "/echo66/test4";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "<test>TestVal</test>");
+        cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "application/xml; charset=ISO-8859-4");
+        cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "application/json");
+        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("msg").stringValue(), "wso222", "media types matched");
     }
 }

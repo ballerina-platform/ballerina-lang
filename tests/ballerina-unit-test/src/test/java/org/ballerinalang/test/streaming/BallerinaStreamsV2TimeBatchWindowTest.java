@@ -46,7 +46,7 @@ public class BallerinaStreamsV2TimeBatchWindowTest {
     }
 
     @Test(description = "Test TimeBatch window query")
-    public void testExternalTimeBatchQuery1() {
+    public void testTimeBatchQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startTimeBatchwindowTest1");
         System.setProperty("enable.siddhiRuntime", "true");
 
@@ -62,7 +62,7 @@ public class BallerinaStreamsV2TimeBatchWindowTest {
     }
 
     @Test(description = "Test TimeBatch window query")
-    public void testExternalTimeBatchQuery2() {
+    public void testTimeBatchQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startTimeBatchwindowTest2");
         System.setProperty("enable.siddhiRuntime", "true");
 
