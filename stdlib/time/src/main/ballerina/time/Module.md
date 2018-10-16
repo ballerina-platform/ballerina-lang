@@ -1,7 +1,7 @@
-## Package overview
-The `ballerina/time` package provides implementations related to time, date, time zones, and durations. 
+## Module overview
+The `ballerina/time` module provides implementations related to time, date, time zones, and durations. 
 
-The package has two main types as [Time](time.html#Time) and [Timezone](time.html#Timezone). The type `Time` represents a time associated with a given time zone. It has `time` and `zone` as attributes. The type `Timezone` represents the time zone associated with a given time. It has `zoneId` and `zoneOffset` as attributes. A `zoneId` can be one of the following:
+The module has two main types as [Time](time.html#Time) and [Timezone](time.html#Timezone). The type `Time` represents a time associated with a given time zone. It has `time` and `zone` as attributes. The type `Timezone` represents the time zone associated with a given time. It has `zoneId` and `zoneOffset` as attributes. A `zoneId` can be one of the following:
 
 * If `zoneId` equals 'Z', the result is UTC.
 * If `zoneId` equals 'GMT', 'UTC' or 'UT', it is equivalent to UTC.

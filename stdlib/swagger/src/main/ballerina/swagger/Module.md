@@ -1,5 +1,5 @@
-## Package overview
-This package provides the following code generation capabilities to Ballerina:
+## Module overview
+This module provides the following code generation capabilities to Ballerina:
 1. Generate the Ballerina code for a given Swagger definition.
 2. Generate the client stub for an existing Ballerina service at build time.
 3. Export the Swagger definition of a Ballerina service.
@@ -11,16 +11,16 @@ For build time client stub generation, annotation support is provided.
 
 ### Mock Service from Swagger
 `ballerina swagger mock <swaggerfile> 
-    [-p packagename>|--package <packagename>] 
+    [-m <module-name>|--module <module-name>] 
     [-o <path>|--output<path>]`
 
 Generates a Ballerina service for the Swagger file.
 
-This generated service is a mock version of the actual service. Generated sources contain the service definition in `gen/` and the resource implementation file in the package root directory with the suffix `_impl`. The `_impl` file is not overwritten by code regeneration.
+This generated service is a mock version of the actual service. Generated sources contain the service definition in `gen/` and the resource implementation file in the module root directory with the suffix `_impl`. The `_impl` file is not overwritten by code regeneration.
 
 ### Client Stub from Swagger
 `ballerina swagger client <swaggerfile> 
-    [-p packagename>|--package <packagename>] 
+    [-m <module-name>|--module <module-name>] 
     [-o <path>|--output<path>]`
     
 Generates a Ballerina client stub for the service defined in a Swagger file.

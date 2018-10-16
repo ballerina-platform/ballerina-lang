@@ -1,6 +1,6 @@
-## Package overview
+## Module overview
 
-This package provides the functionality required to access and manipulate data stored in a MySQL database. 
+This module provides the functionality required to access and manipulate data stored in a MySQL database. 
 
 ### Endpoint 
 
@@ -8,7 +8,7 @@ To access a database, you must first create an `endpoint`, which is a virtual re
 
 ### Database operations
 
-Once the endpoint is created, database operations can be executed through that endpoint. This package provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. For more details on the supported actions refer to the `sql` package. Also the details of the SQL data types and query parameters relevant to these database operations can be found in the documentation of the `sql` package.
+Once the endpoint is created, database operations can be executed through that endpoint. This module provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. For more details on the supported actions refer to the `sql` module. Also the details of the SQL data types and query parameters relevant to these database operations can be found in the documentation of the `sql` module.
 
 ## Samples
 

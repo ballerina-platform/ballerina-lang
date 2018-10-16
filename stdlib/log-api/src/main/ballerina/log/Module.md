@@ -1,10 +1,10 @@
-## Package Overview
+## Module Overview
 
-This package provides a basic API for logging.
+This module provides a basic API for logging.
 
 ### Loggers 
 
-Each package in Ballerina has its own dedicated logger. A log record contains the timestamp, log level, package name, and the log message. The `printError()` function takes an optional `error` record apart from the log message. A sample log record logged from the `foo` package would look as follows:
+Each module in Ballerina has its own dedicated logger. A log record contains the timestamp, log level, module name, and the log message. The `printError()` function takes an optional `error` record apart from the log message. A sample log record logged from the `foo` module would look as follows:
 ```bash
 2018-04-09 11:33:21,300 ERROR [foo] - This is an error log.
 ```
@@ -20,9 +20,9 @@ $ ballerina run program.bal 2> b7a-user.log
 
 ### Log Levels
 
-This package provides functions to log at the `WARN`, `ERROR`, `INFO`, `DEBUG`, and `TRACE` levels. By default, all log messages are logged to the console at the `INFO` level. In addition to these, there are two other levels named `OFF` and `ALL`. The `OFF` log level turns off logging, and the `ALL` log level allows all log levels. The log level can be configured through the Config API.
+This module provides functions to log at the `WARN`, `ERROR`, `INFO`, `DEBUG`, and `TRACE` levels. By default, all log messages are logged to the console at the `INFO` level. In addition to these, there are two other levels named `OFF` and `ALL`. The `OFF` log level turns off logging, and the `ALL` log level allows all log levels. The log level can be configured through the Config API.
 
-The `b7a.log.level` configuration key can be used to configure the log level for the log API (i.e., for all the packages). The following can be provided in a configuration file.
+The `b7a.log.level` configuration key can be used to configure the log level for the log API (i.e., for all the modules). The following can be provided in a configuration file.
 ```toml
 b7a.log.level="<LOG_LEVEL>"
 ```
@@ -32,7 +32,7 @@ The log level can also be configured through a CLI parameter as follows:
 $ ballerina run program.bal -e b7a.log.level=<LOG_LEVEL>
 ```
 
-Log levels can be configured for packages either through a configuration file as `<PACKAGE_NAME>.loglevel="<LOG_LEVEL>"` or through a CLI parameter as `<PACKAGE_NAME>.loglevel=<LOG_LEVEL>`.
+Log levels can be configured for modules either through a configuration file as `<MODULE_NAME>.loglevel="<LOG_LEVEL>"` or through a CLI parameter as `<MODULE_NAME>.loglevel=<LOG_LEVEL>`.
 
 ## Sample  
 
@@ -59,7 +59,7 @@ log:printTrace("trace log");
 ```
 
 
-Suppose that the above code snippet resides in a package named `foo`. We can set the log level of `foo` to `DEBUG` in a configuration file by placing the following entry in it:
+Suppose that the above code snippet resides in a module named `foo`. We can set the log level of `foo` to `DEBUG` in a configuration file by placing the following entry in it:
 ```toml
 [foo]
 loglevel="DEBUG"

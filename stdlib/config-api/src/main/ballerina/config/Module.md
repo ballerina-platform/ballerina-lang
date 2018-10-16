@@ -1,6 +1,6 @@
-## Package overview
+## Module overview
 
-The `ballerina/config` package provides the Config API to read configurations from environment variables, files in the TOML format, and command-line parameters, and build a consolidated set of configurations. 
+The `ballerina/config` module provides the Config API to read configurations from environment variables, files in the TOML format, and command-line parameters, and build a consolidated set of configurations. 
 
 The precedence order for configuration lookup is as follows: 
 1. CLI parameters (used with the -e flag)

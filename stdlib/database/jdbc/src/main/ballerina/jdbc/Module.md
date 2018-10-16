@@ -1,16 +1,16 @@
-## Package overview
+## Module overview
 
-This package provides the functionality required to access and manipulate data stored in any type of relational database that is accessible via Java Database Connectivity (JDBC). 
+This module provides the functionality required to access and manipulate data stored in any type of relational database that is accessible via Java Database Connectivity (JDBC). 
 
 ### Endpoint 
 
 To access a database, you must first create an `endpoint`, which is a virtual representation of the physical endpoint that you are trying to connect to. Create an endpoint of the JDBC client type (i.e., `jdbc:Client`) and provide the necessary connection parameters. This will create a pool of connections to the specified database. A sample for creating an endpoint with a JDBC client can be found below. 
 
-**NOTE**: Although the JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use endpoints that are created using the client types specific to them via the relevant Ballerina packages.
+**NOTE**: Although the JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use endpoints that are created using the client types specific to them via the relevant Ballerina modules.
 
 ### Database operations
 
-Once the endpoint is created, database operations can be executed through that endpoint. This package provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. Samples for these operations can be found below. Details of the SQL data types and query parameters relevant for these database operations can be found in the documentation for the SQL package. 
+Once the endpoint is created, database operations can be executed through that endpoint. This module provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. Samples for these operations can be found below. Details of the SQL data types and query parameters relevant for these database operations can be found in the documentation for the SQL module. 
 
 
 ## Samples
@@ -25,7 +25,7 @@ endpoint jdbc:Client testDB {
     dbOptions: { useSSL: false }
 };
 ```
-The full list of endpoint properties can be found listed under the `sql:PoolOptions` type, which is located in the `types.bal` file of the SQL package directory.
+The full list of endpoint properties can be found listed under the `sql:PoolOptions` type, which is located in the `types.bal` file of the SQL module directory.
 
 ### Creating tables
 
@@ -66,7 +66,7 @@ match ret2 {
 }
 ```
 
-In the third example, parameter values are passed as an `sql:Parameter` to the `update` operation. Use `sql:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter direction. The default parameter direction is "IN". For more details on parameters, see the `sql` package.
+In the third example, parameter values are passed as an `sql:Parameter` to the `update` operation. Use `sql:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter direction. The default parameter direction is "IN". For more details on parameters, see the `sql` module.
 
 ```ballerina
 sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: "James" };

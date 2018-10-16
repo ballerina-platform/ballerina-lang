@@ -62,7 +62,7 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
     }
 
@@ -74,7 +74,7 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("foo").resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("main.bal.html")));
     }
 
@@ -85,7 +85,7 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("bar.html")));
     }

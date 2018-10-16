@@ -1,6 +1,6 @@
-## Package overview
+## Module overview
 
-This package provides utility methods for obtaining reflective information about the Ballerina runtime.
+This module provides utility methods for obtaining reflective information about the Ballerina runtime.
 
 ## Samples
 
