@@ -410,6 +410,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
+
+        if (varNode.isDeclaredWithVar) {
+            handleDeclaredWithVar(varNode);
+            return;
+        }
+
         // This will prevent cases Eg:- int _ = 100;
         // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
         Name varName = names.fromIdNode(varNode.name);
@@ -456,12 +462,61 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
     }
 
+    private void handleDeclaredWithVar(BLangVariable variable) {
+
+        BLangExpression varRefExpr = variable.expr;
+        BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, symTable.noType);
+
+        if (NodeKind.VARIABLE == variable.getKind()) {
+
+            if (!validateVariableDefinition(varRefExpr)) {
+                rhsType = symTable.errType;
+            }
+
+            BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
+            Name varName = names.fromIdNode(simpleVariable.name);
+            if (varName == Names.IGNORE) {
+                dlog.error(simpleVariable.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+                return;
+            }
+
+            simpleVariable.type = rhsType;
+
+            int ownerSymTag = env.scope.owner.tag;
+            if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                // This is a variable declared in a function, an action or a resource
+                // If the variable is parameter then the variable symbol is already defined
+                if (simpleVariable.symbol == null) {
+                    symbolEnter.defineNode(simpleVariable, env);
+                }
+            }
+        } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+            tupleVariable.type = rhsType;
+
+            if (tupleVariable.type.tag != TypeTags.TUPLE) {
+                dlog.error(tupleVariable.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
+                return;
+            }
+
+            if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type))) {
+                return;
+            }
+
+            if ((env.scope.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                symbolEnter.defineNode(tupleVariable, env);
+            }
+        }
+    }
+
     public void visit(BLangTupleVariable varNode) {
-        SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, null);
 
         if (varNode.isDeclaredWithVar) {
-            varNode.type = typeChecker.checkExpr(varNode.expr, varInitEnv, symTable.noType);
-        } else if (varNode.type == null) {
+            handleDeclaredWithVar(varNode);
+            return;
+        }
+
+        if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
@@ -483,7 +538,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        typeChecker.checkExpr(varNode.expr, varInitEnv, varNode.type);
+        typeChecker.checkExpr(varNode.expr, env, varNode.type);
     }
 
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
