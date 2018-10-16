@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.packerina;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -92,9 +93,15 @@ public class BuilderUtils {
         List<BLangPackage> packages = compiler.build();
 
         if (skiptests) {
+            if (packages.size() == 0) {
+                throw new BLangCompilerException("no ballerina source files found to compile");
+            }
             outStream.println();
             compiler.write(packages);
         } else {
+            if (packages.size() == 0) {
+                throw new BLangCompilerException("no ballerina source files found to compile");
+            }
             runTests(compiler, sourceRootPath, packages);
             compiler.write(packages);
         }
