@@ -1766,24 +1766,24 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>tests/ballerina-unit-test</module>
-                <module>tests/ballerina-compiler-plugin-test</module>
-                <module>cli/ballerina-cli-utils</module>
+                <!--<module>tests/ballerina-compiler-plugin-test</module>-->
+                <!--<module>cli/ballerina-cli-utils</module>-->
 
-                <module>language-server</module>
-                <module>misc/docerina</module>
-                <module>misc/ballerina-maven-plugins</module>
-                <module>misc/swagger-ballerina</module>
-                <module>misc/testerina</module>
-                <module>misc/toml-parser</module>
-                <module>misc/metrics-extensions</module>
-                <module>misc/tracing-extensions</module>
-                <module>misc/strip-bouncycastle</module>
+                <!--<module>language-server</module>-->
+                <!--<module>misc/docerina</module>-->
+                <!--<module>misc/ballerina-maven-plugins</module>-->
+                <!--<module>misc/swagger-ballerina</module>-->
+                <!--<module>misc/testerina</module>-->
+                <!--<module>misc/toml-parser</module>-->
+                <!--<module>misc/metrics-extensions</module>-->
+                <!--<module>misc/tracing-extensions</module>-->
+                <!--<module>misc/strip-bouncycastle</module>-->
 
-                <module>distribution/zip/ballerina</module>
+                <!--<module>distribution/zip/ballerina</module>-->
 
-                <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
-                <module>tests/ballerina-integration-test</module>
+                <!--<module>tests/observability-test-utils</module>-->
+                <!--<module>tests/ballerina-integration-test-utils</module>-->
+                <!--<module>tests/ballerina-integration-test</module>-->
             </modules>
         </profile>
         <profile>

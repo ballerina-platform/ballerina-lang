@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type PIIStore abstract object {
-    public function pseudonymize(string pii) returns string|error;
-    public function depseudonymize(string id) returns string|error;
-    public function delete(string id) returns error?;
+public type PiiStore abstract object {
+    public function pseudonymize (string pii) returns string|error;
+    public function depseudonymize (string id) returns string|error;
+    public function delete (string id) returns error?;
 };

@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function pseudonymize(PIIStore store, string pii) returns string|error {
+public function pseudonymize (PiiStore store, string pii) returns string|error {
     return store.pseudonymize(pii);
 }
 
-public function depseudonymize(PIIStore store, string id) returns string|error {
+public function depseudonymize (PiiStore store, string id) returns string|error {
     return store.depseudonymize(id);
 }
 
-public function delete(PIIStore store, string id) returns ()|error {
+public function delete (PiiStore store, string id) returns ()|error {
     return store.delete(id);
 }
