@@ -1,6 +1,6 @@
-## Package overview
+## Module overview
 
-This packages provides the necessary utilities that are required to hash content using different hashing mechanisms and algorithms. 
+This module provides the necessary utilities that are required to hash content using different hashing mechanisms and algorithms. 
 
 #### Hashing string content
 The `hash` function uses an algorithm to hash content of type `string`. 

@@ -1,6 +1,6 @@
-## Package overview
+## Module overview
 
-This package includes functions to manage task timers and task appointments.
+This module includes functions to manage task timers and task appointments.
 
 ### Task timers
 

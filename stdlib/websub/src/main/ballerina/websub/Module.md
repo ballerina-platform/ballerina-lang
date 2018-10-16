@@ -1,5 +1,5 @@
-## Package overview
-This package contains an implementation of the W3C [**WebSub**](https://www.w3.org/TR/websub/) recommendation, which facilitates a push-based content delivery/notification mechanism between publishers and subscribers.
+## Module overview
+This module contains an implementation of the W3C [**WebSub**](https://www.w3.org/TR/websub/) recommendation, which facilitates a push-based content delivery/notification mechanism between publishers and subscribers.
 
 This implementation supports introducing all WebSub components: subscribers, publishers, and hubs.
  
@@ -28,7 +28,7 @@ is updated by the topic's publisher.
 5. The hub delivers the identified content to the subscribers of the topic.
 
 #### Features
-This package allows introducing a WebSub Subscriber Service with `onIntentVerification`, which accepts HTTP GET requests for intent verification, and `onNotification`, which accepts HTTP POST requests for notifications. The WebSub Subscriber Service provides the following capabilities:
+This module allows introducing a WebSub Subscriber Service with `onIntentVerification`, which accepts HTTP GET requests for intent verification, and `onNotification`, which accepts HTTP POST requests for notifications. The WebSub Subscriber Service provides the following capabilities:
  - Subscription Requests are sent at service start time for the hub and topic, which are either specified as annotations or discovered based on the resource URL specified as an annotation.
  - Auto Intent Verification against the topic specified as an annotation, or discovered based on the resource URL specified as an annotation, if `onIntentVerification` is not specified.
  - Signature Validation for authenticated content distribution if a secret is specified for the subscription.

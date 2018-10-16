@@ -1,6 +1,6 @@
-## Package overview
+## Module overview
 
-This package provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints. The package facilitates two types of endpoints as ‘Client’ and ‘Listener’. 
+This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints. The module facilitates two types of endpoints as ‘Client’ and ‘Listener’. 
 
 ### Client endpoints
 
@@ -35,7 +35,7 @@ See [Caching Example](https://ballerina.io/learn/by-example/caching.html), [HTTP
 
 ### WebSockets
 
-The package also provides support for WebSockets. There are two types of WebSocket endpoints: `WebSocketClient` and `WebSocketListener`. Both endpoints support all WebSocket frames. The `WebSocketClient` has a callback service.
+The module also provides support for WebSockets. There are two types of WebSocket endpoints: `WebSocketClient` and `WebSocketListener`. Both endpoints support all WebSocket frames. The `WebSocketClient` has a callback service.
 
 There are also two types of services for WebSocket: `WebSocketService` and `WebSocketClientService`. The callback service for `WebSocketClient` is always a `WebSocketClientService`. The WebSocket services have a fixed set of resources that do not have a resource config. The incoming messages are passed to these resources.
 
@@ -74,7 +74,7 @@ See [WebSocket Basic Example](https://ballerina.io/learn/by-example/websocket-ba
 
 ### Logging
 
-This package supports two types of logs:
+This module supports two types of logs:
 - HTTP access logs: These are standard HTTP access logs that are formatted using the combined log format and logged at the `INFO` level. Logs can be published to the console or a file using the following configurations:
     - `b7a.http.accesslog.console=true`
     - `b7a.http.accesslog.path=<path_to_log_file>`

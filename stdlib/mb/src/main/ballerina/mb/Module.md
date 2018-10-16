@@ -1,9 +1,9 @@
-## Package overview
+## Module overview
 
-The `ballerina/mb` package provides an API to connect to a Ballerina Message Broker instance.
+The `ballerina/mb` module provides an API to connect to a Ballerina Message Broker instance.
 
-The package provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
-supported by this package:
+The module provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
+supported by this module:
 
 - SimpleQueueReceiver
 - SimpleTopicSubscriber

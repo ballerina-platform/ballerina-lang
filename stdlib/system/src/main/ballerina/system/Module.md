@@ -1,11 +1,11 @@
-## Package overview
+## Module overview
 
-This package contains functions to retrieve information about the system and the current users of the system. It 
+This module contains functions to retrieve information about the system and the current users of the system. It 
 provides information such as environment variables, username, user home directory path, and the current working directory.
 
 ## Samples
 
-The sample given below uses the functions in the package to get the system-level information.
+The sample given below uses the functions in the module to get the system-level information.
 
 ```ballerina
 import ballerina/io;

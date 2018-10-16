@@ -1,5 +1,6 @@
-## Package Overview
-This package provides functions to encapsulate multiple body parts, such as attachments in a single message. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
+## Module Overview
+This module provides functions to encapsulate multiple body parts, such as attachments in a single message. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
+
 ### MIME specific terms 
 The following terms are MIME specific and are extracted from the MIME specification.
 #### Entity
@@ -18,7 +19,7 @@ Content-Disposition: attachment; filename=genome.jpeg;
 Content-Description: a complete map of the human genome
 ```
 ### Modify and retrieve the data in an entity
-The package provides functions to set and get an entity body from different kinds of message types, such as XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader()`, etc. 
+The module provides functions to set and get an entity body from different kinds of message types, such as XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader()`, etc. 
 ## Samples
 ### Handle multipart request
 The sample service given below handles a multipart request. It extracts the body content from each part, converts it to to a `string`, and sends a response.

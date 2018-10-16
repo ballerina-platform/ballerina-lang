@@ -1,6 +1,6 @@
-## Package Overview
+## Module Overview
 
-This package is designed to support input and output operations via channels in a canonical way, either in a blocking,
+This module is designed to support input and output operations via channels in a canonical way, either in a blocking,
 or non-blocking manner.
 
 ![architecture](resources/package-architecture.svg)

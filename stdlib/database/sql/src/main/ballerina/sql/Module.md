@@ -1,6 +1,6 @@
-## Package overview
+## Module overview
 
-This package provides the common record types and constants required for other data management packages such as `jdbc`, `mysql`, and `h2`. 
+This module provides the common record types and constants required for other data management modules such as `jdbc`, `mysql`, and `h2`. 
 
 ### PoolOptions 
 

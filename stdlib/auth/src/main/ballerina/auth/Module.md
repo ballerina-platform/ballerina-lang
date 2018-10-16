@@ -1,6 +1,6 @@
-## Package Overview
+## Module Overview
 
-This package provides a set of default authentication store providers that can be extended to create new authentication store providers. 
+This module provides a set of default authentication store providers that can be extended to create new authentication store providers. 
 
 ### Authentication Store Provider
 

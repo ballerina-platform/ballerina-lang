@@ -463,7 +463,7 @@ public class PackageLoader {
                     .map(path -> new PathBasedCompiledPackageEntry(projectPath, path, CompilerOutputEntry.Kind.SRC))
                     .collect(Collectors.toList());
 
-            // Get the Package.md file
+            // Get the Module.md file
             Patten pkgMDPattern = packageIDPattern.sibling(path(MODULE_MD_FILE_NAME));
             pkgMDPattern.convert(projectSourceRepo.getConverterInstance(), packageID)
                     .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))

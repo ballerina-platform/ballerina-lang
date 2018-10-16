@@ -1,4 +1,4 @@
-Sample Package MD
+Sample Module MD
 =================
 
 This is how you would write ballerina code;

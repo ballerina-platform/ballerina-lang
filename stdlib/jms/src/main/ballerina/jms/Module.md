@@ -1,10 +1,10 @@
-## Package overview
+## Module overview
 
-The `ballerina/jms` package provides an API to connect to an external JMS provider like Ballerina Message Broker or
+The `ballerina/jms` module provides an API to connect to an external JMS provider like Ballerina Message Broker or
 ActiveMQ.
 
-The package provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
-supported by this package:
+The module provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
+supported by this module:
 
 - QueueReceiver
 - TopicSubscriber
