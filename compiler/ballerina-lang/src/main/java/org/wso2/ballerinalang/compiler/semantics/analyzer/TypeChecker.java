@@ -393,16 +393,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> matchedTypeList = getRecordCompatibleType(expType, recordLiteral);
 
-        boolean hasInvalidFieldIndex = false; // Keeps track of whether there are fields for which type checking failed
         if (matchedTypeList.isEmpty()) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
         } else if (matchedTypeList.size() > 1) {
             dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
         } else {
-            for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-                BType type = checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0));
-                hasInvalidFieldIndex |= type.tag == TypeTags.ERROR;
-            }
+            recordLiteral.keyValuePairs
+                    .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
             actualType = matchedTypeList.get(0);
         }
 
@@ -410,7 +407,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If the record literal is of record type and types are validated for the fields, check if there are any
         // required fields missing.
-        if (recordLiteral.type.tag == TypeTags.RECORD && !hasInvalidFieldIndex) {
+        if (recordLiteral.type.tag == TypeTags.RECORD) {
             checkMissingRequiredFields((BRecordType) recordLiteral.type, recordLiteral.keyValuePairs,
                                        recordLiteral.pos);
         }
@@ -461,8 +458,10 @@ public class TypeChecker extends BLangNodeVisitor {
                                             DiagnosticPos pos) {
         type.fields.forEach(field -> {
             // Check if `field` is explicitly assigned a value in the record literal
-            boolean hasField = keyValuePairs.stream().anyMatch(
-                    keyVal -> field.name.value.equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
+            boolean hasField = keyValuePairs.stream()
+                    .filter(keyVal -> keyVal.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
+                    .anyMatch(keyVal -> field.name.value
+                            .equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
 
             // If a required field is missing and it's not defaultable, it's a compile error
             if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
@@ -1702,7 +1701,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private BType checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
+    private void checkRecLiteralKeyValue(BLangRecordKeyValue keyValuePair, BType recType) {
         BType fieldType = symTable.errType;
         BLangExpression valueExpr = keyValuePair.valueExpr;
         switch (recType.tag) {
@@ -1732,10 +1731,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     valueExpr.type = valueType;
                 }
                 resultType = valueExpr.type;
-                return resultType;
+                return;
         }
 
-        return checkExpr(valueExpr, this.env, fieldType);
+        checkExpr(valueExpr, this.env, fieldType);
     }
 
     private BType checkStructLiteralKeyExpr(BLangRecordKey key, BType recordType) {
