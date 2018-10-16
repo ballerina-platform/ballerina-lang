@@ -177,7 +177,6 @@ public type TimeWindow object {
                 //do nothing
             }
         }
-
     }
 
     public function invokeProcess() returns error? {
