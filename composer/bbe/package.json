@@ -14,6 +14,7 @@
     "build": "npm run compile",
     "watch": "tsc -watch -p ./",
     "test": "jest",
+    "test-coverage": "npm run test -- --coverage",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
   "devDependencies": {
