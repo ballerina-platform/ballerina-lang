@@ -19,9 +19,9 @@
 package org.ballerinalang.packerina.init.models;
 
 /**
- * Model class for a Package.md.
+ * Model class for a Module.md.
  */
-public class PackageMdFile {
+public class ModuleMdFile {
 
     private static final String SERVICE_CONTENT = "# Hello Service\n" +
             "\n" +
@@ -34,7 +34,7 @@ public class PackageMdFile {
     private String content;
     private String name;
 
-    public PackageMdFile(String name, FileType fileType) {
+    public ModuleMdFile(String name, FileType fileType) {
         this.name = name;
         switch (fileType) {
             case SERVICE:

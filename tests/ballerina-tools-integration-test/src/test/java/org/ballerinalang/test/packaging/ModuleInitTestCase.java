@@ -40,10 +40,10 @@ import java.util.Map;
  *
  * @since 0.982.0
  */
-public class PackagingInitTestCase extends BaseTest {
+public class ModuleInitTestCase extends BaseTest {
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
-    private String packageName = "test";
+    private String moduleName = "test";
     private String orgName = "integrationtests";
     private Map<String, String> envVariables;
 
@@ -52,14 +52,14 @@ public class PackagingInitTestCase extends BaseTest {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         createSettingToml();
-        packageName = packageName + PackagingTestUtils.randomPackageName(10);
+        moduleName = moduleName + PackagingTestUtils.randomModuleName(10);
         envVariables = PackagingTestUtils.getEnvVariables();
     }
 
-    @Test(description = "Test creating a project with a main in a package")
-    public void testInitWithMainInPackage() throws Exception {
+    @Test(description = "Test creating a project with a main in a module")
+    public void testInitWithMainInModule() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
+        Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
@@ -86,10 +86,10 @@ public class PackagingInitTestCase extends BaseTest {
         runMainFunction(projectPath, generatedBalx.toString());
     }
 
-    @Test(description = "Test creating a project with a service in a package")
-    public void testInitWithServiceInPackage() throws Exception {
+    @Test(description = "Test creating a project with a service in a module")
+    public void testInitWithServiceInModule() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesService");
+        Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesService");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
@@ -117,10 +117,10 @@ public class PackagingInitTestCase extends BaseTest {
         runService(generatedBalx);
     }
 
-    @Test(description = "Test creating a project with a service and main in different packages")
-    public void testInitWithMainServiceInDiffPackage() throws Exception {
+    @Test(description = "Test creating a project with a service and main in different modules")
+    public void testInitWithMainServiceInDiffmodule() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("secondTestWithPackages");
+        Path projectPath = tempProjectDirectory.resolve("secondTestWithmodules");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
@@ -156,7 +156,7 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test creating a project without going to interactive mode")
     public void testInitWithoutGoingToInteractiveMode() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("testWithoutPackage");
+        Path projectPath = tempProjectDirectory.resolve("testWithoutmodule");
         Files.createDirectories(projectPath);
 
         balClient.runMain("init", new String[0], envVariables, new String[0], new LogLeecher[]{},
@@ -179,10 +179,10 @@ public class PackagingInitTestCase extends BaseTest {
         runService(generatedBalx);
     }
 
-    @Test(description = "Test creating a project with a main without a package")
-    public void testInitWithoutPackage() throws Exception {
+    @Test(description = "Test creating a project with a main without a module")
+    public void testInitWithoutmodule() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("testWithoutPackageForMain");
+        Path projectPath = tempProjectDirectory.resolve("testWithoutmoduleForMain");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
@@ -207,17 +207,17 @@ public class PackagingInitTestCase extends BaseTest {
     }
 
     @Test(description = "Test running init without doing any changes on an already existing project",
-            dependsOnMethods = "testInitWithMainInPackage")
+            dependsOnMethods = "testInitWithMainInModule")
     public void testInitOnExistingProject() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
+        Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
         balClient.runMain("init", new String[0], envVariables, new String[0], new LogLeecher[]{},
                 projectPath.toString());
 
-        Path packagePath = projectPath.resolve("foo");
-        Assert.assertTrue(Files.exists(packagePath.resolve("main.bal")));
+        Path modulePath = projectPath.resolve("foo");
+        Assert.assertTrue(Files.exists(modulePath.resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
-        Assert.assertTrue(Files.exists(packagePath.resolve("tests").resolve("main_test.bal")));
+        Assert.assertTrue(Files.exists(modulePath.resolve("tests").resolve("main_test.bal")));
 
         // Test ballerina build
         balClient.runMain("build", new String[0], envVariables, new String[]{},
@@ -232,11 +232,11 @@ public class PackagingInitTestCase extends BaseTest {
         runMainFunction(projectPath, projectPath.resolve("target").resolve("foo.balx").toString());
     }
 
-    @Test(description = "Test running init on an already existing project and create a new package",
-            dependsOnMethods = "testInitWithMainInPackage")
-    public void testInitOnExistingProjectWithNewPackage() throws Exception {
+    @Test(description = "Test running init on an already existing project and create a new module",
+            dependsOnMethods = "testInitWithMainInModule")
+    public void testInitOnExistingProjectWithNewModule() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
+        Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
 
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", "newpkg\n", "f\n"};
@@ -259,7 +259,7 @@ public class PackagingInitTestCase extends BaseTest {
                 .resolve("newpkg").resolve("0.0.1").resolve("newpkg.zip")));
 
 
-        // Test ballerina run on the new package
+        // Test ballerina run on the new module
         runMainFunction(projectPath, "newpkg");
 
         // Test ballerina run with balx
@@ -269,7 +269,7 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test creating a project with invalid options")
     public void testInitWithInvalidOptions() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("testsWithoutPackage");
+        Path projectPath = tempProjectDirectory.resolve("testsWithoutmodule");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
@@ -281,14 +281,14 @@ public class PackagingInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
     }
 
-    @Test(description = "Test creating a project with invalid package")
-    public void testInitWithInvalidPackage() throws Exception {
+    @Test(description = "Test creating a project with invalid module")
+    public void testInitWithInvalidModule() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("invalidTestWithPackage");
+        Path projectPath = tempProjectDirectory.resolve("invalidTestWithmodule");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", orgName + "\n", "\n", "m\n", "foo-bar\n", "foo bar package\n", "foo$bar\n",
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", "foo-bar\n", "foo bar module\n", "foo$bar\n",
                 "foobar\n", "f\n"};
         balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
                 projectPath.toString());
@@ -312,10 +312,10 @@ public class PackagingInitTestCase extends BaseTest {
         runMainFunction(projectPath, generatedBalx.toString());
     }
 
-    @Test(description = "Test building a package in a project")
-    public void testBuildPackage() throws Exception {
+    @Test(description = "Test building a module in a project")
+    public void testBuildmodule() throws Exception {
         // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("testBuildPackage");
+        Path projectPath = tempProjectDirectory.resolve("testBuildmodule");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
@@ -351,7 +351,7 @@ public class PackagingInitTestCase extends BaseTest {
      * Run and test main function in project.
      *
      * @param projectPath path of the project
-     * @param pkg         package name or balx file path
+     * @param pkg         module name or balx file path
      * @throws BallerinaTestException
      */
     private void runMainFunction(Path projectPath, String pkg)

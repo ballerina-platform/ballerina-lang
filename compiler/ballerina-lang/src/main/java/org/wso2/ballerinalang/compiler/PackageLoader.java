@@ -84,7 +84,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.node;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.PACKAGE_MD_FILE_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MODULE_MD_FILE_NAME;
 
 /**
  * This class contains methods to load a given package symbol.
@@ -250,7 +250,7 @@ public class PackageLoader {
                     pkgId.version = new Name(dependency.get().getVersion());
                 } else {
                     throw new BLangCompilerException("dependency version in Ballerina.toml mismatches" +
-                                                             " with the version in the source for package " + pkgAlias);
+                                                             " with the version in the source for module " + pkgAlias);
                 }
             }
         } else {
@@ -464,7 +464,7 @@ public class PackageLoader {
                     .collect(Collectors.toList());
 
             // Get the Package.md file
-            Patten pkgMDPattern = packageIDPattern.sibling(path(PACKAGE_MD_FILE_NAME));
+            Patten pkgMDPattern = packageIDPattern.sibling(path(MODULE_MD_FILE_NAME));
             pkgMDPattern.convert(projectSourceRepo.getConverterInstance(), packageID)
                     .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
                     .map(projectPath::relativize)

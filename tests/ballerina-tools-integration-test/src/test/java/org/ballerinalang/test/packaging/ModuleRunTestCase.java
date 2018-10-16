@@ -32,24 +32,24 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * Integration test cases for running packages.
+ * Integration test cases for running modules.
  */
-public class PackageRunTestCase extends BaseTest {
+public class ModuleRunTestCase extends BaseTest {
     private Path tempProjectDirectory;
     private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws IOException {
-        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-run-package-project-");
+        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-run-module-project-");
         envVariables = PackagingTestUtils.getEnvVariables();
     }
 
     /**
-     * Running an empty package in a project.
+     * Running an empty module in a project.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test running an empty package")
+    @Test(description = "Test running an empty module")
     public void testRunWithEmptyPkg() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("firstTestProject");
         initProject(projectPath);
@@ -57,18 +57,18 @@ public class PackageRunTestCase extends BaseTest {
         // Create empty directory
         Files.createDirectories(projectPath.resolve("emptypkg"));
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in package emptypkg");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module emptypkg");
         balClient.runMain("run", new String[]{"emptypkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
     }
 
     /**
-     * Running a package with text files in a project.
+     * Running a module with text files in a project.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test running a package with text files")
+    @Test(description = "Test running a module with text files")
     public void testRunWithOtherPkg() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("secondTestProject");
         initProject(projectPath);
@@ -76,7 +76,7 @@ public class PackageRunTestCase extends BaseTest {
         // Create empty directory
         createDirWithTextFile(projectPath);
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in package otherpkg");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module otherpkg");
         balClient.runMain("run", new String[]{"otherpkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);

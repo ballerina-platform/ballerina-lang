@@ -35,9 +35,9 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- * Integration test cases for building packages.
+ * Integration test cases for building modules.
  */
-public class PackageBuildTestCase extends BaseTest {
+public class ModuleBuildTestCase extends BaseTest {
     private static final String ORG_NAME = "integrationtests";
     private static final String VERSION = "0.0.1";
     private static final String[] EMPTY_PROJECT_OPTS = {"\n", ORG_NAME + "\n", "\n", "f\n"};
@@ -47,16 +47,16 @@ public class PackageBuildTestCase extends BaseTest {
 
     @BeforeClass()
     public void setUp() throws IOException {
-        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-build-package-project-");
+        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-build-module-project-");
         envVariables = PackagingTestUtils.getEnvVariables();
     }
 
     /**
-     * Building all packages in the project.
+     * Building all modules in the project.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test building all packages in the project")
+    @Test(description = "Test building all modules in the project")
     public void testBuild() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("firstTestProject");
         initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
@@ -85,11 +85,11 @@ public class PackageBuildTestCase extends BaseTest {
     }
 
     /**
-     * Building all packages in the project with one source package and another package with text files.
+     * Building all modules in the project with one source module and another module with text files.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test building all packages in the project with one source package and another package with " +
+    @Test(description = "Test building all modules in the project with one source module and another module with " +
             "text files")
     public void testBuildWithFirstPkgCombination() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("secondTestProject");
@@ -112,11 +112,11 @@ public class PackageBuildTestCase extends BaseTest {
     }
 
     /**
-     * Building all packages in the project with one source package and another empty package.
+     * Building all modules in the project with one source module and another empty module.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test building all packages in the project with one source package and another empty package")
+    @Test(description = "Test building all modules in the project with one source module and another empty module")
     public void testBuildWithSecPkgCombination() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("thirdTestProject");
         initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
@@ -138,11 +138,11 @@ public class PackageBuildTestCase extends BaseTest {
     }
 
     /**
-     * Building an empty package in a project.
+     * Building an empty module in a project.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test building empty package")
+    @Test(description = "Test building empty module")
     public void testBuildWithEmptyPkg() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("thirdTestProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
@@ -150,18 +150,18 @@ public class PackageBuildTestCase extends BaseTest {
         // Create empty directory
         createEmptyDir(projectPath.resolve("emptypkg"));
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in package emptypkg");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module emptypkg");
         balClient.runMain("build", new String[]{"emptypkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
     }
 
     /**
-     * Building a package with text files in a project.
+     * Building a module with text files in a project.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test building a package with text files")
+    @Test(description = "Test building a module with text files")
     public void testBuildWithOtherPkg() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("fourthTestProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
@@ -169,18 +169,18 @@ public class PackageBuildTestCase extends BaseTest {
         // Create empty directory
         createDirWithTextFile(projectPath);
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in package otherpkg");
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module otherpkg");
         balClient.runMain("build", new String[]{"otherpkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
     }
 
     /**
-     * Building a package with text files in a project and an empty package.
+     * Building a module with text files in a project and an empty module.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test building a package with text files and an empty package")
+    @Test(description = "Test building a module with text files and an empty module")
     public void testBuildWithEmptyAndOtherPkg() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("fifthTestProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);
@@ -197,11 +197,11 @@ public class PackageBuildTestCase extends BaseTest {
     }
 
     /**
-     * Building an empty project without any packages.
+     * Building an empty project without any modules.
      *
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test building an empty project without any packages")
+    @Test(description = "Test building an empty project without any modules")
     public void testBuildEmptyProject() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("emptyProject");
         initProject(projectPath, EMPTY_PROJECT_OPTS);

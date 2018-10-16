@@ -55,7 +55,7 @@ public class ProjectDirs {
             return new BLangCompilerException("cannot find file '" + packageID + "'");
         }
 
-        return new BLangCompilerException("cannot find package '" + packageID + "'");
+        return new BLangCompilerException("cannot find module '" + packageID + "'");
     }
 
     public static BLangCompilerException getPackageNotFoundError(String sourcePackage) {
@@ -63,7 +63,7 @@ public class ProjectDirs {
             return new BLangCompilerException("cannot find file '" + sourcePackage + "'");
         }
 
-        return new BLangCompilerException("cannot find package '" + sourcePackage + "'");
+        return new BLangCompilerException("cannot find module '" + sourcePackage + "'");
     }
 
     /**

@@ -55,7 +55,7 @@ public class Utils {
 
     public static void startService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
-            throw new BallerinaException(String.format("no services found in package: %s", programFile
+            throw new BallerinaException(String.format("no services found in module: %s", programFile
                     .getEntryPkgName()));
         }
         PackageInfo servicesPackage = programFile.getEntryPackage();
