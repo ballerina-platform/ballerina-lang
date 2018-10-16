@@ -40,6 +40,9 @@ stream<TeacherOutput> outputStream;
 
 TeacherOutput[] globalTeacherOutputArray = [];
 
+function getAge(int a, int b) returns int {
+    return a * b;
+}
 function startOrderByQuery() returns TeacherOutput[] {
 
     Teacher[] teachers = [];
@@ -73,9 +76,10 @@ function startOrderByQuery() returns TeacherOutput[] {
 
 function foo() {
     forever {
-        from inputStream where inputStream.age > 2 window lengthBatchWindow(5) as input
-        select input.name, input.age, input.status, sum (input.age) as sumAge, count() as count
-        group by input.name order by status ascending, age descending => (TeacherOutput [] o) {
+        from inputStream where inputStream.age > 2 window lengthBatchWindow(5)
+        select inputStream.name, inputStream.age, inputStream.status, sum (inputStream.age) as sumAge, count() as count
+        group by inputStream.name order by status ascending, getAge(age, getAge(age, 2)) descending => (TeacherOutput
+        [] o) {
             foreach x in o {
                 outputStream.publish(x);
             }
