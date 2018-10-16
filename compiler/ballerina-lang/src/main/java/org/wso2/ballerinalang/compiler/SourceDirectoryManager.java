@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -140,5 +141,15 @@ public class SourceDirectoryManager {
     private Name getOrgName(Manifest manifest) {
         return manifest.getName() == null || manifest.getName().isEmpty() ?
                 Names.ANON_ORG : names.fromString(manifest.getName());
+    }
+
+    /**
+     * Check if sources exists in the package.
+     *
+     * @param pkg package name
+     * @return true if ballerina sources exists, else false
+     */
+    boolean checkIfSourcesExists(String pkg) {
+        return ProjectDirs.containsSourceFiles(this.sourceDirectory.getPath().resolve(pkg));
     }
 }
