@@ -706,12 +706,12 @@ public class PackageInfoReader {
         packageInfo.setStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + STOP_FUNCTION_SUFFIX));
 
         // Set for the testable package
-        packageInfo.setTestInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath()
-                                                                                + TEST_INIT_FUNCTION_SUFFIX));
-        packageInfo.setTestStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath()
-                                                                             + TEST_START_FUNCTION_SUFFIX));
-        packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath()
-                                                                            + TEST_STOP_FUNCTION_SUFFIX));
+        packageInfo.setTestInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                TEST_INIT_FUNCTION_SUFFIX));
+        packageInfo.setTestStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                 TEST_START_FUNCTION_SUFFIX));
+        packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                TEST_STOP_FUNCTION_SUFFIX));
 
         // TODO Improve this. We should be able to this in a single pass.
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();

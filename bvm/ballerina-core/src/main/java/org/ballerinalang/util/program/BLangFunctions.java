@@ -61,6 +61,7 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -136,11 +137,9 @@ public class BLangFunctions {
      * @param programFile to be invoked.
      */
     public static void invokePackageTestInitFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestInitFunctionInfo() != null) {
-                invokePackageInitFunction(info.getTestInitFunctionInfo());
-            }
-        }
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestInitFunctionInfo() != null)
+              .forEach(PackageInfo::getTestInitFunctionInfo);
     }
 
     /**
@@ -149,11 +148,9 @@ public class BLangFunctions {
      * @param programFile to be invoked.
      */
     public static void invokePackageTestStartFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestStartFunctionInfo() != null) {
-                BLangFunctions.invokeVMUtilFunction(info.getTestStartFunctionInfo());
-            }
-        }
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStartFunctionInfo() != null)
+              .forEach(PackageInfo::getTestStartFunctionInfo);
     }
 
     /**
@@ -162,11 +159,9 @@ public class BLangFunctions {
      * @param programFile to be invoked.
      */
     public static void invokePackageTestStopFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestStopFunctionInfo() != null) {
-                BLangFunctions.invokeVMUtilFunction(info.getTestStopFunctionInfo());
-            }
-        }
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStopFunctionInfo() != null)
+              .forEach(PackageInfo::getTestStopFunctionInfo);
     }
 
     /**

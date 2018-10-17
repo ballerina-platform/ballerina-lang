@@ -296,16 +296,15 @@ public class BCompileUtil {
         // bLangPackage node to generate the program file
         if (!withTests) {
             programFile = compiler.getExecutableProgram(packageNode);
-        } else {
+        } else if (packageNode.containsTestablePkg()) {
             // If its executing tests, then check if the testable package is null or not. If its not null, then the
             // ballerina test file is inside the 'tests' folder
-            if (packageNode.containsTestablePkg()) {
-                programFile = compiler.getExecutableProgram(packageNode.getTestablePkg());
-            } else {
-                // If the testable package is null, then the ballerina test file is not inside the 'tests' folder
-                programFile = compiler.getExecutableProgram(packageNode);
-            }
+            programFile = compiler.getExecutableProgram(packageNode.getTestablePkg());
+        } else {
+            // If the testable package is null, then the ballerina test file is not inside the 'tests' folder
+            programFile = compiler.getExecutableProgram(packageNode);
         }
+
         if (programFile != null) {
             ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
             comResult.setProgFile(pFile);
