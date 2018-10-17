@@ -35,7 +35,7 @@ endpoint http:Listener helloWorldEP {
     //If providing releative path, then the path should be releative to where `ballerina build` command executed.
     ballerinaConf: "./ballerina.conf"
 }
-//Add @kubernetes:Deployment annotation to a Ballerna service generate Kuberenetes Deployment for a Ballerina package.
+//Add @kubernetes:Deployment annotation to a Ballerna service generate Kuberenetes Deployment for a Ballerina module.
 @kubernetes:Deployment {
     //Enable Kubernetes liveness probe to this service.
     enableLiveness: true,

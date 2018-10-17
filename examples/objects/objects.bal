@@ -8,7 +8,7 @@ type Person object {
     public Person? parent;
     // Private fields are only visible within the object and its functions.
     private string email = "default@abc.com";
-    // Protected fields (i.e., no access modifiers) are visible only within the same package.
+    // Protected fields (i.e., no access modifiers) are visible only within the same module.
     string address = "No 20, Palm grove";
 };
 
