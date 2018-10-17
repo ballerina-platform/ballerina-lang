@@ -24,7 +24,7 @@ public type Client object {
     # + config - - The ClientEndpointConfig of the endpoint.
     public extern function init(ClientEndpointConfig config);
 
-    # Gets called every time a service attaches itself to this endpoint - also happens at package init time.
+    # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     # Not supported in client endpoint.
     #
     # + serviceType - - The type of the service to be registered.
