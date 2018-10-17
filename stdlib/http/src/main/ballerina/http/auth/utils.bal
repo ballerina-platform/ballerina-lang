@@ -21,8 +21,8 @@
 @final string AUTH_SCHEME_BASIC = "Basic";
 # Bearer authentication scheme.
 @final string AUTH_SCHEME_BEARER = "Bearer";
-# Auth annotation package.
-@final string ANN_PACKAGE = "ballerina/http";
+# Auth annotation module.
+@final string ANN_MODULE = "ballerina/http";
 # Resource level annotation name.
 @final string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
