@@ -364,6 +364,7 @@ function testRecordArrays_2() returns (boolean, boolean, boolean, boolean) {
 }
 
 // ========================== Tuples ==========================
+
 function testSimpleTuples() returns (boolean, boolean, boolean, boolean, boolean) {
     (int, string) x = (4, "hello");
     any y = x;
@@ -394,27 +395,21 @@ function testTupleWithAssignableTypes_2() returns (boolean, boolean, boolean, bo
     return (b0, b1, b2, b3);
 }
 
-function testTupleWithAssignableTypes_3() returns (boolean, boolean, boolean, boolean) {
-    Y y = {};
-    X x = y;
-    (any, Y) p = (x, {});
-    any q = p;
-    boolean b0 = q is (X, X);
-    boolean b1 = q is (X, Y);
-    boolean b2 = q is (Y, X);
-    boolean b3 = q is (Y, Y);
-    return (b0, b1, b2, b3);
+function testTupleWithAssignableTypes_3() returns (boolean, boolean) {
+    (Y, Y) p = ({}, {});
+    (X, Y) q = p;
+    boolean b0 = q is (X, Y);
+    boolean b1 = q is (Y, Y);
+    return (b0, b1);
 }
 
 // ========================== Map ==========================
 
-function testSimpleUnconstrainedMap_1() returns (boolean, boolean, boolean, boolean) {
+function testSimpleUnconstrainedMap_1() returns (boolean, boolean) {
     map m = {"key1": "value1"};
-    boolean b0 = m is map;
-    boolean b1 = m is map<any>;
-    boolean b2 = m is map<string>;
-    boolean b3 = m is map<json>;
-    return (b0, b1, b2, b3);
+    boolean b0 = m is map<string>;
+    boolean b1 = m is map<json>;
+    return (b0, b1);
 }
 
 function testSimpleUnconstrainedMap_2() returns (boolean, boolean, boolean, boolean, boolean) {
@@ -428,19 +423,9 @@ function testSimpleUnconstrainedMap_2() returns (boolean, boolean, boolean, bool
     return (b0, b1, b2, b3, b4);
 }
 
-//function testSimpleConstrainedMap_1() returns (boolean, boolean, boolean, boolean, boolean) {
-//    map<string> m = {"key1": "value1"};
-//    boolean b0 = m is map;
-//    boolean b1 = m is map<any>;
-//    boolean b2 = m is map<string>;
-//    boolean b3 = m is json;
-//    boolean b4 = m is map<json>;
-//    return (b0, b1, b2, b3, b4);
-//}
-
-function testSimpleConstrainedMap_2() returns (boolean, boolean, boolean, boolean) {
+function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean) {
     map<string> m1 = {"key1": "value1"};
-    map m2 = m1;
+    any m2 = m1;
     boolean b0 = m2 is map;
     boolean b1 = m2 is map<any>;
     boolean b2 = m2 is map<string>;
@@ -463,7 +448,7 @@ function testJSONTypeCheck() returns (string, string, string, string, string, st
 
 function checkJSON(json j) returns string {
     if (j is string) {
-        return "json string: " + check <string> j;
+        return "json string: " + j;
     } else if(j is int) {
         return "json int";
     } else if(j is float) {

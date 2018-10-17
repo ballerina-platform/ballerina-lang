@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCheckExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -34,6 +35,7 @@ public class BLangTypeCheckExpr extends BLangExpression implements TypeCheckExpr
 
     public BLangExpression expr;
     public BLangType typeNode;
+    public BVarSymbol symbol;
 
     @Override
     public BLangExpression getExpression() {

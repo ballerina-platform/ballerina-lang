@@ -745,6 +745,20 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         ifNode.expr = rewriteExpr(ifNode.expr);
+
+        if (ifNode.expr.getKind() == NodeKind.TYPE_CHECK_EXPR) {
+            BLangTypeCheckExpr typeCheck = (BLangTypeCheckExpr) ifNode.expr;
+            if (typeCheck.symbol != null) {
+                BLangExpression conversionExpr = addConversionExprIfRequired(typeCheck.expr, typeCheck.symbol.type);
+                BLangVariable var = ASTBuilderUtil.createVariable(typeCheck.expr.pos, typeCheck.symbol.name.value,
+                        typeCheck.symbol.type, conversionExpr, typeCheck.symbol);
+
+                // Now create a variable definition node
+                BLangVariableDef varDef = ASTBuilderUtil.createVariableDef(typeCheck.expr.pos, var);
+                ifNode.body.stmts.add(0, varDef);
+            }
+        }
+
         ifNode.body = rewrite(ifNode.body, env);
         ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
         result = ifNode;
@@ -1071,6 +1085,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         genVarRefExpr.type = varRefExpr.type;
+        genVarRefExpr.pos = varRefExpr.pos;
         result = genVarRefExpr;
     }
 
@@ -1557,7 +1572,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
         BType expType = fieldAccessExpr.type;
         fieldAccessExpr.type = symTable.anyType;
-        result = addConversionExprIfRequired(fieldAccessExpr, expType, types, symTable, symResolver);
+        result = addConversionExprIfRequired(fieldAccessExpr, expType);
     }
 
     @Override
@@ -1676,8 +1691,7 @@ public class Desugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, tempResultVar.symbol);
 
             // Create an assignment node. Add a conversion from rhs to lhs of the pattern, if required.
-            pattern.expr = addConversionExprIfRequired(pattern.expr, tempResultVarRef.type, types, symTable,
-                    symResolver);
+            pattern.expr = addConversionExprIfRequired(pattern.expr, tempResultVarRef.type);
             BLangAssignment assignmentStmt =
                     ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr, false);
             BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(pattern.pos, Lists.of(assignmentStmt));
@@ -2093,7 +2107,7 @@ public class Desugar extends BLangNodeVisitor {
                 expr = namedArgs.get(param.name.value);
             } else {
                 expr = getDefaultValueLiteral(param.defaultValue);
-                expr = addConversionExprIfRequired(expr, param.type, types, symTable, symResolver);
+                expr = addConversionExprIfRequired(expr, param.type);
             }
             args.add(expr);
         }
@@ -2233,8 +2247,7 @@ public class Desugar extends BLangNodeVisitor {
         // Create a variable reference for _$$_
         BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(patternClause.pos,
                 matchExprVar.symbol);
-        BLangExpression patternVarExpr = addConversionExprIfRequired(matchExprVarRef, patternClause.variable.type,
-                types, symTable, symResolver);
+        BLangExpression patternVarExpr = addConversionExprIfRequired(matchExprVarRef, patternClause.variable.type);
 
         // Add the variable def statement
         BLangVariable patternVar = ASTBuilderUtil.createVariable(patternClause.pos, "",
@@ -2244,8 +2257,7 @@ public class Desugar extends BLangNodeVisitor {
         return patternClause.body;
     }
 
-    static BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType, Types types, SymbolTable
-            symTable, SymbolResolver symResolver) {
+    private BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
         BType rhsType = expr.type;
         if (types.isSameType(rhsType, lhsType)) {
             return expr;
@@ -2546,8 +2558,7 @@ public class Desugar extends BLangNodeVisitor {
         if (!accessExpr.safeNavigate && !accessExpr.expr.type.isNullable()) {
             accessExpr.type = accessExpr.originalType;
             if (this.safeNavigationAssignment != null) {
-                this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.type, types,
-                        symTable, symResolver);
+                this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.type);
             }
             return;
         }
@@ -2667,8 +2678,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangVariableReference tempResultVarRef =
                 ASTBuilderUtil.createVariableRef(accessExpr.pos, tempResultVar.symbol);
 
-        BLangExpression assignmentRhsExpr = addConversionExprIfRequired(accessExpr, tempResultVarRef.type, types,
-                symTable, symResolver);
+        BLangExpression assignmentRhsExpr = addConversionExprIfRequired(accessExpr, tempResultVarRef.type);
         BLangAssignment assignmentStmt =
                 ASTBuilderUtil.createAssignmentStmt(accessExpr.pos, tempResultVarRef, assignmentRhsExpr, false);
         BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(assignmentStmt));

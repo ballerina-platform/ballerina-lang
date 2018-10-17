@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -1381,6 +1382,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         switch (sourceType.tag) {
+            case TypeTags.MAP:
+                if (targetType.tag != TypeTags.MAP) {
+                    return false;
+                }
+                BType sourceConstraint = ((BMapType) sourceType).constraint;
+                sourceConstraint = sourceConstraint == null ? symTable.anyType : sourceConstraint;
+
+                BType targetConstraint = ((BMapType) targetType).constraint;
+                targetConstraint = targetConstraint == null ? symTable.anyType : targetConstraint;
+
+                return isTypeCheckAlwaysTrue(sourceConstraint, targetConstraint);
             case TypeTags.ARRAY:
                 if (targetType.tag == TypeTags.ARRAY) {
                     return isTypeCheckAlwaysTrue(((BArrayType) sourceType).eType, ((BArrayType) targetType).eType);

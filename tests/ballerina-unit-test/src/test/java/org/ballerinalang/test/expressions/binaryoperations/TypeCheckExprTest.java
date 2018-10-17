@@ -43,9 +43,7 @@ public class TypeCheckExprTest {
     public void testTypeCheckExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-check-expr-negative.bal");
-        System.out.println(negativeResult);
-        System.out.println("Error count: " + negativeResult.getErrorCount());
-        Assert.assertEquals(negativeResult.getErrorCount(), 25);
+        Assert.assertEquals(negativeResult.getErrorCount(), 26);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -86,14 +84,16 @@ public class TypeCheckExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 144, 18);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: '(X,Y)' will not be matched to '(Y,Y)'",
                 151, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' will not be matched to 'map'",
-                157, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' will not be matched to 'map'",
-                158, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 157, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 158, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 159, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'map<string>' will not be matched to 'json'", 160, 18);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'map<string>' will not be matched to 'map<json>'", 161, 18);
+                "unnecessary condition: expression will always evaluate to 'true'", 161, 18);
     }
 
     @Test
@@ -311,30 +311,21 @@ public class TypeCheckExprTest {
     @Test
     public void testTupleWithAssignableTypes_3() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_3");
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        // TODO: This is a bug! this should be true
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test
     public void testSimpleUnconstrainedMap_1() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleUnconstrainedMap_1");
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test
@@ -353,25 +344,9 @@ public class TypeCheckExprTest {
         Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(enabled = false)
-    public void testSimpleConstrainedMap_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleConstrainedMap_1");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-        Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertSame(returns[4].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
-    }
-
     @Test
-    public void testSimpleConstrainedMap_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleConstrainedMap_2");
+    public void testSimpleConstrainedMap() {
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleConstrainedMap");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);

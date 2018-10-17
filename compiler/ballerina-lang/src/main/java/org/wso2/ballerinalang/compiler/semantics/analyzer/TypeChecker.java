@@ -133,6 +133,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
@@ -154,7 +155,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private Types types;
     private IterableAnalyzer iterableAnalyzer;
     private BLangDiagnosticLog dlog;
-
     private SymbolEnv env;
 
     /**
@@ -164,7 +164,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-
+    
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
         if (typeChecker == null) {
