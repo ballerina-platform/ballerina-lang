@@ -4,8 +4,8 @@
         ["module-resolver", {
             "root": ["./src"],
             "alias": {
-                "event_channel": "./src/core/event/channel",
-                "log": "./src/core/log/log"
+                "event_channel": "./src/event/channel",
+                "log": "./src/log/log"
             }
         }]
     ]

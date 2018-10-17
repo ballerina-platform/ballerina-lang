@@ -18,7 +18,7 @@ const submodules = [
     "diagram",
     "extended-language-client",
     "tracing",
-    "integration-tests",
+//    "integration-tests",
     "distribution"	
 ]
 

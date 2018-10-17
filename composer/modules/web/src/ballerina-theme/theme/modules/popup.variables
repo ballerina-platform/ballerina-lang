@@ -1,5 +1,0 @@
-/*******************************
-    User Variable Overrides
-*******************************/
- @borderRadius  : 0 ;
- @boxShadow     : none;
