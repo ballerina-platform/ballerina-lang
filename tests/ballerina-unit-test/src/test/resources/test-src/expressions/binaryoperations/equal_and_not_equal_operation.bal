@@ -705,3 +705,56 @@ function testIntByteEqualityNegative() returns boolean {
     return equals && (g == h) && !(g != h);
 }
 
+function testPrimitiveAndJsonEqualityPositive() returns boolean {
+    json a;
+    () b;
+
+    boolean equals = a == b && !(a != b);
+
+    a = 1;
+    int c = 1;
+
+    equals = equals && (a == c) && !(a != c);
+
+    a = "Hello World, from Ballerina";
+    string d = "Hello World, from Ballerina";
+
+    equals = equals && (a == d) && !(a != d);
+
+    a = false;
+    boolean|int e = false;
+
+    equals = equals && (a == e) && !(a != e);
+
+    json[] f = [1.5, 4.23, 2.1];
+    (map|float)[] g = [1.5, 4.23, 2.1];
+
+    return equals && (f == g) && !(f != g);
+}
+
+function testPrimitiveAndJsonEqualityNegative() returns boolean {
+    json a;
+    int? b = 5;
+
+    boolean equals = a == b || !(a != b);
+
+    a = 10;
+    int c = 1;
+
+    equals = equals || (a == c) || !(a != c);
+
+    a = "Hello from Ballerina";
+    string d = "Hello World, from Ballerina";
+
+    equals = equals || (a == d) || !(a != d);
+
+    a = false;
+    boolean|int e = true;
+
+    equals = equals || (a == e) || !(a != e);
+
+    json[] f = [1.5, 4.23, 2.1];
+    (map|int|float)[] g = [1, 4];
+
+    return equals || (f == g) || !(f != g);
+}

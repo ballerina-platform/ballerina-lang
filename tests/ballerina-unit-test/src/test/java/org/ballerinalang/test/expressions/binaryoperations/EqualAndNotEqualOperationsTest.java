@@ -492,6 +492,24 @@ public class EqualAndNotEqualOperationsTest {
                            "Expected int and byte values to be identified as not equal");
     }
 
+    @Test
+    public void testPrimitiveAndJsonEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testPrimitiveAndJsonEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+                          "Expected primitives and json values to be identified as equal");
+    }
+
+    @Test
+    public void testPrimitiveAndJsonEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testPrimitiveAndJsonEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected primitives and json values to be identified as not equal");
+    }
+
     @Test(description = "Test equals/unequals operation with two union constrained maps")
     public void testUnionConstrainedMapsPositive() {
         BValue[] returns = BRunUtil.invoke(result, "checkUnionConstrainedMapsPositive", new BValue[0]);
@@ -588,18 +606,31 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equal expression with errors")
     public void testEqualStmtNegativeCase() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getErrorCount(), 18);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
-        validateError(resultNegative, 1, "operator '==' not defined for 'int[2]' and 'string[2]'", 26, 21);
-        validateError(resultNegative, 2, "operator '==' not defined for 'float|int[]' and 'boolean|xml[]'", 30, 21);
-        validateError(resultNegative, 3, "operator '==' not defined for 'map<int>' and 'map<float>'", 38, 21);
-        validateError(resultNegative, 4, "operator '==' not defined for 'map<string|int>' and 'map<float>'",
+        validateError(resultNegative, 1, "operator '!=' not defined for 'int' and 'string'", 20, 24);
+        validateError(resultNegative, 2, "operator '==' not defined for 'int[2]' and 'string[2]'", 26, 21);
+        validateError(resultNegative, 3, "operator '!=' not defined for 'int[2]' and 'string[2]'", 26, 33);
+        validateError(resultNegative, 4, "operator '==' not defined for 'float|int[]' and 'boolean|xml[]'", 30, 21);
+        validateError(resultNegative, 5, "operator '!=' not defined for 'float|int[]' and 'boolean|xml[]'", 30, 33);
+        validateError(resultNegative, 6, "operator '==' not defined for 'map<int>' and 'map<float>'", 38, 21);
+        validateError(resultNegative, 7, "operator '!=' not defined for 'map<int>' and 'map<float>'", 38, 33);
+        validateError(resultNegative, 8, "operator '==' not defined for 'map<string|int>' and 'map<float>'",
                       42, 21);
-        validateError(resultNegative, 5, "operator '==' not defined for '(string,int)' and '(boolean,float)'",
+        validateError(resultNegative, 9, "operator '!=' not defined for 'map<string|int>' and 'map<float>'",
+                      42, 33);
+        validateError(resultNegative, 10, "operator '==' not defined for '(string,int)' and '(boolean,float)'",
                       50, 21);
-        validateError(resultNegative, 6, "operator '==' not defined for '(float|int,int)' and '(boolean,int)'",
+        validateError(resultNegative, 11, "operator '!=' not defined for '(string,int)' and '(boolean,float)'",
+                      50, 33);
+        validateError(resultNegative, 12, "operator '==' not defined for '(float|int,int)' and '(boolean,int)'",
                       54, 21);
-        validateError(resultNegative, 7, "operator '==' not defined for 'Employee' and 'Person'", 62, 12);
+        validateError(resultNegative, 13, "operator '!=' not defined for '(float|int,int)' and '(boolean,int)'",
+                      54, 33);
+        validateError(resultNegative, 14, "operator '==' not defined for 'Employee' and 'Person'", 62, 12);
+        validateError(resultNegative, 15, "operator '!=' not defined for 'Employee' and 'Person'", 62, 24);
+        validateError(resultNegative, 16, "operator '==' not defined for '(string,int)' and 'json'", 72, 21);
+        validateError(resultNegative, 17, "operator '!=' not defined for '(string,int)' and 'json'", 72, 31);
     }
 
     @DataProvider(name = "equalIntValues")

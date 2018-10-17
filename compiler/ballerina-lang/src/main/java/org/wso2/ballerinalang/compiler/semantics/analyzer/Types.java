@@ -1457,12 +1457,9 @@ public class Types {
         Set<BType> memberTypes = new HashSet<>();
         switch (bType.tag) {
             case TypeTags.BYTE:
-                memberTypes.add(symTable.intType);
-                memberTypes.add(bType);
-                break;
             case TypeTags.INT:
+                memberTypes.add(symTable.intType);
                 memberTypes.add(symTable.byteType);
-                memberTypes.add(bType);
                 break;
             case TypeTags.FINITE:
                 BFiniteType expType = (BFiniteType) bType;
@@ -1529,6 +1526,26 @@ public class Types {
         boolean matchFound = false;
         for (BType lhsMemberType : lhsTypes) {
             switch (lhsMemberType.tag) {
+                case TypeTags.INT:
+                case TypeTags.STRING:
+                case TypeTags.FLOAT:
+                case TypeTags.BOOLEAN:
+                    for (BType rhsMemberType : rhsTypes) {
+                        if (rhsMemberType.tag == TypeTags.JSON) {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    break;
+                case TypeTags.JSON:
+                    for (BType rhsMemberType : rhsTypes) {
+                        if (rhsMemberType.tag == TypeTags.STRING || rhsMemberType.tag == TypeTags.INT ||
+                                rhsMemberType.tag == TypeTags.FLOAT || rhsMemberType.tag == TypeTags.BOOLEAN) {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    break;
                 case TypeTags.TUPLE:
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.TUPLE &&

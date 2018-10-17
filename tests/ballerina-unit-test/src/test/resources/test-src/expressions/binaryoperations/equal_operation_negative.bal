@@ -17,17 +17,17 @@
 function checkEqualityOfTwoTypes() returns boolean {
     int a;
     string b;
-    return a == b;
+    return a == b && !(a != b);
 }
 
 function checkEqualityOfArraysOfDifferentTypes() returns boolean {
     int[2] a;
     string[2] b;
-    boolean bool1 = a == b;
+    boolean bool1 = a == b && !(a != b);
 
     (float|int)[] c;
     (boolean|xml)[] d;
-    boolean bool2 = c == d;
+    boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
 }
@@ -35,11 +35,11 @@ function checkEqualityOfArraysOfDifferentTypes() returns boolean {
 function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
     map<int> a;
     map<float> b;
-    boolean bool1 = a == b;
+    boolean bool1 = a == b && !(a != b);
 
     map<string|int> c;
     map<float> d;
-    boolean bool2 = c == d;
+    boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
 }
@@ -47,11 +47,11 @@ function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
 function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
     (string, int) a;
     (boolean, float) b;
-    boolean bool1 = a == b;
+    boolean bool1 = a == b && !(a != b);
 
     (float|int, int) c;
     (boolean, int) d;
-    boolean bool2 = c == d;
+    boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
 }
@@ -59,7 +59,19 @@ function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
 function checkEqualityOfRecordsOfDifferentTypes() returns boolean {
     Employee e = { name: "Maryam" };
     Person p = { name: "Maryam" };
-    return e == p;
+    return e == p && !(e != p);
+}
+
+function checkEqualityWithJsonForIncompatibleType() returns boolean {
+    //byte b = 1;
+    //json j = 1;
+    //boolean bool1 = b == j && b != j; TODO: should fail?
+
+    (string, int) t = ("Hi", 1);
+    json j = "Hi 1";
+    boolean bool2 = t == j && t != j;
+
+    return bool2;
 }
 
 type Employee record {
