@@ -392,6 +392,7 @@ public class BLangPackageBuilder {
         if (rhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             unionTypeNode = (BLangUnionTypeNode) rhsTypeNode;
             unionTypeNode.memberTypeNodes.add(0, lhsTypeNode);
+            unionTypeNode.addWS(ws);
             this.typeNodeStack.push(unionTypeNode);
             return;
         } else {
@@ -441,7 +442,6 @@ public class BLangPackageBuilder {
 
         typeDef.typeNode = recordTypeNode;
         typeDef.pos = pos;
-        typeDef.addWS(ws);
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
@@ -601,7 +601,7 @@ public class BLangPackageBuilder {
 
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
+            this.varListStack.pop().forEach(v -> functionTypeNode.params.add(v));
         }
 
         functionTypeNode.addWS(ws);
@@ -817,7 +817,8 @@ public class BLangPackageBuilder {
         }
     }
 
-    void markLastEndpointAsPublic() {
+    void markLastEndpointAsPublic(Set<Whitespace> ws) {
+        lastBuiltEndpoint.addWS(ws);
         lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
 
@@ -1505,7 +1506,6 @@ public class BLangPackageBuilder {
 
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
-        typeDef.addWS(ws);
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
