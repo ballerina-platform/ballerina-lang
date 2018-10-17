@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -157,6 +158,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String ORDER_BY_FIELD_ATTR = "fieldFuncs";
     private static final String ORDER_TYPE_ASC = "ASCENDING";
     private static final String STR_ENDING = "ENDING";
+    private static final String NEXT_PROCESS_POINTER_ARG_NAME = "nextProcessPointer";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -1159,18 +1161,19 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 windowInvokableType, env.scope.owner);
         nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
 
+        BLangNamedArgsExpression nextProcPointer = ASTBuilderUtil.createNamedArg(NEXT_PROCESS_POINTER_ARG_NAME,
+                nextProcessMethodAccess);
         List<BLangExpression> args = new ArrayList<>();
-        args.add(nextProcessMethodAccess);
         args.addAll(invocation.argExprs);
+        args.add(nextProcPointer);
         BLangInvocation windowInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(window.pos, windowInvokableSymbol, args,
                         symResolver);
-
         windowInvocation.argExprs = args;
         windowInvocation.requiredArgs = invocation.requiredArgs;
-        windowInvocation.requiredArgs.add(0, nextProcessMethodAccess);
         windowInvocation.restArgs = invocation.restArgs;
         windowInvocation.namedArgs = invocation.namedArgs;
+        windowInvocation.namedArgs.add(nextProcPointer);
 
         BLangVariable windowInvokableTypeVariable = ASTBuilderUtil.createVariable(window.pos,
                 getVariableName(WINDOW_FUNC_REFERENCE), windowInvokableType, windowInvocation,

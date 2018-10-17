@@ -99,8 +99,8 @@ public type LengthWindow object {
 };
 
 public function lengthWindow(int length, function (StreamEvent[])? nextProcessPointer = ())
-                    returns LengthWindow {
-    LengthWindow lengthWindow1 = new(nextProcessPointer, length);
+                    returns Window {
+    LengthWindow lengthWindow1 = new (nextProcessPointer, length);
     return lengthWindow1;
 }
 
@@ -221,7 +221,7 @@ public type TimeWindow object {
 };
 
 public function timeWindow(int timeLength, function(StreamEvent[])? nextProcessPointer = ())
-                    returns TimeWindow {
+                    returns Window {
     TimeWindow timeWindow1 = new(nextProcessPointer, timeLength);
     return timeWindow1;
 }
@@ -326,7 +326,7 @@ public type LengthBatchWindow object {
 };
 
 public function lengthBatchWindow(int length, function(StreamEvent[])? nextProcessPointer = ())
-                    returns LengthBatchWindow {
+                    returns Window {
     LengthBatchWindow lengthBatch = new(nextProcessPointer, length);
     return lengthBatch;
 }
@@ -447,7 +447,7 @@ public type TimeBatchWindow object {
 };
 
 public function timeBatchWindow(int time, function(StreamEvent[])? nextProcessPointer = ())
-                    returns TimeBatchWindow {
+                    returns Window {
     TimeBatchWindow timeBatch = new(nextProcessPointer, time);
     return timeBatch;
 }
@@ -537,7 +537,7 @@ public type ExternalTimeWindow object {
 };
 
 public function externalTimeWindow(string timeStamp, int timeLength, function(StreamEvent[])? nextProcessPointer = ())
-                    returns ExternalTimeWindow {
+                    returns Window {
 
     ExternalTimeWindow timeWindow1 = new(nextProcessPointer, timeLength, timeStamp);
     return timeWindow1;
@@ -858,7 +858,7 @@ public type ExternalTimeBatchWindow object {
 
 public function externalTimeBatchWindow(string timestamp, int time, int
     startTime = -1, int timeOut = -1, boolean replaceTimestampWithBatchEndTime = false, function(StreamEvent[])?
-                                        nextProcessPointer = ()) returns ExternalTimeBatchWindow {
+                                        nextProcessPointer = ()) returns Window {
     ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, time, timestamp, startTime, timeOut,
         replaceTimestampWithBatchEndTime);
     return timeWindow1;
@@ -868,7 +868,7 @@ public type TimeLengthWindow object {
 
     public int timeInMilliSeconds;
     public int length;
-    private int count = 0;
+    public int count = 0;
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
     public task:Timer? timer;
@@ -972,7 +972,7 @@ public type TimeLengthWindow object {
 };
 
 public function timeLengthWindow(int timeLength, int length, function(StreamEvent[])? nextProcessPointer = ())
-                    returns TimeLengthWindow {
+                    returns Window {
     TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, timeLength, length);
     return timeLengthWindow1;
 }
@@ -982,7 +982,7 @@ public type UniqueLengthWindow object {
     public string uniqueKey;
     public int length;
     public int count = 0;
-    private map uniqueMap;
+    public map uniqueMap;
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
 
@@ -1075,7 +1075,7 @@ public type UniqueLengthWindow object {
 };
 
 public function uniqueLengthWindow(string uniqueKey, int length, function(StreamEvent[])? nextProcessPointer = ())
-                    returns UniqueLengthWindow {
+                    returns Window {
     UniqueLengthWindow uniqueLengthWindow1 = new(nextProcessPointer, uniqueKey, length);
     return uniqueLengthWindow1;
 }
