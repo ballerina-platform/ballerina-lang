@@ -65,6 +65,7 @@ public class TableIterator implements DataIterator {
     protected TableResourceManager resourceManager;
     protected BStructureType type;
     protected List<ColumnDefinition> columnDefs;
+    protected boolean anytimeClosable = true;
 
     public TableIterator(TableResourceManager rm, ResultSet rs, BStructureType type,
                          List<ColumnDefinition> columnDefs) {
@@ -94,7 +95,7 @@ public class TableIterator implements DataIterator {
     }
 
     @Override
-    public void close(boolean isInTransaction) {
+    public void close() {
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
@@ -105,8 +106,8 @@ public class TableIterator implements DataIterator {
         }
     }
 
-    public void reset(boolean isInTransaction) {
-        close(false);
+    public void reset() {
+        close();
     }
 
     @Override

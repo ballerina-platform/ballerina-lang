@@ -77,7 +77,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
     @Override
     public boolean hasNext() {
-        return this.df.hasNext(this.isInTransaction);
+        return this.df.hasNext();
     }
 
     @Override
