@@ -14,8 +14,8 @@
         ],
         "env": {
             "LSDEBUG": "false",
-            "COMPOSER_DEBUG": "false",
-            "COMPOSER_DEV_HOST": "http://localhost:8081"
+            "COMPOSER_DEBUG": "true",
+            "COMPOSER_DEV_HOST": "http://localhost:9000"
         },
         "outFiles": [
             "${workspaceFolder}/out/**/*.js"

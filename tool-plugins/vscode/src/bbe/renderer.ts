@@ -23,7 +23,7 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             });
         }
         function renderSamples() {
-            ballerinaDiagram.renderSamplesList(document.getElementById("examples"), getExamples, openExample, () => {});
+            ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample, getExamples, () => {});
         }
         renderSamples();
         renderSamples();

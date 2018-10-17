@@ -130,7 +130,7 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
                 let width = window.innerWidth - 6;
                 let height = window.innerHeight;
                 console.log('rendering ' + width);
-                ballerinaDiagram.renderEditableDiagram(document.getElementById("diagram"), docUri,
+                ballerinaComposer.renderEditableDiagram(document.getElementById("diagram"), docUri,
                     width, height, getAST, onChange, getEndpoints, parseFragment, goToSource
                 );
                 console.log('Successfully rendered');

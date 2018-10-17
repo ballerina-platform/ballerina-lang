@@ -41,5 +41,9 @@ module.exports = {
     },
     watchOptions: {
       ignored: /(node_modules|build)/
+    },
+    devServer: {
+      contentBase: path.join(__dirname, 'build'),
+      port: 9000
     }
   }
