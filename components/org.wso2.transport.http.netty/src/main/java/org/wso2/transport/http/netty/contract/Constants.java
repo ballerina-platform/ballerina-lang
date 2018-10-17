@@ -268,7 +268,7 @@ public final class Constants {
     public static final int NUMBER_OF_INITIAL_EVENTS_HELD = 3;
     public static final int MEANINGFULLY_EQUAL = 0;
     public static final int UNBOUNDED_RESPONSE_QUEUE = -1;
-    public static final String PIPELINING_THREAD_POOL_NAME = "pipelining-pool";
+    public static final String PIPELINING_THREAD_POOL_NAME = "pipelining-thread-pool";
     public static final int PIPELINING_THREAD_COUNT = 2;
 
     public static final String UTF8 = "UTF-8";
