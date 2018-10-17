@@ -41,7 +41,7 @@ public function mockPrintTrace(string s) {
 }
 
 @test:Mock {
-    packageName: "ballerina/log",
+    moduleName: "ballerina/log",
     functionName: "printWarn"
 }
 public function mockPrintWarn(string s) {
