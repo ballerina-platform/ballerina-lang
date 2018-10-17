@@ -82,6 +82,7 @@ public class FunctionDefinition extends CompletionTest {
                 {"objectAttachFunctionImpl2.json", "function"},
                 {"objectAttachFunctionImpl3.json", "function"},
                 {"completionAfterReturn.json", "function"},
+                {"functionCompletionWithMissingImport.json", "function"},
         };
     }
 }

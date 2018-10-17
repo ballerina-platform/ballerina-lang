@@ -175,3 +175,21 @@ function testArrowExprInObject() returns int {
     Bar f = new;
     return f.lambda(6);
 }
+
+string packageVar = "Global Text";
+
+function testArrowExprWithNoArguments() returns string {
+    function () returns string lambda = () => "Some Text " + packageVar;
+    return lambda();
+}
+
+function testArrowExprWithNoArgumentsAndStrTemplate() returns string {
+    function () returns string lambda = () => string`Some Text {{packageVar}}`;
+    return lambda();
+}
+
+function testArrowExprWithNoArgumentsAndClosure() returns string {
+    string closureVar = "Closure Text";
+    function () returns string lambda = () => "Some Text " + packageVar + " " + closureVar;
+    return lambda();
+}

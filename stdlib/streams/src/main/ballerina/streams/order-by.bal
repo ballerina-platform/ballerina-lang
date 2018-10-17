@@ -138,7 +138,7 @@ public type OrderBy object {
                         return callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
                     }
                     any a => {
-                        error err = { message: "Values to be orderred contain non-string values in field: " +
+                        error err = { message: "Values to be orderred contain non-string values in fieldIndex: " +
                             fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
                         throw err;
                     }
@@ -165,8 +165,8 @@ public type OrderBy object {
 
             }
             any a => {
-                error err = { message: "Values of types other than strings and numbers cannot be sorted in field: " +
-                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
+                error err = { message: "Values of types other than strings and numbers cannot be sorted in fieldIndex:
+                 " + fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
                 throw err;
             }
         }

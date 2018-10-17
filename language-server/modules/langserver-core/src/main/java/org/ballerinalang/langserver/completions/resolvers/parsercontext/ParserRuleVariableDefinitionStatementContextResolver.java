@@ -42,7 +42,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         Class sorterKey;
-        if (isInvocationOrFieldAccess(completionContext)) {
+        if (isInvocationOrInteractionOrFieldAccess(completionContext)) {
             sorterKey = ActionAndFieldAccessContextItemSorter.class;
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
                     SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(completionContext);

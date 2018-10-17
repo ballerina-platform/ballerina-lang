@@ -65,7 +65,15 @@ function startAggregationQuery() returns (OutputRecord[]) {
         inputStream.publish(r);
     }
 
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof outputDataArray) == 5 || count == 10) {
+            break;
+        }
+    }
+
     return outputDataArray;
 }
 
