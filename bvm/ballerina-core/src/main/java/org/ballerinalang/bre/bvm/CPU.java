@@ -3783,21 +3783,20 @@ public class CPU {
             return false;
         }
 
-//        // TODO: 10/8/18 should int/byte or byte/int be allowed?
-//        if (TypeTags.INT_TAG == lhsValue.getType().getTag() && TypeTags.BYTE_TAG == rhsValue.getType().getTag()) {
-//            BInteger bInteger = (BInteger) lhsValue;
-//            BByte bByte = (BByte) rhsValue;
-//            return bInteger.intValue() == bByte.intValue();
-//        }
-//
-//        if (TypeTags.BYTE_TAG == lhsValue.getType().getTag() && TypeTags.INT_TAG == rhsValue.getType().getTag()) {
-//            BByte bByte = (BByte) lhsValue;
-//            BInteger bInteger = (BInteger) rhsValue;
-//            return bInteger.intValue() == bByte.intValue();
-//        }
-
         int lhsValTypeTag = lhsValue.getType().getTag();
-        int rhsValTypeTag = lhsValue.getType().getTag();
+        int rhsValTypeTag = rhsValue.getType().getTag();
+
+        if (TypeTags.INT_TAG == lhsValTypeTag && TypeTags.BYTE_TAG == rhsValTypeTag) {
+            BInteger bInteger = (BInteger) lhsValue;
+            BByte bByte = (BByte) rhsValue;
+            return bInteger.intValue() == bByte.intValue();
+        }
+
+        if (TypeTags.BYTE_TAG == lhsValTypeTag && TypeTags.INT_TAG == rhsValTypeTag) {
+            BByte bByte = (BByte) lhsValue;
+            BInteger bInteger = (BInteger) rhsValue;
+            return bInteger.intValue() == bByte.intValue();
+        }
 
         if (lhsValTypeTag != rhsValTypeTag) {
             return false;

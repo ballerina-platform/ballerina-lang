@@ -633,3 +633,75 @@ function checkJsonEqualityPositive(json a, json b) returns boolean {
 function checkJsonEqualityNegative(json a, json b) returns boolean {
     return (a == b) || !(a != b);
 }
+
+function testIntByteEqualityPositive() returns boolean {
+    int a;
+    byte b;
+
+    boolean equals = a == b && !(a != b);
+
+    a = 5;
+    b = 5;
+
+    equals = equals && (a == b) && !(a != b);
+
+    int[] c;
+    byte[] d;
+
+    equals = equals && (c == d) && !(c != d);
+
+    c = [1, 2];
+    d = [1, 2];
+
+    equals = equals && (c == d) && !(c != d);
+
+    byte[][] e = [[23, 45], [123, 43, 68]];
+    (int|float)[][] f = [[23, 45], [123, 43, 68]];
+
+    equals = equals && (e == f) && !(e != f);
+
+    map<(byte, boolean)> g;
+    map<(int, boolean)> h;
+
+    equals = equals && (g == h) && !(g != h);
+
+    g.one = (100, true);
+    h.two = (1, false);
+    h.one = (100, true);
+    g.two = (1, false);
+
+    return equals && (g == h) && !(g != h);
+}
+
+function testIntByteEqualityNegative() returns boolean {
+    int a = 15;
+    byte b = 5;
+
+    boolean equals = a == b || !(a != b);
+
+    a = 256;
+    b = 0;
+
+    equals = equals || a == b || !(a != b);
+
+    int[] c = [2, 1];
+    byte[] d = [1, 2];
+
+    equals = equals || (c == d) || !(c != d);
+
+    (int|float)[][] e = [[2.3, 45], [124, 43, 68]];
+    byte[][] f = [[23, 45], [123, 43, 68]];
+
+    equals = equals || (e == f) || !(e != f);
+
+    map<(int, boolean)> g;
+    map<(byte, boolean)> h;
+
+    g.one = (10, true);
+    h.two = (1, false);
+    h.one = (100, true);
+    g.two = (1, false);
+
+    return equals && (g == h) && !(g != h);
+}
+

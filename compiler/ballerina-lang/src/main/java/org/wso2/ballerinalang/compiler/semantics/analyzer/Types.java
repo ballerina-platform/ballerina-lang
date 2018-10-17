@@ -1456,6 +1456,14 @@ public class Types {
     private Set<BType> getAndExpandMemberTypesRecursive(BType bType) {
         Set<BType> memberTypes = new HashSet<>();
         switch (bType.tag) {
+            case TypeTags.BYTE:
+                memberTypes.add(symTable.intType);
+                memberTypes.add(bType);
+                break;
+            case TypeTags.INT:
+                memberTypes.add(symTable.byteType);
+                memberTypes.add(bType);
+                break;
             case TypeTags.FINITE:
                 BFiniteType expType = (BFiniteType) bType;
                 expType.valueSpace.forEach(value -> {

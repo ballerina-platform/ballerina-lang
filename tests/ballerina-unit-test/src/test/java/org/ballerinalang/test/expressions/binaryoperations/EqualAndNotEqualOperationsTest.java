@@ -42,7 +42,9 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 
 /**
- * Class to test functionality of not equal operators.
+ * Class to test functionality of "==" and "!=".
+ *
+ * @since 0.983.0
  */
 public class EqualAndNotEqualOperationsTest {
 
@@ -402,7 +404,8 @@ public class EqualAndNotEqualOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "checkComplexMapEqualityPositive", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected complex map values to be identified as equal");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+                          "Expected complex map values to be identified as equal");
     }
 
     @Test(description = "Test equals/unequals operation with two unequal map values")
@@ -469,6 +472,24 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
                            "Expected array values to be identified as not equal");
+    }
+
+    @Test
+    public void testIntByteEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntByteEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+                          "Expected int and byte values to be identified as equal");
+    }
+
+    @Test
+    public void testIntByteEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntByteEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected int and byte values to be identified as not equal");
     }
 
     @Test(description = "Test equals/unequals operation with two union constrained maps")
