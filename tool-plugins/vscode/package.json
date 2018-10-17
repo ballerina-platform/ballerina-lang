@@ -170,7 +170,7 @@
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
-        "package": "npm run compile && vsce package"
+        "package": "vsce package"
     },
     "dependencies": {
         "compare-versions": "^3.4.0",

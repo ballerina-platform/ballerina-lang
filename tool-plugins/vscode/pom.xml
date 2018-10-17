@@ -56,7 +56,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>composer</artifactId>
+            <artifactId>composer-library</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -216,7 +216,7 @@
                         </goals>
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
-                            <includeArtifactIds>composer</includeArtifactIds>
+                            <includeArtifactIds>composer-library</includeArtifactIds>
                             <outputDirectory>${project.build.directory}/composer</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
