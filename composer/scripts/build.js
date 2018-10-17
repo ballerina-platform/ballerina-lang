@@ -26,6 +26,6 @@ const extendedLangClientModPath =  join(modulesRoot, 'extended-language-client')
 runNpmCommandSync(["pack", "."], extendedLangClientModPath);
 glob(join(extendedLangClientModPath, '*.tgz'), (er, files) => {
     files.forEach(f => {
-        fs.renameSync(f, join(extendedLangClientModPath, 'module.tgz'));
+        fs.renameSync(f, join(extendedLangClientModPath, 'pack.tgz'));
     });
 })
