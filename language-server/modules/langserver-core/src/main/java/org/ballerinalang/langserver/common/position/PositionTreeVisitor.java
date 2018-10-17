@@ -109,7 +109,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public PositionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
+        this.fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         this.symTable = SymbolTable.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
         this.position.setLine(this.position.getLine() + 1);
         this.nodeStack = new Stack<>();

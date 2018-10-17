@@ -53,9 +53,9 @@ public type CircuitHealth record {
     int totalRequestCount;
     int lastUsedBucketId;
     time:Time startTime;
-    time:Time lastRequestTime;
-    time:Time lastErrorTime;
-    time:Time lastForcedOpenTime;
+    time:Time lastRequestTime?;
+    time:Time lastErrorTime?;
+    time:Time lastForcedOpenTime?;
     Bucket[] totalBuckets;
     !...
 };
@@ -98,7 +98,7 @@ public type Bucket record {
     int totalCount;
     int failureCount;
     int rejectedCount;
-    time:Time lastUpdatedTime;
+    time:Time lastUpdatedTime?;
     !...
 };
 
