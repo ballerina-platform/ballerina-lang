@@ -604,6 +604,124 @@ public class EqualAndNotEqualOperationsTest {
                            "Expected json values to be identified as not equal");
     }
 
+    @Test
+    public void testSimpleXmlPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlPositive");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    }
+
+    @Test
+    public void testSimpleXmlNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlNegative");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as not equal.");
+    }
+
+    @Test
+    public void testEqualNestedXml() {
+        BValue[] returns = BRunUtil.invoke(result, "testEqualNestedXml");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    }
+
+    @Test
+    public void testUnequalNestedXml() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnequalNestedXml");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+
+    @Test
+    public void testEqualXmlWithComments() {
+        BValue[] returns = BRunUtil.invoke(result, "testEqualXmlWithComments");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    }
+
+    @Test
+    public void testUnequalXmlWithUnequalComment() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithUnequalComment");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+
+    @Test
+    public void testEqualXmlIgnoringAttributeOrder() {
+        BValue[] returns = BRunUtil.invoke(result, "testEqualXmlIgnoringAttributeOrder");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    }
+
+    @Test
+    public void testUnequalXmlIgnoringAttributeOrder() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlIgnoringAttributeOrder");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+
+    @Test
+    public void testEqualXmlWithPI() {
+        BValue[] returns = BRunUtil.invoke(result, "testEqualXmlWithPI");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    }
+
+    @Test
+    public void testUnequalXmlWithUnequalPI() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithUnequalPI");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+    @Test
+    public void testUnequalXmlWithPIInWrongOrder() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithPIInWrongOrder");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+
+    @Test
+    public void testUnequalXmlWithMultiplePIInWrongOrder() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithMultiplePIInWrongOrder");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+    @Test
+    public void testUnequalXmlWithMissingPI() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnequalXmlWithMissingPI");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+
+    @Test
+    public void testXmlWithNamespacesPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testXmlWithNamespacesPositive");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    }
+
+    @Test
+    public void testXmlWithNamespacesNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testXmlWithNamespacesNegative");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+
     @Test(description = "Test equal expression with errors")
     public void testEqualStmtNegativeCase() {
         Assert.assertEquals(resultNegative.getErrorCount(), 18);

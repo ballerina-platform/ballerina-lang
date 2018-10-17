@@ -3820,8 +3820,7 @@ public class CPU {
 
                 return lhsRef.value().equals(rhsRef.value());
             case TypeTags.XML_TAG:
-                // TODO: 10/8/18
-                break;
+                return XMLUtils.isEqual((BXML) lhsValue, (BXML) rhsValue);
             case TypeTags.TABLE_TAG:
                 // TODO: 10/8/18
                 break;

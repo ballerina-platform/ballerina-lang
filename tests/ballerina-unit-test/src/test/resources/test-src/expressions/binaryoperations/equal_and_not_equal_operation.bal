@@ -758,3 +758,111 @@ function testPrimitiveAndJsonEqualityNegative() returns boolean {
 
     return equals || (f == g) || !(f != g);
 }
+
+function testSimpleXmlPositive() returns boolean {
+    xml x1 = xml `<book>The Lost World</book>`;
+    xml x2 = xml `<book>The Lost World</book>`;
+    xml x3 = xml `Hello, world!`;
+    xml x4 = xml `Hello, world!`;
+    xml x5 = xml `<?target data?>`;
+    xml x6 = xml `<?target data?>`;
+    xml x7 = xml `<!-- I'm a comment -->`;
+    xml x8 = xml `<!-- I'm a comment -->`;
+    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8);
+}
+
+function testSimpleXmlNegative() returns boolean {
+    xml x1 = xml `<book>The Lot World</book>`;
+    xml x2 = xml `<book>The Lost World</book>`;
+    xml x3 = xml `Hello, world!`;
+    xml x4 = xml `Hello world!`;
+    xml x5 = xml `<?targt data?>`;
+    xml x6 = xml `<?target data?>`;
+    xml x7 = xml `<!-- I'm comment one -->`;
+    xml x8 = xml `<!-- I'm comment two -->`;
+    return x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7 != x8);
+}
+
+public function testEqualNestedXml() returns boolean {
+    xml x1 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
+    xml x2 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
+    return x1 == x2 && !(x1 != x2);
+}
+
+public function testUnequalNestedXml() returns boolean {
+    xml x1 = xml `<book><name>The Lost World<year>1920</year></name></book>`;
+    xml x2 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
+    return x1 == x2 || !(x1 != x2);
+}
+
+public function testEqualXmlWithComments() returns boolean {
+    xml x1 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;
+    xml x2 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;
+    return x1 == x2 && !(x1 != x2);
+}
+
+public function testUnequalXmlWithUnequalComment() returns boolean {
+    xml x1 = xml `<book><name>The Lost World<!-- Don't Ignore me --></name></book>`;
+    xml x2 = xml `<book><name>The Lost World<!-- Ignore me --></name></book>`;
+    return x1 == x2 || !(x1 != x2);
+}
+
+public function testEqualXmlIgnoringAttributeOrder() returns boolean {
+    xml x1 = xml `<book><name category="fiction" year="1912">The Lost World<author>Doyle</author></name></book>`;
+    xml x2 = xml `<book><name year="1912" category="fiction">The Lost World<author>Doyle</author></name></book>`;
+    return x1 == x2 && !(x1 != x2);
+}
+
+public function testUnequalXmlIgnoringAttributeOrder() returns boolean {
+    xml x1 = xml `<book><name category="fantasy" year="1912">The Lost World<author>Doyle</author></name></book>`;
+    xml x2 = xml `<book><name year="1912" category="fiction">The Lost World<author>Doyle</author></name></book>`;
+    return x1 == x2 || !(x1 != x2);
+}
+
+public function testEqualXmlWithPI() returns boolean {
+    xml x1 = xml `<book><?target data?><name>The Lost World</name><?target_two data_two?></book>`;
+    xml x2 = xml `<book><?target data?><name>The Lost World</name><?target_two data_two?></book>`;
+    return x1 == x2 && !(x1 != x2);
+}
+
+public function testUnequalXmlWithUnequalPI() returns boolean {
+    xml x1 = xml `<book><?target data?><name>The Lost World</name></book>`;
+    xml x2 = xml `<book><?target dat?><name>The Lost World</name></book>`;
+    return x1 == x2 || !(x1 != x2);
+}
+
+public function testUnequalXmlWithPIInWrongOrder() returns boolean {
+    xml x1 = xml `<book><?target data?><name>The Lost World</name></book>`;
+    xml x2 = xml `<book><name>The Lost World</name><?target data?></book>`;
+    return x1 == x2 || !(x1 != x2);
+}
+
+public function testUnequalXmlWithMultiplePIInWrongOrder() returns boolean {
+    xml x1 = xml `<book><?target data?><?target_two data_two?><name>The Lost World</name></book>`;
+    xml x2 = xml `<book><?target_two data_two?><?target data?><name>The Lost World</name></book>`;
+    return x1 == x2 || !(x1 != x2);
+}
+
+public function testUnequalXmlWithMissingPI() returns boolean {
+    xml x1 = xml `<book><?target data?><name>The Lost World</name></book>`;
+    xml x2 = xml `<book><name>The Lost World</name></book>`;
+    return x1 == x2 || !(x1 != x2);
+}
+
+public function testXmlWithNamespacesPositive() returns boolean {
+    xml x1 = xml `<book xmlns="http://wso2.com"><name>The Lost World<year>1912</year></name></book>`;
+    xml x2 = xml `<book xmlns="http://wso2.com"><name>The Lost World<year>1912</year></name></book>`;
+
+    xmlns "http://wso2.com";
+    xml x3 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
+
+    return x1 == x2 && !(x1 != x2) && x2 == x3 && !(x2 != x3);
+}
+
+public function testXmlWithNamespacesNegative() returns boolean {
+    xml x1 = xml `<book xmlns="http://wso2.com"><name>The Lost World<year>1912</year></name></book>`;
+    xml x2 = xml `<book xmlns="http://wsotwo.com"><name>The Lost World<year>1912</year></name></book>`;
+    xml x3 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
+
+    return x1 == x2 || !(x1 != x2) || x2 == x3 && !(x2 != x3);
+}
