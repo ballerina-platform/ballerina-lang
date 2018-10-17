@@ -522,6 +522,21 @@ public type ExternalTimeWindow object {
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events;
+        int i = 0;
+        foreach e in expiredEventQueue.asArray() {
+            match e {
+                StreamEvent s => {
+                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
+                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i++;
+                    }
+                }
+                any a => {
+                }
+            }
+        }
         return events;
     }
 
@@ -673,6 +688,21 @@ public type ExternalTimeBatchWindow object {
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events;
+        int i = 0;
+        foreach e in currentEventChunk.asArray() {
+            match e {
+                StreamEvent s => {
+                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
+                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i++;
+                    }
+                }
+                any a => {
+                }
+            }
+        }
         return events;
     }
 
@@ -962,6 +992,21 @@ public type TimeLengthWindow object {
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events;
+        int i = 0;
+        foreach e in expiredEventChunk.asArray() {
+            match e {
+                StreamEvent s => {
+                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
+                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i++;
+                    }
+                }
+                any a => {
+                }
+            }
+        }
         return events;
     }
 
@@ -1070,6 +1115,21 @@ public type UniqueLengthWindow object {
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events;
+        int i = 0;
+        foreach e in expiredEventChunk.asArray() {
+            match e {
+                StreamEvent s => {
+                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
+                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i++;
+                    }
+                }
+                any a => {
+                }
+            }
+        }
         return events;
     }
 };
