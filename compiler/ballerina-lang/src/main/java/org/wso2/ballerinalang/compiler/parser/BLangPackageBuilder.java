@@ -3401,6 +3401,7 @@ public class BLangPackageBuilder {
 
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TypeNode typeRef = typeNodeStack.pop();
+        typeRef.addWS(ws);
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
         objectTypeNode.addTypeReference(typeRef);
     }

@@ -2836,7 +2836,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
             }
         case 'ObjectType':
-            return join(node.fields, pretty, replaceLambda, l, w, '')
+            return join(node.typeReferences, pretty, replaceLambda, l, w, '')
+                 + join(node.fields, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.initFunction, pretty, l, replaceLambda)
                  + join(node.functions, pretty, replaceLambda, l, w, '');
         case 'RecordType':
@@ -2891,6 +2892,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'UserDefinedType':
             if (node.isAnonType && node.anonType) {
                 return getSourceOf(node.anonType, pretty, l, replaceLambda);
+            } else if (node.isTypeReference && node.packageAlias.valueWithBar
+                         && node.typeName.valueWithBar) {
+                return dent() + w() + '*' + w() + node.packageAlias.valueWithBar + w()
+                 + ':' + w() + node.typeName.valueWithBar + w() + ';';
+            } else if (node.isTypeReference && node.typeName.valueWithBar) {
+                return dent() + w() + '*' + w() + node.typeName.valueWithBar + w()
+                 + ';';
             } else if (node.nullableOperatorAvailable && node.grouped
                          && node.packageAlias.valueWithBar && node.typeName.valueWithBar) {
                 return w() + '(' + w() + node.packageAlias.valueWithBar + w() + ':'
