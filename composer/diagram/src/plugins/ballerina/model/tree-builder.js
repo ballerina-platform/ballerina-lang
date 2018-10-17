@@ -567,6 +567,8 @@ class TreeBuilder {
                     content = "";
                     startingBracket = null;
                     endingBracket = null;
+                } else if (node.ws[j].text === '?') {
+                    node.dimensionAsString += node.ws[j].ws + node.ws[j].text;
                 } else if (startingBracket) {
                     content += node.ws[j].ws + node.ws[j].text;
                 }
