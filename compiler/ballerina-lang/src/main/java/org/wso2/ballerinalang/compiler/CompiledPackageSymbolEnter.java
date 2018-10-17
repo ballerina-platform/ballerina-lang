@@ -703,6 +703,8 @@ public class CompiledPackageSymbolEnter {
 
         varSymbol.varIndex = new RegIndex(memIndex, varType.tag);
         enclScope.define(varSymbol.name, varSymbol);
+
+        setDefaultValue(varSymbol, attrDataMap);
     }
 
     private Map<AttributeInfo.Kind, byte[]> readAttributes(DataInputStream dataInStream) throws IOException {
@@ -783,6 +785,7 @@ public class CompiledPackageSymbolEnter {
                     funcType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
         }
+
 
         byte[] paramDefaultsData = attrDataMap.get(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
         DataInputStream paramDefaultsDataInStream = new DataInputStream(new ByteArrayInputStream(paramDefaultsData));
@@ -886,6 +889,17 @@ public class CompiledPackageSymbolEnter {
         }
 
         symbol.markdownDocumentation = docAttachment;
+    }
+
+    private void setDefaultValue(BVarSymbol symbol, Map<AttributeInfo.Kind, byte[]> attrDataMap) throws IOException {
+        if (!attrDataMap.containsKey(Kind.DEFAULT_VALUE_ATTRIBUTE)) {
+            return;
+        }
+
+        byte[] defaultValueBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
+        DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(defaultValueBytes));
+
+        symbol.defaultValue = getDefaultValue(documentDataStream);
     }
 
     private String getVarName(DataInputStream dataInStream) throws IOException {

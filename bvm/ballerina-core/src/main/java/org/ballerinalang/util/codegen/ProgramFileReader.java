@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.BufferedInputStream;
@@ -101,6 +104,38 @@ public class ProgramFileReader {
 
         // TODO This needs to be moved out of this class
         programFile.initializeGlobalMemArea();
+
+        // Update global memory area with constant values.
+        // Todo - Refactor
+        for (PackageInfo packageInfoEntry : programFile.getPackageInfoEntries()) {
+            for (PackageVarInfo infoEntry : packageInfoEntry.getPackageInfoEntries()) {
+                AttributeInfo attributeInfo = infoEntry.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+                if (attributeInfo == null) {
+                    continue;
+                }
+
+                DefaultValue defaultValue = ((DefaultValueAttributeInfo) attributeInfo).getDefaultValue();
+                switch (infoEntry.getType().getTag()) {
+                    case TypeTags.INT_TAG:
+                        programFile.globalMemArea.setIntField(packageInfoEntry.pkgIndex,
+                                infoEntry.getGlobalMemIndex(), defaultValue.getIntValue());
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        programFile.globalMemArea.setFloatField(packageInfoEntry.pkgIndex,
+                                infoEntry.getGlobalMemIndex(), defaultValue.getFloatValue());
+                        break;
+                    case TypeTags.STRING_TAG:
+                        programFile.globalMemArea.setStringField(packageInfoEntry.pkgIndex,
+                                infoEntry.getGlobalMemIndex(), defaultValue.getStringValue());
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        programFile.globalMemArea.setBooleanField(packageInfoEntry.pkgIndex,
+                                infoEntry.getGlobalMemIndex(), defaultValue.getBooleanValue() ? 1 : 0);
+                        break;
+                }
+
+            }
+        }
         return programFile;
     }
 

@@ -215,6 +215,7 @@ import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -226,6 +227,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -859,8 +861,68 @@ public class CodeGenerator extends BLangNodeVisitor {
             pkgSymbol = (BPackageSymbol) ownerSymbol;
         }
 
-        Operand gvIndex = packageVarRef.varSymbol.varIndex;
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+
+//        if ((packageVarRef.symbol.flags & Flags.CONST) == Flags.CONST) {
+//            BLangLiteral simpleLiteral = (BLangLiteral)packageVarRef.varSymbol.defaultValue;
+//            DefaultValue defaultValue = getDefaultValue(( simpleLiteral));
+//
+//            int opcode;
+//            Operand regIndex = calcAndGetExprRegIndex(simpleLiteral);
+//
+//
+//            int typeTag = simpleLiteral.type.tag;
+//
+//            switch (typeTag) {
+//                case TypeTags.INT:
+//                    long longVal = (Long) simpleLiteral.value;
+//                    if (longVal >= 0 && longVal <= 5) {
+//                        opcode = InstructionCodes.ICONST_0 + (int) longVal;
+//                        emit(opcode, regIndex);
+//                    } else {
+//                       int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
+//                    emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
+//                    }
+//                    break;
+//                case TypeTags.BYTE:
+//                    emit(InstructionCodes.BICONST, getOperand(defaultValue.valueCPIndex), regIndex);
+//                    break;
+//                case TypeTags.FLOAT:
+//                    double doubleVal = (Double) simpleLiteral.value;
+//                    if (doubleVal == 0 || doubleVal == 1 || doubleVal == 2 || doubleVal == 3 || doubleVal == 4 ||
+//                            doubleVal == 5) {
+//                        opcode = InstructionCodes.FCONST_0 + (int) doubleVal;
+//                        emit(opcode, regIndex);
+//                    } else {
+//                        emit(InstructionCodes.FCONST, getOperand(defaultValue.valueCPIndex), regIndex);
+//                    }
+//                    break;
+//                case TypeTags.STRING:
+//                      String strValue = (String) simpleLiteral.value;
+//                StringCPEntry stringCPEntry = new StringCPEntry(addUTF8CPEntry(currentPkgInfo, strValue), strValue);
+//                int strCPIndex = currentPkgInfo.addCPEntry(stringCPEntry);
+//                emit(InstructionCodes.SCONST, getOperand(strCPIndex), regIndex);
+//                    break;
+//
+//                case TypeTags.BOOLEAN:
+//                    boolean booleanVal = (Boolean) simpleLiteral.value;
+//                    if (!booleanVal) {
+//                        opcode = InstructionCodes.BCONST_0;
+//                    } else {
+//                        opcode = InstructionCodes.BCONST_1;
+//                    }
+//                    emit(opcode, regIndex);
+//                    break;
+//            }
+//             opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
+//            packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
+//            emit(opcode, getOperand(pkgRefCPIndex), regIndex, packageVarRef.regIndex);
+//
+//            return;
+//        }
+
+        Operand gvIndex = packageVarRef.varSymbol.varIndex;
+
         if (varAssignment) {
             int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
             emit(opcode, getOperand(pkgRefCPIndex), packageVarRef.regIndex, gvIndex);
@@ -1960,8 +2022,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // TODO Populate annotation attribute
 
-        // Add documentation attributes
+        // Add documentation attributes.
         addDocAttachmentAttrInfo(varNode.symbol.markdownDocumentation, pkgVarInfo);
+
+        // Add default value.
+        if ((varNode.symbol.flags & Flags.CONST) == Flags.CONST) {
+            DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) varNode.expr);
+            pkgVarInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
+        }
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
@@ -2638,12 +2706,21 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangAssignment assignNode) {
         BLangExpression lhrExpr = assignNode.varRef;
+        BLangExpression rhsExpr = assignNode.expr;
+
+        if (lhrExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BSymbol symbol = ((BLangSimpleVarRef) lhrExpr).symbol;
+            if ((symbol.flags & Flags.CONST) == Flags.CONST) {
+                return;
+            }
+        }
+
         if (assignNode.declaredWithVar) {
             BLangVariableReference varRef = (BLangVariableReference) lhrExpr;
             visitVarSymbol((BVarSymbol) varRef.symbol, lvIndexes, localVarAttrInfo);
         }
 
-        BLangExpression rhsExpr = assignNode.expr;
+
         if (lhrExpr.type.tag != TypeTags.NONE && lhrExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 lhrExpr instanceof BLangLocalVarRef) {
             lhrExpr.regIndex = ((BVarSymbol) ((BLangVariableReference) lhrExpr).symbol).varIndex;

@@ -335,7 +335,6 @@ public class PackageInfoReader {
         // Read resource info entries.
         readResourceInfoEntries(packageInfo);
 
-
         // Read global var info entries
         readGlobalVarInfoEntries(packageInfo);
 
@@ -653,13 +652,13 @@ public class PackageInfoReader {
         }
     }
 
-    private void readConstantInfoEntries(PackageInfo packageInfo) throws IOException {
-        int constCount = dataInStream.readShort();
-        for (int i = 0; i < constCount; i++) {
-            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
-            packageInfo.addConstantInfo(packageVarInfo.getName(), packageVarInfo);
-        }
-    }
+    //    private void readConstantInfoEntries(PackageInfo packageInfo) throws IOException {
+    //        int constCount = dataInStream.readShort();
+    //        for (int i = 0; i < constCount; i++) {
+    //            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
+    //            packageInfo.addConstantInfo(packageVarInfo.getName(), packageVarInfo);
+    //        }
+    //    }
 
     private void readGlobalVarInfoEntries(PackageInfo packageInfo) throws IOException {
         int globalVarCount = dataInStream.readShort();
@@ -1724,6 +1723,43 @@ public class PackageInfoReader {
 
         return value;
     }
+
+    private BValue getDefaultValueToValue(DefaultValue defaultValue) throws IOException {
+        String typeDesc = defaultValue.getTypeDesc();
+        BValue value;
+
+        switch (typeDesc) {
+            case TypeSignature.SIG_BOOLEAN:
+                boolean boolValue = defaultValue.getBooleanValue();
+                value = new BBoolean(boolValue);
+                break;
+            case TypeSignature.SIG_INT:
+                long intValue = defaultValue.getIntValue();
+                value = new BInteger(intValue);
+                break;
+            case TypeSignature.SIG_BYTE:
+                byte byteValue = defaultValue.getByteValue();
+                value = new BByte(byteValue);
+                break;
+            case TypeSignature.SIG_FLOAT:
+                double floatValue = defaultValue.getFloatValue();
+                value = new BFloat(floatValue);
+                break;
+            case TypeSignature.SIG_STRING:
+                String stringValue = defaultValue.getStringValue();
+                value = new BString(stringValue);
+                break;
+            case TypeSignature.SIG_NULL:
+                value = null;
+                break;
+            default:
+                throw new ProgramFileFormatException("unknown default value type " + typeDesc);
+
+        }
+
+        return value;
+    }
+
 
     private int[] getArgRegs(DataInputStream codeStream) throws IOException {
         int nArgRegs = codeStream.readInt();

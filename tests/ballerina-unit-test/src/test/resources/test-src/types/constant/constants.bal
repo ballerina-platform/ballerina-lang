@@ -163,3 +163,29 @@ type ValueType "STRING"|"INT";
 
 const ValueType STRING = "STRING";
 const ValueType INT = "INT";
+
+// -------------------------------------
+
+function testConstInRecord() returns int {
+    Mode m = getMode(orderReq);
+    if (m == r){
+        return 10;
+    }
+    return 20;
+}
+
+function getMode(orderInfo oi) returns Mode {
+    return oi.mode;
+}
+
+orderInfo orderReq = { id:"100500", mode:r };
+
+type orderInfo record {
+    string s;
+    Mode mode;
+
+};
+
+public type Mode "r";
+
+public const Mode r = "r";

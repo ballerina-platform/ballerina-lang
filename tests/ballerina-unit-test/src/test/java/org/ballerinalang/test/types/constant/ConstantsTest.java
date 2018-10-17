@@ -108,4 +108,11 @@ public class ConstantsTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
+
+    @Test
+    public void testConstInRecord() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInRecord");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
 }
