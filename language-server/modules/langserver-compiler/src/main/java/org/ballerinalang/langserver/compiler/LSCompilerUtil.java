@@ -203,15 +203,15 @@ public class LSCompilerUtil {
     /**
      * Get compiler for the given context and file.
      *
-     * @param context             Language server context
-     * @param fileName            File name which is currently open
-     * @param compilerContext {@link CompilerContext} Compiler context
-     * @param customErrorStrategy custom error strategy class
-     * @return {@link Compiler} ballerina compiler
+     * @param context               Language server context
+     * @param relativeFilePath      File name which is currently open
+     * @param compilerContext       Compiler context
+     * @param customErrorStrategy   custom error strategy class
+     * @return {@link Compiler}     ballerina compiler
      */
-    public static Compiler getCompiler(LSContext context, String fileName, CompilerContext compilerContext,
+    public static Compiler getCompiler(LSContext context, String relativeFilePath, CompilerContext compilerContext,
                                        Class customErrorStrategy) {
-        context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
+        context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
         context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
         if (customErrorStrategy != null) {

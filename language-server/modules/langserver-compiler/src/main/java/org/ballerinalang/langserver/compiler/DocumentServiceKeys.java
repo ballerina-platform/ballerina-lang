@@ -34,7 +34,7 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<TextDocumentPositionParams> POSITION_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> FILE_NAME_KEY
+    public static final LSContext.Key<String> RELATIVE_FILE_PATH_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<CompilerContext> COMPILER_CONTEXT_KEY
             = new LSContext.Key<>();
