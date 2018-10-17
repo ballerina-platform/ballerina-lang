@@ -58,7 +58,7 @@ public class Decimal extends BigDecimal {
     }
 
     public Decimal negate() {
-        return new Decimal(super.negate(DECIMAL128));
+        return new Decimal(super.negate());
     }
 
     public Decimal reminder(Decimal divisor) {
