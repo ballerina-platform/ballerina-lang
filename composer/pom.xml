@@ -105,6 +105,9 @@
                                 <condition property="npm.executable" value="npm.cmd" else="npm">
                                     <os family="windows" />
                                 </condition>
+                                <condition property="maven.test.skip" value="${maven.test.skip}" else="false">
+                                    <isset property="maven.test.skip" />
+                                </condition>
                             </target>
                             <exportAntProperties>true</exportAntProperties>
                         </configuration>
