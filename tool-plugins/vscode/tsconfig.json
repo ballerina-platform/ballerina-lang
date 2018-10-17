@@ -20,7 +20,6 @@
         // "noUnusedParameters": true,  /* Report errors on unused parameters. */
         "baseUrl": ".",
         "paths": {
-            "vscode": ["./node_modules/vscode"]
         }
     },
     "exclude": [

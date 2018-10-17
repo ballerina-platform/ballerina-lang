@@ -19,7 +19,7 @@
 import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, workspace } from 'vscode';
 import * as path from 'path';
 import { render } from './renderer';
-import { ExtendedLangClient } from 'extended-language-client';
+import { ExtendedLangClient } from '../core/extended-language-client';
 import { ballerinaExtInstance, BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
 
