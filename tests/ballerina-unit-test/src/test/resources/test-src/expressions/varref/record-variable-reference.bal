@@ -27,21 +27,69 @@ type Person record {
     !...
 };
 
-function testVariableAssignment() returns (string, boolean) {
+function testVariableAssignment() returns (string, boolean, int, string) {
     string fName;
     boolean married;
     int theAge;
     string format;
-    string extraLetter;
-    int extraInt;
     map theMap;
 
-    Age a = {age:12, format: "Y", three: "three"};
-    //Person p = {name: "Peter", married: true, age: a};
-
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
-    //(string, boolean) x = ("Peter", true);
-    //(fName, married) = x;
-    return (fName, married);
+    {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
+    return (fName, married, theAge, format);
 }
 
+function getPerson() returns Person {
+    return {name: "Peter", married: true, age: {age:12, format: "Y"}};
+}
+
+type Foo record {
+    map<int> var1;
+    Bar var2;
+};
+
+type Bar record {
+    int|float var1;
+    Some var2;
+};
+
+type Some record {
+    string var1;
+    string? var2;
+};
+
+function testRecVarRefInsideRecVarRefInsideRecVarRef() returns (map<int>, int|float, string, string?) {
+    map<int> fooVar1;
+    int|float barVar1;
+    string someVar1;
+    string? someVar2;
+
+    {var1: fooVar1, var2: {var1: barVar1, var2: {var1: someVar1, var2: someVar2}}} = getFoo();
+    return (fooVar1, barVar1, someVar1, someVar2);
+}
+
+function getFoo() returns Foo {
+    return {var1: {"mKey1": 1, "mKey2": 2}, var2: {var1: 12, var2: {var1: "SomeVar1", var2: ()}}};
+}
+
+type OpenRecord record {
+    string var1;
+    boolean var2;
+};
+
+function testRestParam() returns map {
+    OpenRecord openRecord = {var1: "var1", var2: false, var3: 12, var4: "text"};
+    string var1;
+    boolean var2;
+    map rest;
+    {var1, var2, ...rest} = openRecord;
+    return rest;
+}
+
+function testRecordTypeInRecordVarRef() returns (map, int|float, Some) {
+    map<int> fooVar1;
+    int|float barVar1;
+    Some var2;
+
+    {var1: fooVar1, var2: {var1: barVar1, var2}} = getFoo();
+    return (fooVar1, barVar1, var2);
+}

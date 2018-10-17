@@ -548,12 +548,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
             checkExpr(restParam, env);
             BVarSymbol bVarSymbol = getVarSymbolFromVarRef(restParam);
-            if (bVarSymbol == null) {
-                unresolvedReference = true;
-            } else {
-                fields.add(new BField(names.fromIdNode(
-                        ((BLangSimpleVarRef) restParam).variableName), bVarSymbol, false));
-            }
+            unresolvedReference = bVarSymbol == null;
         }
 
         if (unresolvedReference) {
@@ -575,7 +570,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefExpr.restParam != null) {
             bRecordType.restFieldType = symTable.mapType;
         }
-
 
         resultType = bRecordType;
     }

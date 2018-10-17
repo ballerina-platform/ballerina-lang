@@ -33,10 +33,21 @@ type Person record {
     !...
 };
 
-function testUndefinedSymbol() {
+type Person2 record {
+    string name;
+    boolean married;
+    ClosedAge age;
+    (string, int) extra;
+    !...
+};
 
+function testUndefinedSymbol() {
+    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = getPerson1();
+}
+
+function getPerson1() returns Person {
     Age a = {age:12, format: "Y", three: "three"};
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = {name: "Peter", married: true, age: a, extra: ("extra", 12)};
+    return {name: "Peter", married: true, age: a, extra: ("extra", 12)};
 }
 
 function testClosedRecordVarRef() {
@@ -50,11 +61,36 @@ function testClosedRecordVarRef() {
 
     Age age1 = {age:12, format: "Y", three: "three"};
     ClosedAge age2 = {age:12, format: "Y"};
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = {name: "Peter", married: true, age: age1, extra: ("extra", 12)}; // age1 is not a closed record
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = {name: "Peter", married: true, age: age2, extra: ("extra", 12)}; // valid
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y", three: "three"}, extra: ("extra", 12)}; // age literal invalid
-    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ("extra", 12)}; // valid
-    {name: fName, married, age: { age: theAge, format, !...}, !...} = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ("extra", 12)}; // literal invalid
-    {name: fName, married, age: { age: theAge, format, !...}} = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ("extra", 12)}; // valid
-    {name: fName, married, age: { age: theAge, format}} = {name: "Peter", married: true, age: {age:12, format: "Y", three: "three"}, extra: ("extra", 12)}; // valid
+    Person p1 = {name: "Peter", married: true, age: age1, extra: ("extra", 12)};
+    Person2 p2 = {name: "Peter", married: true, age: age2, extra: ("extra", 12)};
+    Person p5 = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ("extra", 12)};
+    Person2 p6 = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ("extra", 12)}; // valid
+    Person p7 = {name: "Peter", married: true, age: {age:12, format: "Y", three: "three"}, extra: ("extra", 12)}; // valid
+    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = p1;  // Age is not a closed record
+    {name: fName, married, age: { age: theAge, format, !...}, ...theMap} = p2;  // valid
+    {name: fName, married, age: { age: theAge, format}, !...} = p5; // Person is not a closed record
+    {name: fName, married, age: { age: theAge, format, !...}} = p6; // valid
+    {name: fName, married, age: { age: theAge, format}} = p7; // valid
+}
+
+type Foo record {
+    string var1;
+    Bar var2;
+};
+
+type Bar record {
+    int var1;
+    (string, int, boolean) var2;
+};
+
+function testInvalidTypes() {
+
+    Bar fooVar1;
+    string fooVar2;
+
+    Foo f = {var1: "var1String", var2: {var1: 12, var2: ("barString", 14, true)}};
+    {var1: fooVar1, var2: fooVar2};
+    {var1: fooVar1, var2: fooVar2} = f;
+    {var1: fooVar1, var2: fooVar2} = 12;
+    {var1: fooVar1, var2: fooVar2} = {var1: "var1String", var2: {var1: 12, var2: ("barString", 14, true)}};
 }

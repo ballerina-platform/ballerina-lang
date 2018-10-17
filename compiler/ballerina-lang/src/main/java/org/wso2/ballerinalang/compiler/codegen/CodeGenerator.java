@@ -3704,9 +3704,4 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
         }
     }
-
-    @Override
-    public void visit(BLangRecordDestructure stmt) {
-        // todo remove at desugar phase
-    }
 }
