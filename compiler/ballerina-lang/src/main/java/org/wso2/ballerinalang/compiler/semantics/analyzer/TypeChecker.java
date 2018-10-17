@@ -385,9 +385,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Change the expected type to map,
             expType = symTable.mapType;
         }
-        if (expTypeTag == TypeTags.ANY
-                || (expTypeTag == TypeTags.MAP && recordLiteral.keyValuePairs.isEmpty())
-                || expTypeTag == TypeTags.OBJECT) {
+        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.errType;
             return;
@@ -406,6 +404,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(recordLiteral, actualType, expType);
+
+        // If the record literal is of record type and types are validated for the fields, check if there are any
+        // required fields missing.
+        if (recordLiteral.type.tag == TypeTags.RECORD) {
+            checkMissingRequiredFields((BRecordType) recordLiteral.type, recordLiteral.keyValuePairs,
+                                       recordLiteral.pos);
+        }
     }
 
     private List<BType> getRecordCompatibleType(BType bType, BLangRecordLiteral recordLiteral) {
@@ -447,6 +452,24 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private void checkMissingRequiredFields(BRecordType type, List<BLangRecordKeyValue> keyValuePairs,
+                                            DiagnosticPos pos) {
+        type.fields.forEach(field -> {
+            // Check if `field` is explicitly assigned a value in the record literal
+            boolean hasField = keyValuePairs.stream()
+                    .filter(keyVal -> keyVal.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
+                    .anyMatch(keyVal -> field.name.value
+                            .equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
+
+            // If a required field is missing and it's not defaultable, it's a compile error
+            if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                    (!types.defaultValueExists(pos, field.type) &&
+                            !Symbols.isFlagOn(field.symbol.flags, Flags.DEFAULTABLE))) {
+                dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
+            }
+        });
     }
 
     private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {
@@ -511,7 +534,12 @@ public class TypeChecker extends BLangNodeVisitor {
                         ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
                     }
                 }
-                if (env.node.getKind() == NodeKind.ARROW_EXPR) {
+                if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
+                    // The owner of the variable ref should be an invokable symbol.
+                    // It's set here because the arrow expression changes to an invokable only at desugar
+                    // and is not an invokable at this phase.
+                    symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
+                            env.enclPkg.packageID, null, symbol.owner);
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                     BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                             SymTag.VARIABLE_NAME);
@@ -560,9 +588,10 @@ public class TypeChecker extends BLangNodeVisitor {
      */
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
         if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            // if enclosing env's node is arrow expression
             return env.enclEnv;
         }
-        if (env.enclInvokable == encInvokable) {
+        if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
         }
         return env;
@@ -1774,11 +1803,27 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
+            indexExpr.type = symTable.errType;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
-            return symTable.errType;
+            return indexExpr.type;
         }
 
         return checkExpr(indexExpr, this.env, symTable.stringType);
+    }
+
+    private BType checkTypeForIndexBasedAccess(BLangIndexBasedAccess indexBasedAccessExpr, BType actualType) {
+        // index based map/record access always returns a nil-able type
+        if (actualType.tag == TypeTags.ANY || actualType.tag == TypeTags.JSON) {
+            return actualType;
+        }
+
+        if (indexBasedAccessExpr.leafNode && indexBasedAccessExpr.lhsVar) {
+            return actualType;
+        }
+
+        BUnionType type = new BUnionType(null, new LinkedHashSet<>(getTypesList(actualType)), true);
+        type.memberTypes.add(symTable.nilType);
+        return type;
     }
 
     private BType checkStructFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BType structType) {
@@ -1829,8 +1874,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL) {
+            indexExpr.type = symTable.errType;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
-            return symTable.errType;
+            return indexExpr.type;
         }
 
         return checkExpr(indexExpr, this.env, symTable.intType);
@@ -2063,22 +2109,25 @@ public class TypeChecker extends BLangNodeVisitor {
         BType indexExprType;
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
-            case TypeTags.RECORD:
                 indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
                 if (indexExprType.tag == TypeTags.STRING) {
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
                     actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
                 }
                 break;
+            case TypeTags.RECORD:
+                indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
+                if (indexExprType.tag == TypeTags.STRING) {
+                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                    actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
+                    actualType = checkTypeForIndexBasedAccess(indexBasedAccessExpr, actualType);
+                }
+                break;
             case TypeTags.MAP:
                 indexExprType = checkExpr(indexExpr, this.env, symTable.stringType);
                 if (indexExprType.tag == TypeTags.STRING) {
                     actualType = ((BMapType) varRefType).getConstraint();
-
-                    // index based map access always returns a nillable type
-                    if (actualType.tag != TypeTags.ANY && actualType.tag != TypeTags.JSON) {
-                        actualType = new BUnionType(null, new LinkedHashSet<>(getTypesList(actualType)), true);
-                    }
+                    actualType = checkTypeForIndexBasedAccess(indexBasedAccessExpr, actualType);
                 }
                 break;
             case TypeTags.JSON:
@@ -2115,6 +2164,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 if (indexBasedAccessExpr.lhsVar) {
+                    indexExpr.type = symTable.errType;
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
                     break;
                 }
@@ -2130,9 +2180,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.ERROR:
-                // Do nothing
+                indexBasedAccessExpr.indexExpr.type = symTable.errType;
                 break;
             default:
+                indexBasedAccessExpr.indexExpr.type = symTable.errType;
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
                         indexBasedAccessExpr.expr.type);
         }

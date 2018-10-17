@@ -150,6 +150,10 @@ FieldBasedAccessExpr
    |                 <expression.source> . <fieldName.value>
    ;
 
+FiniteTypeNode
+   : <valueSet-joined-by|>*
+   ;
+
 Foreach
    : <withParantheses?> foreach ( <variables-joined-by,>* in <collection.source> ) { <body.source> }
    |                    foreach   <variables-joined-by,>* in <collection.source>   { <body.source> }
@@ -627,21 +631,6 @@ TypeConversionExpr
    | < <typeNode.source> > <expression.source>
    ;
 
-TypeDefinition
-   : <notVisible?>
-   : <isObjectType?>                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <isAbstractKeywordAvailable?abstract> object { <typeNode.source> }                           ;
-   : <isObjectType?>                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <isAbstractKeywordAvailable?abstract> object { <typeNode.source> }                           ;
-   | <isRecordType?> <isRecordKeywordAvailable?>                              <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                       record { <typeNode.source> }                           ;
-   | <isRecordType?> <isRecordKeywordAvailable?>                                                                        <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                       record { <typeNode.source> }                           ;
-   | <isRecordType?>                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                              { <typeNode.source> }                           ;
-   | <isRecordType?>                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                              { <typeNode.source> }                           ;
-   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>    | <valueSet-joined-by|>* ;
-   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>    | <valueSet-joined-by|>* ;
-   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>                             ;
-   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>                             ;
-   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                                       <valueSet-joined-by|>* ;
-   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                                       <valueSet-joined-by|>* ;
-   ;
 
 ObjectType
    : <fields>* <initFunction.source> <functions>*

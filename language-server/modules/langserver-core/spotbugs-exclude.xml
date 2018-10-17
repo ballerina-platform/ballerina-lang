@@ -29,6 +29,12 @@
         </OR>
     </Match>
     <Match>
+        <Package name="org.ballerinalang.langserver.index.dao"/>
+        <OR>
+            <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+        </OR>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.LSContextManager" />
         <OR>
             <Bug pattern="NP_NULL_PARAM_DEREF" />
@@ -50,6 +56,12 @@
         <Class name="org.ballerinalang.langserver.signature.SignatureHelpUtil" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.command.CommandExecutor" />
+        <OR>
+            <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" />
         </OR>
     </Match>
 </FindBugsFilter>

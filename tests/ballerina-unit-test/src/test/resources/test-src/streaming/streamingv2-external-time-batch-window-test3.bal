@@ -33,8 +33,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput > outputStream;
+stream<Teacher> inputStreamExternalTimeBatchTest3;
+stream<TeacherOutput > outputStreamExternalTimeBatchTest3;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startExternalTimeBatchwindowTest3() returns (TeacherOutput[]) {
@@ -52,12 +52,19 @@ function startExternalTimeBatchwindowTest3() returns (TeacherOutput[]) {
 
     testExternalTimeBatchwindow3();
 
-    outputStream.subscribe(printTeachers);
+    outputStreamExternalTimeBatchTest3.subscribe(printTeachers);
     foreach t in teachers {
-        inputStream.publish(t);
+        inputStreamExternalTimeBatchTest3.publish(t);
     }
 
-    runtime:sleep(5000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEmployeeArray) == 1 || count == 10) {
+            break;
+        }
+    }
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
@@ -65,12 +72,12 @@ function startExternalTimeBatchwindowTest3() returns (TeacherOutput[]) {
 function testExternalTimeBatchwindow3() {
 
     forever {
-        from inputStream window externalTimeBatchWindow("inputStream.timestamp", 1000, timeOut = 3000)
-        select inputStream.timestamp, inputStream.name, count() as count
-        group by inputStream.school
+        from inputStreamExternalTimeBatchTest3 window externalTimeBatchWindow(inputStreamExternalTimeBatchTest3.timestamp, 1000, timeOut = 3000)
+        select inputStreamExternalTimeBatchTest3.timestamp, inputStreamExternalTimeBatchTest3.name, count() as count
+        group by inputStreamExternalTimeBatchTest3.school
         => (TeacherOutput [] teachers) {
             foreach t in teachers {
-                outputStream.publish(t);
+                outputStreamExternalTimeBatchTest3.publish(t);
             }
         }
     }

@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInpu
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * LSInMemorySourceEntry.
@@ -31,8 +32,8 @@ import java.nio.file.Path;
 class LSInMemorySourceEntry extends FileSystemSourceInput {
 
     private WorkspaceDocumentManager documentManager;
-    LSInMemorySourceEntry(Path path, PackageID pkgId, WorkspaceDocumentManager documentManager) {
-        super(path);
+    LSInMemorySourceEntry(Path path, Path root, PackageID pkgId, WorkspaceDocumentManager documentManager) {
+        super(path, root.resolve(Paths.get(pkgId.name.value)));
         this.documentManager = documentManager;
     }
 
