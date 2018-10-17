@@ -2175,8 +2175,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Object value;
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
         if (integerLiteralContext != null && (value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value,
-                                            getOriginalIntegerValue(integerLiteralContext));
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value, ctx.getText());
         } else if (ctx.floatingPointLiteral() != null) {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)),
@@ -3298,24 +3297,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
         }
         return null;
-    }
-
-    /**
-     * Get the original integer value.
-     *
-     * @param integerLiteralContext integer literal context
-     * @return original integer value
-     */
-    private String getOriginalIntegerValue(BallerinaParser.IntegerLiteralContext integerLiteralContext) {
-        String originalValue = null;
-        if (integerLiteralContext.DecimalIntegerLiteral() != null) {
-            originalValue = integerLiteralContext.DecimalIntegerLiteral().getText();
-        } else if (integerLiteralContext.HexIntegerLiteral() != null) {
-            originalValue = integerLiteralContext.HexIntegerLiteral().getText();
-        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-            originalValue = integerLiteralContext.BinaryIntegerLiteral().getText();
-        }
-        return originalValue;
     }
 
     private BLangLambdaFunction getFunctionDefinition(BallerinaParser.ScopeStatementContext ctx) {
