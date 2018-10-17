@@ -415,7 +415,8 @@ public class CommonUtil {
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         annotationItem.setKind(CompletionItemKind.Property);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
                 .findAny();
@@ -439,7 +440,8 @@ public class CommonUtil {
         if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
             return null;
         }
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
         Position start = new Position();
 
         if (!imports.isEmpty()) {
@@ -730,29 +732,14 @@ public class CommonUtil {
     /**
      * Get the current file's imports.
      * 
+     * @param pkg               BLangPackage to extract content from
      * @param ctx               LS Operation Context
      * @return {@link List}     List of imports in the current file
      */
-    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
-        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
-        return bLangPackage.getImports().stream()
+    public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
+        String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        return pkg.getImports().stream()
                 .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get the current file's top level nodes.
-     *
-     * @param ctx               LS Operation Context
-     * @return {@link List}     List of top level nodes in the current file
-     */
-    public static List<TopLevelNode> getCurrentFileTopLevelNodes(LSContext ctx) {
-        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
-        return bLangPackage.topLevelNodes.stream()
-                .filter(topLevelNode -> topLevelNode.getPosition().getSource().getCompilationUnitName()
-                        .equals(currentFile))
                 .collect(Collectors.toList());
     }
 
@@ -766,7 +753,20 @@ public class CommonUtil {
                 || symbolContainsInvalidChars(symbol));
     }
 
-    // Private Methods
+    /**
+     * Get the TopLevel nodes of the current file.
+     *
+     * @param pkgNode           Current Package node
+     * @param ctx               Service Operation context
+     * @return {@link List}     List of Top Level Nodes
+     */
+    public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, LSContext ctx) {
+        String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
+                .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
+                .findAny().orElse(null);
+        return filteredCUnit == null ? new ArrayList<>() : filteredCUnit.getTopLevelNodes();
+    }
     
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {

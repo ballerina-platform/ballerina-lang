@@ -63,7 +63,15 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
         inputStream.publish(t);
     }
 
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEmployeeArray) == 4 || count == 10) {
+            break;
+        }
+    }
+
     io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
