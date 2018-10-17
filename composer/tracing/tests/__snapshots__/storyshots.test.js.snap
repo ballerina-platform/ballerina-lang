@@ -434,7 +434,7 @@ exports[`Storyshots trace list list traces 1`] = `
       <div
         className="column wrap-text time"
       >
-        18:51:35.575
+        13:21:35.575
       </div>
       <div
         className="column wrap-text path"
@@ -464,7 +464,7 @@ exports[`Storyshots trace list list traces 1`] = `
       <div
         className="column wrap-text time"
       >
-        18:51:35.575
+        13:21:35.575
       </div>
       <div
         className="column wrap-text path"
@@ -494,7 +494,7 @@ exports[`Storyshots trace list list traces 1`] = `
       <div
         className="column wrap-text time"
       >
-        18:51:35.575
+        13:21:35.575
       </div>
       <div
         className="column wrap-text path"
@@ -524,7 +524,7 @@ exports[`Storyshots trace list list traces 1`] = `
       <div
         className="column wrap-text time"
       >
-        18:51:35.575
+        13:21:35.575
       </div>
       <div
         className="column wrap-text path"
@@ -598,7 +598,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
       <div
         className="column wrap-text time"
       >
-        18:51:35.575
+        13:21:35.575
       </div>
       <div
         className="column wrap-text path"
@@ -628,7 +628,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
       <div
         className="column wrap-text time"
       >
-        18:51:35.575
+        13:21:35.575
       </div>
       <div
         className="column wrap-text path"
@@ -658,7 +658,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
       <div
         className="column wrap-text time"
       >
-        18:51:35.575
+        13:21:35.575
       </div>
       <div
         className="column wrap-text path"
@@ -688,7 +688,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
       <div
         className="column wrap-text time"
       >
-        18:51:35.575
+        13:21:35.575
       </div>
       <div
         className="column wrap-text path"
@@ -1260,7 +1260,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
         <div
           className="column wrap-text time"
         >
-          18:51:35.575
+          13:21:35.575
         </div>
         <div
           className="column wrap-text path"
@@ -1290,7 +1290,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
         <div
           className="column wrap-text time"
         >
-          18:51:35.575
+          13:21:35.575
         </div>
         <div
           className="column wrap-text path"
@@ -1320,7 +1320,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
         <div
           className="column wrap-text time"
         >
-          18:51:35.575
+          13:21:35.575
         </div>
         <div
           className="column wrap-text path"
@@ -1350,7 +1350,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
         <div
           className="column wrap-text time"
         >
-          18:51:35.575
+          13:21:35.575
         </div>
         <div
           className="column wrap-text path"
