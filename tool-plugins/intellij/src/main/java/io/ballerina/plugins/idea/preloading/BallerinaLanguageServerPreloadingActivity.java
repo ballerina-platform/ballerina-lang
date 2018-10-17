@@ -24,7 +24,6 @@ import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.util.messages.MessageBusConnection;
-import io.ballerina.plugins.idea.inspections.LSPluginInstallationNotificationProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -74,7 +73,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
      *
      * @return Returns true if a definition is registered successfully.
      */
-    public boolean registerServerDefinition() {
+    public static boolean registerServerDefinition() {
         Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
         for (Project project : openProjects) {
             if (registerServerDefinition(project)) {
@@ -84,7 +83,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
         return false;
     }
 
-    public boolean registerServerDefinition(Project project) {
+    public static boolean registerServerDefinition(Project project) {
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         String balSdkPath = getBallerinaSdk(project);
         if (balSdkPath != null) {
@@ -93,7 +92,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
         return false;
     }
 
-    public boolean doRegister(@NotNull String sdkPath) {
+    public static boolean doRegister(@NotNull String sdkPath) {
 
         String os = OperatingSystemUtils.getOperatingSystem();
         if (os != null) {
@@ -104,7 +103,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
                 args[0] = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
             }
 
-            if (args[0] != null && hasLspPlugin()) {
+            if (args[0] != null) {
                 LanguageServerRegisterService.register(args);
                 LOGGER.info("registered language server definition using Sdk path: " + sdkPath);
                 return true;
@@ -117,7 +116,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
     /**
      * Stops running language server instances.
      */
-    public void stopProcesses() {
+    public static void stopProcesses() {
         try {
             String os = getOperatingSystem();
             if (os == null) {
@@ -137,7 +136,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
     }
 
     @Nullable
-    private String getBallerinaSdk(Project project) {
+    private static String getBallerinaSdk(Project project) {
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk == null) {
             return null;
@@ -146,22 +145,12 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
         return (isBallerinaSdkHome(sdkPath)) ? sdkPath : null;
     }
 
-    private boolean isBallerinaSdkHome(String sdkPath) {
+    private static boolean isBallerinaSdkHome(String sdkPath) {
         if (sdkPath == null || sdkPath.equals("")) {
             return false;
         }
         String balScriptPath = Paths.get(sdkPath, "bin", "ballerina").toString();
-        String launcherScriptPath = Paths.get(sdkPath, this.launcherScriptPath, "language-server-launcher.sh")
-                .toString();
-        return new File(balScriptPath).exists() && new File(launcherScriptPath).exists();
-    }
-
-    private boolean hasLspPlugin() {
-        //checks among installed plugins
-        if (LSPluginInstallationNotificationProvider.isAlreadyInstalled() && !LSPluginInstallationNotificationProvider
-                .isDisabled()) {
-            return true;
-        }
-        return false;
+        String scriptPath = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.sh").toString();
+        return new File(balScriptPath).exists() && new File(scriptPath).exists();
     }
 }

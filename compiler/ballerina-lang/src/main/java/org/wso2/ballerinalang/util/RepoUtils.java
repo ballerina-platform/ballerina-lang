@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 /**
  * Home repository util methods.
@@ -141,5 +142,28 @@ public class RepoUtils {
         } catch (Throwable ignore) {
         }
         return "unknown";
+    }
+
+
+    /**
+     * Validates the org-name and package name.
+     *
+     * @param orgName The org-name
+     * @return True if valid org-name or package name, else false.
+     */
+    public static boolean validateOrg(String orgName) {
+        String validRegex = "^[a-z0-9_]*$";
+        return Pattern.matches(validRegex, orgName);
+    }
+
+    /**
+     * Validates the org-name and package name.
+     *
+     * @param pkgName The org-name or package name.
+     * @return True if valid org-name or package name, else false.
+     */
+    public static boolean validatePkg(String pkgName) {
+        String validRegex = "^[a-zA-Z0-9_.]*$";
+        return Pattern.matches(validRegex, pkgName);
     }
 }

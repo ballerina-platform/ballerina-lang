@@ -156,6 +156,12 @@ function testAnyRestFieldRHSAccess() returns any {
     return name;
 }
 
+function testAnyRestFieldRHSIndexAccess() returns any {
+    Person p = {};
+    any name = p["firstName"];
+    return name;
+}
+
 type Person2 record {
     string name;
     int age;
@@ -171,6 +177,13 @@ function testStringRestFieldRHSAccess() returns string {
     Person2 p = {};
     string name = p.firstName;
     return name;
+}
+
+function testStringRestFieldRHSIndexAccess() returns (string?, string?) {
+    Person2 p = {};
+    string? name = p["name"];
+    string? firstName = p["firstName"];
+    return (name, firstName);
 }
 
 type Person3 record {
@@ -190,6 +203,13 @@ function testIntRestFieldRHSAccess() returns int {
     return birthYear;
 }
 
+function testIntRestFieldRHSIndexAccess() returns (int?, int?) {
+    Person3 p = {};
+    int? age = p["age"];
+    int? birthYear = p["birthYear"];
+    return (age, birthYear);
+}
+
 type Person4 record {
     string name;
     int age;
@@ -205,6 +225,12 @@ function testFloatRestFieldRHSAccess() returns float {
     Person4 p = {};
     float height = p.height;
     return height;
+}
+
+function testFloatRestFieldRHSIndexAccess() returns (float?, float?) {
+    Person4 p = {weight: 61.5};
+    float? height = p["height"];
+    return (p["weight"], height);
 }
 
 type Person5 record {
@@ -224,6 +250,12 @@ function testBooleanRestFieldRHSAccess() returns boolean {
     return isEmployed;
 }
 
+function testBooleanRestFieldRHSIndexAccess() returns (boolean?, boolean?) {
+    Person5 p = {isStudent: true};
+    boolean? isEmployed = p["isEmployed"];
+    return (p["isStudent"], isEmployed);
+}
+
 type Person6 record {
     string name;
     int age;
@@ -241,6 +273,13 @@ function testMapRestFieldRHSAccess() returns map {
     return misc;
 }
 
+function testMapRestFieldRHSIndexAccess() returns (map?, map?) {
+    map misc;
+    Person6 p = {misc:misc};
+    map? invMap = p["invMap"];
+    return (p["misc"], invMap);
+}
+
 type Person7 record {
     string name;
     int age;
@@ -256,6 +295,12 @@ function testUnionRestFieldRHSAccess() returns float|string|boolean {
     Person7 p = {};
     float|string|boolean miscFields = p.misc;
     return miscFields;
+}
+
+function testUnionRestFieldRHSIndexAccess() returns ((float|string|boolean)?, (float|string|boolean)?) {
+    Person7 p = {miscField: "Foo"};
+    float|string|boolean|() invField = p["invField"];
+    return (p["miscField"], invField);
 }
 
 type Person8 record {
@@ -286,6 +331,12 @@ function testRecordRestFieldRHSAccess() returns Department {
     return dept;
 }
 
+function testRecordRestFieldRHSIndexAccess() returns (Department?, Department?) {
+    Person9 p = {dept:{}};
+    Department? dept = p["department"];
+    return (p["dept"], dept);
+}
+
 type Animal object {
     public string kind;
     public string name;
@@ -311,6 +362,13 @@ function testObjectRestFieldRHSAccess() returns Animal {
     return pet;
 }
 
+function testObjectRestFieldRHSIndexAccess() returns (Animal?, Animal?) {
+    Animal anim = new("Rocky", "Dog");
+    Person10 p = {pet:anim};
+    Animal? pet = p["invPet"];
+    return (p["pet"], pet);
+}
+
 type Person11 record {
     string name;
     int age;
@@ -328,10 +386,16 @@ function testTupleRestFieldRHSAccess() returns (float, string, Animal) {
     return tupType;
 }
 
+function testTupleRestFieldRHSIndexAccess() returns ((float, string, Animal)?, (float, string, Animal)?) {
+    Person11 p = {tup:(4.5, "foo", new Animal("Miaw", "Cat"))};
+    (float, string, Animal)? tupType = p["invTup"];
+    return (p["tup"], tupType);
+}
+
 type PersonA record {
     string fname;
     string lname;
-    function() returns string fullName;
+    function() returns string fullName?;
 };
 
 function testFuncPtrAsRecordField() returns string {

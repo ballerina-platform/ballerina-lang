@@ -31,8 +31,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput > outputStream;
+stream<Teacher> inputStreamTimeBatchTest2;
+stream<TeacherOutput > outputStreamTimeBatchTest2;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
@@ -43,23 +43,28 @@ function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
     Teacher t3 = { name: "Naveen", age: 35, status: "single", school: "Hindu College" };
     Teacher t4 = { name: "Amal", age: 50, status: "married", school: "Hindu College" };
     Teacher t5 = { name: "Nimal", age: 55, status: "married", school: "Hindu College" };
-    Teacher t6 = { name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
 
     testTimeBatchwindow();
 
-    outputStream.subscribe(printTeachers);
+    outputStreamTimeBatchTest2.subscribe(printTeachers);
 
-    inputStream.publish(t1);
-    inputStream.publish(t2);
+    inputStreamTimeBatchTest2.publish(t1);
+    inputStreamTimeBatchTest2.publish(t2);
     runtime:sleep(1200);
-    inputStream.publish(t3);
-    inputStream.publish(t4);
+    inputStreamTimeBatchTest2.publish(t3);
+    inputStreamTimeBatchTest2.publish(t4);
     runtime:sleep(3000);
-    inputStream.publish(t5);
-    inputStream.publish(t6);
+    inputStreamTimeBatchTest2.publish(t5);
 
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+            break;
+        }
+    }
 
-    runtime:sleep(1500);
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
@@ -67,12 +72,12 @@ function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
 function testTimeBatchwindow() {
 
     forever {
-        from inputStream window timeBatchWindow(1000)
-        select inputStream.name, count() as count
-        group by inputStream.school
+        from inputStreamTimeBatchTest2 window timeBatchWindow(1000)
+        select inputStreamTimeBatchTest2.name, count() as count
+        group by inputStreamTimeBatchTest2.school
         => (TeacherOutput [] emp) {
             foreach e in emp {
-                outputStream.publish(e);
+                outputStreamTimeBatchTest2.publish(e);
             }
         }
     }
