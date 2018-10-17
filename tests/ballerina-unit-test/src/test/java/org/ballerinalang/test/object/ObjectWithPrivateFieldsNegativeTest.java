@@ -69,6 +69,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg1 + "'privatePerson.new'", 16, 47);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg1 + "'privatePerson'", 16, 13);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg1 + "'privatePerson'", 20, 5);
+        // Todo - Fix duplicate error.
         BAssertUtil.validateError(compileResult, index, expectedErrMsg1 + "'privatePerson'", 20, 5);
     }
 

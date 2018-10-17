@@ -45,6 +45,7 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(compileResult, 6, expectedErrMsg2 + "'privatePerson'", 8, 13);
         BAssertUtil.validateError(compileResult, 7, expectedErrMsg2 + "'privatePerson'", 16, 9);
         BAssertUtil.validateError(compileResult, 8, expectedErrMsg2 + "'privatePerson'", 16, 13);
+        // Todo - Fix duplicate error.
         BAssertUtil.validateError(compileResult, 9, expectedErrMsg2 + "'privatePerson'", 20, 5);
         BAssertUtil.validateError(compileResult, 10, expectedErrMsg2 + "'privatePerson'", 20, 5);
         BAssertUtil.validateError(compileResult, 11, "unknown type 'privatePerson'", 20, 5);
