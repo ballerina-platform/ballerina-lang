@@ -43,7 +43,6 @@ function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
     Teacher t3 = { name: "Naveen", age: 35, status: "single", school: "Hindu College" };
     Teacher t4 = { name: "Amal", age: 50, status: "married", school: "Hindu College" };
     Teacher t5 = { name: "Nimal", age: 55, status: "married", school: "Hindu College" };
-    Teacher t6 = { name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
 
     testTimeBatchwindow();
 
@@ -56,10 +55,16 @@ function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
     inputStreamTimeBatchTest2.publish(t4);
     runtime:sleep(3000);
     inputStreamTimeBatchTest2.publish(t5);
-    inputStreamTimeBatchTest2.publish(t6);
 
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+            break;
+        }
+    }
 
-    runtime:sleep(1500);
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }

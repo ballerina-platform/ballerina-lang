@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.nativeimpl;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.980.0
  */
-public class BallerinaStreamsV2AggregationWithGroupByTest {
+public class BallerinaStreamsV2AggregationGroupByTest {
 
     private CompileResult result;
 

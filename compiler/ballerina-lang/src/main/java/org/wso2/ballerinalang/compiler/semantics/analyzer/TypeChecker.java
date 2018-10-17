@@ -509,7 +509,12 @@ public class TypeChecker extends BLangNodeVisitor {
                         ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
                     }
                 }
-                if (env.node.getKind() == NodeKind.ARROW_EXPR) {
+                if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
+                    // The owner of the variable ref should be an invokable symbol.
+                    // It's set here because the arrow expression changes to an invokable only at desugar
+                    // and is not an invokable at this phase.
+                    symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
+                            env.enclPkg.packageID, null, symbol.owner);
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                     BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                             SymTag.VARIABLE_NAME);
@@ -558,9 +563,10 @@ public class TypeChecker extends BLangNodeVisitor {
      */
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
         if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            // if enclosing env's node is arrow expression
             return env.enclEnv;
         }
-        if (env.enclInvokable == encInvokable) {
+        if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
         }
         return env;

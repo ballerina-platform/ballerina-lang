@@ -77,7 +77,7 @@ lambdaFunction
 
 arrowFunction
     :   arrowParam EQUAL_GT expression
-    |   LEFT_PARENTHESIS arrowParam (COMMA arrowParam)* RIGHT_PARENTHESIS EQUAL_GT expression
+    |   LEFT_PARENTHESIS (arrowParam (COMMA arrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT expression
     ;
 
 arrowParam

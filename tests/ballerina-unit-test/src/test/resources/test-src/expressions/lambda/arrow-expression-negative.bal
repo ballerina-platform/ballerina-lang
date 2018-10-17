@@ -63,3 +63,7 @@ function() foo = function () returns () {
 };
 
 int p = 2;
+
+function testArrowExprWithNoInputs() {
+    function() returns string lambda = (i) => i + p;
+}
