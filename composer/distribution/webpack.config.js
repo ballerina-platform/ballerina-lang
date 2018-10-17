@@ -3,7 +3,9 @@ const path = require('path');
 module.exports = {
     output: {
       path: path.resolve(__dirname, 'build'),
-      filename: 'composer.js'
+      filename: 'composer.js',
+      library: 'ballerinaComposer',
+      libraryTarget: 'umd'
     },
     resolve: {
       alias: {
