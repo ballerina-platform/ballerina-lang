@@ -136,6 +136,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -833,8 +834,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             exprTypes = Lists.of(exprType);
         }
 
-        //  visit patterns
-        matchNode.simplePatternClauses.forEach(patternClause -> patternClause.accept(this));
+        matchNode.patternClauses.forEach(patternClause -> patternClause.accept(this));
         matchNode.exprTypes = exprTypes;
     }
 
@@ -848,6 +848,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         symbolEnter.defineNode(patternClause.variable, this.env);
+        analyzeStmt(patternClause.body, this.env);
+    }
+
+    public void visit(BLangMatchStmtStaticBindingPatternClause patternClause) {
+        typeChecker.checkExpr(patternClause.literal, this.env);
         analyzeStmt(patternClause.body, this.env);
     }
 

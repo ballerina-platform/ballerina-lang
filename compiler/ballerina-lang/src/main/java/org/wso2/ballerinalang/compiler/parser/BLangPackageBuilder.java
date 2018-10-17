@@ -182,6 +182,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -2377,6 +2378,8 @@ public class BLangPackageBuilder {
         matchStmt.pos = pos;
         matchStmt.simplePatternClauses = new ArrayList<>();
 
+        matchStmt.patternClauses = new ArrayList<>();
+
         this.matchStmtStack.addFirst(matchStmt);
     }
 
@@ -2412,6 +2415,20 @@ public class BLangPackageBuilder {
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
         this.matchStmtStack.peekFirst().simplePatternClauses.add(patternClause);
+
+        this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
+    }
+
+    void addMatchStmtLiteralBindingPattern(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangMatchStmtStaticBindingPatternClause patternClause =
+                (BLangMatchStmtStaticBindingPatternClause) TreeBuilder.createMatchStatementLiteralBindingPattern();
+        patternClause.pos = pos;
+        patternClause.addWS(ws);
+
+        patternClause.literal = (BLangExpression) this.exprNodeStack.pop();
+        patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
+        patternClause.body.pos = pos;
+        this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 
     void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend, boolean

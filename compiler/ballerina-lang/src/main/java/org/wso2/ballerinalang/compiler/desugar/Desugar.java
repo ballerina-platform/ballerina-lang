@@ -161,7 +161,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -1210,6 +1212,8 @@ public class Desugar extends BLangNodeVisitor {
         // Here we generate an if-else statement for the match statement
         // Here is an example match statement
         //
+        //  case 1 (old match)
+        //
         //      match expr {
         //          int k => io:println("int value: " + k);
         //          string s => io:println("string value: " + s);
@@ -1238,6 +1242,30 @@ public class Desugar extends BLangNodeVisitor {
         //      any case..
         //  }
         //
+        //  case 2 (new match)
+        //      match expr {
+        //          12 => io:println("Matched Int Value 12");
+        //          35 => io:println("Matched Int Value 35");
+        //          true => io:println("Matched Boolean Value true");
+        //          "Hello" => io:println("Matched String Value Hello");
+        //      }
+        //
+        //  This will be desugared as below :
+        //
+        //  string | int | boolean _$$_matchexpr = expr;
+        //  if ( _$$_matchexpr isassignable int && (<int>_$$_matchexpr) == 12){
+        //      io:println("Matched Int Value 12");
+        //
+        //  } else if (_$$_matchexpr isassignable int && (<int>_$$_matchexpr) == 35) {
+        //      io:println("Matched Int Value 35");
+        //
+        //  } else if (_$$_matchexpr isassignable boolean && (<boolean>_$$_matchexpr) == true) {
+        //      io:println("Matched Boolean Value true");
+        //
+        //  } else if (_$$_matchexpr isassignable string && (<string>_$$_matchexpr) == "Hello") {
+        //      io:println("Matched String Value Hello");
+        //
+        //  }
 
         // First create a block statement to hold generated statements
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
@@ -2644,7 +2672,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStatement generateIfElseStmt(BLangMatch matchStmt, BLangSimpleVariable matchExprVar) {
-        List<BLangMatchStmtSimpleBindingPatternClause> patterns = matchStmt.simplePatternClauses;
+        List<BLangMatchStmtBindingPatternClause> patterns = matchStmt.patternClauses;
         if (patterns.size() == 1) {
             return getMatchPatternBody(patterns.get(0), matchExprVar);
         }
@@ -2652,13 +2680,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf parentIfNode = generateIfElseStmt(patterns.get(0), matchExprVar);
         BLangIf currentIfNode = parentIfNode;
         for (int i = 1; i < patterns.size(); i++) {
-            if (i == patterns.size() - 1) {
-                // This is the last pattern
-                currentIfNode.elseStmt = getMatchPatternBody(patterns.get(i), matchExprVar);
-            } else {
-                currentIfNode.elseStmt = generateIfElseStmt(patterns.get(i), matchExprVar);
-                currentIfNode = (BLangIf) currentIfNode.elseStmt;
-            }
+            currentIfNode.elseStmt = generateIfElseStmt(patterns.get(i), matchExprVar);
+            currentIfNode = (BLangIf) currentIfNode.elseStmt;
         }
 
         // TODO handle json and any
@@ -2677,7 +2700,7 @@ public class Desugar extends BLangNodeVisitor {
      * @param matchExprVar  variable node of the match expression
      * @return if else statement node
      */
-    private BLangIf generateIfElseStmt(BLangMatchStmtSimpleBindingPatternClause patternClause,
+    private BLangIf generateIfElseStmt(BLangMatchStmtBindingPatternClause patternClause,
                                        BLangSimpleVariable matchExprVar) {
         BLangExpression patternIfCondition = createPatternIfCondition(patternClause, matchExprVar.symbol);
         BLangBlockStmt patternBody = getMatchPatternBody(patternClause, matchExprVar);
@@ -2685,26 +2708,36 @@ public class Desugar extends BLangNodeVisitor {
                 patternIfCondition, patternBody, null);
     }
 
-    private BLangBlockStmt getMatchPatternBody(BLangMatchStmtSimpleBindingPatternClause patternClause,
+    private BLangBlockStmt getMatchPatternBody(BLangMatchStmtBindingPatternClause pattern,
                                                BLangSimpleVariable matchExprVar) {
-        // Add the variable definition to the body of the pattern clause
-        if (patternClause.variable.name.value.equals(Names.IGNORE.value)) {
-            return patternClause.body;
+
+        BLangBlockStmt body = null;
+
+        if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == pattern.getKind()) {
+            body = pattern.body;
+        } else if (NodeKind.MATCH_SIMPLE_PATTERN_CLAUSE == pattern.getKind()) {
+            BLangMatchStmtSimpleBindingPatternClause patternClause = (BLangMatchStmtSimpleBindingPatternClause) pattern;
+            // Add the variable definition to the body of the pattern clause
+            if (patternClause.variable.name.value.equals(Names.IGNORE.value)) {
+                return patternClause.body;
+            }
+
+            // create TypeName i = <TypeName> _$$_
+            // Create a variable reference for _$$_
+            BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(patternClause.pos,
+                    matchExprVar.symbol);
+            BLangExpression patternVarExpr = addConversionExprIfRequired(matchExprVarRef, patternClause.variable.type,
+                    types, symTable, symResolver);
+
+            // Add the variable def statement
+            BLangSimpleVariable patternVar = ASTBuilderUtil.createVariable(patternClause.pos, "",
+                    patternClause.variable.type, patternVarExpr, patternClause.variable.symbol);
+            BLangSimpleVariableDef patternVarDef = ASTBuilderUtil.createVariableDef(patternVar.pos, patternVar);
+            patternClause.body.stmts.add(0, patternVarDef);
+            body = patternClause.body;
         }
 
-        // create TypeName i = <TypeName> _$$_
-        // Create a variable reference for _$$_
-        BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(patternClause.pos,
-                matchExprVar.symbol);
-        BLangExpression patternVarExpr = addConversionExprIfRequired(matchExprVarRef, patternClause.variable.type,
-                types, symTable, symResolver);
-
-        // Add the variable def statement
-        BLangSimpleVariable patternVar = ASTBuilderUtil.createVariable(patternClause.pos, "",
-                patternClause.variable.type, patternVarExpr, patternClause.variable.symbol);
-        BLangSimpleVariableDef patternVarDef = ASTBuilderUtil.createVariableDef(patternVar.pos, patternVar);
-        patternClause.body.stmts.add(0, patternVarDef);
-        return patternClause.body;
+        return body;
     }
 
     static BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType, Types types, SymbolTable
@@ -2747,10 +2780,26 @@ public class Desugar extends BLangNodeVisitor {
         return conversionExpr;
     }
 
-    private BLangExpression createPatternIfCondition(BLangMatchStmtSimpleBindingPatternClause patternClause,
+    private BLangExpression createPatternIfCondition(BLangMatchStmtBindingPatternClause patternClause,
                                                      BVarSymbol varSymbol) {
+        BType patternType;
+
+        switch (patternClause.getKind()) {
+            case MATCH_SIMPLE_PATTERN_CLAUSE:
+                BLangMatchStmtSimpleBindingPatternClause simplePattern =
+                        (BLangMatchStmtSimpleBindingPatternClause) patternClause;
+                patternType = simplePattern.variable.type;
+                break;
+            case MATCH_STATIC_PATTERN_CLAUSE:
+                BLangMatchStmtStaticBindingPatternClause staticPattern =
+                        (BLangMatchStmtStaticBindingPatternClause) patternClause;
+                patternType = staticPattern.literal.type;
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported match pattern");
+        }
+
         BLangExpression binaryExpr;
-        BType patternType = patternClause.variable.type;
         BType[] memberTypes;
         if (patternType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) patternType;
@@ -2761,16 +2810,16 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (memberTypes.length == 1) {
-            binaryExpr = createPatternMatchBinaryExpr(patternClause.pos, varSymbol, memberTypes[0]);
+            binaryExpr = createPatternMatchBinaryExpr(patternClause, varSymbol, memberTypes[0]);
         } else {
-            BLangExpression lhsExpr = createPatternMatchBinaryExpr(patternClause.pos, varSymbol, memberTypes[0]);
-            BLangExpression rhsExpr = createPatternMatchBinaryExpr(patternClause.pos, varSymbol, memberTypes[1]);
+            BLangExpression lhsExpr = createPatternMatchBinaryExpr(patternClause, varSymbol, memberTypes[0]);
+            BLangExpression rhsExpr = createPatternMatchBinaryExpr(patternClause, varSymbol, memberTypes[1]);
             binaryExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, lhsExpr, rhsExpr,
                     symTable.booleanType, OperatorKind.OR,
                     (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR,
                             lhsExpr.type, rhsExpr.type));
             for (int i = 2; i < memberTypes.length; i++) {
-                lhsExpr = createPatternMatchBinaryExpr(patternClause.pos, varSymbol, memberTypes[i]);
+                lhsExpr = createPatternMatchBinaryExpr(patternClause, varSymbol, memberTypes[i]);
                 rhsExpr = binaryExpr;
                 binaryExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, lhsExpr, rhsExpr,
                         symTable.booleanType, OperatorKind.OR,
@@ -2778,11 +2827,31 @@ public class Desugar extends BLangNodeVisitor {
                                 lhsExpr.type, rhsExpr.type));
             }
         }
-
         return binaryExpr;
     }
 
-    private BLangExpression createPatternMatchBinaryExpr(DiagnosticPos pos, BVarSymbol varSymbol, BType patternType) {
+    private BLangExpression createPatternMatchBinaryExpr(BLangMatchStmtBindingPatternClause patternClause,
+                                                         BVarSymbol varSymbol, BType patternType) {
+        DiagnosticPos pos = patternClause.pos;
+        if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
+            BLangMatchStmtStaticBindingPatternClause pattern = (BLangMatchStmtStaticBindingPatternClause) patternClause;
+            BLangIsAssignableExpr lhsExpr = createIsAssignableExpression(pos, varSymbol, patternType);
+
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
+
+            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, pattern.literal.type,
+                    types, symTable, symResolver);
+
+            BLangBinaryExpr rhsExpr = ASTBuilderUtil.createBinaryExpr(pos, conversionExpr, pattern.literal,
+                    symTable.booleanType, OperatorKind.EQUAL,
+                    (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL, patternType,
+                            pattern.literal.type));
+
+            return ASTBuilderUtil.createBinaryExpr(pos, lhsExpr, rhsExpr, symTable.booleanType,
+                    OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
+                            symTable.booleanType, symTable.booleanType));
+        }
+
         if (patternType == symTable.nilType) {
             BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
             BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, null);
