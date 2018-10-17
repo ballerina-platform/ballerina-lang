@@ -48,6 +48,7 @@ public enum NodeKind {
     RECORD_VARIABLE,
     WORKER,
     XMLNS,
+    CHANNEL,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -61,6 +62,7 @@ public enum NodeKind {
     INT_RANGE_EXPR,
     INVOCATION,
     LAMBDA,
+    ARROW_EXPR,
     LITERAL,
     RECORD_LITERAL_EXPR,
     SIMPLE_VARIABLE_REF,
@@ -127,6 +129,8 @@ public enum NodeKind {
     STREAM,
     SCOPE,
     COMPENSATE,
+    CHANNEL_RECEIVE,
+    CHANNEL_SEND,
 
     /* Types */
     ARRAY_TYPE,

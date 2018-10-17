@@ -42,10 +42,10 @@ public class LogConfigReader {
             try {
                 logManager.readConfiguration(configStream);
             } catch (IOException e) {
-                stderr.println("ballerina: failed to initialize logging");
+                stderr.println("error: failed to initialize logging");
             }
         } else {
-            stderr.println("ballerina: failed to initialize logging");
+            stderr.println("error: failed to initialize logging");
         }
     }
 }

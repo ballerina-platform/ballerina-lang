@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -105,7 +106,7 @@ public class Field {
             if (primType != null) {
                 fieldDescriptorBuilder.setType(primType);
             } else {
-                if (type instanceof BStructureType) {
+                if (type instanceof BStructureType || type instanceof FiniteType) {
                     fieldDescriptorBuilder.setTypeName(fieldType);
                 } else {
                     throw new GrpcServerException("Unsupported field type, field type " + type.getKind().typeName() +

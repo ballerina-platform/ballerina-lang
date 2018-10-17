@@ -16,6 +16,8 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -33,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -125,8 +128,24 @@ public class IterableAnalyzer {
             return;
         }
 
+        BLangExpression bLangExpression = operation.iExpr.argExprs.get(0);
+        BType expType = symTable.noType;
+        if (bLangExpression.getKind() == NodeKind.ARROW_EXPR) {
+            if (operation.kind == IterableKind.FOREACH) {
+                dlog.error(operation.pos, DiagnosticCode.ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION,
+                        IterableKind.FOREACH.getKind());
+                operation.outputType = operation.resultType = symTable.errType;
+                return;
+            }
+
+            operation.arity = inferExpectedArity(operation);
+            List<BType> paramTypes = calculateProvidedElementTypes(operation);
+            BType inputParam = paramTypes.size() > 1 ? new BTupleType(paramTypes) : paramTypes.get(0);
+            expType = new BInvokableType(Collections.singletonList(inputParam), symTable.noType, null);
+        }
+
         // Given param should be an invokable type (lambda type).
-        final BType operationParams = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), context.env);
+        final BType operationParams = typeChecker.checkExpr(bLangExpression, context.env, expType);
         if (operationParams == null || operationParams.tag != TypeTags.INVOKABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
             operation.outputType = operation.resultType = symTable.errType;
@@ -209,6 +228,14 @@ public class IterableAnalyzer {
     private List<BType> calculateProvidedElementTypes(Operation operation) {
         // calculated lambda's args types. (By looking collection type)
         return operation.collectionType.accept(lambdaTypeChecker, operation);
+    }
+
+    private int inferExpectedArity(Operation operation) {
+        if (operation.collectionType.getKind() == TypeKind.INTERMEDIATE_COLLECTION) {
+            return ((BIntermediateCollectionType) operation.collectionType).tupleType.tupleTypes.size();
+        }
+        // If not an intermediate collection, infer input parameter as a tuple
+        return 2;
     }
 
     private List<BType> calculateExpectedOutputArgs(Operation operation, List<BType> givenRetTypes) {

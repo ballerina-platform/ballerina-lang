@@ -21,14 +21,16 @@ import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
-import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,9 +44,20 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
     public BLangExpression expr;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
-    public List<BLangDocumentation> docAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
+    public boolean safeAssignment = false;
+    public boolean isField;
+
+    public boolean isDeclaredWithVar = false;
+
+    public BVarSymbol symbol;
+
+    public BLangVariable() {
+        this.annAttachments = new ArrayList<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
+        this.deprecatedAttachments = new ArrayList<>();
+    }
 
     @Override
     public BLangType getTypeNode() {
@@ -74,16 +87,6 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
-    }
-
-    @Override
-    public List<BLangDocumentation> getDocumentationAttachments() {
-        return docAttachments;
-    }
-
-    @Override
-    public void addDocumentationAttachment(DocumentationNode docAttachment) {
-        this.docAttachments.add((BLangDocumentation) docAttachment);
     }
 
     @Override

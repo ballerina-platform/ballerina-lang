@@ -46,7 +46,7 @@ public class PatternTest {
         BValue[] tempDifferences = BRunUtil.invoke(result, "runPatternQuery1");
 
         Assert.assertNotNull(tempDifferences);
-
+        Assert.assertEquals(tempDifferences.length, 1);
         BMap<String, BValue> tempDifference = (BMap<String, BValue>) tempDifferences[0];
         Assert.assertEquals(((BFloat) tempDifference.get("tempDifference")).floatValue(), 7.0);
     }
@@ -71,7 +71,7 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.get("userAction").stringValue(), "RoomClosedWithRegulatorOff");
     }
 
-    @Test(description = "Test pattern streaming query with 'Not' and 'And'")
+    @Test(enabled = false, description = "Test pattern streaming query with 'Not' and 'And'")
     public void testPatternQuery4() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery4");
 

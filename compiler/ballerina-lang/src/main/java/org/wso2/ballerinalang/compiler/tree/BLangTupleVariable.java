@@ -35,7 +35,6 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
     public List<BLangVariable> memberVariables;
 
     public BLangTupleVariable() {
-        this.docAttachments = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.deprecatedAttachments = new ArrayList<>();

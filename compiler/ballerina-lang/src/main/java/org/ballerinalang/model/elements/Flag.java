@@ -87,4 +87,8 @@ public enum Flag {
      * Temporary indicator for compensation variables.
      */
     COMPENSATE,
+    /**
+     * Indicates Flagged node is a abstract node.
+     */
+    ABSTRACT
 }

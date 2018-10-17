@@ -96,7 +96,16 @@ public class BCompileUtil {
         return compileResult;
     }
 
-//    Compile methods
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source package/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileAndGetBIR(String sourceFilePath) {
+        return compile(sourceFilePath, CompilerPhase.BIR_GEN);
+    }
+
     /**
      * Compile and return the semantic errors.
      *
@@ -266,7 +275,9 @@ public class BCompileUtil {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName, true);
         comResult.setAST(packageNode);
-        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
+        if (comResult.getErrorCount() > 0) {
+            return comResult;
+        } else if (CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0 || compilerPhase == CompilerPhase.BIR_GEN) {
             return comResult;
         }
 

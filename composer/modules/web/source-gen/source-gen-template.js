@@ -102,6 +102,71 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     switch (node.kind) {
         case 'CompilationUnit':
             return join(node.topLevelNodes, pretty, replaceLambda, l, w) + w();
+        case 'MarkdownDocumentation':
+            let docString = "";
+
+            for (let i = 0; i < node.ws.length; i++) {
+                docString += node.ws[i].ws + node.ws[i].text;
+                docString += node.documentationLines[i].text;
+            }
+
+            if (node.parameters) {
+                for (let i = 0; i < node.parameters.length; i++) {
+                    let parameter = node.parameters[i];
+                    for (let j = 0; j < parameter.ws.length; j++) {
+                        docString += parameter.ws[j].ws + parameter.ws[j].text;
+                    }
+                }
+            }
+
+            if (node.returnParameter) {
+                for (let i = 0; i < node.returnParameter.ws.length; i++) {
+                    docString += node.returnParameter.ws[i].ws + node.returnParameter.ws[i].text;
+                }
+            }
+
+            return docString;
+        case 'TypeDefinition':
+            let typeDefString = "";
+            if (node.ws) {
+                let wsCollection = [];
+                function collectWSFromNode (node) {
+                    for (let childName in node) {
+                        if (childName !== 'position' && childName !== 'parent') {
+                            const child = node[childName];
+                            if (child.kind) {
+                                collectWSFromNode(child);
+                            } else if (child instanceof Array) {
+                                if (childName === 'ws') {
+                                    wsCollection = wsCollection.concat(child);
+                                } else {
+                                    for (let i = 0; i < child.length; i++) {
+                                        const childItem = child[i];
+                                        if (childItem.kind) {
+                                            collectWSFromNode(childItem);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                collectWSFromNode(node);
+
+                wsCollection = wsCollection.sort(function (a, b) {
+                    return a.i - b.i;
+                }).filter(function (item, index, collection) {
+                    return !index || item.i !== collection[index - 1].i;
+                });
+
+                for (let i = 0; i < wsCollection.length; i++) {
+                    typeDefString += wsCollection[i].ws + wsCollection[i].text;
+                }
+            }
+
+            return typeDefString;
+
         /* eslint-disable max-len */
         // auto gen start
 // auto-gen-code

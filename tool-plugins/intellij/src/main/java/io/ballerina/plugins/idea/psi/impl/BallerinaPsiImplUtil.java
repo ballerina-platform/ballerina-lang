@@ -158,6 +158,9 @@ public class BallerinaPsiImplUtil {
     }
 
     public static final String LOCAL_PACKAGE_PLACEHOLDER = "$LOCAL_PROJECT$";
+    // Since instances of "com.intellij.openapi.project.Project" returns system-independant paths for project directory
+    // File.seperator should not be used
+    private static final String FILE_SEPARATOR = "/";
 
     @Nullable
     public static String getName(@NotNull BallerinaPackageName ballerinaPackageName) {
@@ -1746,37 +1749,37 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static String getPackage(@NotNull PsiFile file) {
         Project project = file.getProject();
-        String modulePath = project.getBasePath() + File.separator;
+        String modulePath = project.getBasePath() + FILE_SEPARATOR;
         String filePath = file.getVirtualFile().getPath();
         filePath = filePath.replace(modulePath, "");
-        if (!filePath.contains(File.separator)) {
+        if (!filePath.contains(FILE_SEPARATOR)) {
             return "";
         }
-        int index = filePath.indexOf(File.separator);
+        int index = filePath.indexOf(FILE_SEPARATOR);
         return filePath.substring(0, index);
     }
 
     @NotNull
     public static String getPackage(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        String modulePath = project.getBasePath() + File.separator;
+        String modulePath = project.getBasePath() + FILE_SEPARATOR;
         String filePath = virtualFile.getPath();
         filePath = filePath.replace(modulePath, "");
-        if (!filePath.contains(File.separator)) {
+        if (!filePath.contains(FILE_SEPARATOR)) {
             return "";
         }
-        int index = filePath.indexOf(File.separator);
+        int index = filePath.indexOf(FILE_SEPARATOR);
         return filePath.substring(0, index);
     }
 
     @NotNull
     public static String getFilePathInPackage(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        String projectPath = project.getBasePath() + File.separator;
+        String projectPath = project.getBasePath() + FILE_SEPARATOR;
         String filePath = virtualFile.getPath();
         filePath = filePath.replace(projectPath, "");
-        if (!filePath.contains(File.separator)) {
+        if (!filePath.contains(FILE_SEPARATOR)) {
             return "";
         }
-        int index = filePath.indexOf(File.separator);
+        int index = filePath.indexOf(FILE_SEPARATOR);
         return filePath.substring(index + 1);
     }
 

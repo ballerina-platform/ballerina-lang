@@ -154,9 +154,9 @@ class TreeUtil extends AbstractTreeUtil {
 
             for (let itr = 0; itr < parentAssignmentStatements.length; itr++) {
                 const stmt = parentAssignmentStatements[itr];
-                if (_.get(stmt, 'expression')
-                    && this.isConnectorInitExpr(_.get(stmt, 'expression'))
-                    && stmt.variables[0].variableName.value === variableName) {
+                if (_.get(stmt, 'expression') &&
+                    this.isConnectorInitExpr(_.get(stmt, 'expression')) &&
+                    stmt.variables[0].variableName.value === variableName) {
                     return _.get(stmt, 'expression');
                 }
             }
@@ -181,8 +181,8 @@ class TreeUtil extends AbstractTreeUtil {
         if (invocationExpression && this.isCheckExpr(invocationExpression)) {
             invocationExpression = invocationExpression.expression;
         }
-        return (invocationExpression && this.isInvocation(invocationExpression)
-        && invocationExpression.actionInvocation);
+        return (invocationExpression && this.isInvocation(invocationExpression) &&
+            invocationExpression.actionInvocation);
     }
 
     getInvocation(node) {
@@ -196,8 +196,8 @@ class TreeUtil extends AbstractTreeUtil {
         if (invocationExpression && this.isCheckExpr(invocationExpression)) {
             invocationExpression = invocationExpression.expression;
         }
-        if (invocationExpression && this.isInvocation(invocationExpression)
-        && invocationExpression.actionInvocation) { return invocationExpression.actionInvocation; }
+        if (invocationExpression && this.isInvocation(invocationExpression) &&
+            invocationExpression.actionInvocation) { return invocationExpression.actionInvocation; }
         return undefined;
     }
 
@@ -284,6 +284,35 @@ class TreeUtil extends AbstractTreeUtil {
             invocationExpression = invocationExpression.expression;
         }
         return invocationExpression.getInvocationSignature();
+    }
+
+    /**
+     * Get parameter ref
+     * @param {object} node - variable def node object
+     * @returns {string} - parameter reference text
+     */
+    getParameterText(node) {
+        if (this.isReturn(node)) {
+            return node.expression.getSource(true, true);
+        }
+        if (this.isVariableDef(node) || this.isAssignment(node) || this.isExpressionStatement(node)) {
+            let exp;
+
+            if (this.isVariableDef(node)) {
+                exp = node.getVariable().getInitialExpression();
+            } else {
+                exp = node.getExpression();
+            }
+
+            if (this.isMatchExpression(exp) || this.isCheckExpr(exp)) {
+                exp = exp.getExpression();
+            }
+
+            return exp.getArgumentExpressions().map((arg) => {
+                return arg.getSource(true, true);
+            }).join(', ');
+        }
+        return false;
     }
 
     /**
@@ -464,69 +493,77 @@ class TreeUtil extends AbstractTreeUtil {
             }
 
             // invoke the fragment util for the coresponding kind.
-            const parsedJson = FragmentUtils.parseFragment(fragment);
-            // show an error and skip the setSource method when user provides an unparsable content.
-            if (parsedJson.error) {
-                ballerinaFileEditor.context.alert.showError('Invalid content provided !');
-                return;
-            }
-            const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
-            // clear white space data so it will be formated properly.
-            newStatementNode.clearWS();
+            FragmentUtils.parseFragment(fragment)
+                .then((parsedJson) => {
+                    // show an error and skip the setSource method when user provides an unparsable content.
+                    if (parsedJson.error) {
+                        ballerinaFileEditor.context.alert.showError('Invalid content provided !');
+                        return;
+                    }
+                    const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
+                    // clear white space data so it will be formated properly.
+                    newStatementNode.clearWS();
 
-            if (this.statementIsInvocation(node)) {
-                this.syncInvocationType(node, newStatementNode);
-            }
+                    if (this.statementIsInvocation(node)) {
+                        this.syncInvocationType(node, newStatementNode);
+                    }
 
-            // replace the old node with new node.
-            if (this.isService(statementParentNode)) {
-                statementParentNode.replaceVariables(node, newStatementNode, false);
-            } else if (this.isTransaction(newStatementNode)) {
-                statementParentNode.parent.setCondition(newStatementNode.getCondition());
-                statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements()[0], false);
-            } else {
-                statementParentNode.replaceStatements(node, newStatementNode, false);
-            }
+                    // replace the old node with new node.
+                    if (this.isService(statementParentNode)) {
+                        statementParentNode.replaceVariables(node, newStatementNode, false);
+                    } else if (this.isTransaction(newStatementNode)) {
+                        statementParentNode.parent.setCondition(newStatementNode.getCondition());
+                        statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements()[0], false);
+                    } else {
+                        statementParentNode.replaceStatements(node, newStatementNode, false);
+                    }
+                });
         } else if (node.isExpression) {
             // Get the parent node.
             const expressionParentNode = node.parent;
 
-            source = source.endsWith(';')
-                ? source.substr(0, source.length - 1)
-                : source;
+            source = source.endsWith(';') ?
+                source.substr(0, source.length - 1) :
+                source;
 
             // invoke the fragment util and get the new node.
-            const parseJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source));
-            const newExpressionNode = TreeBuilder.build(parseJson, expressionParentNode, expressionParentNode.kind);
-            // clear white space data so it will be formated properly.
-            newExpressionNode.clearWS();
-            // Get the initial expression from returning node.
-            if (newExpressionNode && newExpressionNode.variable.initialExpression) {
-                newExpressionNode.variable.initialExpression.parent = expressionParentNode;
-                // Set the condition using new node.
-                expressionParentNode.setCondition(newExpressionNode.variable.initialExpression);
-            }
+            FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source))
+                .then((parsedJson) => {
+                    const newExpressionNode = TreeBuilder.build(parsedJson, expressionParentNode, expressionParentNode.kind);
+                    // clear white space data so it will be formated properly.
+                    newExpressionNode.clearWS();
+                    // Get the initial expression from returning node.
+                    if (newExpressionNode && newExpressionNode.variable.initialExpression) {
+                        newExpressionNode.variable.initialExpression.parent = expressionParentNode;
+                        // Set the condition using new node.
+                        expressionParentNode.setCondition(newExpressionNode.variable.initialExpression);
+                    }
+                });
         } else {
             const parent = node.parent;
             source = source.replace(/;$/, '');
-            if (parent.filterParameters instanceof Function
-                && (parent.filterParameters(param => (param.id === node.id)).length > 0)) {
+            if (parent.filterParameters instanceof Function &&
+                (parent.filterParameters(param => (param.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing argument parameter.
-                const parseJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source));
-                const newParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
-                // clear white space data so it will be formated properly.
-                newParameterNode.clearWS();
-                // Replace the old parameter with the newly created parameter node.
-                parent.replaceParameters(node, newParameterNode, false);
-            } else if (parent.filterReturnParameters instanceof Function
-                && (parent.filterReturnParameters(returnParam => (returnParam.id === node.id)).length > 0)) {
+                FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source))
+                    .then((parsedJson) => {
+                        const newParameterNode = TreeBuilder.build(parsedJson, parent, parent.kind);
+                        // clear white space data so it will be formated properly.
+                        newParameterNode.clearWS();
+                        // Replace the old parameter with the newly created parameter node.
+                        parent.replaceParameters(node, newParameterNode, false);
+                    });
+            } else if (parent.filterReturnParameters instanceof Function &&
+                (parent.filterReturnParameters(returnParam => (returnParam.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing return parameter.
-                const parseJson = FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source));
-                const newReturnParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
-                // clear white space data so it will be formated properly.
-                newReturnParameterNode.clearWS();
-                // Replace the old parameter with the newly created parameter node.
-                parent.replaceReturnParameters(node, newReturnParameterNode, false);
+                FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source))
+                    .then((parsedJson) => {
+                        const newReturnParameterNode = TreeBuilder.build(parsedJson, parent, parent.kind);
+                        // clear white space data so it will be formated properly.
+                        newReturnParameterNode.clearWS();
+                        // Replace the old parameter with the newly created parameter node.
+                        parent.replaceReturnParameters(node, newReturnParameterNode, false);
+                    });
             }
         }
     }
@@ -598,14 +635,14 @@ class TreeUtil extends AbstractTreeUtil {
      * @return {boolean} is given function is a main function.
      * */
     isMainFunction(node) {
-        return (node.kind === 'Function'
-            && (node.getName().value === 'main' || node.getName() === 'main')
-            && node.getParameters().length === 1
-            && ((node.getReturnParameters && node.getReturnParameters().length === 0) ||
-                (node.getReturnParams && node.getReturnParams().length === 0))
-            && ((node.getParameters()[0].typeNode && node.getParameters()[0].typeNode.kind === 'ArrayType'
-                && node.getParameters()[0].typeNode.elementType.typeKind === 'string')
-                || node.getParameters()[0].type === 'string[]'));
+        return (node.kind === 'Function' &&
+            (node.getName().value === 'main' || node.getName() === 'main') &&
+            node.getParameters().length === 1 &&
+            ((node.getReturnParameters && node.getReturnParameters().length === 0) ||
+                (node.getReturnParams && node.getReturnParams().length === 0)) &&
+            ((node.getParameters()[0].typeNode && node.getParameters()[0].typeNode.kind === 'ArrayType' &&
+                    node.getParameters()[0].typeNode.elementType.typeKind === 'string') ||
+                node.getParameters()[0].type === 'string[]'));
     }
 
 
@@ -638,7 +675,7 @@ class TreeUtil extends AbstractTreeUtil {
         return regex.test(node.name.value);
     }
 
-     /**
+    /**
      * Provides available endpoints for provided models scope
      * @param {object} model current model object
      * @return {array}  available endpoints
@@ -702,18 +739,18 @@ class TreeUtil extends AbstractTreeUtil {
      * @memberof TreeUtil
      */
     isElseBlock(node) {
-        if (this.isIf(node.parent)
-            && node.parent.elseStatement
-            && this.isBlock(node.parent.elseStatement)) {
+        if (this.isIf(node.parent) &&
+            node.parent.elseStatement &&
+            this.isBlock(node.parent.elseStatement)) {
             return node.parent.elseStatement.id === node.id;
         }
         return false;
     }
 
     isFinally(node) {
-        if (this.isTry(node.parent)
-            && node.parent.finallyBody
-            && node.parent.finallyBody.id === node.id) {
+        if (this.isTry(node.parent) &&
+            node.parent.finallyBody &&
+            node.parent.finallyBody.id === node.id) {
             return true;
         }
         return false;
@@ -769,8 +806,8 @@ class TreeUtil extends AbstractTreeUtil {
         const defaultName = 'ep';
         let defaultIndex = 0;
         const names = this.getCurrentEndpoints(parent)
-                        .map((endpoint) => { return endpoint.name.getValue(); })
-                        .sort();
+            .map((endpoint) => { return endpoint.name.getValue(); })
+            .sort();
         names.every((endpoint, i) => {
             if (names[i] !== defaultName + (i + 1)) {
                 defaultIndex = i + 1;
@@ -780,7 +817,7 @@ class TreeUtil extends AbstractTreeUtil {
             }
         });
         node.name
-        .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
+            .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
 
     /**

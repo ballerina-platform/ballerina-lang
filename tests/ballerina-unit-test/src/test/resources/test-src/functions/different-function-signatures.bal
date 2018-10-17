@@ -170,7 +170,7 @@ function testDefaultableParamOuterFunc () returns (int, string) {
 }
 
 type Person object {
-    public int age,
+    public int age;
 
     function test1(int a = 77, string n = "inner default") returns (int, string);
 

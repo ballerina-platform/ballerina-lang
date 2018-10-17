@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.annotation.Nullable;
 
 /**
  * Utilities used by ballerina swagger code generator.
@@ -87,5 +88,18 @@ public class CodegenUtils {
                 writer.close();
             }
         }
+    }
+    
+    /**
+     * Removes underscores and hyphens for identifiers.
+     * @param identifier Path
+     * @return Cleaned identifier.
+     */
+    public static String normalizeForBIdentifier(@Nullable String identifier) {
+        if (identifier == null) {
+            return null;
+        }
+    
+        return identifier.replaceAll(" ", "_").replaceAll("-", "");
     }
 }

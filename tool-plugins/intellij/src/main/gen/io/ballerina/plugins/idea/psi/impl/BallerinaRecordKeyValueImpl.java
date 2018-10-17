@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaRecordKeyValueImpl extends BallerinaCompositeElementImpl implements BallerinaRecordKeyValue {
 
-  public BallerinaRecordKeyValueImpl(ASTNode node) {
+  public BallerinaRecordKeyValueImpl(@NotNull ASTNode node) {
     super(node);
   }
 

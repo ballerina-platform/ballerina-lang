@@ -14,14 +14,14 @@
                 "range":{
                   "start":{
                     "line":27,
-                    "character":4
+                    "character":0
                   },
                   "end":{
                     "line":27,
-                    "character":4
+                    "character":0
                   }
                 },
-                "newText":"new(testString) {\n\n    }\n    "
+                "newText":"    new(testString) {\n\n    }\n"
               }
             ]
           }

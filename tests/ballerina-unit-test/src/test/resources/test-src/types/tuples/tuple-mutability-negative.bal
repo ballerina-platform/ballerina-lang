@@ -16,14 +16,14 @@
 
 // Super Type
 type Person record {
-    string name,
+    string name;
     !...
 };
 
 // Assignable to Person type
 type Employee record {
-    string name,
-    boolean intern,
+    string name;
+    boolean intern;
     !...
 };
 

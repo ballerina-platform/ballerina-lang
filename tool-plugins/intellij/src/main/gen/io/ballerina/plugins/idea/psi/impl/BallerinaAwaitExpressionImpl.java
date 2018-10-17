@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaAwaitExpressionImpl extends BallerinaExpressionImpl implements BallerinaAwaitExpression {
 
-  public BallerinaAwaitExpressionImpl(ASTNode node) {
+  public BallerinaAwaitExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

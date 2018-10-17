@@ -1,0 +1,1 @@
+// In this example, a message from a Java Message Service (JMS) queue is consumed in a blocking manner.

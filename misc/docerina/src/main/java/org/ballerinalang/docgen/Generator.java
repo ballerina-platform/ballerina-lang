@@ -235,11 +235,11 @@ public class Generator {
      * @param typeDefinition ballerina type definition node.
      * @param records        list to put resulting records
      * @param objects        list to put resulting obj
-     * @param endpointes     list to put resulting ep
+     * @param endpoints      list to put resulting ep
      * @param union          list to put resulting unions
      */
     public static void addDocForNode(BLangTypeDefinition typeDefinition, ArrayList<Documentable> records,
-                                     ArrayList<Documentable> objects, ArrayList<Documentable> endpointes,
+                                     ArrayList<Documentable> objects, ArrayList<Documentable> endpoints,
                                      ArrayList<Documentable> union) {
         String typeName = typeDefinition.getName().getValue();
         BLangType typeNode = typeDefinition.typeNode;
@@ -247,7 +247,7 @@ public class Generator {
         boolean added = false;
         if (kind == NodeKind.OBJECT_TYPE) {
             BLangObjectTypeNode objectType = (BLangObjectTypeNode) typeNode;
-            addDocForType(objectType, typeDefinition, objects, endpointes);
+            addDocForType(objectType, typeDefinition, objects, endpoints);
             added = true;
         } else if (kind == NodeKind.FINITE_TYPE_NODE) {
             BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeNode;
@@ -267,6 +267,11 @@ public class Generator {
                     .sorted(Collections.reverseOrder())
                     .collect(Collectors.joining(" | "));
             union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
+            added = true;
+        } else if (kind == NodeKind.USER_DEFINED_TYPE) {
+            BLangUserDefinedType userDefinedType = (BLangUserDefinedType) typeNode;
+            String value = userDefinedType.typeName.value;
+            union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), value));
             added = true;
         }
         if (!added) {
@@ -376,7 +381,8 @@ public class Generator {
         }
         returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
 
-        return new FunctionDoc(name, invokable.documentation.description, new ArrayList<>(), parameters, returnParams);
+        return new FunctionDoc(name, invokable.markdownDocumentation.description, new ArrayList<>(), parameters,
+                returnParams);
     }
 
     /**
@@ -446,7 +452,7 @@ public class Generator {
      * Create documentation for records.
      *
      * @param recordType ballerina record node.
-     * @param structName  struct name.
+     * @param structName struct name.
      * @return documentation of the record.
      */
     private static RecordDoc createDocForType(BLangTypeDefinition typeDefinition, BLangRecordTypeNode recordType,

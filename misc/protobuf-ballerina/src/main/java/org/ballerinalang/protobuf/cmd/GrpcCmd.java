@@ -78,6 +78,11 @@ public class GrpcCmd implements BLauncherCmd {
     )
     private String protoPath;
 
+    @CommandLine.Option(names = {"--mode"},
+            description = "Ballerina source [service or client]"
+    )
+    private String mode = "stub";
+
     @CommandLine.Option(names = {"--output"},
             description = "Generated Ballerina source files location"
     )
@@ -92,10 +97,7 @@ public class GrpcCmd implements BLauncherCmd {
     
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
-    
-    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
-    private String javaDebugPort;
-    
+
     @Override
     public void execute() {
         // check input protobuf file path
@@ -190,7 +192,7 @@ public class GrpcCmd implements BLauncherCmd {
             ballerinaFileBuilder = new BallerinaFileBuilder(root, dependant, balOutPath);
         }
         try {
-            ballerinaFileBuilder.build();
+            ballerinaFileBuilder.build(this.mode);
         } catch (BalGenerationException e) {
             LOG.error("Error generating ballerina file.", e);
             msg.append("Error generating ballerina file.").append(e.getMessage()).append(NEW_LINE_CHARACTER);
@@ -333,6 +335,11 @@ public class GrpcCmd implements BLauncherCmd {
     public void setBalOutPath(String balOutPath) {
         this.balOutPath = balOutPath;
     }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
 }
 
 

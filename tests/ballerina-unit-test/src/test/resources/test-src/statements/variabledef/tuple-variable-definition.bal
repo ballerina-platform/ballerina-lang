@@ -77,3 +77,22 @@ function testRecordInsideTuple() returns (string, int, boolean) {
     string fullName = a + " " + name;
     return (fullName, theAge, b);
 }
+
+function testTupleVarDef() returns (string, int, boolean) {
+    var (a, (b, c)) = ("Ballerina", (123, true));
+
+    return (a, b, c);
+}
+
+function testTupleVarRef() returns (string, int, boolean) {
+    var (a, (b, c)) = ("Ballerina", (123, true));
+    ((a, b), c) = (("UpdatedBallerina", 453), false);
+
+    return (a, b, c);
+}
+
+function testRecursiveExpressionWithVar() returns (string, int, boolean, int, float, int) {
+    var a = (("Bal", (3, (true, 34))), (5.6, 45));
+    ((string, (int, (boolean, int))), (float, int)) ((s, (i1, (b, y))), (f, i2)) = a;
+    return (s, i1, b, y, f, i2);
+}

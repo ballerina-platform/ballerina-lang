@@ -101,7 +101,7 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
     }
 
-    @Test(description = "Test tuple tuple binding with records and objects")
+    @Test(description = "Test tuple binding with records and objects")
     public void testTupleBindingWithRecordsAndObjects() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects");
         Assert.assertEquals(returns.length, 9);
@@ -116,13 +116,42 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[8]).intValue(), 56);
     }
 
-    @Test(description = "Test tuple tuple binding with records and objects")
+    @Test(description = "Test tuple binding with records and objects")
     public void testRecordInsideTuple() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTuple");
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(returns[0].stringValue(), "Peter Parker");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 12);
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test(description = "Test tuple var definition with var declaration")
+    public void testTupleVarDefinition() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDef");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 123);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+    }
+    @Test(description = "Test tuple var reference")
+    public void testTupleVarReference() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRef");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "UpdatedBallerina");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 453);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test(description = "Test tuple recursive definition with var on lhs")
+    public void testRecursiveExpressionWithVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns[0].stringValue(), "Bal");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 34);
+        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
     }
 
     @Test

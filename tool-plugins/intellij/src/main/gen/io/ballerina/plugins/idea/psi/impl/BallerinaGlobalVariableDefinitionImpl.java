@@ -30,11 +30,11 @@ import com.intellij.psi.stubs.IStubElementType;
 
 public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElementImpl<BallerinaGlobalVariableDefinitionStub> implements BallerinaGlobalVariableDefinition {
 
-  public BallerinaGlobalVariableDefinitionImpl(BallerinaGlobalVariableDefinitionStub stub, IStubElementType type) {
+  public BallerinaGlobalVariableDefinitionImpl(@NotNull BallerinaGlobalVariableDefinitionStub stub, @NotNull IStubElementType type) {
     super(stub, type);
   }
 
-  public BallerinaGlobalVariableDefinitionImpl(ASTNode node) {
+  public BallerinaGlobalVariableDefinitionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

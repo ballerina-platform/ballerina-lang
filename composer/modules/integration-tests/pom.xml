@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.981.2-SNAPSHOT</version>
+        <version>0.982.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -31,11 +31,6 @@
             <artifactId>composer-server-distribution</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-examples</artifactId>
-            <type>zip</type>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -54,17 +49,25 @@
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+                <executions>
                     <execution>
-                        <id>unpack-examples</id>
-                        <phase>generate-resources</phase>
+                        <id>copy-ballerina-examples</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>unpack-dependencies</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>
-                                ballerina-examples
-                            </includeArtifactIds>
                             <outputDirectory>src/test/resources/ballerina-examples</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>../../../examples</directory>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>

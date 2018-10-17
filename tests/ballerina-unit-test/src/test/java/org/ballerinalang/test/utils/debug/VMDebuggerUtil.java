@@ -28,6 +28,7 @@ import org.testng.Assert;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.BLangConstants.COLON;
@@ -68,6 +69,15 @@ public class VMDebuggerUtil {
             int hits = debugPoint.decrementAndGetHits();
             Assert.assertTrue(hits >= 0, "Invalid number of hits for same point - "
                     + debugPoint.getExpBreakPoint() + " remaining hit count - " + hits);
+
+            Map<String, String> expressionsMap = debugPoint.getExpressionsMap();
+            if (expressionsMap != null) {
+                expressionsMap.forEach((expression, expResults) -> {
+                    String value = evaluateExpression(debugger, debugHit.getThreadId(), expression);
+                    Assert.assertEquals(value, expResults, "Evaluated value mismatch with expected results");
+                });
+            }
+
             hitCount++;
             executeDebuggerCmd(debugger, debugHit.getThreadId(), debugPoint.getNextStep());
         }
@@ -104,6 +114,11 @@ public class VMDebuggerUtil {
             default:
                 throw new IllegalStateException("Unknown Command");
         }
+    }
+
+    private static String evaluateExpression(Debugger debugManager, String workerId, String expression) {
+        // TODO: Replace the below with `evaluateExpression` method once the expression evaluation feature is done
+        return debugManager.evaluateVariable(workerId, expression);
     }
 
     private static TestDebugger setupProgram(String programArg, BreakPointDTO[] breakPoints) {

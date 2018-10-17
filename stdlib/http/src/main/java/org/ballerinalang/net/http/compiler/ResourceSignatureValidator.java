@@ -59,7 +59,8 @@ public class ResourceSignatureValidator {
         List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();
         int count = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
-            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_RESOURCE_CONFIG)) {
+            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_RESOURCE_CONFIG) &&
+                    annotation.getExpression() != null) {
                 annVals = ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
                 count++;
             }

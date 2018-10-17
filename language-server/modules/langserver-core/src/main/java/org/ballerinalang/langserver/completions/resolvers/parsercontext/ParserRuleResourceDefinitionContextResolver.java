@@ -18,11 +18,11 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,11 +33,11 @@ import java.util.List;
  */
 public class ParserRuleResourceDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         CompletionItem resource = new CompletionItem();
+        Snippet.DEF_RESOURCE.getBlock().populateCompletionItem(resource, isSnippet);
         resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-        resource.setInsertText(Snippet.RESOURCE.toString());
-        resource.setInsertTextFormat(InsertTextFormat.Snippet);
         resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         
         return new ArrayList<>(Collections.singletonList(resource));

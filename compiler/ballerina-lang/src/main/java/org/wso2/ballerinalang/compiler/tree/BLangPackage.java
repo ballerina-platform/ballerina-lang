@@ -31,16 +31,18 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -60,10 +62,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<CompilerPhase> completedPhases;
     public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
+    // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
+    public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
 
     public PackageID packageID;
     public BPackageSymbol symbol;
-    public PackageRepository packageRepository;
 
     // TODO Revisit these instance variables
     public BDiagnosticCollector diagCollector;

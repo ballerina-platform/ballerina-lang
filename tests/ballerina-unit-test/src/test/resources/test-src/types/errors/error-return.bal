@@ -2,6 +2,7 @@ public type InvalidNameError record {
     string message;
     error? cause;
     string companyName;
+    !...
 };
 
 function getQuote(string name) returns (float|InvalidNameError) {
