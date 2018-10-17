@@ -100,9 +100,15 @@ public class BRecordTypeSymbolDAO extends AbstractDAO<BRecordTypeSymbolDTO> {
      *
      * @param id Entry ID to retrieve
      * @return {@link BRecordTypeSymbolDTO}    Retrieved entry
+     * @throws LSIndexException Exception while retrieving entry from index
      */
     @Override
-    public BRecordTypeSymbolDTO get(int id) {
+    public BRecordTypeSymbolDTO get(int id) throws LSIndexException {
+        return null;
+    }
+
+    @Override
+    public List<BRecordTypeSymbolDTO> get(BRecordTypeSymbolDTO dto) throws LSIndexException {
         return null;
     }
 }

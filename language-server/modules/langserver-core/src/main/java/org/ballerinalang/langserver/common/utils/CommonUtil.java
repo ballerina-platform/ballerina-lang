@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -30,6 +31,11 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.index.LSIndexException;
+import org.ballerinalang.langserver.index.LSIndexImpl;
+import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
+import org.ballerinalang.langserver.index.dao.DAOType;
+import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -88,6 +94,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -405,7 +412,8 @@ public class CommonUtil {
         annotationItem.setInsertText(insertText);
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
                 .findAny();
@@ -429,7 +437,8 @@ public class CommonUtil {
         if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
             return null;
         }
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
         Position start = new Position();
 
         if (!imports.isEmpty()) {
@@ -443,6 +452,34 @@ public class CommonUtil {
                 + orgName + UtilSymbolKeys.SLASH_KEYWORD_KEY + pkgName + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
+    }
+    
+    /**
+     * Fill the completion items extracted from LS Index db with the auto import text edits.
+     * Here the Completion Items are mapped against the respective package ID.
+     * @param completionsMap    Completion Map to evaluate
+     * @param ctx               Lang Server Operation Context
+     * @return {@link List} List of modified completion items
+     */
+    public static List<CompletionItem> fillCompletionWithPkgImport(HashMap<Integer, ArrayList<CompletionItem>>
+                                                                           completionsMap, LSContext ctx) {
+        LSIndexImpl lsIndex = ctx.get(LSGlobalContextKeys.LS_INDEX_KEY);
+        List<CompletionItem> returnList = new ArrayList<>();
+        completionsMap.forEach((integer, completionItems) -> {
+            try {
+                BPackageSymbolDTO dto = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL))
+                        .get(integer);
+                completionItems.forEach(completionItem -> {
+                    List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits(ctx, dto.getOrgName(), dto.getName());
+                    completionItem.setAdditionalTextEdits(textEdits);
+                    returnList.add(completionItem);
+                });
+            } catch (LSIndexException e) {
+                logger.error("Error While retrieving Package Symbol for text edits");
+            }
+        });
+        
+        return returnList;
     }
 
     /**
@@ -690,29 +727,14 @@ public class CommonUtil {
     /**
      * Get the current file's imports.
      * 
+     * @param pkg               BLangPackage to extract content from
      * @param ctx               LS Operation Context
      * @return {@link List}     List of imports in the current file
      */
-    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
-        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
-        return bLangPackage.getImports().stream()
+    public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
+        String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        return pkg.getImports().stream()
                 .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get the current file's top level nodes.
-     *
-     * @param ctx               LS Operation Context
-     * @return {@link List}     List of top level nodes in the current file
-     */
-    public static List<TopLevelNode> getCurrentFileTopLevelNodes(LSContext ctx) {
-        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
-        return bLangPackage.topLevelNodes.stream()
-                .filter(topLevelNode -> topLevelNode.getPosition().getSource().getCompilationUnitName()
-                        .equals(currentFile))
                 .collect(Collectors.toList());
     }
 
@@ -726,7 +748,20 @@ public class CommonUtil {
                 || symbolContainsInvalidChars(symbol));
     }
 
-    // Private Methods
+    /**
+     * Get the TopLevel nodes of the current file.
+     *
+     * @param pkgNode           Current Package node
+     * @param ctx               Service Operation context
+     * @return {@link List}     List of Top Level Nodes
+     */
+    public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, LSContext ctx) {
+        String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
+                .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
+                .findAny().orElse(null);
+        return filteredCUnit == null ? new ArrayList<>() : filteredCUnit.getTopLevelNodes();
+    }
     
     private static SymbolInfo getIterableOpSymbolInfo(Snippet operation, @Nullable BType bType, String label,
                                                       LSContext context) {

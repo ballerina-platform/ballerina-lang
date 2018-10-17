@@ -31,9 +31,9 @@ type Twitter record {
 };
 
 type StockWithPrice record {
-    string symbol;
-    string tweet;
-    float price;
+    string? symbol;
+    string? tweet;
+    float? price;
 };
 
 StockWithPrice[] globalEventsArray = [];
@@ -77,7 +77,15 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stockStream.publish(s2);
     runtime:sleep(100);
     stockStream.publish(s3);
-    runtime:sleep(1000);
+
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEventsArray) == 2 || count == 10) {
+            break;
+        }
+    }
 
     io:println(globalEventsArray);
     return globalEventsArray;

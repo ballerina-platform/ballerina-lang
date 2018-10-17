@@ -460,11 +460,19 @@ public class BLangPackageBuilder {
     }
 
     void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                          boolean exprAvailable, int annotCount, boolean isPrivate) {
+                          boolean exprAvailable, int annotCount, boolean isPrivate, boolean isOptional) {
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
 
         if (!isPrivate) {
             field.flagSet.add(Flag.PUBLIC);
+        }
+
+        if (isOptional) {
+            field.flagSet.add(Flag.OPTIONAL);
+        }
+
+        if (exprAvailable) {
+            field.flagSet.add(Flag.DEFAULTABLE);
         }
     }
 
