@@ -7805,6 +7805,9 @@ public class SourceGen {
                     startingBracket = null;
                     endingBracket = null;
                     content = new StringBuilder();
+                } else if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("?")) {
+                    dimensionAsString += ws.get(j).getAsJsonObject().get("ws").getAsString() +
+                            ws.get(j).getAsJsonObject().get("text").getAsString();
                 } else if (startingBracket != null) {
                     content.append(ws.get(j).getAsJsonObject().get("ws").getAsString())
                             .append(ws.get(j).getAsJsonObject().get("text").getAsString());
