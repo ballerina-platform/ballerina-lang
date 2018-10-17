@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -163,6 +164,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
+    private TypeChecker typeChecker;
     private final Names names;
     private final Types types;
     private int lambdaFunctionCount = 0;
@@ -187,6 +189,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
+        this.typeChecker = TypeChecker.getInstance(context);
     }
 
     public static StreamingCodeDesugar getInstance(CompilerContext context) {
@@ -1149,7 +1152,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 invocation.requiredArgs.set(i, streamEventParameter);
             }
         }
-
         BInvokableSymbol windowInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(window.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
                 scope.lookup(new Name(invocation.name.value)).symbol;
@@ -1163,20 +1165,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BLangNamedArgsExpression nextProcPointer = ASTBuilderUtil.createNamedArg(NEXT_PROCESS_POINTER_ARG_NAME,
                 nextProcessMethodAccess);
-        List<BLangExpression> args = new ArrayList<>();
-        args.addAll(invocation.argExprs);
-        args.add(nextProcPointer);
-        BLangInvocation windowInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(window.pos, windowInvokableSymbol, args,
-                        symResolver);
-        windowInvocation.argExprs = args;
-        windowInvocation.requiredArgs = invocation.requiredArgs;
-        windowInvocation.restArgs = invocation.restArgs;
-        windowInvocation.namedArgs = invocation.namedArgs;
-        windowInvocation.namedArgs.add(nextProcPointer);
+
+        typeChecker.checkExpr(invocation, env);
+
+        //these should be added after type-checking
+        invocation.argExprs.add(nextProcPointer);
+        invocation.namedArgs.add(nextProcPointer);
 
         BLangVariable windowInvokableTypeVariable = ASTBuilderUtil.createVariable(window.pos,
-                getVariableName(WINDOW_FUNC_REFERENCE), windowInvokableType, windowInvocation,
+                getVariableName(WINDOW_FUNC_REFERENCE), windowInvokableType, invocation,
                 windowInvokableTypeVarSymbol);
 
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();

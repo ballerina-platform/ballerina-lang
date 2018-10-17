@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -172,6 +173,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
+    private static final String STREAMS_PKG_NAME = "streams";
+    private static final String STREAM_WINDOW_ABSTRACT_OBJECT_NAME = "Window";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -1297,8 +1300,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWindow windowClause) {
         isWindowAvailable = true;
-        ExpressionNode expressionNode = windowClause.getFunctionInvocation();
-        ((BLangExpression) expressionNode).accept(this);
+        BLangInvocation invocation = (BLangInvocation) windowClause.getFunctionInvocation();
+        InvokableSymbol invokableSymbol = (InvokableSymbol) symResolver.
+                resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
+                scope.lookup(new Name(invocation.name.value)).symbol;
+        if (invokableSymbol == null && invocation.pkgAlias.value.isEmpty()) {
+            invocation.pkgAlias.value = STREAMS_PKG_NAME;
+        }
         isWindowAvailable = false;
     }
 
@@ -1309,7 +1317,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
         if (!isSiddhiRuntimeEnabled) {
-            if ((isGroupByAvailable || isWindowAvailable)) {
+            if ((isGroupByAvailable)) {
                 for (BLangExpression arg : invocationExpr.argExprs) {
                     typeChecker.checkExpr(arg, env);
                     switch (arg.getKind()) {
