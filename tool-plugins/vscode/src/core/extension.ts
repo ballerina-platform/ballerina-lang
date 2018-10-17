@@ -267,13 +267,17 @@ export class BallerinaExtension {
             case 'darwin': // Mac OS
             case 'linux': // Linux
                 // lets see where the ballerina command is.
-                const output = execSync('which ballerina');
-                path = fs.realpathSync(output.toString().trim());
-                // remove ballerina bin from path
-                if (path) {
-                    path = path.replace(/bin\/ballerina$/, '');
+                try {
+                    const output = execSync('which ballerina');
+                    path = fs.realpathSync(output.toString().trim());
+                    // remove ballerina bin from path
+                    if (path) {
+                        path = path.replace(/bin\/ballerina$/, '');
+                    }
+                    break;
+                } catch {
+                    return path;
                 }
-                break;
         }
 
         // If we cannot find ballerina home return empty.
