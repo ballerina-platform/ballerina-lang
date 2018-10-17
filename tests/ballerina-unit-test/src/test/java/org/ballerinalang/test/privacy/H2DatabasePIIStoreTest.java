@@ -35,7 +35,7 @@ import java.io.File;
 /**
  * Test class for Privacy API.
  */
-public class DatabasePIIStoreTest {
+public class H2DatabasePIIStoreTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TestDBH2";
@@ -48,7 +48,7 @@ public class DatabasePIIStoreTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/privacy/h2_pii_store.bal");
         SQLDBUtils.deleteFiles(new File(DB_DIRECTORY_H2), DB_NAME);
-        SQLDBUtils.initH2Database(DB_DIRECTORY_H2, DB_NAME, "datafiles/privacy/H2PIIStoreTableCreate.sql");
+        SQLDBUtils.initH2Database(DB_DIRECTORY_H2, DB_NAME, "datafiles/privacy/PII_Store_Table_Create.sql");
     }
 
     @Test
