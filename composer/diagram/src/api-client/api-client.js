@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -17,9 +18,6 @@
  */
 import _ from 'lodash';
 import axios from 'axios';
-import $ from 'jquery';
-import hardcodedTypeLattice from './hardcoded-type-lattice';
-import hardcodedOperatorLattice from './hardcoded-operator-lattice';
 
 const CONTENT_TYPE_JSON_HEADER = {
     'content-type': 'application/json; charset=utf-8',

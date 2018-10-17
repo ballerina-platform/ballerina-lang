@@ -15,9 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import $ from 'jquery';
-import { getServiceEndpoint } from 'api-client/api-client';
 import codepoints from '@ballerina/theme/font-ballerina/codepoints';
 
 /**
