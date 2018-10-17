@@ -259,7 +259,11 @@ export class BallerinaExtension {
         let path = '';
         switch (platform) {
             case 'win32': // Windows
-                path = execSync('where ballerina').toString().trim();
+                try {
+                    path = execSync('where ballerina').toString().trim();
+                } catch (error) {
+                    return path;
+                }
                 if (path) {
                     path = path.replace(/bin\\ballerina.bat$/, '');
                 }

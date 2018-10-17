@@ -23,6 +23,7 @@
 import assert = require('assert');
 import * as Path from 'path';
 import * as http from 'http';
+const IS_APPVEYOR = process.env['APPVEYOR'] === 'true';
 
 import { DebugClientEx } from './debugClient';
 
@@ -81,6 +82,9 @@ suite('Ballerina Debug Adapter', () => {
         }).timeout(10000);
 
         test('should stop on a breakpoint, hello world service', () => {
+            if (IS_APPVEYOR) {
+                return;
+            }
             const PROGRAM = Path.join(DATA_ROOT, 'hello_world_service.bal');
 
             const launchArgs = {
@@ -100,6 +104,9 @@ suite('Ballerina Debug Adapter', () => {
         }).timeout(15000);
 
         test('should stop on a breakpoint, hello world service - package', () => {
+            if (IS_APPVEYOR) {
+                return;
+            }
             const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
 
             const launchArgs = {
@@ -118,6 +125,9 @@ suite('Ballerina Debug Adapter', () => {
         }).timeout(15000);
 
         test('step In, hello world service - package', () => {
+            if (IS_APPVEYOR) {
+                return;
+            }
             const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
             const launchArgs = {
                 script: PROGRAM,
