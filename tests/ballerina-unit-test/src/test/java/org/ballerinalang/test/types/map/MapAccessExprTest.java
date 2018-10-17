@@ -90,7 +90,7 @@ public class MapAccessExprTest {
     @Test(description = "Test nested map access")
     public void testNestedMapAccess() {
         CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/nested-map-access.bal");
-        Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 2);
+        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 2);
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
                 "invalid operation: type 'any' does not support field access");
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[1].getMessage(),
@@ -195,7 +195,7 @@ public class MapAccessExprTest {
         Assert.assertEquals(((BBoolean) returns[1]).value(), new Boolean(false));
         Assert.assertEquals(((BBoolean) returns[2]).value(), new Boolean(false));
     }
-    
+
     @Test(description = "Test concurrent map access.")
     public void testMapConcurrentAccess() {
         BValue[] args = {};
@@ -206,7 +206,7 @@ public class MapAccessExprTest {
 
         Assert.assertEquals(((BInteger) returns[0]).value(), new Long(1));
     }
-    
+
     @Test(description = "Test concurrent map get keys.")
     public void testConcurrentMapGetKeys() {
         BValue[] args = {};

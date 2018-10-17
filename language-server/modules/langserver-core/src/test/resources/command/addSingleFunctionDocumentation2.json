@@ -13,15 +13,15 @@
               {
                 "range":{
                   "start":{
-                    "line":0,
+                    "line":3,
                     "character":0
                   },
                   "end":{
                     "line":3,
-                    "character":30
+                    "character":0
                   }
                 },
-                "newText":"import ballerina/io;\nimport ballerina/http;\n\n# Description\nfunction testDocumentation() {"
+                "newText":"# Description\n"
               }
             ]
           }

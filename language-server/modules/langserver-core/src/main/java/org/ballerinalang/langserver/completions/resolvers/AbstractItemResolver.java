@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -190,27 +192,17 @@ public abstract class AbstractItemResolver {
         // Add the packages completion items.
         completionItems.addAll(getPackagesCompletionItems(context));
         // Add the check keyword
-        CompletionItem checkKeyword = new CompletionItem();
-        Snippet.KW_CHECK.getBlock().populateCompletionItem(checkKeyword, snippetCapability);
-        checkKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
-        checkKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(checkKeyword);
 
         // Add But keyword item
-        CompletionItem butKeyword = new CompletionItem();
-        Snippet.EXPR_MATCH.getBlock().populateCompletionItem(butKeyword, snippetCapability);
-        butKeyword.setLabel(ItemResolverConstants.BUT);
-        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(butKeyword);
 
         // Add lengthof keyword item
-        CompletionItem lengthofKeyword = new CompletionItem();
-        Snippet.KW_LENGTHOF.getBlock().populateCompletionItem(lengthofKeyword, snippetCapability);
-        lengthofKeyword.setLabel(ItemResolverConstants.LENGTHOF);
-        lengthofKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-
-        completionItems.add(checkKeyword);
-        completionItems.add(butKeyword);
+        CompletionItem lengthofKeyword = Snippet.KW_LENGTHOF.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(lengthofKeyword);
-        
+
         return completionItems;
     }
 
@@ -239,7 +231,8 @@ public abstract class AbstractItemResolver {
     protected List<CompletionItem> getPackagesCompletionItems(LSServiceOperationContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
-        List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(ctx).stream()
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(pkg, ctx).stream()
                 .map(bLangImportPackage -> {
                     String orgName = bLangImportPackage.orgName.toString();
                     String pkgName = String.join(".", bLangImportPackage.pkgNameComps.stream()
@@ -249,6 +242,7 @@ public abstract class AbstractItemResolver {
                     item.setLabel(orgName + "/" + pkgName);
                     item.setInsertText(CommonUtil.getLastItem(bLangImportPackage.getPackageName()).value);
                     item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                    item.setKind(CompletionItemKind.Module);
                     populatedList.add(orgName + "/" + pkgName);
                     return item;
                 }).collect(Collectors.toList());
@@ -263,6 +257,7 @@ public abstract class AbstractItemResolver {
                 item.setLabel(ballerinaPackage.getFullPackageNameAlias());
                 item.setInsertText(name);
                 item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                item.setKind(CompletionItemKind.Module);
                 item.setAdditionalTextEdits(CommonUtil.getAutoImportTextEdits(ctx, orgName, name));
                 completionItems.add(item);
             }

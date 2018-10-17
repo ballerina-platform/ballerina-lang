@@ -1516,23 +1516,23 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             }
         case 'FunctionType':
-            if (node.hasReturn && node.withParantheses && node.paramTypeNode
+            if (node.hasReturn && node.withParantheses && node.params
                          && node.returnTypeNode) {
                 return w() + '(' + w() + 'function' + w() + '('
-                 + join(node.paramTypeNode, pretty, replaceLambda, l, w, '', ',') + w() + ')'
+                 + join(node.params, pretty, replaceLambda, l, w, '', ',') + w() + ')'
                  + (node.returnKeywordExists ? w() + 'returns' : '')
                  + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w() + ')';
-            } else if (node.hasReturn && node.paramTypeNode && node.returnTypeNode) {
+            } else if (node.hasReturn && node.params && node.returnTypeNode) {
                 return w() + 'function' + w() + '('
-                 + join(node.paramTypeNode, pretty, replaceLambda, l, w, '', ',') + w() + ')'
+                 + join(node.params, pretty, replaceLambda, l, w, '', ',') + w() + ')'
                  + (node.returnKeywordExists ? w() + 'returns' : '')
                  + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda);
-            } else if (node.withParantheses && node.paramTypeNode) {
+            } else if (node.withParantheses && node.params) {
                 return w() + '(' + w() + 'function' + w() + '('
-                 + join(node.paramTypeNode, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + ')';
+                 + join(node.params, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + ')';
             } else {
                 return w() + 'function' + w() + '('
-                 + join(node.paramTypeNode, pretty, replaceLambda, l, w, '', ',') + w() + ')';
+                 + join(node.params, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             }
         case 'GroupBy':
             return w() + 'group' + w() + 'by'

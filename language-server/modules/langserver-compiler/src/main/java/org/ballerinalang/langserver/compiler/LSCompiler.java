@@ -181,16 +181,16 @@ public class LSCompiler {
     /**
      * Get the BLangPackage for a given program.
      *
-     * @param context             Language Server Context
-     * @param docManager          Document manager
-     * @param preserveWhitespace  Enable preserve whitespace
-     * @param customErrorStrategy custom error strategy class
-     * @param compileFullProject  updateAndCompileFile full project from the source root
-     * @return {@link Either}           Either single BLang Packageor a list of packages when compile full project
+     * @param context                   Language Server Context
+     * @param docManager                Document manager
+     * @param preserveWS                Enable preserve whitespace
+     * @param errStrategy               custom error strategy class
+     * @param compileFullProject        updateAndCompileFile full project from the source root
+     * @return {@link Either}           Either single BLang Package or a list of packages when compile full project
      */
     public Either<List<BLangPackage>, BLangPackage> getBLangPackage(LSContext context,
-                                              WorkspaceDocumentManager docManager, boolean preserveWhitespace,
-                                              Class customErrorStrategy,
+                                              WorkspaceDocumentManager docManager, boolean preserveWS,
+                                              Class errStrategy,
                                               boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
@@ -199,26 +199,24 @@ public class LSCompiler {
             uri = LSCompilerUtil.createTempFile(unsavedFileId.get()).toUri().toString();
             context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         }
-        Path filePath = new LSDocument(uri).getPath();
-        Path fileNamePath = filePath.getFileName();
-        final String fileName = (fileNamePath != null) ? fileNamePath.toString() : "";
+        LSDocument sourceDoc = new LSDocument(uri);
+        String sourceRoot = sourceDoc.getSourceRoot();
 
-        String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
-        LSDocument sourceDocument = new LSDocument(uri, sourceRoot);
-
-        PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
+        PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();
         if (compileFullProject && !sourceRoot.isEmpty()) {
             File projectDir = new File(sourceRoot);
             Arrays.stream(projectDir.listFiles()).forEach(
                     file -> {
                         if (isBallerinaPackage(file) || isBallerinaFile(file)) {
+                            Path filePath = sourceDoc.getPath();
+                            Path fileNamePath = filePath.getFileName();
+                            final String fileName = (fileNamePath != null) ? fileNamePath.toString() : "";
                             PackageID packageID = new PackageID(fileName);
-                            CompilerContext compilerContext =
-                                    prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                                                                          preserveWhitespace, docManager);
-                            Compiler compiler = LSCompilerUtil.getCompiler(context, fileName, compilerContext,
-                                                                           customErrorStrategy);
+                            CompilerContext compilerContext = prepareCompilerContext(packageID, pkgRepo, sourceDoc,
+                                    preserveWS, docManager);
+                            Compiler compiler = LSCompilerUtil.getCompiler(context, fileName, compilerContext, 
+                                    errStrategy);
                             BLangPackage bLangPackage = compiler.compile(file.getName());
                             packages.add(bLangPackage);
                             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
@@ -227,18 +225,21 @@ public class LSCompiler {
             );
             return Either.forLeft(packages);
         } else {
-            PackageID packageID;
-            String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
+            PackageID pkgID;
+            String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, sourceDoc.getPath().toString());
+            String relativeFilePath;
             if (pkgName.isEmpty()) {
-                packageID = new PackageID(fileName);
-                pkgName = fileName;
+                Path fileNamePath = sourceDoc.getPath().getFileName();
+                relativeFilePath = fileNamePath == null ? "" : fileNamePath.toString();
+                pkgID = new PackageID(relativeFilePath);
+                pkgName = relativeFilePath;
             } else {
-                packageID = generatePackageFromManifest(pkgName, sourceRoot);
+                relativeFilePath = sourceDoc.getSourceRootPath().resolve(pkgName).relativize(sourceDoc.getPath())
+                        .toString();
+                pkgID = generatePackageFromManifest(pkgName, sourceRoot);
             }
-            CompilerContext compilerContext =
-                    prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                                                          preserveWhitespace, docManager);
-            Compiler compiler = LSCompilerUtil.getCompiler(context, fileName, compilerContext, customErrorStrategy);
+            CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, preserveWS, docManager);
+            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
             BLangPackage bLangPackage = compiler.compile(pkgName);
             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
 
