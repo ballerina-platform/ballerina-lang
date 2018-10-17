@@ -10,8 +10,8 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
+    "glob": "^7.1.3",
     "istanbul-combine": "^0.3.0",
     "rimraf": "^2.6.2"
-  },
-  "dependencies": {}
+  }
 }

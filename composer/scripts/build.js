@@ -1,12 +1,15 @@
 const { forEachSubModule, runNpmCommandSync, runGitCommand, modulesRoot } = require('./common');
 runNpmCommandSync(["i"], modulesRoot);
+
+const fs = require('fs');
 const join = require('path').join;
+const glob = require('glob');
 
 const args = process.argv.slice(2);
 
 forEachSubModule((modPath) => {
     process.stdout.write("==============================================================================\n");
-    process.stdout.write(" Building - " + modPath +"\n");
+    process.stdout.write(" Building - " + modPath + "\n");
     process.stdout.write("==============================================================================\n");
 
     runNpmCommandSync(["i"], modPath);
@@ -19,5 +22,10 @@ forEachSubModule((modPath) => {
     runGitCommand(["checkout", "--", "package-lock.json"], modPath);
 });
 
-const rimraf = require('rimraf');
-runNpmCommandSync(["pack", "."], join(modulesRoot, 'extended-language-client'));
+const extendedLangClientModPath =  join(modulesRoot, 'extended-language-client');
+runNpmCommandSync(["pack", "."], extendedLangClientModPath);
+glob(join(extendedLangClientModPath, '*.tgz'), (er, files) => {
+    files.forEach(f => {
+        fs.renameSync(f, join(extendedLangClientModPath, 'module.tgz'));
+    });
+})
