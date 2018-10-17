@@ -44,7 +44,7 @@ public enum CompilerOptionName {
 
     TARGET_BINARY_PATH("targetBinaryPath"),
 
-    LOCK_ENABLED("testEnabled");
+    LOCK_ENABLED("lockEnabled");
 
     public final String name;
 

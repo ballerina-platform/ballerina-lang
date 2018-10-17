@@ -143,7 +143,7 @@ public class PackageLoader {
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
-        this.lockFile = LockFileProcessor.getInstance(context).getLockFile();
+        this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
     }
     
     /**
