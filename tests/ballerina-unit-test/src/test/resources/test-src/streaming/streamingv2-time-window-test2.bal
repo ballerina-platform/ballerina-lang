@@ -57,6 +57,15 @@ function startTimeWindowTest2() returns (Teacher[]) {
         runtime:sleep(1200);
     }
 
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEmployeeArray) == 6 || count == 10) {
+            break;
+        }
+    }
+
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }

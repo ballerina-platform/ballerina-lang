@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.repository.CompilerInput;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,15 +16,29 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 public class FileSystemSourceInput implements CompilerInput {
 
     private final Path path;
+    private Path packageRoot;
 
     public FileSystemSourceInput(Path path) {
         this.path = path;
     }
 
+    public FileSystemSourceInput(Path filePath, Path packageRoot) {
+        this.path = filePath;
+        this.packageRoot = packageRoot;
+    }
+
     @Override
     public String getEntryName() {
+        // We need to return the file path relative to the package root.
+        // This is to distinguish files with the same name but in different folders.
+        if (packageRoot != null) {
+            File pkgRoot = new File(packageRoot.toString());
+            File file = new File(path.toString());
+            // Find the file path relative to the package root.
+            return pkgRoot.toURI().relativize(file.toURI()).getPath();
+        }
         Path fileName = path.getFileName();
-        return fileName == null ? path.toString() : fileName.toString();
+        return fileName != null ? fileName.toString() : path.toString();
     }
 
     @Override
