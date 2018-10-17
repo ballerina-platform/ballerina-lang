@@ -83,6 +83,7 @@
                                 <argument>build</argument>
                                 <argument>--</argument>
                                 <argument>--skipTest=${maven.test.skip}</argument>
+                                <argument>--projectVersion=${project.version}</argument>
                             </arguments>
                         </configuration>
                     </execution>

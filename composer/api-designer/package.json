@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/api-designer",
-  "version": "1.0.0",
+  "version": "0.982.1-SNAPSHOT",
   "description": "",
   "main": "lib/index.js",
   "scripts": {

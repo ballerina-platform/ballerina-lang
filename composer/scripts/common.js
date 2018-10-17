@@ -55,11 +55,20 @@ function forEachSubModule(callback) {
     });
 }
 
+function getProjectVersion() {
+    for(arg of process.argv.slice(2)) {
+        if(arg.startsWith('--projectVersion=')) {
+            return arg.split('=')[1] || "";
+        }
+    }
+}
+
 module.exports = {
     submodules,
     forEachSubModule,
     runNpmCommandSync,
     runNpmCommand,
     runGitCommand,
-    modulesRoot
+    modulesRoot,
+    getProjectVersion
 }
