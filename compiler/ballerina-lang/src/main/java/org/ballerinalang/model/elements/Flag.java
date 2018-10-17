@@ -92,7 +92,11 @@ public enum Flag {
      */
     ABSTRACT,
     /**
-     * Indicates Flagged node is a testable node.
+     * Indicates that the flagged node is an optional field.
+     */
+    OPTIONAL,
+    /**
+     * Indicates flagged node is a testable node.
      */
     TESTABLE
 }

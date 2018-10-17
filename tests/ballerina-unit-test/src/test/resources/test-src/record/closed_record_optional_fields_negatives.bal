@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,7 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type error record {
-    string message;
-    error? cause?;
+type CountryCode "LK"|"USA"|"UK";
+
+type Person record {
+    string fname = "default";
+    string lname?;
+    int age? = 999;
+    Address adrs;
+    !...
 };
+
+type Address record {
+    string street;
+    string city;
+    CountryCode country;
+    !...
+};
+
+function testNonDefReqField() {
+    Person p1 = {};
+    Person p2;
+}
