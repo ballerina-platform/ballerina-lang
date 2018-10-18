@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -49,6 +50,7 @@ public class GetCallerActions extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> endpoint = (BMap<String, BValue>) context.getRefArgument(0);
         BMap<String, BValue> connection = (BMap<String, BValue>) endpoint.get("callerAction");
+        connection.addNativeData(SOCKET_KEY, endpoint.getNativeData(SOCKET_KEY));
         context.setReturnValues(connection);
     }
 }

@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
+import org.ballerinalang.stdlib.socket.tcp.SocketService;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,8 @@ import java.nio.channels.UnsupportedAddressTypeException;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
+import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * Connect to the remote server.
@@ -59,29 +62,31 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         isPublic = true
 )
 public class Start extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(
-            Start.class);
+    private static final Logger log = LoggerFactory.getLogger(Start.class);
 
     @Override
     public void execute(Context context) {
         try {
-            Struct listenerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            SocketChannel channel = (SocketChannel) listenerEndpoint.getNativeData(SOCKET_KEY);
-            BMap<String, BValue> config = (BMap<String, BValue>) listenerEndpoint.getNativeData(CLIENT_CONFIG);
+            Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+            SocketChannel channel = (SocketChannel) clientEndpoint.getNativeData(SOCKET_KEY);
+            BMap<String, BValue> config = (BMap<String, BValue>) clientEndpoint.getNativeData(CLIENT_CONFIG);
             BInteger port = (BInteger) config.get(SocketConstants.CONFIG_FIELD_PORT);
-            BString networkInterface = (BString) config.get(SocketConstants.CONFIG_FIELD_HOST);
-            channel.connect(new InetSocketAddress(networkInterface.stringValue(), (int) port.intValue()));
-            final SelectorManager selectorManager = SelectorManager.getInstance();
+            BString host = (BString) config.get(SocketConstants.CONFIG_FIELD_HOST);
+            SelectorManager selectorManager = SelectorManager.getInstance();
+            SocketService socketService = (SocketService) clientEndpoint.getNativeData(SOCKET_SERVICE);
+            channel.connect(new InetSocketAddress(host.stringValue(), (int) port.intValue()));
+            channel.finishConnect();
+            selectorManager.registerChannel(socketService, OP_READ);
             selectorManager.start();
             context.setReturnValues();
         } catch (AlreadyBoundException e) {
-            throw new BallerinaException("Server socket service is already bound to a port");
+            throw new BallerinaException("Clinet socket is already bound to a port");
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
             throw new BallerinaException("Provided address not supported");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            throw new BallerinaException("Unable to start the socket service");
+            throw new BallerinaException("Unable to start the client socket");
         }
     }
 }

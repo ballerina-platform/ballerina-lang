@@ -58,6 +58,7 @@ public class Close extends BlockingNativeCallableUnit {
         try {
             socketChannel.close();
             SelectorManager.getInstance().unRegisterChannel(socketChannel);
+            SelectorManager.getInstance().stop();
         } catch (IOException e) {
             log.error("Unable to close the connection", e);
             context.setReturnValues(SocketUtils.createError(context, "Unable to close the client socket connection"));

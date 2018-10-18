@@ -53,7 +53,9 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
+import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CALLER_ACTION;
 import static org.ballerinalang.stdlib.socket.SocketConstants.ID;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ACCEPT;
@@ -67,7 +69,6 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * This will manage the Selector instance and handle the accept, read and write operations.
@@ -127,18 +128,6 @@ public class SelectorManager {
     }
 
     /**
-     * Register the given SelectableChannel instance like ServerSocketChannel or SocketChannel in the selector instance.
-     *
-     * @param channel  A {@link SocketChannel} instance which interest to register against the given ops.
-     * @param interest The interest set for the resulting key
-     * @throws ClosedChannelException       {@inheritDoc}
-     * @throws CancelledKeyException        {@inheritDoc}
-     */
-    public void registerChannel(SocketChannel channel, int interest) throws ClosedChannelException {
-        channel.register(selector, interest);
-    }
-
-    /**
      * Unregister the given client channel from the selector instance.
      *
      * @param channel {@link SocketChannel} that about to unregister.
@@ -157,22 +146,28 @@ public class SelectorManager {
         if (running) {
             return;
         }
-        executor.execute(() -> {
-            while (execution) {
-                try {
-                    selector.select();
-                    Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
-                    while (keyIterator.hasNext()) {
-                        SelectionKey key = keyIterator.next();
-                        performAction(key);
-                        keyIterator.remove();
-                    }
-                } catch (Throwable e) {
-                    log.error("An error occurred in selector loop: " + e.getMessage(), e);
-                }
-            }
-        });
+        executor.execute(this::execute);
         running = true;
+    }
+
+    private void execute() {
+        while (execution) {
+            try {
+                final int select = selector.select();
+                if (select == 0) {
+                    continue;
+                }
+                Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+                while (keyIterator.hasNext()) {
+                    SelectionKey key = keyIterator.next();
+                    performAction(key);
+                    keyIterator.remove();
+                }
+            } catch (Throwable e) {
+                log.error("An error occurred in selector loop: " + e.getMessage(), e);
+                e.printStackTrace();
+            }
+        }
     }
 
     private void performAction(SelectionKey key) {
@@ -232,14 +227,14 @@ public class SelectorManager {
     }
 
     private void invokeOnError(SocketService socketService, String s) {
-        Resource errorResource = socketService.getResources().get(LISTENER_RESOURCE_ON_ERROR);
-        ProgramFile programFile = errorResource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        Resource error = socketService.getResources().get(LISTENER_RESOURCE_ON_ERROR);
+        ProgramFile programFile = error.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
         SocketChannel client = null;
         if (socketService.getSocketChannel() != null) {
             client = (SocketChannel) socketService.getSocketChannel();
         }
-        BValue[] signatureParams = getOnErrorResourceSignature(client, programFile, s);
-        Executor.submit(errorResource, new TCPSocketCallableUnitCallback(), null, null, signatureParams);
+        BValue[] params = getOnErrorResourceSignature(client, programFile, s);
+        Executor.submit(error, new TCPSocketCallableUnitCallback(), null, null, params);
     }
 
     private void invokeReadReady(SocketService socketService, ByteBuffer buffer) {
@@ -317,10 +312,15 @@ public class SelectorManager {
             }
             execution = false;
             running = false;
-            selector.wakeup();
             selector.close();
-            Thread.sleep(1500);
-            executor.shutdownNow();
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+            }
         } catch (Throwable e) {
             log.error("Error occurred while stopping the selector loop: " + e.getMessage(), e);
         }

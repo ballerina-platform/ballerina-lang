@@ -22,10 +22,14 @@ package org.ballerinalang.stdlib.socket;
  * Constant variable for socket related operations.
  */
 public class SocketConstants {
+    private SocketConstants() {
+    }
+
     public static final String SERVER_SOCKET_KEY = "ServerSocket";
     public static final String SOCKET_KEY = "Socket";
     public static final String SOCKET_PACKAGE = "ballerina/socket";
     public static final String LISTENER_RESOURCE_ON_ACCEPT = "onAccept";
+    public static final String LISTENER_RESOURCE_ON_CONNECT = "onConnect";
     public static final String LISTENER_RESOURCE_ON_READ_READY = "onReadReady";
     public static final String LISTENER_RESOURCE_ON_ERROR = "onError";
     public static final String LISTENER_RESOURCE_ON_CLOSE = "onClose";
@@ -43,5 +47,6 @@ public class SocketConstants {
     public static final String ID = "id";
 
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
+    public static final String SOCKET_SERVICE = "socektService";
 
 }

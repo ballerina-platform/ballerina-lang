@@ -36,8 +36,6 @@ public type Client object {
 
     extern function initEndpoint(ClientEndpointConfiguration clientConfig);
 
-    public extern function register(typedesc serviceType);
-
     public extern function start();
 
     public extern function getCallerActions() returns CallerAction;

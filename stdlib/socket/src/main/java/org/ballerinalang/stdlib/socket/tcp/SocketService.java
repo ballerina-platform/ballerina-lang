@@ -39,7 +39,7 @@ public class SocketService {
         this.resources = resources;
     }
 
-    public SelectableChannel getSocketChannel() {
+    SelectableChannel getSocketChannel() {
         return socketChannel;
     }
 
