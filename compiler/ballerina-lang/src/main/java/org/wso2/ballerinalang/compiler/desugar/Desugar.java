@@ -118,6 +118,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
@@ -658,7 +660,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariableDef varDefNode) {
 
-        varDefNode.var = rewrite(varDefNode.var, env);
         BLangRecordVariable varNode = varDefNode.var;
 
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
@@ -789,7 +790,7 @@ public class Desugar extends BLangNodeVisitor {
 
             DiagnosticPos pos = parentBlockStmt.pos;
             BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
-            BLangVariableReference varibleReference;
+            BLangVariableReference variableReference;
 
             if (parentIndexAccessExpr != null) {
                 BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
@@ -799,9 +800,9 @@ public class Desugar extends BLangNodeVisitor {
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
                 variableDef.var = mapVariable;
 
-                varibleReference = ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol);
+                variableReference = ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol);
             } else {
-                varibleReference = ASTBuilderUtil.createVariableRef(pos,
+                variableReference = ASTBuilderUtil.createVariableRef(pos,
                         ((BLangSimpleVariableDef) parentBlockStmt.stmts.get(0)).var.symbol);
             }
 
@@ -824,7 +825,7 @@ public class Desugar extends BLangNodeVisitor {
             filterIterator.requiredArgs.add(lambdaFunction);
 
             // Variable reference to the 1st variable of this block. i.e. the map ..
-            filterIterator.expr = varibleReference;
+            filterIterator.expr = variableReference;
 
             filterIterator.type = new BIntermediateCollectionType(getStringAnyTupleType());
 
@@ -839,6 +840,38 @@ public class Desugar extends BLangNodeVisitor {
             filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
             iterableContext.operations.add(filterOperation);
         }
+    }
+
+    private BLangLambdaFunction createFuncToFilterOutRestParam(BLangRecordVarRef recordVarRef, DiagnosticPos pos) {
+
+        // Creates following anonymous function
+        //
+        // function ((string, any) $lambdaArg$0) returns boolean {
+        //     Following if block is generated for all parameters given in the record variable
+        //     if ($lambdaArg$0[0] == "name") {
+        //         return false;
+        //     }
+        //     if ($lambdaArg$0[0] == "age") {
+        //         return false;
+        //     }
+        //      return true;
+        // }
+
+        BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
+        BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
+                getStringAnyTupleType(), this.env.scope.owner);
+        BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
+
+        // Create the if statements
+        for (BLangRecordVarRefKeyValue variableKeyValueNode : recordVarRef.recordRefFields) {
+            createIfStmt(pos, keyValSymbol, functionBlock, variableKeyValueNode.variableName.getValue());
+        }
+
+        // Create the final return true statement
+        BInvokableSymbol functionSymbol = createReturnTrueStatement(pos, function, functionBlock);
+
+        // Create and return a lambda function
+        return createLambdaFunction(function, functionSymbol);
     }
 
     private BLangLambdaFunction createFuncToFilterOutRestParam(BLangRecordVariable recordVariable, DiagnosticPos pos) {
@@ -859,45 +892,54 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
         BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
                 getStringAnyTupleType(), this.env.scope.owner);
-        BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
-                null, keyValSymbol);
-
-        function.requiredParams.add(inputParameter);
-        BLangValueType booleanTypeKind = new BLangValueType();
-        booleanTypeKind.typeKind = TypeKind.BOOLEAN;
-        function.returnTypeNode = booleanTypeKind;
-
-        BLangBlockStmt functionBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
-        function.body = functionBlock;
+        BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
 
         // Create the if statements
         for (BLangRecordVariableKeyValueNode variableKeyValueNode : recordVariable.variableList) {
-            BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, functionBlock);
-
-            BLangBlockStmt ifBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
-            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, ifBlock);
-            returnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
-            ifStmt.body = ifBlock;
-
-            BLangBracedOrTupleExpr tupleExpr = new BLangBracedOrTupleExpr();
-            tupleExpr.isBracedExpr = true;
-            tupleExpr.type = symTable.booleanType;
-
-            BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
-                    symTable.stringType, keyValSymbol, ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0));
-
-            BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, indexBasesAccessExpr,
-                    ASTBuilderUtil.createLiteral(pos, symTable.stringType, variableKeyValueNode.getKey().getValue()),
-                    symTable.booleanType, OperatorKind.EQUAL, null);
-
-            binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                    binaryExpr.opKind, binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
-
-            tupleExpr.expressions.add(binaryExpr);
-            ifStmt.expr = tupleExpr;
+            createIfStmt(pos, keyValSymbol, functionBlock, variableKeyValueNode.getKey().getValue());
         }
 
         // Create the final return true statement
+        BInvokableSymbol functionSymbol = createReturnTrueStatement(pos, function, functionBlock);
+
+        // Create and return a lambda function
+        return createLambdaFunction(function, functionSymbol);
+    }
+
+    private void createIfStmt(DiagnosticPos pos, BVarSymbol keyValSymbol, BLangBlockStmt functionBlock, String key) {
+        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, functionBlock);
+
+        BLangBlockStmt ifBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
+        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, ifBlock);
+        returnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
+        ifStmt.body = ifBlock;
+
+        BLangBracedOrTupleExpr tupleExpr = new BLangBracedOrTupleExpr();
+        tupleExpr.isBracedExpr = true;
+        tupleExpr.type = symTable.booleanType;
+
+        BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
+                symTable.stringType, keyValSymbol, ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0));
+
+        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, indexBasesAccessExpr,
+                ASTBuilderUtil.createLiteral(pos, symTable.stringType, key),
+                symTable.booleanType, OperatorKind.EQUAL, null);
+
+        binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                binaryExpr.opKind, binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+
+        tupleExpr.expressions.add(binaryExpr);
+        ifStmt.expr = tupleExpr;
+    }
+
+    private BLangLambdaFunction createLambdaFunction(BLangFunction function, BInvokableSymbol functionSymbol) {
+        BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambdaFunction.function = function;
+        lambdaFunction.type = functionSymbol.type;
+        return lambdaFunction;
+    }
+
+    private BInvokableSymbol createReturnTrueStatement(DiagnosticPos pos, BLangFunction function, BLangBlockStmt functionBlock) {
         BLangReturn trueReturnStmt = ASTBuilderUtil.createReturnStmt(pos, functionBlock);
         trueReturnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
 
@@ -914,12 +956,20 @@ public class Desugar extends BLangNodeVisitor {
         function.symbol = functionSymbol;
         rewrite(function, env);
         env.enclPkg.addFunction(function);
+        return functionSymbol;
+    }
 
-        // Create and return a lambda function
-        BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-        lambdaFunction.function = function;
-        lambdaFunction.type = functionSymbol.type;
-        return lambdaFunction;
+    private BLangBlockStmt createAnonymousFunctionBlock(DiagnosticPos pos, BLangFunction function, BVarSymbol keyValSymbol) {
+        BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
+                null, keyValSymbol);
+        function.requiredParams.add(inputParameter);
+        BLangValueType booleanTypeKind = new BLangValueType();
+        booleanTypeKind.typeKind = TypeKind.BOOLEAN;
+        function.returnTypeNode = booleanTypeKind;
+
+        BLangBlockStmt functionBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
+        function.body = functionBlock;
+        return functionBlock;
     }
 
     private BTupleType getStringAnyTupleType() {
@@ -1106,8 +1156,116 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordDestructure stmt) {
-        result = stmt;
+    public void visit(BLangRecordDestructure recordDestructure) {
+
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(recordDestructure.pos);
+
+        BType runTimeType = new BMapType(TypeTags.RECORD, symTable.anyType, null);
+
+        final BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(recordDestructure.pos, "", runTimeType,
+                null, new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
+                        runTimeType, this.env.scope.owner));
+        mapVariable.expr = recordDestructure.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(recordDestructure.pos, blockStmt);
+        variableDef.var = mapVariable;
+
+        //create the variable definition statements using the root block stmt created
+        createVarRefAssignmentStmts(recordDestructure.varRef, blockStmt, mapVariable.symbol, null);
+
+        //finally rewrite the populated block statement
+        result = rewrite(blockStmt, env);
+    }
+
+    private void createVarRefAssignmentStmts(BLangRecordVarRef parentRecordVarRef, BLangBlockStmt parentBlockStmt,
+                                             BVarSymbol recordVarSymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
+        final List<BLangRecordVarRefKeyValue> variableRefList = parentRecordVarRef.recordRefFields;
+        for (BLangRecordVarRefKeyValue varRefKeyValue : variableRefList) {
+            if (NodeKind.SIMPLE_VARIABLE_REF == varRefKeyValue.variableReference.getKind()) {
+                BLangLiteral indexExpr = ASTBuilderUtil.
+                        createLiteral(varRefKeyValue.variableReference.pos, symTable.stringType,
+                                varRefKeyValue.variableName.getValue());
+                createSimpleVarRefAssignmentStmt((BLangSimpleVarRef) varRefKeyValue.variableReference, parentBlockStmt,
+                        indexExpr, recordVarSymbol, parentIndexAccessExpr);
+            } else if (NodeKind.RECORD_VARIABLE_REF == varRefKeyValue.variableReference.getKind()) {
+                BLangRecordVarRef recordVariable = (BLangRecordVarRef) varRefKeyValue.variableReference;
+                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVariable.pos, symTable.stringType,
+                        varRefKeyValue.variableName.getValue());
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
+                        parentRecordVarRef.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        recordVarSymbol, indexExpr);
+                if (parentIndexAccessExpr != null) {
+                    arrayAccessExpr.expr = parentIndexAccessExpr;
+                }
+                createVarRefAssignmentStmts(recordVariable, parentBlockStmt, recordVarSymbol, arrayAccessExpr);
+            } else if (NodeKind.TUPLE_VARIABLE_REF == varRefKeyValue.variableReference.getKind()) {
+                BLangTupleVarRef tupleVariable = (BLangTupleVarRef) varRefKeyValue.variableReference;
+                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVariable.pos, symTable.stringType,
+                        varRefKeyValue.variableName.getValue());
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
+                        new BArrayType(symTable.anyType), recordVarSymbol, indexExpr);
+                if (parentIndexAccessExpr != null) {
+                    arrayAccessExpr.expr = parentIndexAccessExpr;
+                }
+                createVarRefAssignmentStmts(tupleVariable, parentBlockStmt, recordVarSymbol, arrayAccessExpr);
+            }
+        }
+
+        if (parentRecordVarRef.restParam != null) {
+            // The restParam is desugared to a filter iterable operation that filters out the fields provided in the
+            // record variable
+            // map<any> restParam = $map$0.filter($lambdaArg$0);
+
+            DiagnosticPos pos = parentBlockStmt.pos;
+            BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            BLangVariableReference variableReference;
+
+            if (parentIndexAccessExpr != null) {
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
+                        null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
+                                anyConstrainedMapType, this.env.scope.owner));
+                mapVariable.expr = parentIndexAccessExpr;
+                BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
+                variableDef.var = mapVariable;
+
+                variableReference = ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol);
+            } else {
+                variableReference = ASTBuilderUtil.createVariableRef(pos,
+                        ((BLangSimpleVariableDef) parentBlockStmt.stmts.get(0)).var.symbol);
+            }
+
+            // Create rest param variable definition
+            BLangSimpleVarRef restParam = (BLangSimpleVarRef) parentRecordVarRef.restParam;
+            BLangAssignment restParamAssignment = ASTBuilderUtil.createAssignmentStmt(pos, parentBlockStmt);
+            restParamAssignment.varRef = restParam;
+            restParamAssignment.varRef.type = anyConstrainedMapType;
+
+            // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
+            BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVarRef, pos);
+
+            // Create filter iterator operation
+            BLangInvocation filterIterator = (BLangInvocation) TreeBuilder.createInvocationNode();
+            restParamAssignment.expr = filterIterator;
+
+            filterIterator.iterableOperationInvocation = true;
+            filterIterator.argExprs.add(lambdaFunction);
+            filterIterator.requiredArgs.add(lambdaFunction);
+
+            // Variable reference to the 1st variable of this block. i.e. the map ..
+            filterIterator.expr = variableReference;
+
+            filterIterator.type = new BIntermediateCollectionType(getStringAnyTupleType());
+
+            IterableContext iterableContext = new IterableContext(filterIterator.expr, env);
+            iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
+            filterIterator.iContext = iterableContext;
+
+            iterableContext.resultType = anyConstrainedMapType;
+            Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
+            filterOperation.pos = pos;
+            filterOperation.collectionType = filterOperation.expectedType = anyConstrainedMapType;
+            filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
+            iterableContext.operations.add(filterOperation);
+        }
     }
 
     @Override

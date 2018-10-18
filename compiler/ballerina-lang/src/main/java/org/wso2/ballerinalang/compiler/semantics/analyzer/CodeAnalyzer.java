@@ -737,7 +737,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure stmt) {
         this.checkStatementExecutionValidity(stmt);
-        analyzeExprs(stmt.varRefs);
+        analyzeExpr(stmt.varRef);
         analyzeExpr(stmt.expr);
     }
 
@@ -1195,11 +1195,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.accept(this);
         parent = myParent;
         checkAccess(node);
-    }
-
-    @Override
-    public void visit(BLangTupleVarRef varRefExpr) {
-        /* ignore */
     }
 
     @Override

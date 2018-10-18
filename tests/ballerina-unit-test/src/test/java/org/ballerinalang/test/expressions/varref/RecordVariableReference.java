@@ -89,7 +89,6 @@ public class RecordVariableReference {
 
     @Test
     public void testNegativeRecordVariables() {
-        System.out.println(resultNegative);
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
         final String UNDEFINED_SYMBOL = "undefined symbol ";
         final String EXPECTING_CLOSED_RECORD = "can not match record variable reference, type {0} is not a closed record type";

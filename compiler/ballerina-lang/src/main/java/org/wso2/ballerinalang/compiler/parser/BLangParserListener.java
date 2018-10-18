@@ -956,7 +956,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 restParam = true;
             }
         }
-        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), numberOfVars, restParam, closed);
+        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), numberOfVars, restParam, closed );
     }
 
     @Override
@@ -1039,7 +1039,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     ctx.bindingPattern().Identifier().getText(), exprAvailable, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable);
+            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable,
+                    isDeclaredWithVar);
         } else {
             this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable,
                     isDeclaredWithVar);

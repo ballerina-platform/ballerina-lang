@@ -751,8 +751,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure stmt) {
         setPreviousNode(stmt);
-        if (stmt.varRefs != null) {
-            stmt.varRefs.forEach(this::acceptNode);
+        if (stmt.varRef.expressions != null) {
+            stmt.varRef.expressions.forEach(this::acceptNode);
         }
 
         if (stmt.expr != null) {

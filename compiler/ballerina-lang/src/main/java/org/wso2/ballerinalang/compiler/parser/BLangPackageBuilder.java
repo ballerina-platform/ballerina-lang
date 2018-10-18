@@ -728,8 +728,6 @@ public class BLangPackageBuilder {
         recordVariable.pos = pos;
         recordVariable.addWS(ws);
         recordVariable.isClosed = closed;
-        TypeNode typeNode = this.typeNodeStack.peek();
-        recordVariable.setTypeNode(typeNode);
         for (int i = 0; i < members; i++) {
             final BLangRecordVariableKeyValue member = this.recordVarStack.pop();
             recordVariable.variableList.add(member);
@@ -761,7 +759,7 @@ public class BLangPackageBuilder {
         if (!bindingPattern) {
             addBindingMemberVar(pos, ws, identifier);
         }
-        recordKeyValue.valueBindingPattern = (BLangVariable) this.varStack.pop();
+        recordKeyValue.valueBindingPattern = this.varStack.pop();
         this.recordVarStack.push(recordKeyValue);
     }
 
@@ -980,18 +978,22 @@ public class BLangPackageBuilder {
     }
 
     void addRecordVariableDefStatement(DiagnosticPos pos,
-                                      Set<Whitespace> ws,
-                                      boolean exprAvailable) {
+                                       Set<Whitespace> ws,
+                                       boolean exprAvailable, boolean isDeclaredWithVar) {
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
         BLangRecordVariable var = (BLangRecordVariable) this.varStack.pop();
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         varDefNode.pos = pos;
+        varDefNode.setVariable(var);
         varDefNode.addWS(ws);
         varDefNode.var = var;
+        var.isDeclaredWithVar = isDeclaredWithVar;
+        if (!isDeclaredWithVar) {
+            var.setTypeNode(this.typeNodeStack.pop());
+        }
         addStmtToCurrentBlock(varDefNode);
-        this.typeNodeStack.pop();
     }
 
     void addTypeInitExpression(DiagnosticPos pos, Set<Whitespace> ws, String initName, boolean typeAvailable,
@@ -2111,7 +2113,7 @@ public class BLangPackageBuilder {
         stmt.addWS(ws);
         stmt.setDeclaredWithVar(varDeclaration);
         stmt.expr = (BLangExpression) exprNodeStack.pop();
-        stmt.varRef = (BLangExpression) exprNodeStack.pop();
+        stmt.varRef = (BLangTupleVarRef) exprNodeStack.pop();
         stmt.addWS(ws);
         addStmtToCurrentBlock(stmt);
     }

@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -70,6 +71,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class responsible for desugar an iterable chain into actual Ballerina code.
@@ -327,7 +329,12 @@ public class IterableCodeDesugar {
                 tupleAssign.declaredWithVar = true;
                 foreachStmt.body.addStatement(tupleAssign);
                 tupleAssign.expr = ASTBuilderUtil.createVariableRef(pos, ctx.getLastOperation().retVar.symbol);
-                tupleAssign.varRefs.addAll(ASTBuilderUtil.createVariableRefList(pos, ctx.iteratorResultVariables));
+                BLangTupleVarRef bLangTupleVarRef = new BLangTupleVarRef();
+                bLangTupleVarRef.expressions = ASTBuilderUtil.createVariableRefList(pos, ctx.iteratorResultVariables)
+                        .stream()
+                        .map(simpleVarRef -> (BLangExpression) simpleVarRef)
+                        .collect(Collectors.toList());
+                tupleAssign.varRef = bLangTupleVarRef;
             }
             generateAggregator(foreachStmt.body, ctx);
             generateFinalResult(funcNode.body, ctx);

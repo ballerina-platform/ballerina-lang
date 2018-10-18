@@ -929,7 +929,7 @@ public class CommonUtil {
             if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
                 // Check for tuple assignment eg. (int, int)
                 List<String> list = new ArrayList<>();
-                for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRefs) {
+                for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRef.expressions) {
                     if (bLangExpression.type != null) {
                         list.add(getFuncReturnDefaultStatement(bLangExpression.type, "{%1}"));
                     }
@@ -1031,7 +1031,7 @@ public class CommonUtil {
             if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
                 // Check for tuple assignment eg. (int, int)
                 List<String> list = new ArrayList<>();
-                for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRefs) {
+                for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRef.expressions) {
                     if (bLangExpression.type != null) {
                         list.add(getFuncReturnSignature(bLangExpression.type));
                     }

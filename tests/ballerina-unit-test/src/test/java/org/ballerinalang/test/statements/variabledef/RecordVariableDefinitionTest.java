@@ -140,41 +140,43 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(bMap2.get("work").stringValue(), "SE");
     }
 
-//    @Test(description = "Test rest parameter in nested record variable")
-//    public void testVariableAssignment() {
-//        BValue[] returns = BRunUtil.invoke(result, "testVariableAssignment");
-//        Assert.assertEquals(returns.length, 2);
-//        Assert.assertEquals(returns[0].stringValue(), "Peter");
-//        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-//    }
+    @Test(description = "Test rest parameter in nested record variable")
+    public void testVariableAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testVariableAssignment");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns[0].stringValue(), "Peter");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 29);
+        Assert.assertEquals(returns[2].stringValue(), "Y");
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Assert.assertEquals(((BMap) returns[4]).get("work").stringValue(), "SE");
+    }
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         String redeclaredSymbol = "redeclared symbol ";
         String invalidRecordLiteralInBindingPattern = "invalid record literal in binding pattern. ";
         String invalidClosedRecordBindingPattern = "invalid closed record binding pattern. ";
         String invalidRecordBindingPattern = "invalid record binding pattern. ";
 
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'married'", 35, 61);
-        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 35, 26);
-        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 36, 19);
+        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 34, 26);
+        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 35, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name1' field not found in literal", 40, 12);
+                invalidRecordLiteralInBindingPattern + "'name1' field not found in literal", 39, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 41, 12);
+                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 40, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 42, 12);
+                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 41, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidClosedRecordBindingPattern + "expected '2' fields, but found '3'", 43, 12);
+                invalidClosedRecordBindingPattern + "expected '2' fields, but found '3'", 42, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 44, 12);
+                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 43, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'Person', found 'PersonWithAge'", 49, 37);
+                "incompatible types: expected 'Person', found 'PersonWithAge'", 48, 37);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'int'", 50, 55);
+                "incompatible types: expected 'string', found 'int'", 49, 55);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'boolean', found 'string'", 50, 68);
+                "incompatible types: expected 'boolean', found 'string'", 49, 68);
     }
 }

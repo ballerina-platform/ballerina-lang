@@ -119,7 +119,8 @@ function testNestedRestParameter() returns (map, map) {
     return (rest1, rest2);
 }
 
-//function testVariableAssignment() {
-//    var {name: fName, married} = {name: "Peter", married: true};
-//    return (fName, married);
-//}
+function testVariableAssignment() returns (string, int, string, boolean, map) {
+    PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    var {name: fName, age: {age, format}, married, ...rest} = person;
+    return (fName, age, format, married, rest);
+}

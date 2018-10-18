@@ -27,12 +27,11 @@ type Person record {
 type PersonWithAge record {
     string name;
     Age age;
-    boolean married;
 };
 
 function redeclaredSymbol() {
     Person {name: fName, married} = {name: "Peter", married: true};
-    PersonWithAge {name: fName, age: {age: theAge, format}, married} = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge {name: fName, age: {age: theAge, format}} = {name: "Peter", age: {age:29, format: "Y"}, work: "SE"};
     Person {name: fiName, married: fiName} = {name: "Peter", married: true};
 }
 

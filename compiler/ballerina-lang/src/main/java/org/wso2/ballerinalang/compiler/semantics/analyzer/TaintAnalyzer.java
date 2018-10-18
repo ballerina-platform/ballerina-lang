@@ -652,10 +652,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTupleDestructure stmt) {
         stmt.expr.accept(this);
         // Propagate tainted status of each variable separately (when multi returns are used).
-        for (int varIndex = 0; varIndex < stmt.varRefs.size(); varIndex++) {
-            BLangExpression varRefExpr = stmt.varRefs.get(varIndex);
-            visitAssignment(varRefExpr, taintedStatus, stmt.pos);
-        }
+//        for (int varIndex = 0; varIndex < stmt.varRefs.size(); varIndex++) {
+//            BLangExpression varRefExpr = stmt.varRefs.get(varIndex);
+//            visitAssignment(varRefExpr, taintedStatus, stmt.pos);
+//        }
     }
 
     @Override
