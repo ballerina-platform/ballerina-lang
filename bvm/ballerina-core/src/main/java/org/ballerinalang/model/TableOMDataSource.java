@@ -48,19 +48,17 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
     private BTable table;
     private String rootWrapper;
     private String rowWrapper;
-    private boolean isInTransaction;
 
-    public TableOMDataSource(BTable table, String rootWrapper, String rowWrapper, boolean isInTransaction) {
+    public TableOMDataSource(BTable table, String rootWrapper, String rowWrapper) {
         this.table = table;
         this.rootWrapper = rootWrapper != null ? rootWrapper : DEFAULT_ROOT_WRAPPER;
         this.rowWrapper = rowWrapper != null ? rowWrapper : DEFAULT_ROW_WRAPPER;
-        this.isInTransaction = isInTransaction;
     }
 
     @Override
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
         xmlStreamWriter.writeStartElement("", this.rootWrapper, "");
-        while (table.hasNext(this.isInTransaction)) {
+        while (table.hasNext()) {
             table.moveToNext();
             xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
             BStructureType structType = table.getStructType();
