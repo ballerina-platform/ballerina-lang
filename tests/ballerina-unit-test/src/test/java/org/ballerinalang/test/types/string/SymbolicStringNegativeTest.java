@@ -36,8 +36,8 @@ public class SymbolicStringNegativeTest {
         BAssertUtil.validateError(resultNegative, 0, "extraneous input 'World'", 23, 26);
         BAssertUtil.validateError(resultNegative, 1, "token recognition error at: '$'", 24, 25);
         BAssertUtil.validateError(resultNegative, 2, "mismatched input '0'. expecting " +
-                "{'but', ';', '?', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '&', '^', " +
-                "'...', '|', '?:', '..<'}", 25, 23);
+                "{'but', ';', '?', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', " +
+                "'&', '^', '...', '|', '?:', '..<'}", 25, 23);
         BAssertUtil.validateError(resultNegative, 3, "token recognition error at: '\\'", 26, 25);
         BAssertUtil.validateError(resultNegative, 4, "extraneous input 'nWorld'", 26, 26);
         BAssertUtil.validateError(resultNegative, 5, "token recognition error at: '\\'", 27, 25);

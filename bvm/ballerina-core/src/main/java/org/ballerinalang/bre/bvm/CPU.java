@@ -3834,7 +3834,6 @@ public class CPU {
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                // TODO: 10/8/18 fail if element type is not anydata
                 BNewArray lhsArray = (BNewArray) lhsValue;
                 BNewArray rhsArray = (BNewArray) rhsValue;
                 if (lhsArray.size() != rhsArray.size()) {

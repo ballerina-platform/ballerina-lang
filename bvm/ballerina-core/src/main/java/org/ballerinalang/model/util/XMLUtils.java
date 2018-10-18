@@ -80,7 +80,7 @@ public class XMLUtils {
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
 
     static {
-        canonicalizer.init();
+        Canonicalizer.init();
         try {
             Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
                                    "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
