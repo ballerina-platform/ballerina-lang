@@ -250,7 +250,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name orgName;
         Name version;
         PackageID enclPackageID = env.enclPkg.packageID;
-        if (importPkgNode.orgName.value == null || importPkgNode.orgName.value.isEmpty()) {
+        if (importPkgNode.orgName.value == null || importPkgNode.orgName.value.isEmpty()
+                || (importPkgNode.version.value.isEmpty()
+                && importPkgNode.orgName.value.equals(enclPackageID.orgName.value))) {
             // means it's in 'import <pkg-name>' style
             orgName = enclPackageID.orgName;
             version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
