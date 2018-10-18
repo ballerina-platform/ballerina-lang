@@ -66,7 +66,7 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof globalEmployeeArray) == 4 || count == 10) {
             break;
         }
@@ -114,7 +114,8 @@ function createStreamingConstruct() {
             };
         });
 
-    streams:ExternalTimeWindow tmpWindow = streams:externalTimeWindow(select.process, "inputStream.timeStamp", 1000);
+    streams:Window tmpWindow = streams:externalTimeWindow("inputStream.timeStamp", 1000,
+        nextProcessPointer = select.process);
 
     inputStream.subscribe(function (Teacher t) {
             map keyVal = <map>t;

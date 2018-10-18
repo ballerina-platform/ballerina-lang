@@ -121,22 +121,6 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test(description = "Test increment operator.")
-    public void testIncrementOperator() {
-        BValue[] returns = BRunUtil.invoke(result, "testIncrementOperator");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 101);
-    }
-
-    @Test(description = "Test decrement operator.")
-    public void testDecrementOperator() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecrementOperator");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 99);
-    }
-
     @Test(description = "Test compound assignment with addition on array element.")
     public void testCompoundAssignmentAdditionArrayElement() {
         BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionArrayElement");
@@ -342,13 +326,12 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 21);
-        BAssertUtil.validateError(compileResult, i++, "operator '++' cannot be applied to type 'any'", 3, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '--' cannot be applied to type 'any'", 11, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '++' cannot be applied on variable 'getInt()'", 18, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '--' cannot be applied on variable 'getInt()'", 23, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '++' cannot be applied to type 'string'", 33, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '--' cannot be applied to type 'string'", 39, 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 20);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 3, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 11, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 18, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 23, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'string' and 'int'", 39, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'int|error'", 45, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 51, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 57, 5);

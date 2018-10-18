@@ -17,7 +17,6 @@
  * under the License.
  *
  */
-
 export const INVALID_HOME_MSG: string = "Ballerina Home is invalid, please check `ballerina.home` in settings";
 export const INSTALL_BALLERINA: string = "Unable to autoditect ballerina in your environment. Please download and install Ballerina or provide ballerina home path in settings.";
 export const DOWNLOAD_BALLERINA: string = "https://ballerina.io/downloads/";

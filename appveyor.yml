@@ -19,8 +19,10 @@ image:
 - Visual Studio 2017
 environment:
   MAVEN_VERSION: 3.5.0
+  APPVEYOR: true
   matrix:
     - JAVA_HOME: C:\Program Files\Java\jdk1.8.0
+  nodejs_version: "8"
 install:
   - ps: |
       Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -29,10 +31,14 @@ install:
         (new-object System.Net.WebClient).DownloadFile("https://repo1.maven.org/maven2/org/apache/maven/apache-maven/$env:MAVEN_VERSION/apache-maven-$env:MAVEN_VERSION-bin.zip", 'C:\maven-bin.zip')
         [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\maven-bin.zip", "C:\maven")
       }
+  - ps: Install-Product node $env:nodejs_version
+  - cmd: npm -g install npm@5.6.0
   - cmd: SET M2_HOME=C:\maven\apache-maven-%MAVEN_VERSION%
   - cmd: SET PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH:C:\Ruby193\bin;=%;
   - cmd: mvn --version
   - cmd: java -version
+  - cmd: node --version
+  - cmd: npm --version
 build_script:
   - SET MAVEN_OPTS="-Xms1024m"
   - mvn clean install -B -V -DskipTests
