@@ -232,7 +232,7 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        if (pkgNode.getCompilationUnits().isEmpty() && pkgNode.containsTestablePkg()) {
+        if (pkgNode.containsTestablePkg()) {
             return checkNextPhase(nextPhase) && (dlog.errorCount > 0 ||
                     pkgNode.getTestablePkg().getCompilationUnits().isEmpty());
         }

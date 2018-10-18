@@ -164,8 +164,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
-    public BLangPackage definePackage(BLangTestablePackage pkgNode, SymbolEnv env,
-                                      List<BLangImportPackage> enclPkgImports) {
+    public BLangPackage defineTestablePackage(BLangTestablePackage pkgNode, SymbolEnv env,
+                                              List<BLangImportPackage> enclPkgImports) {
         populatePackageNode(pkgNode, enclPkgImports);
         defineNode(pkgNode, env);
         return pkgNode;
@@ -192,7 +192,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
         defineConstructs(pkgNode, pkgEnv);
-        pkgNode.getTestablePkgs().forEach(testablePackage -> definePackage(testablePackage, pkgEnv, pkgNode.imports));
+        pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
+                                                                                   pkgNode.imports));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 

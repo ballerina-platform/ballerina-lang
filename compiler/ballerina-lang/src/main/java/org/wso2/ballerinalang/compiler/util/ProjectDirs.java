@@ -92,9 +92,9 @@ public class ProjectDirs {
      * @return true if its a test source, else false
      */
     public static boolean isTestSource(Path sourcePath, Path sourceRoot, String pkg) {
-        // Check if it the package name is "." i.e. if its a single ballerina source file, if so it should be added to
-        // the bLangPackage
-        if (pkg.equals(Names.DOT.value)) {
+        // CASE 1: Check if it the package name is "." i.e. if its a single ballerina source file, if so it should be
+        // added to the bLangPackage
+        if (Names.DOT.value.equals(pkg)) {
             return false;
         }
         // Resolve package path with the source root
@@ -108,15 +108,15 @@ public class ProjectDirs {
         //  * If the source path is "/home/user/project/a/tests/test.bal", then after relativizing the relative path
         //    will be tests/test.bal
         Path relativizePath = pkgPath.relativize(sourcePath);
-        // Check if the parent is null, if its null then it's a source file directly inside the package and it should be
-        // added to the the bLangPackage. Else its a source file inside another directory of the package or its a test
-        // source inside the "tests" directory
+        // CASE 2: Check if the parent is null, if its null then it's a source file directly inside the package and i
+        // should be added to the the bLangPackage. Else its a source file inside another directory of the package or
+        // its a test source inside the "tests" directory
         if (relativizePath.getParent() == null) {
             return false;
         }
-        // The source file can be a file inside another directory of the package or can be a test source inside the
-        // "tests" directory. Get the file name of the element that is closest to the root in the directory hierarchy
-        // i.e. which has index 0.
+        // CASE 3: The source file can be a file inside another directory of the package or can be a test source inside
+        // the "tests" directory. Get the file name of the element that is closest to the root in the directory
+        // hierarchy i.e. which has index 0.
         Path rootPath = relativizePath.getName(0);
         if (rootPath != null) {
             Path rootFileName = rootPath.getFileName();

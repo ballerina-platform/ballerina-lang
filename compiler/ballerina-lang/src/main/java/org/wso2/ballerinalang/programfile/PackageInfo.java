@@ -133,25 +133,4 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
-    /**
-     * Get a deep copy of the packageInfo object.
-     *
-     * @param target packageInfo object to be copied
-     */
-    public void copyTo(PackageInfo target) {
-        target.orgNameCPIndex = this.orgNameCPIndex;
-        target.nameCPIndex = this.nameCPIndex;
-        target.versionCPIndex = this.versionCPIndex;
-        target.constantPoolEntries = this.constantPoolEntries;
-        target.instructionList = this.instructionList;
-        target.importPkgInfoSet = this.importPkgInfoSet;
-        target.constantInfoMap = this.constantInfoMap;
-        target.pkgVarInfoMap = this.pkgVarInfoMap;
-        target.functionInfoMap = this.functionInfoMap;
-        target.typeDefInfoMap = this.typeDefInfoMap;
-        target.annotationInfoMap = this.annotationInfoMap;
-        target.serviceInfoMap = this.serviceInfoMap;
-        target.structureTypeInfoMap = this.structureTypeInfoMap;
-        target.attributeInfoMap = this.attributeInfoMap;
-    }
 }

@@ -139,7 +139,7 @@ public class BLangFunctions {
     public static void invokePackageTestInitFunctions(ProgramFile programFile) {
         Arrays.stream(programFile.getPackageInfoEntries())
               .filter(packageInfo -> packageInfo.getTestInitFunctionInfo() != null)
-              .forEach(PackageInfo::getTestInitFunctionInfo);
+              .forEach(packageInfo -> invokePackageInitFunction(packageInfo.getTestInitFunctionInfo()));
     }
 
     /**
@@ -150,7 +150,7 @@ public class BLangFunctions {
     public static void invokePackageTestStartFunctions(ProgramFile programFile) {
         Arrays.stream(programFile.getPackageInfoEntries())
               .filter(packageInfo -> packageInfo.getTestStartFunctionInfo() != null)
-              .forEach(PackageInfo::getTestStartFunctionInfo);
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStartFunctionInfo()));
     }
 
     /**
@@ -161,7 +161,7 @@ public class BLangFunctions {
     public static void invokePackageTestStopFunctions(ProgramFile programFile) {
         Arrays.stream(programFile.getPackageInfoEntries())
               .filter(packageInfo -> packageInfo.getTestStopFunctionInfo() != null)
-              .forEach(PackageInfo::getTestStopFunctionInfo);
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStopFunctionInfo()));
     }
 
     /**

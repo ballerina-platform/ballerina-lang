@@ -362,10 +362,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void generateBALO(BLangTestablePackage pkgNode) {
         // Generate code for the given package.
-        PackageInfo enclPkgInfo = this.currentPkgInfo;
-        // Since the packageInfo of the testablePackage should contain the entries of the packageInfo of the
-        // bLangpackage get a deep copy of it and resue the copy to generate the balo of the testablePackage
-        enclPkgInfo.copyTo(this.currentPkgInfo);
         genNode(pkgNode);
         this.currentPkgInfo = null;
     }

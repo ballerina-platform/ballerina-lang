@@ -350,9 +350,11 @@ public class Desugar extends BLangNodeVisitor {
                                                                        env.enclPkg.packageID, bLangFunction.type,
                                                                        env.enclPkg.symbol, true);
         functionSymbol.retType = bLangFunction.returnTypeNode.type;
-        functionSymbol.params = bLangFunction.requiredParams.stream()
-                                                            .map(param -> param.symbol)
-                                                            .collect(Collectors.toList());
+        // Add parameters
+        for (BLangVariable param: bLangFunction.requiredParams) {
+            functionSymbol.params.add(param.symbol);
+        }
+
         functionSymbol.scope = new Scope(functionSymbol);
         functionSymbol.type = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         bLangFunction.symbol = functionSymbol;
