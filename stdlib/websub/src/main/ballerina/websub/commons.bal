@@ -354,49 +354,50 @@ public type Notification object {
 # + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
 public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
     string[] linkHeaders;
-    error websubError;
     if (response.hasHeader("Link")) {
         linkHeaders = response.getHeaders("Link");
     }
 
-    if (lengthof linkHeaders > 0) {
-        int hubIndex = 0;
-        string[] hubs;
-        string topic;
-        string[] linkHeaderConstituents = [];
-        if (lengthof linkHeaders == 1) {
-            linkHeaderConstituents = linkHeaders[0].split(",");
-        } else {
-            linkHeaderConstituents = linkHeaders;
-        }
+    if (lengthof linkHeaders == 0) {
+        error websubError = { message: "Link header unavailable in discovery response" };
+        return websubError;
+    }
 
-        foreach link in linkHeaderConstituents {
-            string[] linkConstituents = link.split(";");
-            if (linkConstituents[1] != "") {
-                string url = linkConstituents[0].trim();
-                url = url.replace("<", "");
-                url = url.replace(">", "");
-                if (linkConstituents[1].contains("rel=\"hub\"")) {
-                    hubs[hubIndex] = url;
-                    hubIndex += 1;
-                } else if (linkConstituents[1].contains("rel=\"self\"")) {
-                    if (topic != "") {
-                        websubError = {message:"Link Header contains > 1 self URLs"};
-                        return websubError;
-                    } else {
-                        topic = url;
-                    }
+    int hubIndex = 0;
+    string[] hubs;
+    string topic;
+    string[] linkHeaderConstituents = [];
+    if (lengthof linkHeaders == 1) {
+        linkHeaderConstituents = linkHeaders[0].split(",");
+    } else {
+        linkHeaderConstituents = linkHeaders;
+    }
+
+    foreach link in linkHeaderConstituents {
+        string[] linkConstituents = link.split(";");
+        if (linkConstituents[1] != "") {
+            string url = linkConstituents[0].trim();
+            url = url.replace("<", "");
+            url = url.replace(">", "");
+            if (linkConstituents[1].contains("rel=\"hub\"")) {
+                hubs[hubIndex] = url;
+                hubIndex += 1;
+            } else if (linkConstituents[1].contains("rel=\"self\"")) {
+                if (topic != "") {
+                    error websubError = { message: "Link Header contains > 1 self URLs" };
+                    return websubError;
+                } else {
+                    topic = url;
                 }
             }
         }
-        if (lengthof hubs > 0 && topic != "") {
-            return (topic, hubs);
-        } else {
-            websubError = {message: "Hub and/or Topic URL(s) not identified in link header of discovery response"};
-        }
-    } else {
-        websubError = {message: "Link header unavailable in discovery response"};
     }
+
+    if (lengthof hubs > 0 && topic != "") {
+        return (topic, hubs);
+    }
+
+    error websubError = {message: "Hub and/or Topic URL(s) not identified in link header of discovery response"};
     return websubError;
 }
 
