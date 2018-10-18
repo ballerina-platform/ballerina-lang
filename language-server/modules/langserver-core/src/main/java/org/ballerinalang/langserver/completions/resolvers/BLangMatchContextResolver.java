@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -104,7 +105,8 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
         completionItem.setLabel(type);
         completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
         completionItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        
+        completionItem.setKind(CompletionItemKind.Snippet);
+
         return completionItem;
     }
 }

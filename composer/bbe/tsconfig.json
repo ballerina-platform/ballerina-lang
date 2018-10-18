@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "outDir": "lib",
+      "module": "esnext",
+      "target": "es5",
+      "lib": ["es6", "dom"],
+      "sourceMap": true,
+      "jsx": "react",
+      "moduleResolution": "node",
+      "rootDirs": ["src", "stories"],
+      "forceConsistentCasingInFileNames": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "suppressImplicitAnyIndexErrors": true,
+      "noUnusedLocals": true,
+      "declaration": true,
+      "esModuleInterop": true
+    },
+    "exclude": [
+      "node_modules",
+      "lib"
+    ]
+  }
+  

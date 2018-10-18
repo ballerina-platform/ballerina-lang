@@ -63,7 +63,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
         if (!parser.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
             return;
         }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
@@ -72,7 +72,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportMissingToken(Parser parser) {
         if (!parser.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
             return;
         }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
@@ -81,7 +81,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
         if (!parser.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
             return;
         }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
@@ -90,7 +90,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportUnwantedToken(Parser parser) {
         if (!parser.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
             return;
         }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
@@ -99,7 +99,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportMatch(Parser recognizer) {
         if (!recognizer.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
             super.reportMatch(recognizer);
             return;
         }
@@ -115,7 +115,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
         if (!recognizer.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
             super.sync(recognizer);
             return;
         }

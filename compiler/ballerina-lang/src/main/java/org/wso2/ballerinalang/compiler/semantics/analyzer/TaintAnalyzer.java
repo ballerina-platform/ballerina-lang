@@ -1433,7 +1433,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * @param taintedStatus Tainted status.
      */
     private void setTaintedStatus(BLangVariableReference varNode, TaintedStatus taintedStatus) {
-        if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || !varNode.symbol.tainted)) {
+        if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || (varNode.symbol != null
+                && !varNode.symbol.tainted))) {
             setTaintedStatus(varNode.symbol, taintedStatus);
         }
     }
@@ -1985,12 +1986,22 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Update the tainted state of the given argument expression of a function invocation. This will make sure tainted
+     * state changes made within the invoked function is reflected back on the arguments.
+     *
+     * XML access expressions do not have a variable symbol attached. Therefore, such simple variable references are not
+     * updated. Since such expressions only result in simple values, this does not affect the accuracy of the analyzer.
+     *
+     * @param varRefExpr argument expressions
+     * @param varTaintedStatus tainted status of the argument
+     */
     private void updateArgTaintedStatus(BLangExpression varRefExpr, TaintedStatus varTaintedStatus) {
         if (varRefExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || varRefExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
                 || varRefExpr.getKind() == NodeKind.BRACED_TUPLE_EXPR
-                || varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                || varRefExpr.getKind() == NodeKind.VARIABLE_DEF) {
+                || (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) varRefExpr).pkgSymbol.tag != SymTag.XMLNS)) {
             visitAssignment(varRefExpr, varTaintedStatus, varRefExpr.pos);
         }
     }

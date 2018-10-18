@@ -63,7 +63,14 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
     foreach t in teachers {
         inputStream.publish(t);
     }
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalTeacherOutputArray) == 7 || count == 10) {
+            break;
+        }
+    }
     return globalTeacherOutputArray;
 }
 

@@ -100,9 +100,15 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
      *
      * @param id                                Entry ID to retrieve
      * @return {@link BFunctionSymbolDTO}       Retrieved entry
+     * @throws LSIndexException Exception while retrieving entry from index
      */
     @Override
-    public BFunctionSymbolDTO get(int id) {
+    public BFunctionSymbolDTO get(int id) throws LSIndexException {
+        return null;
+    }
+
+    @Override
+    public List<BFunctionSymbolDTO> get(BFunctionSymbolDTO dto) throws LSIndexException {
         return null;
     }
 

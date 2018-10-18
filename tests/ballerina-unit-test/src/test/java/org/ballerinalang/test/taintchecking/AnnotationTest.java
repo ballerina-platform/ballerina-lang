@@ -35,13 +35,13 @@ public class AnnotationTest {
     @Test
     public void testSensitive() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/sensitive.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testSensitiveNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/sensitive-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 2);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 39);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 3, 50);
     }
@@ -49,14 +49,14 @@ public class AnnotationTest {
     @Test
     public void testSensitiveDefaultArgs() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/sensitive-default-args.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testSensitiveDefaultArgsNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/sensitive-default-args-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 2);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 56);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 3, 81);
     }
@@ -64,23 +64,23 @@ public class AnnotationTest {
     @Test
     public void testSensitiveRestArgs() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/sensitive-rest-args.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testSensitiveRestArgsNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/sensitive-rest-args-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 2);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 30);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 3, 29);
     }
 
     @Test
-    public void testSensitiveRestParamsWithVaryingInvocationArgs () {
+    public void testSensitiveRestParamsWithVaryingInvocationArgs() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/sensitive-rest-params-with-varying-invocation-args.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class AnnotationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/" +
                         "sensitive-rest-params-with-varying-invocation-args-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 3);
+        Assert.assertEquals(result.getDiagnostics().length, 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'restParams'", 2, 46);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'restParams'", 3, 68);
         BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'restParams'", 4, 82);
@@ -98,7 +98,7 @@ public class AnnotationTest {
     public void testSensitiveDefaultParamsWithUnorderedArgs() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/sensitive-default-params-with-unordered-args.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class AnnotationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/" +
                         "sensitive-default-params-with-unordered-args-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 2);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'defaultableInput2'", 2, 43);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'defaultableInput2'", 3, 61);
     }
@@ -115,7 +115,7 @@ public class AnnotationTest {
     @Test
     public void testTainted() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/tainted.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 1);
+        Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 20);
     }
 
@@ -124,7 +124,6 @@ public class AnnotationTest {
     @Test
     public void testUntainted() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/untainted.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
-
 }
