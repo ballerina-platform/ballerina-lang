@@ -17,10 +17,18 @@
  */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -115,6 +123,8 @@ public class ProgramFileReader {
                 }
 
                 DefaultValue defaultValue = ((DefaultValueAttributeInfo) attributeInfo).getDefaultValue();
+
+                // Todo - Refactor.
                 switch (infoEntry.getType().getTag()) {
                     case TypeTags.INT_TAG:
                         programFile.globalMemArea.setIntField(packageInfoEntry.pkgIndex,
@@ -132,8 +142,38 @@ public class ProgramFileReader {
                         programFile.globalMemArea.setBooleanField(packageInfoEntry.pkgIndex,
                                 infoEntry.getGlobalMemIndex(), defaultValue.getBooleanValue() ? 1 : 0);
                         break;
-                }
+                    default:
+                        BRefType value;
+                        String typeDesc = defaultValue.getTypeDesc();
+                        switch (typeDesc) {
+                            case TypeSignature.SIG_BOOLEAN:
+                                boolean boolValue = defaultValue.getBooleanValue();
+                                value = new BBoolean(boolValue);
+                                break;
+                            case TypeSignature.SIG_INT:
+                                long intValue = defaultValue.getIntValue();
+                                value = new BInteger(intValue);
+                                break;
+                            case TypeSignature.SIG_BYTE:
+                                byte byteValue = defaultValue.getByteValue();
+                                value = new BByte(byteValue);
+                                break;
+                            case TypeSignature.SIG_FLOAT:
+                                double floatValue = defaultValue.getFloatValue();
+                                value = new BFloat(floatValue);
+                                break;
+                            case TypeSignature.SIG_STRING:
+                                String stringValue = defaultValue.getStringValue();
+                                value = new BString(stringValue);
+                                break;
+                            default:
+                                throw new ProgramFileFormatException("Unsupported default value type " + typeDesc);
+                        }
 
+                        programFile.globalMemArea.setRefField(packageInfoEntry.pkgIndex, infoEntry.getGlobalMemIndex(),
+                                value);
+                        break;
+                }
             }
         }
         return programFile;
