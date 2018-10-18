@@ -19,6 +19,7 @@ package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.Deserializer;
@@ -101,7 +102,7 @@ public class SerializableState {
         return serializableContext.getWorkerExecutionContext(programFile, this, deserializer);
     }
 
-    public String addRespContext(CallableWorkerResponseContext responseContext) {
+    public String addRespContext(WorkerResponseContext responseContext) {
         if (responseContext == null) {
             return null;
         }
@@ -174,6 +175,7 @@ public class SerializableState {
                 SerializableRefType sRefType = sRefTypes.get(key.key);
                 bRefType = sRefType.getBRefType(programFile, this, deserializer);
                 deserializer.getRefTypes().put(key.key, bRefType);
+                sRefType.setContexts(bRefType, programFile, this, deserializer);
                 return bRefType;
             }
         } else {

@@ -127,14 +127,21 @@ public class BXMLBValueProviders {
 
         @Override
         public BPacket toBValue(BXMLQName bxmlqName, BValueSerializer serializer) {
-            return BPacket.from(typeName(), new BString(bxmlqName.getUri()))
-                    .put(LOCAL, new BString(bxmlqName.getLocalName()))
-                    .put(PREFIX, new BString(bxmlqName.getPrefix()));
+            BValue payload = null;
+            if (bxmlqName.getUri() != null) {
+                payload = new BString(bxmlqName.getUri());
+            }
+            return BPacket.from(typeName(), payload)
+                          .put(LOCAL, new BString(bxmlqName.getLocalName()))
+                          .put(PREFIX, new BString(bxmlqName.getPrefix()));
         }
 
         @Override
         public BXMLQName toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
-            String uri = packet.getValue().stringValue();
+            String uri = null;
+            if (packet.getValue() != null) {
+                uri = packet.getValue().stringValue();
+            }
             String local = packet.get(LOCAL).stringValue();
             String prefix = packet.get(PREFIX).stringValue();
             return new BXMLQName(local, uri, prefix);

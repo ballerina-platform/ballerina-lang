@@ -40,9 +40,11 @@ import java.util.HashMap;
 public class SerializableBMap<K, V extends BValue> implements SerializableRefType {
 
     private String pkgPath;
+
     private String structName;
 
     private HashMap<K, Object> map = new HashMap<>();
+
     private HashMap<String, Object> nativeData = new HashMap<>();
 
     public SerializableBMap(BMap<K, V> bMap, SerializableState state) {
@@ -69,5 +71,10 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
         nativeData.forEach((s, o) -> bMap.addNativeData(s, state.deserialize(o, programFile, deserializer)));
         map.forEach((k, v) -> bMap.put(k, (V) state.deserialize(v, programFile, deserializer)));
         return bMap;
+    }
+
+    @Override
+    public void setContexts(BRefType refType, ProgramFile programFile, SerializableState state,
+                            Deserializer deserializer) {
     }
 }

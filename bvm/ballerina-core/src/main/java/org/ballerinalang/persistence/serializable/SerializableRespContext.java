@@ -18,6 +18,7 @@
 package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -37,11 +38,14 @@ public class SerializableRespContext {
 
     public int workerCount;
 
-    public SerializableRespContext(String key, CallableWorkerResponseContext respCtx, SerializableState state) {
+    public SerializableRespContext(String key, WorkerResponseContext respCtx, SerializableState state) {
         this.key = key;
         targetContextKey = state.addContext(respCtx.getTargetContext(), respCtx.getTargetContext().ip);
-        retRegIndexes = respCtx.getRetRegIndexes();
-        workerCount = respCtx.getWorkerCount();
+        if (respCtx instanceof CallableWorkerResponseContext) {
+            CallableWorkerResponseContext callableRespCtx = (CallableWorkerResponseContext) respCtx;
+            retRegIndexes = (callableRespCtx).getRetRegIndexes();
+            workerCount = (callableRespCtx).getWorkerCount();
+        }
     }
 
     public CallableWorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
