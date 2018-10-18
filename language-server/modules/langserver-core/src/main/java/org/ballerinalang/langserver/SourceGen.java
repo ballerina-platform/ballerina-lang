@@ -2844,47 +2844,46 @@ public class SourceGen {
         public String getSourceForFunctionType(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             if (node.get("hasReturn") != null
                          && node.get("hasReturn") .getAsBoolean() && node.get("withParantheses") != null
-                         && node.get("withParantheses") .getAsBoolean() && node.get("paramTypeNode") != null
+                         && node.get("withParantheses") .getAsBoolean() && node.get("params") != null
                          && node.get("returnTypeNode") != null) {
                 return w("", sourceGenParams) + "("
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "function"
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "("
                  + a("", sourceGenParams.isShouldIndent())
-                 + join(node.getAsJsonArray("paramTypeNode"), pretty, replaceLambda, "", ",", false, sourceGenParams)
-                 + w("", sourceGenParams) + ")"
-                 + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("params"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent())
                  + (node.has("returnKeywordExists") && node.get("returnKeywordExists").getAsBoolean() ? w("", sourceGenParams) + "returns"
                  + a("", sourceGenParams.isShouldIndent()) : "")
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("returnTypeNode"), pretty, replaceLambda) + w("", sourceGenParams)
-                 + ")" + a("", sourceGenParams.isShouldIndent());
+                 + getSourceOf(node.getAsJsonObject("returnTypeNode"), pretty, replaceLambda) + w("", sourceGenParams) + ")"
+                 + a("", sourceGenParams.isShouldIndent());
             } else if (node.get("hasReturn") != null
-                         && node.get("hasReturn") .getAsBoolean() && node.get("paramTypeNode") != null
+                         && node.get("hasReturn") .getAsBoolean() && node.get("params") != null
                          && node.get("returnTypeNode") != null) {
                 return w("", sourceGenParams) + "function"
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "("
                  + a("", sourceGenParams.isShouldIndent())
-                 + join(node.getAsJsonArray("paramTypeNode"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + join(node.getAsJsonArray("params"), pretty, replaceLambda, "", ",", false, sourceGenParams)
                  + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent())
                  + (node.has("returnKeywordExists") && node.get("returnKeywordExists").getAsBoolean() ? w("", sourceGenParams) + "returns"
                  + a("", sourceGenParams.isShouldIndent()) : "")
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("returnTypeNode"), pretty, replaceLambda);
             } else if (node.get("withParantheses") != null
-                         && node.get("withParantheses") .getAsBoolean() && node.get("paramTypeNode") != null) {
+                         && node.get("withParantheses") .getAsBoolean() && node.get("params") != null) {
                 return w("", sourceGenParams) + "("
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "function"
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "("
                  + a("", sourceGenParams.isShouldIndent())
-                 + join(node.getAsJsonArray("paramTypeNode"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + join(node.getAsJsonArray("params"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent())
                  + w("", sourceGenParams) + ")"
-                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + ")"
                  + a("", sourceGenParams.isShouldIndent());
             } else {
                 return w("", sourceGenParams) + "function"
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "("
                  + a("", sourceGenParams.isShouldIndent())
-                 + join(node.getAsJsonArray("paramTypeNode"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + join(node.getAsJsonArray("params"), pretty, replaceLambda, "", ",", false, sourceGenParams)
                  + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent());
             }
         }
@@ -7806,6 +7805,9 @@ public class SourceGen {
                     startingBracket = null;
                     endingBracket = null;
                     content = new StringBuilder();
+                } else if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("?")) {
+                    dimensionAsString += ws.get(j).getAsJsonObject().get("ws").getAsString() +
+                            ws.get(j).getAsJsonObject().get("text").getAsString();
                 } else if (startingBracket != null) {
                     content.append(ws.get(j).getAsJsonObject().get("ws").getAsString())
                             .append(ws.get(j).getAsJsonObject().get("text").getAsString());
