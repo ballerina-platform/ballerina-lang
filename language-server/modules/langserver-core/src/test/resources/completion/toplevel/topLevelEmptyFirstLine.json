@@ -169,6 +169,12 @@
       "insertText":"error"
     },
     {
+      "label":"error",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"error ${1:name} \u003d { description: \"${2}\" };"
+    },
+    {
       "label":"json",
       "detail":"BType",
       "sortText":"170",
