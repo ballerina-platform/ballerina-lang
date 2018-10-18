@@ -344,6 +344,7 @@ public class CPU {
                     case InstructionCodes.SEQ:
                     case InstructionCodes.BEQ:
                     case InstructionCodes.REQ:
+                    case InstructionCodes.REF_EQ:
                     case InstructionCodes.TEQ:
                     case InstructionCodes.INE:
                     case InstructionCodes.FNE:
@@ -1688,6 +1689,16 @@ public class CPU {
                     sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
                 } else {
                     sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
+                }
+                break;
+            case InstructionCodes.REF_EQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                if (sf.refRegs[i] == null) {
+                    sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
+                } else {
+                    sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                 }
                 break;
             case InstructionCodes.TEQ:

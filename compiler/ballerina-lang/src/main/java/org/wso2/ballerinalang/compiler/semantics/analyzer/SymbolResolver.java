@@ -320,9 +320,17 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol createReferenceEqualityOperator(OperatorKind opKind, BType lhsType,
-                                                   BType rhsType) {
-        int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
+    BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+        int opcode;
+        if (opKind == OperatorKind.REF_EQUAL) {
+            opcode = InstructionCodes.REF_EQ;
+        } else if (opKind == OperatorKind.EQUAL) {
+            opcode = InstructionCodes.REQ;
+        } else {
+            // OperatorKind.NOT_EQUAL
+            opcode = InstructionCodes.RNE;
+        }
+
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);

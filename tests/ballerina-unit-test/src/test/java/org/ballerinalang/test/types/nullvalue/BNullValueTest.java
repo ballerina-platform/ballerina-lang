@@ -198,11 +198,10 @@ public class BNullValueTest {
 
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
-        BAssertUtil.validateError(negativeResult, 0, "operator '==' not defined for 'xml?' and 'json'", 5, 9);
-        BAssertUtil.validateError(negativeResult, 1, "operator '>' not defined for '()' and 'xml'", 23, 13);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found '()'", 27, 13);
-        BAssertUtil.validateError(negativeResult, 3, "operator '+' not defined for '()' and '()'", 31, 13);
-        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'string', found '()'", 35, 16);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        BAssertUtil.validateError(negativeResult, 0, "operator '>' not defined for '()' and 'xml'", 12, 13);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found '()'", 16, 13);
+        BAssertUtil.validateError(negativeResult, 2, "operator '+' not defined for '()' and '()'", 20, 13);
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'string', found '()'", 24, 16);
     }
 }

@@ -722,8 +722,8 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
-    @Test(description = "Test equal expression with errors")
-    public void testEqualStmtNegativeCase() {
+    @Test(description = "Test equal and not equal with errors")
+    public void testEqualAndNotEqualNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 20);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '!=' not defined for 'int' and 'string'", 20, 24);

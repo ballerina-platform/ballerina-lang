@@ -118,7 +118,8 @@ public interface InstructionCodes {
     int FEQ = 94;
     int SEQ = 95;
     int BEQ = 96;
-    int REQ = 98;
+    int REQ = 97;
+    int REF_EQ = 98;
 
     int INE = 99;
     int FNE = 100;

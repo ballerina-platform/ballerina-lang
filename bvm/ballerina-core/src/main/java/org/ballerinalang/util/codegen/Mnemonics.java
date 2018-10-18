@@ -115,6 +115,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SEQ] = "seq";
         mnemonics[InstructionCodes.BEQ] = "beq";
         mnemonics[InstructionCodes.REQ] = "req";
+        mnemonics[InstructionCodes.REF_EQ] = "ref_eq";
         mnemonics[InstructionCodes.TEQ] = "teq";
         mnemonics[InstructionCodes.INE] = "ine";
         mnemonics[InstructionCodes.FNE] = "fne";

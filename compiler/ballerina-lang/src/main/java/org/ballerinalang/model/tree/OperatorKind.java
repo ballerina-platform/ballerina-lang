@@ -53,7 +53,8 @@ public enum OperatorKind {
     BITWISE_RIGHT_SHIFT(">>"),
     BITWISE_UNSIGNED_RIGHT_SHIFT(">>>"),
     CLOSED_RANGE("..."),
-    HALF_OPEN_RANGE("..<");
+    HALF_OPEN_RANGE("..<"),
+    REF_EQUAL("===");
 
     private final String opValue;
 

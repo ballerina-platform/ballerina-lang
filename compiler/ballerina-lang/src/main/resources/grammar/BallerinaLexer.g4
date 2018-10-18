@@ -178,6 +178,7 @@ GT_EQUAL    : '>=' ;
 LT_EQUAL    : '<=' ;
 AND         : '&&' ;
 OR          : '||' ;
+REF_EQUAL   : '===' ;
 
 // Bitwise Operators
 

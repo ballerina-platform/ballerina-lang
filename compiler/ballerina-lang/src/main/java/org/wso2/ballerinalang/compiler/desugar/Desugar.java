@@ -1265,7 +1265,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Check for int and byte == or != comparison and add type conversion to int for byte
         if (rhsExprTypeTag != lhsExprTypeTag &&
-                (binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL)) {
+                (binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL ||
+                         binaryExpr.opKind == OperatorKind.REF_EQUAL)) {
             if (lhsExprTypeTag == TypeTags.INT && rhsExprTypeTag == TypeTags.BYTE) {
                 binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
                                                               symTable.intType);

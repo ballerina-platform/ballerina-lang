@@ -1272,6 +1272,7 @@ public class PackageInfoReader {
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
                 case InstructionCodes.REQ:
+                case InstructionCodes.REF_EQ:
                 case InstructionCodes.INE:
                 case InstructionCodes.FNE:
                 case InstructionCodes.SNE:
