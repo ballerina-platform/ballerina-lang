@@ -226,7 +226,7 @@
 
     <test name="ballerina-checkpointing-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
+            <class name="org.ballerinalang.test.checkpointing.InterruptibleTypesTestCase"/>
         </classes>
     </test>
 </suite>
