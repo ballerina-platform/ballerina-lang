@@ -727,6 +727,7 @@ simpleLiteral
     :   (SUB)? integerLiteral
     |   (SUB)? floatingPointLiteral
     |   QuotedStringLiteral
+    |   SymbolicStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
     |   blobLiteral
