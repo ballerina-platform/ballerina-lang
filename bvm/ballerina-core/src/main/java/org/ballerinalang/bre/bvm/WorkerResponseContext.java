@@ -60,5 +60,12 @@ public interface WorkerResponseContext {
      * @return the data channel
      */
     WorkerDataChannel getWorkerDataChannel(String name);
+
+    /**
+     * Returns the target worker context of the response context.
+     *
+     * @return the target worker context
+     */
+    WorkerExecutionContext getTargetContext();
     
 }

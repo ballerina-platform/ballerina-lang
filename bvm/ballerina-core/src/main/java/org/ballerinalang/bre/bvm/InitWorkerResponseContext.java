@@ -63,4 +63,9 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
         return null;
     }
 
+    @Override
+    public WorkerExecutionContext getTargetContext() {
+        return targetCtx;
+    }
+
 }

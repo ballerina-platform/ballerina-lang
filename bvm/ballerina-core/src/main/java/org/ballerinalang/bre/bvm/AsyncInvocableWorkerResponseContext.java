@@ -54,6 +54,10 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     public void setWorkerExecutionContexts(List<WorkerExecutionContext> workerExecutionContexts) {
         this.workerExecutionContexts = workerExecutionContexts;
     }
+
+    public CallableUnitInfo getCallableUnitInfo() {
+        return callableUnitInfo;
+    }
     
     @Override
     public synchronized WorkerExecutionContext signal(WorkerSignal signal) {
