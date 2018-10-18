@@ -784,12 +784,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // recursively visit the var refs and create the record type
         typeChecker.checkExpr(recordDeStmt.varRef, env);
         if (recordDeStmt.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            dlog.error(recordDeStmt.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, "record variable reference");
-            return;
+            checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, (BLangRecordLiteral) recordDeStmt.expr,
+                    true);
+        } else {
+            typeChecker.checkExpr(recordDeStmt.expr, this.env);
+            checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.type);
         }
-
-        typeChecker.checkExpr(recordDeStmt.expr, this.env);
-        checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.type);
     }
 
     /**
@@ -846,6 +846,77 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * When rhs is a record literal, this method will check the type of each literal.
+     *
+     * @param pos                 diagnostic pos
+     * @param lhsVarRef           type of the record var ref
+     * @param rhsLiteral          the record literal in the rhs
+     * @param isParentLiteral     identify if the record literal is the main literal
+     */
+    private void checkRecordVarRefEquivalency(DiagnosticPos pos, BLangRecordVarRef lhsVarRef,
+                                              BLangRecordLiteral rhsLiteral, boolean isParentLiteral) {
+
+        if (lhsVarRef.recordRefFields.size() > rhsLiteral.keyValuePairs.size()) {
+            // record var ref has more fields than record literal
+            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF);
+            return;
+        }
+
+        if (lhsVarRef.isClosed && lhsVarRef.recordRefFields.size() != rhsLiteral.keyValuePairs.size()) {
+            // if record var ref is closed, number of fields must be equal in both side
+            dlog.error(pos, DiagnosticCode.TOO_MANY_PATTERNS_TO_MATCH_CLOSED_RECORD_REF);
+            return;
+        }
+
+        for (BLangRecordKeyValue recordLiteralField : rhsLiteral.keyValuePairs) {
+            // check if the field in the rhs record literal is present in the record var ref
+            List<BLangRecordVarRefKeyValue> expField = lhsVarRef.recordRefFields.stream()
+                    .filter(field -> field.variableName.getValue().equals(recordLiteralField.key.toString()))
+                    .collect(Collectors.toList());
+            if (expField.isEmpty()) {
+                // if record var ref is not closed, un matched fields in record literal is allowed
+                if (lhsVarRef.isClosed) {
+                    dlog.error(pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, recordLiteralField.key);
+                }
+                return;
+            }
+
+            if (expField.size() > 1) {
+                // can not have more than one matching fields in record var ref
+                dlog.error(pos, DiagnosticCode.MULTIPLE_RECORD_REF_PATTERN_FOUND, recordLiteralField.key);
+                return;
+            }
+
+            BLangExpression varRef = expField.get(0).variableReference;
+
+            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                typeChecker.checkExpr(recordLiteralField.valueExpr, this.env, varRef.type);
+            } else if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+                if (recordLiteralField.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    checkRecordVarRefEquivalency(recordLiteralField.valueExpr.pos, (BLangRecordVarRef) varRef,
+                            (BLangRecordLiteral) recordLiteralField.valueExpr, false);
+                } else if (recordLiteralField.valueExpr.type.tag == TypeTags.RECORD) {
+                    checkRecordVarRefEquivalency(recordLiteralField.valueExpr.pos, (BLangRecordVarRef) varRef,
+                            recordLiteralField.valueExpr.type);
+                } else {
+                    dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, "record literal");
+                }
+            } else if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+                typeChecker.checkExpr(recordLiteralField.valueExpr, this.env, varRef.type);
+            }
+        }
+        rhsLiteral.keyValuePairs.forEach(rhsField -> {
+            if (rhsField.valueExpr.type.tag != TypeTags.RECORD && rhsField.valueExpr.type.tag != TypeTags.TUPLE) {
+                typeChecker.checkExpr(rhsField.valueExpr, this.env);
+                if (isParentLiteral) {
+                    // Implicit cast is set to the parent literal fields
+                    types.setImplicitCastExpr(rhsField.valueExpr, rhsField.valueExpr.type, symTable.anyType);
+                }
+            }
+        });
+        rhsLiteral.type = symTable.mapType;
+    }
 
     private void checkConstantAssignment(BLangExpression varRef) {
         if (varRef.type == symTable.errType) {

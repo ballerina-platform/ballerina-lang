@@ -87,9 +87,30 @@ public class RecordVariableReference {
         Assert.assertNull(((BMap) returns[2]).get("var2"));
     }
 
+    @Test(description = "Test simple record variable definition")
+    public void testVarAssignmentOfRecordLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "Peter");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 12);
+        Assert.assertEquals(returns[3].stringValue(), "Y");
+    }
+
+    @Test(description = "Test simple record variable definition")
+    public void testVarAssignmentOfRecordLiteral2() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarAssignmentOfRecordLiteral2");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "Peter");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertEquals(((BInteger) ((BMap) returns[2]).get("age")).intValue(), 12);
+        Assert.assertEquals(((BMap) returns[2]).get("format").stringValue(), "Y");
+
+    }
+
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 13);
+        Assert.assertEquals(resultNegative.getErrorCount(), 17);
         final String UNDEFINED_SYMBOL = "undefined symbol ";
         final String EXPECTING_CLOSED_RECORD = "can not match record variable reference, type {0} is not a closed record type";
 
@@ -109,6 +130,10 @@ public class RecordVariableReference {
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 93, 5);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'string', found 'Bar'", 93, 5);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'record type', found 'int'", 94, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid literal for type 'record variable reference'", 95, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 95, 45);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid literal for type 'string'", 95, 65);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid usage of tuple literal with type 'any'", 95, 82);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Age', found 'int'", 105, 88);
+        BAssertUtil.validateError(resultNegative, ++i, "undefined field 'format' in record 'Person'", 105, 92);
     }
 }

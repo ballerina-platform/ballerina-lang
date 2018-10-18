@@ -94,3 +94,13 @@ function testInvalidTypes() {
     {var1: fooVar1, var2: fooVar2} = 12;
     {var1: fooVar1, var2: fooVar2} = {var1: "var1String", var2: {var1: 12, var2: ("barString", 14, true)}};
 }
+
+
+function testVarAssignmentOfRecordLiteral2() {
+    string fName;
+    boolean married;
+    Person age;
+    map theMap;
+
+    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age: 12, format: "Y"}};
+}
