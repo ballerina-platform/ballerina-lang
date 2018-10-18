@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -623,6 +624,14 @@ public class ASTBuilderUtil {
         receiver.setName(identifier);
         receiver.type = type;
         return receiver;
+    }
+
+    public static BLangNamedArgsExpression createNamedArg(String argName, BLangExpression expr) {
+        BLangNamedArgsExpression argExpr = new BLangNamedArgsExpression();
+        argExpr.name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        argExpr.name.value = argName;
+        argExpr.expr = expr;
+        return argExpr;
     }
 
     public static BVarSymbol duplicateVarSymbol(BVarSymbol varSymbol) {
