@@ -13,15 +13,15 @@
               {
                 "range":{
                   "start":{
-                    "line":0,
+                    "line":11,
                     "character":0
                   },
                   "end":{
                     "line":11,
-                    "character":58
+                    "character":0
                   }
                 },
-                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\nendpoint http:Listener listener {\n    \n};\n\n# Description\nservice<http:Service> testDocService bind { port: 9090 } {"
+                "newText":"# Description\n"
               }
             ]
           }

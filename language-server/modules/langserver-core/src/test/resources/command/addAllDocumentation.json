@@ -16,10 +16,10 @@
                   },
                   "end":{
                     "line":3,
-                    "character":30
+                    "character":0
                   }
                 },
-                "newText":"# Description\nfunction testDocumentation() {"
+                "newText":"# Description\n"
               },
               {
                 "range":{
@@ -29,10 +29,10 @@
                   },
                   "end":{
                     "line":7,
-                    "character":33
+                    "character":0
                   }
                 },
-                "newText":"# Description\nendpoint http:Listener listener {"
+                "newText":"# Description\n"
               },
               {
                 "range":{
@@ -42,23 +42,23 @@
                   },
                   "end":{
                     "line":11,
-                    "character":58
+                    "character":0
                   }
                 },
-                "newText":"# Description\nservice<http:Service> testDocService bind { port: 9090 } {"
+                "newText":"# Description\n"
               },
               {
                 "range":{
                   "start":{
                     "line":12,
-                    "character":0
+                    "character":4
                   },
                   "end":{
                     "line":12,
-                    "character":61
+                    "character":4
                   }
                 },
-                "newText":"    # Description\n    #\n    # + caller - caller Parameter Description \n    # + request - request Parameter Description\n    testDocResource (endpoint caller, http:Request request) {"
+                "newText":"# Description\n    #\n    # + caller - caller Parameter Description \n    # + request - request Parameter Description\n    "
               },
               {
                 "range":{
@@ -68,10 +68,10 @@
                   },
                   "end":{
                     "line":18,
-                    "character":27
+                    "character":0
                   }
                 },
-                "newText":"# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\ntype testDocRecord record {"
+                "newText":"# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\n"
               },
               {
                 "range":{
@@ -81,10 +81,10 @@
                   },
                   "end":{
                     "line":23,
-                    "character":27
+                    "character":0
                   }
                 },
-                "newText":"# Description\n#\n# + testField - testField Parameter Description \n# + testPrivate - testPrivate Parameter Description \n# + testString - testString Parameter Description\ntype testDocObject object {"
+                "newText":"# Description\n#\n# + testField - testField Parameter Description \n# + testPrivate - testPrivate Parameter Description \n# + testString - testString Parameter Description\n"
               }
             ]
           }
