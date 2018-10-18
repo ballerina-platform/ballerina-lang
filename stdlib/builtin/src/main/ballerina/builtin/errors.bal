@@ -16,5 +16,5 @@
 
 public type error record {
     string message;
-    error? cause;
+    error? cause?;
 };

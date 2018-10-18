@@ -20,12 +20,15 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.HavingNode;
+import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -49,6 +52,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
@@ -64,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -83,6 +89,7 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -109,6 +116,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String OUTPUT_FUNC_VAR_ARG = "$lambda$streaming$output$function$var$arg";
     private static final String WINDOW_FUNC_REFERENCE = "$lambda$streaming$window$reference";
     private static final String OUTPUT_PROCESS_FUNC_REFERENCE = "$lambda$streaming$output$process";
+    private static final String ORDER_BY_PROCESS_FUNC_REFERENCE = "$lambda$streaming$ordering$process";
+    private static final String ORDERING_FUNC_ARRAY_REFERENCE = "$lambda$streaming$orderby$funcarray$variable";
+    private static final String ORDERING_FUNC_VAR_ARG = "$lambda$streaming$orderby$func$var$arg";
     private static final String FILTER_FUNC_REFERENCE = "$lambda$streaming$filter";
     private static final String SIMPLE_SELECT_FUNC_REFERENCE = "$lambda$streaming$simple$select";
     private static final String SELECT_WITH_GROUP_BY_FUNC_REFERENCE = "$lambda$streaming$groupby$select";
@@ -129,6 +139,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String FILTER_OBJECT_NAME = "Filter";
     private static final String WINDOW_OBJECT_NAME = "Window";
     private static final String OUTPUT_PROCESS_OBJECT_NAME = "OutputProcess";
+    private static final String ORDER_BY_PROCESS_OBJECT_NAME = "OrderBy";
     private static final String CREATE_OUTPUT_PROCESS_METHOD_NAME = "createOutputProcess";
     private static final String CREATE_FILTER_METHOD_NAME = "createFilter";
     private static final String SIMPLE_SELECT_OBJECT_NAME = "SimpleSelect";
@@ -136,6 +147,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String JOIN_PROCESS_OBJECT_NAME = "JoinProcesor";
     private static final String CREATE_SIMPLE_SELECT_METHOD_NAME = "createSimpleSelect";
     private static final String CREATE_SELECT_WITH_GROUP_BY_METHOD_NAME = "createSelect";
+    private static final String CREATE_ORDER_BY_METHOD_NAME = "createOrderBy";
     private static final String CREATE_JOIN_PROCESS_METHOD_NAME = "createJoinProcessor";
     private static final String EVENT_DATA_VARIABLE_NAME = "data";
     private static final String EVENT_TYPE_VARIABLE_NAME = "eventType";
@@ -146,10 +158,16 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
             new CompilerContext.Key<>();
+    private static final String ORDER_BY_FIELD_ATTR = "fieldFuncs";
+    private static final String ORDER_TYPE_ASC = "ASCENDING";
+    private static final String STR_ENDING = "ENDING";
+    private static final String NEXT_PROCESS_POINTER_ARG_NAME = "nextProcessPointer";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
+    private TypeChecker typeChecker;
+    private BLangDiagnosticLog dlog;
     private final Names names;
     private final Types types;
     private int lambdaFunctionCount = 0;
@@ -174,6 +192,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
+        this.typeChecker = TypeChecker.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static StreamingCodeDesugar getInstance(CompilerContext context) {
@@ -209,6 +229,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangStreamAction streamAction = (BLangStreamAction) queryStmt.getStreamingAction();
         streamAction.accept(this);
 
+        BLangOrderBy orderBy = (BLangOrderBy) queryStmt.getOrderbyClause();
+        if (orderBy != null) {
+            orderBy.accept(this);
+        }
+
         BLangSelectClause selectClause = (BLangSelectClause) queryStmt.getSelectClause();
         selectClause.accept(this);
 
@@ -228,6 +253,146 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         createStreamAliasMap(streamingInput);
         streamingInput.accept(this);
 
+    }
+
+    @Override
+    public void visit(BLangOrderBy orderBy) {
+        //creating function pointer array which represents the ordering fields
+        BObjectTypeSymbol orderByObjSymbol = (BObjectTypeSymbol) symResolver.
+                resolvePkgSymbol(orderBy.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                scope.lookup(new Name(ORDER_BY_PROCESS_OBJECT_NAME)).symbol;
+        BType orderingFuncArrayType = getOrderingFuncArrayType((BObjectType) orderByObjSymbol.type);
+
+        //create symbol representing the ordering function pointer array
+        BVarSymbol orderingFuncArrayVarSymbol =
+                new BVarSymbol(0, new Name(getVariableName(ORDERING_FUNC_ARRAY_REFERENCE)),
+                               orderByObjSymbol.pkgID, orderingFuncArrayType, env.scope.owner);
+
+        //create RHS expression for the ordering function array
+        BLangArrayLiteral orderingFuncArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        orderingFuncArrExpr.exprs = new ArrayList<>();
+        orderingFuncArrExpr.type = orderingFuncArrayType;
+
+        BLangArrayLiteral orderingTypeArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        orderingTypeArrExpr.exprs = new ArrayList<>();
+        orderingTypeArrExpr.type  = new BArrayType(symTable.stringType);
+
+        BLangVariableDef orderingFuncArrDef =
+                createOrderingFuncArrayVarDef(orderBy, orderingFuncArrayVarSymbol, orderingFuncArrExpr);
+        stmts.add(orderingFuncArrDef);
+
+        for (OrderByVariableNode node : orderBy.getVariables()) {
+            BLangOrderByVariable orderByVariable = (BLangOrderByVariable) node;
+            orderingFuncArrExpr.exprs.add(createOrderingFunctionPointer((BLangExpression) orderByVariable
+                    .getVariableReference()));
+            String fieldOrderType = orderByVariable.getOrderByType() + STR_ENDING;
+            if (fieldOrderType.isEmpty()) {
+                fieldOrderType = ORDER_TYPE_ASC;
+            }
+            orderingTypeArrExpr.exprs.add(ASTBuilderUtil.createLiteral(orderByVariable.pos, symTable.stringType,
+                                                                       fieldOrderType.toLowerCase()));
+        }
+
+        //Create OrderBy process definition
+        BLangVariableDef orderByProcessInvokableTypeVariableDef =
+                createOrderByProcessDef(orderBy, orderingFuncArrDef.var, orderingTypeArrExpr);
+        stmts.add(orderByProcessInvokableTypeVariableDef);
+    }
+
+    private BLangVariableDef createOrderingFuncArrayVarDef(BLangOrderBy orderBy, BVarSymbol orderingFuncArrayVarSymbol,
+                                                           BLangArrayLiteral orderingFuncArrExpr) {
+        BLangVariable orderingFuncArrVariable = ASTBuilderUtil.
+                createVariable(orderBy.pos, getVariableName(ORDERING_FUNC_ARRAY_REFERENCE), orderingFuncArrExpr.type,
+                               orderingFuncArrExpr, orderingFuncArrayVarSymbol);
+
+        orderingFuncArrVariable.typeNode = ASTBuilderUtil.createTypeNode(orderingFuncArrExpr.type);
+        return ASTBuilderUtil.createVariableDef(orderBy.pos, orderingFuncArrVariable);
+    }
+
+    private BLangVariableDef createOrderByProcessDef(BLangOrderBy orderBy, BLangVariable orderingFuncArrVariable,
+                                                     BLangArrayLiteral orderingTypeArrExpr) {
+        BLangSimpleVarRef orderingFuncPointerArr = ASTBuilderUtil.createVariableRef(orderBy.pos,
+                orderingFuncArrVariable.symbol);
+        List<BLangExpression> args = new ArrayList<>();
+        args.add(createNextProcessFuncPointer(orderBy.pos));
+        args.add(orderingFuncPointerArr);
+        args.add(orderingTypeArrExpr);
+
+        BInvokableSymbol orderByProcessInvokableSymbol = (BInvokableSymbol) symResolver.
+                resolvePkgSymbol(orderBy.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                scope.lookup(new Name(CREATE_ORDER_BY_METHOD_NAME)).symbol;
+
+        BType orderByProcessInvokableType = orderByProcessInvokableSymbol.type.getReturnType();
+        BVarSymbol orderByProcessInvokableTypeVarSymbol = new BVarSymbol(0,
+                new Name(getVariableName(ORDER_BY_PROCESS_FUNC_REFERENCE)), orderByProcessInvokableSymbol.pkgID,
+                orderByProcessInvokableType, env.scope.owner);
+        nextProcessVarSymbolStack.push(orderByProcessInvokableTypeVarSymbol);
+
+        BLangInvocation orderByProcessMethodInvocation = ASTBuilderUtil.
+                createInvocationExprForMethod(orderBy.pos, orderByProcessInvokableSymbol, args, symResolver);
+        orderByProcessMethodInvocation.argExprs = args;
+        BLangVariable orderByProcessInvokableTypeVariable = ASTBuilderUtil.
+                createVariable(orderBy.pos, getVariableName(ORDER_BY_PROCESS_FUNC_REFERENCE),
+                orderByProcessInvokableType, orderByProcessMethodInvocation, orderByProcessInvokableTypeVarSymbol);
+
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(orderBy.pos, ORDER_BY_PROCESS_OBJECT_NAME);
+        userDefinedType.type = orderByProcessInvokableType;
+        orderByProcessInvokableTypeVariable.setTypeNode(userDefinedType);
+        return ASTBuilderUtil.createVariableDef(orderBy.pos, orderByProcessInvokableTypeVariable);
+    }
+
+    private BType getOrderingFuncArrayType(BObjectType orderByType) {
+        BType orderingFuncArrayType;
+        List<BField> fields = orderByType.fields;
+        //get the ordering functions array type
+        //e.g. (function (map)returns any)[] ...
+        orderingFuncArrayType = fields.stream().filter(field -> field.name.value.equals(ORDER_BY_FIELD_ATTR))
+                .findFirst().map(field -> field.type).orElse(null);
+        return orderingFuncArrayType;
+    }
+
+    private BLangExpression createOrderingFunctionPointer(BLangExpression expr) {
+        BLangVariable orderFuncMapVariable = createMapTypeVariable(getVariableName(ORDERING_FUNC_VAR_ARG), expr.pos,
+                                                                   env);
+        BLangLambdaFunction orderingFunc = createLambdaWithVarArg(expr.pos, new BLangVariable[]
+                {orderFuncMapVariable}, TypeKind.ANY);
+        BLangBlockStmt lambdaBody = orderingFunc.function.body;
+
+        BLangExpression refactoredExpr = expr;
+        mapVarArgs.add(orderFuncMapVariable);
+        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+            refactoredExpr = refactorVarRefAfterSelect(varRef, symTable.anyType);
+        } else if (expr.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) expr;
+            refactoredExpr = generateConversionExpr(refactorInvocationAfterSelect(invocation), symTable.anyType,
+                    symResolver);
+        }
+
+        addReturnStmt(expr.pos, lambdaBody, refactoredExpr);
+        mapVarArgs.remove(mapVarArgs.size() - 1);
+        return orderingFunc;
+    }
+
+    private BLangInvocation refactorInvocationAfterSelect(BLangInvocation invocation) {
+        if (invocation.requiredArgs.size() > 0) {
+            List<BLangExpression> expressionList = new ArrayList<>();
+            List<BLangExpression> functionArgsList = invocation.requiredArgs;
+            for (BLangExpression expression : functionArgsList) {
+                if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
+                    expressionList.add(refactorVarRefAfterSelect(varRef, varRef.symbol.type));
+                } else if (expression.getKind() == NodeKind.INVOCATION) {
+                    expressionList.add(refactorInvocationAfterSelect((BLangInvocation) expression));
+                } else {
+                    expressionList.add(expression);
+                }
+            }
+            invocation.argExprs = expressionList;
+            invocation.requiredArgs = expressionList;
+        }
+        return invocation;
     }
 
     @Override
@@ -261,16 +426,17 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangLambdaFunction lambdaFunction) {
-        // create lambda function Variable
+        //Create lambda function Variable
         BLangVariable outputFuncArg = (BLangVariable) lambdaFunction.getFunctionNode().getParameters().get(0);
         outputEventType = ((BArrayType) outputFuncArg.type).eType;
-        // create a wrapper lambda expression to invoke the actual streamAction lambda function
+
+        //create a wrapper lambda expression to invoke the actual streamAction lambda function
         BLangLambdaFunction outputLambdaFunc = createLambdaWithVarArg(lambdaFunction.pos, new BLangVariable[]{
-                        ASTBuilderUtil.createVariable(outputFuncArg.pos, getVariableName(OUTPUT_FUNC_VAR_ARG),
-                                new BArrayType(symTable.mapType), null, new BVarSymbol(0,
-                                        names.fromString(getVariableName(OUTPUT_FUNC_VAR_ARG)),
-                                        lambdaFunction.function.symbol.pkgID, new BArrayType(symTable.mapType),
-                                        lambdaFunction.function.symbol.owner))}, TypeKind.NIL);
+                ASTBuilderUtil.createVariable(outputFuncArg.pos, getVariableName(OUTPUT_FUNC_VAR_ARG),
+                        new BArrayType(symTable.mapType), null, new BVarSymbol(0,
+                                names.fromString(getVariableName(OUTPUT_FUNC_VAR_ARG)),
+                                lambdaFunction.function.symbol.pkgID, new BArrayType(symTable.mapType),
+                                lambdaFunction.function.symbol.owner))}, TypeKind.NIL);
         // create `T[] outputEvents`
         BType outputArrayType = new BArrayType(outputEventType);
         BLangArrayLiteral arrayLiteralExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
@@ -302,7 +468,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         indexAccessExpr.type = outputEventType;
         BLangTypeConversionExpr outputTypeConversionExpr = generateConversionExpr(mapVarRef, outputEventType,
                 symResolver);
-        BLangCheckedExpr outputCheckedExpr = createCheckedConversionExpr(outputTypeConversionExpr);
+        BLangCheckedExpr outputCheckedExpr = createCheckedExpr(outputTypeConversionExpr);
         BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(outputLambdaFunc.function.pos, foreachBody);
         assignment.setExpression(outputCheckedExpr);
         assignment.varRef = indexAccessExpr;
@@ -321,7 +487,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createExpressionStmt(lambdaFunction.function.pos, outputLambdaFunc.function.body);
         streamActionInvocationStmt.expr = streamActionInvocation;
 
-        // create wrapper lambda expression definition statement
+        //Create wrapper lambda expression definition statement
         BLangVariable outputStreamFunctionVariable = ASTBuilderUtil.
                 createVariable(outputLambdaFunc.pos, getVariableName(OUTPUT_FUNC_REFERENCE),
                         outputLambdaFunc.function.symbol.type, outputLambdaFunc, outputLambdaFunc.function.symbol);
@@ -330,7 +496,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 outputStreamFunctionVariable);
         stmts.add(outputStreamFunctionVarDef);
 
-        // create output event process definition
+        //Create output event process definition
         BLangSimpleVarRef outputStreamFunctionSimpleVarRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.pos,
                 outputStreamFunctionVariable.symbol);
         BInvokableSymbol outputProcessInvokableSymbol = (BInvokableSymbol) symResolver.
@@ -646,9 +812,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private void addReturnGroupByFieldStmt(BLangBlockStmt groupByLambda, BLangExpression expr) {
-        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(expr.pos, groupByLambda);
-        returnStmt.pos = expr.pos;
-        returnStmt.expr = expr;
+        addReturnStmt(expr.pos, groupByLambda, expr);
     }
 
     private BLangFieldBasedAccess createStreamEventDataMapExpr(DiagnosticPos pos, BLangVariable varStreamEvent) {
@@ -832,112 +996,114 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             beforeWhereNode.accept(this);
         }
 
-        BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
-        BVarSymbol lambdaParameterVarSymbol = new BVarSymbol(0,
-                new Name(getVariableName(INPUT_STREAM_PARAM_REFERENCE)), lambdaParameterType.tsymbol.pkgID,
-                lambdaParameterType, env.scope.owner);
+        if (!nextProcessVarSymbolStack.empty()) {
+            BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
+            BVarSymbol lambdaParameterVarSymbol = new BVarSymbol(0,
+                    new Name(getVariableName(INPUT_STREAM_PARAM_REFERENCE)), lambdaParameterType.tsymbol.pkgID,
+                    lambdaParameterType, env.scope.owner);
 
-        BLangVariable inputStreamLambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingInput.pos,
-                getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null, lambdaParameterVarSymbol);
-        inputStreamLambdaFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaParameterType);
+            BLangVariable inputStreamLambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingInput.pos,
+                    getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null, lambdaParameterVarSymbol);
+            inputStreamLambdaFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaParameterType);
 
-        Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
-        closureVarSymbols.add(nextProcessInvokableTypeVarSymbol);
-        closureVarSymbols.add(inputStreamLambdaFunctionVariable.symbol);
+            Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
+            closureVarSymbols.add(nextProcessInvokableTypeVarSymbol);
+            closureVarSymbols.add(inputStreamLambdaFunctionVariable.symbol);
 
-        BLangValueType returnType = new BLangValueType();
-        returnType.setTypeKind(TypeKind.NIL);
+            BLangValueType returnType = new BLangValueType();
+            returnType.setTypeKind(TypeKind.NIL);
 
-        //Construct lambda function which consumes events
-        BLangLambdaFunction streamSubscriberLambdaFunction = createLambdaFunction(streamingInput.pos,
-                new ArrayList<>(Collections.singletonList(inputStreamLambdaFunctionVariable)), closureVarSymbols,
-                returnType);
-        BLangBlockStmt lambdaBody = streamSubscriberLambdaFunction.function.body;
+            //Construct lambda function which consumes events
+            BLangLambdaFunction streamSubscriberLambdaFunction = createLambdaFunction(streamingInput.pos,
+                    new ArrayList<>(Collections.singletonList(inputStreamLambdaFunctionVariable)), closureVarSymbols,
+                    returnType);
+            BLangBlockStmt lambdaBody = streamSubscriberLambdaFunction.function.body;
 
-        //Event conversion to StreamEvent
-        BLangExpression eventToMapConversionExpr =
-                generateConversionExpr(ASTBuilderUtil.createVariableRef(streamingInput.pos,
-                        inputStreamLambdaFunctionVariable.symbol), symTable.mapType, symResolver);
-        BInvokableSymbol streamEventBuilderInvokableSymbol = (BInvokableSymbol) symResolver.
-                resolvePkgSymbol(streamingInput.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                scope.lookup(new Name(BUILD_STREAM_EVENT_METHOD_NAME)).symbol;
+            //Event conversion to StreamEvent
+            BLangExpression eventToMapConversionExpr =
+                    generateConversionExpr(ASTBuilderUtil.createVariableRef(streamingInput.pos,
+                    inputStreamLambdaFunctionVariable.symbol), symTable.mapType, symResolver);
+            BInvokableSymbol streamEventBuilderInvokableSymbol = (BInvokableSymbol) symResolver.
+                    resolvePkgSymbol(streamingInput.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                    scope.lookup(new Name(BUILD_STREAM_EVENT_METHOD_NAME)).symbol;
 
-        BType streamEventArrayType = streamEventBuilderInvokableSymbol.type.getReturnType();
-        BVarSymbol streamEventArrayTypeVarSymbol = new BVarSymbol(0,
-                new Name(getVariableName(STREAM_EVENT_ARRAY_PARAM_REFERENCE)), streamEventBuilderInvokableSymbol.pkgID,
-                streamEventArrayType, env.scope.owner);
+            BType streamEventArrayType = streamEventBuilderInvokableSymbol.type.getReturnType();
+            BVarSymbol streamEventArrayTypeVarSymbol = new BVarSymbol(0,
+                    new Name(getVariableName(STREAM_EVENT_ARRAY_PARAM_REFERENCE)),
+                    streamEventBuilderInvokableSymbol.pkgID, streamEventArrayType, env.scope.owner);
 
-        List<BLangExpression> args = new ArrayList<>();
-        args.add(eventToMapConversionExpr);
+            List<BLangExpression> args = new ArrayList<>();
+            args.add(eventToMapConversionExpr);
 
-        String streamReferenceSymbolName = ((BLangSimpleVarRef) streamingInput.getStreamReference()).symbol.toString();
-        if (streamAliasMap.containsKey(streamReferenceSymbolName)) {
-            args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.stringType,
-                    streamAliasMap.get(streamReferenceSymbolName)));
-        } else {
-            args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.stringType, ((BLangSimpleVarRef)
-                    streamingInput.getStreamReference()).symbol.toString()));
+            String streamReferenceSymbolName = ((BLangSimpleVarRef) streamingInput.getStreamReference()).symbol
+                    .toString();
+            if (streamAliasMap.containsKey(streamReferenceSymbolName)) {
+                args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.stringType,
+                        streamAliasMap.get(streamReferenceSymbolName)));
+            } else {
+                args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.stringType, ((BLangSimpleVarRef)
+                        streamingInput.getStreamReference()).symbol.toString()));
+            }
+
+            BLangInvocation streamEventBuilderMethodInvocation = ASTBuilderUtil.
+                    createInvocationExprForMethod(streamingInput.pos, streamEventBuilderInvokableSymbol, args,
+                                                  symResolver);
+            streamEventBuilderMethodInvocation.argExprs = args;
+
+            BLangVariable streamEventArrayTypeVariable = ASTBuilderUtil.
+                    createVariable(streamingInput.pos, getVariableName(STREAM_EVENT_ARRAY_PARAM_REFERENCE),
+                    streamEventArrayType, streamEventBuilderMethodInvocation, streamEventArrayTypeVarSymbol);
+
+            BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+            userDefinedType.typeName = ASTBuilderUtil.createIdentifier(streamingInput.pos, STREAM_EVENT_OBJECT_NAME);
+            userDefinedType.type = streamEventArrayType;
+            streamEventArrayTypeVariable.setTypeNode(userDefinedType);
+            BLangVariableDef streamEventArrayTypeVariableDef = ASTBuilderUtil.createVariableDef(streamingInput.pos,
+                    streamEventArrayTypeVariable);
+
+            lambdaBody.stmts.add(streamEventArrayTypeVariableDef);
+
+            //Function invocation to call output process
+            BInvokableSymbol nextProcessInvokableSymbol =
+                    getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
+
+            BLangSimpleVarRef streamEventArrayRef = ASTBuilderUtil.createVariableRef(streamingInput.pos,
+                    streamEventArrayTypeVarSymbol);
+            List<BLangExpression> nextProcessVariables = new ArrayList<>(1);
+            nextProcessVariables.add(streamEventArrayRef);
+            BLangInvocation nextProcessMethodInvocation = ASTBuilderUtil.
+                    createInvocationExprForMethod(streamingInput.pos, nextProcessInvokableSymbol, nextProcessVariables,
+                    symResolver);
+            nextProcessMethodInvocation.argExprs = nextProcessVariables;
+
+
+            nextProcessMethodInvocation.expr = ASTBuilderUtil.createVariableRef(streamingInput.pos,
+                    nextProcessInvokableTypeVarSymbol);
+            BLangExpressionStmt nextProcessExpressionStmt = (BLangExpressionStmt) TreeBuilder.
+                    createExpressionStatementNode();
+            nextProcessExpressionStmt.pos = streamingInput.pos;
+            nextProcessExpressionStmt.expr = nextProcessMethodInvocation;
+            lambdaBody.stmts.add(nextProcessExpressionStmt);
+
+            //Create function call - stream1.subscribe(lambda_function)
+            BLangExpressionStmt inputStreamSubscribeStatement = (BLangExpressionStmt) TreeBuilder.
+                    createExpressionStatementNode();
+            inputStreamSubscribeStatement.pos = streamingInput.pos;
+            BInvokableSymbol subscribeMethodSymbol = (BInvokableSymbol) symTable.rootScope.
+                    lookup(names.fromString(STREAM_SUBSCRIBE_METHOD_NAME)).symbol;
+            List<BLangExpression> variables = new ArrayList<>(1);
+            variables.add(streamSubscriberLambdaFunction);
+            BLangInvocation invocationExpr = ASTBuilderUtil.
+                    createInvocationExprForMethod(streamingInput.pos, subscribeMethodSymbol, variables, symResolver);
+
+            invocationExpr.argExprs = variables;
+            invocationExpr.expr = ASTBuilderUtil.createVariableRef(streamingInput.pos, (BVarSymbol)
+                    ((BLangSimpleVarRef) streamingInput.getStreamReference()).symbol);
+            inputStreamSubscribeStatement.expr = invocationExpr;
+
+            //Add stream subscriber function to stmts
+            stmts.add(inputStreamSubscribeStatement);
         }
-
-        BLangInvocation streamEventBuilderMethodInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(streamingInput.pos, streamEventBuilderInvokableSymbol, args,
-                        symResolver);
-        streamEventBuilderMethodInvocation.argExprs = args;
-
-        BLangVariable streamEventArrayTypeVariable = ASTBuilderUtil.
-                createVariable(streamingInput.pos, getVariableName(STREAM_EVENT_ARRAY_PARAM_REFERENCE),
-                        streamEventArrayType, streamEventBuilderMethodInvocation, streamEventArrayTypeVarSymbol);
-
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(streamingInput.pos, STREAM_EVENT_OBJECT_NAME);
-        userDefinedType.type = streamEventArrayType;
-        streamEventArrayTypeVariable.setTypeNode(userDefinedType);
-        BLangVariableDef streamEventArrayTypeVariableDef = ASTBuilderUtil.createVariableDef(streamingInput.pos,
-                streamEventArrayTypeVariable);
-
-        lambdaBody.stmts.add(streamEventArrayTypeVariableDef);
-
-        //Function invocation to call output process
-        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
-
-        BLangSimpleVarRef streamEventArrayRef = ASTBuilderUtil.createVariableRef(streamingInput.pos,
-                streamEventArrayTypeVarSymbol);
-        List<BLangExpression> nextProcessVariables = new ArrayList<>(1);
-        nextProcessVariables.add(streamEventArrayRef);
-        BLangInvocation nextProcessMethodInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(streamingInput.pos, nextProcessInvokableSymbol, nextProcessVariables,
-                        symResolver);
-        nextProcessMethodInvocation.argExprs = nextProcessVariables;
-
-
-        nextProcessMethodInvocation.expr = ASTBuilderUtil.createVariableRef(streamingInput.pos,
-                nextProcessInvokableTypeVarSymbol);
-        BLangExpressionStmt nextProcessExpressionStmt = (BLangExpressionStmt) TreeBuilder.
-                createExpressionStatementNode();
-        nextProcessExpressionStmt.pos = streamingInput.pos;
-        nextProcessExpressionStmt.expr = nextProcessMethodInvocation;
-        lambdaBody.stmts.add(nextProcessExpressionStmt);
-
-        //Create function call - stream1.subscribe(lambda_function)
-        BLangExpressionStmt inputStreamSubscribeStatement = (BLangExpressionStmt) TreeBuilder.
-                createExpressionStatementNode();
-        inputStreamSubscribeStatement.pos = streamingInput.pos;
-        BInvokableSymbol subscribeMethodSymbol = (BInvokableSymbol) symTable.rootScope.
-                lookup(names.fromString(STREAM_SUBSCRIBE_METHOD_NAME))
-                .symbol;
-        List<BLangExpression> variables = new ArrayList<>(1);
-        variables.add(streamSubscriberLambdaFunction);
-        BLangInvocation invocationExpr = ASTBuilderUtil.
-                createInvocationExprForMethod(streamingInput.pos, subscribeMethodSymbol, variables,
-                        symResolver);
-
-        invocationExpr.argExprs = variables;
-        invocationExpr.expr = ASTBuilderUtil.createVariableRef(streamingInput.pos, (BVarSymbol)
-                ((BLangSimpleVarRef) streamingInput.getStreamReference()).symbol);
-        inputStreamSubscribeStatement.expr = invocationExpr;
-
-        //Add stream subscriber function to stmts
-        stmts.add(inputStreamSubscribeStatement);
     }
 
     /*
@@ -947,65 +1113,139 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
      */
     @Override
     public void visit(BLangWindow window) {
-        //Create event filter definition
-        BVarSymbol nextProcessInvokableTypeVarSymbol;
-        if (rhsStream != null) {
-            nextProcessInvokableTypeVarSymbol = joinProcessorStack.peek();
-        } else {
-            nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
-        }
-        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
-
-        BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(window.pos,
-                nextProcessInvokableTypeVarSymbol);
-        BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(window.pos,
-                nextProcessInvokableSymbol, nextProcessSimpleVarRef);
 
         BLangInvocation invocation = (BLangInvocation) window.getFunctionInvocation();
+
+        convertFieldAccessArgsToStringLiteral(invocation);
+
+        //checks for the symbol, if not exists, then set the pkgAlias to STREAMS_STDLIB_PACKAGE_NAME
+        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(window, invocation, STREAMS_STDLIB_PACKAGE_NAME);
+
+        if (windowInvokableSymbol != null) {
+            BSymbol windowTypeSymbol = symResolver.
+                    resolvePkgSymbol(invocation.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                    scope.lookup(new Name(WINDOW_OBJECT_NAME)).symbol;
+            BSymbol retTypeSymbol = windowInvokableSymbol.getType().retType.tsymbol;
+            if (windowTypeSymbol != retTypeSymbol) {
+                dlog.error(invocation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, windowTypeSymbol.toString(),
+                           retTypeSymbol.toString());
+            } else {
+                //Create event filter definition
+                BVarSymbol nextProcessInvokableTypeVarSymbol;
+                if (rhsStream != null) {
+                    nextProcessInvokableTypeVarSymbol = joinProcessorStack.peek();
+                } else {
+                    nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
+                }
+                BInvokableSymbol nextProcessInvokableSymbol =
+                        getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
+
+                BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(window.pos,
+                        nextProcessInvokableTypeVarSymbol);
+                BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(window.pos,
+                        nextProcessInvokableSymbol, nextProcessSimpleVarRef);
+
+
+                BType windowInvokableType = windowInvokableSymbol.type.getReturnType();
+
+                BVarSymbol windowInvokableTypeVarSymbol = new BVarSymbol(0,
+                        new Name(getVariableName(WINDOW_FUNC_REFERENCE)), windowInvokableSymbol.pkgID,
+                        windowInvokableType, env.scope.owner);
+                nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
+
+                BLangNamedArgsExpression nextProcPointer = ASTBuilderUtil.createNamedArg(NEXT_PROCESS_POINTER_ARG_NAME,
+                        nextProcessMethodAccess);
+
+                typeChecker.checkExpr(invocation, env);
+
+                //these should be added after type-checking
+                invocation.argExprs.add(nextProcPointer);
+                invocation.namedArgs.add(nextProcPointer);
+
+                BLangVariableDef windowDef = createVariableDef(invocation, windowInvokableType,
+                        windowInvokableTypeVarSymbol, window.pos, WINDOW_FUNC_REFERENCE, WINDOW_OBJECT_NAME);
+                stmts.add(windowDef);
+
+                if (!joinProcessorStack.empty()) {
+                    if (isInJoin) {
+                        attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setRHS", rhsStream);
+                    } else {
+                        attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setLHS", lhsStream);
+                    }
+                }
+            }
+        } else {
+            dlog.error(invocation.pos, DiagnosticCode.UNDEFINED_FUNCTION, invocation.name);
+        }
+    }
+
+    private BInvokableSymbol getInvokableSymbol(BLangWindow window, BLangInvocation invocation, String pkgAlias) {
         BInvokableSymbol windowInvokableSymbol = (BInvokableSymbol) symResolver.
-                resolvePkgSymbol(window.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                resolvePkgSymbol(window.pos, env, names.fromString(invocation.pkgAlias.value)).
                 scope.lookup(new Name(invocation.name.value)).symbol;
+        if (windowInvokableSymbol == null && invocation.pkgAlias.value.isEmpty()) {
+            windowInvokableSymbol = (BInvokableSymbol) symResolver.
+                    resolvePkgSymbol(window.pos, env, names.fromString(pkgAlias)).
+                    scope.lookup(new Name(invocation.name.value)).symbol;
+            invocation.pkgAlias.value = STREAMS_STDLIB_PACKAGE_NAME;
+        }
+        return windowInvokableSymbol;
+    }
 
-        BType windowInvokableType = windowInvokableSymbol.type.getReturnType();
+    private BLangVariableDef createVariableDef(BLangExpression expr, BType exprType,
+                                   BVarSymbol exprTypeSymbol,
+                                   DiagnosticPos pos, String exprVarName, String objName) {
 
-        BVarSymbol windowInvokableTypeVarSymbol = new BVarSymbol(0,
-                new Name(getVariableName(WINDOW_FUNC_REFERENCE)), windowInvokableSymbol.pkgID,
-                windowInvokableType, env.scope.owner);
-        nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
-
-        List<BLangExpression> args = new ArrayList<>();
-        args.add(nextProcessMethodAccess);
-        args.addAll(invocation.argExprs);
-        BLangInvocation windowInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(window.pos, windowInvokableSymbol, args,
-                        symResolver);
-
-        windowInvocation.argExprs = args;
-        windowInvocation.requiredArgs = invocation.requiredArgs;
-        windowInvocation.requiredArgs.add(0, nextProcessMethodAccess);
-        windowInvocation.restArgs = invocation.restArgs;
-        windowInvocation.namedArgs = invocation.namedArgs;
-
-        BLangVariable windowInvokableTypeVariable = ASTBuilderUtil.createVariable(window.pos,
-                getVariableName(WINDOW_FUNC_REFERENCE), windowInvokableType, windowInvocation,
-                windowInvokableTypeVarSymbol);
+        BLangVariable windowInvokableTypeVariable =
+                ASTBuilderUtil.createVariable(pos, getVariableName(exprVarName), exprType, expr,
+                exprTypeSymbol);
 
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(window.pos, WINDOW_OBJECT_NAME);
-        userDefinedType.type = windowInvokableType;
+        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(pos, objName);
+        userDefinedType.type = exprType;
         windowInvokableTypeVariable.setTypeNode(userDefinedType);
-        BLangVariableDef windowInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(window.pos,
-                windowInvokableTypeVariable);
-        stmts.add(windowInvokableTypeVariableDef);
+        return ASTBuilderUtil.createVariableDef(pos, windowInvokableTypeVariable);
+    }
 
-        if (!joinProcessorStack.empty()) {
-            if (isInJoin) {
-                attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setRHS", rhsStream);
-            } else {
-                attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setLHS", lhsStream);
+    private void convertFieldAccessArgsToStringLiteral(BLangInvocation invocation) {
+        //converting BLangFieldBaseAccess to BLangLiteral of string type, in argExprs
+        BLangLiteral streamEventParameter;
+        for (int i = 0; i < invocation.argExprs.size(); i++) {
+            BLangExpression exp = invocation.argExprs.get(i);
+            if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+
+                String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
+                if (streamAliasMap.containsKey(variableName)) {
+                    variableName = streamAliasMap.get(variableName);
+                    ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
+                }
+                streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
+                invocation.argExprs.set(i, streamEventParameter);
             }
         }
 
+        //converting BLangFieldBaseAccess to BLangLiteral of string type, in requiredArgs
+        for (int i = 0; i < invocation.requiredArgs.size(); i++) {
+            BLangExpression exp = invocation.requiredArgs.get(i);
+            if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
+                if (streamAliasMap.containsKey(variableName)) {
+                    variableName = streamAliasMap.get(variableName);
+                    ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
+                }
+                streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
+                invocation.requiredArgs.set(i, streamEventParameter);
+            }
+        }
+    }
+
+    private BLangLiteral createStringLiteral(DiagnosticPos pos, String value) {
+        BLangLiteral stringLit = new BLangLiteral();
+        stringLit.pos = pos;
+        stringLit.typeTag = TypeTags.STRING;
+        stringLit.value = value;
+        stringLit.type = symTable.stringType;
+        return stringLit;
     }
 
     private void attachWindowToJoinProcessor(BLangWindow window, BVarSymbol windowInvokableTypeVarSymbol,
@@ -1134,17 +1374,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         symResolver);
         havingMethodInvocation.argExprs = args;
 
-        BLangVariable havingInvokableTypeVariable = ASTBuilderUtil.
-                createVariable(pos, getVariableName(FILTER_FUNC_REFERENCE),
-                        havingInvokableType, havingMethodInvocation, havingInvokableTypeVarSymbol);
-
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(pos, FILTER_OBJECT_NAME);
-        userDefinedType.type = havingInvokableType;
-        havingInvokableTypeVariable.setTypeNode(userDefinedType);
-        BLangVariableDef havingInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(pos,
-                havingInvokableTypeVariable);
-        stmts.add(havingInvokableTypeVariableDef);
+        BLangVariableDef filterDef = createVariableDef(havingMethodInvocation, havingInvokableType,
+                havingInvokableTypeVarSymbol, pos, FILTER_FUNC_REFERENCE, FILTER_OBJECT_NAME);
+        stmts.add(filterDef);
         mapVarArgs.remove(mapVarArgs.size() - 1);
     }
 
@@ -1211,13 +1443,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     public void visit(BLangSimpleVarRef varRefExpr) {
         if (isInHaving) {
-            conditionExpr = getVarRefInHavingClause(varRefExpr);
+            conditionExpr = refactorVarRefAfterSelect(varRefExpr, varRefExpr.symbol.type);
         } else {
             conditionExpr = varRefExpr;
         }
     }
 
-    private BLangExpression getVarRefInHavingClause(BLangSimpleVarRef varRefExpr) {
+    private BLangExpression refactorVarRefAfterSelect(BLangSimpleVarRef varRefExpr, BType expType) {
         BLangExpression refactoredVarRef;
         Map<String, BField> fields = ((BRecordType) outputEventType).fields.stream()
                 .collect(Collectors.toMap(field -> field.name.getValue(), field -> field, (a, b) -> b));
@@ -1226,8 +1458,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             refactoredVarRef = createMapVariableIndexAccessExpr(mapVarArgs.get(mapVarArgs.size() - 1).symbol,
                     ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, "OUTPUT." + varRefExpr
                             .variableName.value));
-            refactoredVarRef = Desugar.addConversionExprIfRequired(refactoredVarRef, varRefExpr.symbol.type, types,
-                    symTable, symResolver);
+            refactoredVarRef = generateConversionExpr(refactoredVarRef, expType, symResolver);
+            if (refactoredVarRef.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+                refactoredVarRef = createCheckedExpr((BLangTypeConversionExpr) refactoredVarRef);
+            }
         } else {
             refactoredVarRef = varRefExpr;
         }
@@ -1394,10 +1628,14 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         (((BLangFieldBasedAccess) expression).expr.type.tag == TypeTags.STREAM)) {
                     BLangExpression fieldAccessExpr =
                             createMapVariableIndexAccessExpr(mapVarSymbol, expression);
-                    expressionList.add(createCheckedConversionExpr(generateConversionExpr(fieldAccessExpr,
+                    expressionList.add(createCheckedExpr(generateConversionExpr(fieldAccessExpr,
                             expression.type, symResolver)));
                 } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isInHaving) {
-                    expressionList.add(getVarRefInHavingClause((BLangSimpleVarRef) expression));
+                    BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
+                    expressionList.add(refactorVarRefAfterSelect(varRef, varRef.symbol.type));
+                } else if (expression.getKind() == NodeKind.INVOCATION) {
+                    expressionList.add(refactorInvocationWithIndexBasedArgs(mapVarSymbol, (BLangInvocation)
+                            expression));
                 } else {
                     expressionList.add(expression);
                 }
@@ -1490,7 +1728,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return indexAccessExpr;
     }
 
-    private BLangCheckedExpr createCheckedConversionExpr(BLangTypeConversionExpr conversionExpr) {
+    private BLangCheckedExpr createCheckedExpr(BLangTypeConversionExpr conversionExpr) {
         BLangCheckedExpr checkedExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
 
         checkedExpr.expr = conversionExpr;

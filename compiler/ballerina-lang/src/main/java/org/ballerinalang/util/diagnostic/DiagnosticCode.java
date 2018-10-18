@@ -75,6 +75,9 @@ public enum DiagnosticCode {
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
+    INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
+    REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
+    REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
@@ -140,6 +143,8 @@ public enum DiagnosticCode {
     REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("rest.field.not.allowed"),
     OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("open.record.constraint.not.allowed"),
     INVALID_RECORD_REST_DESCRIPTOR("invalid.record.rest.descriptor"),
+    MISSING_REQUIRED_RECORD_FIELD("missing.required.record.field"),
+    DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS("default.values.not.allowed.for.optional.fields"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),

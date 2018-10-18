@@ -92,7 +92,7 @@ public class PackageNameContextResolver extends AbstractItemResolver {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
-        item.setKind(CompletionItemKind.File);
+        item.setKind(CompletionItemKind.Module);
         item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
         
         return item;

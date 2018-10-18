@@ -60,18 +60,6 @@ function testCompoundAssignmentLogicalShift() returns (int){
     return x;
 }
 
-function testIncrementOperator() returns (int){
-    int x = 100;
-    x++;
-    return x;
-}
-
-function testDecrementOperator() returns (int){
-    int x = 100;
-    x--;
-    return x;
-}
-
 function testCompoundAssignmentAdditionArrayElement() returns (int){
     int[] x = [];
     x[0] = 100;
@@ -136,28 +124,28 @@ function testCompoundAssignmentDivisionStructElement() returns (int){
 function testIncrementOperatorArrayElement() returns (int){
     int[] x = [];
     x[0] = 100;
-    x[0]++;
+    x[0] += 1;
     return x[0];
 }
 
 function testDecrementOperatorArrayElement() returns (int){
     int[] x = [];
     x[0] = 100;
-    x[0]--;
+    x[0] -= 1;
     return x[0];
 }
 
 function testIncrementOperatorStructElement() returns (int){
     Company ibm = {};
     ibm.count = 888;
-    ibm.count++;
+    ibm.count += 1;
     return ibm.count;
 }
 
 function testDecrementOperatorStructElement() returns (int){
     Company ibm = {};
     ibm.count = 888;
-    ibm.count--;
+    ibm.count -= 1;
     return ibm.count;
 }
 
@@ -170,13 +158,13 @@ function testStringIntCompoundAssignmentAddition() returns (string){
 
 function testIncrementOperatorFloat() returns (float){
     float x = 100.0;
-    x++;
+    x += 1;
     return x;
 }
 
 function testDecrementOperatorFloat() returns (float){
     float x = 100.0;
-    x--;
+    x -= 1;
     return x;
 }
 
@@ -200,18 +188,18 @@ function testCompoundAssignmentAdditionRecursive() returns (int){
     return x;
 }
 
-function testCompoundAssignmentAdditionStructElementRecursive() returns (int){
+function testCompoundAssignmentAdditionStructElementRecursive() returns int? {
     Company ibm = {};
     ibm["count"] = 100;
-    ibm["count"] += ibm["count"];
+    ibm.count += ibm.count;
     return ibm["count"];
 }
 
-function testCompoundAssignmentAdditionStructElements() returns (int){
+function testCompoundAssignmentAdditionStructElements() returns int? {
     Company ibm = {};
     ibm["count"] = 100;
     ibm["count2"] = 400;
-    ibm["count"] += ibm["count2"];
+    ibm.count += ibm.count2;
     return ibm["count"];
 }
 
@@ -232,13 +220,13 @@ function testCompoundAssignmentAdditionMultiple() returns (int){
 function testCompoundAssignmentAdditionMultipleWithIncrement() returns (int){
     int x = 5;
     x += 5;
-    x++;
+    x += 1;
     x += 5;
-    x++;
+    x += 1;
     x += 5;
-    x--;
-    x--;
-    x--;
+    x -= 1;
+    x -= 1;
+    x -= 1;
     return x;
 }
 
@@ -248,7 +236,7 @@ function testCompoundAssignmentAdditionWithStructAccess() returns (int){
     int[] arr = [];
     arr[0] = 200;
     int x = 5;
-    x += (ibm["count"] + arr[0]);
+    x += (ibm.count + arr[0]);
     return x;
 }
 

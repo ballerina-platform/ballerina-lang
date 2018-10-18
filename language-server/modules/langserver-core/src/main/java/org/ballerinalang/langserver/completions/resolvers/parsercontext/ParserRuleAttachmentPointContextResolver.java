@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,7 @@ public class ParserRuleAttachmentPointContextResolver extends AbstractItemResolv
         completionItem.setInsertText(insertText);
         completionItem.setDetail(type);
         completionItem.setLabel(label);
+        completionItem.setKind(CompletionItemKind.Keyword);
         return completionItem;
     }
 }

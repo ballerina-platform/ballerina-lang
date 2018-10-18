@@ -121,22 +121,6 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test(description = "Test increment operator.")
-    public void testIncrementOperator() {
-        BValue[] returns = BRunUtil.invoke(result, "testIncrementOperator");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 101);
-    }
-
-    @Test(description = "Test decrement operator.")
-    public void testDecrementOperator() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecrementOperator");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 99);
-    }
-
     @Test(description = "Test compound assignment with addition on array element.")
     public void testCompoundAssignmentAdditionArrayElement() {
         BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionArrayElement");
@@ -341,24 +325,27 @@ public class CompoundAssignmentTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 18);
-        BAssertUtil.validateError(compileResult, 0, "operator '++' cannot be applied to type 'any'", 3, 5);
-        BAssertUtil.validateError(compileResult, 1, "operator '--' cannot be applied to type 'any'", 11, 5);
-        BAssertUtil.validateError(compileResult, 2, "operator '++' cannot be applied on variable 'getInt()'", 18, 5);
-        BAssertUtil.validateError(compileResult, 3, "operator '--' cannot be applied on variable 'getInt()'", 23, 5);
-        BAssertUtil.validateError(compileResult, 4, "operator '++' cannot be applied to type 'string'", 33, 5);
-        BAssertUtil.validateError(compileResult, 5, "operator '--' cannot be applied to type 'string'", 39, 5);
-        BAssertUtil.validateError(compileResult, 6, "operator '+' not defined for 'int' and 'int|error'", 45, 5);
-        BAssertUtil.validateError(compileResult, 7, "invalid assignment in variable 'getInt()'", 51, 5);
-        BAssertUtil.validateError(compileResult, 8, "operator '+' not defined for 'json' and 'string'", 57, 5);
-        BAssertUtil.validateError(compileResult, 9, "incompatible types: expected 'int', found 'string'", 63, 10);
-        BAssertUtil.validateError(compileResult, 10, "incompatible types: expected 'int', found 'float'", 70, 10);
-        BAssertUtil.validateError(compileResult, 11, "operator '+' not defined for 'int' and '(int,int)'", 76, 5);
-        BAssertUtil.validateError(compileResult, 12, "operator '&' not defined for 'int' and 'string'", 88, 5);
-        BAssertUtil.validateError(compileResult, 13, "operator '|' not defined for 'int' and 'string'", 94, 5);
-        BAssertUtil.validateError(compileResult, 14, "operator '^' not defined for 'int' and 'string'", 100, 5);
-        BAssertUtil.validateError(compileResult, 15, "operator '<<' not defined for 'int' and 'string'", 106, 5);
-        BAssertUtil.validateError(compileResult, 16, "operator '>>' not defined for 'int' and 'string'", 112, 5);
-        BAssertUtil.validateError(compileResult, 17, "operator '>>>' not defined for 'int' and 'string'", 118, 5);
+        int i = 0;
+        Assert.assertEquals(compileResult.getErrorCount(), 20);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 3, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 11, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 18, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 23, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'string' and 'int'", 39, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'int|error'", 45, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 51, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 57, 5);
+        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'string'", 63, 10);
+        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'float'", 70, 10);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '(int,int)'", 76, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for 'int' and 'string'", 88, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for 'int' and 'string'", 94, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for 'int' and 'string'", 100, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '<<' not defined for 'int' and 'string'", 106, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '>>' not defined for 'int' and 'string'", 112, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '>>>' not defined for 'int' and 'string'", 118, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 130, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 138, 5);
+        BAssertUtil.validateError(compileResult, i, "operator '+' not defined for 'int?' and 'int'", 148, 11);
     }
 }
