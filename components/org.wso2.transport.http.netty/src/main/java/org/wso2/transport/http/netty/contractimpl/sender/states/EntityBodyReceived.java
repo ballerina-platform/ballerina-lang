@@ -43,7 +43,7 @@ public class EntityBodyReceived implements SenderState {
 
     @Override
     public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        // This method might get called when inbound response is received but outbound response is not yet completed.
+        // This method might get called when inbound response is received but outbound request is not yet completed.
         // In that instance, remote host doesn't require request content anymore, Therefore contents are released.
         httpContent.release();
     }
