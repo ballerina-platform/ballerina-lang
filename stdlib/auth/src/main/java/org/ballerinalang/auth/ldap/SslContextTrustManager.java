@@ -26,6 +26,8 @@ import javax.net.ssl.SSLContext;
 
 /**
  * A class that encapsulates SSL Certificate Information.
+ *
+ * @since 0.983.0
  */
 public class SslContextTrustManager {
 

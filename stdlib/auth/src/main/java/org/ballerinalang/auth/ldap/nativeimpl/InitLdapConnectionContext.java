@@ -23,7 +23,6 @@ import org.ballerinalang.auth.ldap.CommonLdapConfiguration;
 import org.ballerinalang.auth.ldap.LdapConnectionContext;
 import org.ballerinalang.auth.ldap.LdapConstants;
 import org.ballerinalang.auth.ldap.SslContextTrustManager;
-import org.ballerinalang.auth.ldap.UserStoreException;
 import org.ballerinalang.auth.ldap.util.LdapUtils;
 import org.ballerinalang.auth.ldap.util.SslUtils;
 import org.ballerinalang.bre.Context;
@@ -46,6 +45,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.net.ssl.SSLContext;
 
@@ -65,7 +65,6 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
         String instanceId = context.getStringArgument(0);
         BMap<String, BValue> authStore = (BMap) context.getRefArgument(0);
         BMap<String, BValue> configBStruct =
@@ -126,8 +125,8 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
             authStore.addNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT, dirContext);
             authStore.addNativeData(LdapConstants.ENDPOINT_INSTANCE_ID, instanceId);
             context.setReturnValues();
-        } catch (UserStoreException | KeyStoreException | KeyManagementException | NoSuchAlgorithmException
-                | CertificateException | IOException e) {
+        } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
+                | CertificateException | NamingException | IOException e) {
             throw new BallerinaException(e.getMessage(), e);
         } finally {
             if (sslConfig != null) {

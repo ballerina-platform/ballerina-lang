@@ -25,6 +25,8 @@ import java.io.File;
 
 /**
  * A class that encapsulates SSLContext configuration.
+ *
+ * @since 0.983.0
  */
 class SslTrustConfig {
 

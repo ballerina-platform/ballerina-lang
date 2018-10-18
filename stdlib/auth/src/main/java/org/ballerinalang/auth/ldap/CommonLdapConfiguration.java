@@ -22,6 +22,8 @@ import java.util.List;
 
 /**
  * Ballerina LDAP user store configurations.
+ *
+ * @since 0.983.0
  */
 public class CommonLdapConfiguration extends SslTrustConfiguration {
 

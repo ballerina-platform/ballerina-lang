@@ -51,7 +51,9 @@ function testJoinQuery() {
         on stockStream.symbol == twitterStream.company
         select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
         => (StockWithPrice[] emp) {
-            stockWithPriceStream.publish(emp);
+            foreach e in emp {
+                stockWithPriceStream.publish(e);
+            }
         }
     }
 }
@@ -75,7 +77,15 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stockStream.publish(s2);
     runtime:sleep(100);
     stockStream.publish(s3);
-    runtime:sleep(1000);
+
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEventsArray) == 2 || count == 10) {
+            break;
+        }
+    }
 
     io:println(globalEventsArray);
     return globalEventsArray;

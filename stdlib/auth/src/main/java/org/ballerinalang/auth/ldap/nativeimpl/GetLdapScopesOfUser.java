@@ -66,7 +66,6 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
         try {
             BMap<String, BValue> authStore = ((BMap<String, BValue>) context.getRefArgument(0));
             LdapUtils.setServiceName((String) authStore.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
@@ -136,15 +135,13 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
 
     private List<String> getListOfNames(List<String> searchBases, String searchFilter, SearchControls searchCtls,
                                         String property, boolean appendDn) throws NamingException {
-
-        List<String> names = new ArrayList<String>();
-        NamingEnumeration<SearchResult> answer = null;
-
         if (LOG.isDebugEnabled()) {
             LOG.debug("Result for searchBase: " + searchBases + " searchFilter: " + searchFilter +
                     " property:" + property + " appendDN: " + appendDn);
         }
 
+        List<String> names = new ArrayList<String>();
+        NamingEnumeration<SearchResult> answer = null;
         try {
             // handle multiple search bases
             for (String searchBase : searchBases) {
@@ -200,7 +197,6 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
      * @return A String which special characters are escaped
      */
     private String escapeLdapNameForFilter(LdapName ldn) {
-
         if (ldn == null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Received null value to escape special characters. Returning null");
@@ -228,7 +224,6 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
      * @return A String which special characters are escaped
      */
     private String escapeSpecialCharactersForFilterWithStarAsRegex(String filter) {
-
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < filter.length(); i++) {
             char currentChar = filter.charAt(i);

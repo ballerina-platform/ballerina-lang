@@ -35,6 +35,8 @@ import static javax.naming.Context.SECURITY_PROTOCOL;
 
 /**
  * LDAP connection context representation.
+ *
+ * @since 0.983.0
  */
 public class LdapConnectionContext {
 
@@ -61,9 +63,7 @@ public class LdapConnectionContext {
             environment.put(javax.naming.Context.PROVIDER_URL, connectionURL);
         }
 
-        // Enable connection pooling if property is set in user-mgt.xml
         boolean isLDAPConnectionPoolingEnabled = ldapConfiguration.isConnectionPoolingEnabled();
-
         environment.put("com.sun.jndi.ldap.connect.pool", isLDAPConnectionPoolingEnabled ? "true" : "false");
 
         if (LdapUtils.isLdapsUrl(connectionURL)) {
@@ -85,13 +85,14 @@ public class LdapConnectionContext {
         }
     }
 
-    public DirContext getContext() throws UserStoreException {
-        try {
-            DirContext context = new InitialDirContext(environment);
-            return context;
-        } catch (NamingException e) {
-            throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
-        }
+    /**
+     * Returns the LDAPContext.
+     *
+     * @return returns the LdapContext instance
+     * @throws NamingException in case of an exception, when obtaining the LDAP context
+     */
+    public DirContext getContext() throws NamingException {
+        return new InitialDirContext(environment);
     }
 
     /**
@@ -102,8 +103,7 @@ public class LdapConnectionContext {
      * @return returns the LdapContext instance if credentials are valid
      * @throws NamingException    in case of an exception, when obtaining the LDAP context
      */
-    public LdapContext getContextWithCredentials(String userDN, byte[] password)
-            throws NamingException {
+    public LdapContext getContextWithCredentials(String userDN, byte[] password) throws NamingException {
         // Create a temp env for this particular authentication session by copying the original env
         Hashtable<String, Object> tempEnv = new Hashtable<>();
         tempEnv.putAll(environment);

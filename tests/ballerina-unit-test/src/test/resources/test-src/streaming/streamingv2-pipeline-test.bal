@@ -54,7 +54,15 @@ function startPipelineQuery() returns (TeacherOutput[]) {
         inputStream.publish(t);
     }
 
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count++;
+        if((lengthof globalEmployeeArray) == 2 || count == 10) {
+            break;
+        }
+    }
+
     io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
@@ -65,13 +73,17 @@ function testPipelineQuery() {
         from inputStream where inputStream.age > 25
         select inputStream.name, inputStream.age, inputStream.status, inputStream.batch, inputStream.school
         => (Teacher[] emp) {
-            outputStream.publish(emp);
+            foreach e in emp {
+                outputStream.publish(e);
+            }
         }
 
         from outputStream
         select outputStream.name as TeacherName, outputStream.age
         => (TeacherOutput[] emp) {
-            finalOutputStream.publish(emp);
+            foreach e in emp {
+                finalOutputStream.publish(e);
+            }
         }
     }
 }

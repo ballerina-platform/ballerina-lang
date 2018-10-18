@@ -23,4 +23,6 @@
 <suppressions>
     <suppress checks="." files="gen/io/ballerina/plugins/idea"/>
     <suppress checks="." files="gen\\io\\ballerina\\plugins\\idea"/>
+    <suppress checks="." files="src/main/scala"/>
+    <suppress checks="." files="src\\main\\scala"/>
 </suppressions>

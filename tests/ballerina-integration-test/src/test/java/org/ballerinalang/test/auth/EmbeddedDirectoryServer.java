@@ -37,14 +37,14 @@ import java.util.HashSet;
  */
 public class EmbeddedDirectoryServer {
 
-    /** The directory service */
+    // The directory service
     private DirectoryService service;
     private LdapServer ldapService;
     private File workDir;
 
 
     /**
-     * Add a new partition to the server
+     * Add a new partition to the server.
      *
      * @param partitionId The partition Id
      * @param partitionDn The partition DN
@@ -62,7 +62,7 @@ public class EmbeddedDirectoryServer {
     }
 
     /**
-     * Add a new set of index on the given attributes
+     * Add a new set of index on the given attributes.
      *
      * @param partition The partition on which we want to add index
      * @param attrs The list of attributes to index

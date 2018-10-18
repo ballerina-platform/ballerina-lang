@@ -22,14 +22,27 @@ import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
+# Represents a JWT Authenticator
+#
+# + ldapJwtAuthProviderConfig - JWT configurations
+# + ldapAuthProvider - LDAP auth store provider
 public type LdapJwtAuthProvider object {
 
     public InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig;
     public LdapAuthStoreProvider ldapAuthProvider;
 
-    public new(ldapJwtAuthProviderConfig,ldapAuthProvider) {
+    # Provides authentication based on the provided jwt token
+    #
+    # + ldapJwtAuthProviderConfig - JWT configurations
+    # + ldapAuthProvider - LDAP auth store provider
+    public new(ldapJwtAuthProviderConfig, ldapAuthProvider) {
     }
 
+    # Authenticate with username and password using ldap auth store
+    #
+    # + username - user name
+    # + password - password
+    # + return - true if authentication is a success, else false
     public function authenticate(string username, string password) returns boolean {
         boolean isAuthenticated = ldapAuthProvider.authenticate(username, password);
         if (isAuthenticated){
@@ -38,6 +51,10 @@ public type LdapJwtAuthProvider object {
         return isAuthenticated;
     }
 
+    # Reads the scope(s) for the user with the given username from ldap auth store
+    #
+    # + username - user name
+    # + return - array of groups for the user denoted by the username
     public function getScopes(string username) returns string[] {
         return ldapAuthProvider.getScopes(username);
     }

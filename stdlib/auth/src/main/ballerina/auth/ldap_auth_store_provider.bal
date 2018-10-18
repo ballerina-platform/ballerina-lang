@@ -70,7 +70,7 @@ public type LdapAuthProviderConfig record {
 # Configures the SSL/TLS options to be used for LDAP communication.
 #
 # + trustStore - Configures the trust store to be used
-# + trustedCertFile - A file containing a list of certificates or a single certificate that the server trusts
+# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
 public type SecureClientSocket record {
     TrustStore? trustStore;
     string trustedCertFile;
@@ -88,7 +88,9 @@ public type TrustStore record {
 };
 
 # Represents Ballerina configuration for LDAP based auth store provider
-#TODO make name camel case
+#
+# + ldapAuthProviderConfig - LDAP auth store configurations
+# + instanceId - Endpoint instance id
 public type LdapAuthStoreProvider object {
 
     public LdapAuthProviderConfig ldapAuthProviderConfig;
@@ -142,4 +144,5 @@ public type LdapAuthStoreProvider object {
 # Initailizes LDAP connection context
 #
 # + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
+# + instanceId - Unique id associated with the endpoint
 public extern function initLdapConnectionContext(LdapAuthStoreProvider ldapAuthStoreProvider, string instanceId);
