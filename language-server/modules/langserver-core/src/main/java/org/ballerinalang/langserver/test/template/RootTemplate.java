@@ -27,8 +27,7 @@ import java.util.stream.Collectors;
 /**
  * To represent a Service template.
  */
-public class RootTemplate implements BallerinaTestTemplate {
-
+public class RootTemplate extends AbstractTestTemplate {
     public static final String PLACEHOLDER_ATTR_DECLARATIONS = "declarations";
     public static final String PLACEHOLDER_ATTR_CONTENT = "content";
     private static final String PLACEHOLDER_ATTR_IMPORTS = "imports";

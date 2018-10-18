@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -196,7 +197,8 @@ public class CommandExecutor {
 
             if (endCol != -1) {
                 int contentLengthToReplaceStart = fileContent.substring(0,
-                        fileContent.indexOf(contentComponents[endLine])).length() + endCol + 1;
+                                                                        fileContent.indexOf(contentComponents[endLine]))
+                        .length() + endCol + 1;
                 remainingTextToReplace = fileContent.substring(contentLengthToReplaceStart);
             } else {
                 remainingTextToReplace = fileContent;
@@ -208,7 +210,7 @@ public class CommandExecutor {
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
 
             return applySingleTextEdit(editText, range, textDocumentIdentifier,
-                    context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                       context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
         }
 
         return new Object();
@@ -297,22 +299,26 @@ public class CommandExecutor {
                     "Invalid parameter, `" + CommandConstants.ARG_KEY_DOC_URI + "` cannot be null!" + documentUri);
         }
 
+        // Compile the source file
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         Path filePath = Paths.get(URI.create(documentUri));
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                               LSCustomErrorStrategy.class, false).getRight();
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, null, false).getRight();
 
-        if (bLangPackage == null) {
-            throw new TestGeneratorException("Could not compile the source file:" + documentUri);
-        }
-
-        // Generate test file
-        String generateTestFile = TestGenerator.generateTestFile(filePath, bLangPackage);
-
-        // Notify Client
+        // Generate test file and notify Client
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        client.showMessage(new MessageParams(MessageType.Info, "Test file generated: " + generateTestFile));
+        try {
+            if (bLangPackage != null) {
+                File generateTestFile = TestGenerator.generateTestFile(filePath, bLangPackage);
+                client.showMessage(
+                        new MessageParams(MessageType.Info, "Test file generated: " + generateTestFile.toString()));
+            } else {
+                client.showMessage(
+                        new MessageParams(MessageType.Error, "Test generation failed due to compilation errors!"));
+            }
+        } catch (TestGeneratorException e) {
+            client.showMessage(new MessageParams(MessageType.Error, "Test generation failed!"));
+        }
         return new Object();
     }
 
@@ -389,7 +395,7 @@ public class CommandExecutor {
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                false, LSCustomErrorStrategy.class, false).getRight();
+                                                               false, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
         CommandUtil.DocAttachmentInfo docAttachmentInfo =
                 getDocumentationEditForNodeByPosition(nodeType, bLangPackage, line);
@@ -401,7 +407,7 @@ public class CommandExecutor {
         Range range = new Range(docAttachmentInfo.getDocStartPos(), docAttachmentInfo.getDocStartPos());
 
         return applySingleTextEdit(docAttachmentInfo.getDocAttachment(), range, textDocumentIdentifier,
-                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                   context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
 
     }
 
@@ -424,7 +430,8 @@ public class CommandExecutor {
         }
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
+                                                               context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY),
+                                                               false, LSCustomErrorStrategy.class, false)
                 .getRight();
 
         List<TextEdit> textEdits = new ArrayList<>();
@@ -447,16 +454,16 @@ public class CommandExecutor {
                 });
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
         return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
-                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                  context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
     /**
      * Execute the create object constructor. Generates the snippet for the new constructor and hence the text edit.
      *
-     * @param context                               LsServiceOperationContext instance for command execution
+     * @param context LsServiceOperationContext instance for command execution
      * @return {@link Object}                       ApplyWorkspaceEditParams related to text edit
-     * @throws WorkspaceDocumentException           Error while accessing the document manager
-     * @throws BallerinaCommandExecutionException   Error while the command Execution
+     * @throws WorkspaceDocumentException         Error while accessing the document manager
+     * @throws BallerinaCommandExecutionException Error while the command Execution
      */
     private static Object executeCreateObjectConstructor(LSServiceOperationContext context)
             throws WorkspaceDocumentException, BallerinaCommandExecutionException {
@@ -475,7 +482,7 @@ public class CommandExecutor {
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                false, LSCustomErrorStrategy.class, false).getRight();
+                                                               false, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
 
         int finalLine = line;
@@ -489,9 +496,10 @@ public class CommandExecutor {
                         && ((BLangTypeDefinition) topLevelNode).symbol.kind.equals(SymbolKind.OBJECT)
                         && topLevelNode.getPosition().getStartLine() - 1 == finalLine)
                 .findAny().orElseThrow(() ->
-                        new BallerinaCommandExecutionException("Error Executing Create Constructor Command"));
+                                               new BallerinaCommandExecutionException(
+                                                       "Error Executing Create Constructor Command"));
         List<BLangVariable> fields = ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).fields;
-        
+
         DiagnosticPos zeroBasedIndex = CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).getPosition());
         int lastFieldLine = zeroBasedIndex.getEndLine();
         int lastFieldOffset = zeroBasedIndex.getStartColumn();
@@ -500,7 +508,7 @@ public class CommandExecutor {
                                 new Position(lastFieldLine + 1, 0));
 
         return applySingleTextEdit(constructorSnippet, range, textDocumentIdentifier,
-                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                   context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
     private static Object executePullPackage(LSServiceOperationContext context) {
@@ -569,7 +577,7 @@ public class CommandExecutor {
     /**
      * Clears diagnostics of the client by sending an text edit event.
      *
-     * @param client Language Server client
+     * @param client            Language Server client
      * @param diagnosticsHelper diagnostics helper
      */
     private static void clearDiagnostics(LanguageClient client, LSCompiler lsCompiler,
@@ -582,7 +590,7 @@ public class CommandExecutor {
     /**
      * Get TextEdit from doc attachment info.
      *
-     * @param attachmentInfo    Doc attachment info
+     * @param attachmentInfo Doc attachment info
      * @return {@link TextEdit}     Text edit for attachment info
      */
     private static TextEdit getTextEdit(CommandUtil.DocAttachmentInfo attachmentInfo) {
@@ -593,12 +601,12 @@ public class CommandExecutor {
     /**
      * Get Documentation edit for node at a given position.
      *
-     * @param topLevelNodeType  top level node type
-     * @param bLangPkg          BLang package
-     * @param line              position to be compared with
+     * @param topLevelNodeType top level node type
+     * @param bLangPkg         BLang package
+     * @param line             position to be compared with
      * @return Document attachment info
      */
-    private static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType, 
+    private static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType,
                                                                                        BLangPackage bLangPkg,
                                                                                        int line) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
@@ -673,7 +681,7 @@ public class CommandExecutor {
         ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
         TextEdit textEdit = new TextEdit(range, editText);
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier,
-                Collections.singletonList(textEdit));
+                                                                 Collections.singletonList(textEdit));
         workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
         applyWorkspaceEditParams.setEdit(workspaceEdit);
         if (client != null) {

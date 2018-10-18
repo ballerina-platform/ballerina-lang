@@ -33,20 +33,20 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.getRecordValue;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.getRecordValueAsString;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.upperCaseFirstLetter;
+import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchArrayField;
+import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Service template.
  */
-public class WSClientServiceTemplate implements BallerinaTestTemplate {
-    private final List<String[]> servicesList;
+public class WSClientServiceTemplate extends AbstractTestTemplate {
     private static final Pattern WS_PATTERN = Pattern.compile("^(wss?):\\/\\/([A-Z\\d\\.-]{2,})[:]*(\\d{2,4})?(.*)");
+    private final List<String[]> servicesList;
 
     public WSClientServiceTemplate(BLangPackage bLangPackage, BLangService service) {
         String serviceName = service.name.value;
@@ -67,12 +67,15 @@ public class WSClientServiceTemplate implements BallerinaTestTemplate {
         bLangPackage.functions.stream().filter(
                 func -> nonTestSourceFiles.stream().anyMatch(unit -> unit.equals(func.pos.src.cUnitName))
         ).forEach(func -> func.endpoints.stream()
-                .filter(ep -> "WebSocketClient".equals(ep.endpointTypeNode.typeName.value) &&
-                        serviceName.equals(getRecordValueAsString(WebSocketConstants.CLIENT_SERVICE_CONFIG,
-                                                                  (BLangRecordLiteral) ep.configurationExpr)))
+                .filter(ep -> {
+                    Optional<String> optionalConfig = searchStringField(WebSocketConstants.CLIENT_SERVICE_CONFIG,
+                                                                        (BLangRecordLiteral) ep.configurationExpr);
+                    return "WebSocketClient".equals(ep.endpointTypeNode.typeName.value) &&
+                            optionalConfig.isPresent() && serviceName.equals(optionalConfig.get());
+                })
                 .forEach(ep -> {
-                             Object value = getRecordValue(WebSocketConstants.CLIENT_URL_CONFIG,
-                                                           (BLangRecordLiteral) ep.configurationExpr);
+                             Object value = searchArrayField(WebSocketConstants.CLIENT_URL_CONFIG,
+                                                             (BLangRecordLiteral) ep.configurationExpr);
                              String testFunctionName = "test" + upperCaseFirstLetter(ep.name.value);
                              String mockServiceName = "mock" + upperCaseFirstLetter(ep.name.value) + "Service";
                              String url = (value instanceof BLangLiteral) ? "\"" + value + "\"" : value.toString();
@@ -98,8 +101,6 @@ public class WSClientServiceTemplate implements BallerinaTestTemplate {
             String mckServiceName = service[1];
             String uri = service[2];
 
-            String filename = (uri.startsWith("wss:")) ? "wssClientService.bal" : "wsClientService.bal";
-
             //Set default path and port
             String servicePath = "\"/\"";
             String servicePort = "9090";
@@ -114,6 +115,7 @@ public class WSClientServiceTemplate implements BallerinaTestTemplate {
                     servicePort = (port != null) ? port : servicePort;
                 }
             }
+            String filename = (uri.startsWith("wss:")) ? "wssClientService.bal" : "wsClientService.bal";
             FileTemplate template = new FileTemplate(filename);
             template.put("testServiceFunctionName", funcName);
             template.put("mockServiceName", mckServiceName);
@@ -124,7 +126,7 @@ public class WSClientServiceTemplate implements BallerinaTestTemplate {
             template.put("mockResponse", "hey");
             String renderedContent = template.getRenderedContent();
             if (!servicesIterator.hasNext()) {
-                // If last, trim right side
+                // If last, trim right-side
                 renderedContent = StringUtils.stripEnd(renderedContent, null);
             }
             content.append(renderedContent);

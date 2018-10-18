@@ -22,37 +22,72 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.IntStream;
 
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.upperCaseFirstLetter;
+import static org.ballerinalang.langserver.test.ValueSpaceGenerator.createTemplateArray;
+import static org.ballerinalang.langserver.test.ValueSpaceGenerator.getValueSpaceByNode;
 
 /**
  * To represent a function template.
  */
-public class FunctionTemplate implements BallerinaTestTemplate {
+public class FunctionTemplate extends AbstractTestTemplate {
+    private static final int VALUE_SPACE_LENGTH = 4;
     private final String testFunctionName;
     private final String functionInvocation;
     private final String functionInvocationField;
-    private final String expectedValueField;
-    private final boolean isVoid;
+    private final String dataProviderReturnType;
+    private final String dataProviderReturnValue;
+    private final String testFunctionParams;
+    private final boolean isVoidFunction;
 
     public FunctionTemplate(BLangFunction function) {
-        String name = function.name.value;
-        testFunctionName = "test" + upperCaseFirstLetter(name);
+        StringJoiner paramsStr = new StringJoiner(", ");
+        StringJoiner paramsInvokeStr = new StringJoiner(", ");
+        StringJoiner paramsTypeStr = new StringJoiner(", ");
+        String[][] valueSpace = new String[VALUE_SPACE_LENGTH][function.requiredParams.size() + 1];
 
-        // Generate function invocation string
-        String variableType = FunctionGenerator.getFuncReturnSignature(function.returnTypeNode);
-        List<String> params = new ArrayList<>();
-        for (BLangVariable variable : function.requiredParams) {
-            params.add(FunctionGenerator.getFuncReturnDefaultStatement(variable, "{%1}"));
+        // Populate target function's parameters
+        for (int i = 0; i < function.requiredParams.size(); i++) {
+            BLangVariable variable = function.requiredParams.get(i);
+            String paramType = FunctionGenerator.getFuncReturnSignature(variable.typeNode);
+            String paramName = variable.name.value;
+            paramsStr.add(paramType + " " + paramName);
+            paramsInvokeStr.add(paramName);
+            paramsTypeStr.add(paramType);
+
+            String[] pValueSpace = getValueSpaceByNode(variable.typeNode, createTemplateArray(VALUE_SPACE_LENGTH));
+            for (int j = 0; j < pValueSpace.length; j++) {
+                // Need to apply transpose of `pValueSpace`
+                // i.e. valueSpace = (pValueSpace)^T
+                valueSpace[j][i] = pValueSpace[j];
+            }
         }
-        String paramsStr = String.join(", ", params);
-        this.isVoid = (function.returnTypeNode == null || function.returnTypeNode.type instanceof BNilType);
-        this.functionInvocation = name + "(" + paramsStr + ")";
+
+        // Populate target function's return type
+        String variableType = FunctionGenerator.getFuncReturnSignature(function.returnTypeNode);
+        paramsStr.add(variableType + " expected");
+        paramsTypeStr.add(variableType);
+        String[] rtValSpace = getValueSpaceByNode(function.returnTypeNode, createTemplateArray(VALUE_SPACE_LENGTH));
+
+        IntStream.range(0, rtValSpace.length).forEach(index -> {
+            valueSpace[index][function.requiredParams.size()] = rtValSpace[index];
+        });
+
+        // Prepare data provider's return value
+        StringJoiner vSpace = new StringJoiner("), (", "(", ")");
+        IntStream.range(0, valueSpace.length).parallel().forEach(index -> {
+            vSpace.add(String.join(", ", valueSpace[index]));
+        });
+
+        String functionName = function.name.value;
+        this.testFunctionName = "test" + upperCaseFirstLetter(functionName);
+        this.isVoidFunction = (function.returnTypeNode == null || function.returnTypeNode.type instanceof BNilType);
+        this.functionInvocation = functionName + "(" + paramsInvokeStr.toString() + ")";
         this.functionInvocationField = variableType + " actual = " + functionInvocation + ";";
-        String expectedValue = FunctionGenerator.getFuncReturnDefaultStatement(function.returnTypeNode, "{%1}");
-        this.expectedValueField = variableType + " expected = " + expectedValue + ";";
+        this.testFunctionParams = paramsStr.toString();
+        this.dataProviderReturnType = "(" + paramsTypeStr.toString() + ")[]";
+        this.dataProviderReturnValue = "[" + vSpace + "]";
     }
 
     /**
@@ -63,11 +98,15 @@ public class FunctionTemplate implements BallerinaTestTemplate {
      */
     @Override
     public void render(FileTemplate rootFileTemplate) throws TestGeneratorException {
-        String filename = (isVoid) ? "voidFunction.bal" : "returnTypedFunction.bal";
+        String filename = (isVoidFunction) ? "voidFunction.bal" : "returnTypedFunction.bal";
         FileTemplate template = new FileTemplate(filename);
         template.put("testFunctionName", testFunctionName);
-        template.put("actual", (isVoid) ? functionInvocation + ";" : functionInvocationField);
-        template.put("expected", expectedValueField);
+        template.put("actual", (isVoidFunction) ? functionInvocation + ";" : functionInvocationField);
+        if (!isVoidFunction) {
+            template.put("dataProviderReturnType", dataProviderReturnType);
+            template.put("dataProviderReturnValue", dataProviderReturnValue);
+            template.put("testFunctionParams", testFunctionParams);
+        }
 
         //Append to root template
         rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_CONTENT, template.getRenderedContent());

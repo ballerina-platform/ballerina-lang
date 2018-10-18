@@ -402,7 +402,8 @@ public class CommonUtil {
      * Get the Annotation completion Item.
      *
      * @param packageID        Package Id
-     * @param annotationSymbol BLang annotation to extract the completion Item* @param ctx                       LS Service operation context, in this case completion context
+     * @param annotationSymbol BLang annotation to extract the completion Item
+     * @param ctx                       LS Service operation context, in this case completion context
      * @return {@link CompletionItem}   Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,

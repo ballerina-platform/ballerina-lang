@@ -25,16 +25,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.getAnnotationValueAsArray;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.getAnnotationValueAsString;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.lowerCaseFirstLetter;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.upperCaseFirstLetter;
+import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchArrayField;
+import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Resource template.
  */
-public class HttpResourceTemplate implements BallerinaTestTemplate {
+public class HttpResourceTemplate extends AbstractTestTemplate {
     private final List<String[]> resourceMethods;
     private final String resourcePath;
     private final String serviceUriStrName;
@@ -48,12 +47,13 @@ public class HttpResourceTemplate implements BallerinaTestTemplate {
         String tempResourcePath = basePath + "/" + resourceName;
 
         // If resource path & methods overridden by annotations
-        if (resource.annAttachments.size() > 0) {
-            for (BLangAnnotationAttachment annotation : resource.annAttachments) {
-                List<String> methods = getAnnotationValueAsArray(HttpConstants.ANN_RESOURCE_ATTR_METHODS, annotation);
-                methods.forEach(val -> resourceMethods.add(new String[]{resourceName, val}));
-                String annotPath = getAnnotationValueAsString(HttpConstants.ANN_RESOURCE_ATTR_PATH, annotation);
-                tempResourcePath = basePath + (("/".equals(annotPath)) ? "" : annotPath);
+        List<BLangAnnotationAttachment> annAttachments = resource.annAttachments;
+        if (annAttachments.size() > 0) {
+            for (BLangAnnotationAttachment annotation : annAttachments) {
+                List<String> methods = searchArrayField(HttpConstants.ANN_RESOURCE_ATTR_METHODS, annotation);
+                methods.forEach(resourceMethod -> resourceMethods.add(new String[]{resourceName, resourceMethod}));
+                Optional<String> annotPath = searchStringField(HttpConstants.ANN_RESOURCE_ATTR_PATH, annotation);
+                tempResourcePath = basePath + annotPath.filter(path -> (!"/".equals(path))).orElse("");
             }
         } else {
             // Or else, add default resource method

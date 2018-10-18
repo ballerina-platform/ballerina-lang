@@ -53,6 +53,7 @@ import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
@@ -376,19 +377,31 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             try {
                 Position start = params.getRange().getStart();
-                String topLevelNodeType = CommonUtil
-                        .topLevelNodeTypeInLine(params.getTextDocument(), start, documentManager);
-                if (topLevelNodeType != null) {
-                    commands.addAll(CommandUtil.getCommandForNodeType(topLevelNodeType, fileUri, start.getLine()));
-                    commands.add(CommandUtil.getTestGenerationCommand(fileUri));
-                }
-                if (!params.getContext().getDiagnostics().isEmpty()) {
-                    params.getContext().getDiagnostics().forEach(diagnostic -> {
+                LSDocument document = new LSDocument(fileUri);
+                List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
+
+                // Add commands base on node diagnostics
+                if (!diagnostics.isEmpty()) {
+                    diagnostics.forEach(diagnostic -> {
                         if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
                             commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, documentManager,
                                                                                 lsCompiler));
                         }
                     });
+                }
+                // Add create test command
+                Path dir = document.getPath().getParent();
+                if (diagnostics.isEmpty() &&
+                        !document.getSourceRootPath().equals(dir) &&
+                        !dir.getFileName().toString().equals("tests")) {
+                    //Check if doc is not in root or tests folder
+                    commands.add(CommandUtil.getTestGenerationCommand(fileUri));
+                }
+                // Add commands base on node type
+                String topLevelNodeType = CommonUtil
+                        .topLevelNodeTypeInLine(params.getTextDocument(), start, documentManager);
+                if (topLevelNodeType != null) {
+                    commands.addAll(CommandUtil.getCommandForNodeType(topLevelNodeType, fileUri, start.getLine()));
                 }
                 return commands;
             } catch (Exception e) {

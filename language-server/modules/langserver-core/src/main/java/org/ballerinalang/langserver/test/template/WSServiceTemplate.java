@@ -28,18 +28,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.netty.util.internal.StringUtil.LINE_FEED;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.getAnnotationValueAsString;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.getRecordValueAsString;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.isRecordValueExists;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.lowerCaseFirstLetter;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.upperCaseFirstLetter;
+import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.isRecordValueExists;
+import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Service template.
  */
-public class WSServiceTemplate implements BallerinaTestTemplate {
+public class WSServiceTemplate extends AbstractTestTemplate {
     private final String serviceUri;
     private final boolean isSecure;
     private final String serviceUriStrName;
@@ -48,16 +46,16 @@ public class WSServiceTemplate implements BallerinaTestTemplate {
     public WSServiceTemplate(BLangPackage bLangPackage, BLangService service) {
         this.serviceUriStrName = lowerCaseFirstLetter(service.name.value) + "Uri";
         this.testServiceFunctionName = "test" + upperCaseFirstLetter(service.name.value);
-        final String[] tempServiceUri = {"ws://0.0.0.0:9092"};
+        String tempServiceUri = WS + DEFAULT_IP + ":" + DEFAULT_PORT;
         boolean isSecureTemp = false;
 
         // If Anonymous Endpoint bounded, get `port` from it
         BLangRecordLiteral anonEndpointBind = service.anonymousEndpointBind;
         if (anonEndpointBind != null) {
-            String port = getRecordValueAsString(HttpConstants.ANN_CONFIG_ATTR_PORT, anonEndpointBind);
+            Optional<String> optionalPort = searchStringField(HttpConstants.ANN_CONFIG_ATTR_PORT, anonEndpointBind);
             isSecureTemp = isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET, anonEndpointBind);
-            tempServiceUri[0] =
-                    (port != null) ? ((isSecureTemp) ? "wss" : "ws") + "://0.0.0.0:" + port : tempServiceUri[0];
+            String protocol = ((isSecureTemp) ? WSS : WS);
+            tempServiceUri = optionalPort.map(port -> protocol + DEFAULT_IP + ":" + port).orElse(tempServiceUri);
         }
 
         // Check for the bounded endpoint to get `port` from it
@@ -68,10 +66,10 @@ public class WSServiceTemplate implements BallerinaTestTemplate {
                 .findFirst().orElse(null) : null;
         if (endpoint != null && endpoint.getConfigurationExpression() instanceof BLangRecordLiteral) {
             BLangRecordLiteral configs = (BLangRecordLiteral) endpoint.getConfigurationExpression();
-            String port = getRecordValueAsString(HttpConstants.ANN_CONFIG_ATTR_PORT, configs);
+            Optional<String> optionalPort = searchStringField(HttpConstants.ANN_CONFIG_ATTR_PORT, configs);
             isSecureTemp = isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET, configs);
-            tempServiceUri[0] =
-                    (port != null) ? ((isSecureTemp) ? "wss" : "ws") + "://0.0.0.0:" + port : tempServiceUri[0];
+            String protocol = ((isSecureTemp) ? WSS : WS);
+            tempServiceUri = optionalPort.map(port -> protocol + ":" + DEFAULT_IP + ":" + port).orElse(tempServiceUri);
         }
         this.isSecure = isSecureTemp;
 
@@ -80,14 +78,10 @@ public class WSServiceTemplate implements BallerinaTestTemplate {
 
         // If service base path overridden by annotations
         for (BLangAnnotationAttachment annotation : service.annAttachments) {
-            String path = getAnnotationValueAsString(WebSocketConstants.ANNOTATION_ATTR_PATH, annotation);
-            serviceBasePath = (path != null) ? path : "";
+            Optional<String> optionalPath = searchStringField(WebSocketConstants.ANNOTATION_ATTR_PATH, annotation);
+            serviceBasePath = optionalPath.orElse("");
         }
-        this.serviceUri = tempServiceUri[0] + serviceBasePath;
-    }
-
-    private String getServiceUriDeclarationString() {
-        return "string " + serviceUriStrName + " = \"" + serviceUri + "\";";
+        this.serviceUri = tempServiceUri + serviceBasePath;
     }
 
     /**
@@ -104,8 +98,11 @@ public class WSServiceTemplate implements BallerinaTestTemplate {
         template.put("serviceUriStrName", serviceUriStrName);
 
         //Append to root template
-        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_DECLARATIONS,
-                                getServiceUriDeclarationString() + LINE_FEED);
+        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
         rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_CONTENT, template.getRenderedContent());
+    }
+
+    private String getServiceUriDeclaration() {
+        return "string " + serviceUriStrName + " = \"" + serviceUri + "\";";
     }
 }

@@ -1,19 +1,3 @@
-/*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package org.ballerinalang.langserver.test;
 
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -25,18 +9,18 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
- * This class contains Util methods for the {@link TestGenerator}.
+ * This class provides capabilities for processing annotation configurations.
  */
-public class TestGeneratorUtil {
+public class AnnotationConfigsProcessor {
     /**
-     * Visit annotation.
+     * Visit annotation for the provided annotations consumer.
      *
      * @param annotation {@link BLangAnnotationAttachment}
-     * @param consumer   {@link BiConsumer} function
+     * @param consumer   {@link BiConsumer} annotations consumer
      */
     public static void visitAnnotation(BLangAnnotationAttachment annotation,
                                        BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> consumer) {
@@ -53,10 +37,10 @@ public class TestGeneratorUtil {
     }
 
     /**
-     * Visit each records.
+     * Visit each records for the provided annotations consumer.
      *
      * @param records  list of {@link BLangRecordLiteral.BLangRecordKeyValue}
-     * @param consumer {@link BiConsumer} function
+     * @param consumer {@link BiConsumer} annotations consumer
      */
     public static void visitRecords(List<BLangRecordLiteral.BLangRecordKeyValue> records,
                                     BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> consumer) {
@@ -70,44 +54,40 @@ public class TestGeneratorUtil {
     }
 
     /**
-     * Returns a value of this field.
+     * Search annotations and returns string field value by field name.
      *
      * @param fieldName  field name
      * @param annotation {@link BLangAnnotationAttachment}
-     * @return field value
+     * @return if found, returns field value string or null otherwise
      */
-    public static String getAnnotationValueAsString(String fieldName, BLangAnnotationAttachment annotation) {
+    public static Optional<String> searchStringField(String fieldName, BLangAnnotationAttachment annotation) {
         final String[] fieldValue = {null};
-        TestGeneratorUtil.visitAnnotation(annotation, (keyValue, varRef) -> {
+        visitAnnotation(annotation, (keyValue, varRef) -> {
             String variableName = varRef.variableName.value;
-            if (fieldName.equalsIgnoreCase(variableName)) {
-                if (keyValue.valueExpr instanceof BLangLiteral) {
-                    fieldValue[0] = String.valueOf(((BLangLiteral) keyValue.valueExpr).value);
-                }
+            if (fieldName.equalsIgnoreCase(variableName) && keyValue.valueExpr instanceof BLangLiteral) {
+                fieldValue[0] = String.valueOf(((BLangLiteral) keyValue.valueExpr).value);
             }
         });
-        return fieldValue[0];
+        return Optional.ofNullable(fieldValue[0]);
     }
 
     /**
-     * Returns a list of values of this field.
+     * Search annotations and returns array field value by field name.
      *
      * @param fieldName  field name
      * @param annotation {@link BLangAnnotationAttachment}
-     * @return list of field values
+     * @return if found, returns list of field values or empty list otherwise
      */
-    public static List<String> getAnnotationValueAsArray(String fieldName, BLangAnnotationAttachment annotation) {
+    public static List<String> searchArrayField(String fieldName, BLangAnnotationAttachment annotation) {
         List<String> fieldValsList = new ArrayList<>();
-        TestGeneratorUtil.visitAnnotation(annotation, (keyValue, varRef) -> {
+        visitAnnotation(annotation, (keyValue, varRef) -> {
             String variableName = varRef.variableName.value;
-            if (fieldName.equalsIgnoreCase(variableName)) {
-                if (keyValue.valueExpr instanceof BLangArrayLiteral) {
-                    BLangArrayLiteral values = (BLangArrayLiteral) keyValue.valueExpr;
-                    List<BLangExpression> arr = values.exprs;
-                    for (BLangExpression exp : arr) {
-                        if (exp instanceof BLangLiteral) {
-                            fieldValsList.add(String.valueOf(((BLangLiteral) exp).value));
-                        }
+            if (fieldName.equalsIgnoreCase(variableName) && keyValue.valueExpr instanceof BLangArrayLiteral) {
+                BLangArrayLiteral values = (BLangArrayLiteral) keyValue.valueExpr;
+                List<BLangExpression> arr = values.exprs;
+                for (BLangExpression exp : arr) {
+                    if (exp instanceof BLangLiteral) {
+                        fieldValsList.add(String.valueOf(((BLangLiteral) exp).value));
                     }
                 }
             }
@@ -116,32 +96,33 @@ public class TestGeneratorUtil {
     }
 
     /**
-     * Returns value of this field.
+     * Search records and returns string field value by field name.
      *
      * @param fieldName field name
      * @param record    {@link BLangRecordLiteral}
-     * @return field value as string
+     * @return if found, returns field value string or null otherwise
      */
-    public static String getRecordValueAsString(String fieldName, BLangRecordLiteral record) {
-        return String.valueOf(getRecordValue(fieldName, record));
+    public static Optional<String> searchStringField(String fieldName, BLangRecordLiteral record) {
+        Optional<Object> field = searchArrayField(fieldName, record);
+        return field.map(String::valueOf);
     }
 
     /**
-     * Returns value of this field.
+     * Search records and returns field value object by field name.
      *
      * @param fieldName field name
      * @param record    {@link BLangRecordLiteral}
-     * @return {@link Object} field value
+     * @return if found, returns field value {@link Object} or null otherwise
      */
-    public static Object getRecordValue(String fieldName, BLangRecordLiteral record) {
+    public static Optional<Object> searchArrayField(String fieldName, BLangRecordLiteral record) {
         final Object[] fieldValue = {null};
-        TestGeneratorUtil.visitRecords(record.keyValuePairs, (keyValue, varRef) -> {
+        visitRecords(record.keyValuePairs, (keyValue, varRef) -> {
             String variableName = varRef.variableName.value;
             if (fieldName.equalsIgnoreCase(variableName)) {
                 fieldValue[0] = keyValue.valueExpr;
             }
         });
-        return fieldValue[0];
+        return Optional.ofNullable(fieldValue[0]);
     }
 
     /**
@@ -153,32 +134,12 @@ public class TestGeneratorUtil {
      */
     public static boolean isRecordValueExists(String fieldName, BLangRecordLiteral record) {
         final boolean[] fieldValue = {false};
-        TestGeneratorUtil.visitRecords(record.keyValuePairs, (keyValue, varRef) -> {
+        visitRecords(record.keyValuePairs, (keyValue, varRef) -> {
             String variableName = varRef.variableName.value;
             if (fieldName.equalsIgnoreCase(variableName)) {
                 fieldValue[0] = true;
             }
         });
         return fieldValue[0];
-    }
-
-    /**
-     * Uppercase case the first letter of this string.
-     *
-     * @param name name to be converted
-     * @return converted string
-     */
-    public static String upperCaseFirstLetter(String name) {
-        return name.substring(0, 1).toUpperCase(Locale.getDefault()) + name.substring(1);
-    }
-
-    /**
-     * Lowercase the first letter of this string.
-     *
-     * @param name name to be converted
-     * @return converted string
-     */
-    public static String lowerCaseFirstLetter(String name) {
-        return name.substring(0, 1).toLowerCase(Locale.getDefault()) + name.substring(1);
     }
 }

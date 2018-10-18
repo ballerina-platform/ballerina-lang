@@ -28,39 +28,39 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.netty.util.internal.StringUtil.LINE_FEED;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.getRecordValueAsString;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.isRecordValueExists;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.lowerCaseFirstLetter;
-import static org.ballerinalang.langserver.test.TestGeneratorUtil.upperCaseFirstLetter;
+import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.isRecordValueExists;
+import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Service template.
  */
-public class HttpServiceTemplate implements BallerinaTestTemplate {
+public class HttpServiceTemplate extends AbstractTestTemplate {
+    public static final String PLACEHOLDER_ATTR_RESOURCES = "resources";
     private final String serviceUri;
     private final boolean isSecure;
     private final String serviceUriStrName;
     private final String testServiceFunctionName;
     private final String serviceBasePath;
     private final List<BLangResource> resources;
-    public final static String PLACEHOLDER_ATTR_RESOURCES = "resources";
 
     public HttpServiceTemplate(BLangPackage bLangPackage, BLangService service) {
         String serviceName = service.name.value;
         this.serviceUriStrName = lowerCaseFirstLetter(serviceName) + "Uri";
         this.testServiceFunctionName = "test" + upperCaseFirstLetter(serviceName);
+
         boolean isSecureTemp = false;
-        final String[] tempServiceUri = {"http://0.0.0.0:9092"};
+        String serviceUriTemp = HTTP + DEFAULT_IP + ":" + DEFAULT_PORT;
 
         // If Anonymous Endpoint bounded, get `port` and `isSecure` from it
         BLangRecordLiteral anonEndpointBind = service.anonymousEndpointBind;
         if (anonEndpointBind != null) {
-            String port = getRecordValueAsString(HttpConstants.ANN_CONFIG_ATTR_PORT, anonEndpointBind);
+            Optional<String> optionalPort = searchStringField(HttpConstants.ANN_CONFIG_ATTR_PORT, anonEndpointBind);
             isSecureTemp = isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET, anonEndpointBind);
-            tempServiceUri[0] =
-                    (port != null) ? ((isSecureTemp) ? "https" : "http") + "://0.0.0.0:" + port : tempServiceUri[0];
+            String protocol = ((isSecureTemp) ? HTTPS : HTTP);
+            serviceUriTemp = optionalPort.map(port -> protocol + DEFAULT_IP + ":" + port).orElse(serviceUriTemp);
         }
 
         // Check for the bounded endpoint to get `port` and `isSecure` from it
@@ -71,30 +71,28 @@ public class HttpServiceTemplate implements BallerinaTestTemplate {
                 .findFirst().orElse(null) : null;
         if (endpoint != null && endpoint.getConfigurationExpression() instanceof BLangRecordLiteral) {
             BLangRecordLiteral configs = (BLangRecordLiteral) endpoint.getConfigurationExpression();
-            String port = getRecordValueAsString(HttpConstants.ANN_CONFIG_ATTR_PORT, configs);
+            Optional<String> optionalPort = searchStringField(HttpConstants.ANN_CONFIG_ATTR_PORT, configs);
             isSecureTemp = isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET, configs);
-            tempServiceUri[0] =
-                    (port != null) ? ((isSecureTemp) ? "https" : "http") + "://0.0.0.0:" + port : tempServiceUri[0];
+            String protocol = ((isSecureTemp) ? HTTPS : HTTP);
+            serviceUriTemp = optionalPort.map(port -> protocol + DEFAULT_IP + ":" + port).orElse(serviceUriTemp);
         }
+
         this.isSecure = isSecureTemp;
-        this.serviceUri = tempServiceUri[0];
+        this.serviceUri = serviceUriTemp;
 
         // Retrieve Service base path
         String tempServiceBasePath = "/" + serviceName;
+
         // If service base path overridden by annotations
         for (BLangAnnotationAttachment annotation : service.annAttachments) {
             if (annotation.expr instanceof BLangRecordLiteral) {
                 BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
-                String basePath = getRecordValueAsString(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH, record);
-                tempServiceBasePath = (basePath != null) ? basePath : tempServiceBasePath;
+                Optional<String> basePath = searchStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH, record);
+                tempServiceBasePath = basePath.orElse(tempServiceBasePath);
             }
         }
         this.serviceBasePath = tempServiceBasePath;
         this.resources = service.getResources();
-    }
-
-    private String getServiceUriDeclarationString() {
-        return "string " + serviceUriStrName + " = \"" + serviceUri + "\";";
     }
 
     /**
@@ -116,8 +114,11 @@ public class HttpServiceTemplate implements BallerinaTestTemplate {
         }
 
         //Append to root template
-        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_DECLARATIONS,
-                                getServiceUriDeclarationString() + LINE_FEED);
+        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
         rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_CONTENT, template.getRenderedContent());
+    }
+
+    private String getServiceUriDeclaration() {
+        return "string " + serviceUriStrName + " = \"" + serviceUri + "\";";
     }
 }

@@ -43,30 +43,34 @@ public class TestGenerator {
      *
      * @param sourceFilePath source file path
      * @param bLangPackage   {@link BLangPackage}
+     * @return generated test file path
      * @throws TestGeneratorException when test case generation fails
      */
-    public static String generateTestFile(Path sourceFilePath, BLangPackage bLangPackage)
+    public static File generateTestFile(Path sourceFilePath, BLangPackage bLangPackage)
             throws TestGeneratorException {
         //Check for tests folder, if not exists create a new folder
         File testsDir = createTestFolderIfNotExists(sourceFilePath);
-
-        //Generate a unique name for the tests file
-        String generatedFilename = generateTestFileName(sourceFilePath, testsDir);
 
         //Create root template
         RootTemplate ballerinaTemplate = new RootTemplate(sourceFilePath.toFile().getName(), bLangPackage);
         FileTemplate rootFileTemplate = new FileTemplate("rootTest.bal");
 
-        //Render root template and write into test file.
+        //Render root template
+        ballerinaTemplate.render(rootFileTemplate);
+        String renderedContent = rootFileTemplate.getRenderedContent();
+
+        //Generate a unique name for the tests file
+        String generatedFilename = generateTestFileName(sourceFilePath, testsDir);
+
+        //Write into test file.
         File testFile = testsDir.toPath().resolve(generatedFilename).toFile();
         try (BufferedWriter writer = Files.newBufferedWriter(testFile.toPath(), StandardCharsets.UTF_8)) {
-            ballerinaTemplate.render(rootFileTemplate);
-            writer.write(rootFileTemplate.getRenderedContent());
+            writer.write(renderedContent);
         } catch (Exception e) {
             throw new TestGeneratorException("Error occurred while writing test file: " + testFile.toString(), e);
         }
 
-        return testFile.toString();
+        return testFile;
     }
 
     private static String generateTestFileName(Path sourceFilePath, File testsDir) {
