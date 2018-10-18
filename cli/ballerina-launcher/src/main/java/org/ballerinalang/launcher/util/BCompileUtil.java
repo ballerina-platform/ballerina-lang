@@ -294,15 +294,12 @@ public class BCompileUtil {
         CompiledBinaryFile.ProgramFile programFile;
         // Check if its executing the tests. If not then it is used to compile a ballerina source file, then pass the
         // bLangPackage node to generate the program file
-        if (!withTests) {
+        if (!withTests || !packageNode.containsTestablePkg()) {
             programFile = compiler.getExecutableProgram(packageNode);
-        } else if (packageNode.containsTestablePkg()) {
+        } else {
             // If its executing tests, then check if the testable package is null or not. If its not null, then the
             // ballerina test file is inside the 'tests' folder
             programFile = compiler.getExecutableProgram(packageNode.getTestablePkg());
-        } else {
-            // If the testable package is null, then the ballerina test file is not inside the 'tests' folder
-            programFile = compiler.getExecutableProgram(packageNode);
         }
 
         if (programFile != null) {
