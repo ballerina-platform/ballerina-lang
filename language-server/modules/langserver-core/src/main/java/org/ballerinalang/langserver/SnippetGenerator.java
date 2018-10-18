@@ -101,7 +101,8 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getConstKeywordSnippet() {
-        return new SnippetBlock("const ");
+        return new SnippetBlock(ItemResolverConstants.CONST_KEYWORD, "const ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
     }
 
     /**
@@ -110,7 +111,8 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getFinalKeywordSnippet() {
-        return new SnippetBlock("final ");
+        return new SnippetBlock(ItemResolverConstants.FINAL_KEYWORD, "final ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
     }
 
     /**
