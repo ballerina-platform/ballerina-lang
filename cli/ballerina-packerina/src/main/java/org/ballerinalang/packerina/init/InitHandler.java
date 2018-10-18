@@ -19,7 +19,7 @@
 package org.ballerinalang.packerina.init;
 
 import org.ballerinalang.packerina.init.models.FileType;
-import org.ballerinalang.packerina.init.models.PackageMdFile;
+import org.ballerinalang.packerina.init.models.ModuleMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
 
@@ -46,14 +46,14 @@ public class InitHandler {
      * @param projectPath The output path.
      * @param manifest    The manifest for Ballerina.toml.
      * @param srcFiles    The source files.
-     * @param packageMdFile packageMD file list to be created.
+     * @param moduleMdFile moduleMD file list to be created.
      * @throws IOException If file write exception occurs.
      */
     public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles,
-                                  List<PackageMdFile> packageMdFile) throws IOException {
+                                  List<ModuleMdFile> moduleMdFile) throws IOException {
         createBallerinaToml(projectPath, manifest);
         createBallerinaCacheFile(projectPath);
-        createPackageMd(projectPath, packageMdFile);
+        createModuleMD(projectPath, moduleMdFile);
         createSrcFolder(projectPath, srcFiles);
 
         String ignoreFileContent = "target/\n";
@@ -80,26 +80,26 @@ public class InitHandler {
     }
 
     /**
-     * Create Package.md for a package.
+     * Create Module.md for a module.
      *
      * @param projectPath       The project path.
-     * @param packageMdFileList packageMD file list to be created.
+     * @param moduleMdFileList moduleMD file list to be created.
      * @throws IOException If file write exception occurs.
      */
-    private static void createPackageMd(Path projectPath, List<PackageMdFile> packageMdFileList) throws IOException {
-        if (null != packageMdFileList && packageMdFileList.size() > 0) {
-            for (PackageMdFile packageMdFile : packageMdFileList) {
-                Path packagePath = projectPath.resolve(packageMdFile.getName());
+    private static void createModuleMD(Path projectPath, List<ModuleMdFile> moduleMdFileList) throws IOException {
+        if (null != moduleMdFileList && moduleMdFileList.size() > 0) {
+            for (ModuleMdFile moduleMdFile : moduleMdFileList) {
+                Path packagePath = projectPath.resolve(moduleMdFile.getName());
 
                 if (!Files.exists(packagePath)) {
                     Files.createDirectory(packagePath);
                 }
 
-                Path srcFilePath = packagePath.resolve("Package.md");
+                Path srcFilePath = packagePath.resolve("Module.md");
 
                 if (!Files.exists(srcFilePath)) {
                     Files.createFile(srcFilePath);
-                    writeContent(srcFilePath, packageMdFile.getContent());
+                    writeContent(srcFilePath, moduleMdFile.getContent());
                 }
             }
         }

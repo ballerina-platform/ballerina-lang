@@ -5,7 +5,7 @@ any[] outputs = [];
 int counter = 0;
 
 @test:Mock {
-    packageName: "ballerina/io",
+    moduleName: "ballerina/io",
     functionName: "println"
 }
 public function mockPrint(any... s) {

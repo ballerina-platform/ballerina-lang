@@ -11,10 +11,10 @@
   },
   "expected": {
     "title":"Pull from Ballerina Central",
-    "command":"PULL_PACKAGE",
+    "command":"PULL_MODULE",
     "arguments":[
       {
-        "argumentK": "package",
+        "argumentK": "module",
         "argumentV": "org/unpulled_package"
       }
     ]

@@ -49,7 +49,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class PackagingTestCase extends BaseTest {
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
-    private String packageName = "test";
+    private String moduleName = "test";
     private String datePushed;
     private String orgName = "integrationtests";
     private Map<String, String> envVariables;
@@ -59,7 +59,7 @@ public class PackagingTestCase extends BaseTest {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         createSettingToml();
-        packageName = packageName + PackagingTestUtils.randomPackageName(10);
+        moduleName = moduleName + PackagingTestUtils.randomModuleName(10);
         envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
     }
 
@@ -69,7 +69,7 @@ public class PackagingTestCase extends BaseTest {
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", orgName + "\n", "\n", "m\n", packageName + "\n", "f\n"};
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", moduleName + "\n", "f\n"};
         balClient.runMain("init", clientArgsForInit, envVariables, options,
                 new LogLeecher[]{}, projectPath.toString());
     }
@@ -84,18 +84,18 @@ public class PackagingTestCase extends BaseTest {
         String firstMsg = "ballerina: couldn't locate the package artifact to be pushed. Run 'ballerina push' " +
                 "without the --no-build flag";
         LogLeecher clientLeecher = new LogLeecher(firstMsg);
-        balClient.runMain("push", new String[]{packageName, "--no-build"}, envVariables, new String[]{},
+        balClient.runMain("push", new String[]{moduleName, "--no-build"}, envVariables, new String[]{},
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(2000);
-        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
         Assert.assertTrue(Files.notExists(projectPath.resolve(dirPath)));
-        Assert.assertTrue(Files.notExists(projectPath.resolve(dirPath).resolve(packageName + ".zip")));
+        Assert.assertTrue(Files.notExists(projectPath.resolve(dirPath).resolve(moduleName + ".zip")));
 
         // Then try to push without the flag so it builds the artifact
-        String secondMsg = orgName + "/" + packageName + ":0.0.1 [project repo -> central]";
+        String secondMsg = orgName + "/" + moduleName + ":0.0.1 [project repo -> central]";
         clientLeecher = new LogLeecher(secondMsg);
-        balClient.runMain("push", new String[]{packageName}, envVariables, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath.toString());
+        balClient.runMain("push", new String[]{moduleName}, envVariables, new String[]{},
+                          new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(5000);
     }
 
@@ -103,37 +103,37 @@ public class PackagingTestCase extends BaseTest {
             dependsOnMethods = "testPush")
     public void testInstall() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
 
         balClient.runMain("install", clientArgs, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
 
-        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
-        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip")));
     }
 
     @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
     public void testPull() throws Exception {
         Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
-                                 orgName, packageName, "0.0.1");
+                                 orgName, moduleName, "0.0.1");
 
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                .with().pollDelay(Duration.FIVE_SECONDS)
                .await().atMost(60, SECONDS).until(() -> {
-            String[] clientArgs = {orgName + "/" + packageName + ":0.0.1"};
+            String[] clientArgs = {orgName + "/" + moduleName + ":0.0.1"};
             balClient.runMain("pull", clientArgs, envVariables, new String[]{},
                     new LogLeecher[]{}, balServer.getServerHome());
-            return Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip"));
+            return Files.exists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip"));
         });
 
-        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip")));
     }
 
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
     public void testSearch() throws BallerinaTestException, IOException {
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
         String msg = "Ballerina Central\n" +
                 "=================\n" +
                 "\n" +
@@ -141,7 +141,7 @@ public class PackagingTestCase extends BaseTest {
                 "                                       | AUTHOR         | DATE           | VERSION |\n" +
                 "|------------------------------------------------------| -------------------------------------------" +
                 "---------------------------------------| ---------------| ---------------| --------|\n" +
-                "|" + orgName + "/" + packageName + "                             | Prints \"hello world\" to " +
+                "|" + orgName + "/" + moduleName + "                             | Prints \"hello world\" to " +
                 "command line output" +
                 "                                       |                | " + datePushed + " | 0.0.1   |\n";
 
@@ -158,8 +158,8 @@ public class PackagingTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("pushAllPackageTest");
         Files.createDirectories(projectPath);
 
-        String firstPackage = "firstTestPkg" + PackagingTestUtils.randomPackageName(10);
-        String secondPackage = "secondTestPkg" + PackagingTestUtils.randomPackageName(10);
+        String firstPackage = "firstTestPkg" + PackagingTestUtils.randomModuleName(10);
+        String secondPackage = "secondTestPkg" + PackagingTestUtils.randomModuleName(10);
 
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", firstPackage + "\n", "m\n", secondPackage + "\n", "f\n"};
@@ -186,7 +186,7 @@ public class PackagingTestCase extends BaseTest {
     @Test(description = "Test uninstalling a package from the home repository which was installed locally",
             dependsOnMethods = "testInstall")
     public void testUninstallFromHomeRepo() throws Exception {
-        String fullPkgPath = orgName + "/" + packageName + ":0.0.1";
+        String fullPkgPath = orgName + "/" + moduleName + ":0.0.1";
         String[] clientArgs = {fullPkgPath};
 
         LogLeecher clientLeecher = new LogLeecher(fullPkgPath + " successfully uninstalled");
@@ -194,15 +194,15 @@ public class PackagingTestCase extends BaseTest {
                           tempProjectDirectory.toString());
         clientLeecher.waitForText(2000);
 
-        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
-        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, moduleName, "0.0.1");
+        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip")));
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
     }
 
     @Test(description = "Test uninstalling a package from the home repository which was pulled from central",
             dependsOnMethods = { "testPull" , "testUninstallFromHomeRepo" })
     public void testUninstallFromCaches() throws Exception {
-        String fullPkgPath = orgName + "/" + packageName + ":0.0.1";
+        String fullPkgPath = orgName + "/" + moduleName + ":0.0.1";
         String[] clientArgs = {fullPkgPath};
 
         LogLeecher clientLeecher = new LogLeecher(fullPkgPath + " successfully uninstalled");
@@ -211,8 +211,8 @@ public class PackagingTestCase extends BaseTest {
         clientLeecher.waitForText(2000);
 
         Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
-                                 ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, orgName, packageName, "0.0.1");
-        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+                                 ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, orgName, moduleName, "0.0.1");
+        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip")));
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
     }
     /**

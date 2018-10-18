@@ -71,7 +71,7 @@ import ballerina/reflect;
 @final string SHA256 = "SHA256";
 
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
-@final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
+@final string WEBSUB_MODULE_NAME = "ballerina/websub";
 
 
 # The identifier to be used to identify the mode in which update content should be identified.
@@ -552,7 +552,7 @@ type SubscriptionDetails record {
 function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
-        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.pkgName == WEBSUB_PACKAGE_NAME) {
+        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
             SubscriberServiceConfiguration subscriberServiceAnnotation =
                                                             check <SubscriberServiceConfiguration> (annData.value);
             return subscriberServiceAnnotation;

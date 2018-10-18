@@ -47,9 +47,13 @@ public class LockFileProcessor {
      * Get an instance of the LockFileProcessor.
      *
      * @param context compiler context
+     * @param lockEnabled if lock is enabled or not
      * @return instance of LockFileProcessor
      */
-    public static LockFileProcessor getInstance(CompilerContext context) {
+    public static LockFileProcessor getInstance(CompilerContext context, boolean lockEnabled) {
+        if (!lockEnabled) {
+            return new LockFileProcessor(new LockFile());
+        }
         LockFileProcessor lockFileProcessor = context.get(LOCK_FILE_PROC_KEY);
         if (lockFileProcessor == null) {
             SourceDirectory sourceDirectory = context.get(SourceDirectory.class);

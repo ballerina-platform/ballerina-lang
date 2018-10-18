@@ -1,0 +1,3 @@
+// Ballerina program files have the `.bal` extension and the file names do not have semantics.
+// These source files can be grouped into modules. The code within a module can refer to any module-level symbol (name) declared
+// in the same module.
