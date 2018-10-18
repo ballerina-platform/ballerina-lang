@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ConditionalStatementItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -50,7 +51,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
-        if (isInvocationOrFieldAccess(completionContext)) {
+        if (isInvocationOrInteractionOrFieldAccess(completionContext)) {
             itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(completionContext);
         } else {
             List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
@@ -77,17 +78,17 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
 
     private void populateTrueFalseKeywords(List<CompletionItem> completionItems) {
         CompletionItem trueItem = new CompletionItem();
-        CompletionItem falseItem = new CompletionItem();
-
         trueItem.setLabel(ItemResolverConstants.TRUE_KEYWORD);
         trueItem.setInsertText(ItemResolverConstants.TRUE_KEYWORD);
         trueItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        trueItem.setKind(CompletionItemKind.Keyword);
+        completionItems.add(trueItem);
 
+        CompletionItem falseItem = new CompletionItem();
         falseItem.setLabel(ItemResolverConstants.FALSE_KEYWORD);
         falseItem.setInsertText(ItemResolverConstants.FALSE_KEYWORD);
         falseItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-
-        completionItems.add(trueItem);
+        trueItem.setKind(CompletionItemKind.Keyword);
         completionItems.add(falseItem);
     }
 }

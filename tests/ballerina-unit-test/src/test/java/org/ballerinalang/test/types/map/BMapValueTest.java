@@ -176,7 +176,7 @@ public class BMapValueTest {
     @Test(description = "Testing map value access in variableDefStmt")
     void testInvalidGrammar1() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-1-negative.bal");
-        Assert.assertTrue(compileResult.getDiagnostics().length == 1);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
                             "incompatible types: expected 'string', found 'any'");
     }
@@ -184,7 +184,7 @@ public class BMapValueTest {
     @Test(description = "Testing map value access in assignStmt")
     void testInvalidGrammar2() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-2-negative.bal");
-        Assert.assertTrue(compileResult.getDiagnostics().length == 1);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
                             "incompatible types: expected 'string', found 'any'");
     }
@@ -192,7 +192,7 @@ public class BMapValueTest {
     @Test(description = "Testing map value access in binary expression")
     void testInvalidGrammar3() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/map/map-value-validator-3-negative.bal");
-        Assert.assertTrue(compileResult.getDiagnostics().length == 1);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
                             "operator '+' not defined for 'any' and 'int'");
     }

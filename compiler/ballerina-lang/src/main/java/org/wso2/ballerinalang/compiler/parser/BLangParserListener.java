@@ -438,6 +438,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitFiniteType(BallerinaParser.FiniteTypeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endFiniteType(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -535,8 +547,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
+        boolean isOptional = ctx.QUESTION_MARK() != null;
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
-                ctx.annotationAttachment().size(), false);
+                                         ctx.annotationAttachment().size(), false, isOptional);
     }
 
     /**
@@ -1072,7 +1085,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (KEYWORD_PUBLIC.equals(ctx.getChild(0).getText())) {
-            this.pkgBuilder.markLastEndpointAsPublic();
+            this.pkgBuilder.markLastEndpointAsPublic(getWS(ctx));
         }
     }
 

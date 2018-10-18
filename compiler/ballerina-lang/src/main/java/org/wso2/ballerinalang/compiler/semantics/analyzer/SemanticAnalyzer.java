@@ -227,10 +227,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.FUNCTION)
+        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
+                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
-        analyzeFunctions(pkgNode.functions, pkgEnv);
+        while (pkgNode.lambdaFunctions.peek() != null) {
+            BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
+            BLangFunction function = lambdaFunction.function;
+            lambdaFunction.type = function.symbol.type;
+            analyzeDef(lambdaFunction.function, lambdaFunction.cachedEnv);
+        }
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
 
@@ -239,16 +245,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(pkgNode.stopFunction, pkgEnv);
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
-    }
-
-    private void analyzeFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {
-        //reversing the order here to process lambdas last - needed for analysing closures
-        Collections.reverse(functions);
-        //if the isTypeChecked flag is set, then this is a lambda expression which is already analysed and type checked.
-        functions.stream()
-                .filter(func -> !func.isTypeChecked)
-                .forEach(func -> analyzeDef(func, pkgEnv));
-        Collections.reverse(functions);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
@@ -511,6 +507,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (assignNode.isDeclaredWithVar()) {
             handleAssignNodeWithVar(assignNode.pos, assignNode.varRef, assignNode.safeAssignment, assignNode.expr);
             return;
+        }
+
+        if (assignNode.varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            ((BLangIndexBasedAccess) assignNode.varRef).leafNode = true;
         }
 
         // Check each LHS expression.
@@ -798,6 +798,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateDefaultable(BLangRecordTypeNode recordTypeNode) {
         boolean defaultableStatus = true;
         for (BLangVariable field : recordTypeNode.fields) {
+            if (field.flagSet.contains(Flag.OPTIONAL) && field.expr != null) {
+                dlog.error(field.pos, DiagnosticCode.DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS, field.name.value);
+            }
             if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
@@ -1271,20 +1274,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (variableReferenceNode != null) {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
-        if (!isSiddhiRuntimeEnabled && (isGroupByAvailable || isWindowAvailable)) {
-            for (BLangExpression arg : invocationExpr.argExprs) {
-                typeChecker.checkExpr(arg, env);
-                switch (arg.getKind()) {
-                    case NAMED_ARGS_EXPR:
-                        invocationExpr.namedArgs.add(arg);
-                        break;
-                    case REST_ARGS_EXPR:
-                        invocationExpr.restArgs.add(arg);
-                        break;
-                    default:
-                        invocationExpr.requiredArgs.add(arg);
-                        break;
+        if (!isSiddhiRuntimeEnabled) {
+            if ((isGroupByAvailable || isWindowAvailable)) {
+                for (BLangExpression arg : invocationExpr.argExprs) {
+                    typeChecker.checkExpr(arg, env);
+                    switch (arg.getKind()) {
+                        case NAMED_ARGS_EXPR:
+                            invocationExpr.namedArgs.add(arg);
+                            break;
+                        case REST_ARGS_EXPR:
+                            invocationExpr.restArgs.add(arg);
+                            break;
+                        default:
+                            invocationExpr.requiredArgs.add(arg);
+                            break;
+                    }
                 }
+            } else {
+                typeChecker.checkExpr(invocationExpr, env);
             }
         }
     }

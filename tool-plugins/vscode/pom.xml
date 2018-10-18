@@ -56,13 +56,7 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>language-server-stdio-launcher</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer-web</artifactId>
-            <classifier>ballerina-composer-library</classifier>
+            <artifactId>composer-library</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
@@ -81,19 +75,6 @@
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>backup-package-lock</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <executable>node</executable>
-                            <arguments>
-                                <argument>./scripts/npm-preinstall</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm-install</id>
                         <goals>
                             <goal>exec</goal>
@@ -108,16 +89,19 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>replace-package-lock</id>
+                        <id>run tests</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>generate-sources</phase>
+                        <phase>test</phase>
                         <configuration>
-                            <executable>node</executable>
+                            <executable>${npm.executable}</executable>
                             <arguments>
-                                <argument>./scripts/npm-postinstall</argument>
+                                <argument>run</argument>
+                                <argument>test</argument>
                             </arguments>
+                            <skip>${skipTests}</skip>
+                            <skip>${maven.test.skip}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -168,7 +152,6 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.basedir}/server-build" includeemptydirs="true" />
                                 <delete dir="${project.basedir}/target" includeemptydirs="true" />
                             </target>
                         </configuration>
@@ -193,9 +176,9 @@
                         </goals>
                         <configuration>
                             <target name="copy resources">
-                                <mkdir dir="${project.basedir}/resources/diagram" />
-                                <copy todir="${project.basedir}/resources/diagram" overwrite="true" flatten="true">
-                                    <fileset dir="${project.build.directory}/temp">
+                                <mkdir dir="${project.basedir}/resources/composer" />
+                                <copy todir="${project.basedir}/resources/composer" overwrite="true" flatten="true">
+                                    <fileset dir="${project.build.directory}/composer">
                                         <include name="**/*.js" />
                                         <include name="**/*.css" />
                                     </fileset>
@@ -209,26 +192,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <id>copy-server</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>language-server-stdio-launcher</artifactId>
-                                    <version>${ballerina.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/server-build/</outputDirectory>
-                                    <destFileName>language-server-stdio-launcher.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>copy-distribution</id>
                         <phase>generate-resources</phase>
@@ -253,9 +216,8 @@
                         </goals>
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
-                            <includeClassifiers>ballerina-composer-library</includeClassifiers>
-                            <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/temp</outputDirectory>
+                            <includeArtifactIds>composer-library</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/composer</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>

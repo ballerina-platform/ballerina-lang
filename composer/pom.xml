@@ -15,7 +15,6 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -26,71 +25,126 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>composer</artifactId>
+    <artifactId>composer-library</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina - Composer</name>
+    <name>Ballerina - Composer Library</name>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.wso2.msf4j.example</groupId>
-                <artifactId>stockquote-fatjar</artifactId>
-                <version>${msf4j.examples.version}</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-stdio-launcher</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>-Dfile.encoding=UTF-8</argLine>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>node build</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <skip>${skipClientSideBuild}</skip>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build</argument>
+                                <argument>--</argument>
+                                <argument>--skipTest=${maven.test.skip}</argument>
+                                <argument>--projectVersion=${project.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-npm-executable</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- set executable names based on OS family -->
+                                <condition property="npm.executable" value="npm.cmd" else="npm">
+                                    <os family="windows" />
+                                </condition>
+                                <condition property="maven.test.skip" value="${maven.test.skip}" else="false">
+                                    <isset property="maven.test.skip" />
+                                </condition>
+                            </target>
+                            <exportAntProperties>true</exportAntProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>library-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${basedir}/assembly/distribution.xml</descriptor>
+                            </descriptors>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.antlr</groupId>
-                    <artifactId>antlr4-maven-plugin</artifactId>
-                    <version>${antlr.maven.plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>antlr4</goal>
-                            </goals>
-                            <configuration>
-                                <listener>true</listener>
-                                <visitor>false</visitor>
-                                <encoding>${file.encoding}</encoding>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
 
     <properties>
-        <msf4j.examples.version>2.1.0</msf4j.examples.version>
         <antlr.maven.plugin.version>4.5.1</antlr.maven.plugin.version>
         <maven.checkstyleplugin.excludes>**/parser/*,**/${native.constructs.provider.class}.java</maven.checkstyleplugin.excludes>
-
         <!-- Maven plugins -->
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
     </properties>
-
-    <modules>
-        <module>modules/server</module>
-        <module>modules/web</module>
-        <module>modules/integration-tests</module>
-        <module>modules/distribution</module>
-    </modules>
 
 </project>

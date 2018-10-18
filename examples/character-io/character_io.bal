@@ -1,21 +1,8 @@
 import ballerina/io;
 
-
-// This function returns a CharacterChannel from a given file location,
-// according to the permissions and encoding that you specify.
-function getFileCharacterChannel(string filePath, io:Mode permission,
-                                 string encoding) returns io:CharacterChannel {
-    // First, get the ByteChannel representation of the file.
-    io:ByteChannel byteChannel = io:openFile(filePath, permission);
-    // Then, create an instance of the CharacterChannel from the ByteChannel
-    // to read content as text.
-    io:CharacterChannel charChannel = new(byteChannel, encoding);
-    return charChannel;
-}
-
 // This function reads characters from 'charChannel',
-//which is an instance of CharacterChannel.
-function readCharacters(io:CharacterChannel charChannel,
+//which is an instance of ReadableCharacterChannel.
+function readCharacters(io:ReadableCharacterChannel charChannel,
                         int numberOfChars) returns string {
     //This is how the characters are read.
     match charChannel.read(numberOfChars) {
@@ -29,7 +16,7 @@ function readCharacters(io:CharacterChannel charChannel,
 }
 
 // This function wrties characters to 'charChannel'
-function writeCharacters(io:CharacterChannel charChannel, string content,
+function writeCharacters(io:WritableCharacterChannel charChannel, string content,
                          int startOffset) {
     //This is how the characters are written.
     match charChannel.write(content, startOffset) {
@@ -44,8 +31,8 @@ function writeCharacters(io:CharacterChannel charChannel, string content,
 
 // This function reads content from a file,
 // appends the additional string, and writes the content.
-function process(io:CharacterChannel sourceChannel,
-                 io:CharacterChannel destinationChannel) {
+function process(io:ReadableCharacterChannel sourceChannel,
+                 io:WritableCharacterChannel destinationChannel) {
     try {
         // Here is the string that is appended in-between.
         string intermediateCharacterString = " my name is ";
@@ -66,10 +53,10 @@ function process(io:CharacterChannel sourceChannel,
 }
 
 public function main() {
-    var sourceChannel = getFileCharacterChannel("./files/sample.txt",
-                                                io:READ, "UTF-8");
-    var destinationChannel = getFileCharacterChannel("./files/sampleResponse.txt",
-                                                     io:WRITE, "UTF-8");
+    io:ReadableCharacterChannel sourceChannel = new (io:openReadableFile(
+                                                         "./files/sample.txt"), "UTF-8");
+    io:WritableCharacterChannel destinationChannel = new(io:openWritableFile(
+                                                             "./files/sampleResponse.txt"), "UTF-8");
     try {
         io:println("Started to process the file.");
         process(sourceChannel, destinationChannel);

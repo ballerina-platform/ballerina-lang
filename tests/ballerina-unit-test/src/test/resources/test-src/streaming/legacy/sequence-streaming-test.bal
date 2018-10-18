@@ -40,7 +40,9 @@ function deployStreamingRules() {
         tempStream where e2[e2.length-1].temp > temp as e3
         select e1.temp as initialTemp, e2[e2.length-1].temp as peakTemp
         => (TempDiffInfo[] tempDiffInfos) {
-            tempDiffInfoStream.publish(tempDiffInfos);
+            foreach t in tempDiffInfos {
+                tempDiffInfoStream.publish(t);
+            }
         }
     }
 }
