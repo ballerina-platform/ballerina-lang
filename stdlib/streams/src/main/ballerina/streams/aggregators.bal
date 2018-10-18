@@ -17,31 +17,11 @@ import ballerina/reflect;
 import ballerina/crypto;
 import ballerina/math;
 
-public type Aggregator object {
+public type Aggregator abstract object {
 
-    public new() {
+    public function clone() returns Aggregator;
 
-    }
-
-    public function clone() returns Aggregator {
-        Aggregator aggregator = new();
-        return aggregator;
-    }
-
-    public function process(any value, EventType eventType) returns any {
-        match value {
-            int i => {
-                return 0;
-            }
-            float f => {
-                return 0.0;
-            }
-            any a => {
-                error e = { message: "Unsupported attribute type found" };
-                return e;
-            }
-        }
-    }
+    public function process(any value, EventType eventType) returns any;
 };
 
 public type Sum object {
