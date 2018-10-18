@@ -54,16 +54,13 @@ public class TableJSONDataSource implements JSONDataSource {
 
     private JSONObjectGenerator objGen;
 
-    private boolean isInTransaction;
-
-    public TableJSONDataSource(BTable df, boolean isInTransaction) {
-        this(df, new DefaultJSONObjectGenerator(), isInTransaction);
+    public TableJSONDataSource(BTable df) {
+        this(df, new DefaultJSONObjectGenerator());
     }
 
-    private TableJSONDataSource(BTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
+    private TableJSONDataSource(BTable df, JSONObjectGenerator objGen) {
         this.df = df;
         this.objGen = objGen;
-        this.isInTransaction = isInTransaction;
     }
 
     @Override

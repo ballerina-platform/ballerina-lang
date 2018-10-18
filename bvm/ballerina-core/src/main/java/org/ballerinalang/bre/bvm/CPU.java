@@ -2172,7 +2172,7 @@ public class CPU {
                 }
 
                 try {
-                    sf.refRegs[j] = XMLUtils.tableToXML((BTable) bRefType, ctx.isInTransaction());
+                    sf.refRegs[j] = XMLUtils.tableToXML((BTable) bRefType);
                 } catch (Exception e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(ctx, sf, j, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);

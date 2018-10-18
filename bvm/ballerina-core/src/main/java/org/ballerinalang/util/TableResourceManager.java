@@ -36,6 +36,12 @@ public class TableResourceManager {
     private Connection connection;
     private Statement statement;
     private Set<ResultSet> resultSets;
+    // Connection is closable if the table associated with the connection was retrieved through a select operation,
+    // because for select operations a separate db connection is obtained which independent of the connection used for
+    // rest of the operations in case of a transaction.
+    // If the table was retrieved through a call operation the connection will not be closable as the connection is
+    // shared with all the operations inside the transaction except for the select operations. In this case, connection
+    // closure happens through the {@code TransactionResourceManager} at the end of the transaction.
     private boolean connectionClosable;
 
     public TableResourceManager(Connection conn, Statement stmt, boolean connectionClosable) {

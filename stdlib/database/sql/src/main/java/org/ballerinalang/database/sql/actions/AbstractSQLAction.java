@@ -130,9 +130,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             } else {
                 rm.addResultSet(rs);
             }
-            context.setReturnValues(
-                    constructTable(rm, context, rs, structType, columnDefinitions,
-                            datasource.getDatabaseProductName()));
+            context.setReturnValues(constructTable(rm, context, rs, structType, columnDefinitions,
+                    datasource.getDatabaseProductName()));
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupResources(rs, stmt, conn, true);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -945,8 +944,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
             String databaseProductName) throws SQLException {
         List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
-        return constructTable(rm, context, rs, structType, columnDefinitions,
-                databaseProductName);
+        return constructTable(rm, context, rs, structType, columnDefinitions, databaseProductName);
     }
 
     private String getSQLType(BMap<String, BValue> parameter) {
