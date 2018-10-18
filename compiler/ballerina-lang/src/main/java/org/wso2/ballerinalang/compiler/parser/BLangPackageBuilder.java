@@ -23,7 +23,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
@@ -243,8 +242,6 @@ public class BLangPackageBuilder {
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
 
-    private Stack<List<BLangFunction>> objFunctionListStack = new Stack<>();
-
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
 
     private Stack<List<ExpressionNode>> exprNodeListStack = new Stack<>();
@@ -366,7 +363,6 @@ public class BLangPackageBuilder {
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.compilerOptions = CompilerOptions.getInstance(context);
         this.compUnit = compUnit;
     }
@@ -392,6 +388,7 @@ public class BLangPackageBuilder {
         if (rhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             unionTypeNode = (BLangUnionTypeNode) rhsTypeNode;
             unionTypeNode.memberTypeNodes.add(0, lhsTypeNode);
+            unionTypeNode.addWS(ws);
             this.typeNodeStack.push(unionTypeNode);
             return;
         } else {
@@ -441,7 +438,6 @@ public class BLangPackageBuilder {
 
         typeDef.typeNode = recordTypeNode;
         typeDef.pos = pos;
-        typeDef.addWS(ws);
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
@@ -453,18 +449,25 @@ public class BLangPackageBuilder {
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
         this.varListStack.pop().forEach(variableNode -> {
-            variableNode.docTag = DocTag.FIELD;
             recordTypeNode.addField(variableNode);
         });
         return recordTypeNode;
     }
 
     void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                          boolean exprAvailable, int annotCount, boolean isPrivate) {
+                          boolean exprAvailable, int annotCount, boolean isPrivate, boolean isOptional) {
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
 
         if (!isPrivate) {
             field.flagSet.add(Flag.PUBLIC);
+        }
+
+        if (isOptional) {
+            field.flagSet.add(Flag.OPTIONAL);
+        }
+
+        if (exprAvailable) {
+            field.flagSet.add(Flag.DEFAULTABLE);
         }
     }
 
@@ -593,7 +596,7 @@ public class BLangPackageBuilder {
 
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
+            this.varListStack.pop().forEach(v -> functionTypeNode.params.add(v));
         }
 
         functionTypeNode.addWS(ws);
@@ -612,10 +615,6 @@ public class BLangPackageBuilder {
 
     void startVarList() {
         this.varListStack.push(new ArrayList<>());
-    }
-
-    void startObjFunctionList() {
-        this.objFunctionListStack.push(new ArrayList<>());
     }
 
     void startFunctionDef() {
@@ -728,14 +727,10 @@ public class BLangPackageBuilder {
         invNode.setReturnTypeNode(returnTypeNode);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
-                variableNode.docTag = DocTag.PARAM;
-                invNode.addParameter(variableNode);
-            });
+            this.varListStack.pop().forEach(invNode::addParameter);
 
             this.defaultableParamsList.forEach(variableDef -> {
                 BLangVariableDef varDef = (BLangVariableDef) variableDef;
-                varDef.var.docTag = DocTag.PARAM;
                 invNode.addDefaultableParameter(varDef);
             });
             this.defaultableParamsList = new ArrayList<>();
@@ -809,7 +804,8 @@ public class BLangPackageBuilder {
         }
     }
 
-    void markLastEndpointAsPublic() {
+    void markLastEndpointAsPublic(Set<Whitespace> ws) {
+        lastBuiltEndpoint.addWS(ws);
         lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
 
@@ -1296,7 +1292,6 @@ public class BLangPackageBuilder {
 
             IdentifierNode name = createIdentifier(Names.SELF.getValue());
             receiver.setName(name);
-            receiver.docTag = DocTag.RECEIVER;
             receiver.setTypeNode(typeNode);
             function.receiver = receiver;
             function.flagSet.add(Flag.ATTACHED);
@@ -1461,10 +1456,16 @@ public class BLangPackageBuilder {
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
-        var.docTag = DocTag.VARIABLE;
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
+    }
+
+    void startObjectType() {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        typeNodeStack.push(objectTypeNode);
+        startVarList();
+        startFieldBlockList();
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
@@ -1472,13 +1473,6 @@ public class BLangPackageBuilder {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
         objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
-        objFunctionListStack.pop().forEach(f -> {
-            if (f.objInitFunction) {
-                objectTypeNode.initFunction = f;
-            } else {
-                objectTypeNode.functions.add(f);
-            }
-        });
 
         if (isAbstract) {
             objectTypeNode.flagSet.add(Flag.ABSTRACT);
@@ -1497,21 +1491,17 @@ public class BLangPackageBuilder {
 
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
-        typeDef.addWS(ws);
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
     }
 
     private BLangObjectTypeNode populateObjectTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.pop();
         objectTypeNode.pos = pos;
         objectTypeNode.addWS(ws);
         objectTypeNode.isAnonymous = isAnonymous;
-        this.varListStack.pop().forEach(variableNode -> {
-            variableNode.docTag = DocTag.FIELD;
-            objectTypeNode.addField(variableNode);
-        });
+        this.varListStack.pop().forEach(objectTypeNode::addField);
         return objectTypeNode;
     }
 
@@ -1607,14 +1597,10 @@ public class BLangPackageBuilder {
         invNode.addWS(ws);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
-                variableNode.docTag = DocTag.PARAM;
-                invNode.addParameter(variableNode);
-            });
+            this.varListStack.pop().forEach(invNode::addParameter);
 
             this.defaultableParamsList.forEach(variableDef -> {
                 BLangVariableDef varDef = (BLangVariableDef) variableDef;
-                varDef.var.docTag = DocTag.PARAM;
                 invNode.addDefaultableParameter(varDef);
             });
             this.defaultableParamsList = new ArrayList<>();
@@ -1660,8 +1646,7 @@ public class BLangPackageBuilder {
         function.returnTypeNode = nillTypeNode;
 
         function.objInitFunction = true;
-
-        this.objFunctionListStack.peek().add(function);
+        ((BLangObjectTypeNode) this.typeNodeStack.peek()).initFunction = function;
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
@@ -1707,7 +1692,7 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.DEPRECATED);
         }
 
-        this.objFunctionListStack.peek().add(function);
+        ((BLangObjectTypeNode) this.typeNodeStack.peek()).addFunction(function);
     }
 
     void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
@@ -1741,10 +1726,8 @@ public class BLangPackageBuilder {
         IdentifierNode name = createIdentifier(Names.SELF.getValue());
         receiver.setName(name);
 
-        receiver.docTag = DocTag.RECEIVER;
         receiver.setTypeNode(objectType);
 
-        receiver.docTag = DocTag.RECEIVER;
         function.receiver = receiver;
         function.flagSet.add(Flag.ATTACHED);
 
@@ -2392,10 +2375,7 @@ public class BLangPackageBuilder {
                 Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
                 resourceNode.addWS(wsBeforeComma);
             }
-            varListStack.pop().forEach(variableNode -> {
-                variableNode.docTag = DocTag.PARAM;
-                resourceNode.addParameter(variableNode);
-            });
+            varListStack.pop().forEach(resourceNode::addParameter);
         }
 
         // Set the return type node
@@ -3405,5 +3385,12 @@ public class BLangPackageBuilder {
 
     void startOnCompensationBlock() {
         startFunctionDef();
+    }
+
+    public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        TypeNode typeRef = typeNodeStack.pop();
+        typeRef.addWS(ws);
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
+        objectTypeNode.addTypeReference(typeRef);
     }
 }

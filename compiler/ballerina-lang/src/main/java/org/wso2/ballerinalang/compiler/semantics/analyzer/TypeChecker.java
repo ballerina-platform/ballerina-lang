@@ -385,9 +385,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Change the expected type to map,
             expType = symTable.mapType;
         }
-        if (expTypeTag == TypeTags.ANY
-                || (expTypeTag == TypeTags.MAP && recordLiteral.keyValuePairs.isEmpty())
-                || expTypeTag == TypeTags.OBJECT) {
+        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.errType;
             return;
@@ -406,6 +404,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(recordLiteral, actualType, expType);
+
+        // If the record literal is of record type and types are validated for the fields, check if there are any
+        // required fields missing.
+        if (recordLiteral.type.tag == TypeTags.RECORD) {
+            checkMissingRequiredFields((BRecordType) recordLiteral.type, recordLiteral.keyValuePairs,
+                                       recordLiteral.pos);
+        }
     }
 
     private List<BType> getRecordCompatibleType(BType bType, BLangRecordLiteral recordLiteral) {
@@ -447,6 +452,24 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private void checkMissingRequiredFields(BRecordType type, List<BLangRecordKeyValue> keyValuePairs,
+                                            DiagnosticPos pos) {
+        type.fields.forEach(field -> {
+            // Check if `field` is explicitly assigned a value in the record literal
+            boolean hasField = keyValuePairs.stream()
+                    .filter(keyVal -> keyVal.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
+                    .anyMatch(keyVal -> field.name.value
+                            .equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
+
+            // If a required field is missing and it's not defaultable, it's a compile error
+            if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                    (!types.defaultValueExists(pos, field.type) &&
+                            !Symbols.isFlagOn(field.symbol.flags, Flags.DEFAULTABLE))) {
+                dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
+            }
+        });
     }
 
     private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {

@@ -44,6 +44,11 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
     }
 
     @Override
+    public BLangExpression getKeyExpression() {
+        return keyExpr;
+    }
+
+    @Override
     public BLangIdentifier getWorkerName() {
         return workerIdentifier;
     }

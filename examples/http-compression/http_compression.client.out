@@ -1,0 +1,63 @@
+# To invoke the autoCompress Service, use the following curl command.
+# Here the `Accept-Encoding` header is specified as `deflate`.
+$ curl -v --output - http://localhost:9090/autoCompress -H "Accept-Encoding:deflate"
+> GET /autoCompress HTTP/1.1
+> Host: localhost:9090
+> User-Agent: curl/7.58.0
+> Accept: */*
+> Accept-Encoding:deflate
+>
+< HTTP/1.1 200 OK
+< content-type: application/json
+< content-encoding: deflate
+< content-length: 41
+<
+x��V
+* Connection #0 to host localhost left intact
+�,HU�Rr,-�WH��-(J-.���S�����	�
+
+# To invoke the alwaysCompress Service to get the JSON payload, use the following curl command.
+# Here the `Accept-Encoding` header is not specified.
+$ curl -v --output - http://localhost:9090/alwaysCompress/getJson
+> GET /alwaysCompress/getJson HTTP/1.1
+> Host: localhost:9090
+> User-Agent: curl/7.58.0
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< content-type: application/json
+< content-length: 49
+<
+* Connection #0 to host localhost left intact
+{"Type":"Always but constrained by content-type"}
+
+# To invoke the alwaysCompress Service to get the String payload, use the following curl command.
+# Here the `Accept-Encoding` header is not specified.
+$ curl -v --output - http://localhost:9090/alwaysCompress/getString
+> GET /alwaysCompress/getString HTTP/1.1
+> Host: localhost:9090
+> User-Agent: curl/7.58.0
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< content-type: text/plain
+< content-encoding: gzip
+< content-length: 48
+<
+�
+* Connection #0 to host localhost left intact
+�,HU���,V�D�⒢̼t��ʴ��
+
+# To invoke the passthrough Service, use the following curl command.
+$ curl -v --output - http://localhost:9092/passthrough/
+> GET /passthrough/ HTTP/1.1
+> Host: localhost:9092
+> User-Agent: curl/7.58.0
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< content-type: text/plain
+< transfer-encoding: chunked
+<
+* Connection #0 to host localhost left intact
+Backend response was encoded : deflate, gzip

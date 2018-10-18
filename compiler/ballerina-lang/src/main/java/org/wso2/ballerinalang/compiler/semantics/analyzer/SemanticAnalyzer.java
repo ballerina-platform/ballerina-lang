@@ -331,6 +331,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectTypeNode.fields.forEach(field -> analyzeDef(field, env));
         objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
 
+        // Validate the referenced functions that don't have implementations within the function.
+        ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
+                .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
+
         if (objectTypeNode.initFunction == null) {
             return;
         }
@@ -835,6 +839,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateDefaultable(BLangRecordTypeNode recordTypeNode) {
         boolean defaultableStatus = true;
         for (BLangVariable field : recordTypeNode.fields) {
+            if (field.flagSet.contains(Flag.OPTIONAL) && field.expr != null) {
+                dlog.error(field.pos, DiagnosticCode.DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS, field.name.value);
+            }
             if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
@@ -2049,7 +2056,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * Validate functions attached to objects.
      *
      * @param funcNode Function node
-     * @return True if the function is an unimplemented method inside a non-abstract object.
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
@@ -2070,7 +2076,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // If the function is attached to an abstract object, it don't need to have an implementation
+        // If the function is attached to an abstract object, it don't need to have an implementation.
         if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
             if (funcNode.body != null) {
                 dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
@@ -2079,10 +2085,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // There must be an implementation at the outer level, if the function is an interface
+        // There must be an implementation at the outer level, if the function is an interface.
         if (funcNode.interfaceFunction && !env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
                     funcNode.receiver.type);
+        }
+    }
+
+    private void validateReferencedFunction(DiagnosticPos pos, BAttachedFunction func, SymbolEnv env) {
+        if (Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.ABSTRACT)) {
+            return;
+        }
+
+        if (!Symbols.isFlagOn(func.symbol.flags, Flags.INTERFACE)) {
+            return;
+        }
+
+        // There must be an implementation at the outer level, if the function is an interface.
+        if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
+            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
+                    func.symbol.receiverSymbol.type);
         }
     }
 }

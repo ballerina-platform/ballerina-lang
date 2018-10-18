@@ -76,7 +76,7 @@ lambdaFunction
 
 arrowFunction
     :   arrowParam EQUAL_GT expression
-    |   LEFT_PARENTHESIS arrowParam (COMMA arrowParam)* RIGHT_PARENTHESIS EQUAL_GT expression
+    |   LEFT_PARENTHESIS (arrowParam (COMMA arrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT expression
     ;
 
 arrowParam
@@ -94,10 +94,14 @@ typeDefinition
 objectBody
     :   objectMember* objectInitializer? objectMember*
     ;
-
 objectMember
     :   objectFieldDefinition
     |   objectFunctionDefinition
+    |   typeReference
+    ;
+
+typeReference
+    :   MUL simpleTypeName SEMICOLON
     ;
 
 objectInitializer
@@ -113,7 +117,7 @@ objectFieldDefinition
     ;
 
 fieldDefinition
-    :   annotationAttachment* typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition

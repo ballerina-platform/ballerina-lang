@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.types;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.StructureTypeNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -38,11 +39,15 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     public BLangFunction initFunction;
     public boolean isAnonymous;
     public boolean isFieldAnalyseRequired;
-
+    public List<BLangType> typeRefs;
     public BSymbol symbol;
+
+    // This is a cache of the fields referred through the type references
+    public List<BLangVariable> referencedFields;
 
     public BLangStructureTypeNode() {
         this.fields = new ArrayList<>();
+        this.typeRefs = new ArrayList<>();
     }
 
     @Override
@@ -53,6 +58,16 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     @Override
     public void addField(VariableNode field) {
         this.fields.add((BLangVariable) field);
+    }
+
+    @Override
+    public List<? extends TypeNode> getTypeReferences() {
+        return this.typeRefs;
+    }
+
+    @Override
+    public void addTypeReference(TypeNode type) {
+        this.typeRefs.add((BLangType) type);
     }
 
     @Override
