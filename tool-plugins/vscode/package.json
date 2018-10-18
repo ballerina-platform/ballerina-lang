@@ -165,6 +165,8 @@
     "main": "./out/src/extension",
     "scripts": {
         "vscode:prepublish": "npm run compile",
+        "prepublish": "npm run install-local",
+        "install-local": "npm i ../../composer/extended-language-client/pack.tgz --no-save",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
