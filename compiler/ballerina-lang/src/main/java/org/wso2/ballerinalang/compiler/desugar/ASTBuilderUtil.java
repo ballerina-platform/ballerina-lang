@@ -17,7 +17,6 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -619,8 +618,6 @@ public class ASTBuilderUtil {
         receiver.pos = pos;
         IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
         receiver.setName(identifier);
-        receiver.docTag = DocTag.RECEIVER;
-
         receiver.type = type;
         return receiver;
     }
@@ -629,7 +626,6 @@ public class ASTBuilderUtil {
         BVarSymbol dupVarSymbol = new BVarSymbol(varSymbol.flags, varSymbol.name,
                 varSymbol.pkgID, varSymbol.type, varSymbol.owner);
         dupVarSymbol.varIndex = varSymbol.varIndex;
-        dupVarSymbol.docTag = varSymbol.docTag;
         dupVarSymbol.tainted = varSymbol.tainted;
         dupVarSymbol.closure = varSymbol.closure;
         dupVarSymbol.markdownDocumentation = varSymbol.markdownDocumentation;

@@ -23,7 +23,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
@@ -453,7 +452,6 @@ public class BLangPackageBuilder {
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
         this.varListStack.pop().forEach(variableNode -> {
-            variableNode.docTag = DocTag.FIELD;
             recordTypeNode.addField(variableNode);
         });
         return recordTypeNode;
@@ -736,14 +734,10 @@ public class BLangPackageBuilder {
         invNode.setReturnTypeNode(returnTypeNode);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
-                variableNode.docTag = DocTag.PARAM;
-                invNode.addParameter(variableNode);
-            });
+            this.varListStack.pop().forEach(invNode::addParameter);
 
             this.defaultableParamsList.forEach(variableDef -> {
                 BLangVariableDef varDef = (BLangVariableDef) variableDef;
-                varDef.var.docTag = DocTag.PARAM;
                 invNode.addDefaultableParameter(varDef);
             });
             this.defaultableParamsList = new ArrayList<>();
@@ -1305,7 +1299,6 @@ public class BLangPackageBuilder {
 
             IdentifierNode name = createIdentifier(Names.SELF.getValue());
             receiver.setName(name);
-            receiver.docTag = DocTag.RECEIVER;
             receiver.setTypeNode(typeNode);
             function.receiver = receiver;
             function.flagSet.add(Flag.ATTACHED);
@@ -1470,7 +1463,6 @@ public class BLangPackageBuilder {
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
-        var.docTag = DocTag.VARIABLE;
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
@@ -1516,10 +1508,7 @@ public class BLangPackageBuilder {
         objectTypeNode.pos = pos;
         objectTypeNode.addWS(ws);
         objectTypeNode.isAnonymous = isAnonymous;
-        this.varListStack.pop().forEach(variableNode -> {
-            variableNode.docTag = DocTag.FIELD;
-            objectTypeNode.addField(variableNode);
-        });
+        this.varListStack.pop().forEach(objectTypeNode::addField);
         return objectTypeNode;
     }
 
@@ -1615,14 +1604,10 @@ public class BLangPackageBuilder {
         invNode.addWS(ws);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
-                variableNode.docTag = DocTag.PARAM;
-                invNode.addParameter(variableNode);
-            });
+            this.varListStack.pop().forEach(invNode::addParameter);
 
             this.defaultableParamsList.forEach(variableDef -> {
                 BLangVariableDef varDef = (BLangVariableDef) variableDef;
-                varDef.var.docTag = DocTag.PARAM;
                 invNode.addDefaultableParameter(varDef);
             });
             this.defaultableParamsList = new ArrayList<>();
@@ -1749,10 +1734,8 @@ public class BLangPackageBuilder {
         IdentifierNode name = createIdentifier(Names.SELF.getValue());
         receiver.setName(name);
 
-        receiver.docTag = DocTag.RECEIVER;
         receiver.setTypeNode(objectType);
 
-        receiver.docTag = DocTag.RECEIVER;
         function.receiver = receiver;
         function.flagSet.add(Flag.ATTACHED);
 
@@ -2400,10 +2383,7 @@ public class BLangPackageBuilder {
                 Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
                 resourceNode.addWS(wsBeforeComma);
             }
-            varListStack.pop().forEach(variableNode -> {
-                variableNode.docTag = DocTag.PARAM;
-                resourceNode.addParameter(variableNode);
-            });
+            varListStack.pop().forEach(resourceNode::addParameter);
         }
 
         // Set the return type node
