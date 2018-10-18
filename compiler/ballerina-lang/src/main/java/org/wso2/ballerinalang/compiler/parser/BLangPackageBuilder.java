@@ -242,8 +242,6 @@ public class BLangPackageBuilder {
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
 
-    private Stack<List<BLangFunction>> objFunctionListStack = new Stack<>();
-
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
 
     private Stack<List<ExpressionNode>> exprNodeListStack = new Stack<>();
@@ -365,7 +363,6 @@ public class BLangPackageBuilder {
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.compilerOptions = CompilerOptions.getInstance(context);
         this.compUnit = compUnit;
     }
@@ -618,10 +615,6 @@ public class BLangPackageBuilder {
 
     void startVarList() {
         this.varListStack.push(new ArrayList<>());
-    }
-
-    void startObjFunctionList() {
-        this.objFunctionListStack.push(new ArrayList<>());
     }
 
     void startFunctionDef() {
@@ -1468,18 +1461,18 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(var);
     }
 
+    void startObjectType() {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        typeNodeStack.push(objectTypeNode);
+        startVarList();
+        startFieldBlockList();
+    }
+
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
                        boolean isAbstract) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
         objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
-        objFunctionListStack.pop().forEach(f -> {
-            if (f.objInitFunction) {
-                objectTypeNode.initFunction = f;
-            } else {
-                objectTypeNode.functions.add(f);
-            }
-        });
 
         if (isAbstract) {
             objectTypeNode.flagSet.add(Flag.ABSTRACT);
@@ -1504,7 +1497,7 @@ public class BLangPackageBuilder {
     }
 
     private BLangObjectTypeNode populateObjectTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.pop();
         objectTypeNode.pos = pos;
         objectTypeNode.addWS(ws);
         objectTypeNode.isAnonymous = isAnonymous;
@@ -1653,8 +1646,7 @@ public class BLangPackageBuilder {
         function.returnTypeNode = nillTypeNode;
 
         function.objInitFunction = true;
-
-        this.objFunctionListStack.peek().add(function);
+        ((BLangObjectTypeNode) this.typeNodeStack.peek()).initFunction = function;
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
@@ -1700,7 +1692,7 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.DEPRECATED);
         }
 
-        this.objFunctionListStack.peek().add(function);
+        ((BLangObjectTypeNode) this.typeNodeStack.peek()).addFunction(function);
     }
 
     void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
@@ -3393,5 +3385,12 @@ public class BLangPackageBuilder {
 
     void startOnCompensationBlock() {
         startFunctionDef();
+    }
+
+    public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        TypeNode typeRef = typeNodeStack.pop();
+        typeRef.addWS(ws);
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
+        objectTypeNode.addTypeReference(typeRef);
     }
 }

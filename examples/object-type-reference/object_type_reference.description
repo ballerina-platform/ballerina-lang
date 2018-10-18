@@ -1,0 +1,4 @@
+// Object type references provide a way to copy the members from an abstract 
+// object into another object. It is equivalent to specifying the members 
+// explicitly within the new object, thus eliminates redundancy. An object can have
+// zero or more type references, and may have chained references as well.
