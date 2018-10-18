@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -41,19 +40,11 @@ public class ResourceContextResolver extends AbstractItemResolver {
         if (parserRuleContext == null) {
             boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                     .getSnippetSupport();
-            CompletionItem workerItem = new CompletionItem();
-            workerItem.setLabel(ItemResolverConstants.WORKER);
-            Snippet.DEF_WORKER.getBlock().populateCompletionItem(workerItem, snippetCapability);
-            workerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            
-            CompletionItem endpointItem = new CompletionItem();
-            endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-            Snippet.DEF_ENDPOINT.getBlock().populateCompletionItem(endpointItem, snippetCapability);
-            endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            
-            completionItems.add(workerItem);
-            completionItems.add(endpointItem);
-            
+            CompletionItem worker = Snippet.DEF_WORKER.get().build(new CompletionItem(), snippetCapability);
+            CompletionItem endpoint = Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), snippetCapability);
+            completionItems.add(worker);
+            completionItems.add(endpoint);
+
             return completionItems;
         }
         AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());

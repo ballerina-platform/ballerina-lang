@@ -1,0 +1,7 @@
+# To run the service, put the code in a `http_compression.bal` file
+# and execute the following command from `$BALLERINA_HOME/bin`.
+$ ballerina run http_compression.bal
+# Service deployment:
+Initiating service(s) in 'http_compression.bal'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9092
+ballerina: started HTTP/WS endpoint 0.0.0.0:9090

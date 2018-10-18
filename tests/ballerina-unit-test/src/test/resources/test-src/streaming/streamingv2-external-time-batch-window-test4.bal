@@ -60,7 +60,14 @@ function startExternalTimeBatchwindowTest4() returns (TeacherOutput[]) {
         runtime:sleep(450);
     }
 
-    runtime:sleep(3000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+            break;
+        }
+    }
     io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }

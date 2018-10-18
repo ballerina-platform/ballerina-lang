@@ -49,7 +49,7 @@ public type Select object {
                         int i = 0;
                         foreach aggregator in aggregatorArr {
                             aggregatorsClone[i] = aggregator.clone();
-                            i++;
+                            i += 1;
                         }
                         aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                     }

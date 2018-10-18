@@ -17,43 +17,20 @@
  * under the License.
  *
  */
-import {
-	ExtensionContext, debug,
-	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult
-} from 'vscode';
-import { } from 'vscode-debugadapter';
-import { BallerinaPluginConfig, getPluginConfig } from './config';
-import { activate as activateRenderer } from './renderer';
-import { activate as activateSamples } from './examples';
-import BallerinaExtension from './core/ballerina-extension';
-
-const debugConfigResolver: DebugConfigurationProvider = {
-	resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
-		: ProviderResult<DebugConfiguration> {
-		if (!config['ballerina.home']) {
-			// If ballerina.home is not defined in in debug config get it from workspace configs
-			const workspaceConfig: BallerinaPluginConfig = getPluginConfig();
-			if (workspaceConfig.home) {
-				config['ballerina.home'] = workspaceConfig.home;
-			} else {
-				config['ballerina.home'] = BallerinaExtension.getBallerinaHome();
-			}
-		}
-		return config;
-	}
-};
+import { ExtensionContext } from 'vscode';
+import { activate as activateDiagram } from './diagram'; 
+import { activate as activateBBE } from './bbe';
+import { ballerinaExtInstance } from './core';
+import { activateDebugConfigProvider } from './debugger';
 
 export function activate(context: ExtensionContext): void {
-
-	BallerinaExtension.setContext(context);
-	BallerinaExtension.init();
+	ballerinaExtInstance.setContext(context);
+	ballerinaExtInstance.init();
 	// start the features.
-	activateRenderer(context, BallerinaExtension.langClient!);
-	activateSamples(context, BallerinaExtension.langClient!);
-
-	/*if (!config.debugLog) {
-		clientOptions.outputChannel = dropOutputChannel;
-	}*/
-
-	context.subscriptions.push(debug.registerDebugConfigurationProvider('ballerina', debugConfigResolver));
+	// Enable Ballerina diagram
+	activateDiagram(ballerinaExtInstance);
+	// Enable Ballerina by examples
+	activateBBE(ballerinaExtInstance);
+	// Enable Ballerina Debug Config Provider
+	activateDebugConfigProvider(ballerinaExtInstance);
 }

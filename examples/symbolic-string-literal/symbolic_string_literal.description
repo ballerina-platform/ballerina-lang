@@ -1,0 +1,9 @@
+// A symbolic-string-literal 'foo is equivalent to a double-quoted-string-literal "foo".
+// This form of string literal is convenient when strings are used to represent an enumeration.
+// The characters followed by the " ' " in the symbolic string literal should start with a
+// character in the range of  "A .. Z"  or "a .. z"  or with"_ ". The subsequent characters
+// can have a combination of digits and characters ranging from "A .. Z"  and "a .. z".
+// The following characters are not allowed: ascii characters ranging from := 0x0 .. 0x7F,
+// unicode characters of category "Private Use" ranging from: 0xE000 .. 0xF8FF, 0xF0000 ..
+// 0xFFFFD and 0x100000 .. 0x10FFFD, unicode whitespace characters : 0x200E, 0x200F, 0x2028
+// and 0x2029 and unicode characters with property Pattern_Syntax=True

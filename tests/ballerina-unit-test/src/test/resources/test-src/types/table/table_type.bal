@@ -1193,7 +1193,7 @@ function testComplexTypeInsertAndRetrieval(string jdbcUrl, string userName, stri
             () => blobType = "nil";
         }
         str = str + result.ROW_ID + "|" + blobType + "|" + (result.CLOB_TYPE but { () => "nil" }) + "|";
-        i++;
+        i += 1;
     }
     testDB.stop();
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected);
@@ -1421,7 +1421,7 @@ function testToJsonAndIterate(string jdbcUrl, string userName, string password) 
         int i = 0;
         foreach row in result {
             j[i] = row;
-            i++;
+            i += 1;
         }
 
         return (j, lengthof j);

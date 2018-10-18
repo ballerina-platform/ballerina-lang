@@ -11,7 +11,7 @@ int counter = 0;
 }
 public function mockPrint(any... s) {
     outputs[counter] = s[0];
-    counter++;
+    counter += 1;
 }
 
 @test:Config

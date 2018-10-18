@@ -101,9 +101,15 @@ public class BObjectTypeSymbolDAO extends AbstractDAO<BObjectTypeSymbolDTO> {
      *
      * @param id Entry ID to retrieve
      * @return {@link BObjectTypeSymbolDTO}    Retrieved entry
+     * @throws LSIndexException Exception while retrieving entry from index
      */
     @Override
-    public BObjectTypeSymbolDTO get(int id) {
+    public BObjectTypeSymbolDTO get(int id) throws LSIndexException {
+        return null;
+    }
+
+    @Override
+    public List<BObjectTypeSymbolDTO> get(BObjectTypeSymbolDTO dto) throws LSIndexException {
         return null;
     }
 
