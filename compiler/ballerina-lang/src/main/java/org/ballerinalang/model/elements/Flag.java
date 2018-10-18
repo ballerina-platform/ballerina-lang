@@ -92,6 +92,10 @@ public enum Flag {
      */
     ABSTRACT,
     /**
+     * Indicates that the flagged node is an optional field.
+     */
+    OPTIONAL,
+    /**
      * Indicates Flagged node is a compile time constant.
      */
     CONST

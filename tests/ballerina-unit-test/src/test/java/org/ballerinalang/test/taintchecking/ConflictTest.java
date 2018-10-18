@@ -35,14 +35,14 @@ public class ConflictTest {
     @Test
     public void testRecursion() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/recursion.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testRecursionWithinAttachedExternalFunctions() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/recursions/recursion-within-attached-external-function.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     // Test cyclic function invocations.
@@ -50,6 +50,6 @@ public class ConflictTest {
     @Test
     public void testCyclicCall() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/cyclic-call.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 }

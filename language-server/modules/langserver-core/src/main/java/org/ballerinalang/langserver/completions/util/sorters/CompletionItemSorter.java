@@ -47,11 +47,7 @@ public abstract class CompletionItemSorter {
     }
 
     CompletionItem getEndpointSnippet(boolean snippetCapability) {
-        CompletionItem endpointItem = new CompletionItem();
-        Snippet.DEF_ENDPOINT.getBlock().populateCompletionItem(endpointItem, snippetCapability);
-        endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-        endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        return endpointItem;
+        return Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), snippetCapability);
     }
 
     /**
