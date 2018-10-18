@@ -345,8 +345,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Remove no type from the members.
                 symbolType.memberTypes.remove(symTable.noType);
                 // Get the member type nodes from the type node and iterate through them.
-                List<BLangType> memberTypeNodes =
-                        ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
+                List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     // Resolve the type node.
                     BType type = symResolver.resolveTypeNode(memberTypeNode, env);

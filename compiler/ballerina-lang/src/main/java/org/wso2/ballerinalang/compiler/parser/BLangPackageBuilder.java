@@ -1443,9 +1443,7 @@ public class BLangPackageBuilder {
         return generateBasicVarNode(pos, ws, identifier, isExpressionAvailable, true);
     }
 
-    private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
-                                                         Set<Whitespace> ws,
-                                                         String identifier,
+    private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                                          boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
@@ -2721,11 +2719,8 @@ public class BLangPackageBuilder {
         return null;
     }
 
-    private BLangUserDefinedType createUserDefinedType(DiagnosticPos pos,
-                                                       Set<Whitespace> ws,
-                                                       BLangIdentifier pkgAlias,
-                                                       BLangIdentifier name,
-                                                       boolean resolveToConstants,
+    private BLangUserDefinedType createUserDefinedType(DiagnosticPos pos, Set<Whitespace> ws, BLangIdentifier pkgAlias,
+                                                       BLangIdentifier name, boolean resolveToConstants,
                                                        boolean resolveToAnonRecords) {
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedType.pos = pos;

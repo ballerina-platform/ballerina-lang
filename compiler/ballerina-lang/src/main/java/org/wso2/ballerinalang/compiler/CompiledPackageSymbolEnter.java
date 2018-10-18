@@ -867,10 +867,8 @@ public class CompiledPackageSymbolEnter {
         if (!attrDataMap.containsKey(Kind.DEFAULT_VALUE_ATTRIBUTE)) {
             return;
         }
-
         byte[] defaultValueBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
         DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(defaultValueBytes));
-
         symbol.defaultValue = getDefaultValue(documentDataStream);
     }
 

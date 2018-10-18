@@ -793,21 +793,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(userDefinedTypeNode.pos, VARIABLES_CANNOT_BE_USED_IN_TYPE_DESCRIPTOR, symbol.name.value);
                 return;
             }
-            //            BLangLiteral defaultValue = (BLangLiteral)((BVarSymbol) symbol).defaultValue;
-            //            defaultValue.type = symTable.getTypeFromTag(defaultValue.typeTag);
-            //
-            //            BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-            //                    Flags.asMask(userDefinedTypeNode.flagSet), names.fromString(defaultValue.value
-            // .toString()),
-            //                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
-            //            BFiniteType finiteType = new BFiniteType(typeSymbol);
-            //
-            //            Set<BLangExpression > valueSpace =  new LinkedHashSet<>();
-            //            valueSpace.add(defaultValue);
-            //
-            //           finiteType.valueSpace = valueSpace;
-            //
-            //            symbol.type = finiteType;
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
