@@ -294,7 +294,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     if (version >= this.version) {
       val document = editor.getDocument
       if (document.isWritable) {
-        () => {
+        () => { computableWriteAction(() => {
           edits.foreach(edit => {
             val text = edit.getNewText
             val range = edit.getRange
@@ -309,6 +309,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
             }
           })
           saveDocument()
+        })
         }
       } else {
         LOG.warn("Document is not writable")
@@ -517,7 +518,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     pool(() => {
       if (!editor.isDisposed) {
         invokeLater(() => {
-          diagnosticsHighlights.foreach(highlight => editor.getMarkupModel.removeHighlighter(highlight.rangeHighlighter))
+          editor.getMarkupModel.removeAllHighlighters()
           diagnosticsHighlights.clear()
         })
         for (diagnostic <- diagnostics) {
@@ -541,10 +542,8 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
           }
           invokeLater(() => {
             if (!editor.isDisposed) {
-              diagnosticsHighlights
-                .add(DiagnosticRangeHighlighter(markupModel.addRangeHighlighter(start, end, layer,
-                  new TextAttributes(colorScheme.getDefaultForeground, colorScheme.getDefaultBackground, effectColor, effectType, Font.PLAIN), HighlighterTargetArea.EXACT_RANGE),
-                  diagnostic))
+              diagnosticsHighlights.add(DiagnosticRangeHighlighter(markupModel.addRangeHighlighter(start, end, layer,
+                new TextAttributes(colorScheme.getDefaultForeground, colorScheme.getDefaultBackground, effectColor, effectType, Font.PLAIN), HighlighterTargetArea.EXACT_RANGE), diagnostic))
             }
           })
         }
@@ -831,7 +830,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     if (!editor.isDisposed) {
       if (editor != null) {
         val targets = EditorEventManager.forEditor(editor)
-          .map(m => m.references(editor.getCaretModel.getCurrentCaret.getOffset, getOriginalElement = true, close = true)._1)
+          .map(m => m.references(editor.getCaretModel.getCurrentCaret.getOffset, getOriginalElement = includeDefinition, close = true)._1)
           .getOrElse(Seq())
           .map(r => new PsiElement2UsageTargetAdapter(r))
 
@@ -839,13 +838,17 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
           val elem = ut.getElement
           new UsageInfo(elem, -1, -1, false)
         })
-        val presentation = createPresentation(targets.head.getElement, new FindUsagesOptions(editor.getProject), toOpenInNewTab = false)
-        new UsageViewManagerImpl(editor.getProject).showUsages(Array(targets.head), usageInfo.map(ui => new UsageInfo2UsageAdapter(ui)).toArray, presentation)
+        if (targets.nonEmpty) {
+          invokeLater(() => {
+            val presentation = createPresentation(targets.head.getElement, new FindUsagesOptions(editor.getProject), toOpenInNewTab = false)
+            new UsageViewManagerImpl(editor.getProject).showUsages(Array(targets.head), usageInfo.map(ui => new UsageInfo2UsageAdapter(ui)).toArray, presentation)
+          })
+        }
       }
     }
   }
 
-  def createPresentation(psiElement: PsiElement, options: FindUsagesOptions, toOpenInNewTab: Boolean) = {
+  private def createPresentation(psiElement: PsiElement, options: FindUsagesOptions, toOpenInNewTab: Boolean) = {
     val presentation = new UsageViewPresentation
     val scopeString = options.searchScope.getDisplayName
     presentation.setScopeText(scopeString)
@@ -856,6 +859,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     presentation.setTabName(FindBundle.message("find.usages.of.element.tab.name", usagesString, UsageViewUtil.getShortName(psiElement)))
     presentation.setTargetsNodeText(StringUtil.capitalize(UsageViewUtil.getType(psiElement)))
     presentation.setOpenInNewTab(toOpenInNewTab)
+    presentation.setShowCancelButton(true)
     presentation
   }
 
