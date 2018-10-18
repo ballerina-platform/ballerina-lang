@@ -197,9 +197,9 @@ public class CommandExecutor {
                 remainingTextToReplace = fileContent;
             }
 
-            String editText = (pos != null ? "\r\n" : "") + "import " + pkgName + ";"
-                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
-                    + remainingTextToReplace;
+            String editText = (pos != null ? CommonUtil.LINE_SEPARATOR : "") + "import " + pkgName + ";"
+                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r")
+                    ? "" : CommonUtil.LINE_SEPARATOR) + remainingTextToReplace;
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
 
             return applySingleTextEdit(editText, range, textDocumentIdentifier,
