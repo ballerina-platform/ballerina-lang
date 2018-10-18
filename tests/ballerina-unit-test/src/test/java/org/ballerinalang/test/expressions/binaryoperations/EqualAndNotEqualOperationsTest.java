@@ -724,7 +724,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equal expression with errors")
     public void testEqualStmtNegativeCase() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 18);
+        Assert.assertEquals(resultNegative.getErrorCount(), 20);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '!=' not defined for 'int' and 'string'", 20, 24);
         validateError(resultNegative, 2, "operator '==' not defined for 'int[2]' and 'string[2]'", 26, 21);
@@ -749,6 +749,10 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, 15, "operator '!=' not defined for 'Employee' and 'Person'", 62, 24);
         validateError(resultNegative, 16, "operator '==' not defined for '(string,int)' and 'json'", 72, 21);
         validateError(resultNegative, 17, "operator '!=' not defined for '(string,int)' and 'json'", 72, 31);
+        validateError(resultNegative, 18, "operator '==' not defined for 'Employee|(string,int)' and 'json'", 76,
+                      21);
+        validateError(resultNegative, 19, "operator '!=' not defined for 'Employee|(string,int)' and 'json'", 76,
+                      31);
     }
 
     @DataProvider(name = "equalIntValues")

@@ -71,7 +71,11 @@ function checkEqualityWithJsonForIncompatibleType() returns boolean {
     json j = "Hi 1";
     boolean bool2 = t == j && t != j;
 
-    return bool2;
+    Employee|(string, int) e = ("Hi", 1);
+    j = "Hi 1";
+    boolean bool3 = e == j && e != j;
+
+    return bool2 && bool3;
 }
 
 type Employee record {

@@ -729,7 +729,12 @@ function testPrimitiveAndJsonEqualityPositive() returns boolean {
     json[] f = [1.5, 4.23, 2.1];
     (map|float)[] g = [1.5, 4.23, 2.1];
 
-    return equals && (f == g) && !(f != g);
+    equals = equals && (f == g) && !(f != g);
+
+    OpenEmployee? h = ();
+    a = ();
+
+    return equals && (a == h) && !(a != h);
 }
 
 function testPrimitiveAndJsonEqualityNegative() returns boolean {
@@ -756,7 +761,12 @@ function testPrimitiveAndJsonEqualityNegative() returns boolean {
     json[] f = [1.5, 4.23, 2.1];
     (map|int|float)[] g = [1, 4];
 
-    return equals || (f == g) || !(f != g);
+    equals = equals || (f == g) || !(f != g);
+
+    OpenEmployee? h = ();
+    a = 10;
+
+    return equals || (a == h) || !(a != h);
 }
 
 function testSimpleXmlPositive() returns boolean {

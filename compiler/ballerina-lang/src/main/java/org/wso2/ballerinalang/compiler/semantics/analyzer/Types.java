@@ -1530,6 +1530,7 @@ public class Types {
                 case TypeTags.STRING:
                 case TypeTags.FLOAT:
                 case TypeTags.BOOLEAN:
+                case TypeTags.NIL:
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.JSON) {
                             matchFound = true;
@@ -1540,7 +1541,8 @@ public class Types {
                 case TypeTags.JSON:
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.STRING || rhsMemberType.tag == TypeTags.INT ||
-                                rhsMemberType.tag == TypeTags.FLOAT || rhsMemberType.tag == TypeTags.BOOLEAN) {
+                                rhsMemberType.tag == TypeTags.FLOAT || rhsMemberType.tag == TypeTags.BOOLEAN ||
+                                rhsMemberType.tag == TypeTags.NIL) {
                             matchFound = true;
                             break;
                         }
