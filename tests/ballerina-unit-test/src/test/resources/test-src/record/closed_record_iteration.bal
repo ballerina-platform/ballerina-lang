@@ -48,7 +48,7 @@ function testForeachWithClosedRecords() returns (string[], any[]) {
     foreach f, v in p {
         fields[i] = f;
         values[i] = v;
-        i++;
+        i += 1;
     }
 
     return (fields, values);
@@ -61,7 +61,7 @@ function testForeachWithOpenRecords2() returns any[] {
     int i = 0;
     foreach v in p {
         values[i] = v;
-        i++;
+        i += 1;
     }
 
     return values;

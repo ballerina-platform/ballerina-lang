@@ -76,7 +76,7 @@ public type JoinProcessor object {
                     }
                     foreach evtTuple in candidateEvents {
                         joinedEvents[i] = joinEvents(evtTuple[0], evtTuple[1]);
-                        i++;
+                        i += 1;
                     }
                 } else {
                     match lhsWindow.getCandidateEvents(event, onConditionFunc, isLHSTrigger = false) {
@@ -96,7 +96,7 @@ public type JoinProcessor object {
                     }
                     foreach evtTuple in candidateEvents {
                         joinedEvents[i] = joinEvents(evtTuple[0], evtTuple[1], lhsTriggered = false);
-                        i++;
+                        i += 1;
                     }
                 }
             }
@@ -108,7 +108,7 @@ public type JoinProcessor object {
             match e {
                 StreamEvent s => {
                     outputEvents[i] = s;
-                    i++;
+                    i += 1;
                 }
                 () => {
                 }

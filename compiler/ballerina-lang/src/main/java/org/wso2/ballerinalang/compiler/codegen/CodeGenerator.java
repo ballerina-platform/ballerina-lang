@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -158,7 +159,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.AnnotationInfo;
-import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
@@ -232,7 +232,6 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.LOCAL;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.PACKAGE;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
@@ -1096,8 +1095,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
         Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        BLangLiteral sizeLiteral =
-                generateIntegerLiteralNode(bracedOrTupleExpr, (long) bracedOrTupleExpr.expressions.size());
+        BLangLiteral sizeLiteral = generateIntegerLiteralNode(bracedOrTupleExpr, bracedOrTupleExpr.expressions.size());
 
         emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
 
@@ -1378,8 +1376,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangCompensate compensate) {
         Operand jumpAddr = getOperand(nextIP());
-        // Add child function refs.
-        Stack children = childScopesMap.get(compensate.scopeName.getValue());
+        //Add child function refs
+        Stack<String> children = childScopesMap.get(compensate.scopeName.getValue());
 
         int i = 0;
         // Operands: scopeName, child count, children, NIL return.
@@ -1390,7 +1388,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         operands[i++] = getOperand(children.size());
         while (children != null && !children.isEmpty()) {
-            String childName = (String) children.pop();
+            String childName = children.pop();
             int childNameCP = currentPkgInfo.addCPEntry(new UTF8CPEntry(childName));
             operands[i++] = getOperand(childNameCP);
         }
@@ -1693,6 +1691,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,
                                           LocalVariableAttributeInfo localVarAttrInfo) {
 
+        // Visit the the receiver if this is an attached function
+        if (invokableSymbol.receiverSymbol != null) {
+            visitVarSymbol(invokableSymbol.receiverSymbol, lvIndexes, localVarAttrInfo);
+        }
+
         // TODO Read param and return param annotations
         invokableSymbol.params.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
         invokableSymbol.defaultableParams.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
@@ -1892,31 +1895,47 @@ public class CodeGenerator extends BLangNodeVisitor {
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
 
-    private DefaultValue getDefaultValue(BLangLiteral literalExpr) {
-        String desc = literalExpr.type.getDesc();
-        int typeDescCPIndex = addUTF8CPEntry(currentPkgInfo, desc);
-        DefaultValue defaultValue = new DefaultValue(typeDescCPIndex, desc);
+    private DefaultValue getDefaultValue(Object value) {
+        BType type;
+        if (value == null) {
+            type = symTable.nilType;
+        } else if (value instanceof Long) {
+            type = symTable.intType;
+        } else if (value instanceof Double) {
+            type = symTable.floatType;
+        } else if (value instanceof String) {
+            type = symTable.stringType;
+        } else if (value instanceof Boolean) {
+            type = symTable.booleanType;
+        } else {
+            throw new IllegalStateException();
+        }
 
-        int typeTag = literalExpr.type.tag;
-        switch (typeTag) {
+        return getDefaultValue(value, type);
+    }
+
+    private DefaultValue getDefaultValue(Object value, BType typeOfValue) {
+        int typeDescCPIndex = addUTF8CPEntry(currentPkgInfo, typeOfValue.getDesc());
+        DefaultValue defaultValue = new DefaultValue(typeDescCPIndex, typeOfValue.getDesc());
+        switch (typeOfValue.tag) {
             case TypeTags.INT:
-                defaultValue.intValue = (Long) literalExpr.value;
+                defaultValue.intValue = (Long) value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.intValue));
                 break;
             case TypeTags.BYTE:
-                defaultValue.byteValue = (Byte) literalExpr.value;
+                defaultValue.byteValue = (Byte) value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
-                defaultValue.floatValue = (Double) literalExpr.value;
+                defaultValue.floatValue = (Double) value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(defaultValue.floatValue));
                 break;
             case TypeTags.STRING:
-                defaultValue.stringValue = (String) literalExpr.value;
+                defaultValue.stringValue = (String) value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(defaultValue.stringValue));
                 break;
             case TypeTags.BOOLEAN:
-                defaultValue.booleanValue = (Boolean) literalExpr.value;
+                defaultValue.booleanValue = (Boolean) value;
                 break;
             case TypeTags.NIL:
                 break;
@@ -1925,6 +1944,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         return defaultValue;
+    }
+
+    private DefaultValue getDefaultValue(BLangLiteral literalExpr) {
+        return getDefaultValue(literalExpr.value, literalExpr.type);
     }
 
     private DefaultValueAttributeInfo getDefaultValueAttributeInfo(BLangLiteral literalExpr) {
@@ -2054,21 +2077,41 @@ public class CodeGenerator extends BLangNodeVisitor {
         addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
-        // Create attached function info entries
-        for (BAttachedFunction attachedFunc : objectSymbol.attachedFuncs) {
-            int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
-
-            // Remove the first type. The first type is always the type to which the function is attached to
-            BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
-            int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
-                    generateFunctionSig(paramTypes, attachedFunc.type.retType));
-            int flags = attachedFunc.symbol.flags;
-            objInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+        for (BAttachedFunction attachedFunc : objectSymbol.referencedFunctions) {
+            createAttachedFunctionInfo(attachedFunc.funcName, attachedFunc.symbol, objectSymbol);
         }
 
         //TODO decide what happens to documentations for interface functions and their implementations.
 
         typeDefInfo.typeInfo = objInfo;
+    }
+
+    private void createAttachedFunctionInfo(Name funcName, BInvokableSymbol funcSymbol,
+                                            BObjectTypeSymbol objectSymbol) {
+        // Add function name as an UTFCPEntry to the constant pool
+        int funcNameCPIndex = this.addUTF8CPEntry(currentPkgInfo, funcName.getValue());
+
+        FunctionInfo funcInfo = new FunctionInfo(currentPackageRefCPIndex, funcNameCPIndex);
+        BInvokableType funcType = (BInvokableType) funcSymbol.type;
+        funcInfo.paramTypes = funcType.paramTypes.toArray(new BType[0]);
+        populateInvokableSignature(funcType, funcInfo);
+
+        funcInfo.flags = funcSymbol.flags;
+        funcInfo.attachedToTypeCPIndex = getTypeCPIndex(objectSymbol.type).value;
+
+        // Add local var attributes. This will not be added automatically since this attached
+        // function doesn't have a body, and wont get visited in the normal flow.
+        int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
+        LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
+        visitInvokableNodeParams(funcSymbol, funcInfo, localVarAttributeInfo);
+
+        // Add parameter default value info
+        addParameterAttributeInfo(funcSymbol, funcInfo);
+
+        // Add documentation attributes
+        addDocAttachmentAttrInfo(funcSymbol.markdownDocumentation, funcInfo);
+
+        this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
 
     private void createRecordTypeTypeDef(BLangTypeDefinition typeDefinition,
@@ -2116,19 +2159,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
-
-        // ----- TODO remove below block once record init function removed ------------
-        BAttachedFunction attachedFunc = recordSymbol.initializerFunc;
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
-
-        // Remove the first type. The first type is always the type to which the function is attached to
-        BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
-        int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
-                generateFunctionSig(paramTypes, attachedFunc.type.retType));
-        int flags = attachedFunc.symbol.flags;
-        recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
-        // ------------- end of temp block--------------
-
         typeDefInfo.typeInfo = recordInfo;
     }
 
@@ -2174,7 +2204,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.addWorkerInfoEntries(funcInfo, funcNode.getWorkers());
 
         // Add parameter default value info
-        addParameterAttributeInfo(funcNode, funcInfo);
+        addParameterAttributeInfo(funcSymbol, funcInfo);
 
         // Add documentation attributes
         addDocAttachmentAttrInfo(funcNode.symbol.markdownDocumentation, funcInfo);
@@ -3628,30 +3658,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         attrInfoPool.addAttributeInfo(AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE, docAttributeInfo);
     }
 
-    private void addParameterAttributeInfo(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
+    private void addParameterAttributeInfo(BInvokableSymbol funcSymbol, CallableUnitInfo callableUnitInfo) {
         // Add required params, defaultable params and rest params counts
         int paramAttrIndex =
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETERS_ATTRIBUTE.value());
         ParameterAttributeInfo paramAttrInfo =
                 new ParameterAttributeInfo(paramAttrIndex);
-        paramAttrInfo.requiredParamsCount = invokableNode.requiredParams.size();
-        paramAttrInfo.defaultableParamsCount = invokableNode.defaultableParams.size();
-        paramAttrInfo.restParamCount = invokableNode.restParam != null ? 1 : 0;
+        paramAttrInfo.requiredParamsCount = funcSymbol.params.size();
+        paramAttrInfo.defaultableParamsCount = funcSymbol.defaultableParams.size();
+        paramAttrInfo.restParamCount = funcSymbol.restParam != null ? 1 : 0;
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE, paramAttrInfo);
 
         // Add parameter default values
-        addParameterDefaultValues(invokableNode, callableUnitInfo);
+        addParameterDefaultValues(funcSymbol, callableUnitInfo);
     }
 
-    private void addParameterDefaultValues(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
+    private void addParameterDefaultValues(BInvokableSymbol funcSymbol, CallableUnitInfo callableUnitInfo) {
         int paramDefaultsAttrNameIndex =
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE.value());
         ParamDefaultValueAttributeInfo paramDefaulValAttrInfo =
                 new ParamDefaultValueAttributeInfo(paramDefaultsAttrNameIndex);
 
         // Only named parameters can have default values.
-        for (BLangVariableDef param : invokableNode.defaultableParams) {
-            DefaultValue defaultVal = getDefaultValue((BLangLiteral) param.var.expr);
+        for (BVarSymbol param : funcSymbol.defaultableParams) {
+            DefaultValue defaultVal = getDefaultValue(param.defaultValue);
             paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
         }
 

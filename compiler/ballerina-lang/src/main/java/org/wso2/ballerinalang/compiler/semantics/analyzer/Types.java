@@ -1321,6 +1321,10 @@ public class Types {
      * @return Flag indicating whether the given type has a default value
      */
     public boolean defaultValueExists(DiagnosticPos pos, BType type) {
+        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEFAULTABLE)) {
+            return true;
+        }
+
         if (typeStack.contains(type)) {
             dlog.error(pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, typeStack);
             return false;
@@ -1338,6 +1342,9 @@ public class Types {
         if ((type.tsymbol.flags & Flags.DEFAULTABLE_CHECKED) == Flags.DEFAULTABLE_CHECKED) {
             result = (type.tsymbol.flags & Flags.DEFAULTABLE) == Flags.DEFAULTABLE;
             typeStack.pop();
+            if (result) {
+                type.tsymbol.flags |= Flags.DEFAULTABLE;
+            }
             return result;
         }
         if (checkDefaultable(pos, type)) {

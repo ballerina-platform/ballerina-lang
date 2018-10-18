@@ -162,7 +162,7 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
                 } else {
                     registry.add(provider.scheme + "-" + i, createAuthHandler(provider));
                 }
-                i++;
+                i += 1;
             }
         }
         () => {
