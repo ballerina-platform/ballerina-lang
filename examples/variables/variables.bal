@@ -20,7 +20,7 @@ public function main() {
     // Access a global variable.
     io:println(total);
 
-    count++;
+    count += 1;
     io:println(count);
 
     // This is a local variable.

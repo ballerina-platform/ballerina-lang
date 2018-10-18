@@ -42,7 +42,7 @@ function testInvalidArgForForeachWithClosedRecords() {
 
     foreach k, val, e in p {
         vals[i] = val;
-        i++;
+        i += 1;
     }
 }
 

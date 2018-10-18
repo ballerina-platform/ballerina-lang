@@ -1153,19 +1153,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addCompoundOperator(getWS(ctx));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addPostIncrementStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.postArithmeticOperator().getText().substring(0, 1));
-    }
-
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
         if (ctx.exception != null) {

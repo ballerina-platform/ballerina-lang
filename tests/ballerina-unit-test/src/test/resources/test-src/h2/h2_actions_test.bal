@@ -31,7 +31,7 @@ function testSelect() returns (int[]) {
             while (dt.hasNext()) {
                 Customer rs = check <Customer>dt.getNext();
                 customerIds[i] = rs.customerId;
-                i++;
+                i += 1;
             }
             return customerIds;
         }
@@ -261,7 +261,7 @@ function selectFunction(h2:Client testDBClient) returns (int[]) {
                 while (dt.hasNext()) {
                     Customer rs = check <Customer>dt.getNext();
                     customerIds[i] = rs.customerId;
-                    i++;
+                    i += 1;
                 }
                 return customerIds;
             }

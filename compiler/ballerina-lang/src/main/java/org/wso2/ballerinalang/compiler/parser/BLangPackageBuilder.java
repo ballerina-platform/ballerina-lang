@@ -173,7 +173,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -1986,18 +1985,6 @@ public class BLangPackageBuilder {
 
     void addCompoundOperator(Set<Whitespace> ws) {
         this.operatorWs.push(ws);
-    }
-
-    void addPostIncrementStatement(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
-        BLangPostIncrement postIncrement =
-                (BLangPostIncrement) TreeBuilder.createPostIncrementNode();
-        postIncrement.setVariable((BLangVariableReference) exprNodeStack.pop());
-        postIncrement.pos = pos;
-        postIncrement.addWS(ws);
-        addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong("1"));
-        postIncrement.increment = (BLangExpression) exprNodeStack.pop();
-        postIncrement.opKind = OperatorKind.valueFrom(operator);
-        addStmtToCurrentBlock(postIncrement);
     }
 
     void addForeachStatement(DiagnosticPos pos, Set<Whitespace> ws) {

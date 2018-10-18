@@ -213,11 +213,6 @@ COMPOUND_LEFT_SHIFT      : '<<=' ;
 COMPOUND_RIGHT_SHIFT     : '>>=' ;
 COMPOUND_LOGICAL_SHIFT   : '>>>=' ;
 
-// Post Arithmetic operators.
-
-INCREMENT      : '++' ;
-DECREMENT      : '--' ;
-
 // Integer Range Operators.
 // CLOSED_RANGE - ELLIPSIS
 HALF_OPEN_RANGE   : '..<' ;
