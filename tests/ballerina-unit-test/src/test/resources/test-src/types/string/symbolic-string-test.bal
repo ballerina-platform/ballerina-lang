@@ -36,10 +36,8 @@ string var1 = 'abcd;
 
 public string var2;
 
-@final
-public string var3 = 'efgh;
+public final string var3 = 'efgh;
 
-@readonly
 public string var4 = 'ijkl;
 
 function contains() returns (boolean) {
