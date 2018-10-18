@@ -326,13 +326,12 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 21);
-        BAssertUtil.validateError(compileResult, i++, "operator '++' cannot be applied to type 'any'", 3, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '--' cannot be applied to type 'any'", 11, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '++' cannot be applied on variable 'getInt()'", 18, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '--' cannot be applied on variable 'getInt()'", 23, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '++' cannot be applied to type 'string'", 33, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '--' cannot be applied to type 'string'", 39, 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 20);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 3, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 11, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 18, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 23, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'string' and 'int'", 39, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'int|error'", 45, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 51, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 57, 5);
