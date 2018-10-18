@@ -102,6 +102,7 @@
                             </arguments>
                             <skip>${skipTests}</skip>
                             <skip>${maven.test.skip}</skip>
+                            <skip>${vscode.test.skip}</skip>
                         </configuration>
                     </execution>
                     <execution>
