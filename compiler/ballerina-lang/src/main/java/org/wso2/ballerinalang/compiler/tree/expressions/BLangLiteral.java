@@ -28,6 +28,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     public int typeTag;
     public Object value;
+    public String orginalValue;
 
     @Override
     public Object getValue() {
@@ -42,6 +43,16 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
     @Override
     public void setValue(Object value) {
         this.value = value;
+    }
+
+    @Override
+    public String getOrginalValue() {
+        return orginalValue;
+    }
+
+    @Override
+    public void setOriginalValue(String originalValue) {
+        this.orginalValue = orginalValue;
     }
 
     @Override

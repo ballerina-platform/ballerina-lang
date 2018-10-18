@@ -1153,19 +1153,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addCompoundOperator(getWS(ctx));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addPostIncrementStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.postArithmeticOperator().getText().substring(0, 1));
-    }
-
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
         if (ctx.exception != null) {
@@ -2182,25 +2169,32 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Object value;
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
         if (integerLiteralContext != null && (value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value, ctx.getText());
         } else if (ctx.floatingPointLiteral() != null) {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)),
+                                                node.getText());
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT,
-                        Double.parseDouble(getHexNodeValue(ctx, node)));
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getHexNodeValue(ctx, node)),
+                                                node.getText());
             }
         } else if ((node = ctx.BooleanLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()));
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()),
+                                            node.getText());
         } else if ((node = ctx.QuotedStringLiteral()) != null) {
             String text = node.getText();
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
         } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "null");
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
+        } else if ((node = ctx.SymbolicStringLiteral()) != null) {
+            String text = node.getText();
+            text = text.substring(1, text.length());
+            text = StringEscapeUtils.unescapeJava(text);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
         }
     }
 

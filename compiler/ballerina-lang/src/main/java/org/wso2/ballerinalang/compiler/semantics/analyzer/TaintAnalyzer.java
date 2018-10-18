@@ -126,7 +126,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -446,13 +445,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         assignNode.expr.accept(this);
         BLangExpression varRefExpr = assignNode.varRef;
         visitAssignment(varRefExpr, this.taintedStatus, assignNode.pos);
-    }
-
-    @Override
-    public void visit(BLangPostIncrement postIncrement) {
-        BLangExpression varRefExpr = postIncrement.varRef;
-        varRefExpr.accept(this);
-        visitAssignment(varRefExpr, this.taintedStatus, postIncrement.pos);
     }
 
     @Override

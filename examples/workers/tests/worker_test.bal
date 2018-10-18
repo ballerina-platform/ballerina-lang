@@ -16,7 +16,7 @@ public function mockPrint(any... s) {
     }
     lock {
         outputs[counter] = outStr;
-        counter++;
+        counter += 1;
     }
 }
 

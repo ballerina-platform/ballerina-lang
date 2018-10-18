@@ -103,7 +103,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -706,12 +705,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(compoundAssignment.expr);
     }
 
-    public void visit(BLangPostIncrement postIncrement) {
-        this.checkStatementExecutionValidity(postIncrement);
-        analyzeExpr(postIncrement.varRef);
-        analyzeExpr(postIncrement.increment);
-    }
-
     public void visit(BLangAssignment assignNode) {
         this.checkStatementExecutionValidity(assignNode);
         analyzeExpr(assignNode.varRef);
@@ -889,8 +882,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY
-                && indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY &&
+                indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
             BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
             BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
             Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage
