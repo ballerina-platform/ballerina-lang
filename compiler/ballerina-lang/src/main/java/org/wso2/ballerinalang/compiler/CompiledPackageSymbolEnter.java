@@ -704,6 +704,7 @@ public class CompiledPackageSymbolEnter {
         varSymbol.varIndex = new RegIndex(memIndex, varType.tag);
         enclScope.define(varSymbol.name, varSymbol);
 
+        // Note - We don't need to check the const flag here since only constants will have default values.
         setDefaultValue(varSymbol, attrDataMap);
     }
 

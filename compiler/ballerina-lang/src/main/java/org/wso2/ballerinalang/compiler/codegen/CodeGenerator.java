@@ -2708,13 +2708,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         BLangExpression lhrExpr = assignNode.varRef;
         BLangExpression rhsExpr = assignNode.expr;
 
-        if (lhrExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BSymbol symbol = ((BLangSimpleVarRef) lhrExpr).symbol;
-            if ((symbol.flags & Flags.CONST) == Flags.CONST) {
-                return;
-            }
-        }
-
         if (assignNode.declaredWithVar) {
             BLangVariableReference varRef = (BLangVariableReference) lhrExpr;
             visitVarSymbol((BVarSymbol) varRef.symbol, lvIndexes, localVarAttrInfo);

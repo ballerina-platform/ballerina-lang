@@ -652,14 +652,6 @@ public class PackageInfoReader {
         }
     }
 
-    //    private void readConstantInfoEntries(PackageInfo packageInfo) throws IOException {
-    //        int constCount = dataInStream.readShort();
-    //        for (int i = 0; i < constCount; i++) {
-    //            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
-    //            packageInfo.addConstantInfo(packageVarInfo.getName(), packageVarInfo);
-    //        }
-    //    }
-
     private void readGlobalVarInfoEntries(PackageInfo packageInfo) throws IOException {
         int globalVarCount = dataInStream.readShort();
         for (int i = 0; i < globalVarCount; i++) {
@@ -677,9 +669,7 @@ public class PackageInfoReader {
         int sigCPIndex = dataInStream.readInt();
         UTF8CPEntry sigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(sigCPIndex);
 
-        // Read and ignore flags
-        dataInStream.readInt();
-
+        int flags = dataInStream.readInt();
         int globalMemIndex = dataInStream.readInt();
 
         BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
@@ -688,6 +678,14 @@ public class PackageInfoReader {
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
+
+        // Add constants to packageInfo's constantInfo map. This is later used to populate values of the constants
+        // directly in the memory without using any instructions.
+        if ((flags & Flags.CONST) == Flags.CONST) {
+            if (packageVarInfo.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE) != null) {
+                packageInfo.addConstantInfo(packageVarInfo.getName(), packageVarInfo);
+            }
+        }
         return packageVarInfo;
     }
 
