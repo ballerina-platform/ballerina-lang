@@ -245,4 +245,16 @@ public class SymbolicStringTest {
         BValue[] returns = BRunUtil.invoke(result, "testUnicode_2");
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
+
+    @Test
+    public void testConcatenation() {
+        BValue[] returns = BRunUtil.invoke(result, "testConcatenation");
+        Assert.assertEquals(returns[0].stringValue(), "helloworld");
+    }
+
+    @Test
+    public void testUnicodeEquality() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnicodeEquality");
+        Assert.assertEquals(returns[0].stringValue(), "true");
+    }
 }

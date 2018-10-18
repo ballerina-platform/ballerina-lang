@@ -258,3 +258,16 @@ function testUnicode_2() returns (boolean) {
     }
     return false;
 }
+
+function testConcatenation() returns (string) {
+    string str = "hello" + 'world;
+    return str;
+}
+
+function testUnicodeEquality() returns (boolean) {
+    string str = 'බැලරිනා;
+    if (str == "බැලරිනා") {
+        return true;
+    }
+    return false;
+}
