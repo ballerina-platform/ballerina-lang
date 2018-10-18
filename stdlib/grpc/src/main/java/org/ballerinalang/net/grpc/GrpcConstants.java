@@ -34,6 +34,11 @@ public class GrpcConstants {
     public static final String ORG_NAME = "ballerina";
     public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = ORG_NAME + ORG_NAME_SEPARATOR + "grpc";
 
+    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/grpc] started HTTPS/WSS endpoint ";
+    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/grpc] started HTTP/WS endpoint ";
+    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/grpc] stopped HTTPS/WSS endpoint ";
+    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/grpc] stopped HTTP/WS endpoint ";
+
     //server side endpoint constants.
     public static final String SERVICE_REGISTRY_BUILDER = "SERVICE_REGISTRY_BUILDER";
     public static final String SERVER_CONNECTOR = "SERVER_CONNECTOR";
@@ -44,6 +49,7 @@ public class GrpcConstants {
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;
     public static final int RESPONSE_MESSAGE_REF_INDEX = 1;
+    public static final String DESCRIPTOR_MAP = "descriptorMap";
     
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";

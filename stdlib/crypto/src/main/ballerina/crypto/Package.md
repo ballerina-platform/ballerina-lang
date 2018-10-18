@@ -18,7 +18,7 @@ The `crc32` function can be used to calculate CRC on input types such as string,
 import ballerina/io;
 import ballerina/crypto;
 
-function main(string... args) {
+public function main(string... args) {
      // The string content to be hashed.
      string input = "Hello Ballerina";
      // The key used for hashing when required.

@@ -54,6 +54,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This class provides util methods when pushing Ballerina packages to central and home repository.
@@ -99,6 +100,18 @@ public class PushUtils {
         }
 
         String orgName = manifest.getName();
+        // Validate the org-name
+        if (!RepoUtils.validateOrg(orgName)) {
+            throw createLauncherException("invalid organization name provided \'" + orgName + "\'. Only " +
+                                          "lowercase alphanumerics and underscores are allowed in an organization " +
+                                          "name and the maximum length is 256 characters");
+        }
+        // Validate the package-name
+        if (!RepoUtils.validatePkg(packageName)) {
+            throw createLauncherException("invalid package name provided \'" + packageName + "\'. Only " +
+                                          "alphanumerics, underscores and periods are allowed in a package name and " +
+                                          "the maximum length is 256 characters");
+        }
         String version = manifest.getVersion();
         String ballerinaVersion = RepoUtils.getBallerinaVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
@@ -141,10 +154,10 @@ public class PushUtils {
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
-            executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
-                             description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                             resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
-                             proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
+            executor.executeFunction("packaging_push/packaging_push.balx", MAIN_FUNCTION_NAME, accessToken,
+                    mdFileContent, description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
+                    resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
+                    proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
 
         } else {
             if (!installToRepo.equals("home")) {
@@ -174,7 +187,7 @@ public class PushUtils {
                                                  "\nAuto update failed. Please visit https://central.ballerina.io");
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.execute("packaging_token_updater/packaging_token_updater.balx", false);
+            executor.executeFunction("packaging_token_updater/packaging_token_updater.balx", MAIN_FUNCTION_NAME);
 
             boolean waitForToken = true;
             while (waitForToken) {

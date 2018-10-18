@@ -36,16 +36,36 @@ import org.testng.annotations.Test;
 public class BallerinaStreamsV2FilterWithVariableTest {
 
     private CompileResult result;
+    private CompileResult resultWithAlias;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-filter-with-variable-test.bal");
+        resultWithAlias = BCompileUtil.
+                compile("test-src/streaming/alias/streamingv2-filter-with-variable-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+
+        Assert.assertEquals(employee0.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 45);
+        Assert.assertEquals(employee1.get("name").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 50);
+    }
+
+    @Test(description = "Test filter streaming query with alias")
+    public void testFilterQueryWithAlias() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startFilterQuery");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 

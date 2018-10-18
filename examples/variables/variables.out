@@ -1,0 +1,8 @@
+# At the command line, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run variables.bal
+99
+1
+false
+
+

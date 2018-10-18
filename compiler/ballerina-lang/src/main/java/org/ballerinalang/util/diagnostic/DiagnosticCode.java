@@ -140,6 +140,8 @@ public enum DiagnosticCode {
     REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("rest.field.not.allowed"),
     OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("open.record.constraint.not.allowed"),
     INVALID_RECORD_REST_DESCRIPTOR("invalid.record.rest.descriptor"),
+    MISSING_REQUIRED_RECORD_FIELD("missing.required.record.field"),
+    DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS("default.values.not.allowed.for.optional.fields"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
@@ -186,6 +188,7 @@ public enum DiagnosticCode {
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
+    DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),

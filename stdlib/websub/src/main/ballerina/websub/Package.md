@@ -136,7 +136,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
 
-function main(string... args) {
+public function main(string... args) {
 
     log:printInfo("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startHub(9191) but {
@@ -175,7 +175,7 @@ endpoint websub:Client websubHubClientEP {
     url: "https://localhost:9191/websub/hub"
 };
 
-function main(string... args) {
+public function main(string... args) {
 
     var registrationResponse = websubHubClientEP->registerTopic("<TOPIC_URL>");
     match (registrationResponse) {
@@ -205,7 +205,7 @@ endpoint websub:Client websubHubClientEP {
     url: "<HUB_URL>"
 };
 
-function main(string... args) {
+public function main(string... args) {
 
     // Send subscription request for a subscriber service.
     websub:SubscriptionChangeRequest subscriptionRequest = { topic: "<TOPIC_URL>", 
@@ -248,7 +248,8 @@ where the values specified via the Config API would override values specified as
 
 | Configuration Key              | Default Value | Description                                                        |
 |--------------------------------| --------------|--------------------------------------------------------------------|
-| b7a.websub.hub.port            | 9292          | The port to start the WebSub Hub Service on                        | 
+| b7a.websub.hub.host            | 0.0.0.0       | The host to start the WebSub Hub Service on                        |
+| b7a.websub.hub.port            | N/A           | The port to start the WebSub Hub Service on                        | 
 | b7a.websub.hub.leasetime       | 86400         | The default lease period, if not specified in a request            |
 | b7a.websub.hub.signaturemethod | "SHA256"      | The signature method to use for authenticated content distribution |
 | b7a.websub.hub.remotepublish   | false         | Whether publishing updates against the topics in the hub could be done by remote publishers via HTTP requests with `hub.mode` set to `publish`  |

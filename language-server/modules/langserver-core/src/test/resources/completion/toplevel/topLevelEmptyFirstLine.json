@@ -20,7 +20,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"main function",
+      "label":"public main function",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"public function main(string... args) {\n\t${1}\n}",
@@ -167,6 +167,12 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"error"
+    },
+    {
+      "label":"error",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"error ${1:name} \u003d { description: \"${2}\" };"
     },
     {
       "label":"json",

@@ -147,10 +147,7 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
         } else {
             boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
             // Fill the bind keyword completion item
-            CompletionItem bindItem = new CompletionItem();
-            Snippet.KW_BIND.getBlock().populateCompletionItem(bindItem, isSnippet);
-            bindItem.setLabel(ItemResolverConstants.BIND);
-            bindItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+            CompletionItem bindItem = Snippet.KW_BIND.get().build(new CompletionItem(), isSnippet);
             completionItems.add(bindItem);
         }
         

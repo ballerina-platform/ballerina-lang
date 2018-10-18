@@ -1,0 +1,6 @@
+$ ballerina run lengthof.bal
+Integer array size: 3
+JSON array size: 2
+Map size: 3
+String size: 23
+XML child elements size: 2

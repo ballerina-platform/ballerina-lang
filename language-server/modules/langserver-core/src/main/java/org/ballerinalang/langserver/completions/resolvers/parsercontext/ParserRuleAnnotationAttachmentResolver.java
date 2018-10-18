@@ -57,7 +57,7 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
                 .entrySet()
                 .forEach(annotationLists -> annotationLists.getValue().forEach(bLangAnnotation -> {
                     completionItems.add(CommonUtil.getAnnotationCompletionItem(annotationLists.getKey(),
-                            bLangAnnotation));
+                            bLangAnnotation, ctx));
                 }));
         
         return completionItems;

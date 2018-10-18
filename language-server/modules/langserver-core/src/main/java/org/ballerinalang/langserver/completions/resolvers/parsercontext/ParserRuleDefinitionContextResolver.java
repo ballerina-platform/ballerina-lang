@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class ParserRuleDefinitionContextResolver extends AbstractItemResolver {
                     completionItem.setLabel(symbolName);
                     completionItem.setInsertText(symbolName + "::");
                     completionItem.setDetail(ItemResolverConstants.B_TYPE);
-
+                    completionItem.setKind(CompletionItemKind.Reference);
                     return completionItem;
                 }).collect(Collectors.toList());
     }
