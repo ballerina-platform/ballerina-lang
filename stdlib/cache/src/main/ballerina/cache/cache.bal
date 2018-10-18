@@ -247,7 +247,7 @@ function runCacheExpiry() returns error? {
         int size = lengthof currentCache.entries;
         if (size == 0) {
             emptyCacheKeys[emptyCacheCount] = currentCacheKey;
-            emptyCacheCount++;
+            emptyCacheCount += 1;
         }
     }
 

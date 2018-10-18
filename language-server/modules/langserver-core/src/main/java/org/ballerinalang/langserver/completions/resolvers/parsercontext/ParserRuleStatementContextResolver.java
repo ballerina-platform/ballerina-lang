@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
@@ -71,16 +70,17 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             completionItems.addAll(this.getPackagesCompletionItems(context));
 
             CompletionItem xmlns = new CompletionItem();
-            Snippet.STMT_NAMESPACE_DECLARATION.getBlock().populateCompletionItem(xmlns, isSnippet);
-            xmlns.setLabel(ItemResolverConstants.XMLNS);
-            xmlns.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+            Snippet.STMT_NAMESPACE_DECLARATION.get().build(xmlns, isSnippet);
             completionItems.add(xmlns);
 
             CompletionItem varKeyword = new CompletionItem();
-            Snippet.KW_VAR.getBlock().populateCompletionItem(varKeyword, isSnippet);
-            varKeyword.setLabel(ItemResolverConstants.VAR_KEYWORD);
-            varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+            Snippet.KW_VAR.get().build(varKeyword, isSnippet);
             completionItems.add(varKeyword);
+
+            // Add the error snippet
+            CompletionItem error = new CompletionItem();
+            Snippet.DEF_ERROR.get().build(error, isSnippet);
+            completionItems.add(error);
         }
         
         completionItems.addAll(this.getCompletionsFromEither(itemList));

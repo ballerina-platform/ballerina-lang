@@ -13,15 +13,15 @@
               {
                 "range":{
                   "start":{
-                    "line":0,
+                    "line":2,
                     "character":0
                   },
                   "end":{
-                    "line":5,
-                    "character":56
+                    "line":2,
+                    "character":0
                   }
                 },
-                "newText":"import ballerina/http;\n\n@http:ServiceConfig {\n    basePath: \"/testPath\"\n}\n# Description\nservice<http:Service> helloService bind { port: 9090 } {"
+                "newText":"# Description\n"
               }
             ]
           }

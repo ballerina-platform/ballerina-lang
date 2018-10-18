@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
@@ -66,11 +65,7 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
     }
 
     private CompletionItem getWorkerSnippet(boolean isSnippet) {
-        CompletionItem workerItem = new CompletionItem();
-        workerItem.setLabel(ItemResolverConstants.WORKER);
-        Snippet.DEF_WORKER.getBlock().populateCompletionItem(workerItem, isSnippet);
-        workerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        return workerItem;
+        return Snippet.DEF_WORKER.get().build(new CompletionItem(), isSnippet);
     }
     
     private void clearItemsIfWorkerExists(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {

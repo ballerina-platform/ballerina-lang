@@ -52,7 +52,7 @@ service<http:Service> circuitbreaker02 bind circuitBreakerEP02 {
     }
     invokeForceClose(endpoint caller, http:Request request) {
         http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>unhealthyClientEP.getCallerActions();
-        forceCloseStateCount++;
+        forceCloseStateCount += 1;
         runtime:sleep(1000);
         if (forceCloseStateCount == 3) {
             runtime:sleep(5000);
