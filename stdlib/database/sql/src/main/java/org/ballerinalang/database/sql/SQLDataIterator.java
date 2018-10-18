@@ -86,13 +86,12 @@ public class SQLDataIterator extends TableIterator {
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,
-                           StructureTypeInfo zoneStructInfo, String databaseProductName, boolean anytimeClosable) {
+            StructureTypeInfo zoneStructInfo, String databaseProductName) {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
         this.sourceDatabase = databaseProductName;
-        this.anytimeClosable = anytimeClosable;
     }
 
     @Override

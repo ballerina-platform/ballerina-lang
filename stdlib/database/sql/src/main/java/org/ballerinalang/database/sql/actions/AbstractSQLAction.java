@@ -131,7 +131,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 rm.addResultSet(rs);
             }
             context.setReturnValues(
-                    constructTable(rm, context, rs, structType, true, columnDefinitions,
+                    constructTable(rm, context, rs, structType, columnDefinitions,
                             datasource.getDatabaseProductName()));
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupResources(rs, stmt, conn, true);
@@ -229,7 +229,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 // If a result set has been returned from the stored procedure it needs to be pushed in to return
                 // values
                 context.setReturnValues(constructTablesForResultSets(resultSets, rm, context, structTypes,
-                        datasource.getDatabaseProductName(), !isInTransaction));
+                        datasource.getDatabaseProductName()));
             } else if (!refCursorOutParamsPresent) {
                 // Even if there aren't any result sets returned from the procedure there could be ref cursors
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
@@ -238,13 +238,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 context.setReturnValues();
             }
         } catch (Throwable e) {
-            SQLDatasourceUtils.cleanupResources(resultSets, stmt, conn, true);
+            SQLDatasourceUtils.cleanupResources(resultSets, stmt, conn, !isInTransaction);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
     }
 
     private BRefValueArray constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
-            Context context, BRefValueArray structTypes, String databaseProductName, boolean anytimeClosable)
+            Context context, BRefValueArray structTypes, String databaseProductName)
             throws SQLException {
         BRefValueArray bTables = new BRefValueArray(new BArrayType(BTypes.typeTable));
         if (structTypes == null || resultSets.size() != structTypes.size()) {
@@ -254,7 +254,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
         for (int i = 0; i < resultSets.size(); i++) {
             bTables.add(i, constructTable(rm, context, resultSets.get(i), (BStructureType) structTypes.get(i).value(),
-                    databaseProductName, anytimeClosable));
+                    databaseProductName));
         }
         return bTables;
     }
@@ -880,7 +880,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                     SQLDatasource datasource = retrieveDatasource(context);
                     paramValue.put(PARAMETER_VALUE_FIELD,
                             constructTable(resourceManager, context, rs, getStructType(paramValue),
-                                    datasource.getDatabaseProductName(), context.isInTransaction()));
+                                    datasource.getDatabaseProductName()));
                 } else {
                     throw new BallerinaException(
                             "The Struct Type for the result set pointed by the Ref Cursor cannot be null");
@@ -937,16 +937,15 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
-            boolean anytimeClosable, List<ColumnDefinition> columnDefinitions, String databaseProductName) {
+             List<ColumnDefinition> columnDefinitions, String databaseProductName) {
         return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName,
-                anytimeClosable));
+                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName));
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
-            String databaseProductName, boolean anytimeClosable) throws SQLException {
+            String databaseProductName) throws SQLException {
         List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
-        return constructTable(rm, context, rs, structType, anytimeClosable, columnDefinitions,
+        return constructTable(rm, context, rs, structType, columnDefinitions,
                 databaseProductName);
     }
 

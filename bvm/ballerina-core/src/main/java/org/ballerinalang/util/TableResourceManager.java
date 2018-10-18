@@ -36,12 +36,12 @@ public class TableResourceManager {
     private Connection connection;
     private Statement statement;
     private Set<ResultSet> resultSets;
-    private boolean connectionAnytimeClosable;
+    private boolean connectionClosable;
 
-    public TableResourceManager(Connection conn, Statement stmt, boolean connectionAnytimeClosable) {
+    public TableResourceManager(Connection conn, Statement stmt, boolean connectionClosable) {
         this.connection = conn;
         this.statement = stmt;
-        this.connectionAnytimeClosable = connectionAnytimeClosable;
+        this.connectionClosable = connectionClosable;
         this.resultSets = new HashSet<>(0);
     }
 
@@ -102,7 +102,7 @@ public class TableResourceManager {
             if (statement != null && !statement.isClosed()) {
                 statement.close();
             }
-            if (connectionAnytimeClosable && connection != null && !connection.isClosed()) {
+            if (connectionClosable && connection != null && !connection.isClosed()) {
                 connection.close();
             }
         }
