@@ -23,16 +23,23 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * {@code BStructSymbol} represents a struct symbol in a scope.
+ * {@code BObjectTypeSymbol} represents a object symbol in a scope.
  *
  * @since 0.964.0
  */
 public class BObjectTypeSymbol extends BStructureTypeSymbol {
 
+    // This is a cache of the functions referred through the type references
+    public List<BAttachedFunction> referencedFunctions;
+
     public BObjectTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type,
             BSymbol owner) {
         super(SymbolKind.OBJECT, symTag, flags, name, pkgID, type, owner);
+        this.referencedFunctions = new ArrayList<>();
     }
 
     @Override

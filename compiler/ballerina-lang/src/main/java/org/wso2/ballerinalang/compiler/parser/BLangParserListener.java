@@ -469,9 +469,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startVarList();
-        this.pkgBuilder.startObjFunctionList();
-        this.pkgBuilder.startFieldBlockList();
+        this.pkgBuilder.startObjectType();
     }
 
     /**
@@ -491,6 +489,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, isAbstract);
+    }
+
+    @Override
+    public void exitTypeReference(BallerinaParser.TypeReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addTypeReference(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
