@@ -16,14 +16,15 @@
  *  under the License.
  */
 
-
-// TODO: YET TO IMPLEMENT
-
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
+import java.util.Arrays;
+import java.util.StringJoiner;
 
 /**
  * The {@code BDecimalArray} represents a decimal array in Ballerina.
@@ -64,17 +65,33 @@ public class BDecimalArray extends BNewArray {
     }
 
     @Override
-    public void grow(int newLength) {
-
+    public BType getType() {
+        return arrayType;
     }
 
     @Override
-    public BValue getBValue(long index) {
-        return null;
+    public void grow(int newLength) {
+        values = Arrays.copyOf(values, newLength);
     }
 
     @Override
     public BValue copy() {
-        return null;
+        BDecimalArray decimalArray = new BDecimalArray(Arrays.copyOf(values, values.length));
+        decimalArray.size = size;
+        return decimalArray;
+    }
+
+    @Override
+    public String stringValue() {
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        for (int i = 0; i < size; i++) {
+            sj.add(values[i].toString());
+        }
+        return sj.toString();
+    }
+
+    @Override
+    public BValue getBValue(long index) {
+        return new BDecimal(get(index));
     }
 }
