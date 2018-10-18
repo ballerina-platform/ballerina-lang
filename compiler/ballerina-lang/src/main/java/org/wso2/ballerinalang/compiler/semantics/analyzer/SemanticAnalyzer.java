@@ -187,7 +187,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
-    private boolean isWindowAvailable;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
@@ -329,6 +328,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         objectTypeNode.fields.forEach(field -> analyzeDef(field, env));
         objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
+
+        // Validate the referenced functions that don't have implementations within the function.
+        ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
+                .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
 
         if (objectTypeNode.initFunction == null) {
             return;
@@ -1262,10 +1265,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWindow windowClause) {
-        isWindowAvailable = true;
-        ExpressionNode expressionNode = windowClause.getFunctionInvocation();
-        ((BLangExpression) expressionNode).accept(this);
-        isWindowAvailable = false;
+        //do nothing
     }
 
     @Override
@@ -1275,7 +1275,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
         if (!isSiddhiRuntimeEnabled) {
-            if ((isGroupByAvailable || isWindowAvailable)) {
+            if ((isGroupByAvailable)) {
                 for (BLangExpression arg : invocationExpr.argExprs) {
                     typeChecker.checkExpr(arg, env);
                     switch (arg.getKind()) {
@@ -2015,7 +2015,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * Validate functions attached to objects.
      *
      * @param funcNode Function node
-     * @return True if the function is an unimplemented method inside a non-abstract object.
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
@@ -2036,7 +2035,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // If the function is attached to an abstract object, it don't need to have an implementation
+        // If the function is attached to an abstract object, it don't need to have an implementation.
         if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
             if (funcNode.body != null) {
                 dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
@@ -2045,10 +2044,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // There must be an implementation at the outer level, if the function is an interface
+        // There must be an implementation at the outer level, if the function is an interface.
         if (funcNode.interfaceFunction && !env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
                     funcNode.receiver.type);
+        }
+    }
+
+    private void validateReferencedFunction(DiagnosticPos pos, BAttachedFunction func, SymbolEnv env) {
+        if (Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.ABSTRACT)) {
+            return;
+        }
+
+        if (!Symbols.isFlagOn(func.symbol.flags, Flags.INTERFACE)) {
+            return;
+        }
+
+        // There must be an implementation at the outer level, if the function is an interface.
+        if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
+            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
+                    func.symbol.receiverSymbol.type);
         }
     }
 }

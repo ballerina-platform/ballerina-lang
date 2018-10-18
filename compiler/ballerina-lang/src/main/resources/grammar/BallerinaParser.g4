@@ -94,10 +94,14 @@ typeDefinition
 objectBody
     :   objectMember* objectInitializer? objectMember*
     ;
-
 objectMember
     :   objectFieldDefinition
     |   objectFunctionDefinition
+    |   typeReference
+    ;
+
+typeReference
+    :   MUL simpleTypeName SEMICOLON
     ;
 
 objectInitializer
@@ -713,6 +717,7 @@ simpleLiteral
     :   (SUB)? integerLiteral
     |   (SUB)? floatingPointLiteral
     |   QuotedStringLiteral
+    |   SymbolicStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
     |   blobLiteral

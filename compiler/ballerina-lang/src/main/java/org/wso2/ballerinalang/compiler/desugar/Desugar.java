@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
-import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
@@ -358,12 +357,17 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        // Merge the fields defined within the object and the fields that 
+        // get inherited via the type references.
+        objectTypeNode.fields.addAll(objectTypeNode.referencedFields);
+
         if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
             result = objectTypeNode;
             return;
         }
 
-        // Add struct level variables to the init function.
+        // Add object level variables to the init function.
+        Map<BSymbol, BLangStatement> initFunctionStmts = objectTypeNode.initFunction.initFunctionStmts;
         objectTypeNode.fields.stream()
                 .map(field -> {
                     // If the rhs value is not given in-line inside the struct
@@ -375,16 +379,14 @@ public class Desugar extends BLangNodeVisitor {
                 })
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    if (!objectTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol)) {
-                        objectTypeNode.initFunction.initFunctionStmts.put(field.symbol,
-                                (BLangStatement) createAssignmentStmt(field));
+                    if (!initFunctionStmts.containsKey(field.symbol)) {
+                        initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
                     }
                 });
 
         // Adding init statements to the init function.
-        BLangStatement[] initStmts =
-                objectTypeNode.initFunction.initFunctionStmts.values().toArray(new BLangStatement[0]);
-        for (int i = 0; i < objectTypeNode.initFunction.initFunctionStmts.size(); i++) {
+        BLangStatement[] initStmts = initFunctionStmts.values().toArray(new BLangStatement[0]);
+        for (int i = 0; i < initFunctionStmts.size(); i++) {
             objectTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
         }
 
@@ -437,7 +439,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Duplicate the invokable symbol and the invokable type.
         funcNode.originalFuncSymbol = funcNode.symbol;
-        BInvokableSymbol dupFuncSymbol = duplicateInvokableSymbol(funcNode.symbol);
+        BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
         funcNode.symbol = dupFuncSymbol;
         BInvokableType dupFuncType = (BInvokableType) dupFuncSymbol.type;
 
@@ -452,14 +454,6 @@ public class Desugar extends BLangNodeVisitor {
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
-
-        // If the function has a receiver, we rewrite it's parameter list to have
-        // the struct variable as the first parameter
-        if (funcNode.receiver != null) {
-            dupFuncSymbol.params.add(0, funcNode.receiver.symbol);
-            dupFuncType.paramTypes.add(0, funcNode.receiver.type);
-        }
-
         result = funcNode;
     }
 
@@ -2341,7 +2335,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression getInitExpr(BLangVariable varNode) {
-        BType type = varNode.type;
+        return getInitExpr(varNode.type, varNode.name);
+    }
+
+    private BLangExpression getInitExpr(BType type, BLangIdentifier name) {
         // Don't need to create an empty init expressions if the type allows null.
         if (type.isNullable()) {
             return getNullLiteral();
@@ -2361,9 +2358,9 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
                 return new BLangMapLiteral(new ArrayList<>(), type);
             case TypeTags.STREAM:
-                return new BLangStreamLiteral(type, varNode.name);
+                return new BLangStreamLiteral(type, name);
             case TypeTags.OBJECT:
-                return ASTBuilderUtil.createEmptyTypeInit(varNode.pos, type);
+                return ASTBuilderUtil.createEmptyTypeInit(null, type);
             case TypeTags.RECORD:
                 return new BLangStructLiteral(new ArrayList<>(), type);
             case TypeTags.TABLE:
@@ -2387,22 +2384,19 @@ public class Desugar extends BLangNodeVisitor {
                 tuple.type = type;
                 return rewriteExpr(tuple);
             case TypeTags.CHANNEL:
-                return new BLangChannelLiteral(type, varNode.name);
+                return new BLangChannelLiteral(type, name);
             default:
                 break;
         }
         return null;
     }
 
-    // TODO: Same function is used in symbol enter. Refactor this to reuse the same function.
-    private StatementNode createAssignmentStmt(BLangVariable variable) {
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
-                .createSimpleVariableReferenceNode();
+    private BLangAssignment createAssignmentStmt(BLangVariable variable) {
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = variable.pos;
         varRef.variableName = variable.name;
         varRef.symbol = variable.symbol;
         varRef.type = variable.type;
-        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = variable.expr;
@@ -2707,26 +2701,6 @@ public class Desugar extends BLangNodeVisitor {
         return errorLiftedType;
     }
 
-    private BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name,
-                invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
-        dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
-        dupFuncSymbol.retType = invokableSymbol.retType;
-        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams;
-        dupFuncSymbol.restParam = invokableSymbol.restParam;
-        dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
-        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
-        dupFuncSymbol.tainted = invokableSymbol.tainted;
-        dupFuncSymbol.closure = invokableSymbol.closure;
-        dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
-        dupFuncSymbol.scope = invokableSymbol.scope;
-
-        BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                prevFuncType.retType, prevFuncType.tsymbol);
-        return dupFuncSymbol;
-    }
-
     private boolean safeNavigateLHS(BLangExpression expr) {
         if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR && expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
             return false;
@@ -2991,6 +2965,7 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.symbol = Symbols.createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName,
                 env.enclPkg.symbol.pkgID, initFunction.type, env.scope.owner, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
+        initFunction.symbol.receiverSymbol = receiverSymbol;
 
         // Set the taint information to the constructed init function
         initFunction.symbol.taintTable = new HashMap<>();

@@ -877,8 +877,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY
-                && indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY &&
+                indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
             BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
             BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
             Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage
