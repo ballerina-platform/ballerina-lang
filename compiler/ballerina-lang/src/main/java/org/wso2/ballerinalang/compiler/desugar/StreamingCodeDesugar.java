@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
@@ -1121,50 +1122,60 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(window, invocation, STREAMS_STDLIB_PACKAGE_NAME);
 
         if (windowInvokableSymbol != null) {
-
-            //Create event filter definition
-            BVarSymbol nextProcessInvokableTypeVarSymbol;
-            if (rhsStream != null) {
-                nextProcessInvokableTypeVarSymbol = joinProcessorStack.peek();
+            BSymbol windowTypeSymbol = symResolver.
+                    resolvePkgSymbol(invocation.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                    scope.lookup(new Name(WINDOW_OBJECT_NAME)).symbol;
+            BSymbol retTypeSymbol = windowInvokableSymbol.getType().retType.tsymbol;
+            if (windowTypeSymbol != retTypeSymbol) {
+                dlog.error(invocation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, windowTypeSymbol.toString(),
+                           retTypeSymbol.toString());
             } else {
-                nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
-            }
-            BInvokableSymbol nextProcessInvokableSymbol =
-                    getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
-
-            BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(window.pos,
-                    nextProcessInvokableTypeVarSymbol);
-            BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(window.pos,
-                    nextProcessInvokableSymbol, nextProcessSimpleVarRef);
-
-
-            BType windowInvokableType = windowInvokableSymbol.type.getReturnType();
-
-            BVarSymbol windowInvokableTypeVarSymbol = new BVarSymbol(0,
-                    new Name(getVariableName(WINDOW_FUNC_REFERENCE)), windowInvokableSymbol.pkgID, windowInvokableType,
-                    env.scope.owner);
-            nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
-
-            BLangNamedArgsExpression nextProcPointer = ASTBuilderUtil.createNamedArg(NEXT_PROCESS_POINTER_ARG_NAME,
-                    nextProcessMethodAccess);
-
-            typeChecker.checkExpr(invocation, env);
-
-            //these should be added after type-checking
-            invocation.argExprs.add(nextProcPointer);
-            invocation.namedArgs.add(nextProcPointer);
-
-            BLangVariableDef windowDef = createVariableDef(invocation, windowInvokableType,
-                    windowInvokableTypeVarSymbol, window.pos, WINDOW_FUNC_REFERENCE, WINDOW_OBJECT_NAME);
-            stmts.add(windowDef);
-
-            if (!joinProcessorStack.empty()) {
-                if (isInJoin) {
-                    attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setRHS", rhsStream);
+                //Create event filter definition
+                BVarSymbol nextProcessInvokableTypeVarSymbol;
+                if (rhsStream != null) {
+                    nextProcessInvokableTypeVarSymbol = joinProcessorStack.peek();
                 } else {
-                    attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setLHS", lhsStream);
+                    nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
+                }
+                BInvokableSymbol nextProcessInvokableSymbol =
+                        getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
+
+                BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(window.pos,
+                        nextProcessInvokableTypeVarSymbol);
+                BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(window.pos,
+                        nextProcessInvokableSymbol, nextProcessSimpleVarRef);
+
+
+                BType windowInvokableType = windowInvokableSymbol.type.getReturnType();
+
+                BVarSymbol windowInvokableTypeVarSymbol = new BVarSymbol(0,
+                        new Name(getVariableName(WINDOW_FUNC_REFERENCE)), windowInvokableSymbol.pkgID,
+                        windowInvokableType, env.scope.owner);
+                nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
+
+                BLangNamedArgsExpression nextProcPointer = ASTBuilderUtil.createNamedArg(NEXT_PROCESS_POINTER_ARG_NAME,
+                        nextProcessMethodAccess);
+
+                typeChecker.checkExpr(invocation, env);
+
+                //these should be added after type-checking
+                invocation.argExprs.add(nextProcPointer);
+                invocation.namedArgs.add(nextProcPointer);
+
+                BLangVariableDef windowDef = createVariableDef(invocation, windowInvokableType,
+                        windowInvokableTypeVarSymbol, window.pos, WINDOW_FUNC_REFERENCE, WINDOW_OBJECT_NAME);
+                stmts.add(windowDef);
+
+                if (!joinProcessorStack.empty()) {
+                    if (isInJoin) {
+                        attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setRHS", rhsStream);
+                    } else {
+                        attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setLHS", lhsStream);
+                    }
                 }
             }
+        } else {
+            dlog.error(invocation.pos, DiagnosticCode.UNDEFINED_FUNCTION, invocation.name);
         }
     }
 
