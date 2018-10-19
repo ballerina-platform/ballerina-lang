@@ -88,7 +88,7 @@ function runPatternQuery1() returns (TempDiffInfo[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof tempDiffInfoArray) > 0 || count == 10) {
             break;
         }
@@ -155,7 +155,7 @@ function runPatternQuery2() returns (RoomKeyAction[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof roomActions) > 0 || count == 10) {
             break;
         }
@@ -212,7 +212,7 @@ function runPatternQuery3() returns (RoomKeyAction[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof roomActions2) > 0 || count == 10) {
             break;
         }
@@ -269,7 +269,7 @@ function runPatternQuery4() returns (RoomKeyAction[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof roomActions3) > 0 || count == 10) {
             break;
         }
@@ -322,7 +322,7 @@ function runPatternQuery5() returns (RoomKeyAction[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof roomActions3) > 0 || count == 10) {
             break;
         }
@@ -394,7 +394,7 @@ function runPatternQuery6() returns (TempDiffInfo[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof tempDiffInfoArray6) > 0 || count == 10) {
             break;
         }

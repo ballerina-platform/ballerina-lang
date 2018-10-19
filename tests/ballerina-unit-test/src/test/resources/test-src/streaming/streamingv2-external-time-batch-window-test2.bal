@@ -62,7 +62,7 @@ function startExternalTimeBatchwindowTest2() returns (TeacherOutput[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof globalEmployeeArray) == 2 || count == 10) {
             break;
         }
