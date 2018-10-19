@@ -148,7 +148,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String CREATE_SIMPLE_SELECT_METHOD_NAME = "createSimpleSelect";
     private static final String CREATE_SELECT_WITH_GROUP_BY_METHOD_NAME = "createSelect";
     private static final String CREATE_ORDER_BY_METHOD_NAME = "createOrderBy";
-    private static final String CREATE_JOIN_PROCESS_METHOD_NAME = "createJoinProcessor";
+    private static final String CREATE_STREAM_JOIN_PROCESS_METHOD_NAME = "createStreamJoinProcessor";
     private static final String EVENT_DATA_VARIABLE_NAME = "data";
     private static final String EVENT_TYPE_VARIABLE_NAME = "eventType";
     private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
@@ -921,7 +921,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BInvokableSymbol joinProcessorInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(joinStreamingInput.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                scope.lookup(new Name(CREATE_JOIN_PROCESS_METHOD_NAME)).symbol;
+                scope.lookup(new Name(CREATE_STREAM_JOIN_PROCESS_METHOD_NAME)).symbol;
 
         BType joinProcessorReturnType = joinProcessorInvokableSymbol.type.getReturnType();
 
