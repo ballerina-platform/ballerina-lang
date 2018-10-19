@@ -29,6 +29,8 @@ public interface WorkerReceiveNode extends StatementNode {
 
     ExpressionNode getExpression();
 
+    ExpressionNode getKeyExpression();
+
     IdentifierNode getWorkerName();
 
     void setWorkerName(IdentifierNode identifierNode);

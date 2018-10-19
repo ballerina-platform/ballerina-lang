@@ -36,7 +36,7 @@ function foreachTest() returns (int, string)[] {
 
     foreach i, x in bookstore["book"] {
         titles[count] = (i, x["title"].getTextValue());
-        count++;
+        count += 1;
     }
 
     return titles;
@@ -49,7 +49,7 @@ function foreachOpTest() returns (int, string)[] {
     bookstore["book"].foreach(function ((int, xml) entry) {
         var (index, value) = entry;
         titles[count] = (index, value["title"].getTextValue());
-        count++;
+        count += 1;
     });
 
     return titles;

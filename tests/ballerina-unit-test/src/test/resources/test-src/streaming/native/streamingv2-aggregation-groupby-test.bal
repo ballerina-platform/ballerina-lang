@@ -67,7 +67,7 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof globalEmployeeArray) == 10 || count == 10) {
             break;
         }
@@ -122,7 +122,7 @@ function createStreamingConstruct() {
         }
     );
 
-    streams:Window tmpWindow = streams:timeWindow(select.process, 1000);
+    streams:Window tmpWindow = streams:timeWindow(1000, nextProcessPointer = select.process);
     streams:Filter filter = streams:createFilter(tmpWindow.process, function (map m) returns boolean {
             // simplify filter
             return check <int>m["inputStream.age"] > getValue();

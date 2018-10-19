@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -35,11 +34,7 @@ public class ParserRuleResourceDefinitionContextResolver extends AbstractItemRes
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
-        CompletionItem resource = new CompletionItem();
-        Snippet.DEF_RESOURCE.getBlock().populateCompletionItem(resource, isSnippet);
-        resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-        resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        
+        CompletionItem resource = Snippet.DEF_RESOURCE.get().build(new CompletionItem(), isSnippet);
         return new ArrayList<>(Collections.singletonList(resource));
     }
 }
