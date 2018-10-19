@@ -235,18 +235,22 @@ public class TypeChecker extends BLangNodeVisitor {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
 
         Object literalValue = literalExpr.value;
-        if (TypeTags.FLOAT == expType.tag && TypeTags.INT == literalType.tag) {
-            literalType = symTable.floatType;
-            literalExpr.value = ((Long) literalValue).doubleValue();
-        }
 
-        if (TypeTags.BYTE == expType.tag && TypeTags.INT == literalType.tag) {
-            if (!isByteLiteralValue((Long) literalValue)) {
-                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
-                return;
+        if (TypeTags.INT == literalType.tag) {
+            if (TypeTags.FLOAT == expType.tag) {
+                literalType = symTable.floatType;
+                literalExpr.value = ((Long) literalValue).doubleValue();
+            } else if (TypeTags.DECIMAL == expType.tag) {
+                literalType = symTable.decimalType;
+                literalExpr.value = new Decimal(literalValue.toString());
+            } else if (TypeTags.BYTE == expType.tag) {
+                if (!isByteLiteralValue((Long) literalValue)) {
+                    dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+                    return;
+                }
+                literalType = symTable.byteType;
+                literalExpr.value = ((Long) literalValue).byteValue();
             }
-            literalType = symTable.byteType;
-            literalExpr.value = ((Long) literalValue).byteValue();
         }
 
         // check whether this is a byte array
