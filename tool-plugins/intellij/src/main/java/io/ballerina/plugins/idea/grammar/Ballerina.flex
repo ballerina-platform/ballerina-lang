@@ -130,6 +130,17 @@ STRING_CHARACTER =  [^\"] | {ESCAPE_SEQUENCE}
 STRING_CHARACTERS = {STRING_CHARACTER}+
 QUOTED_STRING_LITERAL = \" {STRING_CHARACTERS}? \"?
 
+SYMBOLIC_STRING_LITERAL =  \' {UNDELIMETERED_INITIAL_CHAR} {UNDELIMETERED_FOLLOWING_CHAR}*
+
+UNDELIMETERED_INITIAL_CHAR = [a-zA-Z_]
+    // Negates ASCII characters
+    // Negates unicode whitespace characters : 0x200E, 0x200F, 0x2028 and 0x2029
+    // Negates unicode characters with property Pattern_Syntax=True (http://unicode.org/reports/tr31/tr31-2.html#Pattern_Syntax)
+    // Negates unicode characters of category "Private Use" ranging from: 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD
+    | [^\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF]
+
+UNDELIMETERED_FOLLOWING_CHAR = {UNDELIMETERED_INITIAL_CHAR} | DIGIT
+
 // Blob Literal
 
 BASE_16_BLOB_LITERAL = "base16" {WHITE_SPACE}* {BACKTICK} {HEX_GROUP}* {WHITE_SPACE}* {BACKTICK}
@@ -499,12 +510,17 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "*="                                        { return COMPOUND_MUL; }
     "/="                                        { return COMPOUND_DIV; }
 
-    "++"                                        { return INCREMENT; }
-    "--"                                        { return DECREMENT; }
+    "&="                                        { return COMPOUND_BIT_AND; }
+    "|="                                        { return COMPOUND_BIT_OR; }
+    "^="                                        { return COMPOUND_BIT_XOR; }
+
+    "<<="                                       { return COMPOUND_LEFT_SHIFT; }
+    ">>="                                       { return COMPOUND_RIGHT_SHIFT; }
+    ">>>="                                      { return COMPOUND_LOGICAL_SHIFT; }
 
     "..<"                                       { return HALF_OPEN_RANGE; }
 
-    "from"                                      { inSiddhi = false; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
+    "from"                                      { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }
     "select"                                    { if(inTableSqlQuery) { inTableSqlQuery = false; return SELECT; } return IDENTIFIER; }
     "group"                                     { return GROUP; }
@@ -551,6 +567,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {HEX_INTEGER_LITERAL}                       { return HEX_INTEGER_LITERAL; }
     {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
+    {SYMBOLIC_STRING_LITERAL}                   { return SYMBOLIC_STRING_LITERAL; }
 
     {DecimalFloatingPointNumber}                { return DECIMAL_FLOATING_POINT_NUMBER; }
     {HexadecimalFloatingPointLiteral}           { return HEXADECIMAL_FLOATING_POINT_LITERAL; }

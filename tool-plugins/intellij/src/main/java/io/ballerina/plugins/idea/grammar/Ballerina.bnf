@@ -237,7 +237,7 @@ LambdaFunction ::= function LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHE
 ArrowFunction ::= ArrowFunctionWithoutParenthesis | ArrowFunctionWithParenthesis
 
 private ArrowFunctionWithoutParenthesis ::= ArrowParam EQUAL_GT Expression {pin=2}
-private ArrowFunctionWithParenthesis ::= LEFT_PARENTHESIS ArrowParam (COMMA ArrowParam)* RIGHT_PARENTHESIS EQUAL_GT Expression {pin=5}
+private ArrowFunctionWithParenthesis ::= LEFT_PARENTHESIS (ArrowParam (COMMA ArrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT Expression {pin=4}
 
 ArrowParam ::= identifier
 
@@ -252,7 +252,9 @@ TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
 
 ObjectBody ::= ObjectMember* ObjectInitializer? ObjectMember*
 
-ObjectMember ::= ObjectFieldDefinition | ObjectFunctionDefinition
+ObjectMember ::= ObjectFieldDefinition | ObjectFunctionDefinition | TypeReference
+
+TypeReference ::= MUL SimpleTypeName SEMICOLON
 
 ObjectInitializer ::= documentationString? AnnotationAttachment* (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
 
@@ -260,7 +262,7 @@ ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_P
 
 ObjectFieldDefinition ::= AnnotationAttachment* deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
 
-FieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? SEMICOLON {pin=3}
+FieldDefinition ::= AnnotationAttachment* TypeName identifier QUESTION_MARK? (ASSIGN Expression)? SEMICOLON {pin=3}
 
 RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS | SealedLiteral
 
@@ -424,7 +426,6 @@ Statement ::=
     |   AssignmentStatement
     |   VariableDefinitionStatement
     |   CompoundAssignmentStatement
-    |   PostIncrementStatement
     |   ExpressionStmt
     |   StreamingQueryStatement
     |   DoneStatement
@@ -435,7 +436,7 @@ Statement ::=
 // Todo - Add more tokens
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
 
 //private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | continue |try |*/ int )
 
@@ -483,11 +484,16 @@ tupleDestructuringStatement ::= var? LEFT_PARENTHESIS VariableReferenceList RIGH
 
 CompoundAssignmentStatement ::= VariableReference CompoundOperator Expression SEMICOLON
 
-CompoundOperator ::= COMPOUND_ADD | COMPOUND_SUB | COMPOUND_MUL | COMPOUND_DIV
-
-PostIncrementStatement ::= VariableReference PostArithmeticOperator SEMICOLON
-
-PostArithmeticOperator ::= INCREMENT | DECREMENT
+CompoundOperator ::=  COMPOUND_ADD
+                    | COMPOUND_SUB
+                    | COMPOUND_MUL
+                    | COMPOUND_DIV
+                    | COMPOUND_BIT_AND
+                    | COMPOUND_BIT_OR
+                    | COMPOUND_BIT_XOR
+                    | COMPOUND_LEFT_SHIFT
+                    | COMPOUND_RIGHT_SHIFT
+                    | COMPOUND_LOGICAL_SHIFT
 
 VariableReferenceList ::= VariableReference (COMMA VariableReference)* {pin(".*")=1}
 
@@ -786,6 +792,7 @@ FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultablePa
 SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
                   | (ADD|SUB)? FloatingPointLiteral
                   | QUOTED_STRING_LITERAL
+                  | SYMBOLIC_STRING_LITERAL
                   | BOOLEAN_LITERAL
                   | EmptyTupleLiteral
                   | BlobLiteral
@@ -896,7 +903,7 @@ SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
 
 SetAssignmentClause ::= VariableReference ASSIGN Expression
 
-StreamingInput ::= Expression WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
+StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
 
 JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput on Expression
 
