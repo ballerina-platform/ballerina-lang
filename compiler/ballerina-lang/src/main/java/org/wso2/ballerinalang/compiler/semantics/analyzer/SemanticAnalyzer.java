@@ -176,6 +176,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT;
+
 /**
  * @since 0.94
  */
@@ -825,6 +827,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatch matchNode) {
+
+        //first fail if both static and typed patterns have been defined in the match stmt
+        if (matchNode.patternClauses.size() != matchNode.getTypedPatternClauses().size()) {
+            dlog.error(matchNode.pos, INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
+            return;
+        }
+
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {

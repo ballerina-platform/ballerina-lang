@@ -41,6 +41,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
     public BLangMatch() {
         this.patternClauses = new ArrayList<>();
+        this.exprTypes = new ArrayList<>();
     }
 
     public BLangExpression expr;

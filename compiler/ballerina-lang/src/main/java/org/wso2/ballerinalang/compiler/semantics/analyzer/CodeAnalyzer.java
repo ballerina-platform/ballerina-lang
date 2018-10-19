@@ -504,6 +504,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {
+
+        if (matchStmt.exprTypes.isEmpty()) {
+            return;
+        }
+
         boolean unmatchedExprTypesAvailable = false;
 
         // TODO Handle **any** as a expr type.. special case it..
