@@ -91,8 +91,25 @@ function testTupleVarRef() returns (string, int, boolean) {
     return (a, b, c);
 }
 
-function testRecursiveExpressionWithVar() returns (string, int, boolean, int, float, int) {
+function testRecursiveExpressionWithVar1() returns (string, int, boolean, int, float, int) {
     var a = (("Bal", (3, (true, 34))), (5.6, 45));
     ((string, (int, (boolean, int))), (float, int)) ((s, (i1, (b, y))), (f, i2)) = a;
     return (s, i1, b, y, f, i2);
+}
+
+function testRecursiveExpressionWithVar2() returns (string, int, boolean, int, float, int) {
+    var a = (("Bal", (3, (true, 34))), (5.6, 45));
+    ((string, (int, (boolean, int))), (float, int)) t = a;
+    var ((s, (i1, (b, y))), (f, i2)) = t;
+    return (s, i1, b, y, f, i2);
+}
+
+function fn1(((string, (int, (boolean, int))), (float, int)) t) returns (string, int, boolean, int, float, int) {
+    var ((s, (i1, (b, y))), (f, i2)) = t;
+    return (s, i1, b, y, f, i2);
+}
+
+function testRecursiveExpressionWithVar3() returns (string, int, boolean, int, float, int) {
+    var a = (("Bal", (3, (true, 34))), (5.6, 45));
+    return fn1(a);
 }

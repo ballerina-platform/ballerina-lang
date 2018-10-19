@@ -55,7 +55,6 @@ function testNegative6() {
     (int, Foo, (BarObj, string, FooObj), Bar, boolean) (i, fr, (bo, s, fo), br, b) = (bar, 12, (fooObj, "DD", barObj), foo, true);
 }
 
-
 type Foo record {
     string name;
     int age;
@@ -78,3 +77,20 @@ type BarObj object {
     public int i;
     public new(b, i){}
 };
+
+function testInvalidTupleVarDef1() {
+    ((string, (int, (boolean, int))), (float, int)) t = (("Bal", (3, (true, 34))), (5.6, 45));
+    any a = t;
+    var ((s, (i1, (b, y))), (f, i2)) = a;
+}
+
+function testInvalidTupleVarDef2() returns (string, int, boolean, int, float, int) {
+    ((string, (int, (boolean, int))), (float, int)) t = (("Bal", (3, (true, 34))), (5.6, 45));
+    any a = t;
+    return fn1(a);
+}
+
+function fn1(any t) returns (string, int, boolean, int, float, int) {
+    ((string, (int, (boolean, int))), (float, int)) ((s, (i1, (b, y))), (f, i2)) = t;
+    return (s, i1, b, y, f, i2);
+}

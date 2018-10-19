@@ -494,13 +494,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
-            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-            tupleVariable.type = rhsType;
-
-            if (tupleVariable.type.tag != TypeTags.TUPLE) {
-                dlog.error(tupleVariable.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
+            if (rhsType.tag != TypeTags.TUPLE) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION, rhsType);
                 return;
             }
+
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+            tupleVariable.type = rhsType;
 
             if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type))) {
                 return;
@@ -524,7 +524,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (varNode.type.tag != TypeTags.TUPLE) {
-            dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
+            dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION, varNode.type);
             return;
         }
 

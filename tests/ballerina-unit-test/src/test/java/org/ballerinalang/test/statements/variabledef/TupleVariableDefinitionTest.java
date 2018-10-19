@@ -142,9 +142,33 @@ public class TupleVariableDefinitionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test(description = "Test tuple recursive definition with var on lhs")
-    public void testRecursiveExpressionWithVar() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar");
+    @Test(description = "Test tuple recursive definition with var on lhs 1")
+    public void testRecursiveExpressionWithVar1() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar1");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns[0].stringValue(), "Bal");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 34);
+        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
+    }
+
+    @Test(description = "Test tuple recursive definition with var on lhs 2")
+    public void testRecursiveExpressionWithVar2() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar2");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns[0].stringValue(), "Bal");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 34);
+        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
+    }
+
+    @Test(description = "Test tuple recursive definition with var on lhs 3")
+    public void testRecursiveExpressionWithVar3() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar3");
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(returns[0].stringValue(), "Bal");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
@@ -156,17 +180,17 @@ public class TupleVariableDefinitionTest {
 
     @Test
     public void testNegativeTupleVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 21);
+        Assert.assertEquals(resultNegative.getErrorCount(), 23);
         int i = -1;
         String errorMsg1 = "invalid tuple binding pattern; member variable count mismatch with member type count";
-        String errorMsg2 = "invalid tuple binding pattern; incompatible type found for the member variable";
+        String errorMsg2 = "invalid tuple variable; incompatible type ";
         String errorMsg3 = "tuple and expression size does not match";
         String errorMsg4 = "incompatible types: expected ";
 
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 26);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 26);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg2, 25, 34);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int' found in expression", 25, 34);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 41);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'string', found 'int'", 31, 42);
@@ -184,5 +208,8 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'BarObj', found 'FooObj'", 55, 97);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'FooObj', found 'BarObj'", 55, 111);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 55, 120);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'any' found in expression", 84, 40);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected '((string,(int,(boolean,int))),(float,int))', found 'any'", 94, 84);
     }
 }
