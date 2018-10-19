@@ -1427,13 +1427,21 @@ public class Types {
         return false;
     }
 
-    boolean intersectionExists(BType lhsType, BType rhsType) {
+    boolean validEqualityIntersectionExists(BType lhsType, BType rhsType, boolean isValueDeepEquality) {
         Set<BType> lhsTypes = new HashSet<>();
         Set<BType> rhsTypes = new HashSet<>();
 
         lhsTypes.addAll(expandAndGetMemberTypesRecursive(lhsType));
         rhsTypes.addAll(expandAndGetMemberTypesRecursive(rhsType));
 
+        if (isValueDeepEquality) {
+            // TODO: 10/19/18 if ==/!= iterate through lhsTypes and rhsTypes and fail if at least one is not anydata
+        }
+
+        return intersectionExists(lhsTypes, rhsTypes, isValueDeepEquality);
+    }
+
+    private boolean intersectionExists(Set<BType> lhsTypes, Set<BType> rhsTypes, boolean isValueDeepEquality) {
         if (lhsTypes.contains(symTable.anyType) || rhsTypes.contains(symTable.anyType)) {
             return true;
         }
@@ -1445,7 +1453,7 @@ public class Types {
                         .anyMatch(t -> isSameType(s, t)));
 
         if (!matchFound) {
-            matchFound = intersectionExistsForComplexTypes(lhsTypes, rhsTypes);
+            matchFound = intersectionExistsForComplexTypes(lhsTypes, rhsTypes, isValueDeepEquality);
         }
 
         return matchFound;
@@ -1513,7 +1521,7 @@ public class Types {
         return memberTypes;
     }
 
-    private boolean tupleIntersectionExists(BTupleType lhsType, BTupleType rhsType) {
+    private boolean tupleIntersectionExists(BTupleType lhsType, BTupleType rhsType, boolean isValueDeepEquality) {
         if (lhsType.getTupleTypes().size() != rhsType.getTupleTypes().size()) {
             return false;
         }
@@ -1522,14 +1530,17 @@ public class Types {
         List<BType> rhsMemberTypes = rhsType.getTupleTypes();
 
         for (int i = 0; i < lhsType.getTupleTypes().size(); i++) {
-            if (!intersectionExists(lhsMemberTypes.get(i), rhsMemberTypes.get(i))) {
+            if (!intersectionExists(expandAndGetMemberTypesRecursive(lhsMemberTypes.get(i)),
+                                    expandAndGetMemberTypesRecursive(rhsMemberTypes.get(i)),
+                                    isValueDeepEquality)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean intersectionExistsForComplexTypes(Set<BType> lhsTypes, Set<BType> rhsTypes) {
+    private boolean intersectionExistsForComplexTypes(Set<BType> lhsTypes, Set<BType> rhsTypes,
+                                                      boolean isValueDeepEquality) {
         boolean matchFound = false;
         for (BType lhsMemberType : lhsTypes) {
             switch (lhsMemberType.tag) {
@@ -1538,6 +1549,11 @@ public class Types {
                 case TypeTags.FLOAT:
                 case TypeTags.BOOLEAN:
                 case TypeTags.NIL:
+                    if (!isValueDeepEquality) {
+                        // avoid adding JSON as a compatible type for ===
+                        break;
+                    }
+
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.JSON) {
                             matchFound = true;
@@ -1546,6 +1562,11 @@ public class Types {
                     }
                     break;
                 case TypeTags.JSON:
+                    if (!isValueDeepEquality) {
+                        // avoid adding primitive types as compatible types for ===
+                        break;
+                    }
+
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.STRING || rhsMemberType.tag == TypeTags.INT ||
                                 rhsMemberType.tag == TypeTags.FLOAT || rhsMemberType.tag == TypeTags.BOOLEAN ||
@@ -1558,7 +1579,8 @@ public class Types {
                 case TypeTags.TUPLE:
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.TUPLE &&
-                                tupleIntersectionExists((BTupleType) lhsMemberType, (BTupleType) rhsMemberType)) {
+                                tupleIntersectionExists((BTupleType) lhsMemberType, (BTupleType) rhsMemberType,
+                                                        isValueDeepEquality)) {
                             matchFound = true;
                             break;
                         }
@@ -1567,8 +1589,9 @@ public class Types {
                 case TypeTags.ARRAY:
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.ARRAY &&
-                                intersectionExists(((BArrayType) lhsMemberType).eType,
-                                                   ((BArrayType) rhsMemberType).eType)) {
+                                intersectionExists(expandAndGetMemberTypesRecursive(((BArrayType) lhsMemberType).eType),
+                                                   expandAndGetMemberTypesRecursive(((BArrayType) rhsMemberType).eType),
+                                                   isValueDeepEquality)) {
                             matchFound = true;
                             break;
                         }
@@ -1576,9 +1599,21 @@ public class Types {
                     break;
                 case TypeTags.MAP:
                     for (BType rhsMemberType : rhsTypes) {
-                        if (rhsMemberType.tag == TypeTags.MAP &&
-                                intersectionExists(((BMapType) lhsMemberType).constraint,
-                                                   ((BMapType) rhsMemberType).constraint)) {
+                        if (rhsMemberType.tag == TypeTags.MAP && intersectionExists(
+                                expandAndGetMemberTypesRecursive(((BMapType) lhsMemberType).constraint),
+                                expandAndGetMemberTypesRecursive(((BMapType) rhsMemberType).constraint),
+                                isValueDeepEquality)) {
+                            matchFound = true;
+                            break;
+                        }
+                    }
+                    break;
+                case TypeTags.OBJECT:
+                case TypeTags.RECORD:
+                    for (BType rhsMemberType : rhsTypes) {
+                        if (checkStructEquivalency(rhsMemberType, lhsMemberType) ||
+                                checkStructEquivalency(lhsMemberType, rhsMemberType)) {
+                            // intersection exists if one is assignable to the other
                             matchFound = true;
                             break;
                         }

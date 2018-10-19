@@ -855,12 +855,14 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
-    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType,
-                                                 BType rhsType, BLangBinaryExpr binaryExpr) {
+    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
+                                                 BLangBinaryExpr binaryExpr) {
         if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL && opKind != OperatorKind.REF_EQUAL) {
             return symTable.notFoundSymbol;
         }
-        if (types.intersectionExists(lhsType, rhsType)) {
+        boolean isValueDeepEquality = opKind != OperatorKind.REF_EQUAL;
+
+        if (types.validEqualityIntersectionExists(lhsType, rhsType, isValueDeepEquality)) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
                     (types.isValueType(lhsType) && types.isValueType(rhsType))) {
                 return symResolver.createEqualityOperator(opKind, lhsType, rhsType);
@@ -869,9 +871,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
                 return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
             }
-        } else {
-            return symTable.notFoundSymbol;
         }
+        return symTable.notFoundSymbol;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {

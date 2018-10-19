@@ -56,26 +56,22 @@ function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
     return bool1 && bool2;
 }
 
-function checkEqualityOfRecordsOfDifferentTypes() returns boolean {
+function checkEqualityOfRecordsOfIncompatibleTypes() returns boolean {
     Employee e = { name: "Maryam" };
     Person p = { name: "Maryam" };
     return e == p && !(e != p);
 }
 
 function checkEqualityWithJsonForIncompatibleType() returns boolean {
-    //byte b = 1;
-    //json j = 1;
-    //boolean bool1 = b == j && b != j; TODO: should fail?
-
     (string, int) t = ("Hi", 1);
     json j = "Hi 1";
-    boolean bool2 = t == j && t != j;
+    boolean bool1 = t == j && t != j;
 
     Employee|(string, int) e = ("Hi", 1);
     j = "Hi 1";
-    boolean bool3 = e == j && e != j;
+    boolean bool2 = e == j && e != j;
 
-    return bool2 && bool3;
+    return bool1 && bool2;
 }
 
 type Employee record {
@@ -85,5 +81,5 @@ type Employee record {
 
 type Person record {
     string name;
-    int id;
+    int area;
 };

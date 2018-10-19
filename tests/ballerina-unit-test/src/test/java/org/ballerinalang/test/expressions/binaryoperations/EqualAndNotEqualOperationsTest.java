@@ -747,11 +747,11 @@ public class EqualAndNotEqualOperationsTest {
                       54, 33);
         validateError(resultNegative, 14, "operator '==' not defined for 'Employee' and 'Person'", 62, 12);
         validateError(resultNegative, 15, "operator '!=' not defined for 'Employee' and 'Person'", 62, 24);
-        validateError(resultNegative, 16, "operator '==' not defined for '(string,int)' and 'json'", 72, 21);
-        validateError(resultNegative, 17, "operator '!=' not defined for '(string,int)' and 'json'", 72, 31);
-        validateError(resultNegative, 18, "operator '==' not defined for 'Employee|(string,int)' and 'json'", 76,
+        validateError(resultNegative, 16, "operator '==' not defined for '(string,int)' and 'json'", 68, 21);
+        validateError(resultNegative, 17, "operator '!=' not defined for '(string,int)' and 'json'", 68, 31);
+        validateError(resultNegative, 18, "operator '==' not defined for 'Employee|(string,int)' and 'json'", 72,
                       21);
-        validateError(resultNegative, 19, "operator '!=' not defined for 'Employee|(string,int)' and 'json'", 76,
+        validateError(resultNegative, 19, "operator '!=' not defined for 'Employee|(string,int)' and 'json'", 72,
                       31);
     }
 

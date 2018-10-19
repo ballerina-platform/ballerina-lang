@@ -22,6 +22,7 @@ type OpenEmployee record {
 type ClosedEmployee record {
     string name;
     int id;
+    !...
 };
 
 function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {
@@ -473,8 +474,8 @@ function checkTupleEqualityNegative() returns boolean {
     (float, int, float) t3 = (1.0, 0, 1.1);
     (float, int, float) t4 = (1.1, 0, 1.0);
 
-    (string, ClosedEmployee) t5 = ("hi", { nickname: "EmZee" });
-    (string, ClosedEmployee) t6 = ("hi", { nickname: "Em" });
+    (string, ClosedEmployee) t5 = ("hi", { name: "EmZee" });
+    (string, ClosedEmployee) t6 = ("hi", { name: "Em" });
 
     return t1 == t2 || !(t1 != t2) || t3 == t4 || !(t3 != t4) || t5 == t6 || !(t5 != t6);
 }

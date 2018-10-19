@@ -22,6 +22,7 @@ type OpenEmployee record {
 type ClosedEmployee record {
     string name;
     int id;
+    !...
 };
 
 function testBooleanRefEquality(boolean a, boolean b) returns boolean {
@@ -190,8 +191,8 @@ function checkTupleRefEqualityNegative() returns boolean {
     (boolean, int) t1 = (false, 0);
     (boolean, int) t2 = (false, 0);
 
-    (string, ClosedEmployee) t3 = ("hi", { nickname: "EmZee" });
-    (string, ClosedEmployee) t4 = ("hi", { nickname: "Em" });
+    (string, ClosedEmployee) t3 = ("hi", { name: "EmZee" });
+    (string, ClosedEmployee) t4 = ("hi", { name: "Em" });
 
     return t1 === t2 || t3 === t4;
 }
