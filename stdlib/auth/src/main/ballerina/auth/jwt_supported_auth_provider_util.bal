@@ -22,7 +22,7 @@ import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
-# Represents JWT configurations.
+# Represents authentication provider configurations that supports generating JWT for client interactions.
 #
 # + issuer - Identifier of the token issuer
 # + audience - Identifier of the token recipients
