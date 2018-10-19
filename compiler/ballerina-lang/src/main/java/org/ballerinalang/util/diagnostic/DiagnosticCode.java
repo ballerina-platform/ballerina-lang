@@ -145,6 +145,7 @@ public enum DiagnosticCode {
     INVALID_RECORD_REST_DESCRIPTOR("invalid.record.rest.descriptor"),
     MISSING_REQUIRED_RECORD_FIELD("missing.required.record.field"),
     DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS("default.values.not.allowed.for.optional.fields"),
+    INVALID_FUNCTION_POINTER_INVOCATION("invalid.function.pointer.invocation"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),

@@ -202,8 +202,15 @@ public class SQLTransactionsTest {
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testLocalTransactonWithSelect() {
-        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonWithSelect");
+    public void testLocalTransactionWithSelectAndForeachIteration() {
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionWithSelectAndForeachIteration");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
+    @Test(groups = TRANSACTION_TEST_GROUP)
+    public void testLocalTransactionWithSelectAndHasNextIteration() {
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionWithSelectAndHasNextIteration");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
