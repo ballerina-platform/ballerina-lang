@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -2363,7 +2364,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.FLOAT:
                 return getFloatLiteral(0);
             case TypeTags.DECIMAL:
-                return getDecimalLiteral(0);
+                return getDecimalLiteral(Decimal.ZERO);
             case TypeTags.BOOLEAN:
                 return getBooleanLiteral(false);
             case TypeTags.STRING:
@@ -2899,6 +2900,8 @@ public class Desugar extends BLangNodeVisitor {
             return getIntLiteral((Long) value);
         } else if (value instanceof Double) {
             return getFloatLiteral((Double) value);
+        } else if (value instanceof Decimal) {
+            return getDecimalLiteral((Decimal) value);
         } else if (value instanceof String) {
             return getStringLiteral((String) value);
         } else if (value instanceof Boolean) {
@@ -2932,7 +2935,7 @@ public class Desugar extends BLangNodeVisitor {
         return literal;
     }
 
-    private BLangLiteral getDecimalLiteral(double value) {
+    private BLangLiteral getDecimalLiteral(Decimal value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
         literal.typeTag = TypeTags.DECIMAL;
