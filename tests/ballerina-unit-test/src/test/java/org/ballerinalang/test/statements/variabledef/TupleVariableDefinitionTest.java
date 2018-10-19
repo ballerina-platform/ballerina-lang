@@ -155,12 +155,13 @@ public class TupleVariableDefinitionTest {
     }
 
     @Test
-    public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+    public void testNegativeTupleVariables() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 21);
         int i = -1;
         String errorMsg1 = "invalid tuple binding pattern; member variable count mismatch with member type count";
         String errorMsg2 = "invalid tuple binding pattern; incompatible type found for the member variable";
         String errorMsg3 = "tuple and expression size does not match";
+        String errorMsg4 = "incompatible types: expected ";
 
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 26);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 26);
@@ -168,8 +169,20 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, errorMsg2, 25, 34);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 41);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'string', found 'int'", 31, 42);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int', found 'float'", 31, 45);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'float', found 'int'", 31, 50);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'string', found 'int'", 31, 42);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'int', found 'float'", 31, 45);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'float', found 'string'", 31, 50);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Foo', found 'Bar'", 39, 59);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'BarObj', found 'FooObj'", 39, 65);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'FooObj', found 'BarObj'", 39, 73);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 39, 83);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Foo', found 'Bar'", 47, 54);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'(BarObj,FooObj)', found 'FooObj'", 47, 59);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 47, 67);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'int', found 'Bar'", 55, 87);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Foo', found 'int'", 55, 92);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'BarObj', found 'FooObj'", 55, 97);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'FooObj', found 'BarObj'", 55, 111);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 55, 120);
     }
 }
