@@ -499,6 +499,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchStmt) {
+        analyzeExpr(matchStmt.expr);
+        if (!matchStmt.simplePatternClauses.isEmpty()) {
+            analyzeTypeMatchPatterns(matchStmt);
+        }
+    }
+
+    private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {
         boolean unmatchedExprTypesAvailable = false;
         analyzeExpr(matchStmt.expr);
 

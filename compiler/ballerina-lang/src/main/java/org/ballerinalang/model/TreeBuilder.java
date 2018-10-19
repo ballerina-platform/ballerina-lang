@@ -111,7 +111,7 @@ import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementSimpleBindingPatternNode;
-import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementTupleBindingPatternNode;
+import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementStaticBindingPatternNode;
 import org.ballerinalang.model.tree.statements.PostIncrementNode;
 import org.ballerinalang.model.tree.statements.RecordDestructureNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
@@ -235,7 +235,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTupleBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -572,8 +572,8 @@ public class TreeBuilder {
         return new BLangMatchStmtSimpleBindingPatternClause();
     }
 
-    public static MatchStatementTupleBindingPatternNode createMatchStatementTupleBindingPattern() {
-        return new BLangMatchStmtTupleBindingPatternClause();
+    public static MatchStatementStaticBindingPatternNode createMatchStatementLiteralBindingPattern() {
+        return new BLangMatchStmtStaticBindingPatternClause();
     }
 
     public static ServiceNode createServiceNode() {

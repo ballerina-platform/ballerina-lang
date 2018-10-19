@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.RecordVariableNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.List;
 
@@ -32,6 +31,16 @@ import java.util.List;
 public interface MatchNode {
 
     /**
+     * {@code MatchStatementBindingPatternNode} is the base interface for any patterns inside a match statement.
+     *
+     * @since 0.966.0
+     */
+    interface MatchStatementBindingPatternNode {
+
+        StatementNode getStatement();
+    }
+
+    /**
      * {@code MatchStatementSimpleBindingPatternNode} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
@@ -39,36 +48,19 @@ public interface MatchNode {
     interface MatchStatementSimpleBindingPatternNode {
 
         SimpleVariableNode getVariableNode();
-
-        StatementNode getStatement();
     }
 
     /**
-     * @since 0.982.0
+     * {@code MatchStatementStaticBindingPatternNode} represents a static pattern inside a match statement.
+     *
+     * @since 0.983.0
      */
-    interface MatchStatementTupleBindingPatternNode {
+    interface MatchStatementStaticBindingPatternNode {
 
-        TupleVariableNode getTupleVariableNode();
-
-        StatementNode getStatement();
+        BLangExpression getLiteral();
     }
-
-    /**
-     * @since 0.982.0
-     */
-    interface MatchStatementRecordBindingPatternNode {
-
-        RecordVariableNode getRecordVariableNode();
-
-        StatementNode getStatement();
-    }
-
 
     ExpressionNode getExpression();
 
     List<? extends MatchStatementSimpleBindingPatternNode> getSimplePatternClauses();
-
-    List<? extends MatchStatementTupleBindingPatternNode> getTuplePatternClauses();
-
-    List<? extends MatchStatementRecordBindingPatternNode> getRecordPatternClauses();
 }

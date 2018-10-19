@@ -418,7 +418,9 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   simpleLiteral EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   VAR bindingPattern EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
