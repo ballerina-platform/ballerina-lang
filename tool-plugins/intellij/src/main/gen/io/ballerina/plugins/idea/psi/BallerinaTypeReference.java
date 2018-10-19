@@ -21,13 +21,13 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaPostIncrementStatement extends BallerinaCompositeElement {
+public interface BallerinaTypeReference extends BallerinaCompositeElement {
 
   @NotNull
-  BallerinaPostArithmeticOperator getPostArithmeticOperator();
+  BallerinaSimpleTypeName getSimpleTypeName();
 
   @NotNull
-  BallerinaVariableReference getVariableReference();
+  PsiElement getMul();
 
   @NotNull
   PsiElement getSemicolon();
