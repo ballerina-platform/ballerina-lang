@@ -1,7 +1,7 @@
 package com.github.gtache.lsp.editor
 
 import java.awt._
-import java.awt.event.{KeyEvent, MouseAdapter, MouseEvent}
+import java.awt.event.KeyEvent
 import java.io.File
 import java.net.URI
 import java.util.concurrent.{ExecutionException, TimeUnit, TimeoutException}
@@ -18,6 +18,8 @@ import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.lookup._
+import com.intellij.find.FindBundle
+import com.intellij.find.findUsages.{FindUsagesOptions, PsiElement2UsageTargetAdapter}
 import com.intellij.lang.LanguageDocumentation
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diagnostic.Logger
@@ -25,8 +27,8 @@ import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.editor.markup._
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
-import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor, TextEditor}
+import com.intellij.openapi.editor.{Editor, LogicalPosition, ScrollType}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -34,8 +36,9 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.ui.Hint
-import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
-import javax.swing.{JFrame, JLabel, JPanel}
+import com.intellij.usageView.{UsageInfo, UsageViewUtil}
+import com.intellij.usages.impl.UsageViewManagerImpl
+import com.intellij.usages.{UsageInfo2UsageAdapter, UsageViewPresentation}
 import org.eclipse.lsp4j._
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException
 
@@ -187,7 +190,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
   def signatureHelp(): Unit = {
     val lPos = editor.getCaretModel.getCurrentCaret.getLogicalPosition
     val point = editor.logicalPositionToXY(lPos)
-    val params = new TextDocumentPositionParams(identifier, computableReadAction(() => DocumentUtils.logicalToLSPPos(lPos, editor)))
+    val params = new TextDocumentPositionParams(identifier, DocumentUtils.logicalToLSPPos(lPos, editor))
     pool(() => {
       if (!editor.isDisposed) {
         val future = requestManager.signatureHelp(params)
@@ -235,7 +238,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
       if (!editor.isDisposed) {
         val params = new DocumentOnTypeFormattingParams()
         params.setCh(c)
-        params.setPosition(computableReadAction(() => DocumentUtils.logicalToLSPPos(editor.getCaretModel.getCurrentCaret.getLogicalPosition, editor)))
+        params.setPosition(DocumentUtils.logicalToLSPPos(editor.getCaretModel.getCurrentCaret.getLogicalPosition, editor))
         params.setTextDocument(identifier)
         params.setOptions(new FormattingOptions())
         val future = requestManager.onTypeFormatting(params)
@@ -291,7 +294,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     if (version >= this.version) {
       val document = editor.getDocument
       if (document.isWritable) {
-        () => {
+        () => { computableWriteAction(() => {
           edits.foreach(edit => {
             val text = edit.getNewText
             val range = edit.getRange
@@ -306,6 +309,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
             }
           })
           saveDocument()
+        })
         }
       } else {
         LOG.warn("Document is not writable")
@@ -514,7 +518,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     pool(() => {
       if (!editor.isDisposed) {
         invokeLater(() => {
-          diagnosticsHighlights.foreach(highlight => editor.getMarkupModel.removeHighlighter(highlight.rangeHighlighter))
+          editor.getMarkupModel.removeAllHighlighters()
           diagnosticsHighlights.clear()
         })
         for (diagnostic <- diagnostics) {
@@ -524,7 +528,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
           val range = diagnostic.getRange
           val severity = diagnostic.getSeverity
           LOG.info("code : " + code + " message : " + message + " source : " + source + " range : " + range)
-          val (start, end) = computableReadAction(() => (DocumentUtils.LSPPosToOffset(editor, range.getStart), DocumentUtils.LSPPosToOffset(editor, range.getEnd)))
+          val (start, end) = (DocumentUtils.LSPPosToOffset(editor, range.getStart), DocumentUtils.LSPPosToOffset(editor, range.getEnd))
 
           val markupModel = editor.getMarkupModel
           val colorScheme = editor.getColorsScheme
@@ -538,10 +542,8 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
           }
           invokeLater(() => {
             if (!editor.isDisposed) {
-              diagnosticsHighlights
-                .add(DiagnosticRangeHighlighter(markupModel.addRangeHighlighter(start, end, layer,
-                  new TextAttributes(colorScheme.getDefaultForeground, colorScheme.getDefaultBackground, effectColor, effectType, Font.PLAIN), HighlighterTargetArea.EXACT_RANGE),
-                  diagnostic))
+              diagnosticsHighlights.add(DiagnosticRangeHighlighter(markupModel.addRangeHighlighter(start, end, layer,
+                new TextAttributes(colorScheme.getDefaultForeground, colorScheme.getDefaultBackground, effectColor, effectType, Font.PLAIN), HighlighterTargetArea.EXACT_RANGE), diagnostic))
             }
           })
         }
@@ -713,7 +715,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
         if (references != null) {
           references.asScala.collect {
             case l: Location if l.getUri == identifier.getUri =>
-              computableReadAction(() => (DocumentUtils.LSPPosToOffset(editor, l.getRange.getStart), DocumentUtils.LSPPosToOffset(editor, l.getRange.getEnd)))
+              (DocumentUtils.LSPPosToOffset(editor, l.getRange.getStart), DocumentUtils.LSPPosToOffset(editor, l.getRange.getEnd))
           }
         } else {
           null
@@ -780,9 +782,8 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     */
   def mouseClicked(e: EditorMouseEvent): Unit = {
     if (isCtrlDown) {
-      if (ctrlRange != null) {
-        createCtrlRange(computableReadAction(() => DocumentUtils.logicalToLSPPos(editor.xyToLogicalPosition(e.getMouseEvent.getPoint), editor)), null)
-      }
+      if (ctrlRange == null)
+        createCtrlRange(DocumentUtils.logicalToLSPPos(editor.xyToLogicalPosition(e.getMouseEvent.getPoint), editor), null)
       if (ctrlRange != null) {
         val loc = ctrlRange.loc
         invokeLater(() => {
@@ -797,7 +798,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                 val newEditor = FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
                 val startOffset = DocumentUtils.LSPPosToOffset(newEditor, loc.getRange.getStart)
                 newEditor.getCaretModel.getCurrentCaret.moveToOffset(startOffset)
-                newEditor.getSelectionModel.setSelection(startOffset, DocumentUtils.LSPPosToOffset(newEditor, loc.getRange.getEnd))
+                newEditor.getScrollingModel.scrollToCaret(ScrollType.CENTER)
               })
             }
             if (ctrlRange != null) ctrlRange.dispose()
@@ -826,174 +827,40 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     * Queries references and show a window with these references (click on a row to get to the location)
     */
   def showReferences(includeDefinition: Boolean = true): Unit = {
-    pool(() => {
-      if (!editor.isDisposed) {
-        val context = new ReferenceContext(includeDefinition)
-        val params = new ReferenceParams(context)
-        params.setTextDocument(identifier)
-        val serverPos = computableReadAction(() => {
-          DocumentUtils.logicalToLSPPos(editor.getCaretModel.getCurrentCaret.getLogicalPosition, editor)
+    if (!editor.isDisposed) {
+      if (editor != null) {
+        val targets = EditorEventManager.forEditor(editor)
+          .map(m => m.references(editor.getCaretModel.getCurrentCaret.getOffset, getOriginalElement = includeDefinition, close = true)._1)
+          .getOrElse(Seq())
+          .map(r => new PsiElement2UsageTargetAdapter(r))
+
+        val usageInfo = targets.map(ut => {
+          val elem = ut.getElement
+          new UsageInfo(elem, -1, -1, false)
         })
-        params.setPosition(serverPos)
-        val future = requestManager.references(params)
-        if (future != null) {
-          try {
-            val references = future.get(REFERENCES_TIMEOUT, TimeUnit.MILLISECONDS)
-            wrapper.notifySuccess(Timeouts.REFERENCES)
-            if (references != null) {
-              invokeLater(() => {
-                if (!editor.isDisposed) showReferences(references.asScala)
-              })
-            }
-          } catch {
-            case e: TimeoutException =>
-              LOG.warn(e)
-              wrapper.notifyFailure(Timeouts.REFERENCES)
-            case e@(_: java.io.IOException | _: JsonRpcException | _: ExecutionException) =>
-              LOG.warn(e)
-              wrapper.crashed(e.asInstanceOf[Exception])
-          }
+        if (targets.nonEmpty) {
+          invokeLater(() => {
+            val presentation = createPresentation(targets.head.getElement, new FindUsagesOptions(editor.getProject), toOpenInNewTab = false)
+            new UsageViewManagerImpl(editor.getProject).showUsages(Array(targets.head), usageInfo.map(ui => new UsageInfo2UsageAdapter(ui)).toArray, presentation)
+          })
         }
       }
-    })
+    }
   }
 
-  private def showReferences(references: Iterable[Location]): Unit = {
-    var name: String = ""
-
-    /**
-      * Opens the editor and get the required infos
-      *
-      * @param file              The file of the editor
-      * @param fileEditorManager The fileEditorManager
-      * @param start             The starting position
-      * @param end               The ending position
-      * @return (StartOffset, EndOffset, Name (of the symbol), line (containing the symbol))
-      */
-    def openEditorAndGetOffsetsAndName(file: VirtualFile, fileEditorManager: FileEditorManager, start: Position, end: Position): (Int, Int, String, String) = {
-      val descriptor = new OpenFileDescriptor(project, file)
-      computableWriteAction(() => {
-        val newEditor = fileEditorManager.openTextEditor(descriptor, false)
-        val startOffset = DocumentUtils.LSPPosToOffset(newEditor, start)
-        val endOffset = DocumentUtils.LSPPosToOffset(newEditor, end)
-        val doc = newEditor.getDocument
-        val name = doc.getText(new TextRange(startOffset, endOffset))
-        fileEditorManager.closeFile(file)
-        (startOffset, endOffset, name, DocumentUtils.getLineText(newEditor, startOffset, endOffset))
-      })
-    }
-
-    val locations = references.map(l => {
-      val start = l.getRange.getStart
-      val end = l.getRange.getEnd
-      var startOffset: Int = -1
-      var endOffset: Int = -1
-      var sample: String = ""
-
-      /**
-        * Opens the editor to retrieve the offsets, line, etc if needed
-        */
-      def manageUnopenedEditor(): Unit = {
-        val file = LocalFileSystem.getInstance().findFileByIoFile(new File(new URI(FileUtils.sanitizeURI(l.getUri))))
-        val fileEditorManager = FileEditorManager.getInstance(project)
-        if (fileEditorManager.isFileOpen(file)) {
-          val editors = fileEditorManager.getAllEditors(file).collect { case t: TextEditor => t.getEditor }
-          if (editors.isEmpty) {
-            val (s, e, n, sa) = openEditorAndGetOffsetsAndName(file, fileEditorManager, start, end)
-            startOffset = s
-            endOffset = e
-            name = n
-            sample = sa
-          } else {
-            startOffset = DocumentUtils.LSPPosToOffset(editors.head, start)
-            endOffset = DocumentUtils.LSPPosToOffset(editors.head, end)
-          }
-        } else {
-          val (s, e, n, sa) = openEditorAndGetOffsetsAndName(file, fileEditorManager, start, end)
-          startOffset = s
-          endOffset = e
-          name = n
-          sample = sa
-        }
-      }
-
-      EditorEventManager.forUri(l.getUri) match {
-        case Some(m) =>
-          try {
-            startOffset = DocumentUtils.LSPPosToOffset(m.editor, start)
-            endOffset = DocumentUtils.LSPPosToOffset(m.editor, end)
-            name = m.editor.getDocument.getText(new TextRange(startOffset, endOffset))
-            sample = DocumentUtils.getLineText(m.editor, startOffset, endOffset)
-          } catch {
-            case e: RuntimeException =>
-              LOG.warn(e)
-              manageUnopenedEditor()
-          }
-        case None =>
-          manageUnopenedEditor()
-      }
-
-      (l.getUri, startOffset, endOffset, sample)
-    }).toArray
-
-    val caretPoint = editor.logicalPositionToXY(editor.getCaretModel.getCurrentCaret.getLogicalPosition)
-    showReferencesWindow(locations, name, caretPoint)
-  }
-
-  /**
-    * Creates and shows the references window given the locations
-    *
-    * @param locations The locations : The file URI, the start offset, end offset, and the sample (line) containing the offsets
-    * @param name      The name of the symbol
-    * @param point     The point at which to show the window
-    */
-  private def showReferencesWindow(locations: Array[(String, Int, Int, String)], name: String, point: Point): Unit = {
-    if (locations.isEmpty) {
-      invokeLater(() => if (!editor.isDisposed) currentHint = createAndShowEditorHint(editor, "No usages found", point))
-    } else {
-      val frame = new JFrame()
-      frame.setTitle("Usages of " + name + " (" + locations.length + (if (locations.length > 1) " usages found)" else " usage found"))
-      val panel = new JPanel()
-      var row = 0
-      panel.setLayout(new GridLayoutManager(locations.length, 4, new Insets(10, 10, 10, 10), -1, -1))
-      locations.foreach(l => {
-        val listener = new MouseAdapter() {
-          override def mouseClicked(e: MouseEvent): Unit = {
-            val file = LocalFileSystem.getInstance().findFileByIoFile(new File(new URI(FileUtils.sanitizeURI(l._1))))
-            val descriptor = new OpenFileDescriptor(project, file, l._2)
-            writeAction(() => {
-              val newEditor = FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
-              if (l._2 != -1 && l._3 != -1) newEditor.getSelectionModel.setSelection(l._2, l._3)
-            })
-            frame.setVisible(false)
-            frame.dispose()
-          }
-        }
-        val fileLabel = new JLabel(new File(new URI(FileUtils.sanitizeURI(l._1))).getName)
-        val spacer = new Spacer()
-        val offsetLabel = new JLabel(l._2.toString)
-        val sampleLabel = new JLabel("<html>" + l._4 + "</html>")
-        panel.add(fileLabel, new GridConstraints(row, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
-        panel.add(spacer, new GridConstraints(row, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false))
-        panel.add(offsetLabel, new GridConstraints(row, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
-        panel.add(sampleLabel, new GridConstraints(row, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false))
-        row += 1
-        //TODO refine
-        fileLabel.addMouseListener(listener)
-        spacer.addMouseListener(listener)
-        offsetLabel.addMouseListener(listener)
-        sampleLabel.addMouseListener(listener)
-      })
-      panel.setVisible(true)
-      frame.setContentPane(panel)
-
-      frame.setLocationRelativeTo(editor.getContentComponent)
-      frame.setLocation(point)
-      frame.pack()
-      frame.setAutoRequestFocus(true)
-      frame.setAlwaysOnTop(true)
-      frame.setVisible(true)
-    }
+  private def createPresentation(psiElement: PsiElement, options: FindUsagesOptions, toOpenInNewTab: Boolean) = {
+    val presentation = new UsageViewPresentation
+    val scopeString = options.searchScope.getDisplayName
+    presentation.setScopeText(scopeString)
+    val usagesString = options.generateUsagesString()
+    presentation.setUsagesString(usagesString)
+    val title = FindBundle.message("find.usages.of.element.in.scope.panel.title", usagesString, UsageViewUtil.getLongName(psiElement), scopeString)
+    presentation.setTabText(title)
+    presentation.setTabName(FindBundle.message("find.usages.of.element.tab.name", usagesString, UsageViewUtil.getShortName(psiElement)))
+    presentation.setTargetsNodeText(StringUtil.capitalize(UsageViewUtil.getType(psiElement)))
+    presentation.setOpenInNewTab(toOpenInNewTab)
+    presentation.setShowCancelButton(true)
+    presentation
   }
 
   /**
@@ -1104,42 +971,39 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
   private def createCtrlRange(serverPos: Position, range: Range): Unit = {
     val loc = requestDefinition(serverPos)
     if (loc != null) {
-      invokeLater(() => {
-        if (!editor.isDisposed) {
-          val corRange = if (range == null) {
-            val params = new TextDocumentPositionParams(identifier, serverPos)
-            val future = requestManager.documentHighlight(params)
-            if (future != null) {
-              try {
-                val highlights = future.get(DOC_HIGHLIGHT_TIMEOUT, TimeUnit.MILLISECONDS)
-                if (highlights != null) {
-                  wrapper.notifySuccess(Timeouts.DOC_HIGHLIGHT)
-                  val offset = DocumentUtils.LSPPosToOffset(editor, serverPos)
-                  highlights.asScala.find(dh => DocumentUtils.LSPPosToOffset(editor, dh.getRange.getStart) <= offset
-                    && offset <= DocumentUtils.LSPPosToOffset(editor, dh.getRange.getEnd)).fold(new Range(serverPos, serverPos))(dh => dh.getRange)
-                } else new Range(serverPos, serverPos)
-              } catch {
-                case e: TimeoutException =>
-                  LOG.warn(e)
-                  wrapper.notifyFailure(Timeouts.DOC_HIGHLIGHT)
-                  new Range(serverPos, serverPos)
-                case e@(_: java.io.IOException | _: JsonRpcException | _: ExecutionException) =>
-                  LOG.warn(e)
-                  wrapper.crashed(e.asInstanceOf[Exception])
-                  new Range(serverPos, serverPos)
-              }
-            } else new Range(serverPos, serverPos)
-
-          } else range
-          val startOffset = DocumentUtils.LSPPosToOffset(editor, corRange.getStart)
-          val endOffset = DocumentUtils.LSPPosToOffset(editor, corRange.getEnd)
-          val isDefinition = DocumentUtils.LSPPosToOffset(editor, loc.getRange.getStart) == startOffset
-          if (ctrlRange != null) ctrlRange.dispose()
-          ctrlRange = CtrlRangeMarker(loc, editor,
-            if (!isDefinition) editor.getMarkupModel.addRangeHighlighter(startOffset, endOffset, HighlighterLayer.HYPERLINK, editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR), HighlighterTargetArea.EXACT_RANGE)
-            else null)
-        }
-      })
+      if (!editor.isDisposed) {
+        val corRange = if (range == null) {
+          val params = new TextDocumentPositionParams(identifier, serverPos)
+          val future = requestManager.documentHighlight(params)
+          if (future != null) {
+            try {
+              val highlights = future.get(DOC_HIGHLIGHT_TIMEOUT, TimeUnit.MILLISECONDS)
+              if (highlights != null) {
+                wrapper.notifySuccess(Timeouts.DOC_HIGHLIGHT)
+                val offset = DocumentUtils.LSPPosToOffset(editor, serverPos)
+                highlights.asScala.find(dh => DocumentUtils.LSPPosToOffset(editor, dh.getRange.getStart) <= offset
+                  && offset <= DocumentUtils.LSPPosToOffset(editor, dh.getRange.getEnd)).fold(new Range(serverPos, serverPos))(dh => dh.getRange)
+              } else new Range(serverPos, serverPos)
+            } catch {
+              case e: TimeoutException =>
+                LOG.warn(e)
+                wrapper.notifyFailure(Timeouts.DOC_HIGHLIGHT)
+                new Range(serverPos, serverPos)
+              case e@(_: java.io.IOException | _: JsonRpcException | _: ExecutionException) =>
+                LOG.warn(e)
+                wrapper.crashed(e.asInstanceOf[Exception])
+                new Range(serverPos, serverPos)
+            }
+          } else new Range(serverPos, serverPos)
+        } else range
+        val startOffset = DocumentUtils.LSPPosToOffset(editor, corRange.getStart)
+        val endOffset = DocumentUtils.LSPPosToOffset(editor, corRange.getEnd)
+        val isDefinition = DocumentUtils.LSPPosToOffset(editor, loc.getRange.getStart) == startOffset
+        if (ctrlRange != null) ctrlRange.dispose()
+        ctrlRange = CtrlRangeMarker(loc, editor,
+          if (!isDefinition) editor.getMarkupModel.addRangeHighlighter(startOffset, endOffset, HighlighterLayer.HYPERLINK, editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR), HighlighterTargetArea.EXACT_RANGE)
+          else null)
+      }
     }
   }
 
@@ -1156,7 +1020,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
       try {
         val definition = request.get(DEFINITION_TIMEOUT, TimeUnit.MILLISECONDS)
         wrapper.notifySuccess(Timeouts.DEFINITION)
-        if (definition != null && !definition.isEmpty) {
+        if (definition != null && !definition.isEmpty()) {
           definition.get(0)
         } else {
           null

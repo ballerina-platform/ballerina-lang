@@ -186,10 +186,22 @@ public class ClosedRecordTest {
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
-        CompileResult result = BCompileUtil.compile("test-src/record/sealed_record_negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/record/closed_record_negative.bal");
 
         BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 5, 7);
         BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 12, 9);
         BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 20, 5);
+    }
+
+    @Test(description = "Test invocation of nil-able function pointer fields in a closed record")
+    public void testNilableFunctionPtrInvocation() {
+        CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
+
+        BAssertUtil.validateError(result, 0,
+                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
+                                          "'Person'", 29, 16);
+        BAssertUtil.validateError(result, 1,
+                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
+                                          "'Person'", 34, 16);
     }
 }
