@@ -40,10 +40,10 @@ public class MatchStatementStaticPatternsTest {
         result = BCompileUtil.compile("test-src/statements/matchstmt/static-match-patterns.bal");
     }
 
-    @Test(description = "Test basics of match statement")
+    @Test(description = "Test basics of static pattern match statement 1")
     public void testMatchStatementBasics1() {
 
-        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsBasic", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsBasic1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BStringArray.class);
 
@@ -59,6 +59,26 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "'false'");
         Assert.assertEquals(results.get(++i), msg + "'Default'");
     }
+
+    @Test(description = "Test asics of static pattern match statement 2")
+    public void testMatchStatementBasics2() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsBasic2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + "'12'");
+        Assert.assertEquals(results.get(++i), msg + "'15 & HelloWorld'");
+        Assert.assertEquals(results.get(++i), msg + "'HelloAgain & 34'");
+        Assert.assertEquals(results.get(++i), msg + "'Default'");
+        Assert.assertEquals(results.get(++i), msg + "'15 & 34'");
+        Assert.assertEquals(results.get(++i), msg + "'true'");
+    }
+
 
 }
 

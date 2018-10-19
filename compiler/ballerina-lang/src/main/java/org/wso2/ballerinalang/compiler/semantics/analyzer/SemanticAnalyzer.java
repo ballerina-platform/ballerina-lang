@@ -829,7 +829,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch matchNode) {
 
         //first fail if both static and typed patterns have been defined in the match stmt
-        if (matchNode.patternClauses.size() != matchNode.getTypedPatternClauses().size()) {
+        if (matchNode.getTypedPatternClauses().size() > 0 &&
+                matchNode.patternClauses.size() != matchNode.getTypedPatternClauses().size()) {
             dlog.error(matchNode.pos, INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
             return;
         }
