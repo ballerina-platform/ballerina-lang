@@ -1576,11 +1576,13 @@ public class Types {
                         }
                     }
                     break;
+                // When expanding members for tuples, arrays and maps, set isValueDeepEquality to true, to allow
+                // comparison between JSON lists/maps and primitive lists/maps since they are all reference types
                 case TypeTags.TUPLE:
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.TUPLE &&
                                 tupleIntersectionExists((BTupleType) lhsMemberType, (BTupleType) rhsMemberType,
-                                                        isValueDeepEquality)) {
+                                                        true)) {
                             matchFound = true;
                             break;
                         }
@@ -1591,7 +1593,7 @@ public class Types {
                         if (rhsMemberType.tag == TypeTags.ARRAY &&
                                 intersectionExists(expandAndGetMemberTypesRecursive(((BArrayType) lhsMemberType).eType),
                                                    expandAndGetMemberTypesRecursive(((BArrayType) rhsMemberType).eType),
-                                                   isValueDeepEquality)) {
+                                                   true)) {
                             matchFound = true;
                             break;
                         }
@@ -1601,8 +1603,7 @@ public class Types {
                     for (BType rhsMemberType : rhsTypes) {
                         if (rhsMemberType.tag == TypeTags.MAP && intersectionExists(
                                 expandAndGetMemberTypesRecursive(((BMapType) lhsMemberType).constraint),
-                                expandAndGetMemberTypesRecursive(((BMapType) rhsMemberType).constraint),
-                                isValueDeepEquality)) {
+                                expandAndGetMemberTypesRecursive(((BMapType) rhsMemberType).constraint), true)) {
                             matchFound = true;
                             break;
                         }

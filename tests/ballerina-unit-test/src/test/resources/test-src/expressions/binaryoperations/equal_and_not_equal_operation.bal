@@ -19,6 +19,10 @@ type OpenEmployee record {
     int id;
 };
 
+type OpenPerson record {
+    string name;
+};
+
 type ClosedEmployee record {
     string name;
     int id;
@@ -75,10 +79,10 @@ function checkEqualityToNilNegative(any a) returns boolean {
 
 function checkOpenRecordEqualityPositive() returns boolean {
     OpenEmployee e1 = { name: "Em", id: 4000 };
-    OpenEmployee e2 = { name: "Em", id: 4000 };
+    OpenEmployee e2 = e1;
 
     OpenEmployee e3 = { name: "Em" };
-    OpenEmployee e4 = { name: "Em" };
+    OpenPerson e4 = { name: "Em", id: 0 };
 
     OpenEmployee e5 = { name: "Em", id: 4000, dept: "finance" };
     OpenEmployee e6 = { name: "Em", id: 4000, dept: "finance" };
@@ -86,8 +90,7 @@ function checkOpenRecordEqualityPositive() returns boolean {
     OpenEmployee e7 = {};
     OpenEmployee e8 = {};
 
-    return (e1 == e2) && !(e1 != e2) && (e3 == e4) && !(e3 != e4) && (e5 == e6) && !(e5 != e6) &&
-        (e7 == e8) && !(e7 != e8);
+    return (e1 == e2) && !(e1 != e2) && isEqual(e3, e4) && (e5 == e6) && !(e5 != e6) && (e7 == e8) && !(e7 != e8);
 }
 
 function checkOpenRecordEqualityNegative() returns boolean {
@@ -97,13 +100,13 @@ function checkOpenRecordEqualityNegative() returns boolean {
     OpenEmployee e3 = { name: "Em", id: 4000 };
     OpenEmployee e4 = { name: "Em", area: 51 };
 
-    OpenEmployee e5 = { name: "Em", id: 4000 };
-    OpenEmployee e6 = { name: "Em", id: 4100 };
+    OpenEmployee e5 = { name: "Em" };
+    OpenPerson e6 = { name: "Em" };
 
     OpenEmployee e7 = { name: "Em", id: 4000, dept: "finance" };
     OpenEmployee e8 = { name: "Em", id: 4000, dept: "hr" };
 
-    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || (e5 == e6) || !(e5 != e6) ||
+    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || isEqual(e5, e6) ||
         (e7 == e8) || !(e7 != e8);
 }
 
@@ -118,7 +121,7 @@ function checkClosedRecordEqualityPositive() returns boolean {
     ClosedEmployee e5 = {};
     ClosedEmployee e6 = {};
 
-    return (e1 == e2) && !(e1 != e2) && (e3 == e4) && !(e3 != e4) && (e5 == e6) && !(e5 != e6);
+    return isEqual(e1, e2) && (e3 == e4) && !(e3 != e4) && (e5 == e6) && !(e5 != e6);
 }
 
 function checkClosedRecordEqualityNegative() returns boolean {
@@ -131,7 +134,7 @@ function checkClosedRecordEqualityNegative() returns boolean {
     ClosedEmployee e5 = { name: "Em" };
     ClosedEmployee e6 = { name: "Em", id: 4100 };
 
-    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || (e5 == e6) || !(e5 != e6);
+    return (e1 == e2) || !(e1 != e2) || isEqual(e3, e4) || (e5 == e6) || !(e5 != e6);
 }
 
 function check1DArrayEqualityPositive(boolean[]|int[]|float[]|string[] a, boolean[]|int[]|float[]|string[] b)
@@ -190,8 +193,8 @@ function check1DClosedArrayEqualityPositive() returns boolean {
     return (b1 == b2) && !(b1 != b2) && (b3 == b4) && !(b3 != b4) &&
         (i1 == i2) && !(i1 != i2) && (i3 == i4) && !(i3 != i4) &&
         (by1 == by2) && !(by1 != by2) && (by3 == by4) && !(by3 != by4) &&
-        (f1 == f2) && !(f1 != f2) && (f3 == f4) && !(f3 != f4) &&
-        (s1 == s2) && !(s1 != s2) && (s3 == s4) && !(s3 != s4) &&
+        isEqual(f1, f2) && (f3 == f4) && !(f3 != f4) &&
+        (s1 == s2) && !(s1 != s2) && isEqual(s3, s4) &&
         (a1 == a2) && !(a1 != a2) && (a3 == a4) && !(a3 != a4);
 }
 
@@ -221,7 +224,7 @@ function check1DClosedArrayEqualityNegative() returns boolean {
     any[6] a2 = ["hi", 1, true, 54.3, j2, m2];
 
     return (b1 == b2) || !(b1 != b2) || (i1 == i2) || !(i1 != i2) || (by1 == by2) || !(by1 != by2) ||
-        (f1 == f2) || !(f1 != f2) || (s1 == s2) || !(s1 != s2) || (a1 == a2) || !(a1 != a2);
+        (f1 == f2) || !(f1 != f2) || isEqual(s1, s2) || (a1 == a2) || !(a1 != a2);
 }
 
 function check1DAnyArrayEqualityPositive() returns boolean {
@@ -876,4 +879,8 @@ public function testXmlWithNamespacesNegative() returns boolean {
     xml x3 = xml `<book><name>The Lost World<year>1912</year></name></book>`;
 
     return x1 == x2 || !(x1 != x2) || x2 == x3 && !(x2 != x3);
+}
+
+function isEqual(any a, any b) returns boolean {
+    return a == b && !(a != b);
 }

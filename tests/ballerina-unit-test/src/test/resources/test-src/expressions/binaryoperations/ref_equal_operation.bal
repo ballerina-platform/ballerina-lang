@@ -19,6 +19,11 @@ type OpenEmployee record {
     int id;
 };
 
+type OpenPerson record {
+    string name;
+    int id;
+};
+
 type ClosedEmployee record {
     string name;
     int id;
@@ -57,12 +62,13 @@ function testOpenRecordRefEqualityPositive() returns boolean {
     OpenEmployee e4 = e3;
 
     OpenEmployee e5 = { name: "Em", id: 4000, dept: "finance" };
-    OpenEmployee e6 = e5;
+    OpenPerson e6 = e5;
 
     OpenEmployee e7 = {};
     OpenEmployee e8 = e7;
+    OpenEmployee e9 = e7;
 
-    return (e1 === e2) && (e3 === e4) && (e5 === e6) && (e7 === e8);
+    return (e1 === e2) && (e3 === e4) && (e5 === e6) && isRefEqual(e8, e9);
 }
 
 function testOpenRecordRefEqualityNegative() returns boolean {
@@ -75,7 +81,7 @@ function testOpenRecordRefEqualityNegative() returns boolean {
     OpenEmployee e5 = { name: "Em", id: 4100 };
     OpenEmployee e6 = { name: "Em", id: 4100 };
 
-    return (e1 === e2) || (e3 === e4) || (e5 === e6);
+    return (e1 === e2) || (e3 === e4) || isRefEqual(e5, e6);
 }
 
 
@@ -85,11 +91,12 @@ function testClosedRecordRefEqualityPositive() returns boolean {
 
     ClosedEmployee e3 = {};
     ClosedEmployee e4 = e3;
+    ClosedEmployee e5 = e3;
 
-    ClosedEmployee e5;
-    ClosedEmployee e6 = e5;
+    ClosedEmployee e6;
+    ClosedEmployee e7 = e6;
 
-    return (e1 === e2) && (e3 === e4) && (e5 === e6);
+    return (e1 === e2) && (e4 === e5) && isRefEqual(e6, e7);
 }
 
 function testClosedRecordRefEqualityNegative() returns boolean {
@@ -97,9 +104,10 @@ function testClosedRecordRefEqualityNegative() returns boolean {
     ClosedEmployee e2 = {};
 
     ClosedEmployee e3 = { name: "Em", id: 4000 };
-    ClosedEmployee e4 = { name: "Em", id: 4000 };
+    ClosedEmployee e4 = e3;
+    e3 = { name: "Em", id: 21 };
 
-    return (e1 === e2) || (e3 === e4);
+    return (e1 === e2) || isRefEqual(e3, e4);
 }
 
 function testArrayRefEqualityPositive() returns boolean {
@@ -119,7 +127,7 @@ function testArrayRefEqualityPositive() returns boolean {
     c = [[true, 1.3], [false, false, 12.2]];
     d = c;
 
-    return refEquals;
+    return refEquals && isRefEqual(c, d);
 }
 
 function testArrayRefEqualityNegative() returns boolean {
@@ -133,7 +141,10 @@ function testArrayRefEqualityNegative() returns boolean {
 
     refEquals = refEquals && a === b;
 
-    return refEquals;
+    b = a;
+    a = [1, 2];
+
+    return refEquals && isRefEqual(a, b);
 }
 
 function checkMapRefEqualityPositive() returns boolean {
@@ -143,7 +154,7 @@ function checkMapRefEqualityPositive() returns boolean {
     map<string> m3 = {};
     map<string> m4 = m3;
 
-    boolean equals = m1 === m2 && m3 === m4;
+    boolean equals = m1 === m2 && isRefEqual(m3, m4);
 
     m1["one"] = 1;
     m1["two"] = "two";
@@ -200,13 +211,26 @@ function checkTupleRefEqualityNegative() returns boolean {
 function checkJsonRefEqualityPositive() returns boolean {
     json j = { Hello: "World" };
     json j2 = j;
-
     boolean equals = j === j2;
 
     j = "Hello";
     j2 = j;
+    equals = equals && j === j2;
 
-    return equals && j === j2;
+    int[] intArr = [1, 2, 3];
+    json[] jArr = intArr;
+    int[] intArrTwo = intArr;
+    equals = equals && isRefEqual(intArrTwo, jArr);
+
+    string[] strArr = ["hello world", "ballerina"];
+    jArr = strArr;
+    string[] strArrTwo = strArr;
+    equals = equals && isRefEqual(strArrTwo, jArr);
+
+    (string, int) tup = ("hi", 1);
+    (string, int) tup1 = tup;
+    (json, int) jTup = tup;
+    return equals && isRefEqual(jTup, tup1);
 }
 
 function checkJsonRefEqualityNegative() returns boolean {
@@ -268,8 +292,9 @@ function testXmlRefEqualityPositive() returns boolean {
 
     xml x3 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;
     xml x4 = x3;
+    xml x5 = x3;
 
-    return x1 === x2 && x3 === x4;
+    return x1 === x2 && x4 === x5;
 }
 
 function testXmlRefEqualityNegative() returns boolean {
@@ -277,6 +302,12 @@ function testXmlRefEqualityNegative() returns boolean {
     xml x2 = xml `<book>The Lost World</book>`;
 
     xml x3 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;
-    xml x4 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;
+    xml x4 = x3;
+    x3 = xml `<book><name>The World</name></book>`;
     return x1 === x2 || x3 === x4;
 }
+
+function isRefEqual(any a, any b) returns boolean {
+    return a === b;
+}
+

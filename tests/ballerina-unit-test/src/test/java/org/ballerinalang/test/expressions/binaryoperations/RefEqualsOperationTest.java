@@ -314,7 +314,7 @@ public class RefEqualsOperationTest {
 
     @Test(description = "Test reference equal with errors")
     public void testRefEqualNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 15);
         validateError(resultNegative, 0, "operator '===' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '===' not defined for 'int[2]' and 'string[2]'", 26, 21);
         validateError(resultNegative, 2, "operator '===' not defined for 'float|int[]' and 'boolean|xml[]'", 30,
@@ -331,6 +331,11 @@ public class RefEqualsOperationTest {
                       68, 21);
         validateError(resultNegative, 9, "operator '===' not defined for 'Employee|(string,int)' and 'json'",
                       72, 21);
+        validateError(resultNegative, 10, "operator '===' not defined for 'int' and 'json'", 80, 21);
+        validateError(resultNegative, 11, "operator '===' not defined for 'string' and 'json'", 85, 13);
+        validateError(resultNegative, 12, "operator '===' not defined for 'float' and 'json'", 89, 13);
+        validateError(resultNegative, 13, "operator '===' not defined for 'boolean' and 'json'", 94, 13);
+        validateError(resultNegative, 14, "operator '===' not defined for '()' and 'json'", 98, 13);
     }
 
     @DataProvider(name = "equalBooleanValues")
