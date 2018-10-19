@@ -13,7 +13,7 @@ public type FuncBodyParser object {
         int i;
         while (i < numInstruction) {
             instructions[i] = parseInstruction();
-            i++;
+            i += 1;
         }
         return { id: { value: id },
             instructions: instructions,
@@ -68,7 +68,7 @@ public type FuncBodyParser object {
             int i = 0;
             while (i < argsCount) {
                 args[i] = parseVarRef();
-                i++;
+                i += 1;
             }
             var hasLhs = reader.readBoolean();
             VarRef? lhsOp = ();

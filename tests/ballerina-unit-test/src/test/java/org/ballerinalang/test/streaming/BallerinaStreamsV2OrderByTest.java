@@ -51,7 +51,7 @@ public class BallerinaStreamsV2OrderByTest {
     }
 
     @Test(description = "Test OrderBy streaming query")
-    public void testFilterQuery() {
+    public void testOrderByQuery() {
         executeFunction(result);
     }
 

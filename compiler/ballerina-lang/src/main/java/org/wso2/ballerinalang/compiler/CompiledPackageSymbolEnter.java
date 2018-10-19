@@ -353,10 +353,8 @@ public class CompiledPackageSymbolEnter {
         int flags = dataInStream.readInt();
 
         BInvokableType funcType = createInvokableType(funcSig);
-
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
-                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-
+                this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (Symbols.isFlagOn(flags, Flags.ATTACHED)) {
@@ -365,18 +363,10 @@ public class CompiledPackageSymbolEnter {
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
             BType attachedType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
 
-            // Update the symbol by:
-            //     1) Appending the type name in front of the function name
-            //     2) Removing the first parameter from the param list
-            invokableSymbol = Symbols.createFunctionSymbol(flags,
-                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName)),
-                    this.env.pkgSymbol.pkgID, null, attachedType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-            List<BType> params = new ArrayList<>();
-            params.addAll(funcType.paramTypes);
-            // remove first parameter
-            params.remove(0);
-            funcType.paramTypes = params;
-
+            // Update the symbol
+            invokableSymbol.owner = attachedType.tsymbol;
+            invokableSymbol.name =
+                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 BAttachedFunction attachedFunc =
@@ -392,18 +382,16 @@ public class CompiledPackageSymbolEnter {
 
         // Read and ignore worker data
         int noOfWorkerDataBytes = dataInStream.readInt();
-        byte[] workerData = new byte[noOfWorkerDataBytes];
-        int bytesRead = dataInStream.read(workerData);
-        if (bytesRead != noOfWorkerDataBytes) {
-            // TODO throw an error
+        if (noOfWorkerDataBytes > 0) {
+            byte[] workerData = new byte[noOfWorkerDataBytes];
+            int bytesRead = dataInStream.read(workerData);
+            if (bytesRead != noOfWorkerDataBytes) {
+                // TODO throw an error
+            }
         }
 
         // Read attributes
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-
-        // TODO create function symbol and define..
-
-        invokableSymbol.type = funcType;
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, attrDataMap);
@@ -481,14 +469,9 @@ public class CompiledPackageSymbolEnter {
         BObjectType type = new BObjectType(symbol);
         symbol.type = type;
 
-
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
-
-        // Define Object attached functions
-        defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -514,11 +497,6 @@ public class CompiledPackageSymbolEnter {
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
-
-        // TODO remove once record init function is removed
-        // Define record attached functions
-        defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -638,13 +616,6 @@ public class CompiledPackageSymbolEnter {
         setDocumentation(varSymbol, attrData);
 
         this.env.unresolvedTypes.add(unresolvedFieldType);
-    }
-
-    private void defineObjectAttachedFunction(DataInputStream dataInStream) throws IOException {
-        // Consider attached functions.. remove the first variable
-        getUTF8CPEntryValue(dataInStream);
-        getUTF8CPEntryValue(dataInStream);
-        dataInStream.readInt();
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {

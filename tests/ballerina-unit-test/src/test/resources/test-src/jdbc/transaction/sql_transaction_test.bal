@@ -749,7 +749,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
     return (returnVal, count, a);
 }
 
-function testLocalTransactonWithSelect() returns (int, int) {
+function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) {
     endpoint jdbc:Client  testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
@@ -774,6 +774,41 @@ function testLocalTransactonWithSelect() returns (int, int) {
             registrationID = 900", ResultCount);
         foreach row in dt2 {
             count = row.COUNTVAL;
+        }
+    } onretry {
+        returnVal = -1;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
+function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) {
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 901, 5000.75, 'USA')");
+    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 901, 5000.75, 'USA')");
+
+    int returnVal = 0;
+    int count;
+    transaction {
+        table<ResultCount> dt1 = check testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 901", ResultCount);
+        while (dt1.hasNext()) {
+            ResultCount rs = check <ResultCount>dt1.getNext();
+            count = rs.COUNTVAL;
+        }
+
+        table<ResultCount> dt2 = check testDB->select("Select COUNT(*) as countval from Customers where
+            registrationID = 901", ResultCount);
+        while (dt2.hasNext()) {
+            ResultCount rs = check <ResultCount>dt2.getNext();
+            count = rs.COUNTVAL;
         }
     } onretry {
         returnVal = -1;
