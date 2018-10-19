@@ -154,8 +154,9 @@ public class SourceGenTest {
         private List<File> files;
         private String[] ignoredFiles = {"table_queries.bal", "table.bal", "csv_io.bal",
                 "channels_correlation.bal", "channels_workers.bal", "grpc_bidirectional_streaming_client.bal",
-                "table_literal_syntax.bal", "compensate-stmt.bal", "function-with-two-rest-params.bal",
-                "redundant-compression-config.bal", "taintchecking/annotations/lambda.bal", "high_loc.bal",
+                "symbolic_string_literal.bal", "table_literal_syntax.bal", "compensate-stmt.bal",
+                "function-with-two-rest-params.bal", "redundant-compression-config.bal",
+                "taintchecking/annotations/lambda.bal", "high_loc.bal",
                 "lang/annotations/variable-as-attribute-value.bal", "lang/annotations/constant-as-attribute-value.bal",
                 "lang/annotations/multityped-attribute-array.bal", "lang/annotations/default-values.bal",
                 "lang/annotations/lang.annotations.pkg.first/annotation.bal", "structs/struct-equivalency.bal",

@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -41,6 +42,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.FiniteType;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -412,6 +414,7 @@ public class CommonUtil {
         annotationItem.setInsertText(insertText);
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
+        annotationItem.setKind(CompletionItemKind.Property);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
         Optional currentPkgImport = imports.stream()
@@ -453,7 +456,7 @@ public class CommonUtil {
                 + CommonUtil.LINE_SEPARATOR;
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
     }
-    
+
     /**
      * Fill the completion items extracted from LS Index db with the auto import text edits.
      * Here the Completion Items are mapped against the respective package ID.
@@ -478,7 +481,7 @@ public class CommonUtil {
                 logger.error("Error While retrieving Package Symbol for text edits");
             }
         });
-        
+
         return returnList;
     }
 
@@ -621,6 +624,7 @@ public class CommonUtil {
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
             fieldItem.setLabel(bStructField.getName().getValue());
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
+            fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
             completionItems.add(fieldItem);
         });
@@ -649,6 +653,7 @@ public class CommonUtil {
         completionItem.setLabel(label);
         completionItem.setInsertText(insertText);
         completionItem.setDetail(ItemResolverConstants.NONE);
+        completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
         return completionItem;
@@ -680,24 +685,24 @@ public class CommonUtil {
         BType bType = variable.getScopeEntry().symbol.getType();
         
         if (iterableType(bType)) {
-            SymbolInfo itrForEach = getIterableOpSymbolInfo(Snippet.ITR_FOREACH, bType,
+            SymbolInfo itrForEach = getIterableOpSymbolInfo(Snippet.ITR_FOREACH.get(), bType,
                     ItemResolverConstants.ITR_FOREACH_LABEL, context);
-            SymbolInfo itrMap = getIterableOpSymbolInfo(Snippet.ITR_MAP, bType,
+            SymbolInfo itrMap = getIterableOpSymbolInfo(Snippet.ITR_MAP.get(), bType,
                     ItemResolverConstants.ITR_MAP_LABEL, context);
-            SymbolInfo itrFilter = getIterableOpSymbolInfo(Snippet.ITR_FILTER, bType,
+            SymbolInfo itrFilter = getIterableOpSymbolInfo(Snippet.ITR_FILTER.get(), bType,
                     ItemResolverConstants.ITR_FILTER_LABEL, context);
-            SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT, bType,
+            SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT.get(), bType,
                     ItemResolverConstants.ITR_COUNT_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
 
             if (aggregateFunctionsAllowed(bType)) {
-                SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN, bType,
+                SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN.get(), bType,
                         ItemResolverConstants.ITR_MIN_LABEL, context);
-                SymbolInfo itrMax = getIterableOpSymbolInfo(Snippet.ITR_MAX, bType,
+                SymbolInfo itrMax = getIterableOpSymbolInfo(Snippet.ITR_MAX.get(), bType,
                         ItemResolverConstants.ITR_MAX_LABEL, context);
-                SymbolInfo itrAvg = getIterableOpSymbolInfo(Snippet.ITR_AVERAGE, bType,
+                SymbolInfo itrAvg = getIterableOpSymbolInfo(Snippet.ITR_AVERAGE.get(), bType,
                         ItemResolverConstants.ITR_AVERAGE_LABEL, context);
-                SymbolInfo itrSum = getIterableOpSymbolInfo(Snippet.ITR_SUM, bType,
+                SymbolInfo itrSum = getIterableOpSymbolInfo(Snippet.ITR_SUM.get(), bType,
                         ItemResolverConstants.ITR_SUM_LABEL, context);
                 symbolInfoList.addAll(Arrays.asList(itrMin, itrMax, itrAvg, itrSum));
             }
@@ -763,40 +768,39 @@ public class CommonUtil {
         return filteredCUnit == null ? new ArrayList<>() : filteredCUnit.getTopLevelNodes();
     }
     
-    private static SymbolInfo getIterableOpSymbolInfo(Snippet operation, @Nullable BType bType, String label,
+    private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         String lambdaSignature = "";
         SymbolInfo.IterableOperationSignature signature;
         SymbolInfo iterableOperation = new SymbolInfo();
-        switch (operation) {
-            case ITR_FOREACH: {
+        switch (operation.getLabel()) {
+            case ItemResolverConstants.ITR_FOREACH_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation.getBlock()
+                lambdaSignature = operation.getString(isSnippet)
+                        .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+                break;
+            }
+            case ItemResolverConstants.ITR_MAP_LABEL: {
+                String params = getIterableOpLambdaParam(bType, context);
+                lambdaSignature = operation
                         .getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
-            case ITR_MAP: {
+            case ItemResolverConstants.ITR_FILTER_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation.getBlock()
+                lambdaSignature = operation
                         .getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
-            case ITR_FILTER: {
-                String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation.getBlock()
-                        .getString(isSnippet)
-                        .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
-                break;
-            }
-            case ITR_COUNT:
-            case ITR_MIN:
-            case ITR_MAX:
-            case ITR_AVERAGE:
-            case ITR_SUM:
-                lambdaSignature = operation.getBlock().getString(isSnippet);
+            case ItemResolverConstants.ITR_COUNT_LABEL:
+            case ItemResolverConstants.ITR_MIN_LABEL:
+            case ItemResolverConstants.ITR_MAX_LABEL:
+            case ItemResolverConstants.ITR_AVERAGE_LABEL:
+            case ItemResolverConstants.ITR_SUM_LABEL:
+                lambdaSignature = operation.getString(isSnippet);
                 break;
             default: {
                 // Do Nothing
@@ -815,13 +819,13 @@ public class CommonUtil {
         String params = "";
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         if (bType instanceof BMapType) {
-            params = Snippet.ITR_ON_MAP_PARAMS.getBlock().getString(isSnippet);
+            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet);
         } else if (bType instanceof BArrayType) {
             params = ((BArrayType) bType).eType.toString() + " v";
         } else if (bType instanceof BJSONType) {
-            params = Snippet.ITR_ON_JSON_PARAMS.getBlock().getString(isSnippet);
+            params = Snippet.ITR_ON_JSON_PARAMS.get().getString(isSnippet);
         } else if (bType instanceof BXMLType) {
-            params = Snippet.ITR_ON_XML_PARAMS.getBlock().getString(isSnippet);
+            params = Snippet.ITR_ON_XML_PARAMS.get().getString(isSnippet);
         }
 
         return params;

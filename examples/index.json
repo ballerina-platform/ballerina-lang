@@ -127,6 +127,10 @@
                 "url": "string-template"
             },
             {
+                "name": "Symbolic String Literal",
+                "url": "symbolic-string-literal"
+            },
+            {
                 "name": "Arrays",
                 "url": "arrays"
             },

@@ -6,7 +6,7 @@ int i = 10;
 function f1 (string inputData) returns (string) {
     string data = inputData + ":";
     if (i > 0) {
-        i--;
+        i -= 1;
         data = data + f1(data);
     }
     secureFunction(data, data);
