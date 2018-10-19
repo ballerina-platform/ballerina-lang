@@ -22,16 +22,16 @@ import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
-# Represents JWT configurations.
+# Represents authentication provider configurations that supports generating JWT for client interactions.
 #
-# + issuer - Identifier of the token issuer
-# + audience - Identifier of the token recipients
-# + expTime - JWT token expiry time
-# + keyAlias - Token signed key alias
-# + keyPassword - Token signed key password
-# + keyStoreFilePath - Path to the trust store file
-# + keyStorePassword - Key store password
-# + signingAlg - The signing algorithm which is used to sign the JWT token
+# + issuer - Expected JWT token issuer
+# + audience - Expected JWT token audience
+# + expTime - Expiry time for newly issued JWT tokens
+# + keyAlias - Key alias for signing newly issued JWT tokens
+# + keyPassword - Key password for signing newly issued JWT tokens
+# + keyStoreFilePath - Path to the key-store file containing signing key
+# + keyStorePassword - Password of the key-store file containing signing key
+# + signingAlg - Signing algorithm for signing newly issued JWT tokens
 public type InferredJwtAuthProviderConfig record {
     string issuer;
     string audience;
@@ -44,6 +44,10 @@ public type InferredJwtAuthProviderConfig record {
     !...
 };
 
+# Sets the jwt access token to the AuthContext
+#
+# + username - user name
+# + authConfig - authentication provider configurations that supports generating JWT for client interactions
 function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig) {
     internal:JwtHeader header = createHeader(authConfig);
     internal:JwtPayload payload = createPayload(username, authConfig);

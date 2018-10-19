@@ -21,19 +21,19 @@ import ballerina/runtime;
 # Represents configurations that required for LDAP auth store.
 #
 # + domainName - Unique name to identify the user store
-# + connectionURL - Connection URL to the user store server
-# + connectionName - The username used to connect to the user store
+# + connectionURL - Connection URL to the LDAP server
+# + connectionName - The username used to connect to the LDAP server
 # + connectionPassword - Password for the ConnectionName user
-# + userSearchBase - DN of the context or object under which the user entries are stored in the user store
+# + userSearchBase - DN of the context or object under which the user entries are stored in the LDAP server
 # + userEntryObjectClass - Object class used to construct user entries
 # + userNameAttribute - The attribute used for uniquely identifying a user entry
 # + userNameSearchFilter - Filtering criteria used to search for a particular user entry
-# + userNameListFilter - Filtering criteria for searching user entries in the user store
-# + groupSearchBase - DN of the context or object under which the group entries are stored in the user store
+# + userNameListFilter - Filtering criteria for searching user entries in the LDAP server
+# + groupSearchBase - DN of the context or object under which the group entries are stored in the LDAP server
 # + groupEntryObjectClass - Object class used to construct group entries
 # + groupNameAttribute - The attribute used for uniquely identifying a group entry
 # + groupNameSearchFilter - Filtering criteria used to search for a particular group entry
-# + groupNameListFilter - Filtering criteria for searching group entries in the user store
+# + groupNameListFilter - Filtering criteria for searching group entries in the LDAP server
 # + membershipAttribute - Define the attribute that contains the distinguished names (DN) of user objects that are in a group
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
@@ -96,13 +96,17 @@ public type LdapAuthStoreProvider object {
     public LdapAuthProviderConfig ldapAuthProviderConfig;
     public string instanceId;
 
-    public new (ldapAuthProviderConfig, instanceId){
+    # Create an LDAP auth store with the given configurations.
+    #
+    # + ldapAuthProviderConfig -  LDAP auth store configurations
+    # + instanceId - Endpoint instance id
+    public new (ldapAuthProviderConfig, instanceId) {
         self.ldapAuthProviderConfig = ldapAuthProviderConfig;
         self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
     }
 
-    # Attempts to authenticate with username and password
+    # Authenticate with username and password
     #
     # + user - user name
     # + password - password
@@ -127,7 +131,7 @@ public type LdapAuthStoreProvider object {
         return self.getScopesOfUser(username);
     }
 
-    # Attempts to authenticate with username and password
+    # Authenticate with username and password
     #
     # + user - user name
     # + password - password

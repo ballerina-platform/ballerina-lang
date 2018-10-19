@@ -22,7 +22,7 @@ import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
-# Represents a JWT Authenticator
+# Represents LDAP authentication provider that supports generating JWT for client interactions
 #
 # + ldapJwtAuthProviderConfig - JWT configurations
 # + ldapAuthProvider - LDAP auth store provider
@@ -31,14 +31,14 @@ public type LdapJwtAuthProvider object {
     public InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig;
     public LdapAuthStoreProvider ldapAuthProvider;
 
-    # Provides authentication based on the provided jwt token
+    # Provides authentication based on the configured LDAP user store
     #
-    # + ldapJwtAuthProviderConfig - JWT configurations
+    # + ldapJwtAuthProviderConfig - Configuration for JWT token propagation
     # + ldapAuthProvider - LDAP auth store provider
     public new(ldapJwtAuthProviderConfig, ldapAuthProvider) {
     }
 
-    # Authenticate with username and password using ldap auth store
+    # Authenticate with username and password using LDAP user store
     #
     # + username - user name
     # + password - password
@@ -51,7 +51,7 @@ public type LdapJwtAuthProvider object {
         return isAuthenticated;
     }
 
-    # Reads the scope(s) for the user with the given username from ldap auth store
+    # Reads the scope(s) for the user with the given username from LDAP user store
     #
     # + username - user name
     # + return - array of groups for the user denoted by the username
