@@ -1972,7 +1972,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.booleanValue = (Boolean) value;
                 break;
             case TypeTags.DECIMAL:
-                defaultValue.decimalValue = (Decimal) literalExpr.value;
+                defaultValue.decimalValue = (Decimal) value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new DecimalCPEntry(defaultValue.decimalValue));
                 break;
             case TypeTags.NIL:

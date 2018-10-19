@@ -103,7 +103,7 @@ public class JSONUtils {
      * @param intArray {@link BIntArray} to be converted to JSON
      * @return JSON representation of the provided intArray
      */
-    public static BRefValueArray convertArrayToJSON(BIntArray intArray) {
+    private static BRefValueArray convertArrayToJSON(BIntArray intArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < intArray.size(); i++) {
             long value = intArray.get(i);
@@ -118,7 +118,7 @@ public class JSONUtils {
      * @param floatArray {@link BFloatArray} to be converted to JSON
      * @return JSON representation of the provided floatArray
      */
-    public static BRefValueArray convertArrayToJSON(BFloatArray floatArray) {
+    private static BRefValueArray convertArrayToJSON(BFloatArray floatArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.get(i);
@@ -133,7 +133,7 @@ public class JSONUtils {
      * @param decimalArray {@link BDecimalArray} to be converted to JSON
      * @return JSON representation of the provided decimalArray
      */
-    public static BRefValueArray convertArrayToJSON(BDecimalArray decimalArray) {
+    private static BRefValueArray convertArrayToJSON(BDecimalArray decimalArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < decimalArray.size(); i++) {
             Decimal value = decimalArray.get(i);
@@ -148,7 +148,7 @@ public class JSONUtils {
      * @param stringArray {@link BStringArray} to be converted to JSON
      * @return JSON representation of the provided stringArray
      */
-    public static BRefValueArray convertArrayToJSON(BStringArray stringArray) {
+    private static BRefValueArray convertArrayToJSON(BStringArray stringArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < stringArray.size(); i++) {
             String value = stringArray.get(i);
@@ -163,7 +163,7 @@ public class JSONUtils {
      * @param booleanArray {@link BBooleanArray} to be converted to JSON
      * @return JSON representation of the provided booleanArray
      */
-    public static BRefValueArray convertArrayToJSON(BBooleanArray booleanArray) {
+    private static BRefValueArray convertArrayToJSON(BBooleanArray booleanArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
             int value = booleanArray.get(i);
