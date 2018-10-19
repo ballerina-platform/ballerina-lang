@@ -18,18 +18,32 @@ import ballerina/h2;
 import ballerina/sql;
 import ballerina/system;
 
+# Represents personally identifiable information (PII) storage mechanisum based on H2 database
+#
+# + clientEndpoint - reference to H2 database client endpoint
+# + tableName - table name used to store PII
+# + idColumn - column name used to store pseudonymized identifier
+# + piiColumn - column name used to store PII
 public type H2PiiStore object {
     public h2:Client clientEndpoint;
     public string tableName;
     public string idColumn;
     public string piiColumn;
 
+    # Create personally identifiable information (PII) storage mechanisum based on H2 database
+    #
+    # + clientEndpoint - reference to H2 database client endpoint
+    # + tableName - table name used to store PII
+    # + idColumn - column name used to store pseudonymized identifier
+    # + piiColumn - column name used to store PII
     public new (clientEndpoint, tableName, idColumn, piiColumn) {
-        validateFieldName(tableName);
-        validateFieldName(idColumn);
-        validateFieldName(piiColumn);
+        validateFieldName(tableName, idColumn, piiColumn);
     }
 
+    # Pseudonymize personally identifiable information (PII) and store PII and the pseudonymized identifier
+    #
+    # + pii - PII to be pseudonymized
+    # + return - pseudonymized identifier if storage operation was successful, error if storage operation failed
     public function pseudonymize (string pii) returns string|error {
         endpoint h2:Client client = clientEndpoint;
         string dbQuery = buildInsertQuery(tableName, idColumn, piiColumn);
@@ -40,6 +54,10 @@ public type H2PiiStore object {
         return processInsertResult(id, queryResult);
     }
 
+    # Depseudonymize the identifier by retrieving the personally identifiable information (PII)
+    #
+    # + id - pseudonymized identifier to be depseudonymize
+    # + return - PII if retrival was successful, error if retrival failed
     public function depseudonymize (string id) returns string|error {
         endpoint h2:Client client = clientEndpoint;
         string dbQuery = buildSelectQuery(tableName, idColumn, piiColumn);
@@ -48,6 +66,10 @@ public type H2PiiStore object {
         return processSelectResult(id, queryResult);
     }
 
+    # Delete personally identifiable information (PII)
+    #
+    # + id - pseudonymized identifier to be deleted
+    # + return - nil if retrival was successful, error if retrival failed
     public function delete (string id) returns error? {
         endpoint h2:Client client = clientEndpoint;
         string dbQuery = buildDeleteQuery(tableName, idColumn);
@@ -55,4 +77,5 @@ public type H2PiiStore object {
         var queryResult = client->update(dbQuery, paramId);
         return processDeleteResult(id, queryResult);
     }
+
 };

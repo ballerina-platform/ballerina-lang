@@ -14,14 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Pseudonymize personally identifiable information (PII) and store PII and the pseudonymized identifier in the PII store
+#
+# + store - storage used to persist the PII and the identifier
+# + pii - PII to be pseudonymized
+# + return - pseudonymized identifier if storage operation was successful, error if storage operation failed
 public function pseudonymize (PiiStore store, string pii) returns string|error {
     return store.pseudonymize(pii);
 }
 
+# Depseudonymize the identifier by retrieving the personally identifiable information (PII) from the PII store
+#
+# + store - storage used to persist the PII and the identifier
+# + id - pseudonymized identifier to be depseudonymize
+# + return - PII if retrival was successful, error if retrival failed
 public function depseudonymize (PiiStore store, string id) returns string|error {
     return store.depseudonymize(id);
 }
 
-public function delete (PiiStore store, string id) returns ()|error {
+# Delete personally identifiable information (PII) from the PII store
+#
+# + store - storage used to persist the PII and the identifier
+# + id - pseudonymized identifier to be deleted
+# + return - nil if retrival was successful, error if retrival failed
+public function delete (PiiStore store, string id) returns error? {
     return store.delete(id);
 }

@@ -28,7 +28,7 @@ function deletePii (string id) returns error? {
     return privacy:delete(piiStore, id);
 }
 
-function pseudonymizePiiWithInvalidFieldName (string pii) returns string|error {
-    privacy:H2PiiStore piiStore = new(testDB, TABLE_NAME + "`" + TABLE_NAME, ID_CLOUMN, PII_COLUMN);
+function pseudonymizePiiWithEmptyTableName (string pii) returns string|error {
+    privacy:H2PiiStore piiStore = new(testDB, "", ID_CLOUMN, PII_COLUMN);
     return privacy:pseudonymize(piiStore, pii);
 }

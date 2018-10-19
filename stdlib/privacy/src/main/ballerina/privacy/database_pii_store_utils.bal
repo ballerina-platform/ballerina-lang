@@ -14,47 +14,67 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents personally identifiable information (PII) stored in a database
+#
+# + pii - personally identifiable information
 type PiiData record {
     string pii;
 };
 
+# Build insert query based on the table name and column names
+#
+# + tableName - table name used to store PII
+# + idColumn - column name used to store pseudonymized identifier
+# + piiColumn - column name used to store PII
+# + return - insert query
 function buildInsertQuery (string tableName, string idColumn, string piiColumn) returns string {
-    return "INSERT INTO `" + tableName + "` (`" + idColumn + "`,`" + piiColumn + "`) VALUES (?, ?)";
+    return "INSERT INTO " + tableName + " (" + idColumn + "," + piiColumn + ") VALUES (?, ?)";
 }
 
+# Build select query based on the table name and column names
+#
+# + tableName - table name used to store PII
+# + idColumn - column name used to store pseudonymized identifier
+# + piiColumn - column name used to store PII
+# + return - select query
 function buildSelectQuery (string tableName, string idColumn, string piiColumn) returns string {
-    return "SELECT `" + piiColumn + "` FROM `" + tableName + "` WHERE `" + idColumn + "` = ?";
+    return "SELECT " + piiColumn + " FROM " + tableName + " WHERE " + idColumn + " = ?";
 }
 
+# Build delete query based on the table name and column names
+#
+# + tableName - table name used to store PII
+# + idColumn - column name used to store pseudonymized identifier
+# + return - delete query
 function buildDeleteQuery (string tableName, string idColumn) returns string {
-    return "DELETE FROM `" + tableName + "` WHERE `" + idColumn + "` = ?";
+    return "DELETE FROM " + tableName + " WHERE " + idColumn + " = ?";
 }
 
-function validateFieldName (string inputData) {
-    if (inputData.contains("`")) {
-        error validationError = {
-            message: "invalid character found in '" + inputData + "'"
-        };
-        throw validationError;
+# Validate the table name and column names and throw errors if validation errors are present
+#
+# + tableName - table name used to store PII
+# + idColumn - column name used to store pseudonymized identifier
+# + piiColumn - column name used to store PII
+function validateFieldName (string tableName, string idColumn, string piiColumn) {
+    if (tableName == "") {
+        error err = { message: "Table name is required" };
+        throw err;
+    }
+    if (idColumn == "") {
+        error err = { message: "ID column name is required" };
+        throw err;
+    }
+    if (piiColumn == "") {
+        error err = { message: "PII column name is required" };
+        throw err;
     }
 }
 
-function processDeleteResult (string id, int|error queryResult) returns error? {
-    match queryResult {
-        int rowCount => {
-            if (rowCount > 0) {
-                return ();
-            } else {
-                error err = { message: "Identifier " + id + " is not found in PII store" };
-                return err;
-            }
-        }
-        error err => {
-            return err;
-        }
-    }
-}
-
+# Process results of the insert query
+#
+# + id - pseudonymized identifier getting inserted
+# + queryResult - results of the insert query
+# + return - pseudonymized identifier if insert was successful, error if insert failed
 function processInsertResult (string id, int|error queryResult) returns string|error {
     match queryResult {
         int rowCount => {
@@ -71,12 +91,38 @@ function processInsertResult (string id, int|error queryResult) returns string|e
     }
 }
 
+# Process results of the select query
+#
+# + id - pseudonymized identifier getting selected
+# + queryResult - results of the select query
+# + return - personally identifiable information (PII) if select was successful, error if select failed
 function processSelectResult(string id, table<PiiData>|error queryResult) returns string|error {
     match queryResult {
         table resultTable => {
             if (resultTable.hasNext()) {
                 PiiData piiData = check <PiiData> resultTable.getNext();
                 return piiData.pii;
+            } else {
+                error err = { message: "Identifier " + id + " is not found in PII store" };
+                return err;
+            }
+        }
+        error err => {
+            return err;
+        }
+    }
+}
+
+# Process results of the delete query
+#
+# + id - pseudonymized identifier getting deleted
+# + queryResult - results of the delete query
+# + return - nil if deletion was successful, error if deletion failed
+function processDeleteResult (string id, int|error queryResult) returns error? {
+    match queryResult {
+        int rowCount => {
+            if (rowCount > 0) {
+                return ();
             } else {
                 error err = { message: "Identifier " + id + " is not found in PII store" };
                 return err;

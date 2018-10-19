@@ -38,13 +38,13 @@ function deletePii (string jdbcUrl, string userName, string password, string id)
     return privacy:delete(piiStore, id);
 }
 
-function pseudonymizePiiWithInvalidFieldName (string jdbcUrl, string userName, string password, string pii) returns string|error {
+function pseudonymizePiiWithEmptyTableName (string jdbcUrl, string userName, string password, string pii) returns string|error {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
         password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
-    privacy:JdbcPiiStore piiStore = new(testDB, TABLE_NAME + "`" + TABLE_NAME, ID_CLOUMN, PII_COLUMN);
+    privacy:JdbcPiiStore piiStore = new(testDB, "", ID_CLOUMN, PII_COLUMN);
     return privacy:pseudonymize(piiStore, pii);
 }

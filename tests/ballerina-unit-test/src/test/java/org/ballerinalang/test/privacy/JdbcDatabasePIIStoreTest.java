@@ -28,7 +28,11 @@ import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
+import org.testng.annotations.Test;
 
 import java.util.stream.Stream;
 
@@ -44,6 +48,7 @@ public class JdbcDatabasePIIStoreTest {
     private CompileResult result;
     private static final String DB_NAME_H2 = "TestDB_H2";
     private static final String DB_NAME_HSQLDB = "TestDB_HSQL";
+    private static final String DB_SCRIPT_FILE_PATH = "datafiles/privacy/PII_Store_Table_Create.sql";
 
     private static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
     private static final String SAMPLE_PII_VALUE = "Personally Identifiable Information";
@@ -58,14 +63,14 @@ public class JdbcDatabasePIIStoreTest {
         switch (dbType) {
             case MYSQL:
             case POSTGRES:
-                testDatabase = new SQLDBUtils.ContainerizedTestDatabase(dbType, "datafiles/privacy/PII_Store_Table_Create.sql");
+                testDatabase = new SQLDBUtils.ContainerizedTestDatabase(dbType, DB_SCRIPT_FILE_PATH);
                 break;
             case H2:
-                testDatabase = new SQLDBUtils.FileBasedTestDatabase(dbType, "datafiles/privacy/PII_Store_Table_Create.sql",
+                testDatabase = new SQLDBUtils.FileBasedTestDatabase(dbType, DB_SCRIPT_FILE_PATH,
                         SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME_H2);
                 break;
             case HSQLDB:
-                testDatabase = new SQLDBUtils.FileBasedTestDatabase(dbType, "datafiles/privacy/PII_Store_Table_Create.sql",
+                testDatabase = new SQLDBUtils.FileBasedTestDatabase(dbType, DB_SCRIPT_FILE_PATH,
                         SQLDBUtils.DB_DIRECTORY, DB_NAME_HSQLDB);
                 break;
             default:
@@ -172,12 +177,11 @@ public class JdbcDatabasePIIStoreTest {
     }
 
     @Test (expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*caused by error, message: invalid character found in " +
-                    "'PII_STORE`PII_STORE'.*")
-    public void testInvalidFieldName() {
+            expectedExceptionsMessageRegExp = ".*error:.*caused by error, message: table name is required.*")
+    public void testEmptyTableName() {
         BValue[] args = { new BString(SAMPLE_PII_VALUE) };
         args = Stream.of(connectionArgs, args).flatMap(Stream::of).toArray(BValue[]::new);
-        BRunUtil.invokeFunction(result, "pseudonymizePiiWithInvalidFieldName", args);
+        BRunUtil.invokeFunction(result, "pseudonymizePiiWithEmptyTableName", args);
     }
 
     @AfterSuite
@@ -186,5 +190,4 @@ public class JdbcDatabasePIIStoreTest {
             testDatabase.stop();
         }
     }
-
 }

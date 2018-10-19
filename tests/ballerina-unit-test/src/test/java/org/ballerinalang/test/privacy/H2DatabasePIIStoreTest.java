@@ -134,10 +134,9 @@ public class H2DatabasePIIStoreTest {
     }
 
     @Test (expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*caused by error, message: invalid character found in " +
-                    "'PII_STORE`PII_STORE'.*")
-    public void testInvalidFieldName() {
-        BRunUtil.invokeFunction(result, "pseudonymizePiiWithInvalidFieldName",
+            expectedExceptionsMessageRegExp = ".*error:.*caused by error, message: table name is required.*")
+    public void testEmptyTableName() {
+        BRunUtil.invokeFunction(result, "pseudonymizePiiWithEmptyTableName",
                 new BValue[] { new BString(SAMPLE_PII_VALUE) });
     }
 

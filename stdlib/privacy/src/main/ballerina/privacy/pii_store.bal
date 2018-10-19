@@ -14,8 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents a storage mechanisum usable to store personally identifiable information (PII)
 public type PiiStore abstract object {
+
+    # Pseudonymize personally identifiable information (PII) and store PII and the pseudonymized identifier
+    #
+    # + pii - PII to be pseudonymized
+    # + return - pseudonymized identifier if storage operation was successful, error if storage operation failed
     public function pseudonymize (string pii) returns string|error;
+
+    # Depseudonymize the identifier by retrieving the personally identifiable information (PII)
+    #
+    # + id - pseudonymized identifier to be depseudonymize
+    # + return - PII if retrival was successful, error if retrival failed
     public function depseudonymize (string id) returns string|error;
+
+    # Delete personally identifiable information (PII)
+    #
+    # + id - pseudonymized identifier to be deleted
+    # + return - nil if retrival was successful, error if retrival failed
     public function delete (string id) returns error?;
+
 };
