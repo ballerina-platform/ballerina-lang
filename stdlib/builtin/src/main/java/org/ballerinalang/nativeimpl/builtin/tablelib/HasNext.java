@@ -42,6 +42,6 @@ public class HasNext extends BlockingNativeCallableUnit {
 
     public void execute(Context context) {
         BTable table = (BTable) context.getRefArgument(0);
-        context.setReturnValues(new BBoolean(table.hasNext(context.isInTransaction())));
+        context.setReturnValues(new BBoolean(table.hasNext()));
     }
 }

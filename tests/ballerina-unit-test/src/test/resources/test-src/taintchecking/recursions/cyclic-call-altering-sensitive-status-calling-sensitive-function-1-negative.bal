@@ -6,7 +6,7 @@ int i = 10;
 function f1 (string inputData) returns (string) {
     string data = inputData + ":";
     if (i > 0) {
-        i--;
+        i -= 1;
         data = data + f2(data);
     }
     secureFunction(data, data);
@@ -14,7 +14,7 @@ function f1 (string inputData) returns (string) {
 }
 
 function f2 (string inputData) returns string {
-    i--;
+    i -= 1;
     string ex = taintedReturn() + f1(inputData);
     return ex;
 }

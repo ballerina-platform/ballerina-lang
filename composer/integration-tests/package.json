@@ -1,0 +1,13 @@
+{
+  "name": "@ballerina/integration-tests",
+  "version": "0.982.1-SNAPSHOT",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo \"Building integration tests module\"",
+    "test": "echo \"Error: no test specified\"",
+    "test-coverage": "npm run test -- --coverage"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0"
+}

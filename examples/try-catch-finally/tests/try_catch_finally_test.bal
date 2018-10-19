@@ -15,7 +15,7 @@ public function mockPrint(any... s) {
         outstr = outstr + <string>str;
     }
     outputs[counter] = outstr;
-    counter++;
+    counter += 1;
 }
 
 @test:Config

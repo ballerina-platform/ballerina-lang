@@ -13,15 +13,15 @@
               {
                 "range":{
                   "start":{
-                    "line":0,
+                    "line":23,
                     "character":0
                   },
                   "end":{
                     "line":23,
-                    "character":27
+                    "character":0
                   }
                 },
-                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\nendpoint http:Listener listener {\n    \n};\n\nservice<http:Service> testDocService bind { port: 9090 } {\n    testDocResource (endpoint caller, http:Request request) {\n        http:Response res = new;\n        _ = caller->respond(res);\n    }\n}\n\ntype testDocRecord record {\n    int field1 = 12;\n    string field2 = \"hello\";\n};\n\n# Description\n#\n# + testString - testString Parameter Description\ntype testDocObject object {"
+                "newText":"# Description\n#\n# + testString - testString Parameter Description\n"
               }
             ]
           }
