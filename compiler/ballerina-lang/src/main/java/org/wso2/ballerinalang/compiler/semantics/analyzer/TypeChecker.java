@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
@@ -564,7 +565,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
             checkExpr(restParam, env);
             BVarSymbol bVarSymbol = getVarSymbolFromVarRef(restParam);
-            unresolvedReference = bVarSymbol == null;
+            unresolvedReference = (bVarSymbol == null);
         }
 
         if (unresolvedReference) {
@@ -575,13 +576,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BRecordType bRecordType = new BRecordType(recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
-        varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,bRecordType, env.scope.owner);
+        varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
 
         if (varRefExpr.isClosed) {
             bRecordType.sealed = true;
-        }
-
-        if (varRefExpr.restParam != null) {
+        } else {
             bRecordType.restFieldType = symTable.mapType;
         }
 

@@ -305,7 +305,7 @@ statement
 
 variableDefinitionStatement
     :   typeName Identifier SEMICOLON
-    |   (typeName | VAR) bindingPattern (ASSIGN expression) SEMICOLON
+    |   (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordLiteral

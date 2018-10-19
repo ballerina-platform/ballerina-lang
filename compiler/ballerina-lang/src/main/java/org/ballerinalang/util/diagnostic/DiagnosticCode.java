@@ -188,7 +188,6 @@ public enum DiagnosticCode {
     INVALID_RECORD_LITERAL("invalid.record.literal"),
     INVALID_RECORD_BINDING_PATTERN("invalid.record.binding.pattern"),
     INVALID_RECORD_LITERAL_BINDING_PATTERN("invalid.record.literal.in.binding.pattern"),
-    INVALID_CLOSED_RECORD_BINDING_PATTERN("invalid.closed.record.binding.pattern"),
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
@@ -205,8 +204,8 @@ public enum DiagnosticCode {
     NO_MATCHING_RECORD_REF_PATTERN("no.matching.record.ref.found"),
     MULTIPLE_RECORD_REF_PATTERN_FOUND("multiple.matching.record.ref.found"),
     NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF("not.enough.patterns.to.match.record.ref"),
-    TOO_MANY_PATTERNS_TO_MATCH_CLOSED_RECORD_REF("too.many.patterns.to.match.closed.record.ref"),
-
+    INVALID_CLOSED_RECORD_BINDING_PATTERN("invalid.closed.record.binding.pattern"),
+    NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS("not.enough.fields.to.match.closed.record"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),

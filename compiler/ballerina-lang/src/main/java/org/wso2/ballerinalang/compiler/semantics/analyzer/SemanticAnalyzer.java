@@ -112,8 +112,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -464,6 +462,60 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
     }
 
+    public void visit(BLangRecordVariable varNode) {
+
+        if (varNode.isDeclaredWithVar) {
+            handleDeclaredWithVar(varNode);
+            return;
+        }
+
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+
+        validateRecordVariable(varNode);
+
+        if (varNode.expr == null) {
+            // we have no rhs to do type checking
+            return;
+        }
+
+        typeChecker.checkExpr(varNode.expr, env, varNode.type);
+
+    }
+
+    public void visit(BLangTupleVariable varNode) {
+
+        if (varNode.isDeclaredWithVar) {
+            handleDeclaredWithVar(varNode);
+            return;
+        }
+
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+
+        if (varNode.type.tag != TypeTags.TUPLE) {
+            dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
+            return;
+        }
+
+        if (!(checkTypeAndVarCountConsistency(varNode, (BTupleType) varNode.type))) {
+            return;
+        }
+
+        if ((env.scope.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            symbolEnter.defineNode(varNode, env);
+        }
+
+        if (varNode.expr == null) {
+            // we have no rhs to do type checking
+            return;
+        }
+
+        typeChecker.checkExpr(varNode.expr, env, varNode.type);
+    }
+
     private void handleDeclaredWithVar(BLangVariable variable) {
 
         BLangExpression varRefExpr = variable.expr;
@@ -517,43 +569,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-
-    private void handleVarDeclaredRecordLiteral(BLangExpression expr) {
-
-    }
-
-    public void visit(BLangTupleVariable varNode) {
-
-        if (varNode.isDeclaredWithVar) {
-            handleDeclaredWithVar(varNode);
-            return;
-        }
-
-        if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
-        }
-
-        if (varNode.type.tag != TypeTags.TUPLE) {
-            dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
-            return;
-        }
-
-        if (!(checkTypeAndVarCountConsistency(varNode, (BTupleType) varNode.type))) {
-            return;
-        }
-
-        if ((env.scope.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            symbolEnter.defineNode(varNode, env);
-        }
-
-        if (varNode.expr == null) {
-            // we have no rhs to do type checking
-            return;
-        }
-
-        typeChecker.checkExpr(varNode.expr, env, varNode.type);
-    }
-
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
         if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN);
@@ -568,66 +583,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    public void visit(BLangRecordVariable varNode) {
-
-        if (varNode.isDeclaredWithVar) {
-            if (varNode.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                handleVarDeclaredRecordLiteral(varNode.expr);
-            } else {
-                handleDeclaredWithVar(varNode);
-            }
+    private void validateRecordVariable(BLangRecordVariable recordVar) {
+        if (recordVar.type.tag != TypeTags.RECORD) {
+            dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN);
             return;
         }
 
-        if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
-        }
+        BRecordType recordVarType = (BRecordType) recordVar.type;
 
-        validateRecordVariable(varNode);
-    }
-
-    private void validateRecordVariable(BLangRecordVariable varNode) {
-        for (BLangRecordVariableKeyValueNode variable : varNode.variableList) {
-            boolean foundMatch = false;
-            if (varNode.expr != null && varNode.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-
-                // If record variable has !... the same amount of fields must be there in the record literal of rhs
-                if (varNode.isClosed) {
-                    if (varNode.variableList.size() != ((BLangRecordLiteral) varNode.expr).keyValuePairs.size()) {
-                        dlog.error(varNode.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN,
-                                varNode.variableList.size(),
-                                ((BLangRecordLiteral) varNode.expr).keyValuePairs.size());
-                        return;
-                    }
-                }
-
-                // Check if record literal has all expected fields
-                for (BLangRecordKeyValue keyValuePair : ((BLangRecordLiteral) varNode.expr).keyValuePairs) {
-                    if (keyValuePair.key.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                        dlog.error(varNode.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
-                        return;
-                    }
-                    if (variable.getKey().getValue()
-                            .equals(((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value)) {
-                        foundMatch = true;
-                        break;
-                    }
-                }
-                if (!foundMatch) {
-                    dlog.error(varNode.pos,
-                            DiagnosticCode.INVALID_RECORD_LITERAL_BINDING_PATTERN, variable.getKey().getValue());
-                    return;
-                }
-            }
-
-            if (varNode.type.tag != TypeTags.RECORD) {
-                // If expected type is not record, type will not be set and will fail at type checker
+        if (recordVar.isClosed) {
+            if (!recordVarType.sealed) {
+                dlog.error(recordVar.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, recordVarType);
                 return;
             }
 
-            foundMatch = false;
-            // Infer the type of the variable from the given record type so that symbol enter is done recursively
-            for (BField typeFields : ((BRecordType) varNode.type).getFields()) {
+            if (recordVar.variableList.size() != recordVarType.fields.size()) {
+                dlog.error(recordVar.pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, recordVarType);
+                return;
+            }
+        }
+
+        for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
+
+            boolean foundMatch = false;
+            // Infer the type of each variable in recordVariable from the given record type so that symbol enter is done recursively
+            for (BField typeFields : recordVarType.getFields()) {
                 if (variable.getKey().getValue().equals(typeFields.name.value)) {
                     BLangVariable value = (BLangVariable) variable.getValue();
                     value.type = typeFields.type;
@@ -636,33 +616,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     break;
                 }
             }
+
             if (!foundMatch) {
-                dlog.error(varNode.pos,
-                        DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, variable.getKey().getValue(), varNode.type);
+                dlog.error(recordVar.pos,
+                        DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, variable.getKey().getValue(), recordVar.type);
                 return;
             }
         }
 
         if ((env.scope.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            symbolEnter.defineNode(varNode, env);
+            symbolEnter.defineNode(recordVar, env);
 
         }
 
-        if (varNode.restParam != null) {
-            ((BLangVariable) varNode.restParam).type = symTable.mapType;
-            symbolEnter.defineNode((BLangNode) varNode.restParam, env);
+        if (recordVar.restParam != null) {
+            ((BLangVariable) recordVar.restParam).type = symTable.mapType;
+            symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
-
-        BType lhsType = varNode.type;
-        BLangExpression rhsExpr = varNode.expr;
-
-        if (rhsExpr == null) {
-            // we have no rhs to do type checking
-            return;
-        }
-
-        SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, null);
-        typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
     }
 
     // Statements
@@ -683,6 +653,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordVariableDef varDefNode) {
+        // TODO: 10/18/18 Need to support record literals as well
+        if (varDefNode.var.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            dlog.error(varDefNode.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, "record binding pattern");
+            return;
+        }
         analyzeDef(varDefNode.var, env);
     }
 
@@ -784,12 +759,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // recursively visit the var refs and create the record type
         typeChecker.checkExpr(recordDeStmt.varRef, env);
         if (recordDeStmt.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, (BLangRecordLiteral) recordDeStmt.expr,
-                    true);
-        } else {
-            typeChecker.checkExpr(recordDeStmt.expr, this.env);
-            checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.type);
+            // TODO: 10/18/18 Need to support record literals as well
+            dlog.error(recordDeStmt.expr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_BINDING_PATTERN);
+            return;
         }
+        typeChecker.checkExpr(recordDeStmt.expr, this.env);
+        checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.type,
+                recordDeStmt.expr.pos);
     }
 
     /**
@@ -799,11 +775,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param pos       diagnostic pos
      * @param lhsVarRef type of the record var ref
      * @param rhsType   the type on the rhs
+     * @param rhsPos    position of the rhs expression
      */
-    private void checkRecordVarRefEquivalency(DiagnosticPos pos, BLangRecordVarRef lhsVarRef, BType rhsType) {
+    private void checkRecordVarRefEquivalency(DiagnosticPos pos, BLangRecordVarRef lhsVarRef, BType rhsType,
+                                              DiagnosticPos rhsPos) {
 
         if (rhsType.tag != TypeTags.RECORD) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, "record type", rhsType);
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, "record type", rhsType);
             return;
         }
 
@@ -814,10 +792,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (lhsVarRef.isClosed &&
-                (!rhsRecordType.sealed || lhsVarRef.recordRefFields.size() != rhsRecordType.fields.size())) {
-            dlog.error(pos, DiagnosticCode.TOO_MANY_PATTERNS_TO_MATCH_CLOSED_RECORD_REF, rhsType);
-            return;
+        if (lhsVarRef.isClosed) {
+            if (!rhsRecordType.sealed) {
+                dlog.error(pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, rhsType);
+                return;
+            }
+
+            if (lhsVarRef.recordRefFields.size() != rhsRecordType.fields.size()) {
+                dlog.error(pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, rhsType);
+                return;
+            }
         }
 
         for (BField rhsField : rhsRecordType.fields) {
@@ -827,7 +811,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             if (expField.isEmpty()) {
                 if (lhsVarRef.isClosed) {
-                    dlog.error(pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, rhsField.name);
+                    dlog.error(lhsVarRef.pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, rhsField.name);
                 }
                 return;
             }
@@ -839,83 +823,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangExpression variableReference = expField.get(0).variableReference;
             if (variableReference.getKind() == NodeKind.RECORD_VARIABLE_REF) {
                 checkRecordVarRefEquivalency(expField.get(0).variableReference.pos,
-                        (BLangRecordVarRef) variableReference, rhsField.type);
+                        (BLangRecordVarRef) variableReference, rhsField.type, rhsPos);
             } else {
-                types.checkType(pos, rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
+                types.checkType(expField.get(0).variableReference.pos,
+                        rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
             }
         }
-    }
-
-    /**
-     * When rhs is a record literal, this method will check the type of each literal.
-     *
-     * @param pos                 diagnostic pos
-     * @param lhsVarRef           type of the record var ref
-     * @param rhsLiteral          the record literal in the rhs
-     * @param isParentLiteral     identify if the record literal is the main literal
-     */
-    private void checkRecordVarRefEquivalency(DiagnosticPos pos, BLangRecordVarRef lhsVarRef,
-                                              BLangRecordLiteral rhsLiteral, boolean isParentLiteral) {
-
-        if (lhsVarRef.recordRefFields.size() > rhsLiteral.keyValuePairs.size()) {
-            // record var ref has more fields than record literal
-            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF);
-            return;
-        }
-
-        if (lhsVarRef.isClosed && lhsVarRef.recordRefFields.size() != rhsLiteral.keyValuePairs.size()) {
-            // if record var ref is closed, number of fields must be equal in both side
-            dlog.error(pos, DiagnosticCode.TOO_MANY_PATTERNS_TO_MATCH_CLOSED_RECORD_REF);
-            return;
-        }
-
-        for (BLangRecordKeyValue recordLiteralField : rhsLiteral.keyValuePairs) {
-            // check if the field in the rhs record literal is present in the record var ref
-            List<BLangRecordVarRefKeyValue> expField = lhsVarRef.recordRefFields.stream()
-                    .filter(field -> field.variableName.getValue().equals(recordLiteralField.key.toString()))
-                    .collect(Collectors.toList());
-            if (expField.isEmpty()) {
-                // if record var ref is not closed, un matched fields in record literal is allowed
-                if (lhsVarRef.isClosed) {
-                    dlog.error(pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, recordLiteralField.key);
-                }
-                return;
-            }
-
-            if (expField.size() > 1) {
-                // can not have more than one matching fields in record var ref
-                dlog.error(pos, DiagnosticCode.MULTIPLE_RECORD_REF_PATTERN_FOUND, recordLiteralField.key);
-                return;
-            }
-
-            BLangExpression varRef = expField.get(0).variableReference;
-
-            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                typeChecker.checkExpr(recordLiteralField.valueExpr, this.env, varRef.type);
-            } else if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
-                if (recordLiteralField.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                    checkRecordVarRefEquivalency(recordLiteralField.valueExpr.pos, (BLangRecordVarRef) varRef,
-                            (BLangRecordLiteral) recordLiteralField.valueExpr, false);
-                } else if (recordLiteralField.valueExpr.type.tag == TypeTags.RECORD) {
-                    checkRecordVarRefEquivalency(recordLiteralField.valueExpr.pos, (BLangRecordVarRef) varRef,
-                            recordLiteralField.valueExpr.type);
-                } else {
-                    dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, "record literal");
-                }
-            } else if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
-                typeChecker.checkExpr(recordLiteralField.valueExpr, this.env, varRef.type);
-            }
-        }
-        rhsLiteral.keyValuePairs.forEach(rhsField -> {
-            if (rhsField.valueExpr.type.tag != TypeTags.RECORD && rhsField.valueExpr.type.tag != TypeTags.TUPLE) {
-                typeChecker.checkExpr(rhsField.valueExpr, this.env);
-                if (isParentLiteral) {
-                    // Implicit cast is set to the parent literal fields
-                    types.setImplicitCastExpr(rhsField.valueExpr, rhsField.valueExpr.type, symTable.anyType);
-                }
-            }
-        });
-        rhsLiteral.type = symTable.mapType;
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {

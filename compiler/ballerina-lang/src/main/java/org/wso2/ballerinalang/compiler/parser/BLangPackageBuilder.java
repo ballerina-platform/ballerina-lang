@@ -956,16 +956,11 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    void addTupleVariableDefStatement(DiagnosticPos pos,
-                                      Set<Whitespace> ws,
-                                      boolean exprAvailable,
-                                      boolean isDeclaredWithVar) {
+    void addTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
         BLangTupleVariable var = (BLangTupleVariable) this.varStack.pop();
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
         Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
-        if (exprAvailable) {
-            var.setInitialExpression(this.exprNodeStack.pop());
-        }
+        var.setInitialExpression(this.exprNodeStack.pop());
 
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
@@ -977,14 +972,10 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
-    void addRecordVariableDefStatement(DiagnosticPos pos,
-                                       Set<Whitespace> ws,
-                                       boolean exprAvailable, boolean isDeclaredWithVar) {
+    void addRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
         BLangRecordVariable var = (BLangRecordVariable) this.varStack.pop();
-        if (exprAvailable) {
-            var.setInitialExpression(this.exprNodeStack.pop());
-        }
+        var.setInitialExpression(this.exprNodeStack.pop());
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(ws);

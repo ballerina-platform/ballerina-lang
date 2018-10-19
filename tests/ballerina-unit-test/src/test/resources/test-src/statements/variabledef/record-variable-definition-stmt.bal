@@ -26,7 +26,8 @@ type Person record {
 };
 
 function simpleDefinition() returns (string, boolean) {
-    Person {name: fName, married} = {name: "Peter", married: true};
+    Person p = {name: "Peter", married: true};
+    Person {name: fName, married} = p;
     return (fName, married);
 }
 
@@ -37,12 +38,17 @@ type PersonWithAge record {
 };
 
 function recordVarInRecordVar() returns (string, int, string, boolean) {
-    PersonWithAge {name: fName, age: {age: theAge, format}, married} = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge {name: fName, age: {age: theAge, format}, married} = getPersonWithAge();
     return (fName, theAge, format, married);
 }
 
+function getPersonWithAge() returns PersonWithAge {
+    return {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+}
+
 function recordVarInRecordVar2() returns (string, Age) {
-    PersonWithAge {name: fName, age} = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge p = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    PersonWithAge {name: fName, age} = p;
     return (fName, age);
 }
 
@@ -63,8 +69,8 @@ type PersonWithAddress record {
 };
 
 function recordVarInRecordVarInRecordVar() returns (string, boolean, int, string, string) {
-    PersonWithAddress {name: fName, married, address: {postalCode, street: {streetName: sName, city}}} =
-                {name: "Peter", married: true, address: {postalCode: 1000, street: {streetName: "PG", city: "Colombo 10"}}};
+    PersonWithAddress personWithAdd =  {name: "Peter", married: true, address: {postalCode: 1000, street: {streetName: "PG", city: "Colombo 10"}}};
+    PersonWithAddress {name: fName, married, address: {postalCode, street: {streetName: sName, city}}} = personWithAdd;
     return (fName, married, postalCode, sName, city);
 }
 
@@ -74,14 +80,18 @@ type Employee record {
 };
 
 function tupleVarInRecordVar() returns (string, int, string) {
-    Employee {name, address: (number, street)} = {name: "John", address: (20, "PG")};
+    Employee e = {name: "John", address: (20, "PG")};
+    Employee {name, address: (number, street)} = e;
     return (name, number, street);
 }
 
 function defineThreeRecordVariables() returns (string, int) {
-    PersonWithAge {name: fName1, age: {age: theAge1, format: format1}, married: married1} = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE"};
-    PersonWithAge {name: fName2, age: {age: theAge2, format: format2}, married: married2} = {name: "Doe", age: {age:15, format: "MM"}, married: true, work: "SE"};
-    PersonWithAge {name: fName3, age: {age: theAge3, format: format3}, married: married3} = {name: "Peter", age: {age:5, format: "DD"}, married: true, work: "SE"};
+    PersonWithAge p1 = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE"};
+    PersonWithAge p2 = {name: "Doe", age: {age:15, format: "MM"}, married: true, work: "SE"};
+    PersonWithAge p3 = {name: "Peter", age: {age:5, format: "DD"}, married: true, work: "SE"};
+    PersonWithAge {name: fName1, age: {age: theAge1, format: format1}, married: married1} = p1;
+    PersonWithAge {name: fName2, age: {age: theAge2, format: format2}, married: married2} = p2;
+    PersonWithAge {name: fName3, age: {age: theAge3, format: format3}, married: married3} = p3;
 
     string stringAddition = fName1 + fName2 + fName3 + format1 + format2 + format3;
     int intAddition = theAge1 + theAge2 + theAge3;
@@ -94,12 +104,13 @@ function recordVariableWithRHSInvocation() returns string {
 }
 
 function getPersonRecord() returns Person {
-    Person p = {name: "Jack", married: true};
-    return p;
+    Person person = {name: "Jack", married: true};
+    return person;
 }
 
 function nestedRecordVariableWithRHSInvocation() returns string {
-    PersonWithAge {name: fName, age: {age: theAge, format}, married} = {name: "Peter", age: getAgeRecord(), married: true, work: "SE"};
+    PersonWithAge person = {name: "Peter", age: getAgeRecord(), married: true, work: "SE"};
+    PersonWithAge {name: fName, age: {age: theAge, format}, married} = person;
     string name = fName + " Parker";
     return name;
 }
@@ -110,17 +121,30 @@ function getAgeRecord() returns Age {
 }
 
 function testRestParameter() returns map {
-    PersonWithAge {name, age: {age, format}, married, ...rest} = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
+    PersonWithAge p = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
+    PersonWithAge {name, age: {age, format}, married, ...rest} = p;
     return rest;
 }
 
 function testNestedRestParameter() returns (map, map) {
-    PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
+    PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
+    PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = p;
     return (rest1, rest2);
 }
 
 function testVariableAssignment() returns (string, int, string, boolean, map) {
     PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
+    return (fName, age, format, married, rest);
+}
+
+function testVariableAssignment2() returns (string, int, string, boolean, map) {
+    PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    var {name: fName, age: {age, format}, married, ...rest} = person;
+    fName = "James";
+    age = 30;
+    format = "N";
+    married = false;
+    rest["added"] = "later";
     return (fName, age, format, married, rest);
 }

@@ -30,21 +30,72 @@ type PersonWithAge record {
 };
 
 function redeclaredSymbol() {
-    Person {name: fName, married} = {name: "Peter", married: true};
-    PersonWithAge {name: fName, age: {age: theAge, format}} = {name: "Peter", age: {age:29, format: "Y"}, work: "SE"};
-    Person {name: fiName, married: fiName} = {name: "Peter", married: true};
+    Person p1 = {name: "Peter", married: true};
+    Person {name: fName, married} = p1;
+
+    PersonWithAge p2 = {name: "Peter", age: {age:29, format: "Y"}, work: "SE"};
+    PersonWithAge {name: fName, age: {age: theAge, format}} = p2; // redeclared symbol 'fName'
+
+    Person p3 = {name: "Peter", married: true};
+    Person {name: fiName, married: fiName} = p3; // redeclared symbol 'fiName'
 }
 
 function bindingPatternError() {
-    Person{name1: fName1, married: maritalStatus1} = {name: "John", married: true, age: 12};
-    Person{name1: fName2, married: maritalStatus2} = {name1: "John", married: true, age: 12};
-    Person{name: fName3, married: maritalStatus3} = {name1: "John", married: true, age: 12};
-    Person{name: fName4, married: maritalStatus4, !...} = {name: "John", married: true, age: 12};
-    Person{name: fName5, married: maritalStatus5} = {married: true, age: 12};
+    Person p1 = {name: "John", married: true, age: 12};
+    Person {name1: fName1, married: maritalStatus1} = p1; // unknown field 'name1' in record type 'Person'
+
+    Person p2 = {name1: "John", married: true, age: 12};
+    Person {name1: fName2, married: maritalStatus2} = p2; // unknown field 'name1' in record type 'Person'
+
+    Person p3 = {name1: "John", married: true, age: 12};
+    Person {name: fName3, married: maritalStatus3} = p3;
+
+    Person p4 = {name: "John", married: true, age: 12};
+    Person {name: fName4, married: maritalStatus4, !...} = p4; // type 'Person' is not a closed record type
+
+    Person p5 = {married: true, age: 12};
+    Person {name: fName5, married: maritalStatus5} = p5;
 }
 
 function mismatchTypes() {
     PersonWithAge p = {name: "James", age: {age: 54, format: "DD"}, married: true};
-    Person {name: fName, married} = p;
-    Person {name: fName1, married: married1} = {name: 21, married: "James"};
+    Person {name: fName, married} = p; // incompatible types: expected 'Person', found 'PersonWithAge'
+}
+
+Person gPerson = {name: "Peter", married: true, extra: "extra"};
+
+type ClosedFoo record {
+    int a;
+    ClosedBar b;
+    !...
+};
+
+type ClosedBar record {
+    float a;
+    string b;
+    !...
+};
+
+function testClosedBindingPattern() {
+    Person {name, married, !...} = gPerson; // type 'Person' is not a closed record type
+    ClosedFoo clf = {a: 56, b: {a: 2.0, b: "A"}};
+    ClosedFoo {a, b} = clf;
+    ClosedFoo {a: a1, !...} = clf; // not enough fields to match to closed record type 'ClosedFoo'
+    ClosedFoo {a: a2, b: {a: a3, !...}, !...} = clf; // not enough fields to match to closed record type 'ClosedBar'
+    ClosedFoo {a: a3, b: {a: a4, b: b2, !...}, !...} = clf; // valid
+}
+
+type EmployeeWithAge record {
+    string name;
+    Age age;
+    boolean married;
+};
+
+function testVariableAssignment2() {
+    EmployeeWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    var {name: fName, age: {age, format}, married, ...rest} = person;
+    fName = 30;
+    age = "N";
+    format = true;
+    married = "A";
 }

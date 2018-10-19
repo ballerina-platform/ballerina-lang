@@ -151,32 +151,47 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BMap) returns[4]).get("work").stringValue(), "SE");
     }
 
+    @Test(description = "Test rest parameter in nested record variable")
+    public void testVariableAssignment2() {
+        BValue[] returns = BRunUtil.invoke(result, "testVariableAssignment2");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns[0].stringValue(), "James");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
+        Assert.assertEquals(returns[2].stringValue(), "N");
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertEquals(((BMap) returns[4]).get("added").stringValue(), "later");
+    }
+
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         String redeclaredSymbol = "redeclared symbol ";
-        String invalidRecordLiteralInBindingPattern = "invalid record literal in binding pattern. ";
-        String invalidClosedRecordBindingPattern = "invalid closed record binding pattern. ";
         String invalidRecordBindingPattern = "invalid record binding pattern. ";
 
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 34, 26);
-        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 35, 19);
+        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
+        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name1' field not found in literal", 39, 12);
+                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 45, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 40, 12);
+                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 48, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 41, 12);
+                "invalid closed record binding pattern on opened record type 'Person'", 54, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidClosedRecordBindingPattern + "expected '2' fields, but found '3'", 42, 12);
+                "incompatible types: expected 'Person', found 'PersonWithAge'", 62, 37);
         BAssertUtil.validateError(resultNegative, ++i,
-                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 43, 12);
+                "invalid closed record binding pattern on opened record type 'Person'", 80, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'Person', found 'PersonWithAge'", 48, 37);
+                "not enough fields to match to closed record type 'ClosedFoo'", 83, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'int'", 49, 55);
+                "not enough fields to match to closed record type 'ClosedBar'", 84, 27);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'boolean', found 'string'", 49, 68);
+                "incompatible types: expected 'string', found 'int'", 97, 13);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'int', found 'string'", 98, 11);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'boolean'", 99, 14);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'boolean', found 'string'", 100, 15);
     }
 }

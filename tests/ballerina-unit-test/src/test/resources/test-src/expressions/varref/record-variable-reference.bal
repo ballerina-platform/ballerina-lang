@@ -94,23 +94,45 @@ function testRecordTypeInRecordVarRef() returns (map, int|float, Some) {
     return (fooVar1, barVar1, var2);
 }
 
-function testVarAssignmentOfRecordLiteral() returns (string, boolean, int, string) {
-    string fName;
-    boolean married;
-    int theAge;
-    string format;
-    map theMap;
+// TODO: Uncomment below tests once record literal is supported with var ref
 
-    {name: fName, age: {age: theAge, format}, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
-    return (fName, married, theAge, format);
-}
-
-function testVarAssignmentOfRecordLiteral2() returns (string, boolean, Age) {
-    string fName;
-    boolean married;
-    Age age;
-    map theMap;
-
-    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
-    return (fName, married, age);
-}
+//function testVarAssignmentOfRecordLiteral() returns (string, boolean, int, string) {
+//    string fName;
+//    boolean married;
+//    int theAge;
+//    string format;
+//    map theMap;
+//
+//    {name: fName, age: {age: theAge, format}, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
+//    return (fName, married, theAge, format);
+//}
+//
+//function testVarAssignmentOfRecordLiteral2() returns (string, boolean, Age) {
+//    string fName;
+//    boolean married;
+//    Age age;
+//    map theMap;
+//
+//    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
+//    return (fName, married, age);
+//}
+//
+//function testVarAssignmentOfRecordLiteral3() returns (string, boolean, map) {
+//    string fName;
+//    boolean married;
+//    map age;
+//    map theMap;
+//
+//    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
+//    return (fName, married, age);
+//}
+//
+//function testVarAssignmentOfRecordLiteral4() returns (string, boolean, json) {
+//    string fName;
+//    boolean married;
+//    json age;
+//    map theMap;
+//
+//    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
+//    return (fName, married, age);
+//}
