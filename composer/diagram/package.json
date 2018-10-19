@@ -1,7 +1,9 @@
 {
   "name": "@ballerina/diagram",
   "version": "0.982.1-SNAPSHOT",
-  "description": "",
+  "description": "Provides a set of react components to draw Ballerina Diagrams.",
+  "keywords": ["ballerina", "ballerina-lang", "composer"],
+  "repository": "ballerina-platform/ballerina-lang",
   "main": "lib/index.js",
   "scripts": {
     "test-coverage": "npm run test -- --coverage",
