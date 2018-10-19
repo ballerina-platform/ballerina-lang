@@ -135,7 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -838,7 +838,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         matchNode.exprTypes = exprTypes;
     }
 
-    public void visit(BLangMatchStmtSimpleBindingPatternClause patternClause) {
+    public void visit(BLangMatchStmtTypedBindingPatternClause patternClause) {
         // If the variable is not equal to '_', then define the variable in the block scope
         if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
             SymbolEnv blockEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) patternClause.body, env);

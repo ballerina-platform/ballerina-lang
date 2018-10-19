@@ -325,7 +325,7 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
         // No implementation
     }
 

@@ -41,11 +41,11 @@ public interface MatchNode {
     }
 
     /**
-     * {@code MatchStatementSimpleBindingPatternNode} represents a pattern inside a type switch statement.
+     * {@code MatchStatementTypedBindingPatternNode} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
      */
-    interface MatchStatementSimpleBindingPatternNode {
+    interface MatchStatementTypedBindingPatternNode extends MatchStatementBindingPatternNode {
 
         SimpleVariableNode getVariableNode();
     }
@@ -55,12 +55,12 @@ public interface MatchNode {
      *
      * @since 0.983.0
      */
-    interface MatchStatementStaticBindingPatternNode {
+    interface MatchStatementStaticBindingPatternNode extends MatchStatementBindingPatternNode {
 
         BLangExpression getLiteral();
     }
 
     ExpressionNode getExpression();
 
-    List<? extends MatchStatementSimpleBindingPatternNode> getSimplePatternClauses();
+    List<? extends MatchStatementTypedBindingPatternNode> getTypedPatternClauses();
 }

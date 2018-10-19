@@ -573,13 +573,13 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(matchNode.expr);
         }
 
-        if (matchNode.simplePatternClauses != null) {
-            matchNode.simplePatternClauses.forEach(this::acceptNode);
+        if (matchNode.patternClauses != null) {
+            matchNode.patternClauses.forEach(this::acceptNode);
         }
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
         if (patternClauseNode.variable != null) {
             this.acceptNode(patternClauseNode.variable);
         }
@@ -587,6 +587,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (patternClauseNode.body != null) {
             this.acceptNode(patternClauseNode.body);
         }
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause patternClauseNode) {
+        /*ignore*/
     }
 
     @Override

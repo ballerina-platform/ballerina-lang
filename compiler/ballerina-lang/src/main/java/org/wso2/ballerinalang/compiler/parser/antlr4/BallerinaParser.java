@@ -6763,8 +6763,8 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class MatchPatternClauseContext extends ParserRuleContext {
-		public SimpleLiteralContext simpleLiteral() {
-			return getRuleContext(SimpleLiteralContext.class,0);
+		public TypeNameContext typeName() {
+			return getRuleContext(TypeNameContext.class,0);
 		}
 		public TerminalNode EQUAL_GT() { return getToken(BallerinaParser.EQUAL_GT, 0); }
 		public List<StatementContext> statement() {
@@ -6775,14 +6775,14 @@ public class BallerinaParser extends Parser {
 		}
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
+		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
+		public SimpleLiteralContext simpleLiteral() {
+			return getRuleContext(SimpleLiteralContext.class,0);
+		}
 		public TerminalNode VAR() { return getToken(BallerinaParser.VAR, 0); }
 		public BindingPatternContext bindingPattern() {
 			return getRuleContext(BindingPatternContext.class,0);
 		}
-		public TypeNameContext typeName() {
-			return getRuleContext(TypeNameContext.class,0);
-		}
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public MatchPatternClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -6809,7 +6809,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(1337);
-				simpleLiteral();
+				typeName(0);
 				setState(1338);
 				match(EQUAL_GT);
 				setState(1348);
@@ -6852,9 +6852,9 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(1350);
-				match(VAR);
+				typeName(0);
 				setState(1351);
-				bindingPattern();
+				match(Identifier);
 				setState(1352);
 				match(EQUAL_GT);
 				setState(1362);
@@ -6897,7 +6897,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(1364);
-				typeName(0);
+				simpleLiteral();
 				setState(1365);
 				match(EQUAL_GT);
 				setState(1375);
@@ -6940,9 +6940,9 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(1377);
-				typeName(0);
+				match(VAR);
 				setState(1378);
-				match(Identifier);
+				bindingPattern();
 				setState(1379);
 				match(EQUAL_GT);
 				setState(1389);
@@ -18768,20 +18768,20 @@ public class BallerinaParser extends Parser {
 		"\u008f\2\u0533\u0535\7\u0082\2\2\u0534\u0536\5\u00a2R\2\u0535\u0534\3"+
 		"\2\2\2\u0536\u0537\3\2\2\2\u0537\u0535\3\2\2\2\u0537\u0538\3\2\2\2\u0538"+
 		"\u0539\3\2\2\2\u0539\u053a\7\u0083\2\2\u053a\u00a1\3\2\2\2\u053b\u053c"+
-		"\5\u013e\u00a0\2\u053c\u0546\7\u00a2\2\2\u053d\u0547\5n8\2\u053e\u0542"+
-		"\7\u0082\2\2\u053f\u0541\5n8\2\u0540\u053f\3\2\2\2\u0541\u0544\3\2\2\2"+
-		"\u0542\u0540\3\2\2\2\u0542\u0543\3\2\2\2\u0543\u0545\3\2\2\2\u0544\u0542"+
-		"\3\2\2\2\u0545\u0547\7\u0083\2\2\u0546\u053d\3\2\2\2\u0546\u053e\3\2\2"+
-		"\2\u0547\u0572\3\2\2\2\u0548\u0549\7U\2\2\u0549\u054a\5\u00a4S\2\u054a"+
-		"\u0554\7\u00a2\2\2\u054b\u0555\5n8\2\u054c\u0550\7\u0082\2\2\u054d\u054f"+
-		"\5n8\2\u054e\u054d\3\2\2\2\u054f\u0552\3\2\2\2\u0550\u054e\3\2\2\2\u0550"+
-		"\u0551\3\2\2\2\u0551\u0553\3\2\2\2\u0552\u0550\3\2\2\2\u0553\u0555\7\u0083"+
-		"\2\2\u0554\u054b\3\2\2\2\u0554\u054c\3\2\2\2\u0555\u0572\3\2\2\2\u0556"+
-		"\u0557\5X-\2\u0557\u0561\7\u00a2\2\2\u0558\u0562\5n8\2\u0559\u055d\7\u0082"+
+		"\5X-\2\u053c\u0546\7\u00a2\2\2\u053d\u0547\5n8\2\u053e\u0542\7\u0082\2"+
+		"\2\u053f\u0541\5n8\2\u0540\u053f\3\2\2\2\u0541\u0544\3\2\2\2\u0542\u0540"+
+		"\3\2\2\2\u0542\u0543\3\2\2\2\u0543\u0545\3\2\2\2\u0544\u0542\3\2\2\2\u0545"+
+		"\u0547\7\u0083\2\2\u0546\u053d\3\2\2\2\u0546\u053e\3\2\2\2\u0547\u0572"+
+		"\3\2\2\2\u0548\u0549\5X-\2\u0549\u054a\7\u00bb\2\2\u054a\u0554\7\u00a2"+
+		"\2\2\u054b\u0555\5n8\2\u054c\u0550\7\u0082\2\2\u054d\u054f\5n8\2\u054e"+
+		"\u054d\3\2\2\2\u054f\u0552\3\2\2\2\u0550\u054e\3\2\2\2\u0550\u0551\3\2"+
+		"\2\2\u0551\u0553\3\2\2\2\u0552\u0550\3\2\2\2\u0553\u0555\7\u0083\2\2\u0554"+
+		"\u054b\3\2\2\2\u0554\u054c\3\2\2\2\u0555\u0572\3\2\2\2\u0556\u0557\5\u013e"+
+		"\u00a0\2\u0557\u0561\7\u00a2\2\2\u0558\u0562\5n8\2\u0559\u055d\7\u0082"+
 		"\2\2\u055a\u055c\5n8\2\u055b\u055a\3\2\2\2\u055c\u055f\3\2\2\2\u055d\u055b"+
 		"\3\2\2\2\u055d\u055e\3\2\2\2\u055e\u0560\3\2\2\2\u055f\u055d\3\2\2\2\u0560"+
 		"\u0562\7\u0083\2\2\u0561\u0558\3\2\2\2\u0561\u0559\3\2\2\2\u0562\u0572"+
-		"\3\2\2\2\u0563\u0564\5X-\2\u0564\u0565\7\u00bb\2\2\u0565\u056f\7\u00a2"+
+		"\3\2\2\2\u0563\u0564\7U\2\2\u0564\u0565\5\u00a4S\2\u0565\u056f\7\u00a2"+
 		"\2\2\u0566\u0570\5n8\2\u0567\u056b\7\u0082\2\2\u0568\u056a\5n8\2\u0569"+
 		"\u0568\3\2\2\2\u056a\u056d\3\2\2\2\u056b\u0569\3\2\2\2\u056b\u056c\3\2"+
 		"\2\2\u056c\u056e\3\2\2\2\u056d\u056b\3\2\2\2\u056e\u0570\7\u0083\2\2\u056f"+

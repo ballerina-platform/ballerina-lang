@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -55,7 +54,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
         BLangMatch matchNode = (BLangMatch) treeVisitor.getBlockOwnerStack().peek();
         DiagnosticPos matchNodePos = CommonUtil.toZeroBasedPosition(matchNode.getPosition());
         DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        List<BLangMatchStmtSimpleBindingPatternClause> patternClauseList = matchNode.getSimplePatternClauses();
+        List<BLangMatch.BLangMatchStmtBindingPatternClause> patternClauseList = matchNode.patternClauses;
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         int nodeStartLine = nodePos.getStartLine();
