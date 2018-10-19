@@ -2,8 +2,6 @@ package org.ballerinalang.langserver.formatting;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import org.ballerinalang.langserver.LSAnnotationCache;
-import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.DocumentFormattingParams;
@@ -12,8 +10,8 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -29,13 +27,7 @@ public class FormattingTest {
 
     @BeforeClass
     public void loadLangServer() {
-        LSAnnotationCache.initiate();
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
-    }
-
-    @BeforeMethod
-    public void clearPackageCache() {
-        LSContextManager.getInstance().clearAllContexts();
     }
 
     @Test(description = "test formatting functionality on functions", dataProvider = "fileProvider")
@@ -62,6 +54,7 @@ public class FormattingTest {
         Gson gson = new Gson();
         ResponseMessage responseMessage = gson.fromJson(result, ResponseMessage.class);
         String actual = (String) ((LinkedTreeMap) ((List) responseMessage.getResult()).get(0)).get("newText");
+        TestUtil.closeDocument(this.serviceEndpoint, inputFilePath);
         Assert.assertEquals(actual, expected, "Did not match: " + expectedFile);
     }
 
@@ -94,6 +87,14 @@ public class FormattingTest {
                 {"expectedBreak.bal", "break.bal"},
                 {"expectedMatchStmt.bal", "matchStmt.bal"},
                 {"expectedMatchExpr.bal", "matchExpr.bal"},
+                {"expectedAbort.bal", "abort.bal"},
+                {"expectedTransaction.bal", "transaction.bal"},
+                {"expectedContinue.bal", "continue.bal"},
         };
+    }
+
+    @AfterClass
+    public void shutdownLanguageServer() throws IOException {
+        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }
