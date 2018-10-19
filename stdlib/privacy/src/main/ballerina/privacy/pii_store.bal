@@ -26,13 +26,13 @@ public type PiiStore abstract object {
     # Depseudonymize the identifier by retrieving the personally identifiable information (PII)
     #
     # + id - pseudonymized identifier to be depseudonymize
-    # + return - PII if retrival was successful, error if retrival failed
+    # + return - PII if retrieval was successful, error if retrieval failed
     public function depseudonymize (string id) returns string|error;
 
     # Delete personally identifiable information (PII)
     #
     # + id - pseudonymized identifier to be deleted
-    # + return - nil if retrival was successful, error if retrival failed
+    # + return - nil if retrieval was successful, error if retrieval failed
     public function delete (string id) returns error?;
 
 };

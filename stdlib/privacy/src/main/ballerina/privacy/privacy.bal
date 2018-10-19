@@ -27,7 +27,7 @@ public function pseudonymize (PiiStore store, string pii) returns string|error {
 #
 # + store - storage used to persist the PII and the identifier
 # + id - pseudonymized identifier to be depseudonymize
-# + return - PII if retrival was successful, error if retrival failed
+# + return - PII if retrieval was successful, error if retrieval failed
 public function depseudonymize (PiiStore store, string id) returns string|error {
     return store.depseudonymize(id);
 }
@@ -36,7 +36,7 @@ public function depseudonymize (PiiStore store, string id) returns string|error 
 #
 # + store - storage used to persist the PII and the identifier
 # + id - pseudonymized identifier to be deleted
-# + return - nil if retrival was successful, error if retrival failed
+# + return - nil if retrieval was successful, error if retrieval failed
 public function delete (PiiStore store, string id) returns error? {
     return store.delete(id);
 }
