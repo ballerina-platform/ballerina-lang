@@ -35,7 +35,7 @@ DEPRECATED  : 'deprecated';
 CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
 
-FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
+FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
 SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
 GROUP       : 'group' ;
@@ -44,10 +44,7 @@ HAVING      : 'having' ;
 ORDER       : 'order' ;
 WHERE       : 'where' ;
 FOLLOWED    : 'followed' ;
-INSERT      : {inSiddhi}? 'insert' { inSiddhi = false; } ;
 INTO        : 'into' ;
-UPDATE      : {inSiddhi}? 'update' { inSiddhi = false; } ;
-DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
 FOR         : 'for' { inSiddhiTimeScaleQuery = true; } ;
 WINDOW      : 'window' ;
@@ -208,10 +205,13 @@ COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
 
-// Post Arithmetic operators.
+COMPOUND_BIT_AND   : '&=' ;
+COMPOUND_BIT_OR    : '|=' ;
+COMPOUND_BIT_XOR   : '^=' ;
 
-INCREMENT      : '++' ;
-DECREMENT      : '--' ;
+COMPOUND_LEFT_SHIFT      : '<<=' ;
+COMPOUND_RIGHT_SHIFT     : '>>=' ;
+COMPOUND_LOGICAL_SHIFT   : '>>>=' ;
 
 // Integer Range Operators.
 // CLOSED_RANGE - ELLIPSIS
@@ -356,6 +356,26 @@ BooleanLiteral
 
 QuotedStringLiteral
     :   '"' StringCharacters? '"'
+    ;
+
+SymbolicStringLiteral
+    :   '\'' (UndelimeteredInitialChar UndelimeteredFollowingChar*)
+    ;
+
+fragment
+UndelimeteredInitialChar
+    : [a-zA-Z_]
+    // Negates ASCII characters
+    // Negates unicode whitespace characters : 0x200E, 0x200F, 0x2028 and 0x2029
+    // Negates unicode characters with property Pattern_Syntax=True (http://unicode.org/reports/tr31/tr31-2.html#Pattern_Syntax)
+    // Negates unicode characters of category "Private Use" ranging from: 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD
+    | ~ [\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF]
+    ;
+
+fragment
+UndelimeteredFollowingChar
+    : UndelimeteredInitialChar
+    | DIGIT
     ;
 
 fragment
