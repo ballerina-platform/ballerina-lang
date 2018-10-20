@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/test;
 
-// The `BeforeSuite` function is executed before all test functions in this package. 
+// The `BeforeSuite` function is executed before all test functions in this module.
 @test:BeforeSuite
 function beforeFunc() {
     io:println("I'm the before suite function!");
@@ -21,7 +21,7 @@ function testFunction2() {
     test:assertTrue(true, msg = "Failed");
 }
 
-// The `AfterSuite` function is executed after all the test functions in this package. 
+// The `AfterSuite` function is executed after all the test functions in this module.
 @test:AfterSuite
 function afterFunc() {
     io:println("I'm the after suite function!");

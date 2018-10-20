@@ -64,12 +64,12 @@ public class PackagingTestUtils {
     }
 
     /**
-     * Generate random package name.
+     * Generate random module name.
      *
      * @param count number of characters required
      * @return generated name
      */
-    public static String randomPackageName(int count) {
+    public static String randomModuleName(int count) {
         String upperCaseAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowerCaseAlpha = "abcdefghijklmnopqrstuvwxyz";
         String alpha = upperCaseAlpha + lowerCaseAlpha;

@@ -35,12 +35,12 @@ public type Listener object {
         self.serviceEndpoint = httpEndpoint;
     }
 
-    # Gets called when the endpoint is being initialized during package initialization.
+    # Gets called when the endpoint is being initialized during module initialization.
     #
     # + c - The Subscriber Service Endpoint Configuration of the endpoint
     public function init(SubscriberServiceEndpointConfiguration c);
 
-    # Gets called whenever a service attaches itself to this endpoint and during package initialization.
+    # Gets called whenever a service attaches itself to this endpoint and during module initialization.
     #
     # + serviceType - The service attached
     public function register(typedesc serviceType);

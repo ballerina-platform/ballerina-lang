@@ -1,5 +1,5 @@
 {
-  "package": "ballerina/io",
+  "module": "ballerina/io",
   "expected": {
     "result":{
       "edit":{

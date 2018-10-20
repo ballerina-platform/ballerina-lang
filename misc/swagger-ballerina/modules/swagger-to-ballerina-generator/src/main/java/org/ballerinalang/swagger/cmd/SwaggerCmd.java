@@ -32,7 +32,7 @@ import java.util.Locale;
 
 /**
  * Class to implement "swagger" command for ballerina.
- * Ex: ballerina swagger (mock | client) (swaggerFile | balFile) -p(package name) -o(output directory name)
+ * Ex: ballerina swagger (mock | client) (swaggerFile | balFile) -m(module name) -o(output directory name)
  */
 @CommandLine.Command(name = "swagger",
             description = "generate client/service using Swagger definition or exports swagger file for a Ballerina"
@@ -52,8 +52,8 @@ public class SwaggerCmd implements BLauncherCmd {
                description = "where to write the generated files (current dir by default)")
     private String output = "";
 
-    @CommandLine.Option(names = { "-p", "--package" },
-            description = "package name to be used in the generated source files")
+    @CommandLine.Option(names = { "-m", "--module" },
+            description = "module name to be used in the generated source files")
     private String srcPackage;
 
     @CommandLine.Option(names = { "-s", "--service" }, description = "Name of the service to export. "

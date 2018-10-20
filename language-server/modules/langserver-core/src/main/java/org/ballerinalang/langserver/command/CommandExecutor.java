@@ -103,7 +103,7 @@ public class CommandExecutor {
         Object result;
         try {
             switch (params.getCommand()) {
-                case CommandConstants.CMD_IMPORT_PACKAGE:
+                case CommandConstants.CMD_IMPORT_MODULE:
                     result = executeImportPackage(context);
                     break;
                 case CommandConstants.CMD_CREATE_FUNCTION:
@@ -121,7 +121,7 @@ public class CommandExecutor {
                 case CommandConstants.CMD_CREATE_CONSTRUCTOR:
                     result = executeCreateObjectConstructor(context);
                     break;
-                case CommandConstants.CMD_PULL_PACKAGE:
+                case CommandConstants.CMD_PULL_MODULE:
                     result = executePullPackage(context);
                     break;
                 default:
@@ -151,7 +151,7 @@ public class CommandExecutor {
                 documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
                 textDocumentIdentifier.setUri(documentUri);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_PKG_NAME)) {
+            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
                 context.put(ExecuteCommandKeys.PKG_NAME_KEY, (String) ((LinkedTreeMap) arg).get(ARG_VALUE));
             }
         }
@@ -463,7 +463,7 @@ public class CommandExecutor {
             for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
                 String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
                 String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
-                if (argKey.equals(CommandConstants.ARG_KEY_PKG_NAME)) {
+                if (argKey.equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
                     packageName = argVal;
                 } else if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
                     documentUri = argVal;
