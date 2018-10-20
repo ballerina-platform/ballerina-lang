@@ -52,7 +52,7 @@ service<http:Service> circuitbreaker01 bind circuitBreakerEP01 {
     }
     invokeForceOpen(endpoint caller, http:Request request) {
         http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>healthyClientEP.getCallerActions();
-        forceOpenStateCount++;
+        forceOpenStateCount += 1;
         if (forceOpenStateCount == 2) {
             cbClient.forceOpen();
         }

@@ -286,7 +286,7 @@ public class JSONUtils {
      * @return JSON representation of the provided table
      */
     public static BRefType<?> toJSON(BTable table, boolean isInTransaction) {
-        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table, isInTransaction);
+        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
         if (table.isInMemoryTable()) {
             return jsonDataSource.build();
         }

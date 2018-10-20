@@ -568,13 +568,13 @@ function testConstrainedUnionRetrieveInt () returns (int) {
 function testConstrainedMapWithIncrementOperator () returns (int?) {
     map<int> testMap;
     testMap["count"] = 1000;
-    testMap.count++;
-    testMap.count++;
-    testMap.count++;
-    testMap.count--;
+    testMap.count += 1;
+    testMap.count += 1;
+    testMap.count += 1;
+    testMap.count -= 1;
     int i = 5;
     int j = testMap.count;
-    testMap.count++;
+    testMap.count += 1;
     return testMap["count"];
 }
 

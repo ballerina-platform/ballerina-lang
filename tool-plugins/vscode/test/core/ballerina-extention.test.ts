@@ -36,7 +36,7 @@ suite("Ballerina Extension Core Tests", function () {
 
     test("Test isValidBallerinaHome", function () {
         assert.equal(ballerinaExtInstance.isValidBallerinaHome(testBallerinaHome), true);
-        assert.equal(ballerinaExtInstance.isValidBallerinaHome(testBallerinaHome + '../'), false);
+        assert.equal(ballerinaExtInstance.isValidBallerinaHome(__dirname), false);
     });
 
     test("Test autoDitectBallerinaHome", function () {

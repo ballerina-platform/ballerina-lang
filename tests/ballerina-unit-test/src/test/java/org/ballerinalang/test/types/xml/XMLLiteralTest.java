@@ -97,7 +97,7 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 67, 5);
 
         // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, index++, "undefined package 'ns0'", 75, 19);
+        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 75, 19);
 
         // define namespace with empty URI
         BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",

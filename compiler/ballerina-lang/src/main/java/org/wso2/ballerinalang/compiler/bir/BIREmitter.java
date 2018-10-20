@@ -49,7 +49,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNode.BIRPackage birPackage) {
-        sb.append("package ").append(birPackage.name).append(";").append("\n\n");
+        sb.append("module ").append(birPackage.name).append(";").append("\n\n");
         birPackage.functions.forEach(birFunction -> birFunction.accept(this));
     }
 

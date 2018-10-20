@@ -46,7 +46,7 @@ public type Client object {
     private ClientEndpointConfiguration config;
     private sql:CallerActions h2Client;
 
-    # Gets called when the endpoint is being initialized during the package initialization.
+    # Gets called when the endpoint is being initialized during the module initialization.
     #
     # + c - The ClientEndpointConfiguration of the endpoint
     public function init(ClientEndpointConfiguration c) {

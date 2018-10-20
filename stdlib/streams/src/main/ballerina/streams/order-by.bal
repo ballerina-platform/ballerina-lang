@@ -38,7 +38,7 @@ public type OrderBy object {
         StreamEvent[] b;
         while (index < n) {
             b[index] = a[index];
-            index++;
+            index += 1;
         }
         topDownSplitMerge(b, 0, n, a, sortFunc, tmpSortTypes);
     }
@@ -71,7 +71,7 @@ public type OrderBy object {
                 b[k] = a[j];
                 j = j + 1;
             }
-            k++;
+            k += 1;
         }
     }
 
@@ -116,7 +116,7 @@ public type OrderBy object {
             if (c1 != c2) {
                 return c1 - c2;
             }
-            k++;
+            k += 1;
         }
         return len1 - len2;
     }

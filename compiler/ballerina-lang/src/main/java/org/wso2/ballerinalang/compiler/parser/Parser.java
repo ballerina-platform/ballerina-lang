@@ -109,7 +109,7 @@ public class Parser {
             parser.compilationUnit();
             return compUnit;
         } catch (IOException e) {
-            throw new RuntimeException("error reading package: " + e.getMessage(), e);
+            throw new RuntimeException("error reading module: " + e.getMessage(), e);
         }
     }
 

@@ -71,7 +71,7 @@ import ballerina/reflect;
 @final string SHA256 = "SHA256";
 
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
-@final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
+@final string WEBSUB_MODULE_NAME = "ballerina/websub";
 
 
 # The identifier to be used to identify the mode in which update content should be identified.
@@ -348,6 +348,59 @@ public type Notification object {
 
 };
 
+# Function to retrieve hub and topic URLs from the `http:response` from a publisher to a discovery request.
+#
+# + response - The `http:Response` received
+# + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
+public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
+    string[] linkHeaders;
+    if (response.hasHeader("Link")) {
+        linkHeaders = response.getHeaders("Link");
+    }
+
+    if (lengthof linkHeaders == 0) {
+        error websubError = { message: "Link header unavailable in discovery response" };
+        return websubError;
+    }
+
+    int hubIndex = 0;
+    string[] hubs;
+    string topic;
+    string[] linkHeaderConstituents = [];
+    if (lengthof linkHeaders == 1) {
+        linkHeaderConstituents = linkHeaders[0].split(",");
+    } else {
+        linkHeaderConstituents = linkHeaders;
+    }
+
+    foreach link in linkHeaderConstituents {
+        string[] linkConstituents = link.split(";");
+        if (linkConstituents[1] != "") {
+            string url = linkConstituents[0].trim();
+            url = url.replace("<", "");
+            url = url.replace(">", "");
+            if (linkConstituents[1].contains("rel=\"hub\"")) {
+                hubs[hubIndex] = url;
+                hubIndex += 1;
+            } else if (linkConstituents[1].contains("rel=\"self\"")) {
+                if (topic != "") {
+                    error websubError = { message: "Link Header contains > 1 self URLs" };
+                    return websubError;
+                } else {
+                    topic = url;
+                }
+            }
+        }
+    }
+
+    if (lengthof hubs > 0 && topic != "") {
+        return (topic, hubs);
+    }
+
+    error websubError = {message: "Hub and/or Topic URL(s) not identified in link header of discovery response"};
+    return websubError;
+}
+
 # Record representing a WebSub subscription change request.
 #
 # + topic - The topic for which the subscription/unsubscription request is sent
@@ -552,7 +605,7 @@ type SubscriptionDetails record {
 function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
-        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.pkgName == WEBSUB_PACKAGE_NAME) {
+        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
             SubscriberServiceConfiguration subscriberServiceAnnotation =
                                                             check <SubscriberServiceConfiguration> (annData.value);
             return subscriberServiceAnnotation;

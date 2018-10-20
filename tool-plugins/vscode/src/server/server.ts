@@ -64,6 +64,8 @@ export function getServerOptions(ballerinaHome: string) : ServerOptions {
         args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
     }
 
+    log(`Using ballerina from ballerina.home: ${ballerinaHome}`);
+
     const balHomeSysProp = `-Dballerina.home=${ballerinaHome}`;
     const balDebugLogSysProp = `-Dballerina.debugLog=${config.debugLog}`;
     return {

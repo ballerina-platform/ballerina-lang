@@ -174,13 +174,13 @@ public class CommandUtil {
                         return fullPkgName.endsWith("." + packageAlias) || fullPkgName.endsWith("/" + packageAlias);
                     })
                     .forEach(pkgEntry -> {
-                        String commandTitle = CommandConstants.IMPORT_PKG_TITLE + " "
+                        String commandTitle = CommandConstants.IMPORT_MODULE_TITLE + " "
                                 + pkgEntry.getFullPackageNameAlias();
-                        CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_PKG_NAME,
+                        CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME,
                                                                           pkgEntry.getFullPackageNameAlias());
                         CommandArgument docUriArgument = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI,
                                                                              params.getTextDocument().getUri());
-                        commands.add(new Command(commandTitle, CommandConstants.CMD_IMPORT_PACKAGE,
+                        commands.add(new Command(commandTitle, CommandConstants.CMD_IMPORT_MODULE,
                                                  new ArrayList<>(Arrays.asList(pkgArgument, docUriArgument))));
                     });
         } else if (isUndefinedFunction(diagnosticMessage)) {
@@ -219,16 +219,16 @@ public class CommandUtil {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_VARIABLE, args));
         } else if (isUnresolvedPackage(diagnosticMessage)) {
-            Matcher matcher = CommandConstants.UNRESOLVED_PACKAGE_PATTERN.matcher(
+            Matcher matcher = CommandConstants.UNRESOLVED_MODULE_PATTERN.matcher(
                     diagnosticMessage.toLowerCase(Locale.ROOT)
             );
             if (matcher.find() && matcher.groupCount() > 0) {
                 List<Object> args = new ArrayList<>();
                 String pkgName = matcher.group(1);
-                args.add(new CommandArgument(CommandConstants.ARG_KEY_PKG_NAME, pkgName));
+                args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName));
                 args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, params.getTextDocument().getUri()));
                 String commandTitle = CommandConstants.PULL_PKG_TITLE;
-                commands.add(new Command(commandTitle, CommandConstants.CMD_PULL_PACKAGE, args));
+                commands.add(new Command(commandTitle, CommandConstants.CMD_PULL_MODULE, args));
             }
         }
         return commands;
@@ -443,7 +443,7 @@ public class CommandUtil {
     }
 
     private static boolean isUndefinedPackage(String diagnosticMessage) {
-        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNDEFINED_PACKAGE);
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNDEFINED_MODULE);
     }
 
     private static boolean isUndefinedFunction(String diagnosticMessage) {
@@ -455,7 +455,7 @@ public class CommandUtil {
     }
 
     private static boolean isUnresolvedPackage(String diagnosticMessage) {
-        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNRESOLVED_PACKAGE);
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNRESOLVED_MODULE);
     }
 
     private static BLangInvocation getFunctionNode(CodeActionParams params,
