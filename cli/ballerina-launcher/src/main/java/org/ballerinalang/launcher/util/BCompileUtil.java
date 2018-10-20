@@ -73,7 +73,7 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors. Error scenarios cannot use this method.
      *
-     * @param sourceFilePath Path to source package/file
+     * @param sourceFilePath Path to source module/file
      * @return compileResult
      */
     public static CompileResult compileAndSetup(String sourceFilePath) {
@@ -86,8 +86,8 @@ public class BCompileUtil {
      * Compile and return the semantic errors. Error scenarios cannot use this method.
      *
      * @param obj this is to find the original callers location.
-     * @param sourceRoot  root path of the source packages
-     * @param packageName name of the package to compile
+     * @param sourceRoot  root path of the modules
+     * @param packageName name of the module to compile
      * @return compileResult
      */
     public static CompileResult compileAndSetup(Object obj, String sourceRoot, String packageName) {
@@ -99,7 +99,7 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
-     * @param sourceFilePath Path to source package/file
+     * @param sourceFilePath Path to source module/file
      * @return Semantic errors
      */
     public static CompileResult compileAndGetBIR(String sourceFilePath) {
@@ -109,7 +109,7 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
-     * @param sourceFilePath Path to source package/file
+     * @param sourceFilePath Path to source module/file
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceFilePath) {
@@ -120,8 +120,8 @@ public class BCompileUtil {
      * Compile and return the semantic errors.
      *
      * @param obj this is to find the original callers location.
-     * @param sourceRoot  root path of the source packages
-     * @param packageName name of the package to compile
+     * @param sourceRoot  root path of the modules
+     * @param packageName name of the module to compile
      * @return Semantic errors
      */
     public static CompileResult compile(Object obj, String sourceRoot, String packageName) {
@@ -202,8 +202,8 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
-     * @param sourceRoot    root path of the source packages
-     * @param packageName   name of the package to compile
+     * @param sourceRoot    root path of the modules
+     * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
@@ -222,7 +222,7 @@ public class BCompileUtil {
      * Compile with tests and return the semantic errors.
      *
      * @param context       Compiler Context
-     * @param packageName   name of the package to compile
+     * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
@@ -312,8 +312,8 @@ public class BCompileUtil {
     /**
      * Compile and return the compiled package node.
      *
-     * @param sourceFilePath Path to source package/file
-     * @return compiled package node
+     * @param sourceFilePath Path to source module/file
+     * @return compiled module node
      */
     public static BLangPackage compileAndGetPackage(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
@@ -410,7 +410,7 @@ public class BCompileUtil {
      *                    java.util.ServiceLoader}. Otherwise semantic analyzing capability providing wont work since it
      *                    cant find core package.
      * @param sourceRoot  source root of a project
-     * @param fileName    either the file name (if in project root) or the package name
+     * @param fileName    either the file name (if in project root) or the module name
      * @return list of diagnostics
      */
     public static List<Diagnostic> getDiagnostics(ClassLoader classLoader, String sourceRoot, String fileName) {

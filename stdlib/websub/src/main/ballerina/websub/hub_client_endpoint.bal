@@ -29,7 +29,7 @@ public type Client object {
 
     private http:Client httpClientEndpoint;
 
-    # Called when the endpoint is being initialized during package initialization.
+    # Called when the endpoint is being initialized during module initialization.
     #
     # + c - The configuration for the endpoint
     public function init(HubClientEndpointConfig c) {

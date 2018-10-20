@@ -110,9 +110,9 @@ public class BTestRunner {
     }
 
     /**
-     * Filter the test suites for only the packages given. Since when compiling packages in the test annotation
-     * processor we create test suites for the import packages as well. To avoid them from running we have to filter
-     * the only the packages provided from the test suite
+     * Filter the test suites for only the modules given. Since when compiling modules in the test annotation
+     * processor we create test suites for the import modules as well. To avoid them from running we have to filter
+     * the only the modules provided from the test suite
      */
     private void filterTestSuites() {
         registry.setTestSuites(registry.getTestSuites().entrySet()
@@ -125,7 +125,7 @@ public class BTestRunner {
      * lists the groups available in tests.
      *
      * @param sourceRoot      source root of the project
-     * @param sourceFilePaths package or program file paths
+     * @param sourceFilePaths module or program file paths
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
         //Build the test suites
@@ -172,7 +172,7 @@ public class BTestRunner {
             outStream.println("    No tests found");
             return;
         }
-        // Reuse the same compiler context so that packages already compiled and persisted in the package cache are not
+        // Reuse the same compiler context so that modules already compiled and persisted in the module cache are not
         // compiled again.
         CompilerContext compilerContext = BCompileUtil.createCompilerContext(sourceRoot, CompilerPhase.CODE_GEN);
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
@@ -188,13 +188,13 @@ public class BTestRunner {
                 throw new BLangCompilerException("compilation contains errors");
             }
 
-            String packageName = TesterinaUtils.getFullPackageName(sourcePackage.toString());
+            String packageName = TesterinaUtils.getFullModuleName(sourcePackage.toString());
             // Add test suite to registry if not added.
             addTestSuite(packageName);
             // Keeps a track of the sources that are being tested
             sourcePackages.add(packageName);
 
-            // Set the source file name if the package is the default package
+            // Set the source file name if the module is the default package
             if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
                 registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage.toString());
             }
@@ -213,9 +213,9 @@ public class BTestRunner {
      */
     private void buildSuites(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
         packageList.forEach((sourcePackage, compiledBinaryFile) -> {
-            String packageName = TesterinaUtils.getFullPackageName(sourcePackage.packageID.getName().getValue());
-            // Add a test suite to registry if not added. In this package there are no tests to be executed. But we need
-            // to say that there are no tests found in the package to be executed
+            String packageName = TesterinaUtils.getFullModuleName(sourcePackage.packageID.getName().getValue());
+            // Add a test suite to registry if not added. In this module there are no tests to be executed. But we need
+            // to say that there are no tests found in the module to be executed
             addTestSuite(packageName);
             // Keeps a track of the sources that are being built
             sourcePackages.add(packageName);
@@ -228,7 +228,7 @@ public class BTestRunner {
 
     /**
      * Add test suite to registry if not added.
-     * @param packageName package name
+     * @param packageName module name
      */
     private void addTestSuite(String packageName) {
         registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
@@ -434,10 +434,10 @@ public class BTestRunner {
                     errStream.println(errorMsg);
                 }
             });
-            // print package test results
+            // print module test results
             tReport.printTestSuiteSummary(packageName);
 
-            // Call package stop and test stop function
+            // Call module stop and test stop function
             suite.getInitFunction().invokeStopFunctions();
         });
     }

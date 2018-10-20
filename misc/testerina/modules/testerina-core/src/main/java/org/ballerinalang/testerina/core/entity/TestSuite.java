@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * Entity class to hold a test suite.
- * Represents a package in ballerina.
+ * Represents a module in ballerina.
  */
 public class TestSuite {
 

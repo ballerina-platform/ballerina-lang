@@ -1483,7 +1483,7 @@ public class PackageInfoReader {
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
-                            " in package " + packageInfo.getPkgPath());
+                            " in module " + packageInfo.getPkgPath());
             }
         }
     }
@@ -1743,7 +1743,7 @@ public class PackageInfoReader {
             PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
             pkgFileReader.readPackage(pkgPath);
         } catch (IOException e) {
-            throw new BLangRuntimeException("error reading package: " + pkgPath, e);
+            throw new BLangRuntimeException("error reading module: " + pkgPath, e);
         }
 
         return programFile.getPackageInfo(pkgPath);

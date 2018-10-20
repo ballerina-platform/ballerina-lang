@@ -3834,7 +3834,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return PackageInfoWriter.getPackageBinary(this.currentPkgInfo);
         } catch (IOException e) {
             // This code will not be executed under normal condition
-            throw new BLangCompilerException("failed to generate bytecode for package '" +
+            throw new BLangCompilerException("failed to generate bytecode for module '" +
                     pkgNode.packageID + "': " + e.getMessage(), e);
         }
     }

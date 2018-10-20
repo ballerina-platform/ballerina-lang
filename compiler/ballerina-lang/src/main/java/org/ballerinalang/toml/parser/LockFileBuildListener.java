@@ -87,7 +87,7 @@ public class LockFileBuildListener extends TomlBaseListener {
      * Add the package to the lockFile object.
      */
     private void setPackage() {
-        if (LockFileHeader.PACKAGE.stringEquals(currentHeader)) {
+        if (LockFileHeader.MODULE.stringEquals(currentHeader)) {
             this.lockFile.addPackage(lockFilePackage);
         }
     }
@@ -103,7 +103,7 @@ public class LockFileBuildListener extends TomlBaseListener {
             if (packageFieldField != null) {
                 packageFieldField.setStringTo(this.lockFile, value);
             }
-        } else if (currentKey.present() && LockFileHeader.PACKAGE.stringEquals(currentHeader)) {
+        } else if (currentKey.present() && LockFileHeader.MODULE.stringEquals(currentHeader)) {
             LockFilePackageField lockFilePackageField = LockFilePackageField.valueOfLowerCase(currentKey.pop());
             if (lockFilePackageField != null) {
                 lockFilePackageField.setValueTo(lockFilePackage, value);
@@ -123,7 +123,7 @@ public class LockFileBuildListener extends TomlBaseListener {
                 List<String> arrayElements = populateList(arrayValuesContext);
                 packageFieldField.setListTo(this.lockFile, arrayElements);
             }
-        } else if (currentKey.present() && LockFileHeader.PACKAGE.stringEquals(currentHeader)) {
+        } else if (currentKey.present() && LockFileHeader.MODULE.stringEquals(currentHeader)) {
             String key = currentKey.pop();
             if (LockFileHeader.IMPORTS.stringEquals(key)) {
                 addImportsToPackage(arrayValuesContext, key);
@@ -175,7 +175,7 @@ public class LockFileBuildListener extends TomlBaseListener {
      * @param ctx InlineTableKeyvalsContext object
      */
     private void setToLockFile(TomlParser.InlineTableKeyvalsContext ctx, String key) {
-        if (LockFileHeader.PACKAGE.stringEquals(currentHeader) && LockFileHeader.IMPORTS.stringEquals(key)) {
+        if (LockFileHeader.MODULE.stringEquals(currentHeader) && LockFileHeader.IMPORTS.stringEquals(key)) {
             if (ctx != null) {
                 populatePackageField(ctx, key);
             }

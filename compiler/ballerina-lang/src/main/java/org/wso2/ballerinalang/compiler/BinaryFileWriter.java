@@ -154,7 +154,7 @@ public class BinaryFileWriter {
             addPackageBinaryContent(packageID, symbol.packageFile, compiledPackage);
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);
         } catch (IOException e) {
-            String msg = "error writing the compiled package(balo) of '" +
+            String msg = "error writing the compiled module(balo) of '" +
                     packageID + "' to '" + destDirPath + "': " + e.getMessage();
             throw new BLangCompilerException(msg, e);
         }

@@ -36,10 +36,10 @@ import java.util.HashMap;
  * Test if folder and files are correctly generated when generating swagger clients.
  */
 public class OutputPathCreationTestCase extends BaseTest {
-    private static final String PACKAGE_NAME = "say";
+    private static final String MODULE_NAME = "say";
     private static final String SWAGGER_YAML = (new File("src/test/resources/swagger/sample.yaml")).getAbsolutePath();
     private Path balProject;
-    private Path balPackage;
+    private Path balModule;
     
     
     @BeforeClass()
@@ -47,27 +47,27 @@ public class OutputPathCreationTestCase extends BaseTest {
         balProject = Files.createTempDirectory("bal-test-integration-swagger-out-");
         balClient.runMain("init", new String[0], new HashMap<>(), new String[0], new LogLeecher[]{},
                 balProject.toString());
-        balPackage = balProject.resolve(PACKAGE_NAME);
+        balModule = balProject.resolve(MODULE_NAME);
     }
     
     @Test(description = "Test if folder paths are created correctly.")
     public void testFolderStructureCreation() throws BallerinaTestException {
-        String[] clientArgsForSwaggerClientGen = {"client", SWAGGER_YAML, "-o", balProject.toString(), "-p",
-                                                  PACKAGE_NAME};
+        String[] clientArgsForSwaggerClientGen = {"client", SWAGGER_YAML, "-o", balProject.toString(), "-m",
+                MODULE_NAME};
         balClient.runMain("swagger", clientArgsForSwaggerClientGen, new HashMap<>(), new String[]{},
                 new LogLeecher[]{}, balServer.getServerHome());
-        Assert.assertTrue(Files.exists(balPackage), "Swagger client was not generated");
+        Assert.assertTrue(Files.exists(balModule), "Swagger client was not generated");
     }
     
     @Test(description = "Test if folders/files are recreated correctly when regenerating.")
     public void testFolderStructureRecreation() throws BallerinaTestException, IOException {
-        Path tempBalFile = balPackage.resolve("temp.bal");
+        Path tempBalFile = balModule.resolve("temp.bal");
         Files.createFile(tempBalFile);
     
-        String[] clientArgsForSwaggerClientGen = {"client", SWAGGER_YAML, "-o", balProject.toString(), "-p",
-                                                  PACKAGE_NAME};
+        String[] clientArgsForSwaggerClientGen = {"client", SWAGGER_YAML, "-o", balProject.toString(), "--module",
+                MODULE_NAME};
         balClient.runMain("swagger", clientArgsForSwaggerClientGen, new String[]{});
-        Assert.assertTrue(Files.exists(balPackage), "Swagger client was not generated");
+        Assert.assertTrue(Files.exists(balModule), "Swagger client was not generated");
         Assert.assertTrue(Files.exists(tempBalFile), "Created temp file has been deleted");
     }
     
