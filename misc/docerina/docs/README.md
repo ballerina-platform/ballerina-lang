@@ -100,7 +100,6 @@ A typical project structure of a Ballerina project is like this:
 ```
 /
   .gitignore
-  Ballerina-lock.toml  # Generated during build, used to rebuild identical binary
   Ballerina.toml       # Configuration that defines project intent
   .ballerina/          # Internal cache management and contains project repository
                        # Project repository is built
@@ -116,23 +115,18 @@ A typical project structure of a Ballerina project is like this:
                        # resources/
     [tests/]           # Module-specific unit and integration tests
     [resources/]       # Module-specific resources
-      *.jar            # Optional, if module includes native Java libraries to
-                       # link + embed
 
   modules.can.include.dots.in.dir.name/
     Module.md
     *.bal
-    *.jar
     [tests/]
     [resources/]
-      *.jar            # Optional, if module includes native Java libraries to
-                       # link + embed
 
-  [tests/]             # Tests executed for every module in the project
   [resources/]         # Resources included with every module in the project
 
   target/              # Compiled binaries and other artifacts end up here
       main.balx
+      Ballerina.lock   # Generated during build, used to rebuild identical binary
       module1.balo
       modules.can.include.dots.in.dir.name.bal
 ```

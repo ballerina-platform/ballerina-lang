@@ -53,7 +53,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
             description = "path to a custom templates directory to be used for API documentation generation")
     private String templatesDir;
 
-    @CommandLine.Option(names = {"--exclude"}, description = "a comma separated list of modules names to be "
+    @CommandLine.Option(names = {"--exclude"}, description = "a comma separated list of module names to be "
             + "filtered from the documentation")
     private String packageFilter;
 
