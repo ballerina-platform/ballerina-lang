@@ -216,7 +216,7 @@ public class CommandUtil {
                 String pkgName = matcher.group(1);
                 args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName));
                 args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, params.getTextDocument().getUri()));
-                String commandTitle = CommandConstants.PULL_PKG_TITLE;
+                String commandTitle = CommandConstants.PULL_MOD_TITLE;
                 commands.add(new Command(commandTitle, CommandConstants.CMD_PULL_MODULE, args));
             }
         }
