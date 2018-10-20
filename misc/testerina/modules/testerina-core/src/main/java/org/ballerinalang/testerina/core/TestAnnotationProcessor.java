@@ -367,14 +367,15 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         BType bType = func.getbFunction().getRetParamTypes()[0];
                         if (bType.getTag() == TypeTags.ARRAY_TAG) {
                             BArrayType bArrayType = (BArrayType) bType;
-                            if (bArrayType.getElementType().getTag() != TypeTags.ARRAY_TAG) {
+                            int tag = bArrayType.getElementType().getTag();
+                            if (!(tag == TypeTags.ARRAY_TAG || tag == TypeTags.TUPLE_TAG)) {
                                 String message = String.format("Data provider function [%s] should return an array of" +
-                                        " arrays.", dataProvider);
+                                        " arrays or an array of tuples.", dataProvider);
                                 throw new BallerinaException(message);
                             }
                         } else {
                             String message = String.format("Data provider function [%s] should return an array of " +
-                                    "arrays.", dataProvider);
+                                    "arrays or an array of tuples.", dataProvider);
                             throw new BallerinaException(message);
                         }
                     } else {
@@ -450,7 +451,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     int idx = testNames.indexOf(dependsOnFn);
                     if (idx == -1) {
                         String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
-                                ".", test.getTestFunction().getName(), dependsOnFn);
+                                                               ".", test.getTestFunction().getName(), dependsOnFn);
                         throw new BallerinaException(message);
                     }
                     dependencyMatrix[i].add(idx);
