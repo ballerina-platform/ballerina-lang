@@ -251,7 +251,7 @@ class JsonDeserializer implements BValueDeserializer {
             BValue jType = jBMap.get(TYPE_TAG);
             return jType.stringValue();
         } else if (targetType != null) {
-            return targetType.getName();
+            return ObjectHelper.getTrimmedClassName(targetType);
         }
         throw new IllegalStateException("Target type should either come from jBMap or via targetType param");
     }

@@ -30,7 +30,7 @@ install:
   - . $HOME/.nvm/nvm.sh
   - nvm install 8.9.0
   - nvm use 8.9.0
-  - mvn install -B -V
+  - mvn install -B -V -Dvscode.test.skip=true
 
 script: echo "Done"
 
