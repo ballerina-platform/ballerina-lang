@@ -76,7 +76,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
-import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -648,34 +647,7 @@ public class ASTBuilderUtil {
 
         return dupVarSymbol;
     }
-
-    /**
-     * Duplicate the invokable symbol and add the public flag to the flag set.
-     *
-     * @param invokableSymbol original invokable symbol
-     * @return duplicated invokable symbol
-     */
-    public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(Flags.PUBLIC, invokableSymbol.name,
-                                                                      invokableSymbol.pkgID, invokableSymbol.type,
-                                                                      invokableSymbol.owner, invokableSymbol.bodyExist);
-        dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
-        dupFuncSymbol.retType = invokableSymbol.retType;
-        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams;
-        dupFuncSymbol.restParam = invokableSymbol.restParam;
-        dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
-        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
-        dupFuncSymbol.tainted = invokableSymbol.tainted;
-        dupFuncSymbol.closure = invokableSymbol.closure;
-        dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
-        dupFuncSymbol.scope = invokableSymbol.scope;
-
-        BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.retType,
-                                                prevFuncType.tsymbol);
-        return dupFuncSymbol;
-    }
-
+    
     private static IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         if (value != null) {

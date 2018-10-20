@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -687,26 +686,12 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = iExpr.iContext.operations.getLast().resultType;
             return;
         }
-        // Check if length operation invocation
-        if (isLengthInvocation(iExpr)) {
-            iExpr.lengthOperationInvocation = true;
-            // Check if invocation contains any args
-            if (iExpr.argExprs.size() > 0 | iExpr.restArgs.size() > 0 | iExpr.namedArgs.size() > 0) {
-                dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name);
-                return;
-            }
-            // Clone the function symbol and add 'PUBLIC' to the flag set which is needed in the CodeAnalyzer phase
-            Name funcName = names.fromIdNode(iExpr.name);
-            BSymbol funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
-            iExpr.symbol = ASTBuilderUtil.duplicateInvokableSymbol((BInvokableSymbol) funcSymbol);
-
-            // Set the return type as INT
-            iExpr.type = this.symTable.getTypeFromTag(TypeTags.INT);
-
-            // Get result type
-            resultType = types.checkType(iExpr, iExpr.type, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        // Check if its the builtin length operation invocation
+        if (isBuiltinLengthInvocation(iExpr)) {
+            checkBuiltinInvocationExpr(iExpr);
             return;
         }
+
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
             return;
@@ -766,6 +751,20 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             iExpr.originalType = iExpr.type;
         }
+    }
+
+    private void checkBuiltinInvocationExpr(BLangInvocation iExpr) {
+        iExpr.builtinLengthOperationInvocation = true;
+        // Check if invocation contains any args
+        if (iExpr.argExprs.size() > 0 | iExpr.restArgs.size() > 0 | iExpr.namedArgs.size() > 0) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name);
+            return;
+        }
+        // Set the return type as INT
+        iExpr.type = this.symTable.getTypeFromTag(TypeTags.INT);
+
+        // Get result type
+        resultType = types.checkType(iExpr, iExpr.type, expType);
     }
 
     public void visit(BLangTypeInit cIExpr) {
@@ -1584,7 +1583,7 @@ public class TypeChecker extends BLangNodeVisitor {
      * @param iExpr invocation node
      * @return true if it is invoking the length operation and false otherwise
      */
-    private boolean isLengthInvocation(BLangInvocation iExpr) {
+    private boolean isBuiltinLengthInvocation(BLangInvocation iExpr) {
         return Constants.BUILTIN_LENGTH_OPERATION.equals(iExpr.name.value) &&
                 canHaveLengthInvocation(iExpr.expr.type.tag);
     }

@@ -98,9 +98,9 @@ public type LengthWindow object {
     }
 };
 
-public function lengthWindow(int length, function (StreamEvent[])? nextProcessPointer = ())
+public function lengthWindow(int lengthVal, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
-    LengthWindow lengthWindow1 = new (nextProcessPointer, length);
+    LengthWindow lengthWindow1 = new (nextProcessPointer, lengthVal);
     return lengthWindow1;
 }
 
@@ -227,14 +227,14 @@ public function timeWindow(int timeLength, function(StreamEvent[])? nextProcessP
 }
 
 public type LengthBatchWindow object {
-    public int length;
+    public int lengthVal;
     public int count;
     public StreamEvent? resetEvent;
     public LinkedList currentEventQueue;
     public LinkedList? expiredEventQueue;
     public function (StreamEvent[])? nextProcessPointer;
 
-    public new (nextProcessPointer, length) {
+    public new (nextProcessPointer, lengthVal) {
         currentEventQueue = new();
         expiredEventQueue = ();
     }
@@ -248,7 +248,7 @@ public type LengthBatchWindow object {
             StreamEvent clonedStreamEvent = event.clone();
             currentEventQueue.addLast(clonedStreamEvent);
             count += 1;
-            if (count == length) {
+            if (count == lengthVal) {
                 //if (expiredEventQueue.getFirst() != ()) {
                 //    expiredEventQueue.clear();
                 //}
@@ -325,9 +325,9 @@ public type LengthBatchWindow object {
     }
 };
 
-public function lengthBatchWindow(int length, function(StreamEvent[])? nextProcessPointer = ())
+public function lengthBatchWindow(int lengthVal, function(StreamEvent[])? nextProcessPointer = ())
                     returns Window {
-    LengthBatchWindow lengthBatch = new(nextProcessPointer, length);
+    LengthBatchWindow lengthBatch = new(nextProcessPointer, lengthVal);
     return lengthBatch;
 }
 
@@ -897,13 +897,13 @@ public function externalTimeBatchWindow(string timestamp, int time, int
 public type TimeLengthWindow object {
 
     public int timeInMilliSeconds;
-    public int length;
+    public int lengthVal;
     public int count = 0;
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
     public task:Timer? timer;
 
-    public new (nextProcessPointer, timeInMilliSeconds, length) {
+    public new (nextProcessPointer, timeInMilliSeconds, lengthVal) {
         expiredEventChunk = new;
     }
 
@@ -940,7 +940,7 @@ public type TimeLengthWindow object {
                 if (streamEvent.eventType == CURRENT) {
                     StreamEvent clonedEvent = streamEvent.clone();
                     clonedEvent.eventType = EXPIRED;
-                    if (count < length) {
+                    if (count < lengthVal) {
                         count += 1;
                         expiredEventChunk.addLast(clonedEvent);
                     } else {
@@ -1016,22 +1016,22 @@ public type TimeLengthWindow object {
 
 };
 
-public function timeLengthWindow(int timeLength, int length, function(StreamEvent[])? nextProcessPointer = ())
+public function timeLengthWindow(int timeLength, int lengthVal, function(StreamEvent[])? nextProcessPointer = ())
                     returns Window {
-    TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, timeLength, length);
+    TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, timeLength, lengthVal);
     return timeLengthWindow1;
 }
 
 public type UniqueLengthWindow object {
 
     public string uniqueKey;
-    public int length;
+    public int lengthVal;
     public int count = 0;
     public map uniqueMap;
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
 
-    public new (nextProcessPointer, uniqueKey, length) {
+    public new (nextProcessPointer, uniqueKey, lengthVal) {
         expiredEventChunk = new;
     }
 
@@ -1064,7 +1064,7 @@ public type UniqueLengthWindow object {
                 if (oldEvent == null) {
                     count += 1;
                 }
-                if ((count <= length) && (oldEvent == null)) {
+                if ((count <= lengthVal) && (oldEvent == null)) {
                     expiredEventChunk.addLast(clonedEvent);
                 } else {
                     if (oldEvent != null) {
@@ -1134,8 +1134,8 @@ public type UniqueLengthWindow object {
     }
 };
 
-public function uniqueLengthWindow(string uniqueKey, int length, function(StreamEvent[])? nextProcessPointer = ())
+public function uniqueLengthWindow(string uniqueKey, int lengthVal, function(StreamEvent[])? nextProcessPointer = ())
                     returns Window {
-    UniqueLengthWindow uniqueLengthWindow1 = new(nextProcessPointer, uniqueKey, length);
+    UniqueLengthWindow uniqueLengthWindow1 = new(nextProcessPointer, uniqueKey, lengthVal);
     return uniqueLengthWindow1;
 }

@@ -1226,6 +1226,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.FPCALL, operands);
     }
 
+    public void visit(BLangInvocation.BLangBuiltinInvocation iExpr) {
+         /* ignore */
+    }
+
     public void visit(BLangTypeConversionExpr convExpr) {
         int opcode = convExpr.conversionSymbol.opcode;
 

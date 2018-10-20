@@ -883,8 +883,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (invocationExpr.functionPointerInvocation) {
+        if (invocationExpr.functionPointerInvocation || invocationExpr.builtinLengthOperationInvocation) {
             // Skip function pointers and assume returns of function pointer executions are untainted.
+            // Skip the builtin length operation since it will always return an untainted value.
             // TODO: Resolving function pointers / lambda expressions and perform analysis.
             taintedStatus = TaintedStatus.UNTAINTED;
         } else if (invocationExpr.iterableOperationInvocation) {
@@ -1315,6 +1316,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangBuiltinInvocation iExpr) {
         /* ignore */
     }
 

@@ -1154,9 +1154,8 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (iExpr.lengthOperationInvocation) {
-            BLangInvocation lengthInvocation = createLengthInvocation(iExpr);
-            result = rewriteExpr(lengthInvocation);
+        if (iExpr.builtinLengthOperationInvocation) {
+            visitBuiltinFunctionInvocation(iExpr);
             return;
         }
 
@@ -1213,19 +1212,6 @@ public class Desugar extends BLangNodeVisitor {
                         iExpr.symbol, iExpr.type, iExpr.async);
                 break;
         }
-    }
-
-    /**
-     * Create invocation node for length.
-     *
-     * @param invocation invocation node
-     * @return invocation node created
-     */
-    private BLangInvocation createLengthInvocation(BLangInvocation invocation) {
-        List<BLangExpression> args = new ArrayList<>();
-        args.add(invocation.expr);
-        BType retType = invocation.type;
-        return createInvocationNode(Constants.BUILTIN_LENGTH_OPERATION, args, retType);
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
@@ -1629,6 +1615,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangBuiltinInvocation bFuncInvocation) {
+         /* ignore */
+    }
+
+    @Override
     public void visit(BLangTypedescExpr accessExpr) {
         result = accessExpr;
     }
@@ -1925,6 +1916,31 @@ public class Desugar extends BLangNodeVisitor {
                 epSymbol.getClientFunction, Collections.emptyList(), symResolver);
         getClientExpr.expr = iExpr.expr;
         iExpr.expr = getClientExpr;
+    }
+
+    /**
+     * Visit builtin function invocations.
+     * @param iExpr invocation expression
+     */
+    private void visitBuiltinFunctionInvocation(BLangInvocation iExpr) {
+        // Check if the builtin operation is 'length'
+        if (Constants.BUILTIN_LENGTH_OPERATION.equals(iExpr.name.value)) {
+            DiagnosticPos pos = iExpr.pos;
+            final BLangUnaryExpr lengthExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+            BOperatorSymbol bOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.LENGTHOF.value()),
+                                                                  symTable.rootPkgSymbol.pkgID,
+                                                                  new BInvokableType(
+                                                                          Collections.singletonList(iExpr.expr.type),
+                                                                          symTable.intType, null),
+                                                                  symTable.rootPkgSymbol,
+                                                                  InstructionCodes.LENGTHOF);
+            lengthExpr.operator = OperatorKind.LENGTHOF;
+            lengthExpr.pos = pos;
+            lengthExpr.expr = iExpr.expr;
+            lengthExpr.type = symTable.intType;
+            lengthExpr.opSymbol = bOperatorSymbol;
+            result = rewriteExpr(lengthExpr);
+        }
     }
 
     @SuppressWarnings("unchecked")

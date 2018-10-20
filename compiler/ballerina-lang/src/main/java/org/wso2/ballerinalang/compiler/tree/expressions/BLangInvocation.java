@@ -50,8 +50,8 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public IterableContext iContext;
     public boolean actionInvocation;
     public boolean async;
-    /* Variables Required for builtin length Operation */
-    public boolean lengthOperationInvocation;
+    // Variable required for the builtin length operation
+    public boolean builtinLengthOperationInvocation;
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
@@ -199,6 +199,16 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.async = async;
         }
 
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.983
+     */
+    public static class BLangBuiltinInvocation extends BLangInvocation {
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);

@@ -814,6 +814,11 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangBuiltinInvocation iExpr) {
+        /* ignore */
+    }
+
+    @Override
     public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
         // No implementation
     }
