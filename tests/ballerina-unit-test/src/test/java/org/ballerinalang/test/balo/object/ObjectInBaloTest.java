@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -525,9 +526,51 @@ public class ObjectInBaloTest {
 //        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
 //    }
 
+    @Test
+    public void testObjectReferingTypeFromBalo_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBalo_1");
+        Assert.assertEquals(returns.length, 2);
+
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BFloat.class);
+
+        Assert.assertEquals(returns[0].stringValue(), "Hello John");
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 800.0);
+    }
+
+    @Test
+    public void testObjectReferingTypeFromBalo_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBalo_2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Hello Jane");
+        Assert.assertSame(returns[1].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
+    }
+
+    @Test
+    public void testObjectReferingTypeFromBalo_3() {
+        BValue[] returns = BRunUtil.invoke(result, "testObjectReferingTypeFromBalo_3");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Good morning Jane");
+        Assert.assertSame(returns[1].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1800.0);
+    }
+
+    @Test
+    public void testObjectReferingTypeFromBaloNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 3);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 24, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 24, 15);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'foo:Manager1' is not an abstract object", 36, 6);
+    }
+
     @AfterClass
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("testorg", "foo");
     }
-
 }

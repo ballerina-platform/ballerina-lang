@@ -39,7 +39,7 @@ public class Close extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         BTable table = (BTable) ctx.getRefArgument(0);
-        table.close(ctx.isInTransaction());
+        table.close();
         ctx.setReturnValues();
     }
 }

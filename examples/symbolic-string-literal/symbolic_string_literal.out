@@ -1,0 +1,6 @@
+# To run the program, place the code in "symbolic_string_literal.bal"
+# and issue the `ballerina run` command.
+$ ballerina run symbolic_string_literal.bal
+HelloBallerina
+Hello_Ballerina
+Hello_Ballerina_100
