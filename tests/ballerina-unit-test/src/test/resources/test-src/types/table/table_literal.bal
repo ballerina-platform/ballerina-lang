@@ -224,7 +224,7 @@ function testPrintData() {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{
-        { primarykey id, primarykey age,  salary, name, married }
+        { key id, key age,  salary, name, married }
     };
     _ = dt.add(p1);
     _ = dt.add(p2);

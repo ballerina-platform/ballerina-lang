@@ -34,11 +34,13 @@ public class TableLiteralSyntaxTest {
 
     private CompileResult result;
     private CompileResult resultNegative;
+    private CompileResult resultKeyNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_literal_syntax.bal");
         resultNegative = BCompileUtil.compile("test-src/types/table/table_literal_syntax_negative.bal");
+        resultKeyNegative = BCompileUtil.compile("test-src/types/table/table_literal_key_negative.bal");
     }
 
     @Test
@@ -123,9 +125,15 @@ public class TableLiteralSyntaxTest {
                 + " cannot be used to remove records from a table with no type\"}");
     }
 
+    @Test
+    public void testTableLiteralDataAndAddWithKey() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableLiteralDataAndAddWithKey");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
         BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 21, 11);
         BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 27, 24);
         BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 29, 10);
@@ -136,5 +144,14 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 57, 5);
         BAssertUtil.validateError(resultNegative, 8, "table cannot be created without a constraint", 69, 16);
         BAssertUtil.validateError(resultNegative, 9, "unknown type 'Student'", 73, 5);
+        BAssertUtil.validateError(resultNegative, 10,
+              "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
+              87, 33);
+    }
+
+    @Test(description = "Test table remove with function pointer of invalid return type")
+    public void testTableKeyNegativeCases() {
+        Assert.assertEquals(resultKeyNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultKeyNegative, 0, "expected token 'key'", 11, 19);
     }
 }
