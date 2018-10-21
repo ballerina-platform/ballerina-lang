@@ -287,7 +287,6 @@ statement
     |   assignmentStatement
     |   tupleDestructuringStatement
     |   compoundAssignmentStatement
-    |   postIncrementStatement
     |   ifElseStatement
     |   matchStatement
     |   foreachStatement
@@ -387,15 +386,6 @@ compoundOperator
     |   COMPOUND_LEFT_SHIFT
     |   COMPOUND_RIGHT_SHIFT
     |   COMPOUND_LOGICAL_SHIFT
-    ;
-
-postIncrementStatement
-    :   variableReference postArithmeticOperator SEMICOLON
-    ;
-
-postArithmeticOperator
-    :   INCREMENT
-    |   DECREMENT
     ;
 
 variableReferenceList

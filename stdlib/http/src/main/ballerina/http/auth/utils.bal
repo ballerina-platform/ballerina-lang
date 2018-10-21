@@ -21,8 +21,8 @@ const string AUTH_HEADER = "Authorization";
 const string AUTH_SCHEME_BASIC = "Basic";
 # Bearer authentication scheme.
 const string AUTH_SCHEME_BEARER = "Bearer";
-# Auth annotation package.
-const string ANN_PACKAGE = "ballerina/http";
+# Auth annotation module.
+const string ANN_MODULE = "ballerina/http";
 # Resource level annotation name.
 const string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.

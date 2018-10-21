@@ -32,7 +32,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
- * Testing pushing, pulling, searching a package from central and installing package to home repository.
+ * Testing pushing, pulling, searching a module from central and installing module to home repository.
  *
  * @since 0.982.0
  */
@@ -58,8 +58,8 @@ public class ListDependencyTestCase extends BaseTest {
                                                 projectPath.toString());
     }
 
-    @Test(description = "Test listing dependencies of a package", dependsOnMethods = "testInitProject")
-    public void testListDependenciesOfPackage() throws Exception {
+    @Test(description = "Test listing dependencies of a module", dependsOnMethods = "testInitProject")
+    public void testListDependenciesOfModule() throws Exception {
         String[] clientArgs = {"foo"};
         Path projectPath = tempProjectDirectory.resolve("initProject");
 

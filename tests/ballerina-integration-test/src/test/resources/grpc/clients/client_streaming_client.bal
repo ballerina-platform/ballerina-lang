@@ -53,7 +53,7 @@ function testClientStreaming(string[] args) returns (string) {
         if (wait > 10) {
             break;
         }
-        wait++;
+        wait += 1;
     }
     io:println("completed successfully");
     return response;

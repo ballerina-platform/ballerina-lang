@@ -26,14 +26,14 @@ import org.wso2.ballerinalang.util.TomlParserUtils;
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
- * This class provides util methods when searching for Ballerina packages in the central.
+ * This class provides util methods when searching for Ballerina modules in the central.
  *
  * @since 0.95.2
  */
 public class SearchUtils {
     
     /**
-     * Search for packages in central.
+     * Search for modules in central.
      *
      * @param argument arguments passed
      */

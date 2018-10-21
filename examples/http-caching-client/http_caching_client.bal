@@ -77,7 +77,7 @@ service<http:Service> helloWorld bind { port: 8080 } {
 
         // The `setETag()` function can be used for generating ETags for
         // `string`, `json`, and `xml` types. This uses the `getCRC32()
-        // ` function from the `ballerina/crypto` package for generating the ETag.
+        // ` function from the `ballerina/crypto` module for generating the ETag.
         res.setETag(payload);
 
         // The `setLastModified()` function sets the current time as the

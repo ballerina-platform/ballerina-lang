@@ -359,7 +359,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // Lookup for an imported package
         BSymbol pkgSymbol = lookupSymbol(env, pkgAlias, symTag);
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias.value);
+            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
         }
 
         return pkgSymbol;

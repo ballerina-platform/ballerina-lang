@@ -1,5 +1,6 @@
 package com.github.gtache.lsp.utils
 
+import com.github.gtache.lsp.utils.ApplicationUtils.computableReadAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.util.TextRange
@@ -23,14 +24,16 @@ object DocumentUtils {
     * @return The document line
     */
   def getLineText(editor: Editor, startOffset: Int, endOffset: Int): String = {
-    val doc = editor.getDocument
-    val lineIdx = doc.getLineNumber(startOffset)
-    val lineStartOff = doc.getLineStartOffset(lineIdx)
-    val lineEndOff = doc.getLineEndOffset(lineIdx)
-    val line = doc.getText(new TextRange(lineStartOff, lineEndOff))
-    val startOffsetInLine = startOffset - lineStartOff
-    val endOffsetInLine = endOffset - lineStartOff
-    line.substring(0, startOffsetInLine) + "<b>" + line.substring(startOffsetInLine, endOffsetInLine) + "</b>" + line.substring(endOffsetInLine)
+    computableReadAction(() => {
+      val doc = editor.getDocument
+      val lineIdx = doc.getLineNumber(startOffset)
+      val lineStartOff = doc.getLineStartOffset(lineIdx)
+      val lineEndOff = doc.getLineEndOffset(lineIdx)
+      val line = doc.getText(new TextRange(lineStartOff, lineEndOff))
+      val startOffsetInLine = startOffset - lineStartOff
+      val endOffsetInLine = endOffset - lineStartOff
+      line.substring(0, startOffsetInLine) + "<b>" + line.substring(startOffsetInLine, endOffsetInLine) + "</b>" + line.substring(endOffsetInLine)
+    })
   }
 
   /**
@@ -52,12 +55,14 @@ object DocumentUtils {
     * @return an LSP position
     */
   def offsetToLSPPos(editor: Editor, offset: Int): Position = {
-    val doc = editor.getDocument
-    val line = doc.getLineNumber(offset)
-    val lineStart = doc.getLineStartOffset(line)
-    val lineTextBeforeOffset = doc.getText(TextRange.create(lineStart, offset))
-    val column = lineTextBeforeOffset.length
-    new Position(line, column)
+    computableReadAction(() => {
+      val doc = editor.getDocument
+      val line = doc.getLineNumber(offset)
+      val lineStart = doc.getLineStartOffset(line)
+      val lineTextBeforeOffset = doc.getText(TextRange.create(lineStart, offset))
+      val column = lineTextBeforeOffset.length
+      new Position(line, column)
+    })
   }
 
   /**
@@ -68,18 +73,20 @@ object DocumentUtils {
     * @return The offset
     */
   def LSPPosToOffset(editor: Editor, pos: Position): Int = {
-    val line = pos.getLine
-    val doc = editor.getDocument
-    val lineTextForPosition = doc.getText(DocumentUtil.getLineTextRange(doc, line)).substring(0, pos.getCharacter)
-    val tabs = StringUtil.countChars(lineTextForPosition, '\t')
-    val tabSize = editor.getSettings.getTabSize(editor.getProject)
-    val column = tabs * tabSize + lineTextForPosition.length - tabs
-    val offset = editor.logicalPositionToOffset(new LogicalPosition(line, column))
-    val docLength = doc.getTextLength
-    if (offset > docLength) {
-      LOG.warn("Offset greater than text length : " + offset + " > " + docLength)
-    }
-    math.min(math.max(offset, 0), docLength)
+    computableReadAction(() => {
+      val line = pos.getLine
+      val doc = editor.getDocument
+      val lineTextForPosition = doc.getText(DocumentUtil.getLineTextRange(doc, line)).substring(0, pos.getCharacter)
+      val tabs = StringUtil.countChars(lineTextForPosition, '\t')
+      val tabSize = editor.getSettings.getTabSize(editor.getProject)
+      val column = tabs * tabSize + lineTextForPosition.length - tabs
+      val offset = editor.logicalPositionToOffset(new LogicalPosition(line, column))
+      val docLength = doc.getTextLength
+      if (offset > docLength) {
+        LOG.warn("Offset greater than text length : " + offset + " > " + docLength)
+      }
+      math.min(math.max(offset, 0), docLength)
+    })
   }
 
 }

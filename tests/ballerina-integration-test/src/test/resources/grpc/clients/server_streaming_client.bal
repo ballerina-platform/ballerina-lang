@@ -43,7 +43,7 @@ function testServerStreaming(string name) returns int {
         if (wait > 10) {
             break;
         }
-        wait++;
+        wait += 1;
     }
     io:println("Client got response successfully.");
     io:println("responses count: " + total);

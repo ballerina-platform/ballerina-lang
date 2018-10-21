@@ -2,9 +2,9 @@
 
 Ballerina has a built-in documentation framework named Docerina. The documentation framework allows you to write unstructured document with a bit of structure to enable generating HTML content as API documentation.
 
-Developers can write the documentation inline with the Ballerina source code using the lightweight [markdown](https://daringfireball.net/projects/markdown/syntax) markup language. They can mark special occurrences such as parameters, return parameters, fields, endpoints within the documentation code using documentation attributes. Once the code is documented, developers can generate a basic HTML version of their Ballerina packages using the `ballerina doc` command. You are encouraged to have your custom themes and styles, to have a better presentation of your Ballerina documentation.
+Developers can write the documentation inline with the Ballerina source code using the lightweight [markdown](https://daringfireball.net/projects/markdown/syntax) markup language. They can mark special occurrences such as parameters, return parameters, fields, endpoints within the documentation code using documentation attributes. Once the code is documented, developers can generate a basic HTML version of their Ballerina modules using the `ballerina doc` command. You are encouraged to have your custom themes and styles, to have a better presentation of your Ballerina documentation.
 
-Ballerina design and usage is aligned with project and package semantics of Ballerina. You can generate documentation for the project packages using the ``ballerina doc`` command.
+Ballerina design and usage is aligned with project and module semantics of Ballerina. You can generate documentation for the project modules using the ``ballerina doc`` command.
 
 
 ## Overview
@@ -12,7 +12,7 @@ Ballerina design and usage is aligned with project and package semantics of Ball
 * Ballerina programmers can place the documentation inline with the source code using documentation syntax.
 * Ballerina records, type definitions, objects, global variables, annotations, endpoints can be documented using the documentation syntax.
 * Fields, parameters, return parameters, endpoints can be marked using documentation attributes.
-* HTML documents can be generated using the ``ballerina doc`` command for each Ballerina package and if you have custom handlebars templates, you can use them to generate the HTMLs.
+* HTML documents can be generated using the ``ballerina doc`` command for each Ballerina module and if you have custom handlebars templates, you can use them to generate the HTMLs.
 
 ## Writing Ballerina Documentation
 
@@ -91,60 +91,54 @@ documentation {
          returns HttpFuture|error;
 ```
 
-## Documenting A Package
+## Documenting A Module
 
-A Ballerina package can have a `Package.md` file which describes the package and its usage.
+A Ballerina module can have a `Module.md` file which describes the module and its usage.
 
 A typical project structure of a Ballerina project is like this:
 
 ```
 /
   .gitignore
-  Ballerina-lock.toml  # Generated during build, used to rebuild identical binary
   Ballerina.toml       # Configuration that defines project intent
   .ballerina/          # Internal cache management and contains project repository
-                       # Project repository is built or downloaded package dependencies
+                       # Project repository is built
 
-  main.bal             # Part of the “unnamed” package, compiled into a main.balx
-                       # You can have many files in the "unnamed" package,
+  main.bal             # Part of the “unnamed” module, compiled into a main.balx
+                       # You can have many files in the "unnamed" module,
                        # though unadvisable
 
-  package1/            # The source in this directory will be named “<org-name>/package1”
-    Package.md         # Optional, contains descriptive metadata for display at
+  module1/            # The source in this directory will be named “<org-name>/module1”
+    Module.md         # Optional, contains descriptive metadata for display at
                        # Ballerina Central
     *.bal              # In this dir and recursively in subdirs except tests/ and
                        # resources/
-    [tests/]           # Package-specific unit and integration tests
-    [resources/]       # Package-specific resources
-      *.jar            # Optional, if package includes native Java libraries to
-                       # link + embed
+    [tests/]           # Module-specific unit and integration tests
+    [resources/]       # Module-specific resources
 
-  packages.can.include.dots.in.dir.name/
-    Package.md
+  modules.can.include.dots.in.dir.name/
+    Module.md
     *.bal
-    *.jar
     [tests/]
     [resources/]
-      *.jar            # Optional, if package includes native Java libraries to
-                       # link + embed
 
-  [tests/]             # Tests executed for every package in the project
-  [resources/]         # Resources included with every package in the project
+  [resources/]         # Resources included with every module in the project
 
   target/              # Compiled binaries and other artifacts end up here
       main.balx
-      package1.balo
-      packages.can.include.dots.in.dir.name.bal
+      Ballerina.lock   # Generated during build, used to rebuild identical binary
+      module1.balo
+      modules.can.include.dots.in.dir.name.bal
 ```
 
-`ballerina doc` command will read the `Package.md` and append it in the generated HTML file.
+`ballerina doc` command will read the `Module.md` and append it in the generated HTML file.
 
-Please check [HTTP package documentation](https://ballerina.io/learn/api-docs/ballerina/http.html) for a sample HTML that has a `Package.md` content at the top, followed by the other package constructs.
+Please check [HTTP module documentation](https://ballerina.io/learn/api-docs/ballerina/http.html) for a sample HTML that has a `Module.md` content at the top, followed by the other module constructs.
 
 
 ## Generating Ballerina Documentation
 
-Ballerina provides a `doc` command which can be executed against a given Ballerina project. This command will result in generating the Ballerina documentation as HTML files, for all the packages in the project.
+Ballerina provides a `doc` command which can be executed against a given Ballerina project. This command will result in generating the Ballerina documentation as HTML files, for all the modules in the project.
 
 First, let's create a new Ballerina project:
 ```bash
@@ -155,9 +149,9 @@ Create Ballerina.toml [yes/y, no/n]: (n) y
 Organization name: (nirmal) y
 Version: (0.0.1)
 Ballerina source [service/s, main/m]: (s) s
-Package for the service : (no package) math
+Module for the service : (no module) math
 Ballerina source [service/s, main/m, finish/f]: (f) s
-Package for the service : (no package) time
+Module for the service : (no module) time
 Ballerina source [service/s, main/m, finish/f]: (f) f
 
 Ballerina project initialized
@@ -171,41 +165,41 @@ Output:
 docerina: API documentation generation for sources - [math, time]
 HTML file written: /private/tmp/myproject/api-docs/html/math.html
 HTML file written: /private/tmp/myproject/api-docs/html/index.html
-HTML file written: /private/tmp/myproject/api-docs/html/package-list.html
+HTML file written: /private/tmp/myproject/api-docs/html/module-list.html
 HTML file written: /private/tmp/myproject/api-docs/html/math.html
 HTML file written: /private/tmp/myproject/api-docs/html/time.html
 HTML file written: /private/tmp/myproject/api-docs/html/index.html
-HTML file written: /private/tmp/myproject/api-docs/html/package-list.html
+HTML file written: /private/tmp/myproject/api-docs/html/module-list.html
 ```
 
 `api-docs/html` folder would contain following files;
 ```bash
 $ ls api-docs/html/
-docerina-theme    index.html    math.html   package-list.html
+docerina-theme    index.html    math.html   module-list.html
 time.html
 ```
 
 * `index.html`  - contains an index to the ballerina project documentation
-* `math.html` - contains the content of the package named `docker`
-* `package-list.html` - contains the package list which will be useful to find out the list of packages.
+* `math.html` - contains the content of the module named `docker`
+* `module-list.html` - contains the module list which will be useful to find out the list of modules.
 * `docerina-theme` - folder contains basic styles shipped by default with the pack.
 
-If you want to generate documentation for a selected Ballerina package, then you can execute the following command from the ballerina project root directory:
+If you want to generate documentation for a selected Ballerina module, then you can execute the following command from the ballerina project root directory:
 
 ```bash
-$ ballerina doc <package_name>
+$ ballerina doc <module_name>
 ```
 
 If you have custom Handlebars templates, you can pass them via the `doc` command:
 
 ```bash
-$ ballerina doc -t <path_to_templates> <package_name>
+$ ballerina doc -t <path_to_templates> <module_name>
 ```
 
 If you have a custom Organization name, you can pass it using `-e` flag:
 
 ```bash
-$ ballerina doc -e orgName=<your_organization_name> <package_name>
+$ ballerina doc -e orgName=<your_organization_name> <module_name>
 ```
 
 For other options, please run `ballerina doc --help`.

@@ -24,13 +24,13 @@ package org.ballerinalang.util.diagnostic;
  */
 public enum DiagnosticCode {
 
-    UNDEFINED_PACKAGE("undefined.package"),
-    UNUSED_IMPORT_PACKAGE("unused.import.package"),
-    PACKAGE_NOT_FOUND("package.not.found"),
-    REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
-    INVALID_PACKAGE_DECLARATION("invalid.package.declaration"),
-    MISSING_PACKAGE_DECLARATION("missing.package.declaration"),
-    UNEXPECTED_PACKAGE_DECLARATION("unexpected.package.declaration"),
+    UNDEFINED_MODULE("undefined.module"),
+    UNUSED_IMPORT_MODULE("unused.import.module"),
+    MODULE_NOT_FOUND("module.not.found"),
+    REDECLARED_IMPORT_MODULE("redeclared.import.module"),
+    INVALID_MODULE_DECLARATION("invalid.module.declaration"),
+    MISSING_MODULE_DECLARATION("missing.module.declaration"),
+    UNEXPECTED_MODULE_DECLARATION("unexpected.module.declaration"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     REDECLARED_BUILTIN_SYMBOL("redeclared.builtin.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
@@ -148,6 +148,7 @@ public enum DiagnosticCode {
     INVALID_RECORD_REST_DESCRIPTOR("invalid.record.rest.descriptor"),
     MISSING_REQUIRED_RECORD_FIELD("missing.required.record.field"),
     DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS("default.values.not.allowed.for.optional.fields"),
+    INVALID_FUNCTION_POINTER_INVOCATION("invalid.function.pointer.invocation"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),

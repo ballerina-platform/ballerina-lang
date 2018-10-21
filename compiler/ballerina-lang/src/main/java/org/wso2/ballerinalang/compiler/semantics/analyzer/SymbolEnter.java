@@ -274,14 +274,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         PackageID pkgId = new PackageID(orgName, nameComps, version);
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
+            dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
             return;
         }
 
         BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
         if (pkgSymbol == null) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
+            dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
             return;
         }
