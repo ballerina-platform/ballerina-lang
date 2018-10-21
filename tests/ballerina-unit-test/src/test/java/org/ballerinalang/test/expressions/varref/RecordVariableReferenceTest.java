@@ -23,8 +23,11 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -87,6 +90,45 @@ public class RecordVariableReferenceTest {
         Assert.assertNull(((BMap) returns[2]).get("var2"));
     }
 
+    @Test(description = "Test tuple var ref inside record var ref")
+    public void testTupleVarRefInRecordVarRef() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefInRecordVarRef");
+        Assert.assertEquals(returns.length, 7);
+        Assert.assertEquals(returns[0].stringValue(), "Mark");
+        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(1)).intValue(), 1);
+        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(2)).intValue(), 1990);
+        Assert.assertEquals(((BByte) returns[2]).intValue(), 1);
+        Assert.assertEquals(returns[3].stringValue(), "Mark");
+        Assert.assertEquals(((BInteger) returns[4]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[6]).intValue(), 1990);
+    }
+
+    @Test(description = "Test record var ref inside tuple var ref inside record var ref")
+    public void testRecordInsideTupleInsideRecord() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
+        Assert.assertEquals(returns[1].stringValue(), "A");
+        BMap child = (BMap) ((BMap) returns[2]).get("child");
+        Assert.assertEquals(child.get("name").stringValue(), "C");
+        Assert.assertEquals(((BInteger) ((BRefValueArray) child.get("yearAndAge")).get(0)).intValue(), 1996);
+        Assert.assertEquals(((BMap) ((BRefValueArray) child.get("yearAndAge")).get(1)).get("format").stringValue(),
+                "Z");
+    }
+
+    @Test(description = "Test record var ref inside tuple var ref inside record var ref")
+    public void testRecordInsideTupleInsideRecord2() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "C");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1996);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 22);
+        Assert.assertEquals(returns[3].stringValue(), "Z");
+    }
+
     // TODO: Uncomment below tests once record literal is supported with var ref
 //
 //    @Test(description = "Test simple record variable definition")
@@ -132,26 +174,32 @@ public class RecordVariableReferenceTest {
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 15);
-        final String UNDEFINED_SYMBOL = "undefined symbol ";
-        final String EXPECTING_CLOSED_RECORD = "invalid closed record binding pattern on opened record type {0}";
+        final String undefinedSymbol = "undefined symbol ";
+        final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'format'", 46, 48);
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'theAge'", 46, 40);
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'married'", 46, 19);
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'fName'", 46, 12);
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'theMap'", 46, 66);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 46, 48);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 46, 40);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 46, 19);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 46, 12);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 46, 66);
         BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(EXPECTING_CLOSED_RECORD, "'Age'"), 46, 35);
+                MessageFormat.format(expectingClosedRecord, "'Age'"), 46, 35);
         BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(EXPECTING_CLOSED_RECORD, "'Age'"), 65, 35);
-        BAssertUtil.validateError(resultNegative, ++i, "not enough fields to match to closed record type 'Person'", 72, 5);
+                MessageFormat.format(expectingClosedRecord, "'Age'"), 65, 35);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "not enough fields to match to closed record type 'Person'", 72, 5);
         BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 97, 5);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 98, 12);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'string', found 'Bar'", 98, 27);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'record type', found 'int'", 99, 38);
-        BAssertUtil.validateError(resultNegative, ++i, "record literal is not supported for record binding pattern", 100, 38);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Person', found 'Age'", 109, 19);
-        BAssertUtil.validateError(resultNegative, ++i, "multiple matching record references found for field 'name'", 111, 5);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'Bar'", 98, 27);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'record type', found 'int'", 99, 38);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "record literal is not supported for record binding pattern", 100, 38);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'Person', found 'Age'", 109, 19);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "multiple matching record references found for field 'name'", 111, 5);
     }
 }

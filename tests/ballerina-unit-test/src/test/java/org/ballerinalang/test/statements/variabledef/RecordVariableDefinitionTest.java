@@ -23,8 +23,11 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -160,6 +163,69 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns[2].stringValue(), "N");
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
         Assert.assertEquals(((BMap) returns[4]).get("added").stringValue(), "later");
+    }
+
+    @Test(description = "Test tuple var def inside record var def")
+    public void testTupleVarDefInRecordVarDef() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefInRecordVarDef");
+        Assert.assertEquals(returns.length, 7);
+        Assert.assertEquals(returns[0].stringValue(), "Mark");
+        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(1)).intValue(), 1);
+        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(2)).intValue(), 1990);
+        Assert.assertEquals(((BByte) returns[2]).intValue(), 1);
+        Assert.assertEquals(returns[3].stringValue(), "Mark");
+        Assert.assertEquals(((BInteger) returns[4]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[6]).intValue(), 1990);
+    }
+
+    @Test(description = "Test record var def inside tuple var def inside record var def")
+    public void testRecordInsideTupleInsideRecord() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
+        Assert.assertEquals(returns[1].stringValue(), "A");
+        BMap child = (BMap) ((BMap) returns[2]).get("child");
+        Assert.assertEquals(child.get("name").stringValue(), "C");
+        Assert.assertEquals(((BInteger) ((BRefValueArray) child.get("yearAndAge")).get(0)).intValue(), 1996);
+        Assert.assertEquals(((BMap) ((BRefValueArray) child.get("yearAndAge")).get(1)).get("format").stringValue(),
+                "Z");
+    }
+
+    @Test(description = "Test record var def inside tuple var def inside record var def")
+    public void testRecordInsideTupleInsideRecord2() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "C");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1996);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 22);
+        Assert.assertEquals(returns[3].stringValue(), "Z");
+    }
+
+    @Test(description = "Test record var def inside tuple var def inside record var def")
+    public void testRecordInsideTupleInsideRecordWithVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecordWithVar");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
+        Assert.assertEquals(returns[1].stringValue(), "A");
+        BMap child = (BMap) ((BMap) returns[2]).get("child");
+        Assert.assertEquals(child.get("name").stringValue(), "C");
+        Assert.assertEquals(((BInteger) ((BRefValueArray) child.get("yearAndAge")).get(0)).intValue(), 1996);
+        Assert.assertEquals(((BMap) ((BRefValueArray) child.get("yearAndAge")).get(1)).get("format").stringValue(),
+                "Z");
+    }
+
+    @Test(description = "Test record var def inside tuple var def inside record var def")
+    public void testRecordInsideTupleInsideRecord2WithVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2WithVar");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "D");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1998);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 20);
+        Assert.assertEquals(returns[3].stringValue(), "A");
     }
 
     @Test
