@@ -106,8 +106,7 @@ function checkOpenRecordEqualityNegative() returns boolean {
     OpenEmployee e7 = { name: "Em", id: 4000, dept: "finance" };
     OpenEmployee e8 = { name: "Em", id: 4000, dept: "hr" };
 
-    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || isEqual(e5, e6) ||
-        (e7 == e8) || !(e7 != e8);
+    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || isEqual(e5, e6) || (e7 == e8) || !(e7 != e8);
 }
 
 
