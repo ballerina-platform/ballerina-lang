@@ -686,7 +686,7 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = iExpr.iContext.operations.getLast().resultType;
             return;
         }
-        // Check if its the builtin length operation invocation
+        // Check if its the builtin length operation invocation.
         if (isBuiltinLengthInvocation(iExpr)) {
             checkBuiltinLengthInvocationExpr(iExpr);
             return;
@@ -755,15 +755,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkBuiltinLengthInvocationExpr(BLangInvocation iExpr) {
         iExpr.builtinLengthOperationInvocation = true;
-        // Check if invocation contains any args
+        // Check if invocation contains any args.
         if (iExpr.argExprs.size() > 0 | iExpr.restArgs.size() > 0 | iExpr.namedArgs.size() > 0) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name);
             return;
         }
-        // Set the return type as INT
+        // Set the return type as INT.
         iExpr.type = this.symTable.getTypeFromTag(TypeTags.INT);
-
-        // Get result type
         resultType = types.checkType(iExpr, iExpr.type, expType);
     }
 

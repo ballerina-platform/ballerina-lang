@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -1918,16 +1919,16 @@ public class Desugar extends BLangNodeVisitor {
      * @param iExpr invocation expression
      */
     private void visitBuiltinFunctionInvocation(BLangInvocation iExpr) {
-        // Check if the builtin operation is 'length'
+        // Check if the builtin operation is 'length'.
         if (Constants.BUILTIN_LENGTH_OPERATION.equals(iExpr.name.value)) {
             DiagnosticPos pos = iExpr.pos;
             final BLangUnaryExpr lengthExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
-            BOperatorSymbol bOperatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.LENGTHOF.value()),
-                                                                  symTable.rootPkgSymbol.pkgID,
-                                                                  new BInvokableType(
-                                                                          Collections.singletonList(iExpr.expr.type),
-                                                                          symTable.intType, null),
-                                                                  symTable.rootPkgSymbol,
+            Name operatorName = names.fromString(OperatorKind.LENGTHOF.value());
+            BInvokableType invokableType = new BInvokableType(Collections.singletonList(iExpr.expr.type),
+                                                              symTable.intType, null);
+            BPackageSymbol pkgSymbol = symTable.rootPkgSymbol;
+            PackageID pkgID = pkgSymbol.pkgID;
+            BOperatorSymbol bOperatorSymbol = new BOperatorSymbol(operatorName, pkgID, invokableType, pkgSymbol,
                                                                   InstructionCodes.LENGTHOF);
             lengthExpr.operator = OperatorKind.LENGTHOF;
             lengthExpr.pos = pos;

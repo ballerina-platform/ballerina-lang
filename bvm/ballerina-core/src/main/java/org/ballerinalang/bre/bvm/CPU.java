@@ -3639,7 +3639,7 @@ public class CPU {
             return;
         } else if (typeTag == TypeTags.TABLE_TAG) {
             BTable bTable = (BTable) entity;
-            // Check if the table reference is null, if so throw a null reference error
+            // Check if the table reference is null, if so throw a null reference error.
             int tableLength = bTable.length();
             if (tableLength == -1) {
                 handleNullRefError(ctx);
