@@ -18,21 +18,21 @@
 public type Algorithm "SHA1"|"SHA256"|"MD5";
 
 # The `SHA1` hashing algorithm
-public final Algorithm SHA1 = "SHA1";
+public const Algorithm SHA1 = "SHA1";
 # The `SHA256` hashing algorithm
-public final Algorithm SHA256 = "SHA256";
+public const Algorithm SHA256 = "SHA256";
 # The `MD5` hashing algorithm
-public final Algorithm MD5 = "MD5";
+public const Algorithm MD5 = "MD5";
 
 # The encoding types supported for the HMAC key, by this package.
 public type Encoding "UTF-8"|"BASE64"|"HEX";
 
 # The `UTF-8` encoding
-public final Encoding UTF8 = "UTF-8";
+public const Encoding UTF8 = "UTF-8";
 # The `BASE64` encoding
-public final Encoding BASE64 = "BASE64";
+public const Encoding BASE64 = "BASE64";
 # The `HEX` encoding
-public final Encoding HEX = "HEX";
+public const Encoding HEX = "HEX";
 
 
 # Returns the hash of the given string using the specified algorithm.

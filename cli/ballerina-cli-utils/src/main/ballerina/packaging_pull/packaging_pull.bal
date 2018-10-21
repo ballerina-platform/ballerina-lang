@@ -18,8 +18,8 @@ import ballerina/http;
 import ballerina/internal;
 import ballerina/io;
 
-final int MAX_INT_VALUE = 2147483647;
-final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
+const int MAX_INT_VALUE = 2147483647;
+const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
 DefaultLogFormatter logFormatter = new DefaultLogFormatter();
 boolean isBuild;
 

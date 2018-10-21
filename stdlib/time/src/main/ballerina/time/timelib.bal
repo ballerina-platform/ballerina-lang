@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public final TimeFormat TIME_FORMAT_RFC_1123 = "RFC_1123";
+public const TimeFormat TIME_FORMAT_RFC_1123 = "RFC_1123";
 
 public type TimeFormat "RFC_1123";
 

@@ -157,11 +157,11 @@ public type ServiceSecureSocket record {
 public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 
 # Decides to keep the connection alive or not based on the `connection` header of the client request }
-public final KeepAlive KEEPALIVE_AUTO = "AUTO";
+public const KeepAlive KEEPALIVE_AUTO = "AUTO";
 # Keeps the connection alive irrespective of the `connection` header value }
-public final KeepAlive KEEPALIVE_ALWAYS = "ALWAYS";
+public const KeepAlive KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
-public final KeepAlive KEEPALIVE_NEVER = "NEVER";
+public const KeepAlive KEEPALIVE_NEVER = "NEVER";
 
 function Listener::init (ServiceEndpointConfiguration c) {
     self.config = c;

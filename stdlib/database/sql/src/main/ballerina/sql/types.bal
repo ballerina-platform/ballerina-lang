@@ -85,36 +85,36 @@ public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARC
 "BINARY"|"BLOB"|"LONGVARBINARY"|"VARBINARY"|"CLOB"|"NCLOB"|"DATE"|"TIME"|"DATETIME"|
 "TIMESTAMP"|"ARRAY"|"STRUCT"|"REFCURSOR";
 
-public final SQLType TYPE_VARCHAR = "VARCHAR";
-public final SQLType TYPE_CHAR = "CHAR";
-public final SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
-public final SQLType TYPE_NCHAR = "NCHAR";
-public final SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
-public final SQLType TYPE_NVARCHARR = "NVARCHAR";
-public final SQLType TYPE_BIT = "BIT";
-public final SQLType TYPE_BOOLEAN = "BOOLEAN";
-public final SQLType TYPE_TINYINT = "TINYINT";
-public final SQLType TYPE_SMALLINT = "SMALLINT";
-public final SQLType TYPE_INTEGER = "INTEGER";
-public final SQLType TYPE_BIGINT = "BIGINT";
-public final SQLType TYPE_NUMERIC = "NUMERIC";
-public final SQLType TYPE_DECIMAL = "DECIMAL";
-public final SQLType TYPE_REAL = "REAL";
-public final SQLType TYPE_FLOAT = "FLOAT";
-public final SQLType TYPE_DOUBLE = "DOUBLE";
-public final SQLType TYPE_BINARY = "BINARY";
-public final SQLType TYPE_BLOB = "BLOB";
-public final SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
-public final SQLType TYPE_VARBINARY = "VARBINARY";
-public final SQLType TYPE_CLOB = "CLOB";
-public final SQLType TYPE_NCLOB = "NCLOB";
-public final SQLType TYPE_DATE = "DATE";
-public final SQLType TYPE_TIME = "TIME";
-public final SQLType TYPE_DATETIME = "DATETIME";
-public final SQLType TYPE_TIMESTAMP = "TIMESTAMP";
-public final SQLType TYPE_ARRAY = "ARRAY";
-public final SQLType TYPE_STRUCT = "STRUCT";
-public final SQLType TYPE_REFCURSOR = "REFCURSOR";
+public const SQLType TYPE_VARCHAR = "VARCHAR";
+public const SQLType TYPE_CHAR = "CHAR";
+public const SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
+public const SQLType TYPE_NCHAR = "NCHAR";
+public const SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+public const SQLType TYPE_NVARCHARR = "NVARCHAR";
+public const SQLType TYPE_BIT = "BIT";
+public const SQLType TYPE_BOOLEAN = "BOOLEAN";
+public const SQLType TYPE_TINYINT = "TINYINT";
+public const SQLType TYPE_SMALLINT = "SMALLINT";
+public const SQLType TYPE_INTEGER = "INTEGER";
+public const SQLType TYPE_BIGINT = "BIGINT";
+public const SQLType TYPE_NUMERIC = "NUMERIC";
+public const SQLType TYPE_DECIMAL = "DECIMAL";
+public const SQLType TYPE_REAL = "REAL";
+public const SQLType TYPE_FLOAT = "FLOAT";
+public const SQLType TYPE_DOUBLE = "DOUBLE";
+public const SQLType TYPE_BINARY = "BINARY";
+public const SQLType TYPE_BLOB = "BLOB";
+public const SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
+public const SQLType TYPE_VARBINARY = "VARBINARY";
+public const SQLType TYPE_CLOB = "CLOB";
+public const SQLType TYPE_NCLOB = "NCLOB";
+public const SQLType TYPE_DATE = "DATE";
+public const SQLType TYPE_TIME = "TIME";
+public const SQLType TYPE_DATETIME = "DATETIME";
+public const SQLType TYPE_TIMESTAMP = "TIMESTAMP";
+public const SQLType TYPE_ARRAY = "ARRAY";
+public const SQLType TYPE_STRUCT = "STRUCT";
+public const SQLType TYPE_REFCURSOR = "REFCURSOR";
 
 # The direction of the parameter.
 #
@@ -123,9 +123,9 @@ public final SQLType TYPE_REFCURSOR = "REFCURSOR";
 # INOUT - INOUT parameters are used to send values and get values from stored procedures
 public type Direction "IN"|"OUT"|"INOUT";
 
-public final Direction DIRECTION_IN = "IN";
-public final Direction DIRECTION_OUT = "OUT";
-public final Direction DIRECTION_INOUT = "INOUT";
+public const Direction DIRECTION_IN = "IN";
+public const Direction DIRECTION_OUT = "OUT";
+public const Direction DIRECTION_INOUT = "INOUT";
 
 # Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
 #

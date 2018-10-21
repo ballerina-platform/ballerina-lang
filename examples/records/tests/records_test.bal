@@ -18,9 +18,9 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    // final state of p1 has changed. hence following assertion
+    // const state of p1 has changed. hence following assertion
     test:assertEquals(outputs[0], "{name:\"\", age:0, grades:{maths:0, physics:0, chemistry:0}}");
-    // final state of p2 has changed. hence following assertion
+    // const state of p2 has changed. hence following assertion
     test:assertEquals(outputs[1],
         "{name:\"John Doe\", age:17, grades:{maths:80, physics:75, chemistry:65}}");
     test:assertEquals(outputs[2], "John Doe");

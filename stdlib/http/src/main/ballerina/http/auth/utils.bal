@@ -16,32 +16,32 @@
 
 
 # Authentication header name.
-final string AUTH_HEADER = "Authorization";
+const string AUTH_HEADER = "Authorization";
 # Basic authentication scheme.
-final string AUTH_SCHEME_BASIC = "Basic";
+const string AUTH_SCHEME_BASIC = "Basic";
 # Bearer authentication scheme.
-final string AUTH_SCHEME_BEARER = "Bearer";
+const string AUTH_SCHEME_BEARER = "Bearer";
 # Auth annotation package.
-final string ANN_PACKAGE = "ballerina/http";
+const string ANN_PACKAGE = "ballerina/http";
 # Resource level annotation name.
-final string RESOURCE_ANN_NAME = "ResourceConfig";
+const string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
-final string SERVICE_ANN_NAME = "ServiceConfig";
+const string SERVICE_ANN_NAME = "ServiceConfig";
 # Auth provider config name.
-final string AUTH_PROVIDER_CONFIG = "config";
+const string AUTH_PROVIDER_CONFIG = "config";
 # LDAP auth provider config name.
-final string AUTH_PROVIDER_LDAP = "ldap";
+const string AUTH_PROVIDER_LDAP = "ldap";
 # JDBC auth provider config name.
-final string AUTH_PROVIDER_JDBC = "jdbc";
+const string AUTH_PROVIDER_JDBC = "jdbc";
 # AD auth provider config name.
-final string AUTH_PROVIDER_AD = "activeDirectory";
+const string AUTH_PROVIDER_AD = "activeDirectory";
 
 # Authn scheme basic.
-final string AUTHN_SCHEME_BASIC = "basic";
+const string AUTHN_SCHEME_BASIC = "basic";
 # Authn scheme JWT.
-final string AUTH_SCHEME_JWT = "jwt";
+const string AUTH_SCHEME_JWT = "jwt";
 # Authn scheme OAuth2.
-final string AUTH_SCHEME_OAUTH2 = "oauth2";
+const string AUTH_SCHEME_OAUTH2 = "oauth2";
 
 # Extracts the basic authentication header value from the request.
 #

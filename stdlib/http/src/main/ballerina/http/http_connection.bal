@@ -119,21 +119,21 @@ extern function nativeRespond(Connection connection, Response response) returns 
 public type RedirectCode 300|301|302|303|304|305|307|308;
 
 # Represents the HTTP redirect status code `300 - Multiple Choices`.
-public final RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
+public const RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
 # Represents the HTTP redirect status code `301 - Moved Permanently`.
-public final RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
+public const RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
 # Represents the HTTP redirect status code `302 - Found`.
-public final RedirectCode REDIRECT_FOUND_302 = 302;
+public const RedirectCode REDIRECT_FOUND_302 = 302;
 # Represents the HTTP redirect status code `303 - See Other`.
-public final RedirectCode REDIRECT_SEE_OTHER_303 = 303;
+public const RedirectCode REDIRECT_SEE_OTHER_303 = 303;
 # Represents the HTTP redirect status code `304 - Not Modified`.
-public final RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
+public const RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
 # Represents the HTTP redirect status code `305 - Use Proxy`.
-public final RedirectCode REDIRECT_USE_PROXY_305 = 305;
+public const RedirectCode REDIRECT_USE_PROXY_305 = 305;
 # Represents the HTTP redirect status code `307 - Temporary Redirect`.
-public final RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
+public const RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 # Represents the HTTP redirect status code `308 - Permanent Redirect`.
-public final RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
+public const RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
 function Connection::continue() returns error? {
     Response res = new;

@@ -1,8 +1,8 @@
 import ballerina/http;
 import ballerina/log;
 
-final string NAME = "NAME";
-final string AGE = "AGE";
+const string NAME = "NAME";
+const string AGE = "AGE";
 
 @http:ServiceConfig {
     basePath: "/chat"

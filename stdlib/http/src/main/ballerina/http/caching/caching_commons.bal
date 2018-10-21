@@ -17,53 +17,53 @@
 
 // Cache-control directives
 # Forces the cache to validate a cached response with the origin server before serving.
-public final string NO_CACHE = "no-cache";
+public const string NO_CACHE = "no-cache";
 
 # Instructs the cache to not store a response in non-volatile storage.
-public final string NO_STORE = "no-store";
+public const string NO_STORE = "no-store";
 
 # Instructs intermediaries not to transform the payload.
-public final string NO_TRANSFORM = "no-transform";
+public const string NO_TRANSFORM = "no-transform";
 
 # When used in requests, `max-age` implies that clients are not willing to accept responses whose age is greater
 # than `max-age`. When used in responses, the response is to be considered stale after the specified
 # number of seconds.
-public final string MAX_AGE = "max-age";
+public const string MAX_AGE = "max-age";
 
 
 // Request only cache-control directives
 # Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more
 # than the specified number of seconds.
-public final string MAX_STALE = "max-stale";
+public const string MAX_STALE = "max-stale";
 
 # Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh.
-public final string MIN_FRESH = "min-fresh";
+public const string MIN_FRESH = "min-fresh";
 
 # Indicates that the client is only willing to accept a cached response. A cached response is served subject to
 # other constraints posed by the request.
-public final string ONLY_IF_CACHED = "only-if-cached";
+public const string ONLY_IF_CACHED = "only-if-cached";
 
 
 // Response only cache-control directives
 # Indicates that once the response has become stale, it should not be reused for subsequent requests without
 # validating with the origin server.
-public final string MUST_REVALIDATE = "must-revalidate";
+public const string MUST_REVALIDATE = "must-revalidate";
 
 # Indicates that any cache may store the response.
-public final string PUBLIC = "public";
+public const string PUBLIC = "public";
 
 # Indicates that the response is intended for a single user and should not be stored by shared caches.
-public final string PRIVATE = "private";
+public const string PRIVATE = "private";
 
 # Has the same semantics as `must-revalidate`, except that this does not apply to private caches.
-public final string PROXY_REVALIDATE = "proxy-revalidate";
+public const string PROXY_REVALIDATE = "proxy-revalidate";
 
 # In shared caches, `s-maxage` overrides the `max-age` or `expires` header field.
-public final string S_MAX_AGE = "s-maxage";
+public const string S_MAX_AGE = "s-maxage";
 
 // Other constants
 # Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit.
-public final int MAX_STALE_ANY_AGE = 9223372036854775807;
+public const int MAX_STALE_ANY_AGE = 9223372036854775807;
 
 # Configures cache control directives for a `Request`.
 #

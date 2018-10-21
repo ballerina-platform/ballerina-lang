@@ -15,49 +15,49 @@
 // under the License.
 
 # Represents http protocol scheme
-final string HTTP_SCHEME = "http://";
+const string HTTP_SCHEME = "http://";
 
 # Represents https protocol scheme
-final string HTTPS_SCHEME = "https://";
+const string HTTPS_SCHEME = "https://";
 
 # Constant for the default listener endpoint timeout
-final int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
+const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 
 # Constant for the default failover starting index for failover endpoints
-final int DEFAULT_FAILOVER_EP_STARTING_INDEX = 0;
+const int DEFAULT_FAILOVER_EP_STARTING_INDEX = 0;
 
 # Maximum number of requests that can be processed at a given time on a single connection.
-final int MAX_PIPELINED_REQUESTS = 10;
+const int MAX_PIPELINED_REQUESTS = 10;
 
 # Represents multipart primary type
-public final string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
+public const string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 
 # Constant for the HTTP FORWARD method
-public final HttpOperation HTTP_FORWARD = "FORWARD";
+public const HttpOperation HTTP_FORWARD = "FORWARD";
 
 # Constant for the HTTP GET method
-public final HttpOperation HTTP_GET = "GET";
+public const HttpOperation HTTP_GET = "GET";
 
 # Constant for the HTTP POST method
-public final HttpOperation HTTP_POST = "POST";
+public const HttpOperation HTTP_POST = "POST";
 
 # Constant for the HTTP DELETE method
-public final HttpOperation HTTP_DELETE = "DELETE";
+public const HttpOperation HTTP_DELETE = "DELETE";
 
 # Constant for the HTTP OPTIONS method
-public final HttpOperation HTTP_OPTIONS = "OPTIONS";
+public const HttpOperation HTTP_OPTIONS = "OPTIONS";
 
 # Constant for the HTTP PUT method
-public final HttpOperation HTTP_PUT = "PUT";
+public const HttpOperation HTTP_PUT = "PUT";
 
 # Constant for the HTTP PATCH method
-public final HttpOperation HTTP_PATCH = "PATCH";
+public const HttpOperation HTTP_PATCH = "PATCH";
 
 # Constant for the HTTP HEAD method
-public final HttpOperation HTTP_HEAD = "HEAD";
+public const HttpOperation HTTP_HEAD = "HEAD";
 
 # Constant for the identify not an HTTP Operation
-public final HttpOperation HTTP_NONE = "NONE";
+public const HttpOperation HTTP_NONE = "NONE";
 
 # Defines the possible values for the chunking configuration in HTTP services and clients.
 #
@@ -69,13 +69,13 @@ public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
 # If the payload is less than 8KB, content-length header is set in the outbound request/response,
 # otherwise chunking header is set in the outbound request/response.}
-public final Chunking CHUNKING_AUTO = "AUTO";
+public const Chunking CHUNKING_AUTO = "AUTO";
 
 # Always set chunking header in the response.
-public final Chunking CHUNKING_ALWAYS = "ALWAYS";
+public const Chunking CHUNKING_ALWAYS = "ALWAYS";
 
 # Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.
-public final Chunking CHUNKING_NEVER = "NEVER";
+public const Chunking CHUNKING_NEVER = "NEVER";
 
 # Options to compress using gzip or deflate.
 #
@@ -87,13 +87,13 @@ public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
 # When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
 # outbound request/response accept-encoding/content-encoding option.
-public final Compression COMPRESSION_AUTO = "AUTO";
+public const Compression COMPRESSION_AUTO = "AUTO";
 
 # Always set accept-encoding/content-encoding in outbound request/response.
-public final Compression COMPRESSION_ALWAYS = "ALWAYS";
+public const Compression COMPRESSION_ALWAYS = "ALWAYS";
 
 # Never set accept-encoding/content-encoding header in outbound request/response.
-public final Compression COMPRESSION_NEVER = "NEVER";
+public const Compression COMPRESSION_NEVER = "NEVER";
 
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
 #

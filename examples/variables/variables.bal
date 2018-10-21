@@ -7,7 +7,7 @@ int total = 99;
 public int count;
 
 // Declare a public constant.
-public final string OK = "ok";
+public const string OK = "ok";
 
 public int status = 1;
 

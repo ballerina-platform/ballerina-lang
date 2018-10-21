@@ -1,8 +1,8 @@
 import ballerina/reflect;
 
-final string assertFailureErrorCategory = "assert-failure";
-final string arraysNotEqualMessage = "Arrays are not equal";
-final string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
+const string assertFailureErrorCategory = "assert-failure";
+const string arraysNotEqualMessage = "Arrays are not equal";
+const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
 @Description{value:"The error struct for assertion errors"}
 @Field{value:"The assertion error message"}

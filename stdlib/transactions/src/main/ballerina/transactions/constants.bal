@@ -16,40 +16,40 @@
 
 import ballerina/config;
 
-final string basePath = "/balcoordinator";
+const string basePath = "/balcoordinator";
 final string initiatorCoordinatorBasePath = basePath + "/initiator";
 final string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
 final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
-final string registrationPath = "/register";
+const string registrationPath = "/register";
 final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
 final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", default = getHostAddress());
 final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", default = getAvailablePort());
 
-final string TRANSACTION_CONTEXT_VERSION = "1.0";
+const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-public final string COMMAND_PREPARE = "prepare";
-public final string COMMAND_COMMIT = "commit";
-public final string COMMAND_ABORT = "abort";
+public const string COMMAND_PREPARE = "prepare";
+public const string COMMAND_COMMIT = "commit";
+public const string COMMAND_ABORT = "abort";
 
-public final string PREPARE_RESULT_PREPARED_STR = "prepared";
-public final string PREPARE_RESULT_ABORTED_STR = "aborted";
-public final string PREPARE_RESULT_COMMITTED_STR = "committed";
-public final string PREPARE_RESULT_READ_ONLY_STR = "read-only";
-final string PREPARE_RESULT_FAILED_STR = "failed";
+public const string PREPARE_RESULT_PREPARED_STR = "prepared";
+public const string PREPARE_RESULT_ABORTED_STR = "aborted";
+public const string PREPARE_RESULT_COMMITTED_STR = "committed";
+public const string PREPARE_RESULT_READ_ONLY_STR = "read-only";
+const string PREPARE_RESULT_FAILED_STR = "failed";
 
-public final string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
-public final string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
+public const string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
+public const string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
 
-public final string NOTIFY_RESULT_COMMITTED_STR = "committed";
-public final string NOTIFY_RESULT_ABORTED_STR = "aborted";
+public const string NOTIFY_RESULT_COMMITTED_STR = "committed";
+public const string NOTIFY_RESULT_ABORTED_STR = "aborted";
 
-public final string OUTCOME_COMMITTED = "committed";
-public final string OUTCOME_ABORTED = "aborted";
-final string OUTCOME_MIXED = "mixed";
-final string OUTCOME_HAZARD = "hazard";
+public const string OUTCOME_COMMITTED = "committed";
+public const string OUTCOME_ABORTED = "aborted";
+const string OUTCOME_MIXED = "mixed";
+const string OUTCOME_HAZARD = "hazard";
 
-public final string TRANSACTION_UNKNOWN = "Transaction-Unknown";
+public const string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
 endpoint http:Listener coordinatorListener {
     host:coordinatorHost,

@@ -10,7 +10,7 @@ endpoint http:Listener listener {
 
 // The topic against which the publisher will publish updates, and the subscribers
 // need to subscribe to, to receive notifications when an order is placed
-final string ORDER_TOPIC = "http://localhost:9090/ordermgt/ordertopic";
+const string ORDER_TOPIC = "http://localhost:9090/ordermgt/ordertopic";
 
 // An in-memory map to which orders will be added for demonstration
 map<json> orderMap;

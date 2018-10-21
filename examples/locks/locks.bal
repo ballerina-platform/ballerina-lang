@@ -5,7 +5,7 @@ int counter;
 
 public function main() {
     process();
-    io:println("final counter value - ", counter);
+    io:println("const counter value - ", counter);
 }
 
 function process() {
