@@ -227,7 +227,7 @@ public class BallerinaPackageNameDocGenTest {
     public void noPackagesTest() {
         List<String> packageNames = new ArrayList<>();
         List<Link> packageNameList = PackageName.convertList(packageNames);
-        Assert.assertEquals(packageNameList.size(), 0, "Unknown package name generated.");
+        Assert.assertEquals(packageNameList.size(), 0, "Unknown module name generated.");
     }
 
     @Test(enabled = false)

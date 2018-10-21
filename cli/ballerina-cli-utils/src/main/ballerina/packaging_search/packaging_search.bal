@@ -4,7 +4,7 @@ import ballerina/http;
 import ballerina/time;
 import ballerina/math;
 
-# This function searches packages from ballerina central.
+# This function searches modules from ballerina central.
 #
 # + definedEndpoint - Endpoint defined with the proxy configurations
 # + url - Endpoint url to be invoked
@@ -114,7 +114,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
             }
             io:println("");
         } else {
-            io:println("no packages found");
+            io:println("no modules found");
         }
     }
 }
@@ -162,7 +162,7 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
     return httpEndpoint;
 }
 
-# This function prints package information.
+# This function prints module information.
 #
 # + element - Text to be printed
 # + charactersAllowed - Maximum number of characters to be printed
@@ -203,10 +203,10 @@ function printTitle(string title) {
     io:println("");
 }
 
-# This function gets the date the package was created in UTC.
+# This function gets the date the module was created in UTC.
 #
 # + jsonObj - Time object as a json
-# + return - Date and time the package was created
+# + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
     int timeInMillis = check <int> jsonTime;
@@ -215,7 +215,7 @@ function getDateCreated(json jsonObj) returns string {
     return customTimeString;
 }
 
-# This function invokes the method to search for packages.
+# This function invokes the method to search for modules.
 # + args - Arguments passed
 public function main (string... args) {
     http:Client httpEndpoint;

@@ -43,14 +43,14 @@ import java.util.Map;
 public class PackagingNegativeTestCase extends BaseTest {
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
-    private String packageName = "test";
+    private String moduleName = "test";
     private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-negative-project-");
-        packageName = packageName + PackagingTestUtils.randomPackageName(10);
+        moduleName = moduleName + PackagingTestUtils.randomModuleName(10);
         envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
         createSettingToml();
     }
@@ -69,7 +69,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
 
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
@@ -89,7 +89,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: a package version is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
@@ -105,68 +105,68 @@ public class PackagingNegativeTestCase extends BaseTest {
         }
         String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
-    @Test(description = "Test pushing a package to central without Package.md")
-    public void testPushWithoutPackagMD() throws Exception {
-        Path projectPath = tempProjectDirectory.resolve("projectWithoutPackageMD");
+    @Test(description = "Test pushing a package to central without Module.md")
+    public void testPushWithoutModuleMD() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithoutModuleMD");
         initProject(projectPath);
 
-        // Delete Package.md
-        Path packageMDFilePath = projectPath.resolve(packageName).resolve("Package.md");
-        Files.deleteIfExists(packageMDFilePath);
+        // Delete Module.md
+        Path moduleMDFilePath = projectPath.resolve(moduleName).resolve("Module.md");
+        Files.deleteIfExists(moduleMDFilePath);
 
-        String[] clientArgs = {packageName};
-        String msg = "ballerina: cannot find Package.md file in the artifact";
+        String[] clientArgs = {moduleName};
+        String msg = "ballerina: cannot find Module.md file in the artifact";
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
-    @Test(description = "Test pushing a package to central without any content in Package.md")
+    @Test(description = "Test pushing a package to central without any content in Module.md")
     public void testPushWithoutPackagMDContent() throws Exception {
-        Path projectPath = tempProjectDirectory.resolve("projectWithoutPackageMDContent");
+        Path projectPath = tempProjectDirectory.resolve("projectWithoutModuleMDContent");
         initProject(projectPath);
 
-        // Delete Package.md
-        Path packageMDFilePath = projectPath.resolve(packageName).resolve("Package.md");
-        writeToFile(packageMDFilePath, "");
+        // Delete Module.md
+        Path moduleMDFilePath = projectPath.resolve(moduleName).resolve("Module.md");
+        writeToFile(moduleMDFilePath, "");
 
-        String[] clientArgs = {packageName};
-        String msg = "ballerina: package.md in the artifact is empty";
+        String[] clientArgs = {moduleName};
+        String msg = "ballerina: Module.md in the artifact is empty";
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
-    @Test(description = "Test pushing a package to central without package summary in Package.md")
+    @Test(description = "Test pushing a package to central without package summary in Module.md")
     public void testPushWithoutPackagSummary() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectWithoutPackageSummary");
         initProject(projectPath);
 
-        // Delete Package.md
-        Path packageMDFilePath = projectPath.resolve(packageName).resolve("Package.md");
-        writeToFile(packageMDFilePath, "## Hello World");
+        // Delete Module.md
+        Path moduleMDFilePath = projectPath.resolve(moduleName).resolve("Module.md");
+        writeToFile(moduleMDFilePath, "## Hello World");
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
         String msg = "ballerina: cannot find package summary";
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central with a package summary greater than 50 characters in " +
-            "Package.md")
+            "Module.md")
     public void testPushWithLongPackagSummary() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectWithLongPackageSummary");
         initProject(projectPath);
 
-        // Delete Package.md
-        Path packageMDFilePath = projectPath.resolve(packageName).resolve("Package.md");
-        writeToFile(packageMDFilePath, "Hello I am the test package which was created during an integration" +
+        // Delete Module.md
+        Path moduleMDFilePath = projectPath.resolve(moduleName).resolve("Module.md");
+        writeToFile(moduleMDFilePath, "Hello I am the test package which was created during an integration" +
                 "test\n");
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
         String msg = "ballerina: summary of the package exceeds 50 characters";
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
@@ -177,7 +177,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("projectToInvalidRepo");
         initProject(projectPath);
 
-        String[] clientArgs = {packageName, "--repository", "test"};
+        String[] clientArgs = {moduleName, "--repository", "test"};
         String msg = "ballerina: unknown repository provided to push the package";
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
@@ -194,7 +194,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: couldn't locate Ballerina.toml in the project directory. Run 'ballerina init' to " +
                 "create the Ballerina.toml file automatically and re-run the 'ballerina push' command";
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
@@ -219,7 +219,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         initProject(projectPath);
 
         // First install the package
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
         balClient.runMain("install", clientArgs, envVariables, new String[0], new LogLeecher[0],
                 projectPath.toString());
 
@@ -315,7 +315,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         initProject(projectPath);
         String msg = "error: you are trying to run a ballerina file inside a package within a project. Try running " +
                 "'ballerina run <package-name>'";
-        String sourcePath = Paths.get(packageName, "main.bal").toString();
+        String sourcePath = Paths.get(moduleName, "main.bal").toString();
         balClient.runMain("run", new String[] {sourcePath}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
@@ -326,7 +326,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("projectxyz");
         String msg = "error: you are trying to build a ballerina file inside a package within a project. Try running " +
                 "'ballerina build <package-name>'";
-        String sourcePath = Paths.get(packageName, "main.bal").toString();
+        String sourcePath = Paths.get(moduleName, "main.bal").toString();
         balClient.runMain("build", new String[] {sourcePath}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
@@ -345,7 +345,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "error: invalid organization name provided 'foo-bar'. Only lowercase alphanumerics and " +
                 "underscores are allowed in an organization name and the maximum length is 256 characters";
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
 
         balClient.runMain("push", clientArgs, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
@@ -358,7 +358,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "error: invalid organization name provided 'foo-bar'. Only lowercase alphanumerics and " +
                 "underscores are allowed in an organization name and the maximum length is 256 characters";
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {moduleName};
         balClient.runMain("install", clientArgs, envVariables, new String[0], new LogLeecher[]{new LogLeecher(msg)},
                           projectPath.toString());
     }
@@ -371,7 +371,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Rename package-name
         Path invalidPkgPath = projectPath.resolve("hello-pkg");
         Files.createDirectories(invalidPkgPath);
-        FileUtils.copyDirectory(projectPath.resolve(packageName).toFile(), invalidPkgPath.toFile());
+        FileUtils.copyDirectory(projectPath.resolve(moduleName).toFile(), invalidPkgPath.toFile());
         String msg = "error: invalid package name provided 'hello-pkg'. Only alphanumerics, underscores and periods " +
                 "are allowed in a package name and the maximum length is 256 characters";
 
@@ -401,7 +401,7 @@ public class PackagingNegativeTestCase extends BaseTest {
     private void initProject(Path projectPath) throws IOException, BallerinaTestException {
         Files.createDirectories(projectPath);
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "integrationtests\n", "\n", "m\n", packageName + "\n", "f\n"};
+        String[] options = {"\n", "integrationtests\n", "\n", "m\n", moduleName + "\n", "f\n"};
         balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[0],
                                                 projectPath.toString());
     }

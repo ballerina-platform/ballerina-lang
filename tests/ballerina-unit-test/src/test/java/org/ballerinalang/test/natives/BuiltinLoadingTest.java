@@ -30,13 +30,13 @@ public class BuiltinLoadingTest {
     @Test
     public void testBuiltinImport() {
         CompileResult result = BCompileUtil.compile("test-src/natives/builtin-loading-negative.bal");
-        BAssertUtil.validateError(result, 0, "cannot resolve package 'ballerina/builtin'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'ballerina/builtin'", 1, 1);
     }
 
     @Test
     public void testBuiltinCoreImport() {
         CompileResult result = BCompileUtil.compile("test-src/natives/builtin-core-loading-negative.bal");
-        BAssertUtil.validateError(result, 0, "cannot resolve package 'ballerina/builtin.core'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'ballerina/builtin.core'", 1, 1);
     }
 
 
