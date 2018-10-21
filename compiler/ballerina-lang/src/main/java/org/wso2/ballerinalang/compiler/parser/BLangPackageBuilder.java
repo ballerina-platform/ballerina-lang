@@ -144,6 +144,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -975,7 +976,7 @@ public class BLangPackageBuilder {
 
     void addPanicStmt(DiagnosticPos poc, Set<Whitespace> ws) {
         ExpressionNode errorExpr = this.exprNodeStack.pop();
-        BLangPanic panicNode = (BLangPanic) TreeBuilder.createPackageNode();
+        BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
         panicNode.pos = poc;
         panicNode.addWS(ws);
         panicNode.expr = (BLangExpression) errorExpr;
@@ -1297,11 +1298,11 @@ public class BLangPackageBuilder {
     }
 
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangAwaitExpr awaitExpr = TreeBuilder.createAwaitExpressionNode();
-        awaitExpr.pos = pos;
-        awaitExpr.addWS(ws);
-        awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
-        addExpressionNode(awaitExpr);
+        BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
+        trapExpr.pos = pos;
+        trapExpr.addWS(ws);
+        trapExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(trapExpr);
     }
 
     void endFunctionDef(DiagnosticPos pos,

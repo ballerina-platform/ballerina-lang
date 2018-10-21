@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
@@ -688,6 +689,10 @@ public class TypeChecker extends BLangNodeVisitor {
             iterableAnalyzer.handlerIterableOperation(iExpr, expType, env);
             resultType = iExpr.iContext.operations.getLast().resultType;
             return;
+        }
+        BLangBuiltInFunction builtInFunction = BLangBuiltInFunction.getFromString(iExpr.name.value);
+        if (BLangBuiltInFunction.UNDEFINED != builtInFunction) {
+            checkBuiltinFunctionInvocation(iExpr, builtInFunction, exprType);
         }
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
@@ -1723,6 +1728,38 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (BLangExpression arg : restArgExprs) {
             checkExpr(arg, this.env, ((BArrayType) restParam.type).eType);
+        }
+    }
+
+    private void checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInFunction function, BType type) {
+        switch (function) {
+            case REASON:
+            case DETAIL:
+                //            case STACKTRACE: TODO : Add this.
+                if (type.tag == TypeTags.ERROR) {
+                    handleErrorRelatedBuiltInFunctions(iExpr, function, (BErrorType) type);
+                } else {
+                    dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
+                    resultType = symTable.semanticError;
+                }
+                break;
+            default:
+                dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
+                return;
+        }
+        iExpr.builtinMethodInvocation = true;
+        iExpr.builtInFunction = function;
+    }
+
+    private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInFunction function,
+            BErrorType type) {
+        if (iExpr.argExprs.size() > 0) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+        }
+        if (function == BLangBuiltInFunction.REASON) {
+            resultType = type.reasonType;
+        } else if (function == BLangBuiltInFunction.DETAIL) {
+            resultType = type.detailType;
         }
     }
 

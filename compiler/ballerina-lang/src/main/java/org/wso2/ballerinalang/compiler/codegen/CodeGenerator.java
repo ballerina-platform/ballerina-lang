@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -1192,6 +1194,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangActionInvocation aIExpr) {
+    }
+
+    @Override
+    public void visit(BLangBuiltInMethodInvocation iExpr) {
+        genNode(iExpr.expr, this.env);
+        RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
+        if (iExpr.builtInFunction == BLangBuiltInFunction.REASON) {
+            emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
+        } else if (iExpr.builtInFunction == BLangBuiltInFunction.DETAIL) {
+            emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+        }
     }
 
     public void visit(BLangTypeInit cIExpr) {

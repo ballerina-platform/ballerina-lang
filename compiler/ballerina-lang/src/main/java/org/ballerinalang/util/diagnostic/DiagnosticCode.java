@@ -260,6 +260,9 @@ public enum DiagnosticCode {
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
     TRY_STMT_NOT_SUPPORTED("try.stmt.not.supported"),
 
+    UNKNOWN_BUILTIN_FUNCTION("unknown.builtin.method"),
+    UNSUPPORTED_BUILTIN_METHOD("unsupported.builtin.method"),
+
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
     INVALID_ERROR_LIFTING_ON_LHS("invalid.error.lifting.on.lhs"),

@@ -80,6 +80,7 @@ import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
+import org.ballerinalang.model.tree.expressions.TrapExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.expressions.TypeInitNode;
 import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
@@ -423,7 +424,7 @@ public class TreeBuilder {
         return new BLangAwaitExpr();
     }
 
-    public static BLangTrapExpr createTrapExpressionNode() {
+    public static TrapExpressionNode createTrapExpressionNode() {
         return new BLangTrapExpr();
     }
 

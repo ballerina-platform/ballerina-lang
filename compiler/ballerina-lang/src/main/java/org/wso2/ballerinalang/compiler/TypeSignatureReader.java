@@ -51,7 +51,7 @@ public class TypeSignatureReader<T> {
                 index++;    // skip "("
                 index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
                 T reasonType = typeStack.pop();
-                index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
+                index = createBTypeFromSig(typeCreater, chars, index, typeStack);
                 T detailsType = typeStack.pop();
                 typeStack.push(typeCreater.getErrorType(reasonType, detailsType));
                 return index + 1;

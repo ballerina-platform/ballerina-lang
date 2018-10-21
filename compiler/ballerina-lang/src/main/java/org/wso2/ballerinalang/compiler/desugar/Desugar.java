@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -157,7 +158,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -1151,6 +1151,10 @@ public class Desugar extends BLangNodeVisitor {
             visitIterableOperationInvocation(iExpr);
             return;
         }
+        if (iExpr.builtinMethodInvocation) {
+            visitBuiltInMethodInvocation(iExpr);
+            return;
+        }
         if (iExpr.actionInvocation) {
             visitActionInvocationEndpoint(iExpr);
         }
@@ -1886,6 +1890,13 @@ public class Desugar extends BLangNodeVisitor {
         result = new BFunctionPointerInvocation(iExpr, expr);
     }
 
+    private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
+        List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
+        argExprs.add(0, iExpr.expr);
+        result = new BLangBuiltInMethodInvocation(iExpr.pos, argExprs, iExpr.namedArgs, iExpr.restArgs, iExpr.type,
+                iExpr.async, iExpr.builtInFunction);
+    }
+
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {
         IterableContext iContext = iExpr.iContext;
         if (iContext.operations.getLast().iExpr != iExpr) {
@@ -2130,10 +2141,10 @@ public class Desugar extends BLangNodeVisitor {
             patternBlockFailureCase.stmts.add(returnStmt);
         } else {
             // throw e
-            BLangThrow throwStmt = (BLangThrow) TreeBuilder.createThrowNode();
-            throwStmt.pos = pos;
-            throwStmt.expr = patternFailureCaseVarRef;
-            patternBlockFailureCase.stmts.add(throwStmt);
+            BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
+            panicNode.pos = pos;
+            panicNode.expr = patternFailureCaseVarRef;
+            patternBlockFailureCase.stmts.add(panicNode);
         }
 
         return ASTBuilderUtil.createMatchStatementPattern(pos, patternFailureCaseVar, patternBlockFailureCase);

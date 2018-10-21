@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -50,6 +51,9 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public IterableContext iContext;
     public boolean actionInvocation;
     public boolean async;
+    /* Cached values for Built-in function invocation */
+    public boolean builtinMethodInvocation;
+    public BLangBuiltInFunction builtInFunction;
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
@@ -195,6 +199,29 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.symbol = symbol;
             this.type = type;
             this.async = async;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.983.0
+     */
+    public static class BLangBuiltInMethodInvocation extends BLangInvocation {
+
+        public BLangBuiltInMethodInvocation(DiagnosticPos pos, List<BLangExpression> requiredArgs,
+                List<BLangExpression> namedArgs, List<BLangExpression> restArgs, BType type, boolean async,
+                BLangBuiltInFunction builtInFunction) {
+            this.pos = pos;
+            this.requiredArgs = requiredArgs;
+            this.namedArgs = namedArgs;
+            this.restArgs = restArgs;
+            this.type = type;
+            this.async = async;
+            this.builtInFunction = builtInFunction;
         }
 
         @Override

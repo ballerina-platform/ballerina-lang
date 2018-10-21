@@ -91,6 +91,11 @@ public interface InstructionCodes {
     int BGSTORE = 64;
     int RGSTORE = 65;
 
+    int ERROR = 70;
+    int PANIC = 71;
+    int REASON = 72;
+    int DETAIL = 73;
+
     int MAPSTORE = 74;
     int JSONSTORE = 75;
 
@@ -152,7 +157,6 @@ public interface InstructionCodes {
     int FPCALL = 122;
     int FPLOAD = 123;
     int VFPLOAD = 124;
-    int PANIC = 125;
 
     int SEQ_NULL = 128;
     int SNE_NULL = 129;
@@ -241,7 +245,6 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
-    int ERROR = 218;
 
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;
