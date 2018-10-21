@@ -132,26 +132,34 @@ public class RecordVariableReferenceTest {
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 15);
-        final String UNDEFINED_SYMBOL = "undefined symbol ";
-        final String EXPECTING_CLOSED_RECORD = "invalid closed record binding pattern on opened record type {0}";
+        final String undefinedSymbol = "undefined symbol ";
+        final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'format'", 46, 48);
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'theAge'", 46, 40);
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'married'", 46, 19);
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'fName'", 46, 12);
-        BAssertUtil.validateError(resultNegative, ++i, UNDEFINED_SYMBOL + "'theMap'", 46, 66);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 46, 48);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 46, 40);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 46, 19);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 46, 12);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 46, 66);
         BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(EXPECTING_CLOSED_RECORD, "'Age'"), 46, 35);
+                MessageFormat.format(expectingClosedRecord, "'Age'"), 46, 35);
         BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(EXPECTING_CLOSED_RECORD, "'Age'"), 65, 35);
-        BAssertUtil.validateError(resultNegative, ++i, "not enough fields to match to closed record type 'Person'", 72, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 97, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 98, 12);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'string', found 'Bar'", 98, 27);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'record type', found 'int'", 99, 38);
-        BAssertUtil.validateError(resultNegative, ++i, "record literal is not supported for record binding pattern", 100, 38);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Person', found 'Age'", 109, 19);
-        BAssertUtil.validateError(resultNegative, ++i, "multiple matching record references found for field 'name'", 111, 5);
+                MessageFormat.format(expectingClosedRecord, "'Age'"), 65, 35);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "not enough fields to match to closed record type 'Person'", 72, 5);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "variable assignment is required", 97, 5);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'Bar', found 'string'", 98, 12);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'Bar'", 98, 27);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'record type', found 'int'", 99, 38);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "record literal is not supported for record binding pattern", 100, 38);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'Person', found 'Age'", 109, 19);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "multiple matching record references found for field 'name'", 111, 5);
     }
 }

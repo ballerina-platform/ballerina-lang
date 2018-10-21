@@ -135,7 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -175,6 +175,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT;
 
 /**
  * @since 0.94
@@ -497,7 +499,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (varNode.type.tag != TypeTags.TUPLE) {
-            dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
+            dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION, varNode.type);
             return;
         }
 
@@ -546,13 +548,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
-            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-            tupleVariable.type = rhsType;
-
-            if (tupleVariable.type.tag != TypeTags.TUPLE) {
-                dlog.error(tupleVariable.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
+            if (rhsType.tag != TypeTags.TUPLE) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION, rhsType);
                 return;
             }
+
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+            tupleVariable.type = rhsType;
 
             if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type))) {
                 return;
@@ -897,6 +899,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatch matchNode) {
+
+        //first fail if both static and typed patterns have been defined in the match stmt
+        if (matchNode.getTypedPatternClauses().size() > 0 &&
+                matchNode.patternClauses.size() != matchNode.getTypedPatternClauses().size()) {
+            dlog.error(matchNode.pos, INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
+            return;
+        }
+
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {
@@ -910,7 +920,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         matchNode.exprTypes = exprTypes;
     }
 
-    public void visit(BLangMatchStmtSimpleBindingPatternClause patternClause) {
+    public void visit(BLangMatchStmtTypedBindingPatternClause patternClause) {
         // If the variable is not equal to '_', then define the variable in the block scope
         if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
             SymbolEnv blockEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) patternClause.body, env);

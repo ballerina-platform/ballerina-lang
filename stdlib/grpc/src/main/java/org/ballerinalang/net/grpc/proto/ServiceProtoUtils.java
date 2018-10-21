@@ -573,8 +573,7 @@ public class ServiceProtoUtils {
             //send inside match block.
             if (statementNode instanceof BLangMatch) {
                 BLangMatch langMatch = (BLangMatch) statementNode;
-                for (BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClause :
-                        langMatch.simplePatternClauses) {
+                for (BLangMatch.BLangMatchStmtBindingPatternClause patternClause : langMatch.patternClauses) {
                     BLangInvocation invocExp = getInvocationExpression(patternClause.body);
                     if (invocExp != null) {
                         return invocExp;

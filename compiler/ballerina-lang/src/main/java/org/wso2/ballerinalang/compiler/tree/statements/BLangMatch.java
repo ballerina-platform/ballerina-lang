@@ -25,10 +25,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * {@code BLangMatch} represents a type switch statement in Ballerina.
@@ -37,13 +39,14 @@ import java.util.StringJoiner;
  */
 public class BLangMatch extends BLangStatement implements MatchNode {
 
+    public BLangMatch() {
+        this.patternClauses = new ArrayList<>();
+        this.exprTypes = new ArrayList<>();
+    }
+
     public BLangExpression expr;
     public List<BLangMatchStmtBindingPatternClause> patternClauses;
     public List<BType> exprTypes;
-
-    //todo remove this list
-    public List<BLangMatchStmtSimpleBindingPatternClause> simplePatternClauses;
-
 
     @Override
     public NodeKind getKind() {
@@ -56,8 +59,12 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     @Override
-    public List<BLangMatchStmtSimpleBindingPatternClause> getSimplePatternClauses() {
-        return simplePatternClauses;
+    public List<BLangMatchStmtTypedBindingPatternClause> getTypedPatternClauses() {
+        return patternClauses
+                .stream()
+                .filter(pattern -> NodeKind.MATCH_SIMPLE_PATTERN_CLAUSE == (pattern.getKind()))
+                .map(BLangMatchStmtTypedBindingPatternClause.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -79,22 +86,24 @@ public class BLangMatch extends BLangStatement implements MatchNode {
      */
     public static abstract class BLangMatchStmtBindingPatternClause extends BLangNode implements
             MatchStatementBindingPatternNode {
+
+        // pattern clause's body
         public BLangBlockStmt body;
+    }
+
+    /**
+     * {@code BLangMatchStmtTypedBindingPatternClause} represents a pattern inside a type switch statement.
+     *
+     * @since 0.966.0
+     */
+    public static class BLangMatchStmtTypedBindingPatternClause extends BLangMatchStmtBindingPatternClause
+            implements MatchStatementTypedBindingPatternNode {
+
+        public BLangSimpleVariable variable;
 
         // This field is used to capture types that are matched to this pattern.
         public Set<BType> matchedTypesDirect = new HashSet<>();
         public Set<BType> matchedTypesIndirect = new HashSet<>();
-    }
-
-    /**
-     * {@code BLangMatchStmtSimpleBindingPatternClause} represents a pattern inside a type switch statement.
-     *
-     * @since 0.966.0
-     */
-    public static class BLangMatchStmtSimpleBindingPatternClause extends BLangMatchStmtBindingPatternClause
-            implements MatchStatementSimpleBindingPatternNode {
-
-        public BLangSimpleVariable variable;
 
         @Override
         public NodeKind getKind() {
@@ -123,7 +132,8 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtStaticBindingPatternClause} represents a pattern inside a type switch statement.
+     * {@code BLangMatchStmtStaticBindingPatternClause} represents a static/constant pattern inside a type switch
+     * statement.
      *
      * @since 0.983.0
      */

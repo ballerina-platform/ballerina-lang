@@ -592,16 +592,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatch matchStmt) {
         matchStmt.expr.accept(this);
-        TaintedStatus observedTaintedStatus = this.taintedStatus;
-        matchStmt.simplePatternClauses.forEach(clause -> {
-            setTaintedStatus(clause.variable.symbol, observedTaintedStatus);
-            clause.body.accept(this);
-        });
+        matchStmt.patternClauses.forEach(clause -> clause.accept(this));
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClauseNode) {
-        /* ignore */
+    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause clause) {
+        TaintedStatus observedTaintedStatus = this.taintedStatus;
+        setTaintedStatus(clause.variable.symbol, observedTaintedStatus);
+        clause.body.accept(this);
+    }
+
+    @Override
+    public void visit(BLangMatch.BLangMatchStmtStaticBindingPatternClause clause) {
+        /*ignore*/
     }
 
     @Override

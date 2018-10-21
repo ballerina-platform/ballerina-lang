@@ -295,11 +295,11 @@ public class ASTBuilderUtil {
         return blockNode;
     }
 
-    static BLangMatch.BLangMatchStmtSimpleBindingPatternClause createMatchStatementPattern(DiagnosticPos pos,
-                                                                                           BLangSimpleVariable variable,
-                                                                                           BLangBlockStmt body) {
-        BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClause =
-                (BLangMatch.BLangMatchStmtSimpleBindingPatternClause)
+    static BLangMatch.BLangMatchStmtTypedBindingPatternClause createMatchStatementPattern(DiagnosticPos pos,
+                                                                                          BLangSimpleVariable variable,
+                                                                                          BLangBlockStmt body) {
+        BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClause =
+                (BLangMatch.BLangMatchStmtTypedBindingPatternClause)
                         TreeBuilder.createMatchStatementSimpleBindingPattern();
         patternClause.pos = pos;
         patternClause.variable = variable;
@@ -310,11 +310,11 @@ public class ASTBuilderUtil {
 
     static BLangMatch createMatchStatement(DiagnosticPos pos,
                                            BLangExpression expr,
-                                           List<BLangMatch.BLangMatchStmtSimpleBindingPatternClause> patternClauses) {
+                                           List<BLangMatch.BLangMatchStmtTypedBindingPatternClause> patternClauses) {
         BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
         matchStmt.pos = pos;
         matchStmt.expr = expr;
-        matchStmt.simplePatternClauses = patternClauses;
+        matchStmt.patternClauses.addAll(patternClauses);
         return matchStmt;
     }
 

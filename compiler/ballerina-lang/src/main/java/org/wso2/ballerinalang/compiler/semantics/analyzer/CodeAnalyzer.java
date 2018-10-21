@@ -104,7 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -500,14 +500,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatch matchStmt) {
         analyzeExpr(matchStmt.expr);
-        if (!matchStmt.simplePatternClauses.isEmpty()) {
+        if (!matchStmt.getTypedPatternClauses().isEmpty()) {
             analyzeTypeMatchPatterns(matchStmt);
         }
     }
 
     private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {
+
+        if (matchStmt.exprTypes.isEmpty()) {
+            return;
+        }
+
         boolean unmatchedExprTypesAvailable = false;
-        analyzeExpr(matchStmt.expr);
 
         // TODO Handle **any** as a expr type.. special case it..
         // TODO Complete the exhaustive tests with any, struct and connector types
@@ -516,7 +520,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<BType> unmatchedExprTypes = new ArrayList<>();
         for (BType exprType : matchStmt.exprTypes) {
             boolean assignable = false;
-            for (BLangMatch.BLangMatchStmtSimpleBindingPatternClause pattern : matchStmt.simplePatternClauses) {
+            for (BLangMatchStmtTypedBindingPatternClause pattern : matchStmt.getTypedPatternClauses()) {
                 BType patternType = pattern.variable.type;
                 if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
                     return;
@@ -554,8 +558,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         boolean matchedPatternsAvailable = false;
-        for (int i = matchStmt.simplePatternClauses.size() - 1; i >= 0; i--) {
-            BLangMatchStmtSimpleBindingPatternClause pattern = matchStmt.simplePatternClauses.get(i);
+        for (int i = matchStmt.getTypedPatternClauses().size() - 1; i >= 0; i--) {
+            BLangMatch.BLangMatchStmtTypedBindingPatternClause pattern = matchStmt.getTypedPatternClauses().get(i);
             if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
                 if (matchedPatternsAvailable) {
                     dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
@@ -571,7 +575,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!unmatchedExprTypesAvailable) {
             this.checkStatementExecutionValidity(matchStmt);
             boolean matchStmtReturns = true;
-            for (BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClause : matchStmt.simplePatternClauses) {
+            for (BLangMatchStmtTypedBindingPatternClause patternClause : matchStmt.getTypedPatternClauses()) {
                 analyzeNode(patternClause.body, env);
                 matchStmtReturns = matchStmtReturns && this.statementReturns;
                 this.resetStatementReturns();

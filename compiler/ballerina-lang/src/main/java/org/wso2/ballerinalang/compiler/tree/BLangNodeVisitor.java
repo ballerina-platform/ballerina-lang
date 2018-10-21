@@ -280,7 +280,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
         throw new AssertionError();
     }
 

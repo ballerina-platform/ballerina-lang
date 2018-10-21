@@ -661,7 +661,7 @@ public class TreeVisitor extends LSNodeVisitor {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(matchNode.getPosition(), matchNode, this, this.lsContext)) {
             this.blockOwnerStack.push(matchNode);
-            matchNode.getSimplePatternClauses().forEach(patternClause -> {
+            matchNode.patternClauses.forEach(patternClause -> {
                 cursorPositionResolver = MatchStatementScopeResolver.class;
                 acceptNode(patternClause, symbolEnv);
             });
@@ -670,7 +670,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClause) {
+    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClause) {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
             blockOwnerStack.push(patternClause);
