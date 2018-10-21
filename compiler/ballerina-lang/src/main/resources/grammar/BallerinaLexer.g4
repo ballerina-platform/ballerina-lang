@@ -444,7 +444,6 @@ NullLiteral
 Identifier
     :   ( Letter LetterOrDigit* )
     |   IdentifierLiteral
-    |   'key'
     ;
 
 fragment

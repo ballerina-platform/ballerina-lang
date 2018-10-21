@@ -134,24 +134,24 @@ public class TableLiteralSyntaxTest {
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 11);
-        BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 21, 11);
-        BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 27, 24);
-        BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 29, 10);
-        BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in record 'Person'", 30, 9);
-        BAssertUtil.validateError(resultNegative, 4, "undefined field 'married2' in record 'Person'", 31, 9);
-        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Person', found 'int'", 45, 10);
-        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'Person', found 'int'", 45, 13);
-        BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 57, 5);
-        BAssertUtil.validateError(resultNegative, 8, "table cannot be created without a constraint", 69, 16);
-        BAssertUtil.validateError(resultNegative, 9, "unknown type 'Student'", 73, 5);
+        BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 37, 11);
+        BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 43, 24);
+        BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 45, 10);
+        BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in record 'Person'", 46, 9);
+        BAssertUtil.validateError(resultNegative, 4, "undefined field 'married2' in record 'Person'", 47, 9);
+        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Person', found 'int'", 61, 10);
+        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'Person', found 'int'", 61, 13);
+        BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 73, 5);
+        BAssertUtil.validateError(resultNegative, 8, "table cannot be created without a constraint", 85, 16);
+        BAssertUtil.validateError(resultNegative, 9, "unknown type 'Student'", 89, 5);
         BAssertUtil.validateError(resultNegative, 10,
               "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
-              87, 33);
+              102, 33);
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableKeyNegativeCases() {
         Assert.assertEquals(resultKeyNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultKeyNegative, 0, "expected token 'key'", 11, 19);
+        BAssertUtil.validateError(resultKeyNegative, 0, "expected token 'key'", 27, 19);
     }
 }
