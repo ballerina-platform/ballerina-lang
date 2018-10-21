@@ -80,7 +80,7 @@ public class BLangVMStructs {
         BValue[] vals = new BValue[values.length + 1];
         vals[0] = bStruct;
         System.arraycopy(values, 0, vals, 1, values.length);
-        BLangFunctions.invokeCallable(objectInfo.initializer.functionInfo, vals);
+        BLangFunctions.invokeCallable(objectInfo.initializer, vals);
         return bStruct;
     }
 

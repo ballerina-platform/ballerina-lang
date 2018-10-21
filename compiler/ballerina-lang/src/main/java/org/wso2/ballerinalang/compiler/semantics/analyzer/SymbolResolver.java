@@ -358,7 +358,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // Lookup for an imported package
         BSymbol pkgSymbol = lookupSymbol(env, pkgAlias, symTag);
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias.value);
+            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
         }
 
         return pkgSymbol;
@@ -798,7 +798,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         List<BType> paramTypes = new ArrayList<>();
-        functionTypeNode.getParamTypeNode().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t, env)));
+        functionTypeNode.getParams().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t.getTypeNode(), env)));
         BType retParamType = resolveTypeNode(functionTypeNode.returnTypeNode, this.env);
         resultType = new BInvokableType(paramTypes, retParamType, null);
     }

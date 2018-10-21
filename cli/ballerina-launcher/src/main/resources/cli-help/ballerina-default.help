@@ -38,13 +38,13 @@ BALLERINA COMMANDS
      Available commands are:
          run        Run Ballerina program
          build      Compile Ballerina program
-         install    Install packages to home repository
-         uninstall  Uninstall packages from home repository
-         pull       Download package from Ballerina Central
-         push       Upload package to Ballerina Central
+         install    Install modules to home repository
+         uninstall  Uninstall modules from home repository
+         pull       Download modules from Ballerina Central
+         push       Upload modules to Ballerina Central
          init       Initialize Ballerina project
-         search     Search for packages within Ballerina Central
-         list       List dependencies of packages
+         search     Search for modules within Ballerina Central
+         list       List dependencies of modules
          doc        Generate Ballerina API documentation
          grpc       Generate connector/service using protobuf   
                     definition

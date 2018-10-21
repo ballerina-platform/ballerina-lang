@@ -109,7 +109,6 @@ import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementPatternNode;
 import org.ballerinalang.model.tree.statements.PanicNode;
-import org.ballerinalang.model.tree.statements.PostIncrementNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
 import org.ballerinalang.model.tree.statements.ScopeNode;
@@ -231,7 +230,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -487,10 +485,6 @@ public class TreeBuilder {
 
     public static CompoundAssignmentNode createCompoundAssignmentNode() {
         return new BLangCompoundAssignment();
-    }
-
-    public static PostIncrementNode createPostIncrementNode() {
-        return new BLangPostIncrement();
     }
 
     public static AbortNode createAbortNode() {

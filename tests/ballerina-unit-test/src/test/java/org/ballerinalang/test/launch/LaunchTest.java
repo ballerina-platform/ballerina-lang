@@ -36,7 +36,7 @@ import java.util.HashMap;
 public class LaunchTest {
 
     @Test(expectedExceptions = {BLangCompilerException.class },
-            expectedExceptionsMessageRegExp = "cannot find package 'xxxx'")
+            expectedExceptionsMessageRegExp = "no ballerina source files found in module xxxx")
     public void testRunNonExistingPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/launch/", "xxxx");
         Assert.assertEquals(result.getErrorCount(), 0);

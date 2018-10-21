@@ -60,7 +60,7 @@ public type JoinProcessor object {
                 if (self.lhsStream.equalsIgnoreCase(originStream) ?: false) {
                     // triggered from LHS
                     match rhsWindow.getCandidateEvents(event, onConditionFunc) {
-                        (StreamEvent, StreamEvent)[] evtArr => {
+                        (StreamEvent?, StreamEvent?)[] evtArr => {
                             candidateEvents = evtArr;
                             // with left/full joins, we need to emit an event even there's no candidate events in rhs.
                             if (lengthof candidateEvents == 0 && (joinType == "LEFTOUTERJOIN"
@@ -76,11 +76,11 @@ public type JoinProcessor object {
                     }
                     foreach evtTuple in candidateEvents {
                         joinedEvents[i] = joinEvents(evtTuple[0], evtTuple[1]);
-                        i++;
+                        i += 1;
                     }
                 } else {
                     match lhsWindow.getCandidateEvents(event, onConditionFunc, isLHSTrigger = false) {
-                        (StreamEvent, StreamEvent)[] evtArr => {
+                        (StreamEvent?, StreamEvent?)[] evtArr => {
                             candidateEvents = evtArr;
                             // with right/full joins, we need to emit an event even there's no candidate events in rhs.
                             if (lengthof candidateEvents == 0 && (joinType == "RIGHTOUTERJOIN"
@@ -96,7 +96,7 @@ public type JoinProcessor object {
                     }
                     foreach evtTuple in candidateEvents {
                         joinedEvents[i] = joinEvents(evtTuple[0], evtTuple[1], lhsTriggered = false);
-                        i++;
+                        i += 1;
                     }
                 }
             }
@@ -108,7 +108,7 @@ public type JoinProcessor object {
             match e {
                 StreamEvent s => {
                     outputEvents[i] = s;
-                    i++;
+                    i += 1;
                 }
                 () => {
                 }

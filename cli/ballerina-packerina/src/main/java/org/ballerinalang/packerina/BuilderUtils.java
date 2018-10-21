@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.packerina;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.testerina.util.Utils;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -29,7 +30,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_PACKAGE;
+import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
@@ -54,7 +55,7 @@ public class BuilderUtils {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(BUILD_COMPILED_PACKAGE, Boolean.toString(buildCompiledPkg));
+        options.put(BUILD_COMPILED_MODULE, Boolean.toString(buildCompiledPkg));
         options.put(OFFLINE, Boolean.toString(offline));
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
@@ -89,14 +90,14 @@ public class BuilderUtils {
                 outStream.println();
                 compiler.write(packages);
             } else {
-                outStream.println("No ballerina source files found to compile");
+                throw new BLangCompilerException("no ballerina source files found to compile");
             }
         } else {
             if (packages.size() > 0) {
                 Utils.testWithBuild(sourceRootPath, null);
                 compiler.write(packages);
             } else {
-                outStream.println("No ballerina source files found to compile");
+                throw new BLangCompilerException("no ballerina source files found to compile");
             }
         }
     }

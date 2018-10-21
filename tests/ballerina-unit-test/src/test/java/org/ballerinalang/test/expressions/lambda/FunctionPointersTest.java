@@ -256,4 +256,15 @@ public class FunctionPointersTest {
     public void testAnyToFuncPointerConversion_2() {
         BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
     }
+
+    @Test(description = "Test assigning a function pointer to any and casting it back")
+    public void testAnyToFunctionPointer() {
+        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/fp2any.bal");
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "test1", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "test1");
+    }
 }

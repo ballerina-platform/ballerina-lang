@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SamplesList renders properly 1`] = `
+<div
+  className="ui grid welcome-page"
+>
+  <div
+    className="two column row welcome-navbar"
+  >
+    <div
+      className="column nav-tagline"
+    >
+      Search and open available examples
+    </div>
+    <div
+      className="column"
+    >
+      <div
+        className="top-nav-links"
+        style={
+          Object {
+            "marginRight": 40,
+            "paddingRight": 0,
+          }
+        }
+      >
+        <div
+          className="ui loading icon input"
+        >
+          <input
+            onChange={[Function]}
+            placeholder="Search"
+            type="text"
+          />
+          <i
+            aria-hidden="true"
+            className="spinner icon"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    className="row welcome-content-wrapper"
+  >
+    <div
+      className="sixteen wide computer sixteen wide mobile sixteen wide tablet column rightContainer"
+    >
+      <div
+        className="ui grid"
+      />
+    </div>
+  </div>
+</div>
+`;

@@ -38,7 +38,7 @@ type FuncGenrator object {
         int i = 0;
         while (i < func.argsCount) {
             argTypes[i] = llvm:LLVMInt64Type();
-            i++;
+            i += 1;
         }
         return argTypes;
     }
@@ -62,7 +62,7 @@ type FuncGenrator object {
             if (isParamter(localVar)){
                 var parmRef = llvm:LLVMGetParam(funcRef, paramIndex);
                 var loaded = llvm:LLVMBuildStore(builder, parmRef, localVarRef);
-                paramIndex++;
+                paramIndex += 1;
             }
         }
     }

@@ -16,7 +16,7 @@
                     "character": 0
                 }
             },
-            "newText": "import ballerina/io;\r\npublic function main(string... args) {\r\n    int a2 = 10;\r\n    while (a2 < 100) {\r\n        a2++;\r\n        a2--;\r\n    }\r\n}"
+            "newText": "import ballerina/io;\r\npublic function main(string... args) {\r\n    int a2 = 10;\r\n    while (a2 < 100) {\r\n        a2 += 1;\r\n        a2 -= 1;\r\n    }\r\n}"
         }
     ]
 }

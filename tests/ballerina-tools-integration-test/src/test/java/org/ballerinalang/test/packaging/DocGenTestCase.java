@@ -54,15 +54,15 @@ public class DocGenTestCase extends BaseTest {
                                                 tempProjectDirectory.toString());
     }
 
-    @Test(description = "Test doc generation for package", dependsOnMethods = "testInitProject")
-    public void testDocGenerationForPackage() throws Exception {
+    @Test(description = "Test doc generation for module", dependsOnMethods = "testInitProject")
+    public void testDocGenerationForModule() throws Exception {
         String[] clientArgs = {"foo"};
         balClient.runMain("doc", clientArgs, envVariables, new String[0], new LogLeecher[0],
                 tempProjectDirectory.toString());
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
     }
 
@@ -74,7 +74,7 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("foo").resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("main.bal.html")));
     }
 
@@ -85,7 +85,7 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("bar.html")));
     }

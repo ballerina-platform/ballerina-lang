@@ -56,7 +56,7 @@ public class CodeGenerator {
 
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
-     * Generated source will be written to a ballerina package at {@code outPath}
+     * Generated source will be written to a ballerina module at {@code outPath}
      * <p>Method can be user for generating Ballerina mock services and clients</p>
      *
      * @param type           Output type. Following types are supported
@@ -140,7 +140,7 @@ public class CodeGenerator {
      * @deprecated This method is now deprecated. Use {@link #generate(GeneratorConstants.GenType, String) generate}
      * and implement a file write functionality your self, if you need to customize file writing steps.
      * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String) generate}
-     * to directly write generated source to a ballerina package.
+     * to directly write generated source to a ballerina module.
      */
     @Deprecated
     public void writeBallerina(Object object, String templateDir, String templateName, String outPath)

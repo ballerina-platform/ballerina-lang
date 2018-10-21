@@ -45,6 +45,11 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     }
 
     @Override
+    public BLangExpression getKeyExpression() {
+        return keyExpr;
+    }
+
+    @Override
     public BLangIdentifier getWorkerName() {
         return workerIdentifier;
     }

@@ -137,8 +137,8 @@ public type Direction "IN"|"OUT"|"INOUT";
 public type Parameter record {
     SQLType sqlType;
     any value;
-    Direction direction;
-    typedesc recordType;
+    Direction direction?;
+    typedesc recordType?;
     !...
 };
 

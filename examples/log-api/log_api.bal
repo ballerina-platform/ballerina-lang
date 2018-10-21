@@ -27,9 +27,9 @@ public function main() {
     // level="[LOG_LEVEL]"
     // ```
 
-    // Each package can also be assigned its own log level. To assign a
-    // log level to a package, provide the following configuration
-    // `<PACKAGE_NAME>.loglevel`.
+    // Each module can also be assigned its own log level. To assign a
+    // log level to a module, provide the following configuration
+    // `<MODULE_NAME>.loglevel`.
     //
     // e.g. `-e foo.loglevel=DEBUG`
 }

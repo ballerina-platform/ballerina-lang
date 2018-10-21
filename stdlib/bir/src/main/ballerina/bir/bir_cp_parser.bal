@@ -17,7 +17,7 @@ public type ConstPoolParser object {
         var cpCount = reader.readInt32();
         while (i < cpCount) {
             parseConstPoolEntry();
-            i++;
+            i += 1;
         }
         return cp;
     }
