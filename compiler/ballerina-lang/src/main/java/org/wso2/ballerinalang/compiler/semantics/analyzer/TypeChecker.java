@@ -688,7 +688,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         // Check if its the builtin length operation invocation
         if (isBuiltinLengthInvocation(iExpr)) {
-            checkBuiltinInvocationExpr(iExpr);
+            checkBuiltinLengthInvocationExpr(iExpr);
             return;
         }
 
@@ -753,7 +753,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkBuiltinInvocationExpr(BLangInvocation iExpr) {
+    private void checkBuiltinLengthInvocationExpr(BLangInvocation iExpr) {
         iExpr.builtinLengthOperationInvocation = true;
         // Check if invocation contains any args
         if (iExpr.argExprs.size() > 0 | iExpr.restArgs.size() > 0 | iExpr.namedArgs.size() > 0) {

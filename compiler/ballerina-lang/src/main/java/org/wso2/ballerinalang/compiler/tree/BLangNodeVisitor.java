@@ -670,10 +670,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangInvocation.BLangBuiltinInvocation builtinInvocation) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
         throw new AssertionError();
     }

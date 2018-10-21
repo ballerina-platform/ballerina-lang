@@ -1615,11 +1615,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangBuiltinInvocation bFuncInvocation) {
-         /* ignore */
-    }
-
-    @Override
     public void visit(BLangTypedescExpr accessExpr) {
         result = accessExpr;
     }

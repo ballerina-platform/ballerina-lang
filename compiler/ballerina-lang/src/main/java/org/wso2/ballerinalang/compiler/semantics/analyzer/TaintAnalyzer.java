@@ -1320,11 +1320,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangBuiltinInvocation iExpr) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangArrayLiteral.BLangJSONArrayLiteral jsonArrayLiteral) {
         /* ignore */
     }

@@ -204,15 +204,4 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             visitor.visit(this);
         }
     }
-
-    /**
-     * @since 0.983
-     */
-    public static class BLangBuiltinInvocation extends BLangInvocation {
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
 }
