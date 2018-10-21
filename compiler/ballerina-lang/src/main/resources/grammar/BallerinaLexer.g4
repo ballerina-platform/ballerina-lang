@@ -136,7 +136,6 @@ DONE        : 'done' ;
 SCOPE       : 'scope';
 COMPENSATION: 'compensation';
 COMPENSATE  : 'compensate' ;
-PRIMARYKEY  : 'primarykey' ;
 
 // Separators
 
@@ -445,6 +444,7 @@ NullLiteral
 Identifier
     :   ( Letter LetterOrDigit* )
     |   IdentifierLiteral
+    |   'key'
     ;
 
 fragment
