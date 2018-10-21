@@ -94,6 +94,75 @@ function testRecordTypeInRecordVarRef() returns (map, int|float, Some) {
     return (fooVar1, barVar1, var2);
 }
 
+type Student record {
+    string name;
+    (int, int, int) dob;
+    byte gender;
+};
+
+function testTupleVarRefInRecordVarRef() returns (string, (int, int, int), byte, string, int, int, int) {
+    Student st1 = {name: "Mark", dob: (1, 1, 1990), gender: 1};
+    string name;
+    (int, int, int) dob;
+    byte gender;
+    string sName;
+    int a;
+    int b;
+    int c;
+
+    {name, dob, gender} = st1;
+    {name: sName, dob: (a, b, c)} = st1;
+    return (name, dob, gender, sName, a, b, c);
+}
+
+type Parent record {
+    string[] namesOfChildren;
+    Child[] children;
+    Child child;
+};
+
+type Child record {
+    string name;
+    (int, Age) yearAndAge;
+};
+
+function testRecordInsideTupleInsideRecord() returns (string[], string, map) {
+    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
+    (int, Age) yearAndAge2 = (1994, {age: 24, format: "x"});
+    (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
+    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+    Child ch3 = {name: "C", yearAndAge: yearAndAge3};
+
+    string[] namesOfChildren;
+    Child[] children;
+    map child;
+
+    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    {namesOfChildren, children, ...child} = parent;
+    return (namesOfChildren, children[0].name, child);
+}
+
+function testRecordInsideTupleInsideRecord2() returns (string, int, int, string) {
+    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
+    (int, Age) yearAndAge2 = (1994, {age: 24, format: "x"});
+    (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
+    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+    Child ch3 = {name: "C", yearAndAge: yearAndAge3};
+
+    string[] namesOfChildren;
+    Child[] children;
+    string name;
+    int yearInt;
+    int age;
+    string format;
+
+    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    {namesOfChildren, children, child: {name, yearAndAge: (yearInt, {age, format})}} = parent;
+    return (name, yearInt, age, format);
+}
+
 // TODO: Uncomment below tests once record literal is supported with var ref
 
 //function testVarAssignmentOfRecordLiteral() returns (string, boolean, int, string) {

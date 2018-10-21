@@ -956,7 +956,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 restParam = true;
             }
         }
-        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), numberOfVars, restParam, closed );
+        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), numberOfVars, restParam, closed);
     }
 
     @Override

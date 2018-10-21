@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

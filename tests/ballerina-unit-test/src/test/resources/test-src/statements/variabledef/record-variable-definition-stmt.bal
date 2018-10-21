@@ -148,3 +148,82 @@ function testVariableAssignment2() returns (string, int, string, boolean, map) {
     rest["added"] = "later";
     return (fName, age, format, married, rest);
 }
+
+// -------------------------
+
+type Student record {
+    string name;
+    (int, int, int) dob;
+    byte gender;
+};
+
+function testTupleVarDefInRecordVarDef() returns (string, (int, int, int), byte, string, int, int, int) {
+    Student st1 = {name: "Mark", dob: (1, 1, 1990), gender: 1};
+    Student {name, dob, gender} = st1;
+    Student {name: sName, dob: (a, b, c)} = st1;
+    return (name, dob, gender, sName, a, b, c);
+}
+
+type Parent record {
+    string[] namesOfChildren;
+    Child[] children;
+    Child child;
+
+};
+
+type Child record {
+    string name;
+    (int, Age) yearAndAge;
+};
+
+function testRecordInsideTupleInsideRecord() returns (string[], string, map) {
+    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
+    (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
+    (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
+    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+    Child ch3 = {name: "C", yearAndAge: yearAndAge3};
+
+    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    Parent {namesOfChildren, children, ...child} = parent;
+    return (namesOfChildren, children[0].name, child);
+}
+
+function testRecordInsideTupleInsideRecord2() returns (string, int, int, string) {
+    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
+    (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
+    (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
+    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+    Child ch3 = {name: "C", yearAndAge: yearAndAge3};
+
+    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    Parent {namesOfChildren, children, child: {name, yearAndAge: (yearInt, {age, format})}} = parent;
+    return (name, yearInt, age, format);
+}
+
+function testRecordInsideTupleInsideRecordWithVar() returns (string[], string, map) {
+    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
+    (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
+    (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
+    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
+    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+    Child ch3 = {name: "C", yearAndAge: yearAndAge3};
+
+    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    var {namesOfChildren, children, ...child} = parent;
+    return (namesOfChildren, children[0].name, child);
+}
+
+function testRecordInsideTupleInsideRecord2WithVar() returns (string, int, int, string) {
+    (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
+    (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
+    (int, Age) yearAndAge3 = (1998, {age: 20, format: "A"});
+    Child ch1 = {name: "A", yearAndAge: yearAndAge1};
+    Child ch2 = {name: "B", yearAndAge: yearAndAge2};
+    Child ch3 = {name: "D", yearAndAge: yearAndAge3};
+
+    Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
+    var {namesOfChildren, children, child: {name, yearAndAge: (yearInt, {age, format})}} = parent;
+    return (name, yearInt, age, format);
+}

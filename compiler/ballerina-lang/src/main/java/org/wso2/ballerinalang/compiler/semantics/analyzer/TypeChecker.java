@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
@@ -606,6 +605,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTupleVarRef varRefExpr) {
         List<BType> results = new ArrayList<>();
         for (int i = 0; i < varRefExpr.expressions.size(); i++) {
+            ((BLangVariableReference) varRefExpr.expressions.get(i)).lhsVar = true;
             results.add(checkExpr(varRefExpr.expressions.get(i), env, symTable.noType));
         }
         BType actualType = new BTupleType(results);

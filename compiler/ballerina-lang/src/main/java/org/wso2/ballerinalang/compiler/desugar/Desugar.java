@@ -941,7 +941,8 @@ public class Desugar extends BLangNodeVisitor {
         return lambdaFunction;
     }
 
-    private BInvokableSymbol createReturnTrueStatement(DiagnosticPos pos, BLangFunction function, BLangBlockStmt functionBlock) {
+    private BInvokableSymbol createReturnTrueStatement(DiagnosticPos pos, BLangFunction function,
+                                                       BLangBlockStmt functionBlock) {
         BLangReturn trueReturnStmt = ASTBuilderUtil.createReturnStmt(pos, functionBlock);
         trueReturnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
 
@@ -961,7 +962,8 @@ public class Desugar extends BLangNodeVisitor {
         return functionSymbol;
     }
 
-    private BLangBlockStmt createAnonymousFunctionBlock(DiagnosticPos pos, BLangFunction function, BVarSymbol keyValSymbol) {
+    private BLangBlockStmt createAnonymousFunctionBlock(DiagnosticPos pos, BLangFunction function,
+                                                        BVarSymbol keyValSymbol) {
         BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
                 null, keyValSymbol);
         function.requiredParams.add(inputParameter);
@@ -1094,11 +1096,13 @@ public class Desugar extends BLangNodeVisitor {
         final List<BLangExpression> expressions = parentTupleVariable.expressions;
         for (int index = 0; index < expressions.size(); index++) {
             BLangExpression expression = expressions.get(index);
-            if (NodeKind.SIMPLE_VARIABLE_REF == expression.getKind()) { //if this is simple var, then create a simple var def stmt
+            if (NodeKind.SIMPLE_VARIABLE_REF == expression.getKind()) {
+                //if this is simple var, then create a simple var def stmt
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(expression.pos, symTable.intType, (long) index);
                 createSimpleVarRefAssignmentStmt((BLangSimpleVarRef) expression, parentBlockStmt, indexExpr,
                         tupleVarSymbol, parentIndexAccessExpr);
-            } else if (expression.getKind() == NodeKind.TUPLE_VARIABLE_REF) { //else recursively create the var def statements
+            } else if (expression.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+                //else recursively create the var def statements for tuple var ref
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) expression;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVarRef.pos, symTable.intType, (long) index);
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVarRef.pos,
@@ -1107,6 +1111,19 @@ public class Desugar extends BLangNodeVisitor {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
                 createVarRefAssignmentStmts((BLangTupleVarRef) expression, parentBlockStmt, tupleVarSymbol,
+                        arrayAccessExpr);
+            } else if (expression.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+                //else recursively create the var def statements for record var ref
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) expression;
+                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVarRef.pos, symTable.intType,
+                        (long) index);
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
+                        parentTupleVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        tupleVarSymbol, indexExpr);
+                if (parentIndexAccessExpr != null) {
+                    arrayAccessExpr.expr = parentIndexAccessExpr;
+                }
+                createVarRefAssignmentStmts((BLangRecordVarRef) expression, parentBlockStmt, tupleVarSymbol,
                         arrayAccessExpr);
             }
         }
@@ -1168,7 +1185,8 @@ public class Desugar extends BLangNodeVisitor {
                 null, new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
                         runTimeType, this.env.scope.owner));
         mapVariable.expr = recordDestructure.expr;
-        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(recordDestructure.pos, blockStmt);
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.
+                createVariableDefStmt(recordDestructure.pos, blockStmt);
         variableDef.var = mapVariable;
 
         //create the variable definition statements using the root block stmt created
