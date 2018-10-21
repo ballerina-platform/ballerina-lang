@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -900,6 +901,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 });
             }
             this.taintedStatus = exprTaintedStatus;
+        } else if (invocationExpr.builtinMethodInvocation) {
+            // TODO: Fix this properly.
+            taintedStatus = TaintedStatus.UNTAINTED;
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
@@ -908,9 +912,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     // table already attached. This will prevent the analyzer to go in to a loop unnecessarily.
                     ignoredInvokableSymbol = invokableSymbol;
                 }
-                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
-                        || (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
-                        && ignoredInvokableSymbol == invokableSymbol)) {
+                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS || (
+                        analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
+                                && ignoredInvokableSymbol == invokableSymbol)) {
                     this.taintedStatus = TaintedStatus.IGNORED;
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                 } else {
@@ -964,6 +968,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangAwaitExpr awaitExpr) {
         awaitExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        trapExpr.expr.accept(this);
     }
 
     @Override

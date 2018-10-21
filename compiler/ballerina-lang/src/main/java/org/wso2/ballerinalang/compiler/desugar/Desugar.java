@@ -1151,14 +1151,14 @@ public class Desugar extends BLangNodeVisitor {
             visitIterableOperationInvocation(iExpr);
             return;
         }
-        if (iExpr.builtinMethodInvocation) {
-            visitBuiltInMethodInvocation(iExpr);
-            return;
-        }
         if (iExpr.actionInvocation) {
             visitActionInvocationEndpoint(iExpr);
         }
         iExpr.expr = rewriteExpr(iExpr.expr);
+        if (iExpr.builtinMethodInvocation) {
+            visitBuiltInMethodInvocation(iExpr);
+            return;
+        }
         result = genIExpr;
         if (iExpr.expr == null) {
             if (iExpr.exprSymbol == null) {
@@ -1891,10 +1891,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
-        List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
-        argExprs.add(0, iExpr.expr);
-        result = new BLangBuiltInMethodInvocation(iExpr.pos, argExprs, iExpr.namedArgs, iExpr.restArgs, iExpr.type,
-                iExpr.async, iExpr.builtInFunction);
+        result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {

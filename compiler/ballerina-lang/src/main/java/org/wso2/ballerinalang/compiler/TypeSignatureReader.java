@@ -149,7 +149,6 @@ public class TypeSignatureReader<T> {
             case 'X':
             case 'J':
             case 'T':
-            case 'E':
             case 'Z':
             case 'G':
             case 'D':
@@ -189,6 +188,7 @@ public class TypeSignatureReader<T> {
             case 'U':
             case 'O':
             case 'P':
+            case 'E':
                 Stack<T> typeStack = new Stack<>();
                 createBTypeFromSig(typeCreater, desc.toCharArray(), 0, typeStack);
                 return typeStack.pop();

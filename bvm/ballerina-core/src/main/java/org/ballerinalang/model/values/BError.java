@@ -29,6 +29,7 @@ public class BError implements BRefType {
     BType type;
     public String reason;
     public BRefType details;
+    public BMap<String, BValue> stackElement;
 
     public BError(BType type, String reason, BRefType details) {
         this.type = type;
@@ -38,7 +39,7 @@ public class BError implements BRefType {
 
     @Override
     public String stringValue() {
-        return reason;
+        return reason + " " + details.stringValue();
     }
 
     @Override
@@ -56,9 +57,9 @@ public class BError implements BRefType {
         return reason;
     }
 
-    public BValue getDetails() {
+    public BRefType getDetails() {
         // TODO: Make details frozen.
-        return details.copy();
+        return (BRefType) details.copy();
     }
 
     @Override

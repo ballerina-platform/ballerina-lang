@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 
@@ -55,7 +53,7 @@ public class ErrorTableEntry {
         return "\t\t" + ipFrom + "\t\t" + ipTo + "\t" + ipTarget + "\t\t" + regIndex;
     }
 
-    public static ErrorTableEntry getMatch(PackageInfo packageInfo, int currentIP, final BMap<String, BValue> error) {
+    public static ErrorTableEntry getMatch(PackageInfo packageInfo, int currentIP) {
         ErrorTableAttributeInfo errorTable =
                 (ErrorTableAttributeInfo) packageInfo.getAttributeInfo(AttributeInfo.Kind.ERROR_TABLE);
         List<ErrorTableEntry> errorTableEntries = errorTable != null ?

@@ -30,7 +30,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -1200,9 +1200,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBuiltInMethodInvocation iExpr) {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
-        if (iExpr.builtInFunction == BLangBuiltInFunction.REASON) {
+        if (iExpr.builtInMethod == BLangBuiltInMethod.REASON) {
             emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
-        } else if (iExpr.builtInFunction == BLangBuiltInFunction.DETAIL) {
+        } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
             emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
         }
     }

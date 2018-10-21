@@ -1196,6 +1196,8 @@ public class PackageInfoReader {
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
+                case InstructionCodes.REASON:
+                case InstructionCodes.DETAIL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));

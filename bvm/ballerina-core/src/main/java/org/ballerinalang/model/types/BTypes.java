@@ -40,7 +40,7 @@ public class BTypes {
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
     public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
-    public static BType typeError = new BErrorType(TypeConstants.ERROR, typeString, typeAny, null);
+    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, typeString, typeMap, null);
 
     private BTypes() {
     }

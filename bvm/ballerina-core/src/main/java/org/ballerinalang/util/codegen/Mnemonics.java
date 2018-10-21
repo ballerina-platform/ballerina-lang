@@ -75,6 +75,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
 
+        mnemonics[InstructionCodes.ERROR] = "error";
+        mnemonics[InstructionCodes.PANIC] = "panic";
+        mnemonics[InstructionCodes.REASON] = "reason";
+        mnemonics[InstructionCodes.DETAIL] = "detail";
+
         mnemonics[InstructionCodes.MAPLOAD] = "mapload";
         mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";

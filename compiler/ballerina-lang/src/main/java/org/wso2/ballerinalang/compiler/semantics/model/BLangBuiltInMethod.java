@@ -22,7 +22,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
  *
  * @since 0.983.0
  */
-public enum BLangBuiltInFunction {
+public enum BLangBuiltInMethod {
 
     REASON("reason"),
 
@@ -34,7 +34,7 @@ public enum BLangBuiltInFunction {
 
     private String name;
 
-    BLangBuiltInFunction(String name) {
+    BLangBuiltInMethod(String name) {
         this.name = name;
     }
 
@@ -47,12 +47,12 @@ public enum BLangBuiltInFunction {
         return name;
     }
 
-    public static BLangBuiltInFunction getFromString(String name) {
-        for (BLangBuiltInFunction function : BLangBuiltInFunction.values()) {
+    public static BLangBuiltInMethod getFromString(String name) {
+        for (BLangBuiltInMethod function : BLangBuiltInMethod.values()) {
             if (function.name.equals(name)) {
                 return function;
             }
         }
-        return BLangBuiltInFunction.UNDEFINED;
+        return BLangBuiltInMethod.UNDEFINED;
     }
 }

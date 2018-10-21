@@ -26,7 +26,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
@@ -690,9 +690,10 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = iExpr.iContext.operations.getLast().resultType;
             return;
         }
-        BLangBuiltInFunction builtInFunction = BLangBuiltInFunction.getFromString(iExpr.name.value);
-        if (BLangBuiltInFunction.UNDEFINED != builtInFunction) {
+        BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
+        if (BLangBuiltInMethod.UNDEFINED != builtInFunction) {
             checkBuiltinFunctionInvocation(iExpr, builtInFunction, exprType);
+            return;
         }
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
@@ -1440,6 +1441,7 @@ public class TypeChecker extends BLangNodeVisitor {
         });
 
         if (!isExpectedErrorType) {
+            // TODO : improve this for union types.
             dlog.error(errorConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, expType);
             resultType = symTable.semanticError;
             return;
@@ -1731,7 +1733,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInFunction function, BType type) {
+    private void checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
         switch (function) {
             case REASON:
             case DETAIL:
@@ -1748,17 +1750,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
         }
         iExpr.builtinMethodInvocation = true;
-        iExpr.builtInFunction = function;
+        iExpr.builtInMethod = function;
     }
 
-    private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInFunction function,
+    private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function,
             BErrorType type) {
         if (iExpr.argExprs.size() > 0) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
         }
-        if (function == BLangBuiltInFunction.REASON) {
+        if (function == BLangBuiltInMethod.REASON) {
             resultType = type.reasonType;
-        } else if (function == BLangBuiltInFunction.DETAIL) {
+        } else if (function == BLangBuiltInMethod.DETAIL) {
             resultType = type.detailType;
         }
     }

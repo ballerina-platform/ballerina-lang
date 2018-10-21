@@ -210,6 +210,12 @@ public class Types {
             return true;
         }
 
+        if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ERROR) {
+            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target);
+        } else if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ANY) {
+            return false;
+        }
+
         if (source.tag == TypeTags.NIL && (isNullable(target) || target.tag == TypeTags.JSON)) {
             return true;
         }
@@ -278,6 +284,13 @@ public class Types {
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target, unresolvedTypes);
+    }
+
+    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target) {
+        if (target == symTable.errorType) {
+            return true;
+        }
+        return isAssignable(source.reasonType, target.reasonType) && isAssignable(source.detailType, target.detailType);
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
@@ -1336,6 +1349,9 @@ public class Types {
      * @return Flag indicating whether the given type has a default value
      */
     public boolean defaultValueExists(DiagnosticPos pos, BType type) {
+        if (type.tag == TypeTags.ERROR) {
+            return false;
+        }
         if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEFAULTABLE)) {
             return true;
         }
