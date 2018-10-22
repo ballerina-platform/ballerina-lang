@@ -242,7 +242,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalExpr.value = ((Long) literalValue).doubleValue();
             } else if (TypeTags.DECIMAL == expType.tag) {
                 literalType = symTable.decimalType;
-                literalExpr.value = new Decimal(literalValue.toString());
+                literalExpr.value = new Decimal(String.valueOf(literalValue));
             } else if (TypeTags.BYTE == expType.tag) {
                 if (!isByteLiteralValue((Long) literalValue)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
