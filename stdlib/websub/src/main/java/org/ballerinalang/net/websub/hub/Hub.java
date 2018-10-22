@@ -89,7 +89,7 @@ public class Hub {
         } else if (topic == null || topic.isEmpty()) {
             throw new BallerinaWebSubException("Topic unavailable/invalid for registration at Hub");
         } else {
-            topics.add(topic);
+            getTopics().add(topic);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 BValue[] args = { new BString("register"), new BString(topic) };
                 BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
@@ -105,7 +105,7 @@ public class Hub {
         if (topic == null || !isTopicRegistered(topic)) {
             throw new BallerinaWebSubException("Topic unavailable/invalid for unregistration at Hub");
         } else {
-            topics.remove(topic);
+            getTopics().remove(topic);
             if (hubPersistenceEnabled) {
                 BValue[] args = { new BString("unregister"), new BString(topic) };
                 BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
@@ -115,7 +115,7 @@ public class Hub {
     }
 
     public boolean isTopicRegistered(String topic) {
-        return topics.contains(topic);
+        return getTopics().contains(topic);
     }
 
     /**
@@ -130,17 +130,17 @@ public class Hub {
             //TODO: Revisit to check if this needs to be returned as an error, currently not required since this check
             // is performed at Ballerina level
             logger.error("Hub Service not started: subscription failed");
-        } else if (!topics.contains(topic) && hubTopicRegistrationRequired) {
+        } else if (!getTopics().contains(topic) && hubTopicRegistrationRequired) {
             logger.warn("Subscription request ignored for unregistered topic[" + topic + "]");
         } else {
-            if (subscribers.contains(new HubSubscriber("", topic, callback, null))) {
+            if (getSubscribers().contains(new HubSubscriber("", topic, callback, null))) {
                 unregisterSubscription(topic, callback);
             }
             String queue = UUID.randomUUID().toString();
 
             HubSubscriber subscriberToAdd = new HubSubscriber(queue, topic, callback, subscriptionDetails);
             brokerInstance.addSubscription(topic, subscriberToAdd);
-            subscribers.add(subscriberToAdd);
+            getSubscribers().add(subscriberToAdd);
         }
     }
 
@@ -156,13 +156,13 @@ public class Hub {
             return;
         }
         HubSubscriber subscriberToUnregister = new HubSubscriber("", topic, callback, null);
-        if (!subscribers.contains(subscriberToUnregister)) {
+        if (!getSubscribers().contains(subscriberToUnregister)) {
             if (callback.endsWith("/")) {
                 unregisterSubscription(topic, callback.substring(0, callback.length() - 1));
             }
             return;
         } else {
-            for (HubSubscriber subscriber:subscribers) {
+            for (HubSubscriber subscriber: getSubscribers()) {
                 if (subscriber.equals(subscriberToUnregister)) {
                     subscriberToUnregister = subscriber;
                     break;
@@ -170,7 +170,7 @@ public class Hub {
             }
         }
         brokerInstance.removeSubscription(subscriberToUnregister);
-        subscribers.remove(subscriberToUnregister);
+        getSubscribers().remove(subscriberToUnregister);
     }
 
     /**
@@ -184,7 +184,7 @@ public class Hub {
     public void publish(String topic, BMap<String, BValue> content) throws BallerinaWebSubException {
         if (!started) {
             throw new BallerinaWebSubException("Hub Service not started: publish failed");
-        } else if (!topics.contains(topic) && hubTopicRegistrationRequired) {
+        } else if (!getTopics().contains(topic) && hubTopicRegistrationRequired) {
             throw new BallerinaWebSubException("Publish call ignored for unregistered topic[" + topic + "]");
         } else {
             brokerInstance.publish(topic, new BallerinaBrokerByteBuf(content));
@@ -258,7 +258,7 @@ public class Hub {
                 }
                 hubPersistenceEnabled = false;
                 topics = new ArrayList<>();
-                for (HubSubscriber subscriber : subscribers) {
+                for (HubSubscriber subscriber : getSubscribers()) {
                     brokerInstance.removeSubscription(subscriber);
                 }
                 subscribers = new ArrayList<>();
@@ -297,5 +297,23 @@ public class Hub {
 
     private void setHubObject(BMap<String, BValue> hubObject) {
         this.hubObject = hubObject;
+    }
+
+    /**
+     * Retrieve available topics of the Hub
+     *
+     * @return the list of topics
+     */
+    public List<String> getTopics() {
+        return topics;
+    }
+
+    /**
+     * Retrieve subscribers list
+     *
+     * @return the list of subscribers
+     */
+    public List<HubSubscriber> getSubscribers() {
+        return subscribers;
     }
 }

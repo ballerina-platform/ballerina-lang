@@ -345,7 +345,6 @@ public type Notification object {
     public function getFormParams() returns map<string>|error {
         return request.getFormParams();
     }
-
 };
 
 # Function to retrieve hub and topic URLs from the `http:response` from a publisher to a discovery request.
@@ -526,6 +525,16 @@ public type WebSubHub object {
     # + return - `error` if an error occurred with unregistration
     public function unregisterTopic(string topic) returns error?;
 
+    # Retrieves an array of topics which registered in the Hub.
+    #
+    # + return - An array of available topics
+    public extern function getAvailableTopics() returns string[];
+
+    # Retrieves an array of registered subscriber details for a given topic.
+    #
+    # + topic - The topic to ............
+    # + return - An array of subscribers
+    public extern function getTopicSubscribers(string topic) returns SubscriberDetails[];
 };
 
 function WebSubHub::stop() returns boolean {
@@ -586,7 +595,7 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
     response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
 }
 
-# Struct to represent Subscription Details retrieved from the database.
+# Record to represent Subscription Details retrieved from the database.
 #
 # + topic - The topic for which the subscription is added
 # + callback - The callback specified for the particular subscription
@@ -637,5 +646,17 @@ public type HubStartedUpError record {
     string message;
     error? cause;
     WebSubHub startedUpHub;
+    !...
+};
+
+# Record to represent Subscriber Details.
+#
+# + callback - The callback specified for the particular subscription
+# + leaseSeconds - The lease second period specified for the particular subscription
+# + createdAt - The time at which the subscription was created
+public type SubscriberDetails record {
+    string callback;
+    int leaseSeconds;
+    int createdAt;
     !...
 };
