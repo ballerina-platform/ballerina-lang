@@ -430,7 +430,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "undefined symbol 'age'", 20, 17);
         // test duplicate matching attach function implementations
         BAssertUtil.validateError(result, 1, "implementation already exist for the given " +
-                "function 'attachInterface' in same package", 24, 1);
+                "function 'attachInterface' in same module", 24, 1);
 
         // test object without matching function signature within the object
         BAssertUtil.validateError(result, 2, "cannot find function signature for" +

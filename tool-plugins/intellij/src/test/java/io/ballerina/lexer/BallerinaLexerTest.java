@@ -40,7 +40,7 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
 public class BallerinaLexerTest extends LexerTestCase {
 
     private String getTestDataDirectoryPath() {
-        return "src/test/resources/BBE/examples";
+        return "../../examples";
     }
 
     private String getExpectedResultDirectoryPath() {

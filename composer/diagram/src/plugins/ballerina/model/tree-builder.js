@@ -539,6 +539,10 @@ class TreeBuilder {
         }
 
         if (node.kind === 'UserDefinedType') {
+            if (node.ws && node.ws[0].text === '*' && node.ws[node.ws.length - 1].text === ";") {
+                node.isTypeReference = true;
+            }
+
             if (node.ws && node.nullable && _.find(node.ws, (ws) => ws.text === '?')) {
                 node.nullableOperatorAvailable = true;
             }

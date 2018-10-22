@@ -30,7 +30,7 @@ public type SecureListener object {
         httpListener = new;
     }
 
-    # Gets called when the endpoint is being initialize during package init time.
+    # Gets called when the endpoint is being initialize during module init time.
     #
     # + c - The `SecureEndpointConfiguration` of the endpoint
     public function init(SecureEndpointConfiguration c);
@@ -40,7 +40,7 @@ public type SecureListener object {
     # + return - An `error` if an error occurs during initialization of the endpoint
     public function initEndpoint() returns (error);
 
-    # Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
+    # Gets called every time a service attaches itself to this endpoint. Also happens at module initialization.
     #
     # + serviceType - The type of the service to be registered
     public function register(typedesc serviceType);
@@ -162,7 +162,7 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
                 } else {
                     registry.add(provider.scheme + "-" + i, createAuthHandler(provider));
                 }
-                i++;
+                i += 1;
             }
         }
         () => {

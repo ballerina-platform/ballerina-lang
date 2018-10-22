@@ -6,12 +6,12 @@ int counter = 0;
 
 // This is the mock function which will replace the real function
 @test:Mock {
-    packageName: "ballerina/io",
+    moduleName: "ballerina/io",
     functionName: "println"
 }
 public function mockPrint(any... s) {
     outputs[counter] = s[0];
-    counter++;
+    counter += 1;
 }
 
 @test:Config
