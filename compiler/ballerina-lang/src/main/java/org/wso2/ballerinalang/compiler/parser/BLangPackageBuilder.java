@@ -182,6 +182,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -2383,8 +2384,8 @@ public class BLangPackageBuilder {
     }
 
     void addMatchStmtSimpleBindingPattern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-        BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClause =
-                (BLangMatch.BLangMatchStmtTypedBindingPatternClause) TreeBuilder.createMatchStatementSimpleBindingPattern();
+        BLangMatchStmtTypedBindingPatternClause patternClause =
+                (BLangMatchStmtTypedBindingPatternClause) TreeBuilder.createMatchStatementSimpleBindingPattern();
         patternClause.pos = pos;
         patternClause.addWS(ws);
 

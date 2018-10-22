@@ -84,7 +84,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
      *
      * @since 0.983.0
      */
-    public static abstract class BLangMatchStmtBindingPatternClause extends BLangNode implements
+    public abstract static class BLangMatchStmtBindingPatternClause extends BLangNode implements
             MatchStatementBindingPatternNode {
 
         // pattern clause's body

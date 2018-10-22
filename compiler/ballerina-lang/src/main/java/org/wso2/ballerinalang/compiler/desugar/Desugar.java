@@ -164,8 +164,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -2819,7 +2819,7 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createMatchStatementPattern(pos, patternFailureCaseVar, patternBlockFailureCase);
     }
 
-    private BLangMatch.BLangMatchStmtTypedBindingPatternClause getSafeAssignSuccessPattern(DiagnosticPos pos,
+    private BLangMatchStmtTypedBindingPatternClause getSafeAssignSuccessPattern(DiagnosticPos pos,
                                                                                            BType lhsType,
                                                                                            boolean isVarDef,
                                                                                            BVarSymbol varSymbol,
@@ -2898,7 +2898,7 @@ public class Desugar extends BLangNodeVisitor {
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == pattern.getKind()) { // static match patterns
             body = pattern.body;
         } else if (NodeKind.MATCH_SIMPLE_PATTERN_CLAUSE == pattern.getKind()) { // old match patterns
-            BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClause = (BLangMatchStmtTypedBindingPatternClause) pattern;
+            BLangMatchStmtTypedBindingPatternClause patternClause = (BLangMatchStmtTypedBindingPatternClause) pattern;
             // Add the variable definition to the body of the pattern clause
             if (patternClause.variable.name.value.equals(Names.IGNORE.value)) {
                 return patternClause.body;
@@ -3294,7 +3294,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Create the pattern for success scenario. i.e: not null and not error (if applicable).
-        BLangMatch.BLangMatchStmtTypedBindingPatternClause successPattern =
+        BLangMatchStmtTypedBindingPatternClause successPattern =
                 getSuccessPattern(accessExpr, tempResultVar, accessExpr.safeNavigate);
         matchStmt.patternClauses.add(successPattern);
         this.matchStmtStack.push(matchStmt);

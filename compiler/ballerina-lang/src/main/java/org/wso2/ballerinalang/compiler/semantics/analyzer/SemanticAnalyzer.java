@@ -136,8 +136,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -420,13 +420,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // This will prevent cases Eg:- int _ = 100;
-        // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
-        Name varName = names.fromIdNode(varNode.name);
-        if (varName == Names.IGNORE) {
-            return;
-        }
-
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // This is a variable declared in a function, an action or a resource
@@ -585,10 +578,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
+        int ignoredCount = 0;
         for (int i = 0; i < varNode.memberVariables.size(); i++) {
             BLangVariable var = varNode.memberVariables.get(i);
+            if (var.getKind() == NodeKind.VARIABLE) {
+                // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
+                BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
+                Name varName = names.fromIdNode(simpleVar.name);
+                if (varName == Names.IGNORE) {
+                    ignoredCount++;
+                    simpleVar.type = symTable.noType;
+                    continue;
+                }
+            }
             var.type = tupleTypeNode.tupleTypes.get(i);
             var.accept(this);
+        }
+
+        if (ignoredCount == varNode.memberVariables.size()) {
+            dlog.error(varNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+            return false;
         }
         return true;
     }
@@ -867,12 +876,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, rhsType);
             return;
         }
-        for(int i = 0; i < varRef.expressions.size(); i++) {
+        for (int i = 0; i < varRef.expressions.size(); i++) {
             BLangExpression varRefExpr = varRef.expressions.get(i);
-            if (varRefExpr.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+            if (NodeKind.RECORD_VARIABLE_REF == varRefExpr.getKind()) {
                 BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRefExpr;
                 checkRecordVarRefEquivalency(pos, recordVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
-            } else if (varRefExpr.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+            } else if (NodeKind.TUPLE_VARIABLE_REF == varRefExpr.getKind()) {
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRefExpr;
                 checkTupleVarRefEquivalency(pos, tupleVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
             } else {
@@ -1992,6 +2001,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
+        }
+        if (kind == NodeKind.BRACED_TUPLE_EXPR) {
+            BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
+            if (bracedOrTupleExpr.expressions.size() > 1 &&
+                    bracedOrTupleExpr.expressions.stream().anyMatch(literal -> literal.getKind() == NodeKind.LITERAL)) {
+                dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+                return false;
+            }
         }
         return true;
     }
