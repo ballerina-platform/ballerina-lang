@@ -22,7 +22,7 @@ import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
@@ -145,7 +145,7 @@ public class TestCmd implements BLauncherCmd {
                 .toArray(Path[]::new);
 
         if (srcDirectory != null) {
-            Utils.setManifestConfigs();
+            TesterinaUtils.setManifestConfigs(sourceRootPath);
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
@@ -158,10 +158,10 @@ public class TestCmd implements BLauncherCmd {
             testRunner.runTest(sourceRootPath.toString(), paths, groupList);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
-            Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             Runtime.getRuntime().exit(1);
         }
-        Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+        TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
         Runtime.getRuntime().exit(0);
     }
 

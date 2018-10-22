@@ -281,7 +281,7 @@ public class CommandUtil {
                         .addAll(((BLangObjectTypeNode) (((BLangTypeDefinition) topLevelNode).typeNode)).getFunctions());
             }
         }
-    
+
         for (BLangFunction filteredFunction : filteredFunctions) {
             DiagnosticPos functionPos = CommonUtil.toZeroBasedPosition(filteredFunction.getPosition());
             int functionStart = functionPos.getStartLine();
