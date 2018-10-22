@@ -959,7 +959,7 @@ public class BLangPackageBuilder {
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;
         litExpr.value = value;
-        litExpr.orginalValue = originalValue;
+        litExpr.originalValue = originalValue;
         addExpressionNode(litExpr);
     }
 
