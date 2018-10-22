@@ -2900,7 +2900,7 @@ public class Desugar extends BLangNodeVisitor {
         if (value instanceof Long) {
             switch (typeTag) {
                 case TypeTags.FLOAT:
-                    return getFloatLiteral((double) value);
+                    return getFloatLiteral(((Long) value).doubleValue());
                 case TypeTags.DECIMAL:
                     return getDecimalLiteral(new Decimal(String.valueOf(value)));
                 default:
