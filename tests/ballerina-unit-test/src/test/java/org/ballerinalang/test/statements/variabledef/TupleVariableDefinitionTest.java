@@ -23,9 +23,14 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -101,19 +106,38 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
     }
 
-    @Test(description = "Test tuple binding with records and objects")
+    @Test(description = "Test tuple binding with records and objects 1")
     public void testTupleBindingWithRecordsAndObjects() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects");
+        BValue[] returns = BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects1");
         Assert.assertEquals(returns.length, 9);
-        Assert.assertEquals(returns[0].stringValue(), "Test");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 23);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 34);
-        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
-        Assert.assertEquals(returns[4].stringValue(), "Fooo");
-        Assert.assertEquals(((BFloat) returns[5]).floatValue(), 3.7);
-        Assert.assertEquals(((BByte) returns[6]).byteValue(), 23);
-        Assert.assertTrue(((BBoolean) returns[7]).booleanValue());
-        Assert.assertEquals(((BInteger) returns[8]).intValue(), 56);
+        int i = -1;
+        Assert.assertEquals(returns[++i].stringValue(), "Test");
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 23);
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 34);
+        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
+        Assert.assertEquals(returns[++i].stringValue(), "Fooo");
+        Assert.assertEquals(((BFloat) returns[++i]).floatValue(), 3.7);
+        Assert.assertEquals(((BByte) returns[++i]).byteValue(), 23);
+        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
+    }
+
+    @Test(description = "Test tuple binding with records and objects 2")
+    public void testTupleBindingWithRecordsAndObjects2() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects2");
+        Assert.assertEquals(returns.length, 11);
+        int i = -1;
+        Assert.assertEquals(returns[++i].stringValue(), "Test");
+        Assert.assertEquals(returns[++i].stringValue(), "Test");
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 23);
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 34);
+        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
+        Assert.assertEquals(returns[++i].stringValue(), "Fooo");
+        Assert.assertEquals(((BFloat) returns[++i]).floatValue(), 3.7);
+        Assert.assertEquals(((BByte) returns[++i]).byteValue(), 23);
+        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
     }
 
     @Test(description = "Test tuple binding with records and objects")
@@ -125,50 +149,149 @@ public class TupleVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test(description = "Test tuple var definition with var declaration")
-    public void testTupleVarDefinition() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDef");
+    @Test(description = "Test tuple var definition with var declaration 1")
+    public void testTupleVarDefinition1() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDef1");
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 123);
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
-    @Test(description = "Test tuple var reference")
-    public void testTupleVarReference() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRef");
+
+
+    @Test(description = "Test tuple var definition with var declaration 2")
+    public void testTupleVarDefinition2() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDef2");
+        Assert.assertEquals(returns.length, 9);
+        int i = -1;
+        Assert.assertEquals(returns[++i].stringValue(), "Test");
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 23);
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 34);
+        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
+        Assert.assertEquals(returns[++i].stringValue(), "Fooo");
+        Assert.assertEquals(((BFloat) returns[++i]).floatValue(), 3.7);
+        Assert.assertEquals(((BByte) returns[++i]).byteValue(), 23);
+        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
+        Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
+    }
+
+    @Test(description = "Test tuple var definition with array 1")
+    public void testTupleVarDefWithArray1() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray1");
+        Assert.assertEquals(returns.length, 4);
+        int i = -1;
+        Assert.assertEquals(returns[++i].stringValue(), "Ballerina");
+        BValue val1 = returns[++i];
+        Assert.assertEquals(val1.getClass(), BIntArray.class);
+        BIntArray intArray = ((BIntArray) val1);
+        Assert.assertEquals(intArray.get(0), 123);
+        Assert.assertEquals(intArray.get(1), 345);
+        Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
+        BValue val2 = returns[++i];
+        Assert.assertEquals(val2.getClass(), BFloatArray.class);
+        BFloatArray floatArray = ((BFloatArray) val2);
+        Assert.assertEquals(floatArray.get(0), 2.3);
+        Assert.assertEquals(floatArray.get(1), 4.5);
+    }
+
+    @Test(description = "Test tuple var definition with array 2")
+    public void testTupleVarDefWithArray2() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray2");
+        Assert.assertEquals(returns.length, 4);
+        int i = -1;
+        BValue val1 = returns[++i];
+        Assert.assertEquals(val1.getClass(), BStringArray.class);
+        BStringArray stringArray = (BStringArray) val1;
+        Assert.assertEquals(stringArray.get(0), "A");
+        Assert.assertEquals(stringArray.get(1), "B");
+
+        BValue val2 = returns[++i];
+        Assert.assertEquals(val2.getClass(), BIntArray.class);
+        BIntArray intArray = ((BIntArray) val2);
+        Assert.assertEquals(intArray.get(0), 123);
+        Assert.assertEquals(intArray.get(1), 345);
+
+        BValue val3 = returns[++i];
+        Assert.assertEquals(val3.getClass(), BBooleanArray.class);
+        BBooleanArray bBooleanArray = (BBooleanArray) val3;
+        Assert.assertEquals(bBooleanArray.get(0), 1);
+        Assert.assertEquals(bBooleanArray.get(1), 0);
+
+        BValue val4 = returns[++i];
+        Assert.assertEquals(val4.getClass(), BFloatArray.class);
+        BFloatArray floatArray = ((BFloatArray) val4);
+        Assert.assertEquals(floatArray.get(0), 2.3);
+        Assert.assertEquals(floatArray.get(1), 4.5);
+    }
+
+    @Test(description = "Test tuple var definition with array 3")
+    public void testTupleVarDefWithArray3() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray3");
+        validateArrayResults(returns);
+    }
+
+    @Test(description = "Test tuple var definition with array 4")
+    public void testTupleVarDefWithArray4() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray4");
+        validateArrayResults(returns);
+    }
+
+    private void validateArrayResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "UpdatedBallerina");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 453);
-        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        int i = -1;
+        BValue val1 = returns[++i];
+        BRefValueArray refValueArray1 = (BRefValueArray) val1;
+        BStringArray stringArray1 = (BStringArray) refValueArray1.get(0);
+        Assert.assertEquals(stringArray1.get(0), "A");
+        Assert.assertEquals(stringArray1.get(1), "B");
+
+        BStringArray stringArray2 = (BStringArray) refValueArray1.get(1);
+        Assert.assertEquals(stringArray2.get(0), "C");
+        Assert.assertEquals(stringArray2.get(1), "D");
+
+        BValue val2 = returns[++i];
+        BRefValueArray refValueArray2 = (BRefValueArray) val2;
+        BIntArray intArray1 = ((BIntArray) refValueArray2.get(0));
+        Assert.assertEquals(intArray1.get(0), 123);
+        Assert.assertEquals(intArray1.get(1), 345);
+
+        BIntArray intArray2 = ((BIntArray) refValueArray2.get(1));
+        Assert.assertEquals(intArray2.get(0), 12);
+        Assert.assertEquals(intArray2.get(1), 34);
+        Assert.assertEquals(intArray2.get(2), 56);
+
+        BValue val3 = returns[++i];
+        Assert.assertEquals(val3.getClass(), BFloatArray.class);
+        BFloatArray floatArray = ((BFloatArray) val3);
+        Assert.assertEquals(floatArray.get(0), 2.3);
+        Assert.assertEquals(floatArray.get(1), 4.5);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 1")
     public void testRecursiveExpressionWithVar1() {
         BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar1");
-        Assert.assertEquals(returns.length, 6);
-        Assert.assertEquals(returns[0].stringValue(), "Bal");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 34);
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
-        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
+        validateRecursiveVarRefTestResults(returns);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 2")
     public void testRecursiveExpressionWithVar2() {
         BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar2");
-        Assert.assertEquals(returns.length, 6);
-        Assert.assertEquals(returns[0].stringValue(), "Bal");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 34);
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 5.6);
-        Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
+        validateRecursiveVarRefTestResults(returns);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 3")
     public void testRecursiveExpressionWithVar3() {
         BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar3");
+        validateRecursiveVarRefTestResults(returns);
+    }
+
+    @Test(description = "Test tuple recursive definition with var on lhs 4")
+    public void testRecursiveExpressionWithVar4() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecursiveExpressionWithVar4");
+        validateRecursiveVarRefTestResults(returns);
+    }
+
+    private void validateRecursiveVarRefTestResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(returns[0].stringValue(), "Bal");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
