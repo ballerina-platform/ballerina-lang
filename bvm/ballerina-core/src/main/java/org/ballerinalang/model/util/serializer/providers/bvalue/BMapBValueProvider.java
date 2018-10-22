@@ -21,7 +21,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
-import org.ballerinalang.model.util.serializer.JsonSerializerConst;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -35,6 +34,9 @@ import java.util.LinkedHashMap;
  * @since 0.982.0
  */
 public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
+
+    private static final String MAP_STORAGE_TYPE = "#MAP_TYPE";
+
     @Override
     public String typeName() {
         return BMap.class.getSimpleName();
@@ -50,7 +52,7 @@ public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
         LinkedHashMap implMap = bMap.getMap();
         BValue serialized = serializer.toBValue(implMap, implMap.getClass());
         BValue value = serializer.toBValue(bMap.getType(), null);
-        return BPacket.from(typeName(), serialized).put("#MAP_TYPE", value);
+        return BPacket.from(typeName(), serialized).put(MAP_STORAGE_TYPE, value);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
     public BMap toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
         BMap payload = (BMap<String, BValue>) packet.getValue();
         HashMap deserializedMap = (HashMap) bValueDeserializer.deserialize(payload, HashMap.class);
-        BType type = (BType) bValueDeserializer.deserialize(packet.get("#MAP_TYPE"), BType.class);
+        BType type = (BType) bValueDeserializer.deserialize(packet.get(MAP_STORAGE_TYPE), BType.class);
         BMap bMap = new BMap(type);
         bMap.getMap().putAll(deserializedMap);
         return bMap;
