@@ -71,8 +71,8 @@ public class IterableOperationsTests {
                                   "incompatible lambda function types: expected 'string', found 'any'", 38, 22);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 19);
 
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected tuple, found '(int,string) " +
-                "collection'", 48, 5);
+        BAssertUtil.validateError(negative, index++,
+                "invalid tuple variable; incompatible type '(int,string) collection' found in expression", 48, 18);
         BAssertUtil.validateError(negative, index++, "no argument required for operation 'count'", 55, 17);
         BAssertUtil.validateError(negative, index++, "single lambda function required here", 56, 5);
         BAssertUtil.validateError(negative, index++, "single lambda function required here", 58, 15);

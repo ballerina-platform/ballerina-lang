@@ -128,18 +128,18 @@ public class BasicTupleTest {
                 resultNegative, 2, "ambiguous type '(int,boolean,string)|(any,boolean,string)?'", 34, 63);
         BAssertUtil.validateError(
                 resultNegative, 3, "ambiguous type '(Person,int)|(Employee,int)?'", 38, 47);
-//        BAssertUtil.validateError(
-//                resultNegative, 4, "invalid variable definition; can not infer the assignment type.", 44, 14);
         BAssertUtil.validateError(
-                resultNegative, 4, "invalid usage of tuple literal with type 'any'", 45, 14);
+                resultNegative, 4, "invalid variable definition; can not infer the assignment type.", 44, 14);
+        BAssertUtil.validateError(
+                resultNegative, 5, "invalid usage of tuple literal with type 'any'", 45, 14);
     }
 
     @Test(description = "Test negatives of index based access of tuple type")
     public void testNegativesOfTupleType() {
-        BAssertUtil.validateError(resultNegative, 5, "tuple and expression size does not match", 49, 30);
-        BAssertUtil.validateError(resultNegative, 6, "tuple index out of range: index: '-1', size: '3'", 54, 14);
-        BAssertUtil.validateError(resultNegative, 7, "tuple index out of range: index: '3', size: '3'", 55, 14);
-        BAssertUtil.validateError(resultNegative, 8, "invalid index expression: expected integer literal", 57, 18);
-        BAssertUtil.validateError(resultNegative, 9, "incompatible types: expected 'int', found 'string'", 58, 16);
+        BAssertUtil.validateError(resultNegative, 6, "tuple and expression size does not match", 49, 30);
+        BAssertUtil.validateError(resultNegative, 7, "tuple index out of range: index: '-1', size: '3'", 54, 14);
+        BAssertUtil.validateError(resultNegative, 8, "tuple index out of range: index: '3', size: '3'", 55, 14);
+        BAssertUtil.validateError(resultNegative, 9, "invalid index expression: expected integer literal", 57, 18);
+        BAssertUtil.validateError(resultNegative, 10, "incompatible types: expected 'int', found 'string'", 58, 16);
     }
 }
