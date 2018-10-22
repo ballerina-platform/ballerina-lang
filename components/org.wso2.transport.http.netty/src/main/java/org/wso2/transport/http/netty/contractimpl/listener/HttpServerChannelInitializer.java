@@ -377,6 +377,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake
                 configureHttpPipeline(ctx.pipeline(), Constants.HTTP_SCHEME);
+                ctx.pipeline().fireChannelActive();
             } else {
                 throw new IllegalStateException("unknown protocol: " + protocol);
             }
