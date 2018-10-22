@@ -116,25 +116,26 @@ public class BuilderUtils {
      */
     private static void runTests(Compiler compiler, Path sourceRootPath, List<BLangPackage> packageList) {
         Map<BLangPackage, CompiledBinaryFile.ProgramFile> programFileMap = new HashMap<>();
-        for (BLangPackage bLangPackage :packageList) {
-            // Only tests in packages are executed so default packages i.e. single bal files which has the package name
-            // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
-            // in packages.
-            if (!bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE)) {
-                CompiledBinaryFile.ProgramFile programFile;
-                if (bLangPackage.containsTestablePkg()) {
-                    programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
-                } else {
-                    // In this package there are no tests to be executed. But we need to say to the users that there are
-                    // no tests found in the package to be executed as :
-                    // Running tests
-                    //     <org-name>/<package-name>:<version>
-                    //         No tests found
-                    programFile = compiler.getExecutableProgram(bLangPackage);
-                }
-                programFileMap.put(bLangPackage, programFile);
-            }
-        }
+        // Only tests in packages are executed so default packages i.e. single bal files which has the package name
+        // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
+        // in packages.
+        packageList.stream().filter(bLangPackage -> !bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE))
+                   .forEach(bLangPackage -> {
+                       CompiledBinaryFile.ProgramFile programFile;
+                       if (bLangPackage.containsTestablePkg()) {
+                           programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
+                       } else {
+                           // In this package there are no tests to be executed. But we need to say to the users that
+                           // there are no tests found in the package to be executed as :
+                           // Running tests
+                           //     <org-name>/<package-name>:<version>
+                           //         No tests found
+                           programFile = compiler.getExecutableProgram(bLangPackage);
+                       }
+
+                       programFileMap.put(bLangPackage, programFile);
+                   });
+
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap);
         }
