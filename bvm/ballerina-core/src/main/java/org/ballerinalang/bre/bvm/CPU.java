@@ -2913,7 +2913,7 @@ public class CPU {
         }
 
         if (rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG && lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType, unresolvedTypes);
+            return checkObjectEquivalency((BStructureType) rhsType, (BStructureType) lhsType, unresolvedTypes);
         }
 
         if (rhsType.getTag() == TypeTags.RECORD_TYPE_TAG && lhsType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -2954,7 +2954,7 @@ public class CPU {
 
         if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
                 targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            return checkStructEquivalency((BStructureType) sourceMapType.getConstrainedType(),
+            return checkObjectEquivalency((BStructureType) sourceMapType.getConstrainedType(),
                     (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
         }
 
@@ -3011,10 +3011,10 @@ public class CPU {
     }
 
     public static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType) {
-        return checkStructEquivalency(rhsType, lhsType, new ArrayList<>());
+        return checkObjectEquivalency(rhsType, lhsType, new ArrayList<>());
     }
 
-    private static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType,
+    private static boolean checkObjectEquivalency(BStructureType rhsType, BStructureType lhsType,
                                                  List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
@@ -3052,8 +3052,8 @@ public class CPU {
 
         return !Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
                 rhsType.getPackagePath().equals(lhsType.getPackagePath()) ?
-                checkEquivalencyOfTwoPrivateStructs(lhsType, rhsType, unresolvedTypes) :
-                checkEquivalencyOfPublicStructs(lhsType, rhsType, unresolvedTypes);
+                checkPrivateObjectsEquivalency(lhsType, rhsType, unresolvedTypes) :
+                checkPublicObjectsEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType,
@@ -3091,7 +3091,7 @@ public class CPU {
         return checkEquivalencyOfTwoRecords(lhsType, rhsType);
     }
 
-    private static boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType,
+    private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
         for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
             BField lhsField = lhsType.getFields()[fieldCounter];
@@ -3118,7 +3118,7 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkEquivalencyOfPublicStructs(BStructureType lhsType, BStructureType rhsType,
+    private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
         int fieldCounter = 0;
         for (; fieldCounter < lhsType.getFields().length; fieldCounter++) {
@@ -3834,7 +3834,7 @@ public class CPU {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.OBJECT_TYPE_TAG:
-                // Object type should be identical. This should be captured by isSameType(). Hence fall through.
+                return isAssignable(sourceType, targetType, unresolvedTypes);
             default:
                 return false;
         }
@@ -3907,13 +3907,13 @@ public class CPU {
         }
         unresolvedTypes.add(pair);
 
-        // Two records have to be either both sealed or both unsealed
+        // Unsealed records are not equivalent to sealed records. But vice-versa is allowed.
         BRecordType sourceRecordType = (BRecordType) sourceType;
-        if (sourceRecordType.sealed != targetType.sealed) {
+        if (targetType.sealed && !sourceRecordType.sealed) {
             return false;
         }
 
-        if (sourceRecordType.getFields().length != targetType.getFields().length) {
+        if (targetType.getFields().length> sourceRecordType.getFields().length) {
             return false;
         }
 

@@ -161,3 +161,29 @@ function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean,
     boolean b4 = m is map<json>;
     return (b0, b1, b2, b3, b4);
 }
+
+type A3 record {
+    int x;
+};
+
+type B3 record {
+    int x;
+    !...
+};
+
+function testSealedRecordTypes() returns string {
+    A3 a = {};
+     if (a is B3) {
+        return "a is B3";
+    } else if (a is A3) {
+        return "a is A3";
+    }
+
+    return "n/a";
+}
+
+function testRecordArrays() returns (boolean, boolean) {
+    A[] a = [{}, {}];
+    A[][] b = [[{}, {}], [{}, {}]];
+    return (a is B[], b is B[][]);
+}
