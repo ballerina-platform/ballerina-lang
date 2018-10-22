@@ -45,4 +45,5 @@ public class TypeDescriptor {
     public static final String SIG_NULL = "N";
     public static final String SIG_TUPLE = "P";
     public static final String SIG_CHANNEL = "Q";
+    public static final String SIG_ANYDATA = "K";
 }

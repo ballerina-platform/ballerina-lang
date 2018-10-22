@@ -1791,6 +1791,8 @@ public class PackageInfoReader {
                     return BTypes.typeAny;
                 case 'N':
                     return BTypes.typeNull;
+                case 'K':
+                    return BTypes.typeAnydata;
                 default:
                     throw new IllegalArgumentException("unsupported basic type char: " + typeChar);
             }
