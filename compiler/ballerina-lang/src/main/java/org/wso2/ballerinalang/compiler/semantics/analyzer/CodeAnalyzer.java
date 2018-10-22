@@ -30,8 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -223,7 +221,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         parent = pkgNode;
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        analyzeTopLevelNodes(pkgNode, pkgEnv);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+    }
+
+    private void analyzeTopLevelNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         parent = null;

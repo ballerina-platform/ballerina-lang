@@ -13,7 +13,7 @@ DESCRIPTION
      the organization setting and version for the project.
      
      If you run the init command in the interactive mode (using -i or
-     --interactive) and create a package with a service or a main
+     --interactive) and create a module with a service or a main
      function, then the generated set of artifacts includes a service
      skeleton or a main function skeleton and a test skeleton that you can
      use to kick start the project.

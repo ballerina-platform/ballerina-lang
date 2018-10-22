@@ -55,10 +55,10 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLE
 public class BinaryFileWriter {
     private static final CompilerContext.Key<BinaryFileWriter> BINARY_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
+    private static PrintStream outStream = System.out;
 
     private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
-    private static PrintStream outStream = System.out;
 
     public static BinaryFileWriter getInstance(CompilerContext context) {
         BinaryFileWriter binaryFileWriter = context.get(BINARY_FILE_WRITER_KEY);
@@ -154,7 +154,7 @@ public class BinaryFileWriter {
             addPackageBinaryContent(packageID, symbol.packageFile, compiledPackage);
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);
         } catch (IOException e) {
-            String msg = "error writing the compiled package(balo) of '" +
+            String msg = "error writing the compiled module(balo) of '" +
                     packageID + "' to '" + destDirPath + "': " + e.getMessage();
             throw new BLangCompilerException(msg, e);
         }

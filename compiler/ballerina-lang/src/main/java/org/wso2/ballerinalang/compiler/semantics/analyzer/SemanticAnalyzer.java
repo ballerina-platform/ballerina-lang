@@ -112,7 +112,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -165,7 +164,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -191,8 +189,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
-
-    private Stack<List<BType>> guardedTypes = new Stack<>();
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -230,9 +226,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
-                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        pkgNode.topLevelNodes.stream()
+                             .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
+                                     ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+                             .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -243,10 +240,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
 
-        analyzeDef(pkgNode.initFunction, pkgEnv);
-        analyzeDef(pkgNode.startFunction, pkgEnv);
-        analyzeDef(pkgNode.stopFunction, pkgEnv);
-
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
@@ -362,7 +356,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationNode.symbol.scope, env);
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoint = AttachPoint.ANNOTATION;
             annotationAttachment.accept(this);
@@ -636,7 +629,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchStmtPatternClause patternClause) {
         // If the variable is not equal to '_', then define the variable in the block scope
         if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) patternClause.body, env);
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
             symbolEnter.defineNode(patternClause.variable, blockEnv);
             analyzeStmt(patternClause.body, blockEnv);
             return;

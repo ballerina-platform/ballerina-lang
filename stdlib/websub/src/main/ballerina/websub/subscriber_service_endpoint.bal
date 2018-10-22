@@ -35,12 +35,12 @@ public type Listener object {
         self.serviceEndpoint = httpEndpoint;
     }
 
-    # Gets called when the endpoint is being initialized during package initialization.
+    # Gets called when the endpoint is being initialized during module initialization.
     #
     # + c - The Subscriber Service Endpoint Configuration of the endpoint
     public function init(SubscriberServiceEndpointConfiguration c);
 
-    # Gets called whenever a service attaches itself to this endpoint and during package initialization.
+    # Gets called whenever a service attaches itself to this endpoint and during module initialization.
     #
     # + serviceType - The service attached
     public function register(typedesc serviceType);
@@ -246,47 +246,14 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
     error websubError = {};
     match (discoveryResponse) {
         http:Response response => {
-            int responseStatusCode = response.statusCode;
-            string[] linkHeaders;
-            if (response.hasHeader("Link")) {
-                linkHeaders = response.getHeaders("Link");
-            }
-
-            if (lengthof linkHeaders > 0) {
-                string hub;
-                string topic;
-                string[] linkHeaderConstituents = [];
-                if (lengthof linkHeaders == 1) {
-                    linkHeaderConstituents = linkHeaders[0].split(",");
-                } else {
-                    linkHeaderConstituents = linkHeaders;
+            match (extractTopicAndHubUrls(response)) {
+                (string, string[]) topicAndHubs => {
+                    string topic;
+                    string[] hubs;
+                    (topic, hubs) = topicAndHubs;
+                    return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
                 }
-
-                foreach link in linkHeaderConstituents {
-                    string[] linkConstituents = link.split(";");
-                    if (linkConstituents[1] != "") {
-                        string url = linkConstituents[0].trim();
-                        url = url.replace("<", "");
-                        url = url.replace(">", "");
-                        if (linkConstituents[1].contains("rel=\"hub\"") && hub == "") {
-                            hub = url;
-                        } else if (linkConstituents[1].contains("rel=\"self\"")) {
-                            if (topic != "") {
-                                websubError = {message:"Link Header contains >1 self URLs"};
-                            } else {
-                                topic = url;
-                            }
-                        }
-                    }
-                }
-                if (hub != "" && topic != "") {
-                    return (hub, topic);
-                } else {
-                    websubError = {message:"Hub and/or Topic URL(s) not identified in link header of resource "
-                        + "URL[" + resourceUrl + "]"};
-                }
-            } else {
-                websubError = {message:"Link header unavailable for resource URL[" + resourceUrl + "]"};
+                error e => return e;
             }
         }
         error connErr => {

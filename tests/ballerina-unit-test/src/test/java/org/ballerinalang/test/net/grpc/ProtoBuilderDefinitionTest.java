@@ -342,7 +342,7 @@ public class ProtoBuilderDefinitionTest {
         File file = fileBuilder.build();
         Assert.assertEquals(file.getFileDefinition(),
                 "syntax = \"proto3\";" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                        "package service;" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "module service;" + ServiceProtoConstants.NEW_LINE_CHARACTER +
                         "import \"google/protobuf/wrappers.proto\";" + ServiceProtoConstants.NEW_LINE_CHARACTER +
                         "service HelloService {" + ServiceProtoConstants.NEW_LINE_CHARACTER +
                         "}" + ServiceProtoConstants.NEW_LINE_CHARACTER +

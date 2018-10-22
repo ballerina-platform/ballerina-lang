@@ -103,7 +103,7 @@ public class CommandExecutor {
         Object result;
         try {
             switch (params.getCommand()) {
-                case CommandConstants.CMD_IMPORT_PACKAGE:
+                case CommandConstants.CMD_IMPORT_MODULE:
                     result = executeImportPackage(context);
                     break;
                 case CommandConstants.CMD_CREATE_FUNCTION:
@@ -121,7 +121,7 @@ public class CommandExecutor {
                 case CommandConstants.CMD_CREATE_CONSTRUCTOR:
                     result = executeCreateObjectConstructor(context);
                     break;
-                case CommandConstants.CMD_PULL_PACKAGE:
+                case CommandConstants.CMD_PULL_MODULE:
                     result = executePullPackage(context);
                     break;
                 default:
@@ -151,7 +151,7 @@ public class CommandExecutor {
                 documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
                 textDocumentIdentifier.setUri(documentUri);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_PKG_NAME)) {
+            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
                 context.put(ExecuteCommandKeys.PKG_NAME_KEY, (String) ((LinkedTreeMap) arg).get(ARG_VALUE));
             }
         }
@@ -166,22 +166,21 @@ public class CommandExecutor {
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                   LSCustomErrorStrategy.class,
-                                                                   false).getRight();
-            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
+            BLangPackage bLangPackage = lsCompiler
+                    .getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false)
+                    .getRight();
+            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+            BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
-            DiagnosticPos pos;
+            DiagnosticPos pos = null;
 
             // Filter the imports except the runtime import
-            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(bLangPackage, context);
+            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
 
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
                 pos = lastImport.getPosition();
-            } else {
-                pos = null;
             }
 
             int endCol = pos == null ? -1 : pos.getEndColumn() - 1;
@@ -197,9 +196,9 @@ public class CommandExecutor {
                 remainingTextToReplace = fileContent;
             }
 
-            String editText = (pos != null ? "\r\n" : "") + "import " + pkgName + ";"
-                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
-                    + remainingTextToReplace;
+            String editText = (pos != null ? CommonUtil.LINE_SEPARATOR : "") + "import " + pkgName + ";"
+                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r")
+                    ? "" : CommonUtil.LINE_SEPARATOR) + remainingTextToReplace;
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
 
             return applySingleTextEdit(editText, range, textDocumentIdentifier,
@@ -340,11 +339,14 @@ public class CommandExecutor {
         }
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                false, LSCustomErrorStrategy.class, false).getRight();
+        BLangPackage bLangPackage = lsCompiler
+                .getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false).getRight();
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
+
         CommandUtil.DocAttachmentInfo docAttachmentInfo =
-                getDocumentationEditForNodeByPosition(nodeType, bLangPackage, line);
+                getDocumentationEditForNodeByPosition(nodeType, srcOwnerPkg, line);
 
         if (docAttachmentInfo == null) {
             return new Object();
@@ -379,9 +381,13 @@ public class CommandExecutor {
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
                 .getRight();
 
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
+
         List<TextEdit> textEdits = new ArrayList<>();
         String fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        bLangPackage.topLevelNodes.stream()
+        CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
                 .forEach(topLevelNode -> {
                     CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
@@ -429,14 +435,16 @@ public class CommandExecutor {
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 false, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
         int finalLine = line;
         
         /*
         In the ideal situation Command execution exception should never throw. If thrown, create constructor command
         has been executed over a non object type node.
          */
-        TopLevelNode objectNode = bLangPackage.topLevelNodes.stream()
+        TopLevelNode objectNode = CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(topLevelNode -> topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).symbol.kind.equals(SymbolKind.OBJECT)
                         && topLevelNode.getPosition().getStartLine() - 1 == finalLine)
@@ -463,7 +471,7 @@ public class CommandExecutor {
             for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
                 String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
                 String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
-                if (argKey.equals(CommandConstants.ARG_KEY_PKG_NAME)) {
+                if (argKey.equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
                     packageName = argVal;
                 } else if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
                     documentUri = argVal;

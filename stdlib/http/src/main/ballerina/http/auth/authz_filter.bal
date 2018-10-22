@@ -37,9 +37,9 @@ public type AuthzFilter object {
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     public function filterRequest (Listener listener, Request request, FilterContext context) returns boolean {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
-        ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
+        ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
             reflect:getResourceAnnotations(context.serviceType, context.resourceName));
-        ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
+        ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
             reflect:getServiceAnnotations(context.serviceType));
         if (!isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn)) {
             // not secured, no need to authorize

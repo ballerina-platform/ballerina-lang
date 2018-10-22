@@ -27,7 +27,6 @@ import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
@@ -2181,7 +2180,7 @@ public class CPU {
                 }
 
                 try {
-                    sf.refRegs[j] = XMLUtils.tableToXML((BTable) bRefType, ctx.isInTransaction());
+                    sf.refRegs[j] = XMLUtils.tableToXML((BTable) bRefType);
                 } catch (Exception e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(ctx, sf, j, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);
@@ -3921,7 +3920,7 @@ public class CPU {
             return false;
         }
 
-        if (targetType.getFields().length> sourceRecordType.getFields().length) {
+        if (targetType.getFields().length > sourceRecordType.getFields().length) {
             return false;
         }
 

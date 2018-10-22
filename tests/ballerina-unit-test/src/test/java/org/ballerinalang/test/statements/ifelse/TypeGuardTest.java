@@ -41,9 +41,6 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
-        System.out.println(negativeResult);
-        System.out.println("Error count: " + negativeResult.getErrorCount());
-        // Assert.assertEquals(negativeResult.getErrorCount(), 25);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string'", 22,
                 17);

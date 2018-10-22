@@ -960,7 +960,7 @@ public class BLangPackageBuilder {
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;
         litExpr.value = value;
-        litExpr.orginalValue = originalValue;
+        litExpr.originalValue = originalValue;
         addExpressionNode(litExpr);
     }
 
@@ -1413,7 +1413,7 @@ public class BLangPackageBuilder {
         importDcl.alias = aliasNode;
         this.compUnit.addTopLevelNode(importDcl);
         if (this.imports.contains(importDcl)) {
-            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_PACKAGE, importDcl.getQualifiedPackageName());
+            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
         } else {
             this.imports.add(importDcl);
         }

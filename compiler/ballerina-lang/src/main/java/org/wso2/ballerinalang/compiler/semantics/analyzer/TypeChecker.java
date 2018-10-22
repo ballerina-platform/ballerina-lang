@@ -133,8 +133,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -1486,11 +1486,28 @@ public class TypeChecker extends BLangNodeVisitor {
             // Check, any function pointer in struct field with given name.
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
                     structType.tsymbol);
-            if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+            if (structType.tag == TypeTags.OBJECT &&
+                    (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE)) {
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
                 resultType = symTable.errType;
                 return;
             }
+
+            if (structType.tag == TypeTags.RECORD) {
+                if (funcSymbol == symTable.notFoundSymbol) {
+                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, iExpr.name.value,
+                               structType.getKind().typeName(), structType.tsymbol);
+                    resultType = symTable.errType;
+                    return;
+                }
+                if (funcSymbol.type.tag != TypeTags.INVOKABLE) {
+                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION, iExpr.name.value,
+                               structType);
+                    resultType = symTable.errType;
+                    return;
+                }
+            }
+
             if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
                 iExpr.functionPointerInvocation = true;
             }
