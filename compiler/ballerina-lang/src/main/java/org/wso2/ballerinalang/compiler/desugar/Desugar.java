@@ -2098,7 +2098,7 @@ public class Desugar extends BLangNodeVisitor {
             if (namedArgs.containsKey(param.name.value)) {
                 expr = namedArgs.get(param.name.value);
             } else {
-                expr = getDefaultValueLiteral(param.defaultValue);
+                expr = getDefaultValueLiteral(param.defaultValue, param.type.tag);
                 expr = addConversionExprIfRequired(expr, param.type, types, symTable, symResolver);
             }
             args.add(expr);
@@ -2893,21 +2893,23 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangExpression getDefaultValueLiteral(Object value) {
+    private BLangExpression getDefaultValueLiteral(Object value, int typeTag) {
         if (value == null) {
             return getNullLiteral();
-        } else if (value instanceof Long) {
-            return getIntLiteral((Long) value);
-        } else if (value instanceof Double) {
-            return getFloatLiteral((Double) value);
-        } else if (value instanceof Decimal) {
-            return getDecimalLiteral((Decimal) value);
-        } else if (value instanceof String) {
-            return getStringLiteral((String) value);
-        } else if (value instanceof Boolean) {
-            return getBooleanLiteral((Boolean) value);
-        } else {
-            throw new IllegalStateException("Unsupported default value type");
+        }
+        switch (typeTag) {
+            case TypeTags.INT:
+                return getIntLiteral((Long) value);
+            case TypeTags.FLOAT:
+                return getFloatLiteral(Double.parseDouble(String.valueOf(value)));
+            case TypeTags.DECIMAL:
+                return getDecimalLiteral(new Decimal(String.valueOf(value)));
+            case TypeTags.STRING:
+                return getStringLiteral((String) value);
+            case TypeTags.BOOLEAN:
+                return getBooleanLiteral((Boolean) value);
+            default:
+                throw new IllegalStateException("Unsupported default value type");
         }
     }
 
