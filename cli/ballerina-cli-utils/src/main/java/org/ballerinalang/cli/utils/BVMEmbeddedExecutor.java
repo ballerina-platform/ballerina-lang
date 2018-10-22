@@ -33,7 +33,7 @@ import static org.ballerinalang.util.BLangConstants.COLON;
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
- * This represents the Ballerina package provider.
+ * This represents the Ballerina module provider.
  *
  * @since 0.964
  */

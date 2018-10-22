@@ -56,7 +56,7 @@ public class TestCmd implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--sourceroot"}, 
-            description = "path to the directory containing source files and packages")
+            description = "path to the directory containing source files and modules")
     private String sourceRoot;
 
     @CommandLine.Option(names = "-e", description = "Ballerina environment parameters")
@@ -81,8 +81,8 @@ public class TestCmd implements BLauncherCmd {
     @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
     private List<String> disableGroupList;
 
-    @CommandLine.Option(names = "--exclude-packages", split = ",", description = "packages to be excluded")
-    private List<String> excludedPackageList;
+    @CommandLine.Option(names = "--exclude-modules", split = ",", description = "modules to be excluded")
+    private List<String> excludedModuleList;
 
     public void execute() {
         if (helpFlag) {
@@ -92,7 +92,7 @@ public class TestCmd implements BLauncherCmd {
 
         if (sourceFileList != null && sourceFileList.size() > 1) {
             throw LauncherUtils.createUsageExceptionWithHelp("Too many arguments. You can only provide a single"
-                                                                     + " package or a single file to test command");
+                                                                     + " module or a single file to test command");
         }
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
@@ -139,7 +139,7 @@ public class TestCmd implements BLauncherCmd {
         }
 
         Path[] paths = sourceFileList.stream()
-                .filter(source -> excludedPackageList == null || !excludedPackageList.contains(source))
+                .filter(source -> excludedModuleList == null || !excludedModuleList.contains(source))
                 .map(Paths::get)
                 .sorted()
                 .toArray(Path[]::new);

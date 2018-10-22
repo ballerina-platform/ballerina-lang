@@ -33,10 +33,10 @@ public type TestConfig record {
 
 # Configuration of the function to be mocked.
 #
-# + packageName - Name of the package that the function to be mocked resides in
+# + moduleName - Name of the module that the function to be mocked resides in
 # + functionName - Name of the function to be mocked
 public type MockConfig record {
-    string packageName = ".";
+    string moduleName = ".";
     string functionName;
 };
 

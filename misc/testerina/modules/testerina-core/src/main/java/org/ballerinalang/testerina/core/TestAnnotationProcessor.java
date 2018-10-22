@@ -67,7 +67,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
-    private static final String PACKAGE = "packageName";
+    private static final String MODULE = "moduleName";
     private static final String FUNCTION = "functionName";
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
@@ -126,7 +126,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     attributes.forEach(attributeNode -> {
                         String name = attributeNode.getKey().toString();
                         String value = attributeNode.getValue().toString();
-                        if (PACKAGE.equals(name)) {
+                        if (MODULE.equals(name)) {
                             vals[0] = value;
                         } else if (FUNCTION.equals(name)) {
                             vals[1] = value;
@@ -222,9 +222,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     /**
      * TODO this is a temporary solution, till we get a proper API from Ballerina Core.
-     * This method will get executed at the completion of the processing of a ballerina package.
+     * This method will get executed at the completion of the processing of a ballerina module.
      *
-     * @param programFile {@link ProgramFile} corresponds to the current ballerina package
+     * @param programFile {@link ProgramFile} corresponds to the current ballerina module
      */
     public void packageProcessed(ProgramFile programFile) {
         if (!enabled) {
@@ -234,7 +234,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
         if (suite == null) {
-            throw new BallerinaException("No test suite found for [package]: " + programFile.getEntryPkgName());
+            throw new BallerinaException("No test suite found for [module]: " + programFile.getEntryPkgName());
         }
         suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
                 TesterinaFunction.Type.INIT));
