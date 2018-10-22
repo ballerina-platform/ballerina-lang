@@ -15,8 +15,9 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.command.CommandExecutor;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -115,6 +116,14 @@ class BallerinaWorkspaceService implements WorkspaceService {
         executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
         executeCommandContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
 
-        return CompletableFuture.supplyAsync(() -> CommandExecutor.executeCommand(params, executeCommandContext));
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return LSCommandExecutorProvider.getInstance().getCommandExecutor(params.getCommand()).get().execute(executeCommandContext);
+            } catch (LSCommandExecutorException e) {
+                // ignore
+            }
+            
+            return false;
+        });
     }
 }

@@ -142,6 +142,7 @@ public class CommandExecutor {
      *
      * @param context Workspace service context
      */
+    @Deprecated
     private static Object executeImportPackage(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String documentUri = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
@@ -213,6 +214,7 @@ public class CommandExecutor {
      *
      * @param context Workspace service context
      */
+    @Deprecated
     private static Object executeCreateFunction(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String documentUri = null;
         String funcName = null;
@@ -272,6 +274,7 @@ public class CommandExecutor {
      *
      * @param context Workspace service context
      */
+    @Deprecated
     private static Object executeCreateVariable(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String documentUri = null;
         String variableType = null;
@@ -321,6 +324,7 @@ public class CommandExecutor {
      *
      * @param context Workspace service context
      */
+    @Deprecated
     private static Object executeAddDocumentation(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String nodeType = "";
         String documentUri;
@@ -364,6 +368,7 @@ public class CommandExecutor {
      *
      * @param context Workspace Service Context
      */
+    @Deprecated
     private static Object executeAddAllDocumentation(LSServiceOperationContext context)
             throws WorkspaceDocumentException {
         String documentUri;
@@ -416,6 +421,7 @@ public class CommandExecutor {
      * @throws WorkspaceDocumentException           Error while accessing the document manager
      * @throws BallerinaCommandExecutionException   Error while the command Execution
      */
+    @Deprecated
     private static Object executeCreateObjectConstructor(LSServiceOperationContext context)
             throws WorkspaceDocumentException, BallerinaCommandExecutionException {
         String documentUri;
@@ -558,6 +564,7 @@ public class CommandExecutor {
      * @param line              position to be compared with
      * @return Document attachment info
      */
+    @Deprecated
     private static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType, 
                                                                                        BLangPackage bLangPkg,
                                                                                        int line) {
@@ -626,6 +633,7 @@ public class CommandExecutor {
         return docAttachmentInfo;
     }
 
+    @Deprecated
     private static ApplyWorkspaceEditParams applySingleTextEdit(String editText, Range range,
                                                                 VersionedTextDocumentIdentifier identifier,
                                                                 LanguageClient client) {
@@ -642,6 +650,7 @@ public class CommandExecutor {
         return applyWorkspaceEditParams;
     }
 
+    @Deprecated
     private static Object applyWorkspaceEdit(List<TextDocumentEdit> textDocumentEdits, LanguageClient client) {
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         workspaceEdit.setDocumentChanges(textDocumentEdits);
