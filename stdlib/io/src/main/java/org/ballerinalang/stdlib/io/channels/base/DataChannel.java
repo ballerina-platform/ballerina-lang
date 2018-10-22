@@ -57,9 +57,9 @@ public class DataChannel implements IOChannel {
     }
 
     /**
-     * Reverse the array of a given bytebuffer.
+     * Reverse the underlying array of the given ByteBuffer.
      *
-     * @param buffer the content of the byte in it's native byte order.
+     * @param buffer byte content in it's native order.
      */
     private byte[] reverse(ByteBuffer buffer) {
         byte[] contentArr = buffer.array();
@@ -155,8 +155,8 @@ public class DataChannel implements IOChannel {
      * Converts var long to a fixed size long.
      *
      * @param value  var long value.
-     * @param nBytes number of bytes in varlong.
-     * @return corresponding long converted through varlong.
+     * @param nBytes number of bytes in VarLong.
+     * @return corresponding long converted through VarLong.
      */
     private long convertVarLongToFixedLong(long value, int nBytes) {
         int nBits = nBytes * Representation.VARIABLE.getBase() - 1;
