@@ -6,24 +6,24 @@ SYNOPSIS
     ballerina test [-lg|--list-groups] [--groups <test_group, ...>] 
         [--disable-groups <test_group, ...>] [--sourceroot <path>]
         [-e] [--debug <port>] [-c <config_file>]
-        [--exclude-packages <packages, ...>]
-        [--config <config_file>] [-B] [<balfile>|<packagename>]
+        [--exclude-modules <modules, ...>]
+        [--config <config_file>] [-B] [<balfile>|<module-name>]
 
 
 DESCRIPTION
     Ballerina test command allows you to compile and run Ballerina 
     test sources and prints a summary of test results. You can 
-    execute tests in a single test file, a test package, or an 
+    execute tests in a single test file, a test module, or an
     entire Ballerina project.
     
     Use ballerina test without any parameters to execute tests for 
     the entire project.
     
-    Use ballerina test <packagename> to execute tests within the 
-    specified package.
+    Use ballerina test <module-name> to execute tests within the
+    specified module.
     
     Use ballerina test <balfile> to execute the given Ballerina test 
-    file. Note that imports from other packages will not work for 
+    file. Note that imports from other modules will not work for
     file executions. File path can be a relative or absolute.
 
 OPTIONS
@@ -63,14 +63,14 @@ OPTIONS
          If multiple parameters need to be provided, each parameter
          has to be specified using its own -e flag. Details of the
          environment parameters that the Ballerina standard library
-         packages support can be found in the relevant API
+         modules support can be found in the relevant API
          documentation.
 
      --debug <port>               
          Remote debug Ballerina tests over the port given.   
 
-     --exclude-packages <packages, ...>
-         Specify the packages to be excluded.
+     --exclude-modules <modules, ...>
+         Specify the modules to be excluded.
 
      -c <config_file>
      --config <config_file>
@@ -81,7 +81,7 @@ OPTIONS
 
      -B <key=value>
          Provides Ballerina VM options to be used by the runtime
-         when executing a Ballerina program or package. VM options
+         when executing a Ballerina program or module. VM options
          are key/value pairs. If multiple VM options need to be
          provided, each option has to be specified using its
          own -B flag.
@@ -93,7 +93,7 @@ EXAMPLES
      Run all tests in hello_service_test.bal  
      $ ballerina test hello_service_test.bal 
 
-     Run tests in math package  
+     Run tests in math module
      $ ballerina test math
 
      List all test groups in all Ballerina source files in 

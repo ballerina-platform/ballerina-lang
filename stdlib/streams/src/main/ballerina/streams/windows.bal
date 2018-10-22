@@ -87,7 +87,7 @@ public type LengthWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
-                        i++;
+                        i += 1;
                     }
                 }
                 any a => {
@@ -209,7 +209,7 @@ public type TimeWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
-                        i++;
+                        i += 1;
                     }
                 }
                 any a => {
@@ -247,7 +247,7 @@ public type LengthBatchWindow object {
         foreach event in streamEvents {
             StreamEvent clonedStreamEvent = event.clone();
             currentEventQueue.addLast(clonedStreamEvent);
-            count++;
+            count += 1;
             if (count == length) {
                 //if (expiredEventQueue.getFirst() != ()) {
                 //    expiredEventQueue.clear();
@@ -314,7 +314,7 @@ public type LengthBatchWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
-                        i++;
+                        i += 1;
                     }
                 }
                 any a => {
@@ -431,7 +431,7 @@ public type TimeBatchWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
-                        i++;
+                        i += 1;
                     }
                 }
                 any a => {
@@ -530,7 +530,7 @@ public type ExternalTimeWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
-                        i++;
+                        i += 1;
                     }
                 }
                 any a => {
@@ -696,7 +696,7 @@ public type ExternalTimeBatchWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
-                        i++;
+                        i += 1;
                     }
                 }
                 any a => {
@@ -928,7 +928,7 @@ public type TimeLengthWindow object {
                     int timeDiff = expiredEvent.timestamp - currentTime + timeInMilliSeconds;
                     if (timeDiff <= 0) {
                         expiredEventChunk.removeCurrent();
-                        count--;
+                        count -= 1;
                         expiredEvent.timestamp = currentTime;
                         streamEventChunk.insertBeforeCurrent(expiredEvent);
                     } else {
@@ -941,7 +941,7 @@ public type TimeLengthWindow object {
                     StreamEvent clonedEvent = streamEvent.clone();
                     clonedEvent.eventType = EXPIRED;
                     if (count < length) {
-                        count++;
+                        count += 1;
                         expiredEventChunk.addLast(clonedEvent);
                     } else {
                         StreamEvent firstEvent = check <StreamEvent>expiredEventChunk.removeFirst();
@@ -1000,7 +1000,7 @@ public type TimeLengthWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
-                        i++;
+                        i += 1;
                     }
                 }
                 any a => {
@@ -1062,7 +1062,7 @@ public type UniqueLengthWindow object {
                 uniqueMap[str] = eventClonedForMap;
 
                 if (oldEvent == null) {
-                    count++;
+                    count += 1;
                 }
                 if ((count <= length) && (oldEvent == null)) {
                     expiredEventChunk.addLast(clonedEvent);
@@ -1123,7 +1123,7 @@ public type UniqueLengthWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
-                        i++;
+                        i += 1;
                     }
                 }
                 any a => {

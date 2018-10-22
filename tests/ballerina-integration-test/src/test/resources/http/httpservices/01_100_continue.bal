@@ -55,7 +55,7 @@ service<http:Service> helloContinue bind { port: 9090 } {
             mime:Entity part = bodyParts[i];
             mime:ContentDisposition contentDisposition = part.getContentDisposition();
             replyMsg += " Key:" + contentDisposition.name + " Value: " + check part.getBodyAsString();
-            i++;
+            i += 1;
         }
         caller->respond(untaint replyMsg) but {
             error err => log:printError(err.message, err = err)

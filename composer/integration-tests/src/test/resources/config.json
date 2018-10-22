@@ -7,7 +7,8 @@
       "csv_io.bal",
       "channels_correlation.bal",
       "channels_workers.bal",
-      "grpc_bidirectional_streaming_client.bal"
+      "grpc_bidirectional_streaming_client.bal",
+      "symbolic_string_literal.bal"
     ]
   }
 }

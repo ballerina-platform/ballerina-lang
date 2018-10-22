@@ -150,7 +150,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -722,14 +721,6 @@ public class Desugar extends BLangNodeVisitor {
         assignStmt.pos = compoundAssignment.pos;
         assignStmt.setVariable(rewriteExpr((BLangVariableReference) compoundAssignment.varRef));
         assignStmt.expr = rewriteExpr(compoundAssignment.modifiedExpr);
-        result = assignStmt;
-    }
-
-    public void visit(BLangPostIncrement postIncrement) {
-        BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignStmt.pos = postIncrement.pos;
-        assignStmt.setVariable(rewriteExpr((BLangVariableReference) postIncrement.varRef));
-        assignStmt.expr = rewriteExpr(postIncrement.modifiedExpr);
         result = assignStmt;
     }
 

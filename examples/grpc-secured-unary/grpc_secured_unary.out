@@ -1,8 +1,8 @@
-# Create a Ballerina project and a package inside it.
-# Add grpc_secured_unary.bal file inside the package directory and
+# Create a Ballerina project and a module inside it.
+# Add grpc_secured_unary.bal file inside the module directory and
 # build the project.
-# For example, if you create a package named 'service', execute the following command to build
-# the 'service' package.
+# For example, if you create a module named 'service', execute the following command to build
+# the 'service' module.
 $ ballerina build service
 
 # Once you build the project, the following files will be generated inside target directory.

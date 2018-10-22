@@ -159,7 +159,7 @@ public class BTestRunner {
         }
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
-            String packageName = Utils.getFullPackageName(sourcePackage.toString());
+            String packageName = Utils.getFullModuleName(sourcePackage.toString());
 
             registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
                 (packageName));

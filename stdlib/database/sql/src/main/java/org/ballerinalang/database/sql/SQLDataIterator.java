@@ -86,7 +86,7 @@ public class SQLDataIterator extends TableIterator {
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,
-                           StructureTypeInfo zoneStructInfo, String databaseProductName) {
+            StructureTypeInfo zoneStructInfo, String databaseProductName) {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
@@ -95,24 +95,24 @@ public class SQLDataIterator extends TableIterator {
     }
 
     @Override
-    public void close(boolean isInTransaction) {
+    public void close() {
         try {
             if (rs != null && !(rs instanceof CachedRowSet) && !rs.isClosed()) {
                 rs.close();
             }
-            resourceManager.gracefullyReleaseResources(isInTransaction);
+            resourceManager.gracefullyReleaseResources();
             rs = null;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
-    public void reset(boolean isInTransaction) {
+    public void reset() {
         try {
             if (rs instanceof CachedRowSet) {
                 rs.beforeFirst();
             } else {
-                close(isInTransaction);
+                close();
             }
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
