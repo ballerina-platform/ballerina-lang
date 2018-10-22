@@ -61,7 +61,7 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof globalTeacherOutputArray) == 4 || count == 10) {
             break;
         }
@@ -73,7 +73,6 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
 function sqr(int age) returns int {
     return age * age;
 }
-
 
 //  ------------- Query to be implemented -------------------------------------------------------
 //  from inputStream where inputStream.age > 25

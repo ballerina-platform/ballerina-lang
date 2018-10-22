@@ -64,7 +64,7 @@ public class IncompatibleArgsInWindowTest {
                                   65, 47);
     }
 
-    @Test(description = "Checks whether the window function returns 'streams:Window' object" )
+    @Test(description = "Checks whether the window function returns 'streams:Window' object")
     public void testWindowFunctionReturnType() {
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertEquals(windowReturnResult.getErrorCount(), 1);
