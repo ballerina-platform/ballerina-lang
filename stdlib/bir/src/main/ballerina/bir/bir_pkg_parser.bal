@@ -75,7 +75,7 @@ public type PackageParser object {
             return "PUBLIC";
         }
         error err = error("unknown variable visiblity tag " + b);
-        throw err;
+        panic err;
     }
 
     public function parseVarKind() returns VarKind {
@@ -90,7 +90,7 @@ public type PackageParser object {
             return "RETURN";
         }
         error err = error("unknown var kind tag " + b);
-        throw err;
+        panic err;
     }
 
     public function parseSig(string sig) returns BInvokableType {

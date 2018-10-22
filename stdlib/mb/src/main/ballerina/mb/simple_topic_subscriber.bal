@@ -64,7 +64,7 @@ public type SimpleTopicSubscriber object {
             TopicSubscriberActions c => return c;
             () => {
                 error e = error("Topic subscriber consumerActions cannot be nil.");
-                throw e;
+                panic e;
             }
         }
     }

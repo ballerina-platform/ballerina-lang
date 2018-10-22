@@ -53,17 +53,17 @@ public type Cache object {
         // Cache expiry time must be a positive value.
         if (expiryTimeMillis <= 0) {
             error e = error("Expiry time must be greater than 0.");
-            throw e;
+            panic e;
         }
         // Cache capacity must be a positive value.
         if (capacity <= 0) {
             error e = error("Capacity must be greater than 0.");
-            throw e;
+            panic e;
         }
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
         if (evictionFactor <= 0 || evictionFactor > 1) {
             error e = error("Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).");
-            throw e;
+            panic e;
         }
         // We remove empty caches to prevent OOM issues. So in such scenarios, the cache will not be in the `cacheMap`
         // when we are trying to add a new cache entry to that cache. So we need to create a new cache. For that, keep
@@ -163,7 +163,7 @@ public type Cache object {
 
     # Removes a cached value from a cache.
     #
-    # + return - key of the cache entry which needs to be removed
+    # + key - key of the cache entry which needs to be removed
     public function remove(string key) {
         // Cache might already be removed by the cache clearing task. So no need to check the return value.
         _ = entries.remove(key);

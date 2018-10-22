@@ -64,7 +64,7 @@ public type SimpleTopicPublisher object {
             TopicPublisherActions s => return s;
             () => {
                 error e = error("Topic publisher connector cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -89,7 +89,7 @@ public type SimpleTopicPublisher object {
             }
             () => {
                 error e = error("topic publisher cannot be nil");
-                throw e;
+                panic e;
             }
         }
 

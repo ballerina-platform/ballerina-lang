@@ -70,8 +70,8 @@ public type Participant2pcClient object {
             PrepareResponse prepareRes = check <PrepareResponse>payload;
             return prepareRes.message;
         } else {
-            error err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " +
-                self.clientEP.conf.participantURL};
+            error err = error("Prepare failed. Transaction: " + transactionId + ", Participant: " +
+                self.clientEP.conf.participantURL);
             return err;
         }
     }
@@ -96,8 +96,8 @@ public type Participant2pcClient object {
             error participantErr = error(msg);
             return participantErr;
         } else { // Some other error state
-            error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
-                self.clientEP.conf.participantURL};
+            error participantErr = error("Notify failed. Transaction: " + transactionId + ", Participant: " +
+                self.clientEP.conf.participantURL);
             return participantErr;
         }
     }

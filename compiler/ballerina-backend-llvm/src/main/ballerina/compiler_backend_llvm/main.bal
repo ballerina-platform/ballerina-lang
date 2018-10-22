@@ -24,7 +24,7 @@ function parseArgs(string[] args) returns (string, string) {
     var argLen = lengthof args;
     if (argLen != 2){
         error err = error("Usage: compiler_backend_llvm <path-to-bir> <part-to-output-obj>");
-        throw err;
+        panic err;
     }
     return (untaint args[0], untaint args[1]);
 }
@@ -40,7 +40,7 @@ function checkMagic(bir:ChannelReader reader) {
 
     if (!arrayEq(baloCodeHexSpeak, magic)){
         error err = error("Invalid BIR binary content, unexptected header");
-        throw err;
+        panic err;
     }
 }
 
@@ -49,7 +49,7 @@ function checkVersion(bir:ChannelReader reader) {
     var supportedBirVersion = 1;
     if (birVersion != 1){
         error err = error("Unsupported BIR version " + birVersion + ", supports version " + supportedBirVersion);
-        throw err;
+        panic err;
     }
 }
 

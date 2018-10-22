@@ -69,7 +69,7 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
                 }
                 () => {
                     error err = error("Unknown transaction");
-                    throw err;
+                    panic err;
                 }
             }
         }
@@ -88,7 +88,7 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         error err = error("Transaction: " + participatedTxnId + " not found");
-        throw err;
+        panic err;
     }
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is

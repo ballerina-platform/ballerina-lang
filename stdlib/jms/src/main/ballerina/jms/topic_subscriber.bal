@@ -142,10 +142,10 @@ function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
         error topicSubscriberConfigError = error(errorMessage);
-        throw topicSubscriberConfigError;
+        panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
         error topicSubscriberConfigError = error(errorMessage);
-        throw topicSubscriberConfigError;
+        panic topicSubscriberConfigError;
     }
 }

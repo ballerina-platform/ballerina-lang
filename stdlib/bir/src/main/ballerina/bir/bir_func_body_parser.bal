@@ -80,7 +80,7 @@ public type FuncBodyParser object {
 
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
-        throw err;
+        panic err;
     }
 
 
@@ -118,7 +118,7 @@ public type FuncBodyParser object {
             kind = "LESS_EQUAL";
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
-            throw err;
+            panic err;
         }
 
         var rhsOp1 = parseVarRef();
@@ -137,7 +137,7 @@ function getDecl(map<VariableDcl> localVarMap, string varName) returns VariableD
         VariableDcl dcl => return dcl;
         () => {
             error err = error("local var missing " + varName);
-            throw err;
+            panic err;
         }
     }
 }

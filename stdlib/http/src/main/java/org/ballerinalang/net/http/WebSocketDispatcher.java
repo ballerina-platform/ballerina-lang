@@ -38,6 +38,7 @@ import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -293,7 +294,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
@@ -324,7 +325,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             }
         };
@@ -365,7 +366,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }

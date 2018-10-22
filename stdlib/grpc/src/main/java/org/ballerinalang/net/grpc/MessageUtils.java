@@ -17,25 +17,28 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.EmptyProto;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -50,9 +53,7 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -67,12 +68,10 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Util methods to generate protobuf message.
@@ -127,12 +126,9 @@ public class MessageUtils {
         }
         return null;
     }
-    
-    public static BMap<String, BValue> getConnectorError(Context context, Throwable throwable) {
-        ProgramFile progFile = context.getProgramFile();
-        PackageInfo errorPackageInfo = progFile.getPackageInfo(BALLERINA_BUILTIN_PKG);
-        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        return getConnectorError(errorStructInfo.getType(), throwable);
+
+    public static BError getConnectorError(Throwable throwable) {
+        return getConnectorError(throwable);
     }
     
     /**
@@ -144,19 +140,21 @@ public class MessageUtils {
      * @param error     this is StatusRuntimeException send by opposite party.
      * @return error value.
      */
-    public static BMap<String, BValue> getConnectorError(BStructureType errorType, Throwable error) {
-        BMap<String, BValue> errorStruct = new BMap<>(errorType);
+    public static BError getConnectorError(BErrorType errorType, Throwable error) {
+        BErrorType errType = Optional.ofNullable(errorType).orElse(BTypes.typeError);
+        BMap<String, BValue> refData = new BMap<>(errType.detailsType);
+        final String message;
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            errorStruct.put(ERROR_MESSAGE_FIELD, new BString(statusException.getStatus().toString()));
+            message = statusException.getStatus().toString();
         } else {
             if (error.getMessage() == null) {
-                errorStruct.put(ERROR_MESSAGE_FIELD, new BString(UNKNOWN_ERROR));
+                message = UNKNOWN_ERROR;
             } else {
-                errorStruct.put(ERROR_MESSAGE_FIELD, new BString(error.getMessage()));
+                message = error.getMessage();
             }
         }
-        return errorStruct;
+        return new BError(errorType, message, refData);
     }
     
     public static ProgramFile getProgramFile(Resource resource) {
@@ -169,7 +167,7 @@ public class MessageUtils {
      * @param streamObserver observer used the send the error back
      * @param error          error message struct
      */
-    static void handleFailure(StreamObserver streamObserver, BMap<String, BValue> error) {
+    static void handleFailure(StreamObserver streamObserver, BError error) {
         String errorMsg = error.stringValue();
         LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
@@ -559,7 +557,7 @@ public class MessageUtils {
         if (messageDescriptor == null) {
             return false;
         }
-        List<Descriptors.Descriptor> descriptors = com.google.protobuf.EmptyProto.getDescriptor()
+        List<Descriptors.Descriptor> descriptors = EmptyProto.getDescriptor()
                 .getMessageTypes();
         for (Descriptors.Descriptor descriptor : descriptors) {
             if (descriptor.equals(messageDescriptor)) {

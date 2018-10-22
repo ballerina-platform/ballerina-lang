@@ -21,7 +21,7 @@ public type Aggregator abstract object {
 
     public function clone() returns Aggregator;
 
-    public function process(any value, EventType eventType) returns any;
+    public function process(any value, EventType eventType) returns any|error;
 
 };
 
@@ -34,7 +34,7 @@ public type Sum object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
@@ -84,7 +84,7 @@ public type Average object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
@@ -138,7 +138,7 @@ public type Count object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         if (eventType == "CURRENT") {
             count += 1;
         } else if (eventType == "EXPIRED"){
@@ -169,7 +169,7 @@ public type DistinctCount object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         string key = crypto:crc32(value);
         if (eventType == "CURRENT") {
             int preVal = distinctValues[key] ?: 0;
@@ -212,7 +212,7 @@ public type Max object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
@@ -321,7 +321,7 @@ public type Min object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
@@ -431,7 +431,7 @@ public type StdDev object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         float fVal;
         match value {
             int i => {
@@ -511,7 +511,7 @@ public type MaxForever object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
@@ -567,7 +567,7 @@ public type MinForever object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {

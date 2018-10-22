@@ -128,7 +128,7 @@ type RemoteParticipant object {
             }
         }
         error err = error("Remote participant:" + self.participantId + " replied with invalid outcome");
-        throw err;
+        panic err;
     }
 
     function notifyMe(string protocolUrl, string action) returns NotifyResult|error {
@@ -153,7 +153,7 @@ type RemoteParticipant object {
             }
         }
         error err = error("Unknown status on notify remote participant");
-        throw err;
+        panic err;
     }
 };
 
@@ -254,7 +254,7 @@ type LocalParticipant object {
             }
         } else {
             error err = error("Invalid protocol action:" + action);
-            throw err;
+            panic err;
         }
     }
 };

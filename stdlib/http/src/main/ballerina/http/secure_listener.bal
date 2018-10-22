@@ -38,7 +38,7 @@ public type SecureListener object {
     # Initializes the endpoint.
     #
     # + return - An `error` if an error occurs during initialization of the endpoint
-    public function initEndpoint() returns (error);
+    public function initEndpoint() returns (error?);
 
     # Gets called every time a service attaches itself to this endpoint. Also happens at module initialization.
     #
@@ -204,7 +204,7 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
         } else {
             // other auth providers are unsupported yet
             error e = error("Invalid auth provider: " + authProvider.authStoreProvider);
-            throw e;
+            panic e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
         return <HttpAuthnHandler>basicAuthHandler;
@@ -222,7 +222,7 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
     } else {
         // TODO: create other HttpAuthnHandlers
         error e = error("Invalid auth scheme: " + authProvider.scheme);
-        throw e;
+        panic e;
     }
 }
 
@@ -230,7 +230,7 @@ function SecureListener::register(typedesc serviceType) {
     self.httpListener.register(serviceType);
 }
 
-function SecureListener::initEndpoint() returns (error) {
+function SecureListener::initEndpoint() returns (error?) {
     return self.httpListener.initEndpoint();
 }
 

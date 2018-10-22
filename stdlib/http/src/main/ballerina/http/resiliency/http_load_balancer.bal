@@ -171,16 +171,16 @@ public type LoadBalancerActions object {
 # Represents an error occurred in an action of the Load Balance connector.
 #
 # + message - An error message explaining about the error
-# + cause - Cause of the error
 # + statusCode - HTTP status code of the LoadBalanceActionError
 # + httpActionErr - Array of errors occurred at each endpoint
-public type LoadBalanceActionError record {
+public type LoadBalanceActionErrorData record {
     string message;
-    error? cause;
     int statusCode;
     error[] httpActionErr;
     !...
 };
+
+public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
 function LoadBalancerActions::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
@@ -280,8 +280,8 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
                                     returns Response|error {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    LoadBalanceActionError loadBalanceActionError = {statusCode:500};
-    loadBalanceActionError.httpActionErr = [];
+    LoadBalanceActionErrorData loadBalanceActionErrorData = {statusCode:500};
+    loadBalanceActionErrorData.httpActionErr = [];
     Request loadBlancerInRequest = request;
     mime:Entity requestEntity = new;
 
@@ -308,13 +308,13 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
                     return httpActionErr;
                 } else {
                     loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
-                    loadBalanceActionError.httpActionErr[lb.nextIndex] = httpActionErr;
+                    loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = httpActionErr;
                     loadBalanceTermination = loadBalanceTermination + 1;
                 }
             }
         }
     }
-    return populateGenericLoadBalanceActionError(loadBalanceActionError);
+    return populateGenericLoadBalanceActionError(loadBalanceActionErrorData);
 }
 
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
@@ -340,12 +340,12 @@ public function roundRobin(LoadBalancerActions lb, CallerActions[] loadBalanceCo
 }
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
-function populateGenericLoadBalanceActionError(LoadBalanceActionError loadBalanceActionError)
+function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBalanceActionErrorData)
                                                     returns error {
-    int nErrs = lengthof loadBalanceActionError.httpActionErr;
-    loadBalanceActionError.statusCode = INTERNAL_SERVER_ERROR_500;
-    loadBalanceActionError.message = "All the load balance endpoints failed. Last error was: "
-                                        + loadBalanceActionError.httpActionErr[nErrs - 1].message;
-    error err = loadBalanceActionError;
+    int nErrs = lengthof loadBalanceActionErrorData.httpActionErr;
+    loadBalanceActionErrorData.statusCode = INTERNAL_SERVER_ERROR_500;
+    loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: "
+                                        + loadBalanceActionErrorData.httpActionErr[nErrs - 1].reason();
+    LoadBalanceActionError err = error("LoadBalanceActionError", loadBalanceActionErrorData);
     return err;
 }

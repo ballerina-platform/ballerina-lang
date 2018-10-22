@@ -49,10 +49,9 @@
 # + return - Value of the basic authentication header, or nil if not found
 public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
     // extract authorization header
-    try {
-        return req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
+    match trap req.getHeader(AUTH_HEADER) {
+        string s => return s;
+        error e => log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.reason());
     }
     return ();
 }

@@ -220,8 +220,8 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
                 error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
                 return err;
             } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
-                error err = {message:"Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
-                    participantId};
+                error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
+                    participantId);
                 return err;
             } else {
     
@@ -248,7 +248,7 @@ function removeParticipatedTransaction(string participatedTxnId) {
     boolean removed = participatedTransactions.remove(participatedTxnId);
     if (!removed) {
         error err = error("Removing participated transaction: " + participatedTxnId + " failed");
-        throw err;
+        panic err;
     }
 }
 
@@ -256,7 +256,7 @@ function removeInitiatedTransaction(string transactionId) {
     boolean removed = initiatedTransactions.remove(transactionId);
     if (!removed) {
         error err = error("Removing initiated transaction: " + transactionId + " failed");
-        throw err;
+        panic err;
     }
 }
 
@@ -332,8 +332,9 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
             log:printError(msg, err = e);
-            map data = { cause: err };
-            error err = error(msg, data);
+            // TODO : Fix me.
+            //map data = { cause: err };
+            error err = error(msg);
             return err;
         }
         RegistrationResponse regRes => {

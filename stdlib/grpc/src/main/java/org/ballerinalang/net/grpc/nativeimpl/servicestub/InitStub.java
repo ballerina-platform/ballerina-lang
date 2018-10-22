@@ -88,7 +88,7 @@ public class InitStub extends BlockingNativeCallableUnit {
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
         
         if (stubType == null || descriptorKey == null || descriptorMap == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
                             "connector. message descriptor keys not exist. Please check the generated sub file"))));
             return;
@@ -111,7 +111,7 @@ public class InitStub extends BlockingNativeCallableUnit {
             }
             
             if (fileDescriptor == null) {
-                context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
                                 "establishing the connection. service descriptor is null."))));
                 return;
@@ -127,14 +127,14 @@ public class InitStub extends BlockingNativeCallableUnit {
                 NonBlockingStub nonBlockingStub = new NonBlockingStub(clientConnector, endpointConfig);
                 serviceStub.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
-                context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
                                 "initializing connector. invalid connector type"))));
                 return;
             }
             serviceStub.addNativeData(CLIENT_END_POINT, clientEndpoint);
         } catch (RuntimeException | GrpcClientException e) {
-            context.setError(MessageUtils.getConnectorError(context, e));
+            context.setError(MessageUtils.getConnectorError(e));
         }
     }
     

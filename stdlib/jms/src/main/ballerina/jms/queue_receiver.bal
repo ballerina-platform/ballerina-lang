@@ -142,10 +142,10 @@ function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
         error queueReceiverConfigError = error(errorMessage);
-        throw queueReceiverConfigError;
+        panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
         error queueReceiverConfigError = error(errorMessage);
-        throw queueReceiverConfigError;
+        panic queueReceiverConfigError;
     }
 }

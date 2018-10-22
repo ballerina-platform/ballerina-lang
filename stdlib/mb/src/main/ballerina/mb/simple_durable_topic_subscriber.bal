@@ -64,7 +64,7 @@ public type SimpleDurableTopicSubscriber object {
             DurableTopicSubscriberActions c => return c;
             () => {
                 error e = error("Durable topic subscriber consumerActions cannot be nil.");
-                throw e;
+                panic e;
             }
         }
     }

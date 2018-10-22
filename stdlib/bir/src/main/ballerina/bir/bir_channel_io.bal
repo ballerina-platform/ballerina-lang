@@ -15,7 +15,7 @@ public type BirChannelReader object {
             return "boolean";
         }
         error err = error("type signature " + sginatureAlias + " not supported.");
-        throw err;
+        panic err;
     }
 
     public function readStringCpRef() returns string {

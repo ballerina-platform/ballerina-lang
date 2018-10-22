@@ -42,7 +42,7 @@ public type ChannelReader object {
         var (arr, arrLen) = check byteChannel.read(len);
         if(arrLen != len){
             error err = error("Unable to read "+len+" bytes");
-            throw err;
+            panic err;
         }
         return arr;
     }

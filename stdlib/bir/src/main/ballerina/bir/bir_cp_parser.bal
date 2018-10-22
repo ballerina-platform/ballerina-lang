@@ -33,7 +33,7 @@ public type ConstPoolParser object {
             parsePackageId();
         } else {
             error err = error("cp type " + cpType + " not supported.:");
-            throw err;
+            panic err;
         }
     }
 

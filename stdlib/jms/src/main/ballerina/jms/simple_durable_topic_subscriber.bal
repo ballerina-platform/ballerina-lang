@@ -70,7 +70,7 @@ public type SimpleDurableTopicSubscriber object {
             }
             () => {
                 error e = error("Topic Subscriber cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -88,7 +88,7 @@ public type SimpleDurableTopicSubscriber object {
             SimpleDurableTopicSubscriberActions c => return c;
             () => {
                 error e = error("Consumer actions cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -107,7 +107,7 @@ public type SimpleDurableTopicSubscriber object {
             Session s => return s.createTextMessage(message);
             () => {
                 error e = error("Session cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }

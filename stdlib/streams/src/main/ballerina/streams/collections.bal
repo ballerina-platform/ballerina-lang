@@ -107,7 +107,8 @@ public type LinkedList object {
             return curr.data;
         } else {
             error e = error("couldn't iterate to next node.");
-            return e;
+            // TODO : Fix this.
+            panic e;
         }
     }
 
@@ -127,7 +128,8 @@ public type LinkedList object {
             return curr.data;
         } else {
             error e = error("couldn't iterate to previous node.");
-            return e;
+            // TODO : Fix this.
+            panic e;
         }
     }
 

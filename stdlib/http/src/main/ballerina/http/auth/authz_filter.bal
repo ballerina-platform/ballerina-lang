@@ -83,7 +83,7 @@ function isAuthzSuccessfull(Listener listener, boolean authorized) returns boole
         response.setTextPayload("Authorization failure");
         var value = caller->respond(response);
         match value {
-            error err => throw err;
+            error err => panic err;
             () => {}
         }
         return false;

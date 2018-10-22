@@ -67,7 +67,7 @@ public type SimpleQueueReceiver object {
             }
             () => {
                 error e = error("Queue receiver cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -85,7 +85,7 @@ public type SimpleQueueReceiver object {
             QueueReceiver c => return c.getCallerActions();
             () => {
                 error e = error("Queue receiver cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -104,7 +104,7 @@ public type SimpleQueueReceiver object {
             Session s => return s.createTextMessage(content);
             () => {
                 error e = error("Session cannot be null");
-                throw e;
+                panic e;
             }
         }
     }

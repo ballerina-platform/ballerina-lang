@@ -95,7 +95,7 @@ function getStoreDetails(Store? store) returns (string, string) {
         }
         () => {
             error e = error("Store details not provided.");
-            throw e;
+            panic e;
         }
     }
 

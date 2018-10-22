@@ -45,6 +45,7 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -433,8 +434,8 @@ public class HttpUtil {
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    public static void handleFailure(HttpCarbonMessage requestMessage, BMap<String, BValue> error) {
-        String errorMsg = error.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+    public static void handleFailure(HttpCarbonMessage requestMessage, BError error) {
+        String errorMsg = error.reason;
         int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
@@ -487,7 +488,7 @@ public class HttpUtil {
      * @param errMsg  Error message
      * @return Error struct
      */
-    public static BMap<String, BValue> getError(Context context, String errMsg) {
+    public static BError getError(Context context, String errMsg) {
         return BLangVMErrors.createError(context, errMsg);
     }
 
@@ -498,7 +499,7 @@ public class HttpUtil {
      * @param throwable Throwable representing the error.
      * @return Error struct
      */
-    public static BMap<String, BValue> getError(Context context, Throwable throwable) {
+    public static BError getError(Context context, Throwable throwable) {
         if (throwable.getMessage() == null) {
             return BLangVMErrors.createError(context, IO_EXCEPTION_OCCURED);
         } else {

@@ -65,7 +65,7 @@ public type SimpleTopicSubscriber object {
             }
             () => {
                 error e = error("Topic Subscriber cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -83,7 +83,7 @@ public type SimpleTopicSubscriber object {
             TopicSubscriber c => return c.getCallerActions();
             () => {
                 error e = error("Topic subscriber cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -102,7 +102,7 @@ public type SimpleTopicSubscriber object {
             Session s => return s.createTextMessage(message);
             () => {
                 error e = error("Session cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -116,7 +116,7 @@ public type SimpleTopicSubscriber object {
             Session s => return s.createMapMessage(message);
             () => {
                 error e = error("Session cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }

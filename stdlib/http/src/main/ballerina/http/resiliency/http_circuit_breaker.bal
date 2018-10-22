@@ -642,7 +642,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
         string errorMessage = "Invalid failure threshold. Failure threshold value"
             + " should between 0 to 1, found " + failureThreshold;
         error circuitBreakerConfigError = error(errorMessage);
-        throw circuitBreakerConfigError;
+        panic circuitBreakerConfigError;
     }
 }
 

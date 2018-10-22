@@ -48,7 +48,7 @@ public function createBallerinaError(string errorMessage, string category) retur
 # + msg - Assertion error message
 public function assertTrue(boolean condition, string msg = "Assertion Failed!") {
     if (!condition) {
-        throw createBallerinaError(msg, assertFailureErrorCategory);
+        panic createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
@@ -58,7 +58,7 @@ public function assertTrue(boolean condition, string msg = "Assertion Failed!") 
 # + msg - Assertion error message
 public function assertFalse(boolean condition, string msg = "Assertion Failed!") {
     if (condition) {
-        throw createBallerinaError(msg, assertFailureErrorCategory);
+        panic createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
@@ -72,7 +72,7 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
         string errorMsg = string `{{msg}}: expected '{{expectedStr}}' but found '{{actualStr}}'`;
-        throw createBallerinaError(errorMsg, assertFailureErrorCategory);
+        panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
 
@@ -86,7 +86,7 @@ public function assertNotEquals(any actual, any expected, string msg = "Assertio
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
         string errorMsg = string `{{msg}}: expected the actual value not to be '{{expectedStr}}'`;
-        throw createBallerinaError(errorMsg, assertFailureErrorCategory);
+        panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
 
@@ -94,5 +94,5 @@ public function assertNotEquals(any actual, any expected, string msg = "Assertio
 #
 # + msg - Assertion error message
 public function assertFail(string msg = "Test Failed!") {
-    throw createBallerinaError(msg, assertFailureErrorCategory);
+    panic createBallerinaError(msg, assertFailureErrorCategory);
 }

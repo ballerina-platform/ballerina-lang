@@ -117,8 +117,9 @@ function CallerActions::registerTopic(string topic) returns error? {
             return;
         }
         error err => {
-            error webSubError = {message:"Error sending topic registration request: " + err.message,
-                cause:err};
+            // TODO : Fix this.
+            error webSubError = error("Error sending topic registration request: " + err.reason());
+                //cause:err};
             return webSubError;
         }
     }
@@ -138,8 +139,8 @@ function CallerActions::unregisterTopic(string topic) returns error? {
             return;
         }
         error err => {
-            error webSubError = {message:"Error sending topic unregistration request: " + err.message,
-                cause:err};
+            error webSubError = error("Error sending topic unregistration request: " + err.reason());
+                //cause:err}; TODO : Fix this.
             return webSubError;
         }
     }
@@ -178,8 +179,8 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:Re
             return;
         }
         error httpConnectorError => {
-            map data = { cause: err };
-            error webSubError = error("Publish failed for topic [" + topic + "]", data);
+            //map data = { cause: err }; TODO : Fix me.
+            error webSubError = error("Publish failed for topic [" + topic + "]");
             return webSubError;
         }
     }
@@ -210,8 +211,8 @@ function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) re
             return;
         }
         error httpConnectorError => {
-            error webSubError = {message:"Update availability notification failed for topic [" + topic + "]",
-                                 cause:httpConnectorError};
+            error webSubError = error("Update availability notification failed for topic [" + topic + "]");
+                                 //cause:httpConnectorError}; TODO : Fix this.
             return webSubError;
         }
     }
@@ -273,9 +274,9 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
     match response {
         error httpConnectorError => {
             string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - "
-                + httpConnectorError.message;
-            map data = { cause: httpConnectorError };
-            error webSubError = error(errorMessage, data);
+                + httpConnectorError.reason();
+            //map data = { cause: httpConnectorError }; TODO : Fix me.
+            error webSubError = error(errorMessage);
             return webSubError;
         }
         http:Response httpResponse => {
@@ -287,9 +288,9 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                     return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                                                                 httpClientEndpoint.config.auth, remainingRedirects - 1);
                 }
-                error subscriptionError = { message: "Redirection response received for subscription change request"
+                error subscriptionError = error( "Redirection response received for subscription change request"
                                             + " made with followRedirects disabled or after maxCount exceeded: Hub ["
-                                            + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
+                                            + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" );
                 return subscriptionError;
             } else if (!isSuccessStatusCode(responseStatusCode)) {
                 var responsePayload = httpResponse.getTextPayload();
@@ -298,7 +299,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                     string responseErrorPayload => { errorMessage = errorMessage + " - " + responseErrorPayload; }
                     error payloadError => { errorMessage = errorMessage + " - "
                         + "Error occurred identifying cause: "
-                        + payloadError.message; }
+                        + payloadError.reason(); }
                 }
                 error webSubError = error(errorMessage);
                 return webSubError;

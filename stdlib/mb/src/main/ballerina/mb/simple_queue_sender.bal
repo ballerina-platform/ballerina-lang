@@ -65,7 +65,7 @@ public type SimpleQueueSender object {
             QueueSenderActions s => return s;
             () => {
                 error e = error("Queue sender connector cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }
@@ -90,7 +90,7 @@ public type SimpleQueueSender object {
             }
             () => {
                 error e = error("Session cannot be nil");
-                throw e;
+                panic e;
             }
         }
     }

@@ -67,7 +67,7 @@ public type SimpleQueueReceiver object {
             QueueReceiverActions c => return c;
             () => {
                 error e = error("Queue receiver consumerActions cannot be nil.");
-                throw e;
+                panic e;
             }
         }
     }
