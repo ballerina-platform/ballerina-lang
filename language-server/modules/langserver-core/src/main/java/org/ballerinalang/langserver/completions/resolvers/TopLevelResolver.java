@@ -48,7 +48,6 @@ public class TopLevelResolver extends AbstractItemResolver {
         List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        Class itemSorterClass = DefaultItemSorter.class;
         if (this.isAnnotationStart(ctx)) {
             completionItems.addAll(CompletionItemResolver
                     .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
@@ -61,7 +60,7 @@ public class TopLevelResolver extends AbstractItemResolver {
             completionItems.addAll(itemResolver.resolveItems(ctx));
         }
 
-        ItemSorters.get(itemSorterClass).sortItems(ctx, completionItems);
+        ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
         return completionItems;
     }
 
