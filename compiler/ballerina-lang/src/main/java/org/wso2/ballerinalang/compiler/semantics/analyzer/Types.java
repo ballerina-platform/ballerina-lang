@@ -260,10 +260,8 @@ public class Types {
                     ((BMapType) source).constraint.tag != TypeTags.UNION) {
                 return true;
             }
-            if (checkStructEquivalency(((BMapType) source).constraint, ((BMapType) target).constraint,
-                    unresolvedTypes)) {
-                return true;
-            }
+
+            return isAssignable(((BMapType) source).constraint, ((BMapType) target).constraint, unresolvedTypes);
         }
 
         if ((source.tag == TypeTags.OBJECT || source.tag == TypeTags.RECORD)
@@ -314,10 +312,10 @@ public class Types {
             // Only the right-hand side is an array type
 
             // If the target type is a JSON, then element type of the rhs array
-            // should only be JSON. This is to avoid assigning of value-type arrays
-            // to JSON.
+            // should only be a JSON supported type.
             if (target.tag == TypeTags.JSON) {
-                return getElementType(source).tag == TypeTags.JSON;
+                return ((BJSONType) target).constraint.tag == TypeTags.NONE &&
+                        isAssignable(((BArrayType) source).getElementType(), target, unresolvedTypes);
             }
 
             // Then lhs type should 'any' type
@@ -467,7 +465,7 @@ public class Types {
             return false;
         }
 
-        return checkFieldEquivalency(lhsType, rhsType);
+        return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
@@ -1197,7 +1195,8 @@ public class Types {
         return true;
     }
 
-    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType) {
+    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType,
+                                          List<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
                 Collectors.toMap(BField::getName, field -> field));
 
@@ -1208,7 +1207,7 @@ public class Types {
                 return false;
             }
 
-            if (!isSameType(rhsField.type, lhsField.type)) {
+            if (!isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
         }

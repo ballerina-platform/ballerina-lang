@@ -98,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -132,6 +133,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
@@ -153,7 +155,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private Types types;
     private IterableAnalyzer iterableAnalyzer;
     private BLangDiagnosticLog dlog;
-
     private SymbolEnv env;
 
     /**
@@ -163,7 +164,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-
+    
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
         if (typeChecker == null) {
@@ -1387,6 +1388,14 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);
+    }
+
+    @Override
+    public void visit(BLangTypeCheckExpr typeCheckExpr) {
+        typeCheckExpr.typeNode.type = symResolver.resolveTypeNode(typeCheckExpr.typeNode, env);
+        checkExpr(typeCheckExpr.expr, env);
+
+        resultType = types.checkType(typeCheckExpr, symTable.booleanType, expType);
     }
 
     // Private methods

@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -3252,6 +3253,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
 
         emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
+    }
+
+    @Override
+    public void visit(BLangTypeCheckExpr typeCheckExpr) {
+        genNode(typeCheckExpr.expr, env);
+        Operand typeCPIndex = getTypeCPIndex(typeCheckExpr.typeNode.type);
+        emit(InstructionCodes.TYPE_CHECK, typeCheckExpr.expr.regIndex, typeCPIndex,
+                calcAndGetExprRegIndex(typeCheckExpr));
     }
 
     // private helper methods of visitors.

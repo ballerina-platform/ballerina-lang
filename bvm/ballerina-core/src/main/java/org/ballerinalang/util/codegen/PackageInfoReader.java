@@ -1300,6 +1300,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BNEWARRAY:
                 case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.O2JSON:
+                case InstructionCodes.TYPE_CHECK:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

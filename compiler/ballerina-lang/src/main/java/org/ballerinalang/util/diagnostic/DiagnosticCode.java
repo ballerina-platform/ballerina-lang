@@ -296,7 +296,10 @@ public enum DiagnosticCode {
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
     ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS("arrow.expression.cannot.infer.type.from.lhs"),
-    ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION("arrow.expression.not.supported.iterable.operation")
+    ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION("arrow.expression.not.supported.iterable.operation"),
+    
+    INCOMPATIBLE_TYPE_CHECK("incompatible.type.check"),
+    UNNECESSARY_CONDITION("unnecessary.condition"),
     ;
 
     private String value;

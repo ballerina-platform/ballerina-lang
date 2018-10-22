@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -74,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -1145,6 +1148,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         // TODO
+    }
+
+    @Override
+    public void visit(BLangTypeCheckExpr typeCheckExpr) {
+        analyzeNode(typeCheckExpr.expr, env);
+        if (typeCheckExpr.typeNode.type == symTable.errType) {
+            return;
+        }
+
+        // Check whether the condition is always true. If the variable type is assignable to target type,
+        // then type check will always evaluate to true. 
+        if (types.isAssignable(typeCheckExpr.expr.type, typeCheckExpr.typeNode.type)) {
+            dlog.error(typeCheckExpr.pos, DiagnosticCode.UNNECESSARY_CONDITION);
+            return;
+        }
+
+        // Check whether the target type can ever be present as the type of the source.
+        // It'll be only possible iff, the target type has been assigned to the source
+        // variable at some point. To do that, a value of target type should be assignable 
+        // to the type of the source variable.
+        if (!types.isAssignable(typeCheckExpr.typeNode.type, typeCheckExpr.expr.type)) {
+            dlog.error(typeCheckExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeCheckExpr.expr.type,
+                    typeCheckExpr.typeNode.type);
+        }
     }
 
     // private methods

@@ -110,7 +110,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -162,6 +164,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -188,7 +192,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
 
-    private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
+    private Stack<List<BType>> guardedTypes = new Stack<>();
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -589,6 +593,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangIf ifNode) {
         typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
+
+        Optional<BLangTypeCheckExpr> typeGuard = getTypeGuard(ifNode.expr);
+        if (typeGuard.isPresent()) {
+            BLangTypeCheckExpr typeCheck = typeGuard.get();
+            if (typeCheck.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) typeCheck.expr;
+                SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(ifNode.body, env);
+                typeCheck.symbol = new BVarSymbol(0, names.fromIdNode(varRef.variableName), ifBodyEnv.scope.owner.pkgID,
+                        typeCheck.typeNode.type, this.env.scope.owner);
+                symbolEnter.defineSymbol(typeCheck.symbol, ifBodyEnv);
+            }
+        }
 
         BType actualType = ifNode.expr.type;
         if (TypeTags.TUPLE == actualType.tag) {
@@ -2065,5 +2081,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
                     func.symbol.receiverSymbol.type);
         }
+    }
+
+    private Optional<BLangTypeCheckExpr> getTypeGuard(BLangExpression expr) {
+        switch (expr.getKind()) {
+            case TYPE_CHECK_EXPR:
+                return Optional.of((BLangTypeCheckExpr) expr);
+            case BRACED_TUPLE_EXPR:
+                BLangBracedOrTupleExpr bracedExpr = (BLangBracedOrTupleExpr) expr;
+                if (bracedExpr.isBracedExpr) {
+                    return getTypeGuard(bracedExpr.expressions.get(0));
+                }
+                break;
+            default:
+                break;
+        }
+        return Optional.empty();
     }
 }
