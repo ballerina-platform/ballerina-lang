@@ -3379,7 +3379,7 @@ public class BLangPackageBuilder {
     void startOnCompensationBlock() {
         startFunctionDef();
     }
-    
+
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TypeNode typeRef = typeNodeStack.pop();
         typeRef.addWS(ws);

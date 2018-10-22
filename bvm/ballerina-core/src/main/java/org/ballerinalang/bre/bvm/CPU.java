@@ -1836,9 +1836,7 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[j];
-                BValue value = sf.refRegs[i];
-                BType type = value == null ? BTypes.typeNull : value.getType();
-                sf.intRegs[k] = checkIsType(type, typeRefCPEntry.getType()) ? 1 : 0;
+                sf.intRegs[k] = checkIsType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2835,16 +2833,7 @@ public class CPU {
     }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType, List<TypePair> unresolvedTypes) {
-        BType rhsType = BTypes.typeNull;
-
-        if (rhsValue == null && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        }
-
-        if (rhsValue != null) {
-            rhsType = rhsValue.getType();
-        }
-
+        BType rhsType = rhsValue == null ? BTypes.typeNull : rhsValue.getType();
         if (isSameOrAnyType(rhsType, lhsType)) {
             return true;
         }
@@ -2899,21 +2888,33 @@ public class CPU {
     }
 
     private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
-        if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.FLOAT_TAG) {
             return true;
         } else if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
             return true;
         }
 
+        if (lhsType.getTag() == TypeTags.JSON_TAG) {
+            switch (rhsType.getTag()) {
+                case TypeTags.INT_TAG:
+                case TypeTags.FLOAT_TAG:
+                case TypeTags.STRING_TAG:
+                case TypeTags.BOOLEAN_TAG:
+                case TypeTags.NULL_TAG:
+                case TypeTags.JSON_TAG:
+                    return true;
+                case TypeTags.ARRAY_TAG:
+                    if (((BJSONType) lhsType).getConstrainedType() != null) {
+                        return false;
+                    }
+                    return checkCastByType(((BArrayType) rhsType).getElementType(), lhsType, unresolvedTypes);
+                default:
+                    return false;
+            }
+        }
+
         if (rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG && lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType, unresolvedTypes);
+            return checkObjectEquivalency((BStructureType) rhsType, (BStructureType) lhsType, unresolvedTypes);
         }
 
         if (rhsType.getTag() == TypeTags.RECORD_TYPE_TAG && lhsType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -2954,7 +2955,7 @@ public class CPU {
 
         if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
                 targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            return checkStructEquivalency((BStructureType) sourceMapType.getConstrainedType(),
+            return checkObjectEquivalency((BStructureType) sourceMapType.getConstrainedType(),
                     (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
         }
 
@@ -3011,10 +3012,10 @@ public class CPU {
     }
 
     public static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType) {
-        return checkStructEquivalency(rhsType, lhsType, new ArrayList<>());
+        return checkObjectEquivalency(rhsType, lhsType, new ArrayList<>());
     }
 
-    private static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType,
+    private static boolean checkObjectEquivalency(BStructureType rhsType, BStructureType lhsType,
                                                  List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
@@ -3052,8 +3053,8 @@ public class CPU {
 
         return !Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
                 rhsType.getPackagePath().equals(lhsType.getPackagePath()) ?
-                checkEquivalencyOfTwoPrivateStructs(lhsType, rhsType, unresolvedTypes) :
-                checkEquivalencyOfPublicStructs(lhsType, rhsType, unresolvedTypes);
+                checkPrivateObjectsEquivalency(lhsType, rhsType, unresolvedTypes) :
+                checkPublicObjectsEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType,
@@ -3091,7 +3092,7 @@ public class CPU {
         return checkEquivalencyOfTwoRecords(lhsType, rhsType);
     }
 
-    private static boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType,
+    private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
         for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
             BField lhsField = lhsType.getFields()[fieldCounter];
@@ -3118,7 +3119,7 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkEquivalencyOfPublicStructs(BStructureType lhsType, BStructureType rhsType,
+    private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
         int fieldCounter = 0;
         for (; fieldCounter < lhsType.getFields().length; fieldCounter++) {
@@ -3794,7 +3795,12 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsType(BType sourceType, BType targetType) {
+    private static boolean checkIsType(BValue sourceVal, BType targetType) {
+        if (targetType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(sourceVal, targetType);
+        }
+
+        BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
         return checkIsType(sourceType, targetType, new ArrayList<>());
     }
 
@@ -3834,7 +3840,9 @@ public class CPU {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.OBJECT_TYPE_TAG:
-                // Object type should be identical. This should be captured by isSameType(). Hence fall through.
+                return isAssignable(sourceType, targetType, unresolvedTypes);
+            case TypeTags.FINITE_TYPE_TAG:
+                return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
             default:
                 return false;
         }
@@ -3907,13 +3915,13 @@ public class CPU {
         }
         unresolvedTypes.add(pair);
 
-        // Two records have to be either both sealed or both unsealed
+        // Unsealed records are not equivalent to sealed records. But vice-versa is allowed.
         BRecordType sourceRecordType = (BRecordType) sourceType;
-        if (sourceRecordType.sealed != targetType.sealed) {
+        if (targetType.sealed && !sourceRecordType.sealed) {
             return false;
         }
 
-        if (sourceRecordType.getFields().length != targetType.getFields().length) {
+        if (targetType.getFields().length> sourceRecordType.getFields().length) {
             return false;
         }
 
@@ -3979,6 +3987,19 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    private static boolean checkIsFiniteType(BType sourceType, BFiniteType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.FINITE_TYPE_TAG) {
+            return false;
+        }
+
+        BFiniteType sourceFiniteType = (BFiniteType) sourceType;
+        if (sourceFiniteType.valueSpace.size() != targetType.valueSpace.size()) {
+            return false;
+        }
+
+        return sourceFiniteType.valueSpace.stream().allMatch(value -> targetType.valueSpace.contains(value));
     }
 
     /**

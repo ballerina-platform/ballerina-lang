@@ -77,6 +77,27 @@ function testNilType() returns (string) {
     }
 }
 
+function testTypeChecksWithLogicalAnd() returns string {
+    int|string x = "hello";
+    float|boolean y = true;
+    if (x is int && y is float) {
+        return "int and float";
+    } else if (x is int && y is boolean) {
+        return "int and boolean";
+    } else if (x is string && y is float) {
+        return "string and float";
+    } else if (x is string && y is boolean) {
+        return "string and boolean";
+    } else {
+        return "I don't know";
+    }
+}
+
+function testTypeCheckInTernary() returns string {
+    any a = 6;
+    return a is string ? "A string" : a is int ? "An integer" : "Not an integer nor string";
+}
+
 // ========================== Records ==========================
 
 type A1 record {
@@ -89,7 +110,8 @@ type B1 record {
 };
 
 function testSimpleRecordTypes_1() returns string {
-    A1 a = {};
+    A1 a1 = {};
+    any a = a1;
      if (a is A1) {
         return "a is A1";
     } else if (a is B1) {
@@ -99,17 +121,10 @@ function testSimpleRecordTypes_1() returns string {
     return "n/a";
 }
 
-function testSimpleRecordTypes_2() returns string {
+function testSimpleRecordTypes_2() returns (boolean, boolean) {
     B1 b = {};
-    A1 a = b;
-
-    if (a is A1) {
-        return "a is A1";
-    } else if (a is B1) {
-        return "a is B1";
-    }
-
-    return "n/a";
+    any a = b;
+    return (a is A1, a is B1);
 }
 
 type A2 record {
@@ -120,36 +135,63 @@ type B2 record {
     int x;
 };
 
-function testSimpleRecordTypes_3() returns string {
+function testSimpleRecordTypes_3() returns (boolean, boolean) {
     B2 b = {};
-     if (b is A2) {
-        return "b is A2";
-    } else if (b is B2) {
-        return "b is B2";
-    }
-
-    return "n/a";
+    any a = b;
+    return (a is A2, a is B2);
 }
 
 type Human record {
     string name;
-    function (int, string) returns string | () foo;
+    (function (int, string) returns string) | () foo;
 };
 
 type Man record {
     string name;
-    function (int, string) returns string | () foo;
+    (function (int, string) returns string) | () foo;
     int age;
 };
 
-function testRecordsWithFunctionType() returns string {
+function testRecordsWithFunctionType_1() returns (string, string) {
     Human m = {name:"Piyal"};
-    if (m is Man) {
-        return "Man: " + m.name;
-    } else if (m is Human) {
-        return "Human: " + m.name;
+    any a = m;
+    string s1;
+    string s2;
+    
+    if (a is Man) {
+        s1 = "Man: " + m.name;
+    } else {
+        s1 = "a is not a man";
     }
-    return "n/a";
+
+    if (a is Human) {
+        s2 = "Human: " + m.name;
+    } else {
+        s2 = "a is not a human";
+    }
+
+    return (s1, s2);
+}
+
+function testRecordsWithFunctionType_2() returns (string, string) {
+    Man m = {name:"Piyal"};
+    any a = m;
+    string s1;
+    string s2;
+    
+    if (a is Man) {
+        s1 = "Man: " + m.name;
+    } else {
+        s1 = "a is not a man";
+    }
+
+    if (a is Human) {
+        s2 = "Human: " + m.name;
+    } else {
+        s2 = "a is not a human";
+    }
+
+    return (s1, s2);
 }
 
 type X record {
@@ -164,16 +206,10 @@ type Y record {
     B1 r;   // Assignable to A1. Hence Y is assignable to X.
 };
 
-function testNestedRecordTypes() returns string {
+function testNestedRecordTypes() returns (boolean, boolean) {
     Y y = {};
-    X x = y;
-    if (x is X) {
-        return "x is X";
-    } else if (x is Y) {
-        return "x is Y";
-    }
-
-    return "n/a";
+    any x = y;
+    return (x is X, x is Y);
 }
 
 type A3 record {
@@ -185,15 +221,10 @@ type B3 record {
     !...
 };
 
-function testSealedRecordTypes() returns string {
-    A3 a = {};
-     if (a is B3) {
-        return "a is B3";
-    } else if (a is A3) {
-        return "a is A3";
-    }
-
-    return "n/a";
+function testSealedRecordTypes() returns (boolean, boolean) {
+    A3 a3 = {};
+    any a = a3;
+    return (a is A3, a is B3);
 }
 
 // ========================== Objects ==========================
@@ -238,33 +269,35 @@ public type SameAsPerson object {
     }
 };
 
-function testObjectWithSameMembersButDifferentAlias() returns (string, string) {
+function testObjectWithSameMembersButDifferentAlias() returns (string, string, string, string) {
     Person p1 = new("John", 35);
-    SameAsPerson p2 = p1;
+    any a = p1;
 
-    SameAsPerson p3 = new ("Doe", 45);
-    Person p4 = p3;
+    SameAsPerson p2 = new ("Doe", 45);
+    any b = p2;
 
-    string s1;
-    string s2;
+    string s1 = "I am no one";
+    string s2 = "I am no one";
+    string s3 = "I am no one";
+    string s4 = "I am no one";
 
-    if(p2 is SameAsPerson) {    // this should not be true
-        s1 = "I am same as person";
-    } else if (p2 is Person) {  // this should be true
-        s1 = "I am a person";
-    } else {
-        s1 = "I am no one";
+    if(a is SameAsPerson) {
+        s1 = "I am same as person: " + a.getName();
     }
 
-    if (p4 is Person) {
-        s2 = "I am a person";
-    } else if(p4 is SameAsPerson) {
-        s2 = "I am same as person";
-    } else {
-        s2 = "I am no one";
+    if (a is Person) {
+        s2 = "I am a person: " + a.getName();
     }
 
-    return (s1, s2);
+    if (b is SameAsPerson) {
+        s3 = "I am same as person: " + b.getName();
+    }
+
+    if (b is Person) {
+        s4 = "I am a person: " + b.getName();
+    }
+
+    return (s1, s2, s3, s4);
 }
 
 public type PersonInOrder object {
@@ -310,33 +343,35 @@ public type PersonNotInOrder object {
     public string address;
 };
 
-function testObjectWithUnorderedFields() returns (string, string) {
+function testObjectWithUnorderedFields() returns (string, string, string, string) {
     PersonInOrder p1 = new("John", 35);
-    PersonNotInOrder p2 = p1;
+    any a = p1;
 
     PersonNotInOrder p3 = new ("Doe", 45);
-    PersonInOrder p4 = p3;
+    any b = p3;
 
-    string s1;
-    string s2;
+    string s1 = "I am no one";
+    string s2 = "I am no one";
+    string s3 = "I am no one";
+    string s4 = "I am no one";
 
-    if (p2 is PersonInOrder) {
-        s1 = "I am a person in order";
-    } else if(p2 is PersonNotInOrder) {
-        s1 = "I am a person not in order";
-    } else {
-        s1 = "I am no one";
+    if (a is PersonInOrder) {
+        s1 = "I am a person in order: " + a.getName();
     }
 
-    if (p4 is PersonInOrder) {
-        s2 = "I am a person in order";
-    } else if(p4 is PersonNotInOrder) {
-        s2 = "I am a person not in order";
-    } else {
-        s2 = "I am no one";
+    if (a is PersonNotInOrder) {
+        s2 = "I am a person not in order: " + a.getName();
     }
 
-    return (s1, s2);
+    if (b is PersonInOrder) {
+        s3 = "I am a person in order: " + b.getName();
+    }
+
+    if (b is PersonNotInOrder) {
+        s4 = "I am a person not in order: " + b.getName();
+    }
+
+    return (s1, s2, s3, s4);
 }
 
 // ========================== Arrays ==========================
@@ -349,13 +384,7 @@ function testSimpleArrays() returns (boolean, boolean, boolean, boolean, boolean
     return ((c is int[] && d is int[][]), c is float[], d is json, d is json[], d is json[][]);
 }
 
-function testRecordArrays_1() returns (boolean, boolean) {
-    A2[] a = [{}, {}];
-    A2[][] b = [[{}, {}], [{}, {}]];
-    return (a is B2[], b is B2[][]);
-}
-
-function testRecordArrays_2() returns (boolean, boolean, boolean, boolean) {
+function testRecordArrays() returns (boolean, boolean, boolean, boolean) {
     X[] a = [{}, {}];
     X[][] b = [[{}, {}], [{}, {}]];
     any c = a;
@@ -378,14 +407,7 @@ function testSimpleTuples() returns (boolean, boolean, boolean, boolean, boolean
     return (b0, b1, b2, b3, b4);
 }
 
-function testTupleWithAssignableTypes_1() returns (boolean, boolean) {
-    (X, Y) a = ({}, {});
-    boolean b0 = a is (X, Y);
-    boolean b1 = a is (Y, Y);
-    return (b0, b1);
-}
-
-function testTupleWithAssignableTypes_2() returns (boolean, boolean, boolean, boolean) {
+function testTupleWithAssignableTypes_1() returns (boolean, boolean, boolean, boolean) {
     (X, Y) p = ({}, {});
     any q = p;
     boolean b0 = q is (X, X);
@@ -395,12 +417,11 @@ function testTupleWithAssignableTypes_2() returns (boolean, boolean, boolean, bo
     return (b0, b1, b2, b3);
 }
 
-function testTupleWithAssignableTypes_3() returns (boolean, boolean) {
+function testTupleWithAssignableTypes_2() returns boolean {
     (Y, Y) p = ({}, {});
     (X, Y) q = p;
-    boolean b0 = q is (X, Y);
     boolean b1 = q is (Y, Y);
-    return (b0, b1);
+    return q is (Y, Y);
 }
 
 // ========================== Map ==========================
@@ -459,12 +480,59 @@ function checkJSON(json j) returns string {
         return "json null";
     } else if(j is json[]) {
         return "json array";
-    } else if(j is json) {
-        return "json object";
     } else {
-        return "not a json";
+        return "json object";
     }
 }
 
-// ========================== Function Types ==========================
-// TODO:
+function testJsonArrays() returns (boolean, boolean, boolean) {
+    json[] p = [1, 2, 3];
+    json[][] q = [[1, 2, 3], [4, 5, 6]];
+    int[][] r = [[1, 2, 3], [4, 5, 6]];
+    any x = p;
+    any y = q;
+    json z = r;
+    boolean b0 = x is int[];
+    boolean b1 = y is int[][];
+    boolean b3 = z is int[][];
+
+    return (b0, b1, b3);
+}
+
+// ========================== Finite type ==========================
+
+type State "on"|"off";
+
+function testFiniteType() returns (boolean, boolean, boolean) {
+    State a = "on";
+    any b = a;
+    any c = "off";
+    any d = "hello";
+
+    return (b is State, c is State, d is State);
+}
+
+function testFiniteTypeInTuple() returns (boolean, boolean, boolean, boolean) {
+    (State, string) x = ("on", "off");
+    any y = x;
+    
+    boolean b0 = y is (State, State);
+    boolean b1 = y is (State, string);
+    boolean b2 = y is (string, State);
+    boolean b3 = y is (string, string);
+
+    return (b0, b1, b2, b3);
+}
+
+function testFiniteTypeInTuplePoisoning() returns (State, State) {
+    (State, string) x = ("on", "off");
+    any y = x;
+    (State, State) z = ("on", "on");
+    
+    if (y is (State, State)) {
+        z = y;
+    }
+    
+    x[1] = "surprise!";
+    return (z[0], z[1]);
+}

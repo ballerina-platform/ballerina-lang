@@ -2256,7 +2256,7 @@ public class Desugar extends BLangNodeVisitor {
         return patternClause.body;
     }
 
-    private BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
+    BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
         BType rhsType = expr.type;
         if (types.isSameType(rhsType, lhsType)) {
             return expr;

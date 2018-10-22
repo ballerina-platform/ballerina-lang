@@ -43,7 +43,7 @@ public class TypeCheckExprTest {
     public void testTypeCheckExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-check-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 26);
+        Assert.assertEquals(negativeResult.getErrorCount(), 32);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -59,9 +59,15 @@ public class TypeCheckExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 64, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'int|string' will not be matched to 'boolean|float'", 73, 9);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'A' will not be matched to 'B'", 91, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 91, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 93, 16);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'C'", 98, 14);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'X' will not be matched to 'Y'", 118, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 118, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 120, 16);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 131, 18);
         BAssertUtil.validateError(negativeResult, i++,
@@ -82,8 +88,10 @@ public class TypeCheckExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 143, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 144, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: '(X,Y)' will not be matched to '(Y,Y)'",
-                151, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 150, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 151, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 157, 18);
         BAssertUtil.validateError(negativeResult, i++,
@@ -94,6 +102,12 @@ public class TypeCheckExprTest {
                 "incompatible types: 'map<string>' will not be matched to 'json'", 160, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 161, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 178, 16);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 188, 13);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 188, 23);
     }
 
     @Test
@@ -123,33 +137,41 @@ public class TypeCheckExprTest {
     @Test
     public void testSimpleRecordTypes_2() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleRecordTypes_2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "a is B1");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test
     public void testSimpleRecordTypes_3() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleRecordTypes_3");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "b is A2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test
     public void testNestedRecordTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedRecordTypes");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "x is Y");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test
     public void testSealedRecordTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testSealedRecordTypes");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "a is A3");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test
@@ -181,6 +203,22 @@ public class TypeCheckExprTest {
     }
 
     @Test
+    public void testTypeChecksWithLogicalAnd() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeChecksWithLogicalAnd");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "string and boolean");
+    }
+
+    @Test
+    public void testTypeCheckInTernary() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeCheckInTernary");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "An integer");
+    }
+
+    @Test
     public void testJSONTypeCheck() {
         BValue[] returns = BRunUtil.invoke(result, "testJSONTypeCheck");
         Assert.assertEquals(returns.length, 7);
@@ -201,31 +239,51 @@ public class TypeCheckExprTest {
     }
 
     @Test
-    public void testRecordsWithFunctionType() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordsWithFunctionType");
-        Assert.assertEquals(returns.length, 1);
+    public void testRecordsWithFunctionType_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordsWithFunctionType_1");
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "Human: Piyal");
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "a is not a man");
+        Assert.assertEquals(returns[1].stringValue(), "Human: Piyal");
+    }
+
+    @Test
+    public void testRecordsWithFunctionType_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordsWithFunctionType_2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "Man: Piyal");
+        Assert.assertEquals(returns[1].stringValue(), "Human: Piyal");
     }
 
     @Test
     public void testObjectWithUnorderedFields() {
         BValue[] returns = BRunUtil.invoke(result, "testObjectWithUnorderedFields");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "I am a person in order");
-        Assert.assertEquals(returns[1].stringValue(), "I am a person not in order");
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "I am a person in order: John");
+        Assert.assertEquals(returns[1].stringValue(), "I am a person not in order: John");
+        Assert.assertEquals(returns[2].stringValue(), "I am a person in order: Doe");
+        Assert.assertEquals(returns[3].stringValue(), "I am a person not in order: Doe");
     }
 
     @Test
     public void testObjectWithSameMembersButDifferentAlias() {
         BValue[] returns = BRunUtil.invoke(result, "testObjectWithSameMembersButDifferentAlias");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "I am a person");
-        Assert.assertEquals(returns[1].stringValue(), "I am same as person");
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "I am same as person: John");
+        Assert.assertEquals(returns[1].stringValue(), "I am a person: John");
+        Assert.assertEquals(returns[2].stringValue(), "I am same as person: Doe");
+        Assert.assertEquals(returns[3].stringValue(), "I am a person: Doe");
     }
 
     @Test
@@ -245,18 +303,8 @@ public class TypeCheckExprTest {
     }
 
     @Test
-    public void testRecordArrays_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordArrays_1");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-    }
-
-    @Test
-    public void testRecordArrays_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordArrays_2");
+    public void testRecordArrays() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordArrays");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
@@ -287,35 +335,23 @@ public class TypeCheckExprTest {
     @Test
     public void testTupleWithAssignableTypes_1() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_1");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
-    }
-
-    @Test
-    public void testTupleWithAssignableTypes_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_2");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertSame(returns[3].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
     }
 
     @Test
-    public void testTupleWithAssignableTypes_3() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_3");
-        Assert.assertEquals(returns.length, 2);
+    public void testTupleWithAssignableTypes_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_2");
+        Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -356,5 +392,53 @@ public class TypeCheckExprTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+    }
+
+    @Test
+    public void testJsonArrays() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonArrays");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeInTuple() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeInTuple");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertSame(returns[3].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeInTuplePoisoning() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeInTuplePoisoning");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "on");
+        Assert.assertEquals(returns[1].stringValue(), "on");
     }
 }
