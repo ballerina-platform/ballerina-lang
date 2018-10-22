@@ -2898,14 +2898,21 @@ public class Desugar extends BLangNodeVisitor {
             return getNullLiteral();
         }
         if (value instanceof Long) {
-            return getIntLiteral((Long) value);
+            switch (typeTag) {
+                case TypeTags.FLOAT:
+                    return getFloatLiteral((double) value);
+                case TypeTags.DECIMAL:
+                    return getDecimalLiteral(new Decimal(String.valueOf(value)));
+                default:
+                    return getIntLiteral((Long) value);
+            }
         }
         if (value instanceof String) {
             switch (typeTag) {
                 case TypeTags.FLOAT:
-                    return getFloatLiteral(Double.parseDouble(String.valueOf(value)));
+                    return getFloatLiteral(Double.parseDouble((String) value));
                 case TypeTags.DECIMAL:
-                    return getDecimalLiteral(new Decimal(String.valueOf(value)));
+                    return getDecimalLiteral(new Decimal((String) value));
                 default:
                     return getStringLiteral((String) value);
             }
