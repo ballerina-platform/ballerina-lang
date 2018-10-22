@@ -106,7 +106,7 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(((BInteger) returns[++i]).intValue(), 66);
     }
 
-    @Test(description = "Test tuple var refinition with array 1")
+    @Test(description = "Test tuple var reference with array 1")
     public void testTupleVarRefWithArray1() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray1");
         Assert.assertEquals(returns.length, 4);
@@ -125,7 +125,7 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(floatArray.get(1), 4.5);
     }
 
-    @Test(description = "Test tuple var refinition with array 2")
+    @Test(description = "Test tuple var reference with array 2")
     public void testTupleVarRefWithArray2() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray2");
         Assert.assertEquals(returns.length, 4);
@@ -155,13 +155,13 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(floatArray.get(1), 4.5);
     }
 
-    @Test(description = "Test tuple var refinition with array 3")
+    @Test(description = "Test tuple var reference with array 3")
     public void testTupleVarRefWithArray3() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray3");
         validateVarRefArrayResults(returns);
     }
 
-    @Test(description = "Test tuple var refinition with array 4")
+    @Test(description = "Test tuple var reference with array 4")
     public void testTupleVarRefWithArray4() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray4");
         validateVarRefArrayResults(returns);
@@ -198,19 +198,19 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(floatArray.get(1), 4.5);
     }
 
-    @Test(description = "Test tuple refinition with union type 1")
+    @Test(description = "Test tuple reference with union type 1")
     public void testVarRefWithUnionType1() {
         BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType1");
         validateVarRefWithUnionResults(returns);
     }
 
-    @Test(description = "Test tuple refinition with union type 2")
+    @Test(description = "Test tuple reference with union type 2")
     public void testVarRefWithUnionType2() {
         BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType2");
         validateVarRefWithUnionResults(returns);
     }
 
-    @Test(description = "Test tuple refinition with union type 3")
+    @Test(description = "Test tuple reference with union type 3")
     public void testVarRefWithUnionType3() {
         BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType3");
         validateVarRefWithUnionResults(returns);
@@ -223,13 +223,13 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(returns[2].stringValue(), "Test");
     }
 
-    @Test(description = "Test tuple refinition with union type 4")
+    @Test(description = "Test tuple reference with union type 4")
     public void testVarRefWithUnionType4() {
         BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType4");
         validateTupleVarRefWithUnitionComplexResults(returns);
     }
 
-    @Test(description = "Test tuple refinition with union type 5")
+    @Test(description = "Test tuple reference with union type 5")
     public void testVarRefWithUnionType5() {
         BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType5");
         validateTupleVarRefWithUnitionComplexResults(returns);
