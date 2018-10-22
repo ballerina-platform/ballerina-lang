@@ -30,6 +30,8 @@ import static java.math.MathContext.DECIMAL128;
  */
 public class Decimal extends BigDecimal {
 
+    private static final long serialVersionUID = 3934656785525698602L;
+
     public static final Decimal ZERO = new Decimal("0.0");
     public static final Decimal ONE = new Decimal("1.0");
 

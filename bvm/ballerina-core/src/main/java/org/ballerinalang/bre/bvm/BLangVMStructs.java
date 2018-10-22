@@ -116,6 +116,7 @@ public class BLangVMStructs {
                         return (BFloat) value;
                     }
                 }
+                break;
             case TypeTags.DECIMAL_TAG:
                 if (value != null) {
                     if (value instanceof String) {
