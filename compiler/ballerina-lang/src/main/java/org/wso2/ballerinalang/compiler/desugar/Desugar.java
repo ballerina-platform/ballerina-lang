@@ -2897,20 +2897,23 @@ public class Desugar extends BLangNodeVisitor {
         if (value == null) {
             return getNullLiteral();
         }
-        switch (typeTag) {
-            case TypeTags.INT:
-                return getIntLiteral((Long) value);
-            case TypeTags.FLOAT:
-                return getFloatLiteral(Double.parseDouble(String.valueOf(value)));
-            case TypeTags.DECIMAL:
-                return getDecimalLiteral(new Decimal(String.valueOf(value)));
-            case TypeTags.STRING:
-                return getStringLiteral((String) value);
-            case TypeTags.BOOLEAN:
-                return getBooleanLiteral((Boolean) value);
-            default:
-                throw new IllegalStateException("Unsupported default value type");
+        if (value instanceof Long) {
+            return getIntLiteral((Long) value);
         }
+        if (value instanceof String) {
+            switch (typeTag) {
+                case TypeTags.FLOAT:
+                    return getFloatLiteral(Double.parseDouble(String.valueOf(value)));
+                case TypeTags.DECIMAL:
+                    return getDecimalLiteral(new Decimal(String.valueOf(value)));
+                default:
+                    return getStringLiteral((String) value);
+            }
+        }
+        if (value instanceof Boolean) {
+            return getBooleanLiteral((Boolean) value);
+        }
+        throw new IllegalStateException("Unsupported default value type");
     }
 
     private BLangLiteral getStringLiteral(String value) {
