@@ -41,7 +41,7 @@ public enum Representation {
      */
     VARIABLE(-1, IOConstants.PROTO_BUF_BASE),
     /**
-     * If representation could not be used.
+     * If representation is none.
      */
     NONE(-1, -1);
 

@@ -42,7 +42,6 @@ public class DataChannel implements IOChannel {
      */
     private static final long BIT_64_LONG_MAX = 0xFFFFFFFFFFFFFFFFL;
 
-
     public DataChannel(Channel channel, ByteOrder order) {
         this.channel = channel;
         this.order = order;
@@ -58,7 +57,7 @@ public class DataChannel implements IOChannel {
     }
 
     /**
-     * Reverse the byte array.
+     * Reverse the array of a given bytebuffer.
      *
      * @param buffer the content of the byte in it's native byte order.
      */
@@ -75,8 +74,8 @@ public class DataChannel implements IOChannel {
     /**
      * Recursively read bytes until the buffer is filled.
      *
-     * @param buffer         buffer which holds the byte[]
-     * @param representation specifies the representation
+     * @param buffer         buffer which holds the byte[].
+     * @param representation specifies the representation.
      * @throws IOException during i/o error.
      */
     private void readFull(ByteBuffer buffer, Representation representation) throws IOException {
@@ -207,7 +206,7 @@ public class DataChannel implements IOChannel {
     }
 
     /**
-     * Reverse the buffer content.
+     * Reverse the buffer content based on little-endian byte order.
      *
      * @param content original content which contains the byte[] information.
      * @return content which is reversed.
@@ -266,7 +265,7 @@ public class DataChannel implements IOChannel {
      * Writes the given content to the channel.
      *
      * @param buffer         buffer which holds the content.
-     * @param representation whether this a var/fix int
+     * @param representation whether this a var/fix int.
      * @throws IOException occurs during i/o error.
      */
     private void write(ByteBuffer buffer, Representation representation) throws IOException {
