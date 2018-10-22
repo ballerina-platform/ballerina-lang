@@ -31,6 +31,8 @@ import java.util.Map;
 /**
  * Test cases for service level authentication and authorization when service and resource do not have config
  * annotations attached.
+ *
+ * @since 0.982.1
  */
 @Test(groups = "auth-test")
 public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
