@@ -122,4 +122,49 @@ function testTupleVarRefWithArray4() returns (string[][], int[][], float[]) {
     return (a, b, c);
 }
 
+function testVarRefWithUnionType1() returns (string|int|float, string|float, string) {
+    (string|int|float, (string|float, string)) (a, (b, c)) = (2, (56.7, "Hello"));
+    (a, (b, c)) = (34, (6.7, "Test"));
+    return (a, b, c);
+}
+
+function testVarRefWithUnionType2() returns (string|int|float, string|float, string) {
+    string|int|float v1 = 34;
+    string|float v2 = 6.7;
+    string v3 = "Test";
+
+    (string|int|float, (string|float, string)) (a, (b, c)) = (2, (56.7, "Hello"));
+    (a, (b, c)) = (v1, (v2, v3));
+    return (a, b, c);
+}
+
+function testVarRefWithUnionType3() returns (string|int|float, string|float, string) {
+    (string|int|float, (string|float, string)) (a, (b, c)) = (2, (56.7, "Hello"));
+    (a, (b, c)) = fn2();
+    return (a, b, c);
+}
+
+function fn2() returns (string|int|float, (string|float, string)) {
+    (string|int|float, (string|float, string)) v = (34, (6.7, "Test"));
+    return v;
+}
+
+function testVarRefWithUnionType4() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
+    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = ((12, true), (45, false), ("Hello", "World"));
+    ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
+    return ((a, b), c, (d, e));
+}
+
+//not working case
+function fn3() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
+    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((v1, v2), v3, (v4, v5)) = (("Test", 23), 4.5, (5.7, "Foo"));
+    return ((v1, v2), v3, (v4, v5));
+}
+
+function testVarRefWithUnionType5() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
+    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((v1, v2), v3, (v4, v5)) = (("Test", 23), 4.5, (5.7, "Foo"));
+    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), (45, false), ("Hello", "World"));
+    ((a, b), c, (d, e)) = ((v1, v2), v3, (v4, v5));
+    return ((a, b), c, (d, e));
+}
 
