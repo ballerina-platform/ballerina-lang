@@ -120,21 +120,20 @@ public class BuilderUtils {
             // Only tests in packages are executed so default packages i.e. single bal files which has the package name
             // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
             // in packages.
-            if (bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE)) {
-                return;
+            if (!bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE)) {
+                CompiledBinaryFile.ProgramFile programFile;
+                if (bLangPackage.containsTestablePkg()) {
+                    programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
+                } else {
+                    // In this package there are no tests to be executed. But we need to say to the users that there are
+                    // no tests found in the package to be executed as :
+                    // Running tests
+                    //     <org-name>/<package-name>:<version>
+                    //         No tests found
+                    programFile = compiler.getExecutableProgram(bLangPackage);
+                }
+                programFileMap.put(bLangPackage, programFile);
             }
-            CompiledBinaryFile.ProgramFile programFile;
-            if (bLangPackage.containsTestablePkg()) {
-                programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
-            } else {
-                // In this package there are no tests to be executed. But we need to say to the users that there are
-                // no tests found in the package to be executed as :
-                // Running tests
-                //     <org-name>/<package-name>:<version>
-                //         No tests found
-                programFile = compiler.getExecutableProgram(bLangPackage);
-            }
-            programFileMap.put(bLangPackage, programFile);
         }
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap);
