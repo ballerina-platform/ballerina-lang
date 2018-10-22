@@ -155,3 +155,42 @@ function testRecursiveExpressionWithVar4() returns (string, int, boolean, int, f
     var b = a;
     return fn1(b);
 }
+
+function testVarDefWithUnionType1() returns (string|int|float, string|float, string) {
+    (string|int|float, (string|float, string)) (a, (b, c)) = (34, (6.7, "Test"));
+    return (a, b, c);
+}
+
+function testVarDefWithUnionType2() returns (string|int|float, string|float, string) {
+    string|int|float v1 = 34;
+    string|float v2 = 6.7;
+    string v3 = "Test";
+
+    (string|int|float, (string|float, string)) (a, (b, c)) = (v1, (v2, v3));
+    return (a, b, c);
+}
+
+function testVarDefWithUnionType3() returns (string|int|float, string|float, string) {
+    (string|int|float, (string|float, string)) (a, (b, c)) = fn2();
+    return (a, b, c);
+}
+
+function fn2() returns (string|int|float, (string|float, string)) {
+    (string|int|float, (string|float, string)) v = (34, (6.7, "Test"));
+    return v;
+}
+
+function testVarDefWithUnionType4() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
+    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
+    return ((a, b), c, (d, e));
+}
+
+function fn3() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
+    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
+    return ((a, b), c, (d, e));
+}
+
+function testVarDefWithUnionType5() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
+    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = fn3();
+    return ((a, b), c, (d, e));
+}

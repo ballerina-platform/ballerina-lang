@@ -35,6 +35,7 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 
 /**
  * Test cases for tuple variable definition.
@@ -301,19 +302,72 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[5]).intValue(), 45);
     }
 
+    @Test(description = "Test tuple definition with union type 1")
+    public void testVarDefWithUnionType1() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType1");
+        validateVarDefWithUnionResults(returns);
+    }
+
+    @Test(description = "Test tuple definition with union type 2")
+    public void testVarDefWithUnionType2() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType2");
+        validateVarDefWithUnionResults(returns);
+    }
+
+    @Test(description = "Test tuple definition with union type 3")
+    public void testVarDefWithUnionType3() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType3");
+        validateVarDefWithUnionResults(returns);
+    }
+
+    private void validateVarDefWithUnionResults(BValue[] returns) {
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 34);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.7);
+        Assert.assertEquals(returns[2].stringValue(), "Test");
+    }
+
+    @Test(description = "Test tuple definition with union type 4")
+    public void testVarDefWithUnionType4() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType4");
+        validateTupleVarDefWithUnitionComplexResults(returns);
+    }
+
+    @Test(description = "Test tuple definition with union type 5")
+    public void testVarDefWithUnionType5() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarDefWithUnionType5");
+        validateTupleVarDefWithUnitionComplexResults(returns);
+    }
+
+    private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {
+        Assert.assertEquals(returns.length, 3);
+
+        BValue val1 = returns[0];
+        BRefValueArray refValueArray1 = (BRefValueArray) val1;
+        Assert.assertEquals(refValueArray1.get(0).stringValue(), "Test");
+        Assert.assertEquals(((BInteger) refValueArray1.get(1)).intValue(), 23);
+
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.5);
+
+        BValue val2 = returns[2];
+        BRefValueArray refValueArray2 = (BRefValueArray) val2;
+        Assert.assertEquals(((BFloat) refValueArray2.get(0)).floatValue(), 5.7);
+        Assert.assertEquals(refValueArray2.get(1).stringValue(), "Foo");
+    }
+
     @Test
     public void testNegativeTupleVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 23);
         int i = -1;
         String errorMsg1 = "invalid tuple binding pattern; member variable count mismatch with member type count";
-        String errorMsg2 = "invalid tuple variable; incompatible type ";
+        String errorMsg2 = "invalid tuple variable; expecting a tuple type but found ";
         String errorMsg3 = "tuple and expression size does not match";
         String errorMsg4 = "incompatible types: expected ";
 
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 26);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 26);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int' found in expression", 25, 34);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int' in expression", 25, 34);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 41);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'string', found 'int'", 31, 42);
@@ -331,7 +385,7 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'BarObj', found 'FooObj'", 55, 97);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'FooObj', found 'BarObj'", 55, 111);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 55, 120);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'any' found in expression", 84, 40);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'any' in type definition", 84, 40);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected '((string,(int,(boolean,int))),(float,int))', found 'any'", 94, 84);
     }

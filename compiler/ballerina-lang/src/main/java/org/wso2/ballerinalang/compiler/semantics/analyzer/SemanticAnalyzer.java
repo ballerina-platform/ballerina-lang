@@ -505,12 +505,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
-        if (varNode.type.tag != TypeTags.TUPLE) {
+        if (isNotTupleType(varNode.type)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION, varNode.type);
             return;
         }
 
-        if (!(checkTypeAndVarCountConsistency(varNode, (BTupleType) varNode.type))) {
+        // union type is a special case as per the following example
+        //      (string, int)|(float, boolean) (a, b) = ("S", 34);
+        // in the above example, both types in the union is tuple and we can potentially destructure them to a tuple var
+        if (varNode.type.tag == TypeTags.UNION) {
+            BUnionType unionTypeNode = ((BUnionType) varNode.type);
+            for (BType member : unionTypeNode.memberTypes) {
+                if (!(checkTypeAndVarCountConsistency(varNode, (BTupleType) member))) {
+                    return;
+                }
+            }
+
+        } else if (!(checkTypeAndVarCountConsistency(varNode, (BTupleType) varNode.type))) { // else this should be a tuple type node
             return;
         }
 
@@ -524,6 +535,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeChecker.checkExpr(varNode.expr, env, varNode.type);
+    }
+
+    private boolean isNotTupleType(BType type) {
+        return (TypeTags.TUPLE != type.tag) && (TypeTags.UNION != type.tag ||
+                !((BUnionType) type).memberTypes.stream().allMatch(bType -> bType.tag == TypeTags.TUPLE));
     }
 
     private void handleDeclaredWithVar(BLangVariable variable) {
@@ -555,8 +571,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
         } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
-            if (rhsType.tag != TypeTags.TUPLE) {
-                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION, rhsType);
+            if (isNotTupleType(rhsType)) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
                 return;
             }
 
