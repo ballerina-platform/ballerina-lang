@@ -259,25 +259,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
-        // Initialize annotation map
+        // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
         return rewrite(pkgNode, env);
-    }
-
-    private void addConstructsToPackageLevel(BLangPackage pkgNode, SymbolEnv env) {
-        //Sort type definitions with precedence
-        pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
-
-        pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
-        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
-        pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
-        endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
-        pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
-        pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
-        endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
-        endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
-        pkgNode.services = rewrite(pkgNode.services, env);
-        pkgNode.functions = rewrite(pkgNode.functions, env);
     }
 
     private void addAttachedFunctionsToPackageLevel(BLangPackage pkgNode, SymbolEnv env) {
@@ -394,17 +378,29 @@ public class Desugar extends BLangNodeVisitor {
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
 
-        pkgNode.globalVars.forEach(v -> {
-            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
+        pkgNode.globalVars.forEach(globalVar -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(globalVar);
             if (assignment.expr == null) {
-                assignment.expr = getInitExpr(v);
+                assignment.expr = getInitExpr(globalVar);
             }
             if (assignment.expr != null) {
                 pkgNode.initFunction.body.stmts.add(assignment);
             }
         });
         annotationDesugar.rewritePackageAnnotations(pkgNode);
-        addConstructsToPackageLevel(pkgNode, env);
+        //Sort type definitions with precedence
+        pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
+
+        pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
+        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
+        pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
+        pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
+        pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
+        endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
+        endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
+        pkgNode.services = rewrite(pkgNode.services, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
 
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);

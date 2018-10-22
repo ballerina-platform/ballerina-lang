@@ -85,23 +85,25 @@ public class AnnotationDesugar {
         BLangFunction initFunction = pkgNode.initFunction;
 
         // Handle service annotations
-        handleServiceAnnotations(pkgNode, initFunction, annotationMap);
+        // handle Service Annotations.
+        for (BLangService service : pkgNode.services) {
+            generateAnnotations(service, service.name.value, initFunction, annotationMap);
+            for (BLangResource resource : service.resources) {
+                String key = service.name.value + DOT + resource.name.value;
+                generateAnnotations(resource, key, initFunction, annotationMap);
+            }
+        }
 
         // Handle Function Annotations.
         handleFunctionAnnotations(pkgNode, initFunction, annotationMap);
 
         // Handle Global Endpoint Annotations.
-        handleGlobalEndpointAnnotations(pkgNode, initFunction, annotationMap);
-
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
-    }
-
-    private void handleGlobalEndpointAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
-                                                 BLangVariable annotationMap) {
         for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
             generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
         }
+
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
+        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     private void handleFunctionAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
@@ -127,18 +129,6 @@ public class AnnotationDesugar {
                     String key = typeDef.name.value + DOT + field.name.value;
                     generateAnnotations(field, key, initFunction, annotationMap);
                 }
-            }
-        }
-    }
-
-    private void handleServiceAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
-                                          BLangVariable annotationMap) {
-        // handle Service Annotations.
-        for (BLangService service : pkgNode.services) {
-            generateAnnotations(service, service.name.value, initFunction, annotationMap);
-            for (BLangResource resource : service.resources) {
-                String key = service.name.value + DOT + resource.name.value;
-                generateAnnotations(resource, key, initFunction, annotationMap);
             }
         }
     }

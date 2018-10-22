@@ -116,7 +116,7 @@ public class BuilderUtils {
      */
     private static void runTests(Compiler compiler, Path sourceRootPath, List<BLangPackage> packageList) {
         Map<BLangPackage, CompiledBinaryFile.ProgramFile> programFileMap = new HashMap<>();
-        packageList.forEach(bLangPackage -> {
+        for (BLangPackage bLangPackage :packageList) {
             // Only tests in packages are executed so default packages i.e. single bal files which has the package name
             // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
             // in packages.
@@ -135,8 +135,7 @@ public class BuilderUtils {
                 programFile = compiler.getExecutableProgram(bLangPackage);
             }
             programFileMap.put(bLangPackage, programFile);
-
-        });
+        }
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap);
         }

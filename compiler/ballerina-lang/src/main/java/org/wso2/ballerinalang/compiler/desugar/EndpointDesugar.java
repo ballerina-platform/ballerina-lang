@@ -191,13 +191,6 @@ public class EndpointDesugar {
         genStartCall = generateEndpointStartOrStop(endpoint, endpoint.symbol.startFunction, env, encSymbol);
         genStopCall = generateEndpointStartOrStop(endpoint, endpoint.symbol.stopFunction, env, encSymbol);
 
-        prependEndpointStatements(env, initBlock, startBlock, stopBlock, genInit, genInitCall, genStartCall,
-                                  genStopCall);
-    }
-
-    private void prependEndpointStatements(SymbolEnv env, BLangBlockStmt initBlock, BLangBlockStmt startBlock,
-                                           BLangBlockStmt stopBlock, BLangBlockStmt genInit, BLangBlockStmt genInitCall,
-                                           BLangBlockStmt genStartCall, BLangBlockStmt genStopCall) {
         if (env.enclInvokable != null) {
             ASTBuilderUtil.prependStatements(genStartCall, startBlock);
             ASTBuilderUtil.prependStatements(genInitCall, initBlock);

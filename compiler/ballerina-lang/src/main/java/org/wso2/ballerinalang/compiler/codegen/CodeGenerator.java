@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -347,38 +346,30 @@ public class CodeGenerator extends BLangNodeVisitor {
     public BLangPackage generateBALO(BLangPackage pkgNode) {
         // Reset package level variable indexes.
         this.pvIndexes = new VariableIndex(VariableIndex.Kind.PACKAGE);
-
         // Generate code for the given package.
         this.currentPkgInfo = new PackageInfo();
         // Add current package info to currentPackageInfo object
-        addCurrentPkgInfo(pkgNode);
-        genNode(pkgNode);
+        addPkgDetailsToPkgInfoObj(pkgNode);
+        generatePkgNode(pkgNode);
 
         // Generate program file for the Testable package
-        pkgNode.getTestablePkgs().forEach(this::generateBALO);
+        pkgNode.getTestablePkgs().forEach(testablePkgNode -> {
+            // Generate code for the given package.
+            generatePkgNode(testablePkgNode);
+            this.currentPkgInfo = null;
+        });
         this.currentPkgInfo = null;
         return pkgNode;
     }
 
-    private void generateBALO(BLangTestablePackage pkgNode) {
-        // Generate code for the given package.
-        genNode(pkgNode);
-        this.currentPkgInfo = null;
-    }
-
-    private void genNode(BLangPackage pkgNode) {
+    private void generatePkgNode(BLangPackage pkgNode) {
         genNode(pkgNode, this.symTable.pkgEnvMap.get(pkgNode.symbol));
-        addGlobalVarIndex();
-
-        pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
-        setEntryPoints(pkgNode.symbol.packageFile, pkgNode);
-    }
-
-    private void addGlobalVarIndex() {
         // Add global variable indexes to the ProgramFile
         prepareIndexes(this.pvIndexes);
         // Create Global variable attribute info
         addVarCountAttrInfo(this.currentPkgInfo, this.currentPkgInfo, pvIndexes);
+        pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
+        setEntryPoints(pkgNode.symbol.packageFile, pkgNode);
     }
 
     private void setEntryPoints(CompiledBinaryFile compiledBinaryFile, BLangPackage pkgNode) {
@@ -416,10 +407,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
-        // Gen for top level nodes
-        genTopLevelNodes(pkgNode);
+        pkgNode.topLevelNodes.stream()
+                             .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
+                                     pkgLevelNode.getKind() != NodeKind.XMLNS)
+                             .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
         // Add function symbol for all functions
-        addFunctionSymbol(pkgNode);
+        pkgNode.functions.forEach(funcNode -> {
+            funcNode.symbol = funcNode.originalFuncSymbol;
+        });
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
         currentPkgID = null;
@@ -431,7 +426,7 @@ public class CodeGenerator extends BLangNodeVisitor {
      *
      * @param pkgNode package node
      */
-    private void addCurrentPkgInfo(BLangPackage pkgNode) {
+    private void addPkgDetailsToPkgInfoObj(BLangPackage pkgNode) {
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
@@ -468,29 +463,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     new ImportPackageInfo(impPkgOrgNameCPIndex, impPkgNameCPIndex, impPkgVersionCPIndex);
             this.currentPkgInfo.importPkgInfoSet.add(importPkgInfo);
         });
-    }
-
-    /**
-     * Add function symbol.
-     *
-     * @param pkgNode package node
-     */
-    private void addFunctionSymbol(BLangPackage pkgNode) {
-        pkgNode.functions.forEach(funcNode -> {
-            funcNode.symbol = funcNode.originalFuncSymbol;
-        });
-    }
-
-    /**
-     * Generate code for top level nodes.
-     *
-     * @param pkgNode package node
-     */
-    private void genTopLevelNodes(BLangPackage pkgNode) {
-        pkgNode.topLevelNodes.stream()
-                             .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
-                                     pkgLevelNode.getKind() != NodeKind.XMLNS)
-                             .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
     }
 
     /**
