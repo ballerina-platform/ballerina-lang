@@ -150,7 +150,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 }
             });
         } catch (IOException e) {
-            throw new RuntimeException("Error in listing packages: " + e.getMessage(), e);
+            throw new RuntimeException("Error in listing modules: " + e.getMessage(), e);
         }
         return result;
     }
@@ -239,7 +239,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
                     this.cachedEntryNames = new ArrayList<>(files.size());
                     files.stream().forEach(e -> this.cachedEntryNames.add(e.getFileName().toString()));
                 } catch (IOException e) {
-                    throw new RuntimeException("Error in listing packages at '" + this.pkgID +
+                    throw new RuntimeException("Error in listing modules at '" + this.pkgID +
                             "': " + e.getMessage(), e);
                 }
             }
@@ -278,7 +278,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 try {
                     this.code = Files.readAllBytes(basePath.resolve(pkgPath).resolve(name));
                 } catch (IOException e) {
-                    throw new RuntimeException("Error in loading package source entry '" + filePath +
+                    throw new RuntimeException("Error in loading module source entry '" + filePath +
                             "': " + e.getMessage(), e);
                 }
             }

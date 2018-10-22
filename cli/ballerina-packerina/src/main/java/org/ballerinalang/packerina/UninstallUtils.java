@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * This class provides util methods for uninstalling Ballerina packages.
+ * This class provides util methods for uninstalling Ballerina modules.
  *
  * @since 0.982.0
  */
@@ -38,9 +38,9 @@ public class UninstallUtils {
     private static PrintStream outStream = System.out;
 
     /**
-     * Uninstalls the package from the home repository.
+     * Uninstalls the module from the home repository.
      *
-     * @param fullPkgPath package provided
+     * @param fullPkgPath module provided
      */
     public static void uninstallPackage(String fullPkgPath) {
         String orgName;
@@ -56,7 +56,7 @@ public class UninstallUtils {
         // Get package name
         int packageNameIndex = fullPkgPath.indexOf(":");
         if (packageNameIndex == -1) { // version is not provided
-            throw LauncherUtils.createLauncherException("no package version is provided");
+            throw LauncherUtils.createLauncherException("no module version is provided");
         }
         packageName = fullPkgPath.substring(orgNameIndex + 1, packageNameIndex);
         version = fullPkgPath.substring(packageNameIndex + 1, fullPkgPath.length());
@@ -66,21 +66,21 @@ public class UninstallUtils {
                                                 .resolve(ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Path pkgDirPath = Paths.get(orgName, packageName, version);
 
-        // Check if package is installed locally
+        // Check if module is installed locally
         if (Files.exists(homeRepoPath.resolve(pkgDirPath), LinkOption.NOFOLLOW_LINKS)) {
             deletePackage(homeRepoPath, pkgDirPath, fullPkgPath, packageName);
         } else if (Files.exists(cacheRepoPath.resolve(pkgDirPath), LinkOption.NOFOLLOW_LINKS)) {
             deletePackage(cacheRepoPath, pkgDirPath, fullPkgPath, packageName);
         } else {
-            // package to be uninstalled doesn't exists
-            throw LauncherUtils.createLauncherException("incorrect package signature provided " + fullPkgPath);
+            // module to be uninstalled doesn't exists
+            throw LauncherUtils.createLauncherException("incorrect module signature provided " + fullPkgPath);
         }
     }
 
     /**
-     * Remove package from home repository.
+     * Remove module from home repository.
      *
-     * @param repoPath    path to the repository which contains the installed and pulled packages
+     * @param repoPath    path to the repository which contains the installed and pulled modules
      * @param pkgDirPath  package directory path
      * @param fullPkgPath full package path as given by user which is used for logging purposes
      * @param pkgName     package name
@@ -97,7 +97,7 @@ public class UninstallUtils {
             // Print that the package was successfully uninstalled
             outStream.println(fullPkgPath + " successfully uninstalled");
         } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("uninstalling package " + fullPkgPath + " was unsuccessful");
+            throw LauncherUtils.createLauncherException("uninstalling module " + fullPkgPath + " was unsuccessful");
         }
     }
 

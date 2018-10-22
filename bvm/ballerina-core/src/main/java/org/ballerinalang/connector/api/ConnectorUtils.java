@@ -48,7 +48,7 @@ public class ConnectorUtils extends ConnectorSPIModelHelper {
         PackageInfo packageInfo = context.getProgramFile()
                 .getPackageInfo(packagePath);
         if (packageInfo == null) {
-            throw new BallerinaConnectorException("package - " + packagePath + " does not exist");
+            throw new BallerinaConnectorException("module - " + packagePath + " does not exist");
         }
         StructureTypeInfo structureInfo = packageInfo.getStructInfo(structName);
         BStructureType structType = structureInfo.getType();

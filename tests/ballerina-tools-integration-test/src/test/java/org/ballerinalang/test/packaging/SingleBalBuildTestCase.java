@@ -45,11 +45,11 @@ public class SingleBalBuildTestCase extends BaseTest {
     public void setUp() throws BallerinaTestException, IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-single-bal-");
         envVariables = PackagingTestUtils.getEnvVariables();
-        Path tempPackage = tempProjectDirectory.resolve("sourcePkg");
-        Files.createDirectories(tempPackage);
+        Path tempModule = tempProjectDirectory.resolve("sourcePkg");
+        Files.createDirectories(tempModule);
 
         // Write bal file
-        balFilePath = tempPackage.resolve("main.bal");
+        balFilePath = tempModule.resolve("main.bal");
         Files.createFile(balFilePath);
         String mainFuncContent = "import ballerina/io;\n" +
                 "\n" +

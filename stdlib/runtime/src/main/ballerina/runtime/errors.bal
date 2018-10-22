@@ -37,12 +37,12 @@ public type IllegalStateException record {
 # Representation of `CallStackElement`
 #
 # + callableName - Callable name
-# + packageName - Package name
+# + moduleName - Module name
 # + fileName - File name
 # + lineNumber - Line number
 public type CallStackElement record {
     string callableName;
-    string packageName;
+    string moduleName;
     string fileName;
     int lineNumber;
     !...
