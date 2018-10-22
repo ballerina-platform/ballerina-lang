@@ -921,7 +921,7 @@ public class CompiledPackageSymbolEnter {
 
     private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
         if (orgName == null || orgName.isEmpty()) {
-            throw new BLangCompilerException("invalid package name '" + pkgName + "' in compiled package file");
+            throw new BLangCompilerException("invalid module name '" + pkgName + "' in compiled package file");
         }
 
         return new PackageID(names.fromString(orgName),
@@ -947,7 +947,7 @@ public class CompiledPackageSymbolEnter {
         if (symbol == this.symTable.notFoundSymbol && pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, this.env.repoHierarchy);
             if (symbol == null) {
-                throw new BLangCompilerException("unknown imported package: " + pkgID.name);
+                throw new BLangCompilerException("unknown imported module: " + pkgID.name);
             }
         }
 

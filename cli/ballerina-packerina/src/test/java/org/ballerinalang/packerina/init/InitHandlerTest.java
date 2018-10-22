@@ -21,7 +21,7 @@ package org.ballerinalang.packerina.init;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.packerina.init.models.FileType;
-import org.ballerinalang.packerina.init.models.PackageMdFile;
+import org.ballerinalang.packerina.init.models.ModuleMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
 import org.testng.Assert;
@@ -62,14 +62,14 @@ public class InitHandlerTest {
         srcFiles.add(packageFile);
         srcFiles.add(mainFile);
 
-        List<PackageMdFile> packageMdFiles = new ArrayList<>();
-        PackageMdFile packageMdFileForService = new PackageMdFile("wso2_abc", FileType.SERVICE);
-        PackageMdFile packageMdFileForMain = new PackageMdFile("main_runner", FileType.MAIN);
+        List<ModuleMdFile> moduleMdFiles = new ArrayList<>();
+        ModuleMdFile moduleMdFileForService = new ModuleMdFile("wso2_abc", FileType.SERVICE);
+        ModuleMdFile moduleMdFileForMain = new ModuleMdFile("main_runner", FileType.MAIN);
 
-        packageMdFiles.add(packageMdFileForService);
-        packageMdFiles.add(packageMdFileForMain);
+        moduleMdFiles.add(moduleMdFileForService);
+        moduleMdFiles.add(moduleMdFileForMain);
 
-        InitHandler.initialize(tmpDir, manifest, srcFiles, packageMdFiles);
+        InitHandler.initialize(tmpDir, manifest, srcFiles, moduleMdFiles);
     
         Path tomlFile = tmpDir.resolve("Ballerina.toml");
         byte[] tomlFileBytes = Files.readAllBytes(tomlFile);
@@ -84,7 +84,7 @@ public class InitHandlerTest {
         Path servicesBalFile = tmpDir.resolve(packageFile.getName()).resolve("services.bal");
         Path mainBalFile = tmpDir.resolve(mainFile.getName());
     
-        Assert.assertTrue(Files.exists(servicesBalFile), "Package not generated.");
+        Assert.assertTrue(Files.exists(servicesBalFile), "Module not generated.");
         Assert.assertTrue(Files.exists(mainBalFile), "Main file not generated.");
         
         CompileResult serviceFileCompileResult = BCompileUtil.compile(servicesBalFile.getParent().toString());
