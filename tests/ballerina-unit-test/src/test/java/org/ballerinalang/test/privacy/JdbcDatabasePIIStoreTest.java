@@ -38,6 +38,8 @@ import java.util.stream.Stream;
 
 /**
  * Test class for Privacy API.
+ *
+ * @since 0.982.1
  */
 public class JdbcDatabasePIIStoreTest {
 

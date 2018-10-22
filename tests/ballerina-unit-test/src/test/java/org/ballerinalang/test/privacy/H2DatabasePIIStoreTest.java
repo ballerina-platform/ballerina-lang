@@ -34,6 +34,8 @@ import java.io.File;
 
 /**
  * Test class for Privacy API.
+ *
+ * @since 0.982.1
  */
 public class H2DatabasePIIStoreTest {
 
