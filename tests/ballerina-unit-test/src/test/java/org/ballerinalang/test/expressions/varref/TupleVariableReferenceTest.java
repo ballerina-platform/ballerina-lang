@@ -106,7 +106,7 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(((BInteger) returns[++i]).intValue(), 66);
     }
 
-    @Test(description = "Test tuple var definition with array 1")
+    @Test(description = "Test tuple var reference with array 1")
     public void testTupleVarRefWithArray1() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray1");
         Assert.assertEquals(returns.length, 4);
@@ -125,7 +125,7 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(floatArray.get(1), 4.5);
     }
 
-    @Test(description = "Test tuple var definition with array 2")
+    @Test(description = "Test tuple var reference with array 2")
     public void testTupleVarRefWithArray2() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray2");
         Assert.assertEquals(returns.length, 4);
@@ -155,13 +155,13 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(floatArray.get(1), 4.5);
     }
 
-    @Test(description = "Test tuple var definition with array 3")
+    @Test(description = "Test tuple var reference with array 3")
     public void testTupleVarRefWithArray3() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray3");
         validateVarRefArrayResults(returns);
     }
 
-    @Test(description = "Test tuple var definition with array 4")
+    @Test(description = "Test tuple var reference with array 4")
     public void testTupleVarRefWithArray4() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray4");
         validateVarRefArrayResults(returns);
@@ -198,4 +198,56 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(floatArray.get(1), 4.5);
     }
 
+    @Test(description = "Test tuple reference with union type 1")
+    public void testVarRefWithUnionType1() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType1");
+        validateVarRefWithUnionResults(returns);
+    }
+
+    @Test(description = "Test tuple reference with union type 2")
+    public void testVarRefWithUnionType2() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType2");
+        validateVarRefWithUnionResults(returns);
+    }
+
+    @Test(description = "Test tuple reference with union type 3")
+    public void testVarRefWithUnionType3() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType3");
+        validateVarRefWithUnionResults(returns);
+    }
+
+    private void validateVarRefWithUnionResults(BValue[] returns) {
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 34);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.7);
+        Assert.assertEquals(returns[2].stringValue(), "Test");
+    }
+
+    @Test(description = "Test tuple reference with union type 4")
+    public void testVarRefWithUnionType4() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType4");
+        validateTupleVarRefWithUnitionComplexResults(returns);
+    }
+
+    @Test(description = "Test tuple reference with union type 5")
+    public void testVarRefWithUnionType5() {
+        BValue[] returns = BRunUtil.invoke(result, "testVarRefWithUnionType5");
+        validateTupleVarRefWithUnitionComplexResults(returns);
+    }
+
+    private void validateTupleVarRefWithUnitionComplexResults(BValue[] returns) {
+        Assert.assertEquals(returns.length, 3);
+
+        BValue val1 = returns[0];
+        BRefValueArray refValueArray1 = (BRefValueArray) val1;
+        Assert.assertEquals(refValueArray1.get(0).stringValue(), "Test");
+        Assert.assertEquals(((BInteger) refValueArray1.get(1)).intValue(), 23);
+
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.5);
+
+        BValue val2 = returns[2];
+        BRefValueArray refValueArray2 = (BRefValueArray) val2;
+        Assert.assertEquals(((BFloat) refValueArray2.get(0)).floatValue(), 5.7);
+        Assert.assertEquals(refValueArray2.get(1).stringValue(), "Foo");
+    }
 }
