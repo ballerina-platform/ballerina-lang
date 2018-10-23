@@ -2,8 +2,9 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/jdbc;
 
-endpoint jdbc:Client testDB {
-    url: "jdbc:h2:file:./local-transactions/Testdb",
+endpoint h2:Client testDB {
+    path: "./local-transactions",
+    name: "Testdb",
     username: "root",
     password: "root",
     poolOptions: { maximumPoolSize: 5 }
