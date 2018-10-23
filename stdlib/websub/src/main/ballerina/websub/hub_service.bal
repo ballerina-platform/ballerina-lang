@@ -87,7 +87,7 @@ service<http:Service> hubService {
                 error e => log:printError("Error responding to subscription change request", err = e);
                 () => {
                     if (validSubscriptionChangeRequest) {
-                        verifyIntent(callback, topic, params);
+                        verifyIntentAndAddSubscription(callback, topic, params);
                     }
                 }
             }
@@ -288,7 +288,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + callback - The callback URL of the new subscription/unsubscription request
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
-function verifyIntent(string callback, string topic, map<string> params) {
+function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
     endpoint http:Client callbackEp {
         url:callback,
         secureSocket: hubClientSecureSocket
@@ -332,6 +332,12 @@ function verifyIntent(string callback, string topic, map<string> params) {
                             subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
                             subscriptionDetails.createdAt = createdAt;
                             subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
+                            if (!isTopicRegistered(topic)) {
+                                match(registerTopicAtHub(topic)) {
+                                    error e => log:printError("Error registering topic for subscription: " + e.reason());
+                                    () => {}
+                                }
+                            }
                             addSubscription(subscriptionDetails);
                         } else {
                             removeSubscription(topic, callback);
@@ -437,9 +443,7 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        if (hubTopicRegistrationRequired) {
-            addTopicRegistrationsOnStartup();
-        }
+        addTopicRegistrationsOnStartup();
         addSubscriptionsOnStartup(); //TODO:verify against topics
     }
     return;

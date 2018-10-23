@@ -261,51 +261,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
+        // Initialize the annotation map
+        annotationDesugar.initializeAnnotationMap(pkgNode);
         return rewrite(pkgNode, env);
-    }
-
-    // visitors
-
-    @Override
-    public void visit(BLangPackage pkgNode) {
-        if (pkgNode.completedPhases.contains(CompilerPhase.DESUGAR)) {
-            result = pkgNode;
-            return;
-        }
-        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-
-        // Adding object functions to package level.
-        addAttachedFunctionsToPackageLevel(pkgNode, env);
-
-        pkgNode.globalVars.forEach(v -> {
-            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
-            if (assignment.expr == null) {
-                assignment.expr = getInitExpr(v);
-            }
-            if (assignment.expr != null) {
-                pkgNode.initFunction.body.stmts.add(assignment);
-            }
-        });
-        annotationDesugar.rewritePackageAnnotations(pkgNode);
-
-        //Sort type definitions with precedence
-        pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
-
-        pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
-        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
-        pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
-        endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
-        pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
-        pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
-        endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
-        endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
-        pkgNode.services = rewrite(pkgNode.services, env);
-        pkgNode.functions = rewrite(pkgNode.functions, env);
-        pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
-        pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
-        pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
-        pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
-        result = pkgNode;
     }
 
     private void addAttachedFunctionsToPackageLevel(BLangPackage pkgNode, SymbolEnv env) {
@@ -315,7 +273,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             if (typeDef.symbol.tag == SymTag.OBJECT) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                
+
                 objectTypeNode.functions.forEach(f -> {
                     if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
                         pkgNode.functions.add(f);
@@ -338,6 +296,120 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.topLevelNodes.add(recordTypeNod.initFunction);
             }
         }
+    }
+
+    /**
+     * Create package init functions.
+     *
+     * @param pkgNode package node
+     * @param env     symbol environment of package
+     */
+    private void createPackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
+        String alias = pkgNode.symbol.pkgID.toString();
+        pkgNode.initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.INIT_FUNCTION_SUFFIX);
+        // Add package level namespace declarations to the init function
+        pkgNode.xmlnsList.forEach(xmlns -> {
+            pkgNode.initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
+        });
+        pkgNode.startFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.START_FUNCTION_SUFFIX);
+        pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.STOP_FUNCTION_SUFFIX);
+        // Create invokable symbol for init function
+        createInvokableSymbol(pkgNode.initFunction, env);
+        // Create invokable symbol for start function
+        createInvokableSymbol(pkgNode.startFunction, env);
+        addInitReturnStatement(pkgNode.startFunction.body);
+        // Create invokable symbol for stop function
+        createInvokableSymbol(pkgNode.stopFunction, env);
+        addInitReturnStatement(pkgNode.stopFunction.body);
+    }
+
+    /**
+     * Create invokable symbol for function.
+     *
+     * @param bLangFunction function node
+     * @param env           Symbol environment
+     */
+    private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
+        BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
+                                                                       new Name(bLangFunction.name.value),
+                                                                       env.enclPkg.packageID, bLangFunction.type,
+                                                                       env.enclPkg.symbol, true);
+        functionSymbol.retType = bLangFunction.returnTypeNode.type;
+        // Add parameters
+        for (BLangVariable param: bLangFunction.requiredParams) {
+            functionSymbol.params.add(param.symbol);
+        }
+
+        functionSymbol.scope = new Scope(functionSymbol);
+        functionSymbol.type = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        bLangFunction.symbol = functionSymbol;
+    }
+
+    /**
+     * Add init return statments.
+     *
+     * @param bLangBlockStmt block statement node
+     */
+    private void addInitReturnStatement(BLangBlockStmt bLangBlockStmt) {
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(bLangBlockStmt.pos, symTable.nilType);
+        bLangBlockStmt.addStatement(returnStmt);
+    }
+
+    /**
+     * Create namespace declaration statement for XMNLNS.
+     *
+     * @param xmlns XMLNS node
+     * @return XMLNS statement
+     */
+    private BLangXMLNSStatement createNamespaceDeclrStatement(BLangXMLNS xmlns) {
+        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
+        xmlnsStmt.xmlnsDecl = xmlns;
+        xmlnsStmt.pos = xmlns.pos;
+        return xmlnsStmt;
+    }
+    // visitors
+
+    @Override
+    public void visit(BLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.DESUGAR)) {
+            result = pkgNode;
+            return;
+        }
+        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        createPackageInitFunctions(pkgNode, env);
+        // Adding object functions to package level.
+        addAttachedFunctionsToPackageLevel(pkgNode, env);
+
+        pkgNode.globalVars.forEach(globalVar -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(globalVar);
+            if (assignment.expr == null) {
+                assignment.expr = getInitExpr(globalVar);
+            }
+            if (assignment.expr != null) {
+                pkgNode.initFunction.body.stmts.add(assignment);
+            }
+        });
+        annotationDesugar.rewritePackageAnnotations(pkgNode);
+        //Sort type definitions with precedence
+        pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
+
+        pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
+        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
+        pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
+        pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
+        pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
+        endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
+        endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
+        pkgNode.services = rewrite(pkgNode.services, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
+
+        pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
+        pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
+        pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+        pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
+        result = pkgNode;
     }
 
     @Override

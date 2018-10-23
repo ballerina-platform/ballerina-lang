@@ -20,16 +20,8 @@
 ///////////////////////////////////
 # Represents directory listener endpoint where used to listen to a directory in the local file system.
 #
-# + config - Represents necessary configurations that need to configure
 public type Listener object {
-    private ListenerEndpointConfiguration config;
-
-    public function init(ListenerEndpointConfiguration listenerConfig) {
-        self.config = listenerConfig;
-        check self.initEndpoint();
-    }
-
-    extern function initEndpoint() returns error?;
+    public extern function init(ListenerEndpointConfiguration listenerConfig);
 
     public extern function register(typedesc serviceType);
 

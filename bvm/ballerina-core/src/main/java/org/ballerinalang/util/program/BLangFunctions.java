@@ -61,6 +61,7 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -128,6 +129,39 @@ public class BLangFunctions {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             invokePackageInitFunction(info.getInitFunctionInfo());
         }
+    }
+
+    /**
+     * This will order the package imports and invoke each package test init function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestInitFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestInitFunctionInfo() != null)
+              .forEach(packageInfo -> invokePackageInitFunction(packageInfo.getTestInitFunctionInfo()));
+    }
+
+    /**
+     * This will order the package imports and invoke each package start function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestStartFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStartFunctionInfo() != null)
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStartFunctionInfo()));
+    }
+
+    /**
+     * This will order the package imports and invoke each package stop function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestStopFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStopFunctionInfo() != null)
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStopFunctionInfo()));
     }
 
     /**
