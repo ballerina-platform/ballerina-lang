@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
@@ -102,6 +103,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
 /**
@@ -138,6 +140,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String STREAM_EVENT_OBJECT_NAME = "StreamEvent";
     private static final String FILTER_OBJECT_NAME = "Filter";
     private static final String WINDOW_OBJECT_NAME = "Window";
+    private static final String AGGREGATOR_OBJECT_NAME = "Aggregator";
     private static final String OUTPUT_PROCESS_OBJECT_NAME = "OutputProcess";
     private static final String ORDER_BY_PROCESS_OBJECT_NAME = "OrderBy";
     private static final String CREATE_OUTPUT_PROCESS_METHOD_NAME = "createOutputProcess";
@@ -644,16 +647,29 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             ExpressionNode selectExpr = select.getExpression();
             if (selectExpr.getKind() == NodeKind.INVOCATION) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
-                BInvokableSymbol aggregatorInvokableSymbol = (BInvokableSymbol) symResolver.
-                        resolvePkgSymbol(selectClause.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                        scope.lookup(new Name(invocation.name.value)).symbol;
-                BLangInvocation aggregatorInvocation = ASTBuilderUtil.
-                        createInvocationExprForMethod(selectClause.pos, aggregatorInvokableSymbol,
+                BInvokableSymbol aggregatorInvokableSymbol =
+                        getInvokableSymbol(invocation, STREAMS_STDLIB_PACKAGE_NAME);
+                if (aggregatorInvokableSymbol != null) {
+                    if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, aggregatorInvokableSymbol)) {
+                        BLangInvocation aggregatorInvocation = ASTBuilderUtil.
+                                createInvocationExprForMethod(invocation.pos, aggregatorInvokableSymbol,
                                 Collections.emptyList(), symResolver);
-                expr.exprs.add(aggregatorInvocation);
+                        expr.exprs.add(aggregatorInvocation);
+                    }
+                } else {
+                    dlog.error(invocation.pos, DiagnosticCode.UNDEFINED_FUNCTION, invocation.name);
+                }
             }
         }
         return expr;
+    }
+
+    private boolean isReturnTypeMatching(DiagnosticPos pos, String objectName, BInvokableSymbol invokableSymbol) {
+        BSymbol expectedRetType = symResolver.
+                resolvePkgSymbol(pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                scope.lookup(new Name(objectName)).symbol;
+        BSymbol actualRetType = invokableSymbol.getType().retType.tsymbol;
+        return expectedRetType == actualRetType;
     }
 
     // Object.process
@@ -741,8 +757,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     ...
            }
         */
-        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = getFieldListInSelectClause(selectClause.pos,
-                selectClause.getSelectExpressions(), varStreamEvent.symbol, varAggregatorArray.symbol, true);
+        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList =
+                getFieldListInSelectClause(selectClause.pos, selectClause.getSelectExpressions(), varStreamEvent.symbol,
+                varAggregatorArray.symbol, (BLangGroupBy) selectClause.getGroupBy());
 
         BVarSymbol outputEventVarSymbol =
                 new BVarSymbol(0, new Name(getVariableName(OUTPUT_EVENT_SELECTOR_PARAM_REFERENCE)),
@@ -845,7 +862,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangRecordLiteral outputEventRecordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(selectClause.pos,
                 symTable.mapType);
         List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = getFieldListInSelectClause(selectClause.pos,
-                selectClause.getSelectExpressions(), streamEventVarArg.symbol, null, false);
+                selectClause.getSelectExpressions(), streamEventVarArg.symbol, null, null);
 
         BVarSymbol outputEventVarSymbol = new BVarSymbol(0,
                 new Name(getVariableName(OUTPUT_EVENT_SELECTOR_PARAM_REFERENCE)), streamEventVarArg.symbol.pkgID,
@@ -1130,17 +1147,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         convertFieldAccessArgsToStringLiteral(invocation);
 
         //checks for the symbol, if not exists, then set the pkgAlias to STREAMS_STDLIB_PACKAGE_NAME
-        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(window, invocation, STREAMS_STDLIB_PACKAGE_NAME);
+        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation, STREAMS_STDLIB_PACKAGE_NAME);
 
         if (windowInvokableSymbol != null) {
-            BSymbol windowTypeSymbol = symResolver.
-                    resolvePkgSymbol(invocation.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                    scope.lookup(new Name(WINDOW_OBJECT_NAME)).symbol;
-            BSymbol retTypeSymbol = windowInvokableSymbol.getType().retType.tsymbol;
-            if (windowTypeSymbol != retTypeSymbol) {
-                dlog.error(invocation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, windowTypeSymbol.toString(),
-                        retTypeSymbol.toString());
-            } else {
+            if (isReturnTypeMatching(invocation.pos, WINDOW_OBJECT_NAME, windowInvokableSymbol)) {
                 //Create event filter definition
                 BVarSymbol nextProcessInvokableTypeVarSymbol;
                 if (rhsStream != null) {
@@ -1184,19 +1194,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         attachWindowToJoinProcessor(window, windowInvokableTypeVarSymbol, "setLHS", lhsStream);
                     }
                 }
+            } else {
+                dlog.error(invocation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, STREAMS_STDLIB_PACKAGE_NAME + ":" +
+                        WINDOW_OBJECT_NAME, windowInvokableSymbol.getType().retType.tsymbol);
             }
         } else {
             dlog.error(invocation.pos, DiagnosticCode.UNDEFINED_FUNCTION, invocation.name);
         }
     }
 
-    private BInvokableSymbol getInvokableSymbol(BLangWindow window, BLangInvocation invocation, String pkgAlias) {
+    private BInvokableSymbol getInvokableSymbol(BLangInvocation invocation, String pkgAlias) {
         BInvokableSymbol windowInvokableSymbol = (BInvokableSymbol) symResolver.
-                resolvePkgSymbol(window.pos, env, names.fromString(invocation.pkgAlias.value)).
+                resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
                 scope.lookup(new Name(invocation.name.value)).symbol;
         if (windowInvokableSymbol == null && invocation.pkgAlias.value.isEmpty()) {
             windowInvokableSymbol = (BInvokableSymbol) symResolver.
-                    resolvePkgSymbol(window.pos, env, names.fromString(pkgAlias)).
+                    resolvePkgSymbol(invocation.pos, env, names.fromString(pkgAlias)).
                     scope.lookup(new Name(invocation.name.value)).symbol;
             invocation.pkgAlias.value = STREAMS_STDLIB_PACKAGE_NAME;
         }
@@ -1381,8 +1394,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         args.add(havingLambdaFunction);
 
         BLangInvocation havingMethodInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(pos, havingInvokableSymbol, args,
-                        symResolver);
+                createInvocationExprForMethod(pos, havingInvokableSymbol, args, symResolver);
         havingMethodInvocation.argExprs = args;
 
         BLangVariableDef filterDef = createVariableDef(havingMethodInvocation, havingInvokableType,
@@ -1573,8 +1585,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private List<BLangRecordLiteral.BLangRecordKeyValue> getFieldListInSelectClause
             (DiagnosticPos pos, List<? extends SelectExpressionNode> selectExprList,
-             BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol, boolean isGroupBy) {
-        long aggregatorIndex = 0;
+             BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol, BLangGroupBy groupBy) {
+        LongAdder aggregatorIndex = new LongAdder();
         List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = new ArrayList<>();
 
         for (SelectExpressionNode expressionNode : selectExprList) {
@@ -1601,32 +1613,41 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) selectExpression.getExpression();
                 recordKeyValue.valueExpr =
                         createMapVariableIndexAccessExpr((BVarSymbol) createEventDataFieldAccessExpr(fieldBasedAccess
-                                .pos, streamEventSymbol).symbol, fieldBasedAccess);
-            } else if (isGroupBy && selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
-                // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
-                BLangInvocation selectFuncInvocation = (BLangInvocation) selectExpression.getExpression();
-
-                // aggregatorArr[0].process(e.data["inputStream.age"], e.eventType)
-                recordKeyValue.valueExpr = generateAggregatorInvocation(streamEventSymbol, aggregatorArraySymbol,
-                        aggregatorIndex, selectFuncInvocation);
-
-                //increment the index in aggregatorArr
-                aggregatorIndex++;
+                        .pos, streamEventSymbol).symbol, fieldBasedAccess);
             } else if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
-                BLangInvocation selectFuncInvocation = (BLangInvocation) selectExpression.getExpression();
-                selectFuncInvocation = refactorInvocationWithIndexBasedArgs((BVarSymbol)
-                                createEventDataFieldAccessExpr(selectFuncInvocation.pos, streamEventSymbol).symbol,
-                        selectFuncInvocation);
-                recordKeyValue.valueExpr = generateConversionExpr(selectFuncInvocation, symTable.anyType, symResolver);
+                setInvocationToRecordKeyValue(recordKeyValue, streamEventSymbol, aggregatorArraySymbol,
+                        aggregatorIndex, selectExpression, groupBy);
             } else {
                 recordKeyValue.valueExpr = generateConversionExpr((BLangExpression) selectExpression.getExpression(),
                         symTable.anyType, symResolver);
             }
-
             recordKeyValueList.add(recordKeyValue);
         }
-
         return recordKeyValueList;
+    }
+
+    //this function will refactor the selector invocations appropriately by checking whether it is an aggregate or not
+    private void setInvocationToRecordKeyValue(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue,
+                                               BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,
+                                               LongAdder aggregatorIndex, BLangSelectExpression selectExpression,
+                                               BLangGroupBy groupBy) {
+        // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
+        BLangInvocation invocation = (BLangInvocation) selectExpression.getExpression();
+
+        BInvokableSymbol symbol = getInvokableSymbol(invocation, STREAMS_STDLIB_PACKAGE_NAME);
+        if (symbol != null) {
+            if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, symbol)) {
+
+                // aggregatorArr[0].process(e.data["inputStream.age"], e.eventType)
+                recordKeyValue.valueExpr = generateAggregatorInvocation(streamEventSymbol, aggregatorArraySymbol,
+                        aggregatorIndex.longValue(), invocation);
+                aggregatorIndex.increment();
+            } else {
+                invocation = refactorInvocationWithIndexBasedArgs((BVarSymbol)
+                        createEventDataFieldAccessExpr(invocation.pos, streamEventSymbol).symbol, invocation);
+                recordKeyValue.valueExpr = generateConversionExpr(invocation, symTable.anyType, symResolver);
+            }
+        }
     }
 
     // func(inputStream.name) into func(check <string> e.data["inputStream.name"])
@@ -1637,10 +1658,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             for (BLangExpression expression : functionArgsList) {
                 if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
                         (((BLangFieldBasedAccess) expression).expr.type.tag == TypeTags.STREAM)) {
-                    BLangExpression fieldAccessExpr =
-                            createMapVariableIndexAccessExpr(mapVarSymbol, expression);
+                    BLangFieldBasedAccess expr = (BLangFieldBasedAccess) expression;
+                    BLangExpression fieldAccessExpr = createMapVariableIndexAccessExpr(mapVarSymbol, expr);
                     expressionList.add(createCheckedExpr(generateConversionExpr(fieldAccessExpr,
-                            expression.type, symResolver)));
+                            expr.type, symResolver)));
                 } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isInHaving) {
                     BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
                     expressionList.add(refactorVarRefAfterSelect(varRef, varRef.symbol.type));
@@ -1658,19 +1679,19 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangInvocation generateAggregatorInvocation(BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,
-                                                         long aggregatorIndex, BLangInvocation selectFuncInvocation) {
+                                                         long aggregatorIndex, BLangInvocation invocation) {
         // aggregatorArr[0]
         BLangIndexBasedAccess indexBasedAccess = createIndexBasedAggregatorExpr(aggregatorArraySymbol,
-                aggregatorIndex, selectFuncInvocation.pos);
+                aggregatorIndex, invocation.pos);
 
         // aggregatorArr[0].process(..)
-        BLangInvocation aggregatorInvocation = ASTBuilderUtil.createInvocationExpr(selectFuncInvocation.pos,
+        BLangInvocation aggregatorInvocation = ASTBuilderUtil.createInvocationExpr(invocation.pos,
                 getNextProcessFunctionSymbol(indexBasedAccess.type.tsymbol), Collections.emptyList(), symResolver);
         aggregatorInvocation.expr = indexBasedAccess;
 
         // arguments of aggregatorArr[0].process(..). e.g. (t.age, e.eventType)
         List<BVarSymbol> params = ((BInvokableSymbol) aggregatorInvocation.symbol).params;
-        aggregatorInvocation.requiredArgs = generateAggregatorInvocationArgs(streamEventSymbol, selectFuncInvocation,
+        aggregatorInvocation.requiredArgs = generateAggregatorInvocationArgs(streamEventSymbol, invocation,
                 params);
 
         return aggregatorInvocation;
