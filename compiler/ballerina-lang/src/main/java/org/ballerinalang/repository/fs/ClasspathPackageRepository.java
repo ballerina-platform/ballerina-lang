@@ -83,7 +83,7 @@ public class ClasspathPackageRepository extends GeneralFSPackageRepository {
     
     @Override
     public String toString() {
-        return "ClasspathPackageRepository: " + this.basePath.toUri();
+        return "ClasspathModuleRepository: " + this.basePath.toUri();
     }
 
 }

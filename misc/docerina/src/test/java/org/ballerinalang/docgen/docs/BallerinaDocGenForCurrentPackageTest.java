@@ -43,7 +43,7 @@ public class BallerinaDocGenForCurrentPackageTest {
                 "balFiles";
     }
 
-    @Test(description = "Test a bal file with a function in the current package")
+    @Test(description = "Test a bal file with a function in the current module")
     public void testStruct() {
         try {
             Map<String, PackageDoc> docsMap =

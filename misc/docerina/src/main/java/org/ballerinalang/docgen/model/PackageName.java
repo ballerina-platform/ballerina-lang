@@ -55,6 +55,6 @@ public class PackageName extends Caption {
      */
     @Override
     public String toString() {
-        return "PackageName{" + "prefix='" + prefix + '\'' + ", suffix='" + suffix + '\'' + '}';
+        return "ModuleName{" + "prefix='" + prefix + '\'' + ", suffix='" + suffix + '\'' + '}';
     }
 }

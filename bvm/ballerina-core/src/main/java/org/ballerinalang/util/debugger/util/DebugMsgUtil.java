@@ -51,6 +51,7 @@ public class DebugMsgUtil {
     private static final String THREAD_ID = "threadId";
     private static final String FRAMES = "frames";
     private static final String LOCATION = "location";
+    // TODO packagePath has to be changed to modulePath. This has to be handled by the server and client.
     private static final String PACKAGE_PATH = "packagePath";
     private static final String FILE_NAME = "fileName";
     private static final String LINE_NUMBER = "lineNumber";

@@ -21,6 +21,7 @@ package org.ballerinalang.testerina.core;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIterator;
@@ -30,12 +31,15 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -59,6 +63,7 @@ public class BTestRunner {
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
+    private List<String> sourcePackages = new ArrayList<>();
 
     /**
      * Executes a given set of ballerina program files.
@@ -72,44 +77,59 @@ public class BTestRunner {
     }
 
     /**
-     * Executes a given set of ballerina program files.
-     *
-     * @param sourceRoot      source root
-     * @param sourceFilePaths List of @{@link Path} of ballerina files
-     * @param groups          List of groups to be included
-     * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
-     */
-    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
-        runTest(sourceRoot, sourceFilePaths, groups, shouldIncludeGroups, false);
-    }
-
-    /**
-     * Executes a given set of ballerina program files.
+     * Executes a given set of ballerina program files when running tests using the test command.
      *
      * @param sourceRoot      source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included/excluded
      * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
-     * @param buildWithTests flag to specify whether to build with tests or not
      */
-    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups,
-                        boolean buildWithTests) {
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
         registry.setGroups(groups);
         registry.setShouldIncludeGroups(shouldIncludeGroups);
-        compileAndBuildSuites(sourceRoot, sourceFilePaths, buildWithTests);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        // Filter the test suites
+        filterTestSuites();
         // execute the test programs
-        execute(buildWithTests);
+        execute(false);
     }
 
+    /**
+     * Executes a given set of ballerina program files when running tests using the build command.
+     *
+     * @param packageList map containing bLangPackage nodes along with their compiled program files
+     */
+    public void runTest(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
+        registry.setGroups(Collections.emptyList());
+        registry.setShouldIncludeGroups(true);
+        buildSuites(packageList);
+        // Filter the test suites
+        filterTestSuites();
+        // execute the test programs
+        execute(true);
+    }
+
+    /**
+     * Filter the test suites for only the modules given. Since when compiling modules in the test annotation
+     * processor we create test suites for the import modules as well. To avoid them from running we have to filter
+     * the only the modules provided from the test suite
+     */
+    private void filterTestSuites() {
+        registry.setTestSuites(registry.getTestSuites().entrySet()
+                                       .stream()
+                                       .filter(map -> sourcePackages.contains(map.getKey()))
+                                       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+
+    }
     /**
      * lists the groups available in tests.
      *
      * @param sourceRoot      source root of the project
-     * @param sourceFilePaths package or program file paths
+     * @param sourceFilePaths module or program file paths
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
         //Build the test suites
-        compileAndBuildSuites(sourceRoot, sourceFilePaths, false);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths);
         List<String> groupList = getGroupList();
         if (groupList.size() == 0) {
             outStream.println("There are no groups available!");
@@ -142,34 +162,22 @@ public class BTestRunner {
     }
 
     /**
-     * Compiles the source and populate the registry with suites.
+     * Compiles the source and populate the registry with suites when executing tests using the test command.
      * @param sourceRoot source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
-    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
-        // We need a new line to show a clear separation between the outputs of 'Compiling Sources' and
-        // 'Compiling tests'
-        if (buildWithTests) {
-            outStream.println();
-        }
+    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths) {
         outStream.println("Compiling tests");
         if (sourceFilePaths.length == 0) {
             outStream.println("    No tests found");
             return;
         }
+        // Reuse the same compiler context so that modules already compiled and persisted in the module cache are not
+        // compiled again.
+        CompilerContext compilerContext = BCompileUtil.createCompilerContext(sourceRoot, CompilerPhase.CODE_GEN);
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
-
-            String packageName = Utils.getFullPackageName(sourcePackage.toString());
-
-            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
-                (packageName));
-
-            if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
-                registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage.toString());
-            }
-
             // compile
-            CompileResult compileResult = BCompileUtil.compileWithTests(sourceRoot, sourcePackage.toString(),
+            CompileResult compileResult = BCompileUtil.compileWithTests(compilerContext, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
@@ -179,26 +187,76 @@ public class BTestRunner {
             if (compileResult.getErrorCount() > 0) {
                 throw new BLangCompilerException("compilation contains errors");
             }
+
+            String packageName = TesterinaUtils.getFullModuleName(sourcePackage.toString());
+            // Add test suite to registry if not added.
+            addTestSuite(packageName);
+            // Keeps a track of the sources that are being tested
+            sourcePackages.add(packageName);
+
+            // Set the source file name if the module is the default package
+            if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
+                registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage.toString());
+            }
+
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
-            Debugger debugger = new Debugger(programFile);
-            Utils.initDebugger(programFile, debugger);
-            registry.addProgramFile(programFile);
-
-            // process the compiled files
-            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-            processorServiceLoader.forEach(plugin -> {
-                if (plugin instanceof TestAnnotationProcessor) {
-                    try {
-                        ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
-                    } catch (Exception e) {
-                        errStream.println("error: validation failed. Cause: " + e.getMessage());
-                        throw new BallerinaException(e);
-                    }
-                }
-            });
+            processProgramFile(programFile);
         });
         registry.setTestSuitesCompiled(true);
+    }
+
+    /**
+     * Populate the registry with suites using the compiled program file when executing tests with the build command.
+     *
+     * @param packageList map containing bLangPackage nodes along with their compiled program files
+     */
+    private void buildSuites(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
+        packageList.forEach((sourcePackage, compiledBinaryFile) -> {
+            String packageName = TesterinaUtils.getFullModuleName(sourcePackage.packageID.getName().getValue());
+            // Add a test suite to registry if not added. In this module there are no tests to be executed. But we need
+            // to say that there are no tests found in the module to be executed
+            addTestSuite(packageName);
+            // Keeps a track of the sources that are being built
+            sourcePackages.add(packageName);
+            ProgramFile pFile = LauncherUtils.getExecutableProgram(compiledBinaryFile);
+            processProgramFile(pFile);
+        });
+
+        registry.setTestSuitesCompiled(true);
+    }
+
+    /**
+     * Add test suite to registry if not added.
+     * @param packageName module name
+     */
+    private void addTestSuite(String packageName) {
+        registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
+    }
+
+    /**
+     * Process the program file i.e. the executable program generated.
+     *
+     * @param programFile program file generated
+     */
+    private void processProgramFile(ProgramFile programFile) {
+        // set the debugger
+        Debugger debugger = new Debugger(programFile);
+        TesterinaUtils.initDebugger(programFile, debugger);
+        registry.addProgramFile(programFile);
+
+        // process the compiled files
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+        processorServiceLoader.forEach(plugin -> {
+            if (plugin instanceof TestAnnotationProcessor) {
+                try {
+                    ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
+                } catch (Exception e) {
+                    errStream.println("error: validation failed. Cause: " + e.getMessage());
+                    throw new BallerinaException(e);
+                }
+            }
+        });
     }
 
     /**
@@ -209,6 +267,7 @@ public class BTestRunner {
         Map<String, TestSuite> testSuites = registry.getTestSuites();
         outStream.println();
         outStream.println("Running tests");
+        // Check if the test suite is empty
         if (testSuites.isEmpty()) {
             outStream.println("    No tests found");
             // We need a new line to show a clear separation between the outputs of 'Running Tests' and
@@ -225,11 +284,14 @@ public class BTestRunner {
 
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
+            // For single bal files
             if (packageName.equals(Names.DOT.value)) {
+                // If there is a source file name print it and then execute the tests
                 outStream.println("    " + suite.getSourceFileName());
             } else {
                 outStream.println("    " + packageName);
             }
+            // Check if there are tests in the test suite
             if (suite.getTests().size() == 0) {
                 outStream.println("\tNo tests found\n");
                 return;
@@ -237,7 +299,7 @@ public class BTestRunner {
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
-            if (suite.getInitFunction() != null && Utils.isPackageInitialized(packageName)) {
+            if (suite.getInitFunction() != null && TesterinaUtils.isPackageInitialized(packageName)) {
                 suite.getInitFunction().invoke();
             }
 
@@ -248,7 +310,7 @@ public class BTestRunner {
                 } catch (Throwable e) {
                     shouldSkip.set(true);
                     errorMsg = "\t[fail] " + test.getName() + " [before test suite function]" + ":\n\t    "
-                            + Utils.formatError(e.getMessage());
+                            + TesterinaUtils.formatError(e.getMessage());
                     errStream.println(errorMsg);
                 }
             });
@@ -266,7 +328,7 @@ public class BTestRunner {
                             errorMsg = String.format("\t[fail] " + beforeEachTest.getName() +
                                                      " [before each test function for the test %s] :\n\t    %s",
                                                      test.getTestFunction().getName(),
-                                                     Utils.formatError(e.getMessage()));
+                                                     TesterinaUtils.formatError(e.getMessage()));
                             errStream.println(errorMsg);
                         }
                     });
@@ -283,7 +345,7 @@ public class BTestRunner {
                         errorMsg = String.format("\t[fail] " + test.getBeforeTestFunctionObj().getName() +
                                                  " [before test function for the test %s] :\n\t    %s",
                                                  test.getTestFunction().getName(),
-                                                 Utils.formatError(e.getMessage()));
+                                                 TesterinaUtils.formatError(e.getMessage()));
                         errStream.println(errorMsg);
                     }
                 }
@@ -341,7 +403,7 @@ public class BTestRunner {
                     error = String.format("\t[fail] " + test.getAfterTestFunctionObj().getName() +
                                           " [after test function for the test %s] :\n\t    %s",
                                           test.getTestFunction().getName(),
-                                          Utils.formatError(e.getMessage()));
+                                          TesterinaUtils.formatError(e.getMessage()));
                     errStream.println(error);
                 }
 
@@ -354,7 +416,7 @@ public class BTestRunner {
                         errorMsg2 = String.format("\t[fail] " + afterEachTest.getName() +
                                                   " [after each test function for the test %s] :\n\t    %s",
                                                   test.getTestFunction().getName(),
-                                                  Utils.formatError(e.getMessage()));
+                                                  TesterinaUtils.formatError(e.getMessage()));
                         errStream.println(errorMsg2);
                     }
                 });
@@ -368,12 +430,15 @@ public class BTestRunner {
                     func.invoke();
                 } catch (Throwable e) {
                     errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
-                                                     "%s", Utils.formatError(e.getMessage()));
+                                                     "%s", TesterinaUtils.formatError(e.getMessage()));
                     errStream.println(errorMsg);
                 }
             });
-            // print package test results
+            // print module test results
             tReport.printTestSuiteSummary(packageName);
+
+            // Call module stop and test stop function
+            suite.getInitFunction().invokeStopFunctions();
         });
     }
 
