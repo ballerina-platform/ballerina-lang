@@ -42,7 +42,7 @@ import javax.naming.directory.SearchResult;
 public class LdapUtils {
 
     private static final Log LOG = LogFactory.getLog(LdapUtils.class);
-    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+    private static final Pattern systemVariableIdentifierPattern = Pattern.compile("\\$\\{([^}]*)}");
     private static final ThreadLocal<String> socketFactoryName = new ThreadLocal<>();
 
     /**
@@ -200,13 +200,13 @@ public class LdapUtils {
 
     /**
      * Replace system property holders in the property values.
-     * e.g. Replace ${carbon.home} with value of the carbon.home system property.
+     * e.g. Replace ${ballerina.home} with value of the ballerina.home system property.
      *
      * @param value string value to substitute
      * @return String substituted string
      */
     public static String substituteVariables(String value) {
-        Matcher matcher = varPattern.matcher(value);
+        Matcher matcher = systemVariableIdentifierPattern.matcher(value);
         boolean found = matcher.find();
         if (!found) {
             return value;

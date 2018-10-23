@@ -240,13 +240,12 @@ public class XMLUtils {
      * Converts a {@link BTable} to {@link BXML}.
      *
      * @param table {@link BTable} to convert
-     * @param isInTransaction   Within a transaction or not
      * @return converted {@link BXML}
      */
     @SuppressWarnings("rawtypes")
-    public static BXML tableToXML(BTable table, boolean isInTransaction) {
+    public static BXML tableToXML(BTable table) {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new TableOMDataSource(table, null, null, isInTransaction));
+        omSourcedElement.init(new TableOMDataSource(table, null, null));
         return new BXMLItem(omSourcedElement);
     }
 

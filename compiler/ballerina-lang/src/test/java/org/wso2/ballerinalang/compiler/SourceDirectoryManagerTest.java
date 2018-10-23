@@ -46,7 +46,7 @@ public class SourceDirectoryManagerTest {
         directoryManager = SourceDirectoryManager.getInstance(context);
     }
 
-    @Test(description = "Return packages list should be equivalence to the expected package list")
+    @Test(description = "Return modules list should be equivalence to the expected module list")
     public void testListSourceFilesAndPackages() {
         Names names = Names.getInstance(context);
         List<PackageID> expectedPackageIds = new ArrayList<>();
@@ -60,7 +60,7 @@ public class SourceDirectoryManagerTest {
         Assert.assertTrue(packageIDStream.allMatch(expectedPackageIds::remove) && expectedPackageIds.isEmpty());
     }
 
-    @Test(description = "Return package should be equivalence to the expected package")
+    @Test(description = "Return module should be equivalence to the expected module")
     public void testGetPackageID() {
         PackageID fruits = directoryManager.getPackageID("fruits");
         Names names = Names.getInstance(context);

@@ -104,7 +104,7 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
         String nameInSpace = this.getNameInSpaceForUserName(userName, ldapConfiguration);
 
         if (membershipProperty == null || membershipProperty.length() < 1) {
-            throw new BallerinaException("Please set membershipAttribute in configuration");
+            throw new BallerinaException("membershipAttribute not set in configuration");
         }
 
         String membershipValue;

@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -35,29 +35,29 @@ import java.util.ServiceLoader;
 
 /**
  * Native function ballerina.test:stopServices.
- * Stops all the services in a ballerina package.
+ * Stops all the services in a ballerina module.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "stopServices", args = {@Argument(name
-        = "packageName", type = TypeKind.STRING)}, isPublic = true)
+        = "moduleName", type = TypeKind.STRING)}, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Stops all the " +
-        "" + "services defined in the package specified in the 'packageName' argument")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of the "
-        + "package")})
+        "" + "services defined in the module specified in the 'moduleName' argument")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "moduleName", value = "Name of the "
+        + "module")})
 public class StopServices extends BlockingNativeCallableUnit {
 
     /**
-     * Stops all the services defined in the package specified in the 'packageName' argument.
+     * Stops all the services defined in the module specified in the 'moduleName' argument.
      */
     @Override
     public void execute(Context ctx) {
-        String packageName = ctx.getStringArgument(0);
+        String moduleName = ctx.getStringArgument(0);
 
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
             PackageInfo servicesPackage = programFile.getEntryPackage();
             if (servicesPackage == null ||
-                !servicesPackage.getPkgPath().equals(Utils.getFullPackageName(packageName))) {
+                !servicesPackage.getPkgPath().equals(TesterinaUtils.getFullModuleName(moduleName))) {
                 continue;
             }
             BLangFunctions.invokeVMUtilFunction(servicesPackage.getStopFunctionInfo());

@@ -14,9 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-# Auth annotation package.
-@final string ANN_PACKAGE = "ballerina/http";
+# Auth annotation module.
+@final string ANN_MODULE = "ballerina/http";
 # Resource level annotation name.
 @final string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
@@ -31,10 +30,6 @@
 @final public string AUTH_PROVIDER_CONFIG = "config";
 # LDAP auth provider config name.
 @final public string AUTH_PROVIDER_LDAP = "ldap";
-# JDBC auth provider config name.
-@final public string AUTH_PROVIDER_JDBC = "jdbc";
-# AD auth provider config name.
-@final public string AUTH_PROVIDER_AD = "activeDirectory";
 
 # Authn scheme basic.
 @final public string AUTHN_SCHEME_BASIC = "basic";

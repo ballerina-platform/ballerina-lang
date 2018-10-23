@@ -9,7 +9,7 @@ string printWarn;
 
 // This is the mock function which will replace the real function
 @test:Mock {
-    packageName: "ballerina/log",
+    moduleName: "ballerina/log",
     functionName: "printDebug"
 }
 public function mockPrintDebug(string s) {
@@ -17,7 +17,7 @@ public function mockPrintDebug(string s) {
 }
 
 @test:Mock {
-    packageName: "ballerina/log",
+    moduleName: "ballerina/log",
     functionName: "printError"
 }
 public function mockPrintError(string s, error? err = ()) {
@@ -25,7 +25,7 @@ public function mockPrintError(string s, error? err = ()) {
 }
 
 @test:Mock {
-    packageName: "ballerina/log",
+    moduleName: "ballerina/log",
     functionName: "printInfo"
 }
 public function mockPrintInfo(string s) {
@@ -33,7 +33,7 @@ public function mockPrintInfo(string s) {
 }
 
 @test:Mock {
-    packageName: "ballerina/log",
+    moduleName: "ballerina/log",
     functionName: "printTrace"
 }
 public function mockPrintTrace(string s) {
@@ -41,7 +41,7 @@ public function mockPrintTrace(string s) {
 }
 
 @test:Mock {
-    packageName: "ballerina/log",
+    moduleName: "ballerina/log",
     functionName: "printWarn"
 }
 public function mockPrintWarn(string s) {

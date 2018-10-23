@@ -28,6 +28,8 @@ import java.util.Map;
 
 /**
  * Test cases for ldap user store based authentication/authorization scenarios.
+ *
+ * @since 0.983.0
  */
 @Test(groups = "auth-test")
 public class LdapAuthStoreTest extends AuthBaseTest {

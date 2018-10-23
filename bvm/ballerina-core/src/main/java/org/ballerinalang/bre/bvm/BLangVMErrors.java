@@ -55,7 +55,7 @@ public class BLangVMErrors {
     public static final String ERROR_CAUSE_FIELD = "cause";
     public static final String ERROR_CAUSE_ARRAY_FIELD = "causes";
     public static final String STACK_FRAME_CALLABLE_NAME = "callableName";
-    public static final String STACK_FRAME_PACKAGE_NAME = "packageName";
+    public static final String STACK_FRAME_PACKAGE_NAME = "moduleName";
     public static final String STACK_FRAME_FILE_NAME = "fileName";
     public static final String STACK_FRAME_LINE_NUMBER = "lineNumber";
     
