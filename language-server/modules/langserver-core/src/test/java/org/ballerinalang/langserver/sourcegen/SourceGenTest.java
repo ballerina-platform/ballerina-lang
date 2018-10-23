@@ -156,7 +156,7 @@ public class SourceGenTest {
                 "channels_correlation.bal", "channels_workers.bal", "grpc_bidirectional_streaming_client.bal",
                 "symbolic_string_literal.bal", "table_literal_syntax.bal", "compensate-stmt.bal",
                 "function-with-two-rest-params.bal", "redundant-compression-config.bal",
-                "taintchecking/annotations/lambda.bal", "high_loc.bal",
+                "taintchecking/annotations/lambda.bal", "high_loc.bal", "test_objects.bal",
                 "lang/annotations/variable-as-attribute-value.bal", "lang/annotations/constant-as-attribute-value.bal",
                 "lang/annotations/multityped-attribute-array.bal", "lang/annotations/default-values.bal",
                 "lang/annotations/lang.annotations.pkg.first/annotation.bal", "structs/struct-equivalency.bal",
