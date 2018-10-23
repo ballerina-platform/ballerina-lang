@@ -50,8 +50,8 @@ public class TestHttp2WithALPN {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestHttp2WithALPN.class);
     private ServerConnector serverConnector;
-    private HttpClientConnector httpClientConnectorForHttp2;
-    private HttpClientConnector httpClientConnectorForHttp1;
+    private HttpClientConnector http1ClientConnector;
+    private HttpClientConnector http2ClientConnector;
     private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
@@ -65,20 +65,26 @@ public class TestHttp2WithALPN {
         future.sync();
 
         connectorFactory = new DefaultHttpWsConnectorFactory();
-        httpClientConnectorForHttp2 = connectorFactory
+        http2ClientConnector = connectorFactory
                 .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_2_0)));
-        httpClientConnectorForHttp1 = connectorFactory
+        http1ClientConnector = connectorFactory
                 .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_1_1)));
     }
 
+    /**
+     * This test case will have ALPN negotiation for HTTP/2 request.
+     */
     @Test
     public void testHttp2Post() {
-        TestUtil.testHttpsPost(httpClientConnectorForHttp2, TestUtil.SERVER_PORT1);
+        TestUtil.testHttpsPost(http2ClientConnector, TestUtil.SERVER_PORT1);
     }
 
+    /**
+     * This test case will have ALPN negotiation for HTTP/1.1 request.
+     */
     @Test
     public void testHttp1_1Post() {
-        TestUtil.testHttpsPost(httpClientConnectorForHttp1, TestUtil.SERVER_PORT1);
+        TestUtil.testHttpsPost(http1ClientConnector, TestUtil.SERVER_PORT1);
     }
 
     private ListenerConfiguration getListenerConfigs() {
@@ -110,8 +116,8 @@ public class TestHttp2WithALPN {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        httpClientConnectorForHttp2.close();
-        httpClientConnectorForHttp1.close();
+        http2ClientConnector.close();
+        http1ClientConnector.close();
         serverConnector.stop();
         try {
             connectorFactory.shutdown();
