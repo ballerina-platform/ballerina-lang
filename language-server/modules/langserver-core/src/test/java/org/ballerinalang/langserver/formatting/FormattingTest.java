@@ -90,6 +90,8 @@ public class FormattingTest {
                 {"expectedAbort.bal", "abort.bal"},
                 {"expectedTransaction.bal", "transaction.bal"},
                 {"expectedContinue.bal", "continue.bal"},
+                {"expectedTypeDefinition.bal", "typeDefinition.bal"},
+                {"expectedTable.bal", "table.bal"},
         };
     }
 

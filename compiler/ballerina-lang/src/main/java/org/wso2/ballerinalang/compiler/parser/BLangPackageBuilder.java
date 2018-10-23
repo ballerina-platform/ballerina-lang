@@ -998,8 +998,16 @@ public class BLangPackageBuilder {
         tableLiteralNodes.push(tableLiteral);
     }
 
-    void addTableColumn(String columnName) {
-        this.tableLiteralNodes.peek().columns.add(new BLangTableLiteral.BLangTableColumn(columnName));
+    void endTableColumnDefinition(Set<Whitespace> ws) {
+        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
+    }
+
+    void addTableColumn(String columnName, DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableLiteral.BLangTableColumn tableColumn = new BLangTableLiteral.BLangTableColumn(columnName);
+        tableColumn.pos = pos;
+        tableColumn.addWS(ws);
+        this.tableLiteralNodes.peek().columns.add(tableColumn);
     }
 
     void markPrimaryKeyColumn(String columnName) {
@@ -1023,7 +1031,6 @@ public class BLangPackageBuilder {
                 //key
                 BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
                 keyExpr.pos = pos;
-                keyExpr.addWS(ws);
                 IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
                 identifierNode.setValue(keyNames.get(index).columnName);
                 keyExpr.variableName = (BLangIdentifier) identifierNode;
@@ -1032,13 +1039,23 @@ public class BLangPackageBuilder {
                 recordLiteral.keyValuePairs.add(keyValue);
                 ++index;
             }
+            recordLiteral.addWS(ws);
+            if (commaWsStack.size() > 0) {
+                recordLiteral.addWS(commaWsStack.pop());
+            }
             this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
         }
     }
 
-    void endTableDataRow() {
+    void endTableDataArray(Set<Whitespace> ws) {
+        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
+    }
+
+    void endTableDataRow(Set<Whitespace> ws) {
         List<ExpressionNode> argExprList = exprNodeListStack.pop();
         BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
         tableLiteral.tableDataRows = argExprList.stream().map(expr -> (BLangExpression) expr)
                 .collect(Collectors.toList());
     }
@@ -1538,9 +1555,9 @@ public class BLangPackageBuilder {
 
         while (!typeNodeStack.isEmpty()) {
             BLangType memberType = (BLangType) typeNodeStack.pop();
-            members.addWS(memberType.getWS());
             if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
                 members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
+                members.addWS(memberType.getWS());
             } else {
                 members.memberTypeNodes.add(memberType);
             }
