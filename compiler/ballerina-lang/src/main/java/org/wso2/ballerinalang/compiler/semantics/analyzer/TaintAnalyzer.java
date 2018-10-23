@@ -172,6 +172,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
+
 /**
  * Generate taint-table for each invokable node.
  * <p>
@@ -665,10 +667,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordDestructure stmt) {
         stmt.expr.accept(this);
         // Propagate tainted status of each variable separately (when multi returns are used).
-//        for (int varIndex = 0; varIndex < stmt.varRefs.size(); varIndex++) {
-//            BLangExpression varRefExpr = stmt.varRefs.get(varIndex);
-//            visitAssignment(varRefExpr, taintedStatus, stmt.pos);
-//        }
+        for (int varIndex = 0; varIndex < stmt.varRef.recordRefFields.size(); varIndex++) {
+            BLangRecordVarRefKeyValue varRefExpr = stmt.varRef.recordRefFields.get(varIndex);
+            visitAssignment(varRefExpr.variableReference, taintedStatus, stmt.pos);
+        }
     }
 
     @Override

@@ -237,7 +237,6 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 51.1);
         Assert.assertEquals(returns[2].getType().getName(), "UnionOne");
         Assert.assertEquals(((BMap) returns[2]).get("restP1").stringValue(), "stringP1");
-
     }
 
     @Test
