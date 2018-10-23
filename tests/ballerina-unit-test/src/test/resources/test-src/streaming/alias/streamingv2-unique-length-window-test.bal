@@ -16,7 +16,6 @@
 
 import ballerina/io;
 import ballerina/runtime;
-import ballerina/streams;
 
 type Teacher record {
     string name;
