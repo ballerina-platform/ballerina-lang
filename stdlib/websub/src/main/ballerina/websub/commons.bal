@@ -564,7 +564,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
 
 function WebSubHub::registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic registration not allowed/not required at the Hub" };
+        error e = error("Remote topic registration not allowed/not required at the Hub");
         return e;
     }
     return registerTopicAtHub(topic);
@@ -572,7 +572,7 @@ function WebSubHub::registerTopic(string topic) returns error? {
 
 function WebSubHub::unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic unregistration not allowed/not required at the Hub" };
+        error e = error("Remote topic unregistration not allowed/not required at the Hub");
         return e;
     }
     return unregisterTopicAtHub(topic);

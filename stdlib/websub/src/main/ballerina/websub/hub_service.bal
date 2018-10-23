@@ -334,7 +334,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                             subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
                             if (!isTopicRegistered(topic)) {
                                 match(registerTopicAtHub(topic)) {
-                                    error e => log:printError("Error registering topic for subscription: " + e.message);
+                                    error e => log:printError("Error registering topic for subscription: " + e.reason());
                                     () => {}
                                 }
                             }

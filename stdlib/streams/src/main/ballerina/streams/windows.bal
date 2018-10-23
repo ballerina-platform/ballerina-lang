@@ -1292,7 +1292,7 @@ public type DelayWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
     public function getCandidateEvents(
