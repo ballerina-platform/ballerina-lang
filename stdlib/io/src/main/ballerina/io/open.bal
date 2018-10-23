@@ -35,6 +35,7 @@ public extern function openReadableFile(@sensitive string path) returns @tainted
 # Retrieves a WritableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
+# + append - Append to end of file.
 # + return - ByteChannel representation of the file resource
 public extern function openWritableFile(@sensitive string path, boolean append = false)
     returns @tainted WritableByteChannel;
