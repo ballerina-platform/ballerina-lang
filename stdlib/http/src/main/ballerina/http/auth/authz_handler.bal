@@ -23,12 +23,14 @@ import ballerina/io;
 # Representation of Authorization Handler for HTTP
 #
 # + authStoreProvider - `AuthStoreProvider` instance
-# + authzCache - `Cache` instance, which is optional
+# + positiveAuthzCache - `Cache` instance, which is cache positive authorizations
+# + negativeAuthzCache - `Cache` instance, which is cache negative authorizations
 public type HttpAuthzHandler object {
     public auth:AuthStoreProvider authStoreProvider;
-    public cache:Cache? authzCache;
+    public cache:Cache? positiveAuthzCache;
+    public cache:Cache? negativeAuthzCache;
 
-    public new (authStoreProvider, authzCache) {
+    public new (authStoreProvider, positiveAuthzCache, negativeAuthzCache) {
     }
 
     # Checks if the request can be authorized
@@ -88,6 +90,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
                     self.cacheAuthzResult(authzCacheKey, authorized);
                     return authorized;
                 } else {
+                    self.cacheAuthzResult(authzCacheKey, false);
                     log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName +
                             ", method:" + method);
                     return false;
@@ -118,12 +121,20 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
 
 function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
     try {
-        match self.authzCache {
+        match self.positiveAuthzCache {
             cache:Cache cache => {
                 return check <boolean> cache.get(authzCacheKey);
             }
         () => {
-                return ();
+                // do nothing
+            }
+        }
+        match self.negativeAuthzCache {
+            cache:Cache cache => {
+                return check <boolean> cache.get(authzCacheKey);
+            }
+            () => {
+                // do nothing
             }
         }
     } catch (error e) {
@@ -133,12 +144,23 @@ function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boo
 }
 
 function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
-    match self.authzCache {
-        cache:Cache cache => {
-            cache.put(authzCacheKey, isAuthorized);
+    if (isAuthorized) {
+        match self.positiveAuthzCache {
+            cache:Cache cache => {
+                cache.put(authzCacheKey, isAuthorized);
+            }
+            () => {
+                return;
+            }
         }
-        () => {
-            return;
+    } else {
+        match self.negativeAuthzCache {
+            cache:Cache cache => {
+                cache.put(authzCacheKey, isAuthorized);
+            }
+            () => {
+                return;
+            }
         }
     }
 }

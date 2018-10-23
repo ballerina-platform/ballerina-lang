@@ -44,7 +44,7 @@ public class BallerinaStreamsV2JoinTest {
         result = BCompileUtil.compile("test-src/streaming/streamingv2-join-test.bal");
         resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-join-test.bal");
         resultWithoutOnCondition = BCompileUtil.
-                compile("test-src/streaming/streamingv2-join-without--on-condition-test.bal");
+                compile("test-src/streaming/streamingv2-join-without-on-condition-test.bal");
     }
 
     @Test(description = "Test stream join query.")

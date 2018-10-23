@@ -46,7 +46,7 @@ public extern function addTagToSpan(int spanId = -1, string tagKey, string tagVa
 # Finish the current span.
 #
 # + spanId - Id of span to finish
-# return - An error if an error occured while finishing the span
+# + return - An error if an error occured while finishing the span
 public extern function finishSpan(int spanId) returns error?;
 
 # Retrieve all registered metrics including default metrics from the ballerina runtime, and user defined metrics.
