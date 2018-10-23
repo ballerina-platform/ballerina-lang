@@ -954,6 +954,7 @@ public class BLangPackageBuilder {
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value) {
         addLiteralValue(pos, ws, typeTag, value, String.valueOf(value));
     }
+
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
         BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
         litExpr.addWS(ws);
@@ -1436,9 +1437,9 @@ public class BLangPackageBuilder {
     }
 
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
-                                              Set<Whitespace> ws,
-                                              String identifier,
-                                              boolean exprAvailable) {
+                                                         Set<Whitespace> ws,
+                                                         String identifier,
+                                                         boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
@@ -2919,7 +2920,9 @@ public class BLangPackageBuilder {
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
         joinStreamingInput.addWS(ws);
         joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
-        joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        if (this.exprNodeStack.size() > 0) {
+            joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        }
         joinStreamingInput.setUnidirectionalBeforeJoin(isUnidirectionalBeforeJoin);
         joinStreamingInput.setUnidirectionalAfterJoin(isUnidirectionalAfterJoin);
         joinStreamingInput.setJoinType(joinType);

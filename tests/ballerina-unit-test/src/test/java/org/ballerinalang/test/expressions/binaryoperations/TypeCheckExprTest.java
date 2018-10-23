@@ -43,7 +43,6 @@ public class TypeCheckExprTest {
     public void testTypeCheckExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-check-expr-negative.bal");
-        System.out.println(negativeResult);
         Assert.assertEquals(negativeResult.getErrorCount(), 34);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
