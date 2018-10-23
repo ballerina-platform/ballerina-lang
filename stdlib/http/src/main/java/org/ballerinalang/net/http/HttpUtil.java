@@ -44,6 +44,7 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -85,6 +86,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
@@ -116,6 +118,7 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STO
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
@@ -489,7 +492,9 @@ public class HttpUtil {
      * @return Error struct
      */
     public static BError getError(Context context, String errMsg) {
-        return BLangVMErrors.createError(context, errMsg);
+        BMap<String, BValue> details = new BMap<>(BTypes.typeError.detailsType);
+        details.put(ERROR_MESSAGE_FIELD, new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, HTTP_ERROR, details);
     }
 
     /**
@@ -501,9 +506,9 @@ public class HttpUtil {
      */
     public static BError getError(Context context, Throwable throwable) {
         if (throwable.getMessage() == null) {
-            return BLangVMErrors.createError(context, IO_EXCEPTION_OCCURED);
+            return getError(context, IO_EXCEPTION_OCCURED);
         } else {
-            return BLangVMErrors.createError(context, throwable.getMessage());
+            return getError(context, throwable.getMessage());
         }
     }
 
