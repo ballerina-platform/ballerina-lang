@@ -77,6 +77,9 @@ public class WorkerData {
         if (wdi.intRegCount > 0) {
             this.intRegs = new int[wdi.intRegCount];
         }
+        if (wdi.decimalRegCount > 0) {
+            this.decimalRegs = new Decimal[wdi.decimalRegCount];
+        }
         if (wdi.refRegCount > 0) {
             this.refRegs = new BRefType[wdi.refRegCount];
         }
@@ -98,6 +101,10 @@ public class WorkerData {
         count = wdi1.intRegCount + wdi2.intRegCount;
         if (count > 0) {
             this.intRegs = new int[count];
+        }
+        count = wdi1.decimalRegCount + wdi2.decimalRegCount;
+        if (count > 0) {
+            this.decimalRegs = new Decimal[count];
         }
         count = wdi1.refRegCount + wdi2.refRegCount;
         if (count > 0) {
