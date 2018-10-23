@@ -37,7 +37,7 @@ public class Names {
     public static final Name TRANSACTION_ORG = new Name("ballerina");
     public static final Name STREAMS_ORG = new Name("ballerina");
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");
-    public static final Name STREAMS_PACKAGE = new Name("streams");
+    public static final Name STREAMS_MODULE = new Name("streams");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");

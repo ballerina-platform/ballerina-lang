@@ -1376,7 +1376,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
                         scope.lookup(new Name(invocation.name.value)).symbol;
                 BSymbol aggregatorSymbol = symResolver.
-                        resolvePkgSymbol(invocation.pos, env, Names.STREAMS_PACKAGE).
+                        resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
                         scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol;
 
                 if (invocationSymbol != null && invocationSymbol.type.getReturnType().tsymbol != aggregatorSymbol) {
