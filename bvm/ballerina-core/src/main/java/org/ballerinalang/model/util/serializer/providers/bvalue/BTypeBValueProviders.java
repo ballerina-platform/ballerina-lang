@@ -203,7 +203,7 @@ public class BTypeBValueProviders {
         private static final String TYPE_NAME = "typeName";
         private static final String FLAGS = "flags";
         private static final String REST_FIELD_TYPE = "restFieldType";
-        private static final String SEALED = "sealed";
+        private static final String CLOSED = "closed";
 
         @Override
         public Class<?> getType() {
@@ -229,7 +229,7 @@ public class BTypeBValueProviders {
             packet.put(FLAGS, new BInteger(flags));
             packet.put(REST_FIELD_SIGNATURE_CP_INDEX, new BInteger(restFieldSignatureCPIndex));
             packet.putString(REST_FIELD_TYPE_SIGNATURE, restFieldTypeSignature);
-            packet.put(SEALED, new BBoolean(recType.sealed));
+            packet.put(CLOSED, new BBoolean(recType.sealed));
             packet.put(REST_FIELD_TYPE, serializer.toBValue(recType.restFieldType, null));
             return packet;
         }
@@ -241,7 +241,7 @@ public class BTypeBValueProviders {
             String pkgPath = packet.get(PACKAGE_PATH).stringValue();
             int flags = (int) ((BInteger) packet.get(FLAGS)).intValue();
             int cpIndex = (int) ((BInteger) packet.get(REST_FIELD_SIGNATURE_CP_INDEX)).intValue();
-            BBoolean sealed = (BBoolean) packet.get(SEALED);
+            BBoolean closed = (BBoolean) packet.get(CLOSED);
 
             RecordTypeInfo recTypeInfo = new RecordTypeInfo();
             recTypeInfo.setRestFieldSignatureCPIndex(cpIndex);
@@ -256,7 +256,7 @@ public class BTypeBValueProviders {
 
             recTypeInfo.setType(bRecType);
             bRecType.restFieldType = (BType) bValueDeserializer.deserialize(packet.get(REST_FIELD_TYPE), BType.class);
-            bRecType.sealed = sealed.booleanValue();
+            bRecType.sealed = closed.booleanValue();
 
             return bRecType;
         }
