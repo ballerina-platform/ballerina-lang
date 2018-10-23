@@ -66,6 +66,7 @@ import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
 import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_MESSAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
@@ -431,6 +432,17 @@ public class MimeUtil {
         String contentTypeOfChildPart = MimeUtil.getBaseType(bodyPart);
         return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
                 bodyPart.getNativeData(BODY_PARTS) != null;
+    }
+
+    /**
+     * Create mime specific error record with '{ballerina/mime}MIMEError' as error code.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Actual error message
+     * @return Ballerina error record
+     */
+    public static BError createError(Context context, String errMsg) {
+        return createError(context, MIME_ERROR_CODE, errMsg);
     }
 
     /**

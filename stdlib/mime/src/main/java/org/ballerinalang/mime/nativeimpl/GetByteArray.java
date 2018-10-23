@@ -37,7 +37,6 @@ import java.nio.charset.Charset;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 
 /**
  * Get the entity body as a blob.
@@ -84,9 +83,8 @@ public class GetByteArray extends BlockingNativeCallableUnit {
             }
             context.setReturnValues(result != null ? result : new BByteArray(new byte[0]));
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError
-                    (context, MIME_ERROR_CODE, "Error occurred while extracting blob data from entity : " +
-                            e.getMessage()));
+            context.setReturnValues(MimeUtil.createError(context, "Error occurred while extracting blob data " +
+                    "from entity : " + e.getMessage()));
         }
     }
 }
