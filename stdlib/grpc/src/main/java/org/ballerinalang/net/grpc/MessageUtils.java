@@ -128,7 +128,7 @@ public class MessageUtils {
     }
 
     public static BError getConnectorError(Throwable throwable) {
-        return getConnectorError(throwable);
+        return getConnectorError(BTypes.typeError, throwable);
     }
     
     /**
