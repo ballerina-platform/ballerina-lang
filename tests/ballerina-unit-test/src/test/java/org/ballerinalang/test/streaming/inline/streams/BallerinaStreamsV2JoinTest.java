@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.inline.streams;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -28,9 +28,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test `join` clause keyword in Ballerina Streaming V2.
+ * This contains methods to test `join` clause keyword in Ballerina Streaming V2 when inline streams are used.
  *
- * @since 0.980.0
+ * @since 0.983.0
  */
 public class BallerinaStreamsV2JoinTest {
 
@@ -41,10 +41,11 @@ public class BallerinaStreamsV2JoinTest {
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-join-test.bal");
-        resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-join-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/inline.streams/streamingv2-join-test.bal");
+        resultWithAlias = BCompileUtil.
+                compile("test-src/streaming/inline.streams/alias/streamingv2-join-test.bal");
         resultWithoutOnCondition = BCompileUtil.
-                compile("test-src/streaming/streamingv2-join-without-on-condition-test.bal");
+                compile("test-src/streaming/inline.streams/streamingv2-join-without-on-condition-test.bal");
     }
 
     @Test(description = "Test stream join query.")
