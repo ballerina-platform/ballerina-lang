@@ -39,13 +39,7 @@ suite("Language Server Tests", function () {
             false
         );
         langClient.start();
-        langClient.onReady().then(() => {
-            done();
-        }, () => {
-            done(new Error("start failed"));
-        }).catch((err) => {
-            done(new Error("start failed"));
-        });
+        done();
     });
 
 
