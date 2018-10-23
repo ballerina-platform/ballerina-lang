@@ -1195,7 +1195,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 }
             } else {
                 dlog.error(invocation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.STREAMS_MODULE.value + ":" +
-                                                                              WINDOW_OBJECT_NAME, windowInvokableSymbol.getType().retType.tsymbol);
+                        WINDOW_OBJECT_NAME, windowInvokableSymbol.getType().retType.tsymbol);
             }
         } else {
             dlog.error(invocation.pos, DiagnosticCode.UNDEFINED_FUNCTION, invocation.name);
