@@ -37,9 +37,9 @@ import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOpera
 /**
  * Preloading Activity of ballerina plugin.
  */
-public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivity {
+public class LanguageServerPreloadingActivity extends PreloadingActivity {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaLanguageServerPreloadingActivity.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LanguageServerPreloadingActivity.class);
     private static final String launcherScriptPath = "lib/tools/lang-server/launcher";
 
     /**
@@ -48,7 +48,9 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
     @Override
     public void preload(@NotNull ProgressIndicator indicator) {
 
-        //Tries to register language server definition, if a ballerina project is being opened initially.
+        // Stops all running language server instances.
+        stopProcesses();
+        // Registers language server definitions for initially opened projects.
         registerServerDefinition();
 
         final MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
@@ -73,7 +75,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
      *
      * @return Returns true if a definition is registered successfully.
      */
-    public static boolean registerServerDefinition() {
+    private static boolean registerServerDefinition() {
         Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
         for (Project project : openProjects) {
             if (registerServerDefinition(project)) {
@@ -83,7 +85,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
         return false;
     }
 
-    public static boolean registerServerDefinition(Project project) {
+    private static boolean registerServerDefinition(Project project) {
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         String balSdkPath = getBallerinaSdk(project);
         if (balSdkPath != null) {
@@ -92,7 +94,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
         return false;
     }
 
-    public static boolean doRegister(@NotNull String sdkPath) {
+    private static boolean doRegister(@NotNull String sdkPath) {
 
         String os = OperatingSystemUtils.getOperatingSystem();
         if (os != null) {
@@ -116,7 +118,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
     /**
      * Stops running language server instances.
      */
-    public static void stopProcesses() {
+    private static void stopProcesses() {
         try {
             String os = getOperatingSystem();
             if (os == null) {
