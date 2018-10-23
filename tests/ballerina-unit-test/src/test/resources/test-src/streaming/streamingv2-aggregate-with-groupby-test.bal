@@ -16,7 +16,6 @@
 
 import ballerina/runtime;
 import ballerina/io;
-import ballerina/reflect;
 
 type Teacher record {
     string name;
