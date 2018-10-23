@@ -269,7 +269,7 @@ public class PackageInfoReader {
         }
     }
 
-    public void readEntryPoint() throws IOException {
+    public void readFlags() throws IOException {
         int pkdCPIndex = dataInStream.readInt();
         PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) programFile.getCPEntry(pkdCPIndex);
         programFile.setEntryPkgCPIndex(pkdCPIndex);
@@ -282,6 +282,10 @@ public class PackageInfoReader {
 
         if ((flags & ProgramFile.EP_SERVICE_FLAG) == ProgramFile.EP_SERVICE_FLAG) {
             programFile.setServiceEPAvailable(true);
+        }
+
+        if ((flags & ProgramFile.TEST_FILE_FLAG) == ProgramFile.TEST_FILE_FLAG) {
+            programFile.setTestFile(true);
         }
     }
 

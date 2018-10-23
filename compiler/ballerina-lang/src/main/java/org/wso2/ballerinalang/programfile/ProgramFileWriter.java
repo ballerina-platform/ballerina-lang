@@ -40,7 +40,7 @@ public class ProgramFileWriter {
 
             // Write CP entries of the program
             PackageInfoWriter.writeCP(dataOutStream, programFile.getConstPoolEntries());
-            writeEntryPoint(dataOutStream, programFile);
+            writeFlags(dataOutStream, programFile);
 
             // Emit package info entries;
             writePackageInfoEntries(programFile, dataOutStream);
@@ -56,12 +56,13 @@ public class ProgramFileWriter {
         }
     }
 
-    private static void writeEntryPoint(DataOutputStream dataOutStream,
-                                        ProgramFile programFile) throws IOException {
+    private static void writeFlags(DataOutputStream dataOutStream,
+                                   ProgramFile programFile) throws IOException {
         dataOutStream.writeInt(programFile.entryPkgCPIndex);
         int flags = 0;
         flags = programFile.isMainEPAvailable() ? flags | ProgramFile.EP_MAIN_FLAG : flags;
         flags = programFile.isServiceEPAvailable() ? flags | ProgramFile.EP_SERVICE_FLAG : flags;
+        flags = programFile.isTestFile() ? flags | ProgramFile.TEST_FILE_FLAG : flags;
         dataOutStream.writeByte(flags);
     }
 

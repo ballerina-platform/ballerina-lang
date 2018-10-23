@@ -41,6 +41,7 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
     private boolean mainFucAvailable = false;
     private boolean servicesAvailable = false;
+    private boolean testFile = false;
 
     public boolean isMainEPAvailable() {
         return mainFucAvailable;
@@ -56,6 +57,14 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
 
     public void setServiceEPAvailable(boolean servicesAvailable) {
         this.servicesAvailable = servicesAvailable;
+    }
+
+    public boolean isTestFile() {
+        return testFile;
+    }
+
+    public void setTestFile(boolean testFile) {
+        this.testFile = testFile;
     }
 
     // ConstantPool interface methods
@@ -111,6 +120,7 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
         // Entry point flags
         public static final int EP_MAIN_FLAG = 1;
         public static final int EP_SERVICE_FLAG = 2;
+        public static final int TEST_FILE_FLAG = 3;
 
         // TODO Finalize the version number;
         private short version = VERSION_NUMBER;

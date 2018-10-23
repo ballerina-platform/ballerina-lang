@@ -18,6 +18,9 @@
 
 package org.ballerinalang.testerina.core;
 
+import org.ballerinalang.testerina.coverage.CoverageDataFormatter;
+import org.ballerinalang.bre.coverage.CoverageManager;
+import org.ballerinalang.bre.coverage.LCovData;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
@@ -98,7 +101,7 @@ public class BTestRunner {
         registry.setShouldIncludeGroups(shouldIncludeGroups);
         compileAndBuildSuites(sourceRoot, sourceFilePaths, buildWithTests);
         // execute the test programs
-        execute(buildWithTests);
+        execute(buildWithTests, sourceRoot);
     }
 
     /**
@@ -205,7 +208,7 @@ public class BTestRunner {
      * Run all tests.
      * @param buildWithTests build with tests or just execute tests
      */
-    private void execute(boolean buildWithTests) {
+    private void execute(boolean buildWithTests, String sourceRoot) {
         Map<String, TestSuite> testSuites = registry.getTestSuites();
         outStream.println();
         outStream.println("Running tests");
@@ -374,6 +377,12 @@ public class BTestRunner {
             });
             // print package test results
             tReport.printTestSuiteSummary(packageName);
+
+            CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
+            CoverageManager coverageManager = new CoverageManager();
+            List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
+                    coverageManager.getExecutedInstructionOrderMap(), suite);
+            coverageDataFormatter.writeFormattedCovDataToFile(packageLCovDataList, sourceRoot);
         });
     }
 

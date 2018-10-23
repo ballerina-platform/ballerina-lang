@@ -17,8 +17,24 @@
  */
 package org.ballerinalang.bre.coverage;
 
-public class LineCoverageData {
+import org.ballerinalang.bre.coverage.impl.CoverageInstructionHandlerImpl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+public class CoverageManager {
 
+    private static Map<String, List<ExecutedInstruction>> executedInstructionOrderMap = new ConcurrentHashMap<>();
+
+    private static InstructionHandler coverageInstructionHandler = new
+            CoverageInstructionHandlerImpl(executedInstructionOrderMap);
+
+    public InstructionHandler getCoverageInstructionHandler() {
+        return coverageInstructionHandler;
+    }
+
+    public Map<String, List<ExecutedInstruction>> getExecutedInstructionOrderMap() {
+        return executedInstructionOrderMap;
+    }
 }

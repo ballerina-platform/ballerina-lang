@@ -521,6 +521,10 @@ public class Debugger {
         this.debugEnabled = true;
     }
 
+    public DebugInfoHolder getDebugInfoHolder() {
+        return debugInfoHolder;
+    }
+
     /**
      * Method to set client handler.
      *

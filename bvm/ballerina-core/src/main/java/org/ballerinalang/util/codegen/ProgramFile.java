@@ -49,6 +49,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     // Entry point flags
     public static final int EP_MAIN_FLAG = 1;
     public static final int EP_SERVICE_FLAG = 2;
+    public static final int TEST_FILE_FLAG = 3;
 
     private int magicValue = MAGIC_NUMBER;
     // TODO Finalize the version number;
@@ -63,6 +64,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private ServerConnectorRegistry serverConnectorRegistry;
     private boolean mainFucAvailable = false;
     private boolean servicesAvailable = false;
+    private boolean testFile = false;
 
     //This is the current package's global memory area index value which gets incremented when reading package info
     //entries of this program file.
@@ -140,6 +142,14 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public void setServiceEPAvailable(boolean servicesAvailable) {
         this.servicesAvailable = servicesAvailable;
+    }
+
+    public boolean isTestFile() {
+        return testFile;
+    }
+
+    public void setTestFile(boolean testFile) {
+        this.testFile = testFile;
     }
 
     @Deprecated

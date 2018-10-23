@@ -18,6 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.bre.coverage.CoverageManager;
+import org.ballerinalang.bre.coverage.InstructionHandler;
 import org.ballerinalang.channels.ChannelManager;
 import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.types.BArrayType;
@@ -121,13 +123,7 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -144,6 +140,8 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CPU {
 
+    private static InstructionHandler instructionHandler;
+
     public static void traceCode(Instruction[] code) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
@@ -157,6 +155,11 @@ public class CPU {
     }
 
     public static void exec(WorkerExecutionContext ctx) {
+        ctx.programFile.setTestFile(true);
+        if(instructionHandler == null && ctx.programFile.isTestFile()) {
+            instructionHandler = new CoverageManager().getCoverageInstructionHandler();
+        }
+
         while (ctx != null && !ctx.isRootContext()) {
             try {
                 tryExec(ctx);
@@ -194,6 +197,11 @@ public class CPU {
                 }
     
                 Instruction instruction = ctx.code[ctx.ip];
+
+                if(instructionHandler != null && ctx.programFile.isTestFile()) {
+                    instructionHandler.handle(ctx, instruction);
+                }
+
                 int opcode = instruction.getOpcode();
                 int[] operands = instruction.getOperands();
                 ctx.ip++;

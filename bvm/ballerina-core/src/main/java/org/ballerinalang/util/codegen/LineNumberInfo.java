@@ -117,6 +117,10 @@ public class LineNumberInfo {
         this.endIp = endIp;
     }
 
+    public int getEndIp() {
+        return endIp;
+    }
+
     public boolean checkIpRangeForInstructionCode(Instruction[] codes, int matchingCode) {
         for (int i = ip; i < endIp; i++) {
             if (codes[i].getOpcode() == matchingCode) {

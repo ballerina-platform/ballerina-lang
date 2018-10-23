@@ -19,9 +19,42 @@ package org.ballerinalang.bre.coverage.impl;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.coverage.InstructionHandler;
+import org.ballerinalang.bre.coverage.ExecutedInstruction;
+import org.ballerinalang.util.codegen.Instruction;
+import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.Debugger;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class CoverageInstructionHandlerImpl implements InstructionHandler {
 
-    public void handle(WorkerExecutionContext ctx) {}
+    Map<String, List<ExecutedInstruction>> executedInstructionOrderMap;
+
+    public CoverageInstructionHandlerImpl(Map<String, List<ExecutedInstruction>> executedInstructionOrderMap) {
+        this.executedInstructionOrderMap = executedInstructionOrderMap;
+    }
+
+    public void handle(WorkerExecutionContext ctx, Instruction instruction) {
+
+        ProgramFile programFile = ctx.programFile;
+        Debugger debugger = programFile.getDebugger();
+        String pkgPath = ctx.callableUnitInfo.getPkgPath();
+        LineNumberInfo lineNumberInfo = debugger.getDebugInfoHolder().getPackageInfoMap()
+                .get(pkgPath).getLineNumberInfoHolder().getLineNumberInfo(ctx.ip);
+
+            ExecutedInstruction executedInstruction = new ExecutedInstruction(ctx.ip, pkgPath,
+                    lineNumberInfo.getFileName(), ctx.callableUnitInfo.getName());
+            if(executedInstructionOrderMap.get(pkgPath) != null) {
+                executedInstructionOrderMap.get(pkgPath).add(executedInstruction);
+            } else {
+                List<ExecutedInstruction> executedInstructionOrder = new LinkedList<>();
+                executedInstructionOrder.add(executedInstruction);
+                executedInstructionOrderMap.put(pkgPath, executedInstructionOrder);
+            }
+
+    }
 
 }
