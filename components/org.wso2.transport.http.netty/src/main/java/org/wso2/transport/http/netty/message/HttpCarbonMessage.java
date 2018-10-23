@@ -254,6 +254,8 @@ public class HttpCarbonMessage {
 
     public synchronized void removeMessageFuture() {
         this.messageFuture = null;
+        // To ensure that the carbon message is resuable.
+        passthrough = false;
     }
 
     public Map<String, Object> getProperties() {
@@ -463,8 +465,8 @@ public class HttpCarbonMessage {
     }
 
     /**
-     * This value is to be set when the message is to be sent to the consumer without building/processing the message
-     * in the application layer.
+     * This value is to be set when sending the message to the consumer without building/processing it in the
+     * application layer.
      *
      * @param passthrough if the message is a passthrough.
      */

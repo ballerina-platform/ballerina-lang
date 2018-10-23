@@ -26,17 +26,15 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contractimpl.common.OutboundThrottlingHandler;
+import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
-import org.wso2.transport.http.netty.message.DefaultOutboundThrottlingListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.PassthroughOutboundThrottlingListener;
 
 import java.util.Locale;
 
@@ -73,24 +71,16 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HttpCarbonMessage outboundResponseMsg) {
-        OutboundThrottlingHandler outboundThrottlingHandler = Util.getOutBoundThrottlingHandler(sourceContext);
-        if (outboundThrottlingHandler != null) {
-            if (outboundResponseMsg.getTargetContext() != null && outboundResponseMsg.isPassthrough()) {
-                outboundThrottlingHandler.getOutboundThrottlingObservable().setListener(
-                        new PassthroughOutboundThrottlingListener(outboundResponseMsg.getTargetContext(),
-                                                                  sourceContext));
-            } else {
-                outboundThrottlingHandler.getOutboundThrottlingObservable().setListener(
-                        new DefaultOutboundThrottlingListener(sourceContext));
-            }
-        }
+        BackPressureHandler backpressureHandler = Util.getBackPressureHandler(sourceContext);
+        Util.setBackPressureObservableListener(outboundResponseMsg.isPassthrough(), backpressureHandler,
+                                               outboundResponseMsg.getTargetContext(), sourceContext);
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
         }
 
         outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent -> {
-            if (outboundThrottlingHandler != null) {
-                outboundThrottlingHandler.getOutboundThrottlingObservable().notifyAcquire();
+            if (backpressureHandler != null) {
+                backpressureHandler.getBackPressureObservable().notifyAcquire();
             }
             this.sourceContext.channel().eventLoop().execute(() -> {
                 try {

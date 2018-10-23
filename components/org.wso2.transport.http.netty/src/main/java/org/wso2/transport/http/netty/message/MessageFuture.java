@@ -48,7 +48,8 @@ public class MessageFuture {
                 }
             }
 
-            //Removes Inbound throttling listener during passthrough so that only outbound throttling would be present.
+            // Removes Inbound throttling listener during passthrough so that only backpressure handling would be
+            // present.
             if (httpCarbonMessage.isPassthrough()) {
                 httpCarbonMessage.removeInboundContentListener();
             }
