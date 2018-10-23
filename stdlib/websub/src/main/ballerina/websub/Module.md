@@ -263,9 +263,9 @@ Ballerina's WebSub subscriber service endpoint can be extended to introduce spec
 With specific subscriber services, multiple resources corresponding to the possible notifications for a particular 
 topic could be introduced, instead of the single `onNotification` resource.
  
-For example, assume by subscribing to a particular topic with a issue tracking system, you receive notifications 
-either when an issue is opened or when an issue is closed. With a custom subscriber service, extending the generic 
-WebSub subscriber service, two resources accepting content delivery requests (e.g., `onIssueOpened` and 
+For example, assume by subscribing to a particular topic with an issue tracking system, you receive notifications 
+either when an issue is opened or when an issue is closed. With a custom subscriber service endpoint, extending the generic 
+WebSub subscriber service endpoint, two resources accepting content delivery requests (e.g., `onIssueOpened` and 
 `onIssueClosed`) could be allowed instead of only the `onNotification` resource. 
 
 These resources would accept two parameters,
@@ -300,6 +300,11 @@ websub:ExtensionConfig extensionConfig = {
 };
 ```
 
+`"issueOpened" : ("onIssueOpened", IssueOpenedEvent)` here indicates that when the value of the header to consider is
+ `issueOpened` in the notification request, dispatching needs to happen to a resource named `onIssueOpened` whose 
+ first parameter is the generic `websub:Notification` record, and the second parameter is the custom 
+ `IssueOpenedEvent` record mapping the JSON payload received when an issue is created.  
+
 **Based on the payload**
 
 Dispatching would be based on the value in the request payload for one of the map keys specified in the 
@@ -317,7 +322,12 @@ websub:ExtensionConfig extensionConfig = {
 };
 ```
 
-**Based on a request header**
+`"issueOpened" : ("onIssueOpened", IssueOpenedEvent)` here indicates that when the value of the JSON payload key to 
+consider is `issueOpened`, dispatching needs to happen to a resource named `onIssueOpened` whose 
+ first parameter is the generic `websub:Notification` record, and the second parameter is the custom 
+ `IssueOpenedEvent` record mapping the JSON payload received when an issue is created.  
+
+**Based on a request header and the payload**
  
 Dispatching would be based on both a request header and the payload as specified in `headerAndPayloadKeyResourceMap`. 
 Additionally one may also introduce a `headerResourceMap` and/or `payloadKeyResourceMap` as additional mappings. 
@@ -336,3 +346,8 @@ websub:ExtensionConfig extensionConfig = {
     }
 };
 ```
+`"opened" : ("onIssueOpened", IssueOpenedEvent)` here indicates that when the value of the header to consider 
+is `issue` and the value of the JSON payload key to consider is `opened`, dispatching needs to happen to a resource 
+named `onIssueOpened` whose first parameter is the generic `websub:Notification` record, and the second parameter is 
+the custom `IssueOpenedEvent` record mapping the JSON payload received when an issue is created.  
+ 
