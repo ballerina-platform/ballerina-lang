@@ -45,7 +45,6 @@ import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.FrameLogger;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
-import org.wso2.transport.http.netty.contractimpl.common.OutboundThrottlingHandler;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
