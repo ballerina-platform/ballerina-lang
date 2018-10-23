@@ -81,9 +81,6 @@ public class Hub {
     }
 
     public void registerTopic(String topic, boolean loadingOnStartUp) throws BallerinaWebSubException {
-        if (!hubTopicRegistrationRequired) {
-            throw new BallerinaWebSubException("Remote topic registration not allowed/not required at the Hub");
-        }
         if (isTopicRegistered(topic)) {
             throw new BallerinaWebSubException("Topic registration not allowed at the Hub: topic already exists");
         } else if (topic == null || topic.isEmpty()) {
@@ -99,9 +96,6 @@ public class Hub {
     }
 
     public void unregisterTopic(String topic) throws BallerinaWebSubException {
-        if (!hubTopicRegistrationRequired) {
-            throw new BallerinaWebSubException("Remote topic unregistration not allowed/not required at the Hub");
-        }
         if (topic == null || !isTopicRegistered(topic)) {
             throw new BallerinaWebSubException("Topic unavailable/invalid for unregistration at Hub");
         } else {
