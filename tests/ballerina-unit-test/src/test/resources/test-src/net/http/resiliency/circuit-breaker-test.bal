@@ -371,7 +371,7 @@ public type MockClient object {
                     response = res;
                 }
                 error httpConnectorError => {
-                    string errMessage = httpConnectorError.message;
+                    string errMessage = httpConnectorError.reason();
                     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(errMessage);
                 }
@@ -382,7 +382,7 @@ public type MockClient object {
                     response = res;
                 }
                 error httpConnectorError => {
-                    string errMessage = httpConnectorError.message;
+                    string errMessage = httpConnectorError.reason();
                     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(errMessage);
                 }
@@ -393,7 +393,7 @@ public type MockClient object {
                     response = res;
                 }
                 error httpConnectorError => {
-                    string errMessage = httpConnectorError.message;
+                    string errMessage = httpConnectorError.reason();
                     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(errMessage);
                 }
@@ -406,7 +406,7 @@ public type MockClient object {
                     response = res;
                 }
                 error httpConnectorError => {
-                    string errMessage = httpConnectorError.message;
+                    string errMessage = httpConnectorError.reason();
                     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     response.setTextPayload(errMessage);
                 }
