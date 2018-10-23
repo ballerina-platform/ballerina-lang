@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -34,7 +35,8 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PAC
  */
 public class BPackageSymbol extends BTypeSymbol {
 
-    public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol;
+    public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol, testInitFunctionSymbol,
+            testStartFunctionSymbol, testStopFunctionSymbol;
     public List<BPackageSymbol> imports = new ArrayList<>();
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
@@ -48,6 +50,11 @@ public class BPackageSymbol extends BTypeSymbol {
     public BPackageSymbol(PackageID pkgID, BSymbol owner) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner);
         this.type = new BPackageType(this);
+    }
+
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags) {
+        this(pkgID, owner);
+        this.flags = flags;
     }
 
     @Override
@@ -66,12 +73,12 @@ public class BPackageSymbol extends BTypeSymbol {
         }
 
         BPackageSymbol that = (BPackageSymbol) o;
-        return pkgID.equals(that.pkgID);
+        return pkgID.equals(that.pkgID) && Symbols.isFlagOn(flags, that.flags);
     }
 
     @Override
     public int hashCode() {
-        return pkgID.hashCode();
+        return Objects.hash(pkgID, flags);
     }
 
     @Override
@@ -80,6 +87,9 @@ public class BPackageSymbol extends BTypeSymbol {
         copy.initFunctionSymbol = initFunctionSymbol;
         copy.startFunctionSymbol = startFunctionSymbol;
         copy.stopFunctionSymbol = stopFunctionSymbol;
+        copy.testInitFunctionSymbol = testInitFunctionSymbol;
+        copy.testStartFunctionSymbol = testStartFunctionSymbol;
+        copy.testStopFunctionSymbol = testStopFunctionSymbol;
         copy.packageFile = packageFile;
         copy.compiledPackage = compiledPackage;
         copy.entryPointExists = entryPointExists;

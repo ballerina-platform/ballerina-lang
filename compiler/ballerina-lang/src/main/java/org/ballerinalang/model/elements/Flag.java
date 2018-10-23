@@ -94,5 +94,9 @@ public enum Flag {
     /**
      * Indicates that the flagged node is an optional field.
      */
-    OPTIONAL
+    OPTIONAL,
+    /**
+     * Indicates flagged node is a testable node.
+     */
+    TESTABLE
 }

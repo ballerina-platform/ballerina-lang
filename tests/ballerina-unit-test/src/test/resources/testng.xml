@@ -57,8 +57,8 @@ under the License.
             <package name="org.ballerinalang.test.nativeimpl.functions.*">
                 <exclude name="org.ballerinalang.test.nativeimpl.functions.io.socket"/>
             </package>
-            <package name="org.ballerinalang.test.connectors.sql.*"/>
-            <package name="org.ballerinalang.test.connectors.h2.*"/>
+            <package name="org.ballerinalang.test.jdbc.*"/>
+            <package name="org.ballerinalang.test.h2"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.debugger.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
