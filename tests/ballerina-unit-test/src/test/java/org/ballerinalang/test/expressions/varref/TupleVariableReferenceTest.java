@@ -18,6 +18,7 @@
  */
 package org.ballerinalang.test.expressions.varref;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -42,11 +43,12 @@ import org.testng.annotations.Test;
  */
 public class TupleVariableReferenceTest {
 
-    private CompileResult result;
+    private CompileResult result, resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference-negative.bal");
     }
 
     @Test(description = "Test tuple var reference 1")
@@ -65,6 +67,50 @@ public class TupleVariableReferenceTest {
     public void testTupleVarRefBasic3() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic3");
         validateVarRefBasicTestResults(returns);
+    }
+
+    @Test(description = "Test tuple var reference 4")
+    public void testTupleVarRefBasic4() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic4");
+        validateVarRefBasicTestResults(returns);
+    }
+
+    @Test(description = "Test tuple var reference 5")
+    public void testTupleVarRefBasic5() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic5");
+        validateVarRefBasicTestResults(returns);
+    }
+
+    @Test(description = "Test tuple var reference 6")
+    public void testTupleVarRefBasic6() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic6");
+        validateVarRefBasicTestResults(returns);
+    }
+
+    @Test(description = "Test tuple var reference 7")
+    public void testTupleVarRefBasic7() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic7");
+        validateVarRefBasicTestResults(returns);
+    }
+
+    @Test(description = "Test tuple var reference 8")
+    public void testTupleVarRefBasic8() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic8");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "UpdatedBallerina");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 453);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 12.34);
+    }
+
+    @Test(description = "Test tuple var reference 9")
+    public void testTupleVarRefBasic9() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic9");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "UpdatedBallerina");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 657);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 76.8);
     }
 
     @Test(description = "Test tuple var reference assignment 1")
@@ -238,16 +284,57 @@ public class TupleVariableReferenceTest {
     private void validateTupleVarRefWithUnitionComplexResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
 
-        BValue val1 = returns[0];
-        BRefValueArray refValueArray1 = (BRefValueArray) val1;
-        Assert.assertEquals(refValueArray1.get(0).stringValue(), "Test");
+        BValue value1 = returns[0];
+        BRefValueArray refValueArray1 = (BRefValueArray) value1;
+        Assert.assertEquals(refValueArray1.get(0).stringValue(), "TestUpdated");
         Assert.assertEquals(((BInteger) refValueArray1.get(1)).intValue(), 23);
 
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.5);
 
-        BValue val2 = returns[2];
-        BRefValueArray refValueArray2 = (BRefValueArray) val2;
+        BValue value2 = returns[2];
+        BRefValueArray refValueArray2 = (BRefValueArray) value2;
         Assert.assertEquals(((BFloat) refValueArray2.get(0)).floatValue(), 5.7);
-        Assert.assertEquals(refValueArray2.get(1).stringValue(), "Foo");
+        Assert.assertEquals(refValueArray2.get(1).stringValue(), "FooUpdated");
+    }
+
+    @Test
+    public void testNegativeTupleVariablesReferences() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 20);
+        int i = -1;
+        String errorMsg1 = "incompatible types: expected ";
+
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'(string,int,float)', found '(string,int,float,string)'", 19, 17);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'(string,int,float)', found '(string,int)'", 24, 17);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'(string,int,float)', found '(int,string,boolean)'", 29, 17);
+        BAssertUtil.validateError(resultNegative, ++i, "undefined symbol 'e'", 34, 15);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'(string,int,float,other)', found '(int,string,boolean,int)'", 34, 20);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 's'", 40, 20);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'i'", 40, 23);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 45, 10);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 46, 10);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 47, 10);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'(string,int,float)', found '(float,boolean,int)'",
+                52, 20);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'(string,int)', found '(int,string)'", 62, 16);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 63, 10);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'(Foo,(BarObj,FooObj))', found '(Bar,(FooObj,BarObj))'", 72, 26);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'((Foo,(BarObj,FooObj)),Bar)', found '((Bar,(FooObj,BarObj)),Foo)'", 72, 26);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'(Foo,(BarObj,FooObj),Bar)', found '(Bar,FooObj,Foo)'", 81, 24);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'(int,Foo,(BarObj,string,FooObj),Bar,boolean)', found '(Bar,int,(FooObj,string,BarObj),Foo,boolean)'",
+                90, 35);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'((string,(int,(boolean,int))),(float,int))', found 'any'", 120, 36);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'((string,(int,(boolean,int))),(float,int))', found '(string,int,boolean,int,float,int)'", 127, 36);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
+                "'((string,(int,(boolean,int))),(float,int))', found 'any'", 132, 84);
     }
 }
