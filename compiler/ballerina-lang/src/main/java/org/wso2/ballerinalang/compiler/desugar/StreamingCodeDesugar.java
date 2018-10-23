@@ -1394,8 +1394,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         args.add(havingLambdaFunction);
 
         BLangInvocation havingMethodInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(pos, havingInvokableSymbol, args,
-                        symResolver);
+                createInvocationExprForMethod(pos, havingInvokableSymbol, args, symResolver);
         havingMethodInvocation.argExprs = args;
 
         BLangVariableDef filterDef = createVariableDef(havingMethodInvocation, havingInvokableType,
