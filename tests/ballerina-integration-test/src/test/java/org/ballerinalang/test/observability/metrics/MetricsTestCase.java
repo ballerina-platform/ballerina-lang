@@ -33,7 +33,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +41,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Integration test for observability of metrics.
@@ -59,9 +57,6 @@ public class MetricsTestCase extends BaseTest {
     @BeforeClass
     private void setup() throws Exception {
         serverInstance = new BServerInstance(balServer);
-        Files.copy(new File(System.getProperty("hsqldb.jar")).toPath(), new File(serverInstance.getServerHome() +
-                        File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
-                REPLACE_EXISTING);
         sqlServer = new FileBasedTestDatabase(DBType.H2,
                 "observability" + File.separator + "metrics" + File.separator + "data.sql", SQLDBUtils.DB_DIRECTORY,
                 DB_NAME);
