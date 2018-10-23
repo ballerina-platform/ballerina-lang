@@ -32,6 +32,9 @@ public class BLangConstants {
     public static final String CONSTRUCTOR_FUNCTION_SUFFIX = "new";
     public static final String START_FUNCTION_SUFFIX = ".<start>";
     public static final String STOP_FUNCTION_SUFFIX = ".<stop>";
+    public static final String TEST_INIT_FUNCTION_SUFFIX = ".<testinit>";
+    public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
+    public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>";
 
     public static final String BLANG_SRC_FILE_EXT = "bal";
     public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;

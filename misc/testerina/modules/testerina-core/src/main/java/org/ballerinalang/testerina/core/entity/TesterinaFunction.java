@@ -54,13 +54,14 @@ public class TesterinaFunction {
     static final String PREFIX_AFTERTEST = "AFTERTEST";
     static final String PREFIX_MOCK = "MOCK";
     static final String INIT_SUFFIX = ".<INIT>";
+    static final String TEST_INIT_SUFFIX = ".<TESTINIT>";
 
     /**
      * Prefixes for the test function names.
      */
     public enum Type {
         TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK), INIT
-                (INIT_SUFFIX), UTIL(PREFIX_UTIL);
+                (INIT_SUFFIX), UTIL(PREFIX_UTIL), TEST_INIT(TEST_INIT_SUFFIX);
 
         String prefix;
 
@@ -81,14 +82,29 @@ public class TesterinaFunction {
     }
 
     public BValue[] invoke() throws BallerinaException {
-        if (this.type == Type.INIT) {
+        if (this.type == Type.TEST_INIT) {
+            // Invoke init functions
             BLangFunctions.invokePackageInitFunctions(programFile);
+            BLangFunctions.invokePackageTestInitFunctions(programFile);
+            // Invoke start functions
             BLangFunctions.invokePackageStartFunctions(programFile);
+            BLangFunctions.invokePackageTestStartFunctions(programFile);
+
             TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
-            return new BValue[] {};
+            return new BValue[]{};
         } else {
-            return invoke(new BValue[] {});
+            return invoke(new BValue[]{});
         }
+    }
+
+    /**
+     * Invoke package init and package stop functions.
+     *
+     * @throws BallerinaException exception is thrown
+     */
+    public void invokeStopFunctions() throws BallerinaException {
+        BLangFunctions.invokePackageTestStopFunctions(programFile);
+        BLangFunctions.invokePackageStopFunctions(programFile);
     }
 
     /**
