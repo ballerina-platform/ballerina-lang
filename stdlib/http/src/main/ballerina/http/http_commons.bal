@@ -172,6 +172,10 @@ public type CompressionConfig record {
     !...
 };
 
+type HTTPError record {
+    string message;
+};
+
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////

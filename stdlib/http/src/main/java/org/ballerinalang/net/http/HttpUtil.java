@@ -86,7 +86,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
-import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
@@ -119,7 +118,9 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STO
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
@@ -493,9 +494,13 @@ public class HttpUtil {
      * @return Error struct
      */
     public static BError getError(Context context, String errMsg) {
-        BMap<String, BValue> details = new BMap<>(BTypes.typeError.detailsType);
-        details.put(ERROR_MESSAGE_FIELD, new BString(errMsg));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, HTTP_ERROR, details);
+        BMap<String, BValue> httpErrorRecord = createHTTPErrorRecord(context);
+        httpErrorRecord.put(HTTP_ERROR_MESSAGE, new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, HTTP_ERROR_CODE, httpErrorRecord);
+    }
+
+    private static BMap<String, BValue> createHTTPErrorRecord(Context context) {
+        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
     }
 
     /**

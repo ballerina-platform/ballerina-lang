@@ -183,7 +183,6 @@ public class HttpConstants {
     public static final String ENTITY = "Entity";
     public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
     public static final String REQUEST_CACHE_CONTROL = "RequestCacheControl";
-    public static final String HTTP_ERROR = "HTTPError";
     public static final String STRUCT_GENERIC_ERROR = "error";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
@@ -200,6 +199,10 @@ public class HttpConstants {
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;
+
+    public static final String HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
+    public static final String HTTP_ERROR_RECORD = "HTTPError";
+    public static final String HTTP_ERROR_MESSAGE = "message";
 
     // ServeConnector struct indices
     public static final String HTTP_CONNECTOR_CONFIG_FIELD = "config";
