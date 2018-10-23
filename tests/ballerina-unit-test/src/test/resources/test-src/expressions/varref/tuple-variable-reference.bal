@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 function testTupleVarRefBasic1() returns (string, int, boolean) {
     (string, (int, boolean)) (a, (b, c)) = ("Ballerina", (123, true));
     ((a, b), c) = (("UpdatedBallerina", 453), false);
@@ -18,6 +34,52 @@ function testTupleVarRefBasic3() returns (string, int, boolean) {
     ((a, b), c) = (("UpdatedBallerina", 453), false);
 
     return (a, b, c);
+}
+
+function testTupleVarRefBasic4() returns (string, int, boolean) {
+    (string, (int, boolean)) (a, (b, c)) = ("Ballerina", (123, true));
+    a = "UpdatedBallerina";
+    b = 453;
+    c = false;
+
+    return (a, b, c);
+}
+
+function testTupleVarRefBasic5() returns (string, int, boolean) {
+    var (a, (b, c)) = ("Ballerina", (123, true));
+    a = "UpdatedBallerina";
+    b = 453;
+    c = false;
+
+    return (a, b, c);
+}
+
+function testTupleVarRefBasic6() returns (string, int, boolean) {
+    (string, (int, boolean)) (a, (b, c)) = ("Ballerina", (123, true));
+    (a, b) = ("UpdatedBallerina", 453);
+    c = false;
+
+    return (a, b, c);
+}
+
+function testTupleVarRefBasic7() returns (string, int, boolean) {
+    (string, (int, boolean)) (a, (b, c)) = ("Ballerina", (123, true));
+    ((a, b), c) = (("UpdatedBallerina", 453), false);
+
+    return (a, b, c);
+}
+
+function testTupleVarRefBasic8() returns (string, int, boolean, float) {
+    (string, (int, (boolean, float))) (a, (b, (c, d))) = ("Ballerina", (123, (true, 5.6)));
+    (a, (b, (c, d))) = ("UpdatedBallerina", (453, (false, 12.34)));
+    return (a, b, c, d);
+}
+
+function testTupleVarRefBasic9() returns (string, int, boolean, float) {
+    (string, (int, (boolean, float))) (a, (b, (c, d))) = ("Ballerina", (123, (true, 5.6)));
+    ((a, b), c) = (("UpdatedBallerina", 453), false);
+    (b, c, d) = (657, true, 76.8);
+    return (a, b, c, d);
 }
 
 function testTupleVarRefAssignment1() returns (string, int, boolean) {
@@ -151,12 +213,12 @@ function fn2() returns (string|int|float, (string|float, string)) {
 
 function testVarRefWithUnionType4() returns ((string|int, int|boolean), float|(int, boolean), (string|float, string)) {
     ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = ((12, true), (45, false), ("Hello", "World"));
-    ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
+    ((a, b), c, (d, e)) = (("TestUpdated", 23), 4.5, (5.7, "FooUpdated"));
     return ((a, b), c, (d, e));
 }
 
 function fn3() returns ((string|int, int|boolean), float|(int, boolean), (string|float, string)) {
-    ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((v1, v2), v3, (v4, v5)) = (("Test", 23), 4.5, (5.7, "Foo"));
+    ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((v1, v2), v3, (v4, v5)) = (("TestUpdated", 23), 4.5, (5.7, "FooUpdated"));
     return ((v1, v2), v3, (v4, v5));
 }
 
