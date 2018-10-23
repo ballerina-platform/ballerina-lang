@@ -620,7 +620,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void validateRecordVariable(BLangRecordVariable recordVar) {
         if (recordVar.type.tag != TypeTags.RECORD) {
-            dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN);
+            dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
             return;
         }
 
@@ -639,7 +639,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
-
             boolean foundMatch = false;
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
@@ -654,8 +653,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (!foundMatch) {
-                dlog.error(recordVar.pos,
-                        DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, variable.getKey().getValue(), recordVar.type);
+                dlog.error(recordVar.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
+                        variable.getKey().getValue(), recordVar.type);
                 return;
             }
         }

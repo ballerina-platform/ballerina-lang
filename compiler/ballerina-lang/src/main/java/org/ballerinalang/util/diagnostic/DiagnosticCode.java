@@ -187,7 +187,7 @@ public enum DiagnosticCode {
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
-    INVALID_RECORD_BINDING_PATTERN("invalid.record.binding.pattern"),
+    INVALID_FIELD_IN_RECORD_BINDING_PATTERN("invalid.field.in.record.binding.pattern"),
     INVALID_RECORD_LITERAL_BINDING_PATTERN("invalid.record.literal.in.binding.pattern"),
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
@@ -203,6 +203,7 @@ public enum DiagnosticCode {
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
 
+    INVALID_RECORD_BINDING_PATTERN("invalid.record.binding.pattern"),
     NO_MATCHING_RECORD_REF_PATTERN("no.matching.record.ref.found"),
     MULTIPLE_RECORD_REF_PATTERN_FOUND("multiple.matching.record.ref.found"),
     NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF("not.enough.patterns.to.match.record.ref"),

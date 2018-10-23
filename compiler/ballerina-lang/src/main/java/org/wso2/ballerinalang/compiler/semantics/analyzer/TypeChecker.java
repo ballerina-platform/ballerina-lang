@@ -597,7 +597,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
         }
 
-        dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN);
+        dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
         return null;
     }
 

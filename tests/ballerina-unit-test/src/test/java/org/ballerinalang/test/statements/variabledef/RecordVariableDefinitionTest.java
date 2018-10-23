@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -228,12 +229,22 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns[3].stringValue(), "A");
     }
 
+    @Test(description = "Test record var def inside tuple var def inside record var def")
+    public void testRecordVarWithUnionType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordVarWithUnionType");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 51.1);
+        Assert.assertEquals(returns[2].getType().getName(), "UnionOne");
+        Assert.assertEquals(((BMap) returns[2]).get("restP1").stringValue(), "stringP1");
+
+    }
+
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 13);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         String redeclaredSymbol = "redeclared symbol ";
-        String invalidRecordBindingPattern = "invalid record binding pattern. ";
-
+        String invalidRecordBindingPattern = "invalid record binding pattern; ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 19);
@@ -259,5 +270,7 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected 'string', found 'boolean'", 99, 14);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 100, 15);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record binding pattern with type 'UnionOne|UnionTwo'", 123, 36);
     }
 }
