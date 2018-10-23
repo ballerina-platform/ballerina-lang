@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0;
 
 /**
@@ -49,7 +50,8 @@ public class TestHttp2WithALPN {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestHttp2WithALPN.class);
     private ServerConnector serverConnector;
-    private HttpClientConnector httpClientConnector;
+    private HttpClientConnector http1ClientConnector;
+    private HttpClientConnector http2ClientConnector;
     private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
@@ -63,12 +65,26 @@ public class TestHttp2WithALPN {
         future.sync();
 
         connectorFactory = new DefaultHttpWsConnectorFactory();
-        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
+        http2ClientConnector = connectorFactory
+                .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_2_0)));
+        http1ClientConnector = connectorFactory
+                .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_1_1)));
     }
 
+    /**
+     * This test case will have ALPN negotiation for HTTP/2 request.
+     */
     @Test
     public void testHttp2Post() {
-        TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT1);
+        TestUtil.testHttpsPost(http2ClientConnector, TestUtil.SERVER_PORT1);
+    }
+
+    /**
+     * This test case will have ALPN negotiation for HTTP/1.1 request.
+     */
+    @Test
+    public void testHttp1_1Post() {
+        TestUtil.testHttpsPost(http1ClientConnector, TestUtil.SERVER_PORT1);
     }
 
     private ListenerConfiguration getListenerConfigs() {
@@ -85,7 +101,7 @@ public class TestHttp2WithALPN {
         return listenerConfiguration;
     }
 
-    private SenderConfiguration getSenderConfigs() {
+    private SenderConfiguration getSenderConfigs(String httpVersion) {
         Parameter paramClientCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
         List<Parameter> clientParams = new ArrayList<>(1);
         clientParams.add(paramClientCiphers);
@@ -93,14 +109,15 @@ public class TestHttp2WithALPN {
         senderConfiguration.setParameters(clientParams);
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setHttpVersion(String.valueOf(HTTP_2_0));
+        senderConfiguration.setHttpVersion(httpVersion);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        httpClientConnector.close();
+        http2ClientConnector.close();
+        http1ClientConnector.close();
         serverConnector.stop();
         try {
             connectorFactory.shutdown();
