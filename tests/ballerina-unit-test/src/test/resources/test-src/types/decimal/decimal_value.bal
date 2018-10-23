@@ -15,69 +15,69 @@
 // under the License.
 
 
-// Simple decimal literal - positive
+// Simple decimal literal - positive.
 function testDecimalValue() returns (decimal) {
     decimal d;
     d = 10.1;
     return d;
 }
 
-// Simple decimal literal - negative
+// Simple decimal literal - negative.
 function testNegativeDecimalValue() returns (decimal) {
     decimal d;
     d = -10.1;
     return d;
 }
 
-// Decimal value assignment by a return value
+// Decimal value assignment by a return value.
 function testDecimalValueAssignmentByReturnValue() returns (decimal) {
     decimal d;
     d = testDecimalValue();
     return d;
 }
 
-// Decimal addition
+// Decimal addition.
 function testDecimalAddition() returns (decimal) {
     decimal a = 4.565;
     decimal b = 3.1;
     return a + b; // EXPECTED: 7.665
 }
 
-// Decimal substraction
+// Decimal substraction.
 function testDecimalSubtraction() returns (decimal) {
     decimal a = 4.565;
     decimal b = 3.1;
     return a - b; // EXPECTED: 1.465
 }
 
-// Decimal multiplication
+// Decimal multiplication.
 function testDecimalMultiplication() returns (decimal) {
     decimal a = 4.565;
     decimal b = 3.1;
     return a * b; // EXPECTED: 14.1515
 }
 
-// Decimal division
+// Decimal division.
 function testDecimalDivision() returns (decimal) {
     decimal a = 4.565;
     decimal b = 3.1;
     return a / b; // EXPECTED: 1.47258064516
 }
 
-// Decimal modulus
+// Decimal modulus.
 function testDecimalModulus() returns (decimal) {
     decimal a = 4.565;
     decimal b = 3.1;
     return a % b; // EXPECTED: 1.465
 }
 
-// Decimal negation
+// Decimal negation.
 function testDecimalNegation() returns (decimal) {
     decimal a = 4.565;
     return -a; // EXPECTED: -4.565
 }
 
-// Decimal value passed as a parameter
+// Decimal value passed as a parameter.
 function testDecimalParameter(decimal a, decimal b) returns (decimal, decimal) {
     decimal c;
     decimal d;
@@ -86,7 +86,7 @@ function testDecimalParameter(decimal a, decimal b) returns (decimal, decimal) {
     return (c, d);
 }
 
-// Test int literal assingment for a decimal variable
+// Test int literal assingment for a decimal variable.
 function testIntLiteralAssignment() returns (decimal, decimal) {
     decimal d = 12;
     return (d, 15);
