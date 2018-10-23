@@ -47,9 +47,9 @@ suite("Language Server Tests", function () {
         langClient.onReady().then(() => {
             done();
         }, () => {
-            done(new Error("start failed"));
+            done(new Error("Language Server start failed"));
         }).catch((err) => {
-            done(new Error("start failed"));
+            done(new Error("Language Server start failed"));
         });
     });
 
@@ -63,6 +63,14 @@ suite("Language Server Tests", function () {
             }, (reason) => {
                 done(reason);
             });
+        });
+    });
+
+    test("Test Language Server Stop", function (done): void {
+        langClient.stop().then(() => {
+            done();
+        }, () => {
+            done(new Error("Language Server stop failed"));
         });
     });
 });
