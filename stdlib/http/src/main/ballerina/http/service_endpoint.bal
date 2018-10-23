@@ -33,12 +33,12 @@ public type Listener object {
     private Connection conn;
     private ServiceEndpointConfiguration config;
 
-    # Gets invoked during package initialization to initialize the endpoint.
+    # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - Configurations for HTTP service endpoints
     public function init(ServiceEndpointConfiguration c);
 
-    public extern function initEndpoint() returns error;
+    public extern function initEndpoint() returns error?;
 
     # Gets invoked when binding a service to the endpoint.
     #
@@ -166,8 +166,9 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 function Listener::init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
-    if (err != null) {
-        throw err;
+    match err {
+        error e => panic e;
+        () => {}
     }
 }
 
@@ -196,7 +197,7 @@ public type WebSocketListener object {
     public new() {
     }
 
-    # Gets invoked during package initialization to initialize the endpoint.
+    # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
     public function init(ServiceEndpointConfiguration c) {

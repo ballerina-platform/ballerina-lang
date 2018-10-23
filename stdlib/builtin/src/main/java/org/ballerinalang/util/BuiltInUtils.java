@@ -20,6 +20,7 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -56,7 +57,7 @@ public class BuiltInUtils {
         return new BString(value);
     }
 
-    public static BMap<String, BValue> createConversionError(Context context, String msg) {
+    public static BError createConversionError(Context context, String msg) {
         return BLangVMErrors.createError(context, msg);
     }
 

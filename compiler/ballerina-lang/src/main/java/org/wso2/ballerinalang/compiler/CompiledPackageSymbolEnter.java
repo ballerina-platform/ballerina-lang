@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -43,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -905,7 +907,7 @@ public class CompiledPackageSymbolEnter {
 
     private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
         if (orgName == null || orgName.isEmpty()) {
-            throw new BLangCompilerException("invalid package name '" + pkgName + "' in compiled package file");
+            throw new BLangCompilerException("invalid module name '" + pkgName + "' in compiled package file");
         }
 
         return new PackageID(names.fromString(orgName),
@@ -931,7 +933,7 @@ public class CompiledPackageSymbolEnter {
         if (symbol == this.symTable.notFoundSymbol && pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, this.env.repoHierarchy);
             if (symbol == null) {
-                throw new BLangCompilerException("unknown imported package: " + pkgID.name);
+                throw new BLangCompilerException("unknown imported module: " + pkgID.name);
             }
         }
 
@@ -1144,6 +1146,18 @@ public class CompiledPackageSymbolEnter {
             }
             //TODO need to consider a symbol for lambda functions for type definitions.
             return new BInvokableType(funcParams, retType, null);
+        }
+
+        @Override
+        public BType getErrorType(BType reasonType, BType detailsType) {
+            if (reasonType == symTable.stringType && detailsType == symTable.mapType) {
+                return symTable.errorType;
+            }
+            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+                    env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+            BErrorType errorType = new BErrorType(errorSymbol, reasonType, detailsType);
+            errorSymbol.type = errorType;
+            return errorType;
         }
     }
 }

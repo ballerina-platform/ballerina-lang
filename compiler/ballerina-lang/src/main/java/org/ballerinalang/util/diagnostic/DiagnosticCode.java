@@ -24,13 +24,13 @@ package org.ballerinalang.util.diagnostic;
  */
 public enum DiagnosticCode {
 
-    UNDEFINED_PACKAGE("undefined.package"),
-    UNUSED_IMPORT_PACKAGE("unused.import.package"),
-    PACKAGE_NOT_FOUND("package.not.found"),
-    REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
-    INVALID_PACKAGE_DECLARATION("invalid.package.declaration"),
-    MISSING_PACKAGE_DECLARATION("missing.package.declaration"),
-    UNEXPECTED_PACKAGE_DECLARATION("unexpected.package.declaration"),
+    UNDEFINED_MODULE("undefined.module"),
+    UNUSED_IMPORT_MODULE("unused.import.module"),
+    MODULE_NOT_FOUND("module.not.found"),
+    REDECLARED_IMPORT_MODULE("redeclared.import.module"),
+    INVALID_MODULE_DECLARATION("invalid.module.declaration"),
+    MISSING_MODULE_DECLARATION("missing.module.declaration"),
+    UNEXPECTED_MODULE_DECLARATION("unexpected.module.declaration"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     REDECLARED_BUILTIN_SYMBOL("redeclared.builtin.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
@@ -254,8 +254,14 @@ public enum DiagnosticCode {
     MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
     MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
 
-    // Safe Assignment operator related errors
-    SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
+    // error type related errors
+    REQUIRE_ERROR_MAPPING_VALUE("require.error.mapping.value"),
+
+    THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
+    TRY_STMT_NOT_SUPPORTED("try.stmt.not.supported"),
+
+    UNKNOWN_BUILTIN_FUNCTION("unknown.builtin.method"),
+    UNSUPPORTED_BUILTIN_METHOD("unsupported.builtin.method"),
 
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),

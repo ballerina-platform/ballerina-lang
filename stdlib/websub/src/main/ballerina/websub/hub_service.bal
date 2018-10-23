@@ -75,7 +75,7 @@ service<http:Service> hubService {
             match (validateSubscriptionChangeRequest(mode, topic, callback)) {
                 error err => {
                     response.statusCode = http:BAD_REQUEST_400;
-                    response.setTextPayload(err.message);
+                    response.setTextPayload(err.reason());
                 }
                 () => {
                     validSubscriptionChangeRequest = true;
@@ -107,7 +107,7 @@ service<http:Service> hubService {
 
             match(registerTopicAtHub(topic)) {
                 error e => {
-                    string errorMessage = e.message;
+                    string errorMessage = e.reason();
                     response.statusCode = http:BAD_REQUEST_400;
                     response.setTextPayload(errorMessage);
                     log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
@@ -137,7 +137,7 @@ service<http:Service> hubService {
 
             match(unregisterTopicAtHub(topic)) {
                 error e => {
-                    string errorMessage = e.message;
+                    string errorMessage = e.reason();
                     response.statusCode = http:BAD_REQUEST_400;
                     response.setTextPayload(errorMessage);
                     log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
@@ -176,7 +176,7 @@ service<http:Service> hubService {
                             }
                             error err => {
                                 string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
-                                                        + err.message;
+                                                        + err.reason();
                                 log:printError(errorMessage);
                                 response.setTextPayload(errorMessage);
                                 response.statusCode = http:BAD_REQUEST_400;
@@ -203,7 +203,7 @@ service<http:Service> hubService {
                             publishStatus = publishToInternalHub(topic, notification);
                         }
                         error err => {
-                            string errorMessage = "Error extracting payload: " + err.message;
+                            string errorMessage = "Error extracting payload: " + err.reason();
                             log:printError(errorMessage);
                             response.statusCode = http:BAD_REQUEST_400;
                             response.setTextPayload(untaint errorMessage);
@@ -220,7 +220,7 @@ service<http:Service> hubService {
                     match(publishStatus) {
                         error err => {
                             string errorMessage = "Update notification failed for Topic [" + topic + "]: "
-                                                    + err.message;
+                                                    + err.reason();
                             response.setTextPayload(errorMessage);
                             log:printError(errorMessage);
                         }
@@ -270,16 +270,16 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
-            error err = {message:"Malformed URL specified as callback"};
+            error err = error("Malformed URL specified as callback");
             return err;
         }
         if (hubTopicRegistrationRequired && !isTopicRegistered(topic)) {
-            error err = {message:"Subscription request denied for unregistered topic"};
+            error err = error("Subscription request denied for unregistered topic");
             return err;
         }
         return;
     }
-    error err = {message:"Topic/Callback cannot be null for subscription/unsubscription request"};
+    error err = error("Topic/Callback cannot be null for subscription/unsubscription request");
     return err;
 }
 
@@ -346,13 +346,13 @@ function verifyIntent(string callback, string topic, map<string> params) {
                 }
                 error payloadError => {
                     log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-                            + "]: Error retrieving response payload: " + payloadError.message);
+                            + "]: Error retrieving response payload: " + payloadError.reason());
                 }
             }
         }
         error httpConnectorError => {
             log:printInfo("Error sending intent verification request for callback URL: [" + callback
-                    + "]: " + httpConnectorError.message);
+                    + "]: " + httpConnectorError.reason());
         }
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
@@ -384,13 +384,13 @@ function changeTopicRegistrationInDatabase(string mode, string topic) {
         var updateStatus = subscriptionDbEp->update("INSERT INTO topics (topic) VALUES (?)", para1);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
-            error err => log:printError("Error occurred updating registration data: " + err.message);
+            error err => log:printError("Error occurred updating registration data: " + err.reason());
         }
     } else {
         var updateStatus = subscriptionDbEp->update("DELETE FROM topics WHERE topic=?", para1);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
-            error err => log:printError("Error occurred updating unregistration data: " + err.message);
+            error err => log:printError("Error occurred updating unregistration data: " + err.reason());
         }
     }
     subscriptionDbEp.stop();
@@ -420,7 +420,7 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
             untaint para1, untaint para2, untaint para3, untaint para4, untaint para5);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
-            error err => log:printError("Error occurred updating subscription data: " + err.message);
+            error err => log:printError("Error occurred updating subscription data: " + err.reason());
         }
     } else {
         var updateStatus = subscriptionDbEp->update("DELETE FROM subscriptions WHERE topic=? AND callback=?",
@@ -428,7 +428,7 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
 
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
-            error err => log:printError("Error occurred updating unsubscription data: " + err.message);
+            error err => log:printError("Error occurred updating unsubscription data: " + err.reason());
         }
     }
     subscriptionDbEp.stop();
@@ -458,7 +458,7 @@ function addTopicRegistrationsOnStartup() {
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
-            log:printError("Error retreiving data from the database: " + sqlErr.message);
+            log:printError("Error retreiving data from the database: " + sqlErr.reason());
         }
     }
     while (dt.hasNext()) {
@@ -466,12 +466,12 @@ function addTopicRegistrationsOnStartup() {
             TopicRegistration registrationDetails => {
                 match(registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true)) {
                     error e => log:printError("Error registering topic details retrieved from the database: "
-                                                + e.message);
+                                                + e.reason());
                     () => {}
                 }
             }
             error convError => {
-                log:printError("Error retreiving topic registration details from the database: " + convError.message);
+                log:printError("Error retreiving topic registration details from the database: " + convError.reason());
             }
         }
     }
@@ -496,7 +496,7 @@ function addSubscriptionsOnStartup() {
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
-            log:printError("Error retreiving data from the database: " + sqlErr.message);
+            log:printError("Error retreiving data from the database: " + sqlErr.reason());
         }
     }
     while (dt.hasNext()) {
@@ -505,7 +505,7 @@ function addSubscriptionsOnStartup() {
                 addSubscription(subscriptionDetails);
             }
             error convError => {
-                log:printError("Error retreiving subscription details from the database: " + convError.message);
+                log:printError("Error retreiving subscription details from the database: " + convError.reason());
             }
         }
     }
@@ -525,7 +525,7 @@ function clearSubscriptionDataInDb() {
     match(dbResult) {
         int => {}
         error sqlErr => {
-            log:printError("Error deleting subscription data from the database: " + sqlErr.message);
+            log:printError("Error deleting subscription data from the database: " + sqlErr.reason());
         }
     }
 
@@ -533,7 +533,7 @@ function clearSubscriptionDataInDb() {
     match(dbResult) {
         int => {}
         error sqlErr => {
-            log:printError("Error deleting topic data from the database: " + sqlErr.message);
+            log:printError("Error deleting topic data from the database: " + sqlErr.reason());
         }
     }
 
@@ -620,7 +620,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
             }
             error err => {
                 log:printError("Error delievering content to callback[" + callback + "] for topic["
-                                + subscriptionDetails.topic + "]: " + err .message);
+                                + subscriptionDetails.topic + "]: " + err.reason());
             }
         }
     }

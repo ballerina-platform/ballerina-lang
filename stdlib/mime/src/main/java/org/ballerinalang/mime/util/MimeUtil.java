@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStreamingJSON;
@@ -438,7 +439,7 @@ public class MimeUtil {
      * @param errMsg  Error message in string form
      * @return Ballerina error struct
      */
-    public static BMap<String, BValue> createError(Context context, String errMsg) {
+    public static BError createError(Context context, String errMsg) {
         return BLangVMErrors.createError(context, errMsg);
     }
 

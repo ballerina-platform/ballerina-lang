@@ -103,7 +103,7 @@ public type testError record {
 
 function testUnreachableThrow (int value) returns (string) {
     if (value > 10) {
-        testError tError = {message:"error", code:"test"};
+        testerror tError = error("error", code:"test");
         return "unreachable throw";
         throw tError;
     }
@@ -113,7 +113,7 @@ function testUnreachableThrow (int value) returns (string) {
 function testRedeclareFunctionArgument (int value) returns (string) {
     int value = 11;
     if (value > 10) {
-        testError tError = {message:"error", code:"test"};
+        testerror tError = error("error", { code: "test" });
         return "unreachable throw";
         throw tError;
     }

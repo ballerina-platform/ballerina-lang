@@ -1733,7 +1733,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         checkedExpr.expr = conversionExpr;
         checkedExpr.type = conversionExpr.targetType;
-        checkedExpr.equivalentErrorTypeList = Collections.singletonList(symTable.errStructType);
+        checkedExpr.equivalentErrorTypeList = Collections.singletonList(symTable.errorType);
         checkedExpr.pos = conversionExpr.pos;
         return checkedExpr;
     }

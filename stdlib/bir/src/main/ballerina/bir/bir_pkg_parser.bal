@@ -74,8 +74,8 @@ public type PackageParser object {
         } else if (b == 2){
             return "PUBLIC";
         }
-        error err = { message: "unknown variable visiblity tag " + b };
-        throw err;
+        error err = error("unknown variable visiblity tag " + b);
+        panic err;
     }
 
     public function parseVarKind() returns VarKind {
@@ -89,8 +89,8 @@ public type PackageParser object {
         } else if (b == 4){
             return "RETURN";
         }
-        error err = { message: "unknown var kind tag " + b };
-        throw err;
+        error err = error("unknown var kind tag " + b);
+        panic err;
     }
 
     public function parseSig(string sig) returns BInvokableType {

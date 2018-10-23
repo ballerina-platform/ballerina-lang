@@ -23,7 +23,7 @@ import ballerina/io;
 DefaultLogFormatter logFormatter = new DefaultLogFormatter();
 boolean isBuild;
 
-# This object denotes the default log formatter used when pulling a package directly.
+# This object denotes the default log formatter used when pulling a module directly.
 #
 # + offset - Offset from the terminal width.
 type DefaultLogFormatter object {
@@ -33,7 +33,7 @@ type DefaultLogFormatter object {
     }
 };
 
-# This object denotes the build log formatter used when pulling a package while building.
+# This object denotes the build log formatter used when pulling a module while building.
 #
 # + offset - Offset from the terminal width.
 type BuildLogFormatter object {
@@ -48,15 +48,13 @@ type BuildLogFormatter object {
 # + errMessage - The error message.
 # + return - Newly created error record.
 function createError (string errMessage) returns error {
-    error endpointError = {
-        message: logFormatter.formatLog(errMessage)
-    };
+    error endpointError = error(logFormatter.formatLog(errMessage));
     return endpointError;
 }
 
-# This function pulls a package from ballerina central.
+# This function pulls a module from ballerina central.
 #
-# + args - Arguments for pulling a package
+# + args - Arguments for pulling a module
 # + return - nil if no error occurred, else error.
 public function invokePull (string... args) returns error? {
     string url = args[0];
@@ -92,11 +90,11 @@ public function invokePull (string... args) returns error? {
     return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth);
 }
 
-# Pulling a package
+# Pulling a module
 #
 # + httpEndpoint - The endpoint to call
 # + url - Central URL
-# + pkgPath - Package Path
+# + pkgPath - Module Path
 # + dirPath - Directory path
 # + versionRange - Balo version range
 # + fileSeparator - System file separator
@@ -137,7 +135,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                 }
             }
             error err => {
-                return createError("error occurred when pulling the package");
+                return createError("error occurred when pulling the module");
             }
         }
     } else {
@@ -148,7 +146,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             contentLengthHeader = httpResponse.getHeader("content-length");
             pkgSize = check <int> contentLengthHeader;
         } else {
-            return createError("package size information is missing from remote repository. please retry.");
+            return createError("module size information is missing from remote repository. please retry.");
         }
 
         io:ReadableByteChannel sourceChannel = check (httpResponse.getByteChannel());
@@ -173,7 +171,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             if (!createDirectories(destDirPath)) {
                 internal:Path pkgArchivePath = new(destArchivePath);
                 if (pkgArchivePath.exists()) {
-                    return createError("package already exists in the home repository");
+                    return createError("module already exists in the home repository");
                 }
             }
 
@@ -200,7 +198,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                 }
             }
         } else {
-            return createError("package version could not be detected");
+            return createError("module version could not be detected");
         }
     }
 }
@@ -278,11 +276,11 @@ function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int star
 
 # This function will copy files from source to the destination path.
 #
-# + pkgSize - Size of the package pulled
+# + pkgSize - Size of the module pulled
 # + src - Byte channel of the source file
 # + dest - Byte channel of the destination folder
-# + fullPkgPath - Full package path
-# + toAndFrom - Pulled package details
+# + fullPkgPath - Full module path
+# + toAndFrom - Pulled module details
 # + width - Width of the terminal
 function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
               string fullPkgPath, string toAndFrom, int width) {

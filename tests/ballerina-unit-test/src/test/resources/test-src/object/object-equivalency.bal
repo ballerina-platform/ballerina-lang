@@ -549,7 +549,7 @@ type Person object {
     new(name){}
 
     function getPerson() returns Person {
-        error err = {message: "Unsupported operation"};
+        error err = error("Unsupported operation");
         throw err;
     }
 };

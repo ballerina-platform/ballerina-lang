@@ -22,8 +22,7 @@ import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
@@ -156,8 +155,8 @@ public class BLangScheduler {
         ctx.ip = targetIp;
         return resume(ctx, runInCaller);
     }
-    
-    public static WorkerExecutionContext errorThrown(WorkerExecutionContext ctx, BMap<String, BValue> error) {
+
+    public static WorkerExecutionContext errorThrown(WorkerExecutionContext ctx, BError error) {
         ctx.setError(error);
         if (!ctx.isRootContext()) {
             try {
@@ -319,11 +318,11 @@ public class BLangScheduler {
                 BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
                 runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
             } catch (BLangNullReferenceException e) {
-                BMap<String, BValue> error = BLangVMErrors.createNullRefException(this.nativeCtx);
+                BError error = BLangVMErrors.createNullRefException(this.nativeCtx);
                 runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
                         SignalType.ERROR, result));
             } catch (Throwable e) {
-                BMap<String, BValue> error = BLangVMErrors.createError(this.nativeCtx, e.getMessage());
+                BError error = BLangVMErrors.createError(this.nativeCtx, e.getMessage());
                 runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
                         SignalType.ERROR, result));
             } finally {
@@ -361,7 +360,7 @@ public class BLangScheduler {
         }
 
         @Override
-        public synchronized void notifyFailure(BMap<String, BValue> error) {
+        public synchronized void notifyFailure(BError error) {
             CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();

@@ -70,12 +70,6 @@ public class BUnionType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_UNION,
-                memberTypes.stream().map(type -> type.getSig()).collect(Collectors.toList()));
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.UNION_TAG;
     }

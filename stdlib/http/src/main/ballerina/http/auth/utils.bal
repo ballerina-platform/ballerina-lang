@@ -21,8 +21,8 @@
 @final string AUTH_SCHEME_BASIC = "Basic";
 # Bearer authentication scheme.
 @final string AUTH_SCHEME_BEARER = "Bearer";
-# Auth annotation package.
-@final string ANN_PACKAGE = "ballerina/http";
+# Auth annotation module.
+@final string ANN_MODULE = "ballerina/http";
 # Resource level annotation name.
 @final string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
@@ -49,10 +49,9 @@
 # + return - Value of the basic authentication header, or nil if not found
 public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
     // extract authorization header
-    try {
-        return req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
+    match trap req.getHeader(AUTH_HEADER) {
+        string s => return s;
+        error e => log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.reason());
     }
     return ();
 }
@@ -62,6 +61,6 @@ public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
 # + message - Error message
 # + return - Error populated with the message
 function handleError(string message) returns (error) {
-    error e = {message: message};
+    error e = error(message);
     return e;
 }

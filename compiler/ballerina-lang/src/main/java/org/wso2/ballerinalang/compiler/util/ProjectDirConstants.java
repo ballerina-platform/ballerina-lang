@@ -33,7 +33,7 @@ public class ProjectDirConstants {
     public static final String BLANG_COMPILED_PKG_EXT = ".zip";
 
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
-    public static final String PACKAGE_MD_FILE_NAME = "Package.md";
+    public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String DOT_BALLERINA_DIR_NAME = ".ballerina";
     public static final String DOT_BALLERINA_REPO_DIR_NAME = "repo";
     public static final String TARGET_DIR_NAME = "target";

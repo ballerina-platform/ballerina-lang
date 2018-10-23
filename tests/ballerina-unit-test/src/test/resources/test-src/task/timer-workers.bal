@@ -51,7 +51,7 @@ function onTriggerW1() returns error? {
     io:println("w1:onTriggerW1");
     if (errorMsgW1 != "") {
         io:println("w1:onTriggerW1 returning error");
-        error e = {message:errorMsgW1};
+        error e = error(errorMsgW1);
         return e;
     }
     return;
@@ -67,7 +67,7 @@ function onTriggerW2() returns error? {
     io:println("w2:onTriggerW2");
     if (errorMsgW2 != "") {
         io:println("w2:onTriggerW2 returning error");
-        error e = {message:errorMsgW2};
+        error e = error(errorMsgW2);
         return e;
     }
     return;
