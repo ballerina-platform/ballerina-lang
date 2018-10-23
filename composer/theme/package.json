@@ -1,7 +1,9 @@
 {
   "name": "@ballerina/theme",
   "version": "0.982.1-SNAPSHOT",
-  "description": "",
+  "description": "Theme and font for web components of Ballerina Tooling.",
+  "keywords": ["ballerina", "ballerina-lang", "composer", "theme"],
+  "repository": "ballerina-platform/ballerina-lang",
   "main": "index.js",
   "scripts": {
     "build": "npm run build-font",
@@ -12,7 +14,11 @@
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
+  "dependencies": {
+    "semantic-ui-less": "^2.3.2"
+  },
   "devDependencies": {
+    "babel-plugin-module-resolver": "^3.1.1",
     "watch": "^1.0.2",
     "webfont": "^8.1.4"
   }
