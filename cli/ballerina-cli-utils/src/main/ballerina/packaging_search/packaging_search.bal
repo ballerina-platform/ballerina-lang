@@ -18,7 +18,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            io:println("Connection to the remote host failed : " + e.reason());
+            io:println("Connection to the remote host failed : " + e.message);
             return;
         }
     }
@@ -222,12 +222,12 @@ public function main (string... args) {
     string host = args[2];
     string port = args[3];
     if (host != "" && port != "") {
-      //  try {
-        http:Client|error httpEndpoint3 = defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
-        //} catch (error err) {
-        //    io:println("failed to resolve host : " + host + " with port " + port);
-        //    return;
-        //}
+        try {
+            httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
+        } catch (error err) {
+            io:println("failed to resolve host : " + host + " with port " + port);
+            return;
+        }
     } else  if (host != "" || port != "") {
         io:println("both host and port should be provided to enable proxy");     
         return;   

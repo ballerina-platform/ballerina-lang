@@ -53,7 +53,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            io:println("connection to the remote host failed : " + e.reason());
+            io:println("connection to the remote host failed : " + e.message);
             return;
         }
     }
@@ -76,12 +76,12 @@ public function main (string... args) {
     string host = args[13];
     string port = args[14];
     if (host != "" && port != "") {
-      //  try {
-        http:Client|error httpEndpoint1 = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
-        //} catch (error err) {
-        //  io:println("failed to resolve host : " + host + " with port " + port);
-        //  return;
-        //}
+        try {
+          httpEndpoint = defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
+        } catch (error err) {
+          io:println("failed to resolve host : " + host + " with port " + port);
+          return;
+        }
     } else  if (host != "" || port != "") {
         io:println("both host and port should be provided to enable proxy");     
         return;   
