@@ -1310,8 +1310,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
-            return ((BStructureType) referredType).fields.stream()
-                    .map(field -> ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type));
+            return ((BStructureType) referredType).fields.stream().map(field -> {
+                BLangVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
+                var.flagSet = field.symbol.getFlags();
+                return var;
+            });
         }).collect(Collectors.toList());
     }
 

@@ -374,6 +374,104 @@ function testObjectWithUnorderedFields() returns (string, string, string, string
     return (s1, s2, s3, s4);
 }
 
+public type A4 abstract object {
+    public int p;
+    public string q;
+};
+
+public type B4 abstract object {
+    public float r;
+    *A4;
+};
+
+public type C4 object {
+    *B4;
+    public boolean s;
+    
+    public new (p, q, r, s) {}
+};
+
+function testPublicObjectEquivalency() returns (string, string, string) {
+    any x = new C4(5, "foo", 6.7, true);
+    string s1 = "n/a";
+    string s2 = "n/a";
+    string s3 = "n/a";
+
+    if(x is A4) {
+        s1 = "values: " + x.p + ", " + x.q;
+    }
+
+    if (x is B4) {
+        s2 = "values: " + x.p + ", " + x.q + ", " + x.r;
+    }
+
+    if (x is Person) {   // shouldn't match
+        s3 = "values: " + x.name + ", " + x.age;
+    }
+
+    return (s1, s2, s3);
+}
+
+type A5 abstract object {
+    int p;
+    string q;
+};
+
+type B5 abstract object {
+    float r;
+    *A5;
+};
+
+type C5 object {
+    *B5;
+    boolean s;
+    
+    new (p, q, r, s) {}
+};
+
+function testPrivateObjectEquivalency() returns (string, string, string) {
+    any x = new C5(5, "foo", 6.7, true);
+    string s1 = "n/a";
+    string s2 = "n/a";
+    string s3 = "n/a";
+
+    if(x is A5) {
+        s1 = "values: " + x.p + ", " + x.q;
+    }
+
+    if (x is B5) {
+        s2 = "values: " + x.p + ", " + x.q + ", " + x.r;
+    }
+
+    if (x is Person) {   // shouldn't match
+        s3 = "values: " + x.name + ", " + x.age;
+    }
+
+    return (s1, s2, s3);
+}
+
+function testAnonymousObjectEquivalency() returns (string, string, string) {
+    any x = new C4(5, "foo", 6.7, true);
+    string s1 = "n/a";
+    string s2 = "n/a";
+    string s3 = "n/a";
+
+    if(x is abstract object { public float r; *A4; }) {
+        s1 = "values: " + x.p + ", " + x.q + ", " + x.r;
+    }
+
+    if(x is object {  public int p;  public string q;  public float r;  public boolean s;}) {
+        s2 = "values: " + x.p + ", " + x.q + ", " + x.r + ", " + x.s;
+    }
+
+    if(x is object { public int p;  public boolean q;  public float r;}) {  // shouldn't match
+        s3 = "values: " + x.p + ", " + x.q + ", " + x.r;
+    }
+
+    return (s1, s2, s3);
+}
+
+
 // ========================== Arrays ==========================
 
 function testSimpleArrays() returns (boolean, boolean, boolean, boolean, boolean) {
@@ -532,7 +630,7 @@ function testFiniteTypeInTuplePoisoning() returns (State, State) {
     if (y is (State, State)) {
         z = y;
     }
-    
+
     x[1] = "surprise!";
     return (z[0], z[1]);
 }

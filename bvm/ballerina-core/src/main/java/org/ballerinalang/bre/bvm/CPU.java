@@ -118,6 +118,7 @@ import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.PrintStream;
@@ -3088,19 +3089,18 @@ public class CPU {
             return false;
         }
 
-        return checkEquivalencyOfTwoRecords(lhsType, rhsType);
+        return checkFieldEquivalency(lhsType, rhsType);
     }
 
     private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
-        for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
-            BField lhsField = lhsType.getFields()[fieldCounter];
-            BField rhsField = rhsType.getFields()[fieldCounter];
-            if (lhsField.fieldName.equals(rhsField.fieldName) &&
-                    isSameType(rhsField.fieldType, lhsField.fieldType)) {
-                continue;
+        Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
+                Collectors.toMap(BField::getFieldName, field -> field));
+        for (BField lhsField : lhsType.getFields()) {
+            BField rhsField = rhsFields.get(lhsField.fieldName);
+            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
+                return false;
             }
-            return false;
         }
 
         BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
@@ -3120,26 +3120,17 @@ public class CPU {
 
     private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
-        int fieldCounter = 0;
-        for (; fieldCounter < lhsType.getFields().length; fieldCounter++) {
-            // Return false if either field is private
-            BField lhsField = lhsType.getFields()[fieldCounter];
-            BField rhsField = rhsType.getFields()[fieldCounter];
-            if (!Flags.isFlagOn(lhsField.flags, Flags.PUBLIC) ||
-                    !Flags.isFlagOn(rhsField.flags, Flags.PUBLIC)) {
-                return false;
-            }
-
-            if (lhsField.fieldName.equals(rhsField.fieldName) &&
-                    isSameType(rhsField.fieldType, lhsField.fieldType)) {
-                continue;
-            }
+        // Check the whether there is any private fields in RHS type
+        if (Arrays.stream(rhsType.getFields()).anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
             return false;
         }
 
-        // Check the rest of the fields in RHS type
-        for (; fieldCounter < rhsType.getFields().length; fieldCounter++) {
-            if (!Flags.isFlagOn(rhsType.getFields()[fieldCounter].flags, Flags.PUBLIC)) {
+        Map<String, BField> rhsFields =
+                Arrays.stream(rhsType.getFields()).collect(Collectors.toMap(BField::getFieldName, field -> field));
+        for (BField lhsField : lhsType.getFields()) {
+            BField rhsField = rhsFields.get(lhsField.fieldName);
+            if (rhsField == null || !Flags.isFlagOn(lhsField.flags, Flags.PUBLIC) ||
+                    !isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 return false;
             }
         }
@@ -3171,24 +3162,16 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkEquivalencyOfTwoRecords(BRecordType lhsType, BRecordType rhsType) {
+    private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType) {
         Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
                 Collectors.toMap(BField::getFieldName, field -> field));
-
-        BField[] fields = lhsType.getFields();
-        for (int fieldCounter = 0; fieldCounter < fields.length; fieldCounter++) {
-            BField lhsField = fields[fieldCounter];
+        for (BField lhsField : lhsType.getFields()) {
             BField rhsField = rhsFields.get(lhsField.fieldName);
 
-            if (rhsField == null) {
-                return false;
-            }
-
-            if (!isSameType(rhsField.fieldType, lhsField.fieldType)) {
+            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 return false;
             }
         }
-
         return true;
     }
 

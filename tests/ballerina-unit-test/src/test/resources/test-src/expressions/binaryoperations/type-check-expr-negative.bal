@@ -195,3 +195,36 @@ function testJsonArrays() returns (boolean, boolean) {
     boolean b1 = y is int[][];
     return (b0, b1);
 }
+
+public type X1 abstract object {
+    public int p;
+    public string q;
+};
+
+public type Y1 abstract object {
+    public float r;
+    *X1;
+};
+
+public type Z1 object {
+    *Y1;
+    public boolean s;
+    
+    public new (p, q, r, s) {}
+};
+
+function testObjectEquivalency() returns (string, string) {
+    Z1 z = new Z1(5, "foo", 6.7, true);
+    string s1;
+    string s2;
+
+    if(z is X1) {
+        s1 = "values: " + z.p + ", " + z.q;
+    }
+
+    if (z is Y1) {
+        s2 = "values: " + z.p + ", " + z.q + ", " + z.r;
+    }
+
+    return (s1, s2);
+}

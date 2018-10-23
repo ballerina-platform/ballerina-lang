@@ -43,7 +43,8 @@ public class TypeCheckExprTest {
     public void testTypeCheckExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-check-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 32);
+        System.out.println(negativeResult);
+        Assert.assertEquals(negativeResult.getErrorCount(), 34);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -108,6 +109,10 @@ public class TypeCheckExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 188, 13);
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 188, 23);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 221, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "unnecessary condition: expression will always evaluate to 'true'", 225, 9);
     }
 
     @Test
@@ -270,6 +275,42 @@ public class TypeCheckExprTest {
         Assert.assertEquals(returns[1].stringValue(), "I am a person not in order: John");
         Assert.assertEquals(returns[2].stringValue(), "I am a person in order: Doe");
         Assert.assertEquals(returns[3].stringValue(), "I am a person not in order: Doe");
+    }
+
+    @Test
+    public void testPublicObjectEquivalency() {
+        BValue[] returns = BRunUtil.invoke(result, "testPublicObjectEquivalency");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "values: 5, foo");
+        Assert.assertEquals(returns[1].stringValue(), "values: 5, foo, 6.7");
+        Assert.assertEquals(returns[2].stringValue(), "n/a");
+    }
+
+    @Test
+    public void testPrivateObjectEquivalency() {
+        BValue[] returns = BRunUtil.invoke(result, "testPrivateObjectEquivalency");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "values: 5, foo");
+        Assert.assertEquals(returns[1].stringValue(), "values: 5, foo, 6.7");
+        Assert.assertEquals(returns[2].stringValue(), "n/a");
+    }
+
+    @Test
+    public void testAnonymousObjectEquivalency() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnonymousObjectEquivalency");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+        Assert.assertSame(returns[2].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "values: 5, foo, 6.7");
+        Assert.assertEquals(returns[1].stringValue(), "values: 5, foo, 6.7, true");
+        Assert.assertEquals(returns[2].stringValue(), "n/a");
     }
 
     @Test
