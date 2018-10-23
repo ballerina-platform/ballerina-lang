@@ -28,12 +28,16 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 import org.ballerinalang.net.websub.hub.HubSubscriber;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS;
@@ -50,6 +54,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
         orgName = "ballerina", packageName = "websub",
         functionName = "getTopicSubscribers",
         args = {@Argument(name = "topic", type = TypeKind.STRING)},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSubHub", structPackage = "ballerina/websub"),
         returnType = @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.RECORD, structType = "SubscriberDetails",
                                  structPackage = "ballerina/websub"),
         isPublic = true

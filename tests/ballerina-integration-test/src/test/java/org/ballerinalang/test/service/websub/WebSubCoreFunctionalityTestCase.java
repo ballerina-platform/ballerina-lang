@@ -218,6 +218,17 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Assert.assertEquals(response.getData(), "validation failed for notification");
     }
 
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testHubTopicSubscriberDetailsRetrieval() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(
+                webSubSubscriber.getServiceURLHttp(8181, "websubTwo"), "{\"dummy\":\"body\"}",
+                headers);
+        Assert.assertEquals(response.getResponseCode(), 404);
+        Assert.assertEquals(response.getData(), "validation failed for notification");
+    }
+
     @AfterClass
     public void teardown() throws Exception {
         webSubSubscriber.removeAllLeechers();
