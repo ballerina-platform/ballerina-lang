@@ -906,7 +906,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
-            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION) {
+            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
