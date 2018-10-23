@@ -73,14 +73,28 @@ public function invokePull (string... args) returns error? {
         logFormatter = new BuildLogFormatter();
     }
 
+    //// resolve endpoint
+    //http:Client httpEndpoint;
+    //if (host != "" && port != "") {
+    //    try {
+    //        httpEndpoint = defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
+    //    } catch (error err) {
+    //        return createError("failed to resolve host : " + host + " with port " + port);
+    //    }
+    //} else  if (host != "" || port != "") {
+    //    return createError("both host and port should be provided to enable proxy");
+    //} else {
+    //    httpEndpoint = defineEndpointWithoutProxy(url);
+    //}
+
     // resolve endpoint
     http:Client httpEndpoint;
     if (host != "" && port != "") {
-        try {
-            httpEndpoint = defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
-        } catch (error err) {
-            return createError("failed to resolve host : " + host + " with port " + port);
-        }
+       // try {
+        http:Client|error test = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
+      //  } catch (error err) {
+     //       return createError("failed to resolve host : " + host + " with port " + port);
+      //  }
     } else  if (host != "" || port != "") {
         return createError("both host and port should be provided to enable proxy");
     } else {
@@ -115,7 +129,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            return createError("connection to the remote host failed : " + e.message);
+            return createError("connection to the remote host failed : " + e.reason());
         }
     }
 
@@ -184,12 +198,12 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
             match wch.close() {
                 error destChannelCloseError => {
-                    return createError("error occured while closing the channel: " + destChannelCloseError.message);
+                    return createError("error occured while closing the channel: " + destChannelCloseError.reason());
                 }
                 () => {
                     match sourceChannel.close() {
                         error sourceChannelCloseError => {
-                            return createError("error occured while closing the channel: " + sourceChannelCloseError.message);
+                            return createError("error occured while closing the channel: " + sourceChannelCloseError.reason());
                         }
                         () => {
                             return ();
@@ -298,7 +312,7 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
     int totalVal = 10;
     int startVal = 0;
     int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
-    try {
+   // try {
         while (!completed) {
             (readContent, readCount) = readBytes(src, bytesChunk);
             if (readCount <= startVal) {
@@ -316,9 +330,9 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
             string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
             io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
         }
-    } catch (error err) {
-        io:println("");
-    }
+    //} catch (error err) {
+    //    io:println("");
+    //}
     io:println("\r" + logFormatter.formatLog(rightPad(fullPkgPath + toAndFrom, terminalWidth)));
 }
 
@@ -387,7 +401,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
             match rc.close() {
                 error channelCloseError => {
                     io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.message));
+                                channelCloseError.reason()));
                 }
                 () => return;
             }
@@ -396,7 +410,7 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
             match wc.close() {
                 error channelCloseError => {
                     io:println(logFormatter.formatLog("Error occured while closing the channel: " +
-                                channelCloseError.message));
+                                channelCloseError.reason()));
                 }
                 () => return;
             }

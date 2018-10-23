@@ -48,6 +48,10 @@ import ballerina/io;
 # Represents `content-disposition` header name.
 @final public string CONTENT_DISPOSITION = "content-disposition";
 
+type MIMEError record {
+    string message;
+};
+
 # Represents values in `Content-Disposition` header.
 #
 # + fileName - Default filename for storing the bodypart, if the receiving agent wishes to store it in an external
