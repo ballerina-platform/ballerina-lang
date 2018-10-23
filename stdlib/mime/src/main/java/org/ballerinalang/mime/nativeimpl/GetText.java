@@ -36,6 +36,7 @@ import java.util.Locale;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_AS_PRIMARY_TYPE;
 
 /**
@@ -71,11 +72,11 @@ public class GetText extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createError(context, "Entity body is not text " +
+                context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE, "Entity body is not text " +
                         "compatible since the received content-type is : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
+            context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE,
                     "Error occurred while retrieving text data from entity : " + e.getMessage()));
         }
     }

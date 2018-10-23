@@ -66,6 +66,7 @@ import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
 import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_MESSAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
@@ -433,14 +434,22 @@ public class MimeUtil {
     }
 
     /**
-     * Create ballerina error struct.
+     * Create mime specific error record.
      *
      * @param context Represent ballerina context
-     * @param errMsg  Error message in string form
-     * @return Ballerina error struct
+     * @param reason  Error code in string form
+     * @param errMsg  Actual error message
+     * @return Ballerina error record
      */
-    public static BError createError(Context context, String errMsg) {
-        return BLangVMErrors.createError(context, errMsg);
+    public static BError createError(Context context, String reason, String errMsg) {
+        BMap<String, BValue> mimeErrorRecord = createMimeErrorRecord(context);
+        mimeErrorRecord.put(MIME_ERROR_MESSAGE, new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, reason, mimeErrorRecord);
+    }
+
+    private static BMap<String, BValue> createMimeErrorRecord(Context context) {
+        return BLangConnectorSPIUtil.createBStruct(context, MimeConstants.PROTOCOL_PACKAGE_MIME,
+                MimeConstants.MIME_ERROR_RECORD);
     }
 
     public static boolean isJSONContentType(BMap<String, BValue> entityStruct) {
@@ -489,7 +498,7 @@ public class MimeUtil {
     /**
      * Check whether a given value should be serialized specifically as a JSON.
      *
-     * @param value Value to serialize
+     * @param value        Value to serialize
      * @param entityRecord Entity record
      * @return flag indicating whether the given value should be serialized specifically as a JSON
      */

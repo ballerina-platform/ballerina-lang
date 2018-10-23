@@ -37,6 +37,7 @@ import java.util.Locale;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.XML_SUFFIX;
 import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
 
@@ -79,11 +80,11 @@ public class GetXml extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createError(context, "Entity body is not xml " +
+                context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE, "Entity body is not xml " +
                         "compatible since the received content-type is : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
+            context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE,
                     "Error occurred while retrieving xml data from entity : " + e.getMessage()));
         }
     }
