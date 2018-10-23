@@ -149,22 +149,20 @@ function fn2() returns (string|int|float, (string|float, string)) {
     return v;
 }
 
-function testVarRefWithUnionType4() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
-    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = ((12, true), (45, false), ("Hello", "World"));
+function testVarRefWithUnionType4() returns ((string|int, int|boolean), float|(int, boolean), (string|float, string)) {
+    ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = ((12, true), (45, false), ("Hello", "World"));
     ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
     return ((a, b), c, (d, e));
 }
 
-//not working case
-function fn3() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
-    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((v1, v2), v3, (v4, v5)) = (("Test", 23), 4.5, (5.7, "Foo"));
+function fn3() returns ((string|int, int|boolean), float|(int, boolean), (string|float, string)) {
+    ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((v1, v2), v3, (v4, v5)) = (("Test", 23), 4.5, (5.7, "Foo"));
     return ((v1, v2), v3, (v4, v5));
 }
 
-function testVarRefWithUnionType5() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
-    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((v1, v2), v3, (v4, v5)) = (("Test", 23), 4.5, (5.7, "Foo"));
-    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), (45, false), ("Hello", "World"));
-    ((a, b), c, (d, e)) = ((v1, v2), v3, (v4, v5));
+function testVarRefWithUnionType5() returns ((string|int, int|boolean), float|(int, boolean), (string|float, string)) {
+    ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), (45, false), ("Hello", "World"));
+    ((a, b), c, (d, e)) = fn3();
     return ((a, b), c, (d, e));
 }
 

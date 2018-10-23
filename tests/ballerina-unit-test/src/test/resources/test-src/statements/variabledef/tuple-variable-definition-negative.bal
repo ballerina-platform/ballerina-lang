@@ -94,3 +94,7 @@ function fn1(any t) returns (string, int, boolean, int, float, int) {
     ((string, (int, (boolean, int))), (float, int)) ((s, (i1, (b, y))), (f, i2)) = t;
     return (s, i1, b, y, f, i2);
 }
+
+function testUnionTypeDefInTupleType()  {
+    (string, int)|(int, boolean) (a, b) = ("Test", 23);
+}

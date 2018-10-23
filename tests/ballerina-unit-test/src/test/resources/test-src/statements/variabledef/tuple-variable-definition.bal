@@ -180,17 +180,17 @@ function fn2() returns (string|int|float, (string|float, string)) {
     return v;
 }
 
-function testVarDefWithUnionType4() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
-    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
+function testVarDefWithUnionType4() returns ((string|int, int|boolean), float|(int, boolean), (string|float, string)) {
+    ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
     return ((a, b), c, (d, e));
 }
 
-function fn3() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
-    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
+function fn3() returns ((string|int, int|boolean), float|(int, boolean), (string|float, string)) {
+    ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = (("Test", 23), 4.5, (5.7, "Foo"));
     return ((a, b), c, (d, e));
 }
 
-function testVarDefWithUnionType5() returns ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) {
-    ((string, int)|(int, boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = fn3();
+function testVarDefWithUnionType5() returns ((string|int, int|boolean), float|(int, boolean), (string|float, string)) {
+    ((string|int, int|boolean), float|(int, boolean), (string|float, string)) ((a, b), c, (d, e)) = fn3();
     return ((a, b), c, (d, e));
 }
