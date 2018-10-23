@@ -148,6 +148,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -270,6 +271,10 @@ public class TreeBuilder {
 
     public static PackageNode createPackageNode() {
         return new BLangPackage();
+    }
+
+    public static BLangTestablePackage createTestablePackageNode() {
+        return new BLangTestablePackage();
     }
 
     public static IdentifierNode createIdentifierNode() {

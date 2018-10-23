@@ -132,4 +132,5 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
+
 }

@@ -156,30 +156,29 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        boolean isTestSrc = CommonUtil.isTestSource(this.lsContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
+        BLangPackage evalPkg = isTestSrc ? pkgNode.getTestablePkg() : pkgNode;
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(evalPkg.symbol);
         this.symbolEnv = pkgEnv;
 
-        List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(pkgNode, lsContext);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkgNode, lsContext);
+        List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, lsContext);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(evalPkg, lsContext);
         
         imports.forEach(bLangImportPackage -> {
-            if (!bLangImportPackage.getOrgName().getValue().equals("ballerina")
-                    && !bLangImportPackage.symbol.getName().getValue().equals("transaction")) {
-                cursorPositionResolver = TopLevelNodeScopeResolver.class;
-                this.blockOwnerStack.push(pkgNode);
-                acceptNode(bLangImportPackage, pkgEnv);
-            }
+            cursorPositionResolver = TopLevelNodeScopeResolver.class;
+            this.blockOwnerStack.push(evalPkg);
+            acceptNode(bLangImportPackage, pkgEnv);
         });
 
         topLevelNodes.forEach(topLevelNode -> {
             cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(pkgNode);
+            this.blockOwnerStack.push(evalPkg);
             acceptNode((BLangNode) topLevelNode, pkgEnv);
         });
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
         if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
-            this.lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, pkgNode);
+            this.lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, evalPkg);
             this.populateSymbols(this.resolveAllVisibleSymbols(this.getSymbolEnv()), this.getSymbolEnv());
             forceTerminateVisitor();
         }
