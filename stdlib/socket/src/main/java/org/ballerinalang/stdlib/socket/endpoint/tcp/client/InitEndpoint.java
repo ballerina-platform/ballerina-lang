@@ -45,6 +45,7 @@ import java.util.Map;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_SERVICE_CONFIG;
+import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CLOSE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CONNECT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ERROR;
@@ -88,6 +89,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             socketChannel.configureBlocking(false);
             socketChannel.socket().setReuseAddress(true);
             clientEndpoint.addNativeData(SOCKET_KEY, socketChannel);
+            clientEndpoint.addNativeData(IS_CLIENT, true);
             BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
             Map<String, Resource> resourceMap = null;
             if (service != null) {

@@ -21,6 +21,8 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
@@ -32,6 +34,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketService;
+import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
+import org.ballerinalang.stdlib.socket.tcp.TCPSocketCallableUnitCallback;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +47,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
+import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CONNECT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
@@ -76,11 +81,17 @@ public class Start extends BlockingNativeCallableUnit {
             SocketService socketService = (SocketService) clientEndpoint.getNativeData(SOCKET_SERVICE);
             channel.connect(new InetSocketAddress(host.stringValue(), (int) port.intValue()));
             channel.finishConnect();
-            selectorManager.registerChannel(socketService, OP_READ);
-            selectorManager.start();
+            if (socketService.getResources() != null) {
+                selectorManager.registerChannel(socketService, OP_READ);
+                selectorManager.start();
+                final Resource onConnect = socketService.getResources().get(LISTENER_RESOURCE_ON_CONNECT);
+                final BMap<String, BValue> callerAction = SocketUtils
+                        .createCallerAction(context.getProgramFile(), channel);
+                Executor.submit(onConnect, new TCPSocketCallableUnitCallback(), null, null, callerAction);
+            }
             context.setReturnValues();
         } catch (AlreadyBoundException e) {
-            throw new BallerinaException("Clinet socket is already bound to a port");
+            throw new BallerinaException("Client socket is already bound to a port");
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
             throw new BallerinaException("Provided address not supported");

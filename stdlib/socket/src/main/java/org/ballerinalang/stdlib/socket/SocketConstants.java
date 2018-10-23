@@ -48,5 +48,6 @@ public class SocketConstants {
 
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
     public static final String SOCKET_SERVICE = "socektService";
+    public static final String IS_CLIENT = "isClient";
 
 }

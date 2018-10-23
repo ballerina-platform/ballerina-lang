@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
+import static org.ballerinalang.stdlib.socket.SocketConstants.IS_CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -58,7 +59,10 @@ public class Close extends BlockingNativeCallableUnit {
         try {
             socketChannel.close();
             SelectorManager.getInstance().unRegisterChannel(socketChannel);
-            SelectorManager.getInstance().stop();
+            final Object isClient = clientEndpoint.getNativeData(IS_CLIENT);
+            if (isClient != null && Boolean.getBoolean(isClient.toString())) {
+                SelectorManager.getInstance().stop();
+            }
         } catch (IOException e) {
             log.error("Unable to close the connection", e);
             context.setReturnValues(SocketUtils.createError(context, "Unable to close the client socket connection"));

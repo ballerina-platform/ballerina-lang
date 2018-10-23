@@ -20,13 +20,10 @@ package org.ballerinalang.stdlib.socket.tcp;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
@@ -37,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
@@ -55,20 +51,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static java.nio.channels.SelectionKey.OP_READ;
-import static org.ballerinalang.stdlib.socket.SocketConstants.CALLER_ACTION;
-import static org.ballerinalang.stdlib.socket.SocketConstants.ID;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ACCEPT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CLOSE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ERROR;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_READ_READY;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_ADDRESS;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_PORT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_ADDRESS;
-import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_PORT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static java.nio.channels.SelectionKey.OP_READ;
 
 /**
  * This will manage the Selector instance and handle the accept, read and write operations.
@@ -221,8 +209,8 @@ public class SelectorManager {
         } catch (SocketException e) {
             invokeOnError(socketService, "Socket connection is closed");
         } catch (IOException e) {
-            log.error("Unable to read from client socket", e);
-            invokeOnError(socketService, "Unable to read from client socket");
+            log.error("Unable to read from socket", e);
+            invokeOnError(socketService, "Unable to read from socket");
         }
     }
 
@@ -240,7 +228,8 @@ public class SelectorManager {
     private void invokeReadReady(SocketService socketService, ByteBuffer buffer) {
         final Resource readReady = socketService.getResources().get(LISTENER_RESOURCE_ON_READ_READY);
         ProgramFile programFile = readReady.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> endpoint = getCallerAction(programFile, (SocketChannel) socketService.getSocketChannel());
+        BMap<String, BValue> endpoint = SocketUtils
+                .createCallerAction(programFile, (SocketChannel) socketService.getSocketChannel());
         BValue[] params = { endpoint, new BByteArray(getByteArrayFromByteBuffer(buffer)) };
         Executor.submit(readReady, new TCPSocketCallableUnitCallback(), null, null, params);
     }
@@ -251,7 +240,7 @@ public class SelectorManager {
             unRegisterChannel((SocketChannel) socketService.getSocketChannel());
             final Resource close = socketService.getResources().get(LISTENER_RESOURCE_ON_CLOSE);
             ProgramFile programFile = close.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
-            BMap<String, BValue> endpoint = getCallerAction(programFile,
+            BMap<String, BValue> endpoint = SocketUtils.createCallerAction(programFile,
                     (SocketChannel) socketService.getSocketChannel());
             BValue[] params = { endpoint };
             Executor.submit(close, new TCPSocketCallableUnitCallback(), null, null, params);
@@ -261,37 +250,20 @@ public class SelectorManager {
     }
 
     private BValue[] getAcceptResourceSignature(SocketChannel client, ProgramFile programFile) {
-        BMap<String, BValue> endpoint = getCallerAction(programFile, client);
+        BMap<String, BValue> endpoint = SocketUtils.createCallerAction(programFile, client);
         return new BValue[] { endpoint };
     }
 
     private BValue[] getOnErrorResourceSignature(SocketChannel client, ProgramFile programFile, String msg) {
-        BMap<String, BValue> endpoint = getCallerAction(programFile, client);
-        BMap<String, BValue> error = getError(programFile, msg);
+        BMap<String, BValue> endpoint = SocketUtils.createCallerAction(programFile, client);
+        BMap<String, BValue> error = createError(programFile, msg);
         return new BValue[] { endpoint, error };
     }
 
-    private BMap<String, BValue> getError(ProgramFile programFile, String msg) {
+    private BMap<String, BValue> createError(ProgramFile programFile, String msg) {
         PackageInfo builtInPkg = programFile.getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo error = builtInPkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(error, msg);
-    }
-
-    private BMap<String, BValue> getCallerAction(ProgramFile programFile, SocketChannel client) {
-        BMap<String, BValue> callerEndpoint = BLangConnectorSPIUtil
-                .createBStruct(programFile, SOCKET_PACKAGE, CALLER_ACTION);
-        callerEndpoint.addNativeData(SOCKET_KEY, client);
-        BMap<String, BValue> endpoint = BLangConnectorSPIUtil.createBStruct(programFile, SOCKET_PACKAGE, "Listener");
-        if (client != null) {
-            Socket socket = client.socket();
-            endpoint.put(REMOTE_PORT, new BInteger(socket.getPort()));
-            endpoint.put(LOCAL_PORT, new BInteger(socket.getLocalPort()));
-            endpoint.put(REMOTE_ADDRESS, new BString(socket.getInetAddress().getHostAddress()));
-            endpoint.put(LOCAL_ADDRESS, new BString(socket.getLocalAddress().getHostAddress()));
-            endpoint.put(ID, new BInteger(client.hashCode()));
-        }
-        endpoint.put("callerAction", callerEndpoint);
-        return endpoint;
     }
 
     private byte[] getByteArrayFromByteBuffer(ByteBuffer content) {

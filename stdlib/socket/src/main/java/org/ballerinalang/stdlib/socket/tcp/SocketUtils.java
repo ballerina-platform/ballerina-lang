@@ -21,11 +21,26 @@ package org.ballerinalang.stdlib.socket.tcp;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
+import java.net.Socket;
+import java.nio.channels.SocketChannel;
+
+import static org.ballerinalang.stdlib.socket.SocketConstants.CALLER_ACTION;
+import static org.ballerinalang.stdlib.socket.SocketConstants.ID;
+import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_ADDRESS;
+import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_PORT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_ADDRESS;
+import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_PORT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
+import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
@@ -44,5 +59,29 @@ public class SocketUtils {
         PackageInfo builtInPkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo error = builtInPkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(error, message);
+    }
+
+    /**
+     * Create a `CallerAction` object that associated with the given SocketChannel.
+     *
+     * @param programFile A program file
+     * @param client      SocketClient that associate with this caller action
+     * @return 'CallerAction' object
+     */
+    public static BMap<String, BValue> createCallerAction(ProgramFile programFile, SocketChannel client) {
+        BMap<String, BValue> callerEndpoint = BLangConnectorSPIUtil
+                .createBStruct(programFile, SOCKET_PACKAGE, CALLER_ACTION);
+        callerEndpoint.addNativeData(SOCKET_KEY, client);
+        BMap<String, BValue> endpoint = BLangConnectorSPIUtil.createBStruct(programFile, SOCKET_PACKAGE, "Listener");
+        if (client != null) {
+            Socket socket = client.socket();
+            endpoint.put(REMOTE_PORT, new BInteger(socket.getPort()));
+            endpoint.put(LOCAL_PORT, new BInteger(socket.getLocalPort()));
+            endpoint.put(REMOTE_ADDRESS, new BString(socket.getInetAddress().getHostAddress()));
+            endpoint.put(LOCAL_ADDRESS, new BString(socket.getLocalAddress().getHostAddress()));
+            endpoint.put(ID, new BInteger(client.hashCode()));
+        }
+        endpoint.put("callerAction", callerEndpoint);
+        return endpoint;
     }
 }
