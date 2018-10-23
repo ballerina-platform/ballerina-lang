@@ -18,24 +18,36 @@
  *
  */
 
+import { expect } from 'chai';
+import * as path from 'path';
 import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaHome } from "../test-util";
 import { Uri } from "vscode";
 
 let langClient: ExtendedLangClient;
-langClient = new ExtendedLangClient(
-    'ballerina-vscode',
-    'Ballerina LS Client',
-    getServerOptions(getBallerinaHome()),
-    { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
-    false
-);
-langClient.start();
-
 
 suite("Language Server Tests", function () {
     this.timeout(10000);
+
+    suiteSetup((done: MochaDone): any => {
+        langClient = new ExtendedLangClient(
+            'ballerina-vscode',
+            'Ballerina LS Client',
+            getServerOptions(getBallerinaHome()),
+            { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
+            false
+        );
+        langClient.start();
+        langClient.onReady().then(() => {
+            done();
+        }, () => {
+            done(new Error("start failed"));
+        }).catch((err) => {
+            done(new Error("start failed"));
+        });
+    });
+
 
     test("Test Language Server Start", function (done): void {
         langClient.onReady().then(() => {
@@ -49,8 +61,10 @@ suite("Language Server Tests", function () {
 
     test("Test getAST", function (done): void {
         langClient.onReady().then(() => {
-            let uri = Uri.file('/home/jo/workspace/ballerina-demo/1_demo_hello.bal');
+            const filePath = path.join(getBallerinaHome(),'examples','hello-world','hello_world.bal');
+            let uri = Uri.file(filePath.toString());
             langClient.getAST(uri).then((response) => {
+                expect(response).to.contain.keys('ast','parseSuccess');
                 done();
             }, (reason) => {
                 done(reason);
