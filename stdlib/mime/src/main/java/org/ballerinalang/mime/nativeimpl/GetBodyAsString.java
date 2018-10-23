@@ -32,7 +32,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 
 /**
  * Get the entity body as a string. Content-Type will not be checked with this method.
@@ -64,8 +63,8 @@ public class GetBodyAsString extends BlockingNativeCallableUnit {
             }
             context.setReturnValues(result);
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE,
-                    "Error occurred while retrieving text data from entity : " + e.getMessage()));
+            context.setReturnValues(MimeUtil.createError(context, "Error occurred while retrieving text " +
+                    "data from entity : " + e.getMessage()));
         }
     }
 }

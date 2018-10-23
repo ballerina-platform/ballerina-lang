@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 
 /**
  * Get the entity body in JSON form.
@@ -77,11 +76,11 @@ public class GetJson extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE, "Entity body is not json " +
-                        "compatible since the received content-type is : " + baseType));
+                context.setReturnValues(MimeUtil.createError(context, "Entity body is not json compatible since the" +
+                        "received content-type is : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE,
+            context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while extracting json data from entity: " + e.getMessage()));
         }
     }
