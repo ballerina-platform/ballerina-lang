@@ -22,6 +22,9 @@ import com.google.protobuf.DescriptorProtos;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.BYTES;
+import static org.ballerinalang.net.grpc.GrpcConstants.BYTE_ARRAY;
+
 /**
  * Message Definition bean class.
  *
@@ -58,6 +61,9 @@ public class Message {
             List<Field> fieldList = new ArrayList<>();
             for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : messageDescriptor.getFieldList()) {
                Field field = Field.newBuilder(fieldDescriptorProto).build();
+               if (field.getFieldType().equals(BYTES)) {
+                   field.setFieldType(BYTE_ARRAY);
+               }
                fieldList.add(field);
             }
             return new Message(messageDescriptor.getName(), fieldList);

@@ -231,6 +231,19 @@ public class Message {
                         }
                         break;
                     }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
+                    if (fieldDescriptor.isRepeated()) {
+                        List<byte[]> messages = new ArrayList<>();
+                        if (this.fields.containsKey(name)) {
+                            messages = (List<byte[]>) this.fields.get(name);
+                        }
+                        messages.add(input.readByteArray());
+                        this.fields.put(name, messages);
+                    } else {
+                        this.fields.put(name, input.readByteArray());
+                    }
+                    break;
+                }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                         if (fieldDescriptor.isRepeated()) {
                             List<Message> messages = new ArrayList<>();
@@ -426,6 +439,12 @@ public class Message {
                                 msgObject).getNumber());
                         break;
                     }
+                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
+                        Object msgObject = fields.get(fieldDescriptor.getName());
+                        byte[] messages = (byte[]) msgObject;
+                        output.writeByteArray(fieldDescriptor.getNumber(), messages);
+                        break;
+                    }
                     default: {
                         throw new UnsupportedFieldTypeException("Error while writing output stream. Field " +
                                 "type is not supported : " + fieldDescriptor.getType());
@@ -610,6 +629,18 @@ public class Message {
                         }
                         break;
                     }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
+                    Object msgObject = fields.get(fieldDescriptor.getName());
+                    if (MessageUtils.isArray(msgObject)) {
+                        byte[] messages = (byte[]) msgObject;
+                        size += com.google.protobuf.CodedOutputStream
+                                .computeByteArraySize(fieldDescriptor.getNumber(), messages);
+                    } else {
+                        size += com.google.protobuf.CodedOutputStream.computeByteArraySize(fieldDescriptor.getNumber(),
+                                (byte[]) fields.get(fieldDescriptor.getName()));
+                    }
+                    break;
+                }
                     default: {
                         throw new UnsupportedFieldTypeException("Error while calculating the serialized type. Field " +
                                 "type is not supported : " + fieldDescriptor.getType());
