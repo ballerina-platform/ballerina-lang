@@ -62,8 +62,6 @@ function startUniqueLengthwindowTest3() returns TeacherOutput[] {
             break;
         }
     }
-
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

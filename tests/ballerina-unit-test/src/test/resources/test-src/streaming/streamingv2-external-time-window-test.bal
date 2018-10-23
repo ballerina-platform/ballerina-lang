@@ -70,7 +70,6 @@ function startExternalTimeWindowTest() returns (TeacherOutput[]) {
             break;
         }
     }
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

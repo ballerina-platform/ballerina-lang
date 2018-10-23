@@ -87,7 +87,6 @@ function startJoinQuery() returns (StockWithPrice[]) {
         }
     }
 
-    io:println(globalEventsArray);
     return globalEventsArray;
 }
 

@@ -66,7 +66,6 @@ function startTimeWindowTest2() returns (Teacher[]) {
         }
     }
 
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

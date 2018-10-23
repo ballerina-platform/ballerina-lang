@@ -65,7 +65,6 @@ function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
         }
     }
 
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

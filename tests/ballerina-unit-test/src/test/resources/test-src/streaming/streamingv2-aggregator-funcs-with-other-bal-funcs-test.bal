@@ -66,7 +66,6 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
             break;
         }
     }
-    io:println(globalTeacherOutputArray);
     return globalTeacherOutputArray;
 }
 

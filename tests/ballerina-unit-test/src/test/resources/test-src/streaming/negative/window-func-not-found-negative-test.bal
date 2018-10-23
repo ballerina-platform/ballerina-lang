@@ -55,7 +55,6 @@ function startTimeWindowTest() returns (Teacher[]) {
         }
     }
 
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

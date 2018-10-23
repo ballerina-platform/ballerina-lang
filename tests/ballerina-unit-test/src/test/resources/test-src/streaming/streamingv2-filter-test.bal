@@ -56,7 +56,6 @@ function startFilterQuery() returns (Teacher[]) {
             break;
         }
     }
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

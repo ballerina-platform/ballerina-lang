@@ -68,7 +68,6 @@ function startExternalTimeBatchwindowTest5() returns (TeacherOutput[]) {
             break;
         }
     }
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

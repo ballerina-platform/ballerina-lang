@@ -72,7 +72,6 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
         }
     }
 
-    io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
 
