@@ -10,11 +10,11 @@
     }
   },
   "expected": {
-    "title":"Import Package  ballerina/io",
-    "command":"IMPORT_PKG",
+    "title":"Import Module  ballerina/io",
+    "command":"IMPORT_MODULE",
     "arguments":[
       {
-        "argumentK":"package",
+        "argumentK":"module",
         "argumentV":"ballerina/io"
       }
     ]

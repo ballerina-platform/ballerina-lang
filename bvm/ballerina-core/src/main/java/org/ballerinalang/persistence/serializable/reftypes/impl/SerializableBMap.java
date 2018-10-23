@@ -60,7 +60,7 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
         if (packageInfo != null) {
             StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
             if (structInfo == null) {
-                throw new BallerinaException(structName + " not found in package " + pkgPath);
+                throw new BallerinaException(structName + " not found in module " + pkgPath);
             }
             bMap = new BMap<>(structInfo.getType());
         } else {

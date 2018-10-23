@@ -234,7 +234,7 @@ public type Request object {
     #             of body parts)
     public function setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload);
 
-    // For use within the package. Takes the Cache-Control header and parses it to a RequestCacheControl object.
+    // For use within the module. Takes the Cache-Control header and parses it to a RequestCacheControl object.
     function parseCacheControlHeader();
 };
 

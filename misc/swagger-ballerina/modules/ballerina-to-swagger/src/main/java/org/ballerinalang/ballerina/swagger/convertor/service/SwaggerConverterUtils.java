@@ -233,9 +233,9 @@ public class SwaggerConverterUtils {
     }
 
     /**
-     * Gets the alias for a given package from a bLang file root node.
+     * Gets the alias for a given module from a bLang file root node.
      * @param topCompilationUnit The root node.
-     * @param packageName The package name.
+     * @param packageName The module name.
      * @return The alias.
      */
     private static String getAlias(BLangCompilationUnit topCompilationUnit, String packageName) {

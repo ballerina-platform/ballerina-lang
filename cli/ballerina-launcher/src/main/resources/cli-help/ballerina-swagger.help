@@ -5,7 +5,7 @@ NAME
 
 SYNOPSIS
     ballerina swagger [mock|client] <swaggerfile> 
-        [-p <packagename>|--package <packagename>] 
+        [-m <module-name>|--module <module-name>]
         [-o <path>|--output<path>]
     
     ballerina swagger export <balfile> 
@@ -18,7 +18,7 @@ DESCRIPTION
     file. It can also export a Swagger definition from a Ballerina service.
     
     Generated Ballerina sources will be written into the gen folder 
-    under the provided package name. 
+    under the provided module name.
 
 SUB COMMANDS
     mock <swaggerfile>
@@ -26,7 +26,7 @@ SUB COMMANDS
         generated service can be used as a mock version of the 
         actual service implementation. Generated sources will 
         contain service definition in gen/ and resource 
-        implementation file in package root directory with suffix
+        implementation file in module root directory with suffix
          _impl. The _impl file is not overwritten by code regeneration.
 
     client <swaggerfile>
@@ -41,13 +41,13 @@ SUB COMMANDS
         annotations defining the service.
 
 OPTIONS
-    -p <packagename>
-    --package <packagename>
-        Name of a Ballerina package, which should contain the 
-        generated source files. If provided package doesn’t exist 
+    -m <module-name>
+    --module <module-name>
+        Name of a Ballerina module, which should contain the
+        generated source files. If provided module doesn’t exist
         in output directory, it’ll be created automatically. If 
-        package name is not provided while generating ballerina code, 
-        generated sources will be written into main package (current 
+        module name is not provided while generating ballerina code,
+        generated sources will be written into main module (current
         directory).
 
     -o <path>
@@ -69,13 +69,13 @@ DEFAULT BEHAVIOR
     selected as the output directory.
 
 EXAMPLES
-    Generate a Ballerina mock service with package name hellomock
+    Generate a Ballerina mock service with module name hellomock
     and write the output to the service_project folder 
-    $ ballerina swagger mock hello.yaml -p hellomock -o service_project
+    $ ballerina swagger mock hello.yaml -m hellomock -o service_project
 
-    Generate a Ballerina client with package name helloclient
+    Generate a Ballerina client with module name helloclient
     and write the output to the client_project folder
-    $ ballerina swagger client hello.yaml -p helloclient -o client_project
+    $ ballerina swagger client hello.yaml -m helloclient -o client_project
 
     Export a Swagger definition for hello_service.bal
     $ ballerina swagger export hello_service.bal -o project

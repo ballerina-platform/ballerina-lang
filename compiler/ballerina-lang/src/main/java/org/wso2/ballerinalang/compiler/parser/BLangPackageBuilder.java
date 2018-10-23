@@ -953,13 +953,14 @@ public class BLangPackageBuilder {
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value) {
         addLiteralValue(pos, ws, typeTag, value, String.valueOf(value));
     }
+
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
         BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
         litExpr.addWS(ws);
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;
         litExpr.value = value;
-        litExpr.orginalValue = originalValue;
+        litExpr.originalValue = originalValue;
         addExpressionNode(litExpr);
     }
 
@@ -1429,7 +1430,7 @@ public class BLangPackageBuilder {
         importDcl.alias = aliasNode;
         this.compUnit.addTopLevelNode(importDcl);
         if (this.imports.contains(importDcl)) {
-            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_PACKAGE, importDcl.getQualifiedPackageName());
+            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
         } else {
             this.imports.add(importDcl);
         }
@@ -1452,9 +1453,9 @@ public class BLangPackageBuilder {
     }
 
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
-                                              Set<Whitespace> ws,
-                                              String identifier,
-                                              boolean exprAvailable) {
+                                                         Set<Whitespace> ws,
+                                                         String identifier,
+                                                         boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
@@ -2935,7 +2936,9 @@ public class BLangPackageBuilder {
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
         joinStreamingInput.addWS(ws);
         joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
-        joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        if (this.exprNodeStack.size() > 0) {
+            joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        }
         joinStreamingInput.setUnidirectionalBeforeJoin(isUnidirectionalBeforeJoin);
         joinStreamingInput.setUnidirectionalAfterJoin(isUnidirectionalAfterJoin);
         joinStreamingInput.setJoinType(joinType);

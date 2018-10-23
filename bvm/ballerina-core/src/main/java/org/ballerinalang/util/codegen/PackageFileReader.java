@@ -57,7 +57,7 @@ public class PackageFileReader {
 
     public void readPackage(String packageId) throws IOException {
         if (!packageId.startsWith(BALLERINA_PACKAGE_PREFIX)) {
-            throw new UnsupportedOperationException("only internal packages can be loaded at runtime: " + packageId);
+            throw new UnsupportedOperationException("only internal modules can be loaded at runtime: " + packageId);
         }
         String pkgName = packageId.replaceFirst("^ballerina\\/", "");
         readPackage(getCompiledPackageBinary(pkgName));

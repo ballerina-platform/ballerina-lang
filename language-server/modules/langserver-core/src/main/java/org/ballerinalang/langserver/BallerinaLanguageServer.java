@@ -102,13 +102,13 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final List<String> commandList = new ArrayList<>(Arrays.asList(
-                CommandConstants.CMD_IMPORT_PACKAGE,
+                CommandConstants.CMD_IMPORT_MODULE,
                 CommandConstants.CMD_ADD_DOCUMENTATION,
                 CommandConstants.CMD_ADD_ALL_DOC,
                 CommandConstants.CMD_CREATE_FUNCTION,
                 CommandConstants.CMD_CREATE_VARIABLE,
                 CommandConstants.CMD_CREATE_CONSTRUCTOR,
-                CommandConstants.CMD_PULL_PACKAGE));
+                CommandConstants.CMD_PULL_MODULE));
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));

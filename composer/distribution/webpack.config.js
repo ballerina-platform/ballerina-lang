@@ -11,7 +11,7 @@ module.exports = {
     resolve: {
       alias: {
         '../../theme.config$': path.join(
-          __dirname, 'node_modules/@ballerina/diagram/lib/ballerina-theme/theme.config')
+          __dirname, 'node_modules/@ballerina/theme/src/default-theme/theme.config')
       },
       extensions: [ '.tsx', '.ts', '.js', '.json' ]
     },

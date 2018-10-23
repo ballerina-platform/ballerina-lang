@@ -204,7 +204,7 @@ public class Main {
         private List<String> argList;
 
         @CommandLine.Option(names = {"--sourceroot"},
-                description = "path to the directory containing source files and packages")
+                description = "path to the directory containing source files and modules")
         private String sourceRoot;
 
         @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
@@ -287,7 +287,7 @@ public class Main {
         public void printLongDesc(StringBuilder out) {
             out.append("Run command runs a compiled Ballerina program. \n");
             out.append("\n");
-            out.append("If a Ballerina source file or a source package is given, \n");
+            out.append("If a Ballerina source file or a module is given, \n");
             out.append("run command compiles and runs it. \n");
             out.append("\n");
             out.append("By default, 'ballerina run' executes the main function. \n");
@@ -299,7 +299,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina run [flags] <balfile | packagename | balxfile> [args...] \n");
+            out.append("  ballerina run [flags] <balfile | module-name | balxfile> [args...] \n");
         }
 
         @Override
