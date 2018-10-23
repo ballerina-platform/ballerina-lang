@@ -122,7 +122,7 @@ public class CommandExecutor {
                     result = executeCreateObjectConstructor(context);
                     break;
                 case CommandConstants.CMD_PULL_MODULE:
-                    result = executePullPackage(context);
+                    result = executePullModule(context);
                     break;
                 default:
                     // Do Nothing
@@ -463,32 +463,32 @@ public class CommandExecutor {
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
-    private static Object executePullPackage(LSServiceOperationContext context) {
+    private static Object executePullModule(LSServiceOperationContext context) {
         executor.submit(() -> {
             // Derive package name and document uri
-            String packageName = "";
+            String moduleName = "";
             String documentUri = "";
             for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
                 String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
                 String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
                 if (argKey.equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
-                    packageName = argVal;
+                    moduleName = argVal;
                 } else if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
                     documentUri = argVal;
                 }
             }
             // If no package, or no doc uri; then just skip
-            if (packageName.isEmpty() || documentUri.isEmpty()) {
+            if (moduleName.isEmpty() || documentUri.isEmpty()) {
                 return;
             }
             // Execute `ballerina pull` command
             String ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME).resolve("bin").resolve("ballerina").toString();
-            ProcessBuilder processBuilder = new ProcessBuilder(ballerinaHome, "pull", packageName);
+            ProcessBuilder processBuilder = new ProcessBuilder(ballerinaHome, "pull", moduleName);
             LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
             LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
             DiagnosticsHelper diagnosticsHelper = context.get(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY);
             try {
-                notifyClient(client, MessageType.Info, "Pulling '" + packageName + "' from the Ballerina Central...");
+                notifyClient(client, MessageType.Info, "Pulling '" + moduleName + "' from the Ballerina Central...");
                 Process process = processBuilder.start();
                 InputStream inputStream = process.getInputStream();
                 // Consume and skip input-stream
@@ -501,14 +501,14 @@ public class CommandExecutor {
                 String error = IOUtils.toString(errorStream, StandardCharsets.UTF_8);
 
                 if (error == null || error.isEmpty()) {
-                    notifyClient(client, MessageType.Info, "Pulling success for the '" + packageName + "' package!");
+                    notifyClient(client, MessageType.Info, "Pulling success for the '" + moduleName + "' module!");
                     clearDiagnostics(client, lsCompiler, diagnosticsHelper, documentUri);
                 } else {
                     notifyClient(client, MessageType.Error,
-                                 "Pulling failed for the '" + packageName + "' package!\n" + error);
+                                 "Pulling failed for the '" + moduleName + "' module!\n" + error);
                 }
             } catch (IOException e) {
-                notifyClient(client, MessageType.Error, "Pulling failed for the '" + packageName + "' package!");
+                notifyClient(client, MessageType.Error, "Pulling failed for the '" + moduleName + "' module!");
             }
         });
 
