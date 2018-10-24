@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.sourcegen;
 
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.SourceGen;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -53,42 +52,13 @@ public class SourceGenTest {
     private Path examples = Paths.get("../../../examples").toAbsolutePath();
     private Path unitTestResources = Paths.get("../../../tests/ballerina-unit-test/src/test/resources/test-src")
             .toAbsolutePath();
-    private List<File> ballerinaExampleFiles;
-    private List<File> ballerinaUnitTestFiles;
+    private List<File> ballerinaTestResources;
     private Endpoint serviceEndpoint;
 
     @BeforeClass
     public void loadExampleFiles() throws IOException {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
-        this.ballerinaExampleFiles = getExampleFiles();
-        this.ballerinaUnitTestFiles = getBallerinaUnitTestFiles();
-    }
-
-    @Test(description = "Source gen test suit", dataProvider = "exampleFiles")
-    public void sourceGenTests(File file) {
-        LSServiceOperationContext formatContext = new LSServiceOperationContext();
-        try {
-            Path filePath = Paths.get(file.getPath());
-            formatContext.put(DocumentServiceKeys.FILE_URI_KEY, filePath.toUri().toString());
-
-            WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
-            byte[] encoded1 = Files.readAllBytes(filePath);
-            String expected = new String(encoded1);
-            TestUtil.openDocument(serviceEndpoint, filePath);
-            LSCompiler lsCompiler = new LSCompiler(documentManager);
-            JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
-                    formatContext);
-            SourceGen sourceGen = new SourceGen(0);
-            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-            String actual = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
-            TestUtil.closeDocument(serviceEndpoint, filePath);
-            Assert.assertEquals(actual, expected, "Generated source didn't match the expected for file: " +
-                    file.getName());
-        } catch (Exception e) {
-            // This error being catch to print failing source-gen file.
-            Assert.fail("Exception occurred while processing file: " + file.getName() + "\nException:" +
-                    e.toString(), e);
-        }
+        this.ballerinaTestResources = getBallerinaUnitTestFiles();
     }
 
     @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles")
@@ -124,26 +94,15 @@ public class SourceGenTest {
     }
 
     @DataProvider
-    public Object[] exampleFiles() {
-        return this.ballerinaExampleFiles.toArray();
-    }
-
-    @DataProvider
     public Object[] unitTestFiles() {
-        return this.ballerinaUnitTestFiles.toArray();
-    }
-
-    private List<File> getExampleFiles() throws IOException {
-        List<File> files = new ArrayList<>();
-        FileVisitor fileVisitor = new FileVisitor(files);
-        Files.walkFileTree(examples, fileVisitor);
-        return files;
+        return this.ballerinaTestResources.toArray();
     }
 
     private List<File> getBallerinaUnitTestFiles() throws IOException {
         List<File> files = new ArrayList<>();
         FileVisitor fileVisitor = new FileVisitor(files);
         Files.walkFileTree(unitTestResources, fileVisitor);
+        Files.walkFileTree(examples, fileVisitor);
         return files;
     }
 
