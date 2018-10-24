@@ -52,7 +52,7 @@ public class IncompatibleArgsInWindowTest {
         Assert.assertEquals(incompatibleArgsResult.getErrorCount(), 1);
         BAssertUtil.validateError(incompatibleArgsResult, 0,
                                   "incompatible types: expected 'int', found 'string'",
-                                  64, 58);
+                                  62, 58);
     }
 
     @Test(description = "Checks whether the window function exists or not")
@@ -61,7 +61,7 @@ public class IncompatibleArgsInWindowTest {
         Assert.assertEquals(notFoundResult.getErrorCount(), 1);
         BAssertUtil.validateError(notFoundResult, 0,
                                   "undefined function 'nonExistingWindow'",
-                                  64, 47);
+                                  62, 47);
     }
 
     @Test(description = "Checks whether the window function returns 'streams:Window' object")
@@ -70,6 +70,6 @@ public class IncompatibleArgsInWindowTest {
         Assert.assertEquals(windowReturnResult.getErrorCount(), 1);
         BAssertUtil.validateError(windowReturnResult, 0,
                                   "incompatible types: expected 'streams:Window', found 'Teacher'",
-                                  69, 47);
+                                  67, 47);
     }
 }

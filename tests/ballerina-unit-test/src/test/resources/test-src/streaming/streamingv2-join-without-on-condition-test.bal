@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Stock record {
     string symbol;
