@@ -198,7 +198,7 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv getExpressionEnv(BLangExpression node, SymbolEnv env) {
+    public static SymbolEnv createExpressionEnv(BLangExpression node, SymbolEnv env) {
         Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);

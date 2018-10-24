@@ -256,6 +256,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SCOPE_END] = "scope_end";
         mnemonics[InstructionCodes.COMPENSATE] = "compensate";
         mnemonics[InstructionCodes.LOOP_COMPENSATE] = "loop_compensate";
+
+        mnemonics[InstructionCodes.TYPE_TEST] = "type_test";
     }
 
     public static String getMnem(int opcode) {

@@ -98,9 +98,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -804,13 +804,13 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv thenEnv = env;
         Map<BVarSymbol, BType> typeGuards = getTypeGuards(ternaryExpr.expr);
         if (!typeGuards.isEmpty()) {
-            thenEnv = SymbolEnv.getExpressionEnv(ternaryExpr, env);
+            thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr, env);
             for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
                 BVarSymbol originalVarSymbol = entry.getKey();
                 BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
                         entry.getValue(), this.env.scope.owner);
-                symbolEnter.defineSymbol(varSymbol, thenEnv);
-                
+                symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
+
                 // Cache the type guards, to be reused at the desugar.
                 ternaryExpr.typeGuards.put(originalVarSymbol, varSymbol);
             }
@@ -1409,11 +1409,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTypeCheckExpr typeCheckExpr) {
-        typeCheckExpr.typeNode.type = symResolver.resolveTypeNode(typeCheckExpr.typeNode, env);
-        checkExpr(typeCheckExpr.expr, env);
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.typeNode.type = symResolver.resolveTypeNode(typeTestExpr.typeNode, env);
+        checkExpr(typeTestExpr.expr, env);
 
-        resultType = types.checkType(typeCheckExpr, symTable.booleanType, expType);
+        resultType = types.checkType(typeTestExpr, symTable.booleanType, expType);
     }
 
     // Private methods
@@ -2332,14 +2332,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private Map<BVarSymbol, BType> collectTypeGuards(BLangExpression expr, Map<BVarSymbol, BType> typeGuards) {
         switch (expr.getKind()) {
-            case TYPE_CHECK_EXPR:
-                BLangTypeCheckExpr typeCheck = (BLangTypeCheckExpr) expr;
-                if (typeCheck.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeCheck.expr).symbol;
+            case TYPE_TEST_EXPR:
+                BLangTypeTestExpr typeTest = (BLangTypeTestExpr) expr;
+                if (typeTest.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTest.expr).symbol;
                     if (!typeGuards.containsKey(varSymbol)) {
-                        typeGuards.put(varSymbol, typeCheck.typeNode.type);
+                        typeGuards.put(varSymbol, typeTest.typeNode.type);
                     } else {
-                        // TODO: handle two type-checks for same var
+                        // TODO: handle two type-tests for same var
                     }
                 }
                 break;

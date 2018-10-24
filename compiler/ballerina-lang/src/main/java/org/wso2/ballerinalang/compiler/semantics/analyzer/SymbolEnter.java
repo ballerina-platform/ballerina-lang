@@ -1024,9 +1024,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    public void defineSymbol(BSymbol symbol, SymbolEnv env) {
+    /**
+     * Define a symbol that is unique only for the current scope.
+     * 
+     * @param pos Line number information of the source file
+     * @param symbol Symbol to be defines
+     * @param env Environment to define the symbol
+     */
+    public void defineShadowedSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
-        env.scope.define(symbol.name, symbol);
+        if (symResolver.checkForUniqueSymbolInCurrentScope(pos, env, symbol, symbol.tag)) {
+            env.scope.define(symbol.name, symbol);
+        }
     }
 
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {

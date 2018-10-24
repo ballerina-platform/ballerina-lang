@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
+import org.ballerinalang.model.types.BFutureType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
@@ -363,7 +364,7 @@ public class CPU {
                     case InstructionCodes.IRSHIFT:
                     case InstructionCodes.ILSHIFT:
                     case InstructionCodes.IURSHIFT:
-                    case InstructionCodes.TYPE_CHECK:
+                    case InstructionCodes.TYPE_TEST:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1830,7 +1831,7 @@ public class CPU {
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
                 break;
-            case InstructionCodes.TYPE_CHECK:
+            case InstructionCodes.TYPE_TEST:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
@@ -3799,7 +3800,6 @@ public class CPU {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
-            case TypeTags.FUTURE_TAG:
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -3824,6 +3824,8 @@ public class CPU {
                 return isAssignable(sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
+            case TypeTags.FUTURE_TAG:
+                return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             default:
                 return false;
         }
@@ -3833,18 +3835,8 @@ public class CPU {
         if (sourceType.getTag() != TypeTags.MAP_TAG) {
             return false;
         }
-
-        BType sourceConstraint = ((BMapType) sourceType).getConstrainedType();
-        BType targetConstraint = targetType.getConstrainedType();
-        if (sourceConstraint == targetConstraint) {
-            return true;
-        }
-
-        if (sourceConstraint == null || targetConstraint == null) {
-            return false;
-        }
-
-        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+        return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                unresolvedTypes);
     }
 
     private static boolean checkIsJSONType(BType sourceType, BJSONType targetType,
@@ -3925,18 +3917,8 @@ public class CPU {
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
         }
-
-        BType sourceConstraint = ((BTableType) sourceType).getConstrainedType();
-        BType targetConstraint = targetType.getConstrainedType();
-        if (sourceConstraint == targetConstraint) {
-            return true;
-        }
-
-        if (sourceConstraint == null || targetConstraint == null) {
-            return false;
-        }
-
-        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+        return checkContraints(((BTableType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                unresolvedTypes);
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
@@ -3981,6 +3963,27 @@ public class CPU {
         }
 
         return sourceFiniteType.valueSpace.stream().allMatch(value -> targetType.valueSpace.contains(value));
+    }
+
+    private static boolean checkIsFutureType(BType sourceType, BFutureType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.FUTURE_TAG) {
+            return false;
+        }
+        return checkContraints(((BFutureType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                unresolvedTypes);
+    }
+
+    private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
+                                           List<TypePair> unresolvedTypes) {
+        if (sourceConstraint == null) {
+            sourceConstraint = BTypes.typeAny;
+        }
+
+        if (targetConstraint == null) {
+            targetConstraint = BTypes.typeAny;
+        }
+
+        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
     }
 
     /**

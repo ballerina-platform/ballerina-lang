@@ -143,9 +143,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -3396,11 +3396,11 @@ public class BLangPackageBuilder {
     }
 
     public void createTypeTestExpression(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangTypeCheckExpr typeCheckExpr = (BLangTypeCheckExpr) TreeBuilder.createTypeCheckExpressionNode();
-        typeCheckExpr.expr = (BLangExpression) this.exprNodeStack.pop();
-        typeCheckExpr.typeNode = (BLangType) this.typeNodeStack.pop();
-        typeCheckExpr.pos = pos;
-        typeCheckExpr.addWS(ws);
-        addExpressionNode(typeCheckExpr);
+        BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        typeTestExpr.expr = (BLangExpression) this.exprNodeStack.pop();
+        typeTestExpr.typeNode = (BLangType) this.typeNodeStack.pop();
+        typeTestExpr.pos = pos;
+        typeTestExpr.addWS(ws);
+        addExpressionNode(typeTestExpr);
     }
 }

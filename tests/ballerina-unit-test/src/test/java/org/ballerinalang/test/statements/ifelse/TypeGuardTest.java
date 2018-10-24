@@ -42,7 +42,7 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
-        System.out.println(negativeResult);
+        Assert.assertEquals(negativeResult.getErrorCount(), 8);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string'", 22,
                 17);
@@ -53,7 +53,9 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "undefined field 'a' in record 'B'", 47, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'string' will not be matched to 'int'", 56,
                 27);
-        BAssertUtil.validateError(negativeResult, i++, "operator '>' not defined for 'int|string' and 'int'", 56, 27);
+        BAssertUtil.validateError(negativeResult, i++, "operator '>' not defined for 'int|string' and 'int'", 61, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int|string'", 65,
+                20);
     }
 
     @Test

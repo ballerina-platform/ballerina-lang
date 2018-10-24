@@ -19,18 +19,18 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.TypeCheckExpressionNode;
+import org.ballerinalang.model.tree.expressions.TypeTestExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 /**
- * Represents a type check expression in Ballerina.
+ * Represents a type test expression in Ballerina.
  * Syntax: x is T
  * 
  * @since 0.985.0
  */
-public class BLangTypeCheckExpr extends BLangExpression implements TypeCheckExpressionNode {
+public class BLangTypeTestExpr extends BLangExpression implements TypeTestExpressionNode {
 
     public BLangExpression expr;
     public BLangType typeNode;
@@ -57,7 +57,7 @@ public class BLangTypeCheckExpr extends BLangExpression implements TypeCheckExpr
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.TYPE_CHECK_EXPR;
+        return NodeKind.TYPE_TEST_EXPR;
     }
 
     @Override

@@ -77,5 +77,5 @@ function testMultipleTypeGuardsWithAndOperator() returns int {
 function testMultipleTypeGuardsWithAndOperatorInTernary() returns int {
     int|string x = 5;
     any y = 7;
-    return (x is int && y is int) ? x + y  : -1
+    return (x is int && y is int) ? x + y  : -1;
 }

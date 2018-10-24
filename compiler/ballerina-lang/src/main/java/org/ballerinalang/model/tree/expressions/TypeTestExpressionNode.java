@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
  * 
  * @since 0.985.0
  */
-public interface TypeCheckExpressionNode extends ExpressionNode {
+public interface TypeTestExpressionNode extends ExpressionNode {
 
     /**
      * Get the expression associated with the type check.

@@ -28,21 +28,21 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Class to test functionality of type check expressions.
+ * Class to test functionality of type test expressions.
  */
-public class TypeCheckExprTest {
+public class TypeTestExprTest {
 
     CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/binaryoperations/type-check-expr.bal");
+        result = BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr.bal");
     }
 
     @Test
-    public void testTypeCheckExprNegative() {
+    public void testTypeTestExprNegative() {
         CompileResult negativeResult =
-                BCompileUtil.compile("test-src/expressions/binaryoperations/type-check-expr-negative.bal");
+                BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 34);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
