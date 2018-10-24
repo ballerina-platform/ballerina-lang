@@ -532,7 +532,7 @@ public type WebSubHub object {
 
     # Retrieves an array of registered subscriber details for a given topic.
     #
-    # + topic - The topic to ............
+    # + topic - The subscriber details required topic
     # + return - An array of subscribers
     public extern function getTopicSubscribers(string topic) returns SubscriberDetails[];
 };

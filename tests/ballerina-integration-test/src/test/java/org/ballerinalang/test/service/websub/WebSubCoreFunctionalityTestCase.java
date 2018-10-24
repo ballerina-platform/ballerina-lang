@@ -18,6 +18,9 @@
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -30,6 +33,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.File;
 import java.io.IOException;
@@ -221,12 +225,22 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testHubTopicSubscriberDetailsRetrieval() throws IOException {
         Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(
-                webSubSubscriber.getServiceURLHttp(8181, "websubTwo"), "{\"dummy\":\"body\"}",
-                headers);
-        Assert.assertEquals(response.getResponseCode(), 404);
-        Assert.assertEquals(response.getData(), "validation failed for notification");
+        headers.put("x-topic", "http://one.websub.topic.com");
+        HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo", headers);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertTrue(response.getData().contains( "{\"callback\":\"http://localhost:8181/websubTwo\", " +
+                "\"leaseSeconds\":3650000,"));
+
+        response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo");
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "{\"Topic_1\":\"http://one.websub.topic.com\", " +
+                "\"Topic_2\":\"http://three.websub.topic.com\", \"Topic_3\":\"http://four.websub.topic.com\", " +
+                "\"Topic_4\":\"http://one.redir.topic.com\", \"Topic_5\":\"http://two.redir.topic.com\", " +
+                "\"Topic_6\":\"http://two.websub.topic.com\"}");
     }
 
     @AfterClass
