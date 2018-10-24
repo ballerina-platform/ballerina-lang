@@ -525,16 +525,16 @@ public type WebSubHub object {
     # + return - `error` if an error occurred with unregistration
     public function unregisterTopic(string topic) returns error?;
 
-    # Retrieves an array of topics which registered in the Hub.
+    # Retrieves topics currently recognized by the Hub.
     #
     # + return - An array of available topics
     public extern function getAvailableTopics() returns string[];
 
-    # Retrieves an array of registered subscriber details for a given topic.
+    # Retrieves details of subscribers registered to receive updates for a particular topic.
     #
-    # + topic - The subscriber details required topic
-    # + return - An array of subscribers
-    public extern function getTopicSubscribers(string topic) returns SubscriberDetails[];
+    # + topic - The topic for which details need to be retrieved
+    # + return - An array of subscriber details
+    public extern function getSubscribers(string topic) returns SubscriberDetails[];
 };
 
 function WebSubHub::stop() returns boolean {

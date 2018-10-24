@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
@@ -35,31 +34,28 @@ import org.ballerinalang.net.websub.hub.HubSubscriber;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_CREATE_AT;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_CREATED_AT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
- * Extern function to retrieve an array of registered subscriber details for a given topic.
+ * Extern function to retrieve details of subscribers registered to receive updates for a particular topic.
  *
  * @since 0.983.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
-        functionName = "getTopicSubscribers",
+        functionName = "getSubscribers",
         args = {@Argument(name = "topic", type = TypeKind.STRING)},
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSubHub", structPackage = "ballerina/websub"),
-        returnType = @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.RECORD, structType = "SubscriberDetails",
-                                 structPackage = "ballerina/websub"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSubHub", structPackage = WEBSUB_PACKAGE),
+        returnType = @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.RECORD,
+                                 structType = SUBSCRIPTION_DETAILS, structPackage = WEBSUB_PACKAGE),
         isPublic = true
 )
-public class GetTopicSubscribers extends BlockingNativeCallableUnit {
+public class GetSubscribers extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -75,7 +71,7 @@ public class GetTopicSubscribers extends BlockingNativeCallableUnit {
                 BMap<String, BValue> subscriberDetail = BLangVMStructs.createBStruct(
                         structInfo, subscriber.getCallback(),
                         subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_LEASE_SECONDS),
-                        subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_CREATE_AT));
+                        subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_CREATED_AT));
                 subscriberDetailArray.append(subscriberDetail);
             }
         }

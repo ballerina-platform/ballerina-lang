@@ -19,22 +19,16 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
-import java.util.List;
-
 /**
- * Extern function to retrieve an array of topics which registered in the Hub.
+ * Extern function to retrieve topics currently recognized by the Hub.
  *
  * @since 0.983.0
  */
@@ -49,12 +43,7 @@ public class GetAvailableTopics extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStringArray topicArray = new BStringArray();
-        List<String> topics = Hub.getInstance().getTopics();
-        int i = 0;
-        for (String topic : topics) {
-            topicArray.add(i++, topic);
-        }
-        context.setReturnValues(topicArray);
+        String[] topics = Hub.getInstance().getTopics();
+        context.setReturnValues(new BStringArray(topics));
     }
 }

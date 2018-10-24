@@ -89,7 +89,7 @@ public class Hub {
         } else if (topic == null || topic.isEmpty()) {
             throw new BallerinaWebSubException("Topic unavailable/invalid for registration at Hub");
         } else {
-            getTopics().add(topic);
+            topics.add(topic);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 BValue[] args = { new BString("register"), new BString(topic) };
                 BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
@@ -105,7 +105,7 @@ public class Hub {
         if (topic == null || !isTopicRegistered(topic)) {
             throw new BallerinaWebSubException("Topic unavailable/invalid for unregistration at Hub");
         } else {
-            getTopics().remove(topic);
+            topics.remove(topic);
             if (hubPersistenceEnabled) {
                 BValue[] args = { new BString("unregister"), new BString(topic) };
                 BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
@@ -115,7 +115,7 @@ public class Hub {
     }
 
     public boolean isTopicRegistered(String topic) {
-        return getTopics().contains(topic);
+        return topics.contains(topic);
     }
 
     /**
@@ -130,7 +130,7 @@ public class Hub {
             //TODO: Revisit to check if this needs to be returned as an error, currently not required since this check
             // is performed at Ballerina level
             logger.error("Hub Service not started: subscription failed");
-        } else if (!getTopics().contains(topic) && hubTopicRegistrationRequired) {
+        } else if (!topics.contains(topic) && hubTopicRegistrationRequired) {
             logger.warn("Subscription request ignored for unregistered topic[" + topic + "]");
         } else {
             if (getSubscribers().contains(new HubSubscriber("", topic, callback, null))) {
@@ -184,7 +184,7 @@ public class Hub {
     public void publish(String topic, BMap<String, BValue> content) throws BallerinaWebSubException {
         if (!started) {
             throw new BallerinaWebSubException("Hub Service not started: publish failed");
-        } else if (!getTopics().contains(topic) && hubTopicRegistrationRequired) {
+        } else if (!topics.contains(topic) && hubTopicRegistrationRequired) {
             throw new BallerinaWebSubException("Publish call ignored for unregistered topic[" + topic + "]");
         } else {
             brokerInstance.publish(topic, new BallerinaBrokerByteBuf(content));
@@ -300,16 +300,16 @@ public class Hub {
     }
 
     /**
-     * Retrieve available topics of the Hub
+     * Retrieve available topics of the Hub.
      *
-     * @return the list of topics
+     * @return the array of topics
      */
-    public List<String> getTopics() {
-        return topics;
+    public String[] getTopics() {
+        return topics.toArray(new String[0]);
     }
 
     /**
-     * Retrieve subscribers list
+     * Retrieve subscribers list.
      *
      * @return the list of subscribers
      */

@@ -18,9 +18,6 @@
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -33,7 +30,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,7 +149,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         remoteHubNotificationLogLeecherTwo.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websub" + File.separator + "test_unsubscription_client.bal")
@@ -169,7 +165,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification",
+    @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
             description = "Tests that no notifications are received after unsubscription",
             expectedExceptions = BallerinaTestException.class,
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
@@ -223,17 +219,19 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
-    public void testHubTopicSubscriberDetailsRetrieval() throws IOException {
+    public void testSubscriberDetailsRetrievalFromHub() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put("x-topic", "http://one.websub.topic.com");
         HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo", headers);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertTrue(response.getData().contains( "{\"callback\":\"http://localhost:8181/websubTwo\", " +
-                "\"leaseSeconds\":3650000,"));
+        Assert.assertTrue(response.getData().contains("{\"callback\":\"http://localhost:8181/websub"));
+    }
 
-        response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo");
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testAvailableTopicsRetrievalFromHub() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo");
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
