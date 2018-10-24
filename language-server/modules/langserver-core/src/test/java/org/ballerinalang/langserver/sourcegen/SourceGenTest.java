@@ -62,7 +62,7 @@ public class SourceGenTest {
         this.ballerinaFiles = getExampleFiles();
     }
 
-    @Test(description = "Source gen test suit", dataProvider = "exampleFiles")
+    @Test(description = "Source gen test suit", dataProvider = "exampleFiles", enabled = false)
     public void sourceGenTests(File file) throws IOException, WorkspaceDocumentException, JSONGenerationException {
         LSServiceOperationContext formatContext = new LSServiceOperationContext();
         try {
