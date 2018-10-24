@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Stock record {
     string symbol;
@@ -86,7 +84,6 @@ function startJoinQuery() returns (StockWithPrice[]) {
         }
     }
 
-    io:println(globalEventsArray);
     return globalEventsArray;
 }
 

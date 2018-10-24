@@ -38,14 +38,9 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.BallerinaFileType;
-import io.ballerina.plugins.idea.psi.BallerinaArrayTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
-import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaRestParameter;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaTypeName;
-import io.ballerina.plugins.idea.psi.BallerinaValueTypeName;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -165,7 +160,9 @@ public class BallerinaRunUtil {
         if (callableUnitSignature == null) {
             return false;
         }
-
+        if(!isPublicFunction(functionDefinitionNode)){
+            return false;
+        }
         // Get the function name.
         PsiElement functionName = callableUnitSignature.getAnyIdentifierName().getIdentifier();
         // Check whether the function name is "main".
@@ -173,47 +170,13 @@ public class BallerinaRunUtil {
             return false;
         }
 
-        // Get the ParameterListNode which contains all the parameters in the function.
-        BallerinaFormalParameterList parameterListNode = PsiTreeUtil.getChildOfType(callableUnitSignature,
-                BallerinaFormalParameterList.class);
-        if (parameterListNode == null) {
-            return false;
-        }
+        return true;
+    }
 
-        BallerinaRestParameter restParameter = parameterListNode.getRestParameter();
-        if (restParameter != null) {
-            BallerinaTypeName typeName = restParameter.getTypeName();
-            return typeName.getText().equals("string");
-        } else {
-            // Get the child nodes. These are objects of ParameterNode.
-            PsiElement[] parameterNodes = parameterListNode.getChildren();
-            // There should be only one parameter for main function.
-            if (parameterNodes.length != 1) {
-                return false;
-            }
-            // Get the TypeNameNode which contains the type of the parameter. In this case, it will be "string[]".
-            BallerinaTypeName typeName = PsiTreeUtil.findChildOfType(parameterNodes[0], BallerinaTypeName.class);
-            if (typeName == null) {
-                return false;
-            }
-            if (!(typeName instanceof BallerinaArrayTypeName)) {
-                return false;
-            }
-            // "string", "[", "]" will be in 3 different child nodes.
-            PsiElement[] children = typeName.getChildren();
-            if (children.length != 1) {
-                return false;
-            }
-
-            // ValueTypeNameNode will contain the actual value of the type (string).
-            BallerinaValueTypeName valueTypeNameNode = PsiTreeUtil.findChildOfType(children[0],
-                    BallerinaValueTypeName.class);
-            if (valueTypeNameNode == null) {
-                return false;
-            }
-            // Get the text (string) and check and return the result.
-            return valueTypeNameNode.getText() != null && "string".equals(valueTypeNameNode.getText());
-        }
+    @Contract("null -> false")
+    private static boolean isPublicFunction(BallerinaFunctionDefinition functionDefinitionNode) {
+        PsiElement firstChild = PsiTreeUtil.firstChild(functionDefinitionNode);
+        return firstChild != null && firstChild.getText().equals("public");
     }
 
     @Contract("null -> false")
