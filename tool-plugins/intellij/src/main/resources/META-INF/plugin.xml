@@ -240,8 +240,8 @@
                          implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
         <preloadingActivity
-                implementation="io.ballerina.plugins.idea.preloading.BallerinaLanguageServerPreloadingActivity"
-                id="io.ballerina.plugins.idea.preloading.BallerinaLanguageServerPreloadingActivity"/>
+                implementation="io.ballerina.plugins.idea.preloading.LanguageServerPreloadingActivity"
+                id="io.ballerina.plugins.idea.preloading.LanguageServerPreloadingActivity"/>
     </extensions>
 
     <actions>
@@ -252,15 +252,10 @@
         </action>
 
         <!-- LSP Plugin Actions -->
-        <action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"
-                overrides="true"/> <!-- Overrides quickdoc if possible, otherwise delegates to it -->
-        <action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"
-                overrides="true"/>
-        <action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog"
-                use-shortcut-of="ShowReformatFileDialog" overrides="true"/>
-        <action class="com.github.gtache.lsp.actions.LSPReferencesAction"
-                id="LSPFindUsages">
-            <keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
+        <action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>
+        <action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>
+        <action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>
+        <action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
         </action>
         <action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction">
             <keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/>
