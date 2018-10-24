@@ -188,6 +188,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -807,17 +808,19 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangIf ifNode) {
         ifNode.expr = rewriteExpr(ifNode.expr);
 
-        if (ifNode.expr.getKind() == NodeKind.TYPE_CHECK_EXPR) {
-            BLangTypeCheckExpr typeCheck = (BLangTypeCheckExpr) ifNode.expr;
-            if (typeCheck.symbol != null) {
-                BLangExpression conversionExpr = addConversionExprIfRequired(typeCheck.expr, typeCheck.symbol.type);
-                BLangVariable var = ASTBuilderUtil.createVariable(typeCheck.expr.pos, typeCheck.symbol.name.value,
-                        typeCheck.symbol.type, conversionExpr, typeCheck.symbol);
+        for (Entry<BVarSymbol, BVarSymbol> typeGuard : ifNode.typeGuards.entrySet()) {
+            BVarSymbol guardedSymbol = typeGuard.getValue();
 
-                // Now create a variable definition node
-                BLangVariableDef varDef = ASTBuilderUtil.createVariableDef(typeCheck.expr.pos, var);
-                ifNode.body.stmts.add(0, varDef);
-            }
+            // Create a varRef to the original variable
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(ifNode.expr.pos, typeGuard.getKey());
+
+            // Create a variable definition and add it to the beginning of the if-body
+            // i.e: T x = <T> y
+            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
+            BLangVariable var = ASTBuilderUtil.createVariable(ifNode.expr.pos, guardedSymbol.name.value,
+                    guardedSymbol.type, conversionExpr, guardedSymbol);
+            BLangVariableDef varDef = ASTBuilderUtil.createVariableDef(ifNode.expr.pos, var);
+            ifNode.body.stmts.add(0, varDef);
         }
 
         ifNode.body = rewrite(ifNode.body, env);
@@ -1309,6 +1312,25 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         ternaryExpr.expr = rewriteExpr(ternaryExpr.expr);
+
+        for (Entry<BVarSymbol, BVarSymbol> typeGuard : ternaryExpr.typeGuards.entrySet()) {
+            BVarSymbol guardedSymbol = typeGuard.getValue();
+
+            // Create a varRef to the original variable
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(ternaryExpr.expr.pos, typeGuard.getKey());
+
+            // Create a variable definition
+            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, guardedSymbol.type);
+            BLangVariable var = ASTBuilderUtil.createVariable(ternaryExpr.expr.pos, guardedSymbol.name.value,
+                    guardedSymbol.type, conversionExpr, guardedSymbol);
+            BLangVariableDef varDef = ASTBuilderUtil.createVariableDef(ternaryExpr.expr.pos, var);
+
+            // Replace the expression with the var def and the existing expression
+            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(varDef, ternaryExpr.thenExpr);
+            stmtExpr.type = ternaryExpr.thenExpr.type;
+            ternaryExpr.thenExpr = stmtExpr;
+        }
+
         ternaryExpr.thenExpr = rewriteExpr(ternaryExpr.thenExpr);
         ternaryExpr.elseExpr = rewriteExpr(ternaryExpr.elseExpr);
         result = ternaryExpr;

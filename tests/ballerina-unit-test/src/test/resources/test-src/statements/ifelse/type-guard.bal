@@ -58,3 +58,24 @@ function testSimpleRecordTypes_2() returns string {
 
     return "n/a";
 }
+
+function testSimpleTernary() returns string {
+    any a = "hello";
+    return a is string ? a : "not a string";
+}
+
+function testMultipleTypeGuardsWithAndOperator() returns int {
+    int|string x = 5;
+    any y = 7;
+    if (x is int && y is int) {
+        return x + y;
+    } else {
+        return -1;
+    }
+}
+
+function testMultipleTypeGuardsWithAndOperatorInTernary() returns int {
+    int|string x = 5;
+    any y = 7;
+    return (x is int && y is int) ? x + y  : -1
+}

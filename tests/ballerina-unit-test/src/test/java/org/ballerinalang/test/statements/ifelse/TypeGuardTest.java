@@ -20,6 +20,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -41,6 +42,7 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
+        System.out.println(negativeResult);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string'", 22,
                 17);
@@ -49,6 +51,9 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "undefined field 'b' in record 'A'", 45, 16);
         BAssertUtil.validateError(negativeResult, i++, "undefined field 'c' in record 'A'", 45, 28);
         BAssertUtil.validateError(negativeResult, i++, "undefined field 'a' in record 'B'", 47, 16);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'string' will not be matched to 'int'", 56,
+                27);
+        BAssertUtil.validateError(negativeResult, i++, "operator '>' not defined for 'int|string' and 'int'", 56, 27);
     }
 
     @Test
@@ -73,5 +78,29 @@ public class TypeGuardTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "foo-bar");
+    }
+
+    @Test
+    public void testSimpleTernary() {
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleTernary");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello");
+    }
+
+    @Test
+    public void testMultipleTypeGuardsWithAndOperator() {
+        BValue[] returns = BRunUtil.invoke(result, "testMultipleTypeGuardsWithAndOperator");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+    }
+
+    @Test
+    public void testMultipleTypeGuardsWithAndOperatorInTernary() {
+        BValue[] returns = BRunUtil.invoke(result, "testMultipleTypeGuardsWithAndOperatorInTernary");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
     }
 }
