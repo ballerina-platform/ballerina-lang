@@ -16,7 +16,6 @@
 
 import ballerina/runtime;
 import ballerina/io;
-import ballerina/streams;
 
 type Employee record {
     string name;
