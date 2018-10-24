@@ -41,4 +41,22 @@ function name1() {
     ,
     [{1, 26, 3000.50, "marcus", false}]
     };
+
+    table<Person> dt6 = table {{
+     primarykey id,
+                          primarykey age,
+         salary,
+                        name,
+          married
+               }
+    };
+
+    table<Person> dt7 = table {
+ {primarykey id, primarykey age, salary, name, married},
+            [
+           {1, 26, 3000.50, "marcus", false}   ,
+                  {1, 26, 3000.50, "jui", false},
+                  {1, 26, 3000.50, "jui", false}
+            ]
+    };
 }

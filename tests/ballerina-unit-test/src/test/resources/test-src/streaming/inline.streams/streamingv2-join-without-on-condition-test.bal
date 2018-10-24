@@ -38,17 +38,14 @@ type StockWithPrice record {
 
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
-
-stream<Stock> stockStream;
-stream<Twitter> twitterStream;
 stream<StockWithPrice> stockWithPriceStream;
 
-function testJoinQuery() {
+function testJoinQuery(stream<Stock> stStream, stream<Twitter> twitStream) {
 
     forever {
-        from stockStream window lengthWindow(1)
-        join twitterStream window lengthWindow(1)
-        select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
+        from stStream window lengthWindow(1)
+        join twitStream window lengthWindow(1)
+        select stStream.symbol as symbol, twitStream.tweet as tweet, stStream.price as price
         => (StockWithPrice[] emp) {
             foreach e in emp {
                 stockWithPriceStream.publish(e);
@@ -59,7 +56,9 @@ function testJoinQuery() {
 
 function startJoinQuery() returns (StockWithPrice[]) {
 
-    testJoinQuery();
+    stream<Stock> stockStream;
+    stream<Twitter> twitterStream;
+    testJoinQuery(stockStream, twitterStream);
 
     Stock s1 = {symbol:"WSO2", price:55.6, volume:100};
     Stock s2 = {symbol:"MBI", price:74.6, volume:100};

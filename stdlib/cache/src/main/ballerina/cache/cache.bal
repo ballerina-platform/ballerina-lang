@@ -163,7 +163,7 @@ public type Cache object {
 
     # Removes a cached value from a cache.
     #
-    # + return - key of the cache entry which needs to be removed
+    # + key - key of the cache entry which needs to be removed
     public function remove(string key) {
         // Cache might already be removed by the cache clearing task. So no need to check the return value.
         _ = entries.remove(key);
