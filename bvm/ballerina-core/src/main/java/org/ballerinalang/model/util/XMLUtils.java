@@ -92,7 +92,7 @@ public class XMLUtils {
                                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
             canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
         } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
-            throw new BallerinaException("Error initializing canonicalizer " + e.getMessage());
+            throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
         }
     }
 

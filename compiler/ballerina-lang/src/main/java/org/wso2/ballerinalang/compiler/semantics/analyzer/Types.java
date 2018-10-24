@@ -1541,7 +1541,6 @@ public class Types {
 
     private boolean intersectionExistsForComplexTypes(Set<BType> lhsTypes, Set<BType> rhsTypes,
                                                       boolean isValueDeepEquality) {
-        boolean matchFound = false;
         for (BType lhsMemberType : lhsTypes) {
             switch (lhsMemberType.tag) {
                 case TypeTags.INT:
@@ -1554,11 +1553,8 @@ public class Types {
                         break;
                     }
 
-                    for (BType rhsMemberType : rhsTypes) {
-                        if (rhsMemberType.tag == TypeTags.JSON) {
-                            matchFound = true;
-                            break;
-                        }
+                    if (rhsTypes.stream().anyMatch(rhsMemberType -> rhsMemberType.tag == TypeTags.JSON)) {
+                        return true;
                     }
                     break;
                 case TypeTags.JSON:
@@ -1567,65 +1563,55 @@ public class Types {
                         break;
                     }
 
-                    for (BType rhsMemberType : rhsTypes) {
-                        if (rhsMemberType.tag == TypeTags.STRING || rhsMemberType.tag == TypeTags.INT ||
-                                rhsMemberType.tag == TypeTags.FLOAT || rhsMemberType.tag == TypeTags.BOOLEAN ||
-                                rhsMemberType.tag == TypeTags.NIL) {
-                            matchFound = true;
-                            break;
-                        }
+                    if (rhsTypes.stream().anyMatch(rhsMemberType -> (rhsMemberType.tag == TypeTags.STRING ||
+                                                                             rhsMemberType.tag == TypeTags.INT ||
+                                                                             rhsMemberType.tag == TypeTags.FLOAT ||
+                                                                             rhsMemberType.tag == TypeTags.BOOLEAN ||
+                                                                             rhsMemberType.tag == TypeTags.NIL))) {
+                        return true;
                     }
                     break;
                 // When expanding members for tuples, arrays and maps, set isValueDeepEquality to true, to allow
                 // comparison between JSON lists/maps and primitive lists/maps since they are all reference types
                 case TypeTags.TUPLE:
-                    for (BType rhsMemberType : rhsTypes) {
-                        if (rhsMemberType.tag == TypeTags.TUPLE &&
-                                tupleIntersectionExists((BTupleType) lhsMemberType, (BTupleType) rhsMemberType,
-                                                        true)) {
-                            matchFound = true;
-                            break;
-                        }
+                    if (rhsTypes.stream().anyMatch(
+                            rhsMemberType -> rhsMemberType.tag == TypeTags.TUPLE &&
+                                    tupleIntersectionExists((BTupleType) lhsMemberType,
+                                                            (BTupleType) rhsMemberType, true))) {
+                        return true;
                     }
                     break;
                 case TypeTags.ARRAY:
-                    for (BType rhsMemberType : rhsTypes) {
-                        if (rhsMemberType.tag == TypeTags.ARRAY &&
-                                intersectionExists(expandAndGetMemberTypesRecursive(((BArrayType) lhsMemberType).eType),
-                                                   expandAndGetMemberTypesRecursive(((BArrayType) rhsMemberType).eType),
-                                                   true)) {
-                            matchFound = true;
-                            break;
-                        }
+                    if (rhsTypes.stream().anyMatch(
+                            rhsMemberType -> rhsMemberType.tag == TypeTags.ARRAY &&
+                                    intersectionExists(
+                                            expandAndGetMemberTypesRecursive(((BArrayType) lhsMemberType).eType),
+                                            expandAndGetMemberTypesRecursive(((BArrayType) rhsMemberType).eType),
+                                            true))) {
+                        return true;
                     }
                     break;
                 case TypeTags.MAP:
-                    for (BType rhsMemberType : rhsTypes) {
-                        if (rhsMemberType.tag == TypeTags.MAP && intersectionExists(
-                                expandAndGetMemberTypesRecursive(((BMapType) lhsMemberType).constraint),
-                                expandAndGetMemberTypesRecursive(((BMapType) rhsMemberType).constraint), true)) {
-                            matchFound = true;
-                            break;
-                        }
+                    if (rhsTypes.stream().anyMatch(
+                            rhsMemberType -> rhsMemberType.tag == TypeTags.MAP &&
+                                    intersectionExists(
+                                            expandAndGetMemberTypesRecursive(((BMapType) lhsMemberType).constraint),
+                                            expandAndGetMemberTypesRecursive(((BMapType) rhsMemberType).constraint),
+                                            true))) {
+                        return true;
                     }
                     break;
                 case TypeTags.OBJECT:
                 case TypeTags.RECORD:
-                    for (BType rhsMemberType : rhsTypes) {
-                        if (checkStructEquivalency(rhsMemberType, lhsMemberType) ||
-                                checkStructEquivalency(lhsMemberType, rhsMemberType)) {
-                            // intersection exists if one is assignable to the other
-                            matchFound = true;
-                            break;
-                        }
+                    if (rhsTypes.stream().anyMatch(
+                            rhsMemberType -> checkStructEquivalency(rhsMemberType, lhsMemberType) ||
+                                    checkStructEquivalency(lhsMemberType, rhsMemberType))) {
+                        return true;
                     }
                     break;
             }
-            if (matchFound) {
-                break;
-            }
         }
-        return matchFound;
+        return false;
     }
 
     /**

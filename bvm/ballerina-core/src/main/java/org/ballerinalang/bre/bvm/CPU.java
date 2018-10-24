@@ -1693,11 +1693,7 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.refRegs[i] == null) {
-                    sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
-                } else {
-                    sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
-                }
+                sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.TEQ:
                 i = operands[0];
@@ -3783,7 +3779,7 @@ public class CPU {
      * @return True if values are equal, else false.
      */
     private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
-        if (null == lhsValue && null == rhsValue) {
+        if (lhsValue == rhsValue) {
             return true;
         }
 
@@ -3821,11 +3817,6 @@ public class CPU {
                 if (null == lhsRef.value() && null == rhsRef.value()) {
                     return true;
                 }
-
-                if (null == lhsRef.value() || null == rhsRef.value()) {
-                    return false;
-                }
-
                 return lhsRef.value().equals(rhsRef.value());
             case TypeTags.XML_TAG:
                 return XMLUtils.isEqual((BXML) lhsValue, (BXML) rhsValue);
@@ -3873,9 +3864,10 @@ public class CPU {
             return false;
         }
 
-        List<String> keys = Arrays.stream(lhsMap.keys()).map(String.class::cast).collect(Collectors.toList());
-        for (int i = 0; i < lhsMap.size(); i++) {
-            if (!isEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
+        Iterator<Map.Entry<String, BValue>> mapIterator = lhsMap.getMap().entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<String, BValue> lhsMapEntry = mapIterator.next();
+            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()))) {
                 return false;
             }
         }
