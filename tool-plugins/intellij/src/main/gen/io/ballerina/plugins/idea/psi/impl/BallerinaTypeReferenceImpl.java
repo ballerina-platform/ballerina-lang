@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaPostIncrementStatementImpl extends BallerinaCompositeElementImpl implements BallerinaPostIncrementStatement {
+public class BallerinaTypeReferenceImpl extends BallerinaCompositeElementImpl implements BallerinaTypeReference {
 
-  public BallerinaPostIncrementStatementImpl(@NotNull ASTNode node) {
+  public BallerinaTypeReferenceImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitPostIncrementStatement(this);
+    visitor.visitTypeReference(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,14 +43,14 @@ public class BallerinaPostIncrementStatementImpl extends BallerinaCompositeEleme
 
   @Override
   @NotNull
-  public BallerinaPostArithmeticOperator getPostArithmeticOperator() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaPostArithmeticOperator.class));
+  public BallerinaSimpleTypeName getSimpleTypeName() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaSimpleTypeName.class));
   }
 
   @Override
   @NotNull
-  public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+  public PsiElement getMul() {
+    return notNullChild(findChildByType(MUL));
   }
 
   @Override
