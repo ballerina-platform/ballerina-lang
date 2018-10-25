@@ -18,39 +18,37 @@
 
 package org.wso2.transport.http.netty.message;
 
-import io.netty.handler.codec.http.HttpContent;
-
 /**
- * Default implementation of the message observer.
+ * Default implementation of the {@link BackPressureObservable}.
  */
-public class DefaultObservable implements Observable {
+public class DefaultBackPressureObservable implements BackPressureObservable {
 
-    private Listener listener;
+    private BackPressureListener listener;
 
     @Override
-    public void setListener(Listener listener) {
+    public void setListener(BackPressureListener listener) {
         this.listener = listener;
     }
 
     @Override
     public void removeListener() {
         if (listener != null) {
-            listener.resumeReadInterest();
+            listener.onWritable();
             listener = null;
         }
     }
 
     @Override
-    public void notifyAddListener(HttpContent httpContent) {
+    public void notifyUnWritable() {
         if (listener != null) {
-            listener.onAdd(httpContent);
+            listener.onUnWritable();
         }
     }
 
     @Override
-    public void notifyGetListener(HttpContent httpContent) {
+    public void notifyWritable() {
         if (listener != null) {
-            listener.onRemove(httpContent);
+            listener.onWritable();
         }
     }
 }
