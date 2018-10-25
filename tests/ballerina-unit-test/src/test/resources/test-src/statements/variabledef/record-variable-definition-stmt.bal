@@ -97,6 +97,7 @@ function defineThreeRecordVariables() returns (string, int) {
     int intAddition = theAge1 + theAge2 + theAge3;
     return (stringAddition, intAddition);
 }
+
 function recordVariableWithRHSInvocation() returns string {
     Person {name: fName, married} = getPersonRecord();
     string name = fName + " Jill";

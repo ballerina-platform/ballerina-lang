@@ -1060,17 +1060,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(recordTypeNode.initFunction, conEnv);
     }
 
-    private BLangSimpleVariable createReceiver(DiagnosticPos pos, BType type) {
-        BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        receiver.pos = pos;
-        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
-        receiver.setName(identifier);
-        receiver.docTag = DocTag.RECEIVER;
-
-        receiver.type = type;
-        return receiver;
-    }
-
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
         BLangFunction initFunction = ASTBuilderUtil.createInitFunction(service.pos, service.getName().getValue(),
                 Names.INIT_FUNCTION_SUFFIX);

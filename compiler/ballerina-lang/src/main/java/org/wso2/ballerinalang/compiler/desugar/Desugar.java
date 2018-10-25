@@ -583,12 +583,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
-        if ((env.scope.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
-            varNode.expr = null;
-            result = varNode;
-            return;
-        }
-
         result = varNode;
     }
 
