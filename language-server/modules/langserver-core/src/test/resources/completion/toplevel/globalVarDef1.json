@@ -609,28 +609,6 @@
       ]
     },
     {
-      "label":"wso2/gmail",
-      "kind":"Module",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"gmail",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":1,
-              "character":22
-            },
-            "end":{
-              "line":1,
-              "character":22
-            }
-          },
-          "newText":"\nimport wso2/gmail;\n"
-        }
-      ]
-    },
-    {
       "label":"check",
       "kind":"Keyword",
       "detail":"Keyword",
