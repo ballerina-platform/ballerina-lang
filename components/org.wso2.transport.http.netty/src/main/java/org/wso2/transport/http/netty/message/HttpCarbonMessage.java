@@ -454,4 +454,8 @@ public class HttpCarbonMessage {
     public void setPipeliningFuture(HttpPipeliningFuture pipeliningFuture) {
         this.pipeliningFuture = pipeliningFuture;
     }
+
+    public void removeInboundContentListener() {
+        this.contentObservable.removeListener();
+    }
 }
