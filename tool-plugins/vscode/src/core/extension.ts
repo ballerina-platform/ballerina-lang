@@ -25,7 +25,7 @@ import {
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
-    CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR,
+    CONFIG_CHANGED, OLD_BALLERINA_VERSION, OLD_PLUGIN_VERSION, UNKNOWN_ERROR, INVALID_FILE,
 } from "./messages";
 import * as path from 'path';
 import * as fs from 'fs';
@@ -229,6 +229,10 @@ export class BallerinaExtension {
                 commands.executeCommand('vscode.open', Uri.parse(DOWNLOAD_BALLERINA));
             }
         });
+    }
+
+    showMessageInvalidFile(): any {
+        window.showErrorMessage(INVALID_FILE);
     }
 
 

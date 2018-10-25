@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -69,7 +67,6 @@ function startUniqueLengthwindowTest2() returns TeacherOutput[] {
         }
     }
 
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

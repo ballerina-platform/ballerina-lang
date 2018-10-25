@@ -172,7 +172,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    private static final String STREAMS_STDLIB_PACKAGE_NAME = "streams";
     private static final String AGGREGATOR_OBJECT_NAME = "Aggregator";
 
     private SymbolTable symTable;
@@ -1378,7 +1377,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
                         scope.lookup(new Name(invocation.name.value)).symbol;
                 BSymbol aggregatorSymbol = symResolver.
-                        resolvePkgSymbol(invocation.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                        resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
                         scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol;
 
                 if (invocationSymbol != null && invocationSymbol.type.getReturnType().tsymbol != aggregatorSymbol) {

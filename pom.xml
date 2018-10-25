@@ -155,6 +155,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-auth</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-auth</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
@@ -1530,6 +1535,20 @@
                 <artifactId>mysql</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
+
+            <!-- Embedded Apache DS dependencies -->
+            <dependency>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-all</artifactId>
+                <version>${apache.directory.server.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.directory.shared</groupId>
+                        <artifactId>shared-ldap</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -2205,7 +2224,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.237</transport.http.version>
+        <transport.http.version>6.0.240</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2337,6 +2356,7 @@
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <apache.directory.server.version>1.5.5</apache.directory.server.version>
     </properties>
 
 </project>

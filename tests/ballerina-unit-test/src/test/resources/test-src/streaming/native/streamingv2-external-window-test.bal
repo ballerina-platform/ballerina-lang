@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
@@ -72,7 +71,6 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
         }
     }
 
-    io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
 
