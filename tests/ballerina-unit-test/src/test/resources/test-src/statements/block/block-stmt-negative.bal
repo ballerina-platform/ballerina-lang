@@ -105,7 +105,7 @@ function testUnreachableThrow (int value) returns (string) {
     if (value > 10) {
         testerror tError = error("error", code:"test");
         return "unreachable throw";
-        throw tError;
+        panic tError;
     }
     return "done";
 }
@@ -115,7 +115,7 @@ function testRedeclareFunctionArgument (int value) returns (string) {
     if (value > 10) {
         testerror tError = error("error", { code: "test" });
         return "unreachable throw";
-        throw tError;
+        panic tError;
     }
     return "done";
 }

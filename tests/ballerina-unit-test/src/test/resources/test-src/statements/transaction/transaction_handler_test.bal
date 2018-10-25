@@ -155,7 +155,7 @@ function testTransactionThrowWithAllHandlers() returns (string) {
             int i = 0;
             if (i == 0) {
                 Trxerror err = error(" trxErr", { data: "test" });
-                throw err;
+                panic err;
             }
             a = a + " endTrx";
         } onretry {
@@ -177,7 +177,7 @@ function testTransactionCommitAfterFailureWithAllHandlers() returns (string) {
             a = a + " inTrx";
             if (i < 2) {
                 Trxerror err = error(" trxErr", { data: "test"} );
-                throw err;
+                panic err;
             }
             a = a + " endTrx";
         } onretry {
@@ -223,7 +223,7 @@ function testMultipleTransactionsFailedWithAllHandlers() returns (string) {
             a = a + " inFirstTrx";
             if (i == 0) {
                 Trxerror err = error(" trxErr", { data: "test"} );
-                throw err;
+                panic err;
             }
             a = a + " endFirstTrx";
         } onretry {
@@ -283,7 +283,7 @@ function testMultipleTransactionsFailedWithAllHandlersWithID() returns (string, 
             a = a + " inFirstTrx";
             if (i == 0) {
                 Trxerror err = error(" trxErr", { data: "test" });
-                throw err;
+                panic err;
             }
             a = a + " endFirstTrx";
         } onretry {

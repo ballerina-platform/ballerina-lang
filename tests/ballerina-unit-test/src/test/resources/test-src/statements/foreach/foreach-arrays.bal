@@ -268,7 +268,7 @@ function testThrow1Callee () {
     foreach i, v in sArray {
         if (v == "d1") {
             error e = error("d1 found");
-            throw e;
+            panic e;
         }
         concatString(i, v);
     }

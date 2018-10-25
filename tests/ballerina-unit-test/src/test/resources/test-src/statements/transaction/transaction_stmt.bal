@@ -18,13 +18,13 @@ function testTransactionStmt(int i) returns (string) {
             try {
                 if (i == -1) {
                     error err = error(" err" );
-                    throw err;
+                    panic err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
                     Trxerror err = error(" trxErr", { data: "test" });
-                    throw err;
+                    panic err;
                 }
             } catch (TrxError err) {
                 a = a + err.message;
@@ -64,13 +64,13 @@ function testOptionalFailed(int i) returns (string) {
             try {
                 if (i == -1) {
                     error err = error(" err" );
-                    throw err;
+                    panic err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
                     Trxerror err = error(" trxErr", { data: "test" });
-                    throw err;
+                    panic err;
                 }
             } catch (TrxError err) {
                 a = a + err.message;
@@ -94,13 +94,13 @@ function testNestedTransaction(int i) returns (string) {
                 try {
                     if (i == -1) {
                         error err = error(" err" );
-                        throw err;
+                        panic err;
                     } else if (i == 0) {
                         a = a + " abort";
                         abort;
                     } else if (i < -1) {
                         Trxerror err = error(" trxErr", { data: "test" });
-                        throw err;
+                        panic err;
                     }
                 } catch (TrxError err) {
                     a = a + err.message;
@@ -127,13 +127,13 @@ function testNestedTransactionWithFailed(int i) returns (string) {
                 try {
                     if (i == -1) {
                         error err = error(" err" );
-                        throw err;
+                        panic err;
                     } else if (i == 0) {
                         a = a + " abort";
                         abort;
                     } else if (i < -1) {
                         Trxerror err = error(" trxErr", { data: "test" });
-                        throw err;
+                        panic err;
                     }
                 } catch (TrxError err) {
                     a = a + err.message;
@@ -162,13 +162,13 @@ function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (strin
             try {
                 if (i == -1) {
                     error err = error(" err" );
-                    throw err;
+                    panic err;
                 } else if (i == 0) {
                     a = a + " abort";
                     abort;
                 } else if (i < -1) {
                     Trxerror err = error(" trxErr", { data: "test" });
-                    throw err;
+                    panic err;
                 } else {
                     a = a + " success";
                 }
@@ -194,7 +194,7 @@ function testTransactionStmtWithRetryOff(int i) returns (string) {
             try {
                 if (i == -1) {
                     error err = error(" err" );
-                    throw err;
+                    panic err;
                 }
             } catch (TrxError err) {
                 a = a + err.message;
@@ -218,7 +218,7 @@ function testTransactionStmtWithConstRetryFailed() returns (string) {
             a = a + " inTrx";
             if (i == 0) {
                 error err = error(" err" );
-                throw err;
+                panic err;
             }
         } onretry {
             a = a + " inFailed";
@@ -238,7 +238,7 @@ function testTransactionStmtWithConstRetryFailed2() returns (string) {
             a = a + " inTrx";
             if (i == 0) {
                 error err = error(" err" );
-                throw err;
+                panic err;
             }
         } onretry {
             a = a + " inFailed";
@@ -295,7 +295,7 @@ function testMultipleTransactionStmtFailed1() returns (string) {
             a = a + " inFirstTrxBlock";
             if (i == 0) {
                 error err = error(" err" );
-                throw err;
+                panic err;
             }
         } onretry {
             a = a + " inFirstTrxFld";
@@ -320,7 +320,7 @@ function testMultipleTransactionStmtFailed2() returns (string) {
             a = a + " inFirstTrxBlock";
             if (i == 0) {
                 error err = error(" err" );
-                throw err;
+                panic err;
             }
         } onretry {
             a = a + " inFirstTrxFld";
