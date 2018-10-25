@@ -158,8 +158,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     /**
      * This method will check whether the given symbol that is being defined is unique by only checking its current
-     * environment scope. Additionally, it checks from the enclosing environment scope only if it s function block
-     * to restrict shadowing of function arguments.
+     * environment scope.
      *
      * @param pos       symbol pos for diagnostic purpose.
      * @param env       symbol environment to lookup.
@@ -171,12 +170,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                       int expSymTag) {
         //lookup in current scope
         BSymbol foundSym = lookupSymbolInGivenScope(env, symbol.name, expSymTag);
-
-        //lookup in enclosing scope if it is a function only
-        if (foundSym == symTable.notFoundSymbol && (env.enclEnv != null && env.enclEnv.node instanceof BLangFunction)) {
-            //lookup in enclosing scope
-            foundSym = lookupSymbol(env.enclEnv, symbol.name, expSymTag);
-        }
 
         //if symbol is not found then it is unique for the current scope
         if (foundSym == symTable.notFoundSymbol) {

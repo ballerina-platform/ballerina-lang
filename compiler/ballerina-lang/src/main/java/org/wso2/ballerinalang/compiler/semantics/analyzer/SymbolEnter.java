@@ -1023,6 +1023,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Define a symbol that is unique only for the current scope.
+     * 
+     * @param pos Line number information of the source file
+     * @param symbol Symbol to be defines
+     * @param env Environment to define the symbol
+     */
+    public void defineShadowedSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+        symbol.scope = new Scope(symbol);
+        if (symResolver.checkForUniqueSymbolInCurrentScope(pos, env, symbol, symbol.tag)) {
+            env.scope.define(symbol.name, symbol);
+        }
+    }
+
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
@@ -1304,8 +1318,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
-            return ((BStructureType) referredType).fields.stream()
-                    .map(field -> ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type));
+            return ((BStructureType) referredType).fields.stream().map(field -> {
+                BLangVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
+                var.flagSet = field.symbol.getFlags();
+                return var;
+            });
         }).collect(Collectors.toList());
     }
 

@@ -267,10 +267,8 @@ public class Types {
                     ((BMapType) source).constraint.tag != TypeTags.UNION) {
                 return true;
             }
-            if (checkStructEquivalency(((BMapType) source).constraint, ((BMapType) target).constraint,
-                    unresolvedTypes)) {
-                return true;
-            }
+
+            return isAssignable(((BMapType) source).constraint, ((BMapType) target).constraint, unresolvedTypes);
         }
 
         if ((source.tag == TypeTags.OBJECT || source.tag == TypeTags.RECORD)
@@ -328,10 +326,10 @@ public class Types {
             // Only the right-hand side is an array type
 
             // If the target type is a JSON, then element type of the rhs array
-            // should only be JSON. This is to avoid assigning of value-type arrays
-            // to JSON.
+            // should only be a JSON supported type.
             if (target.tag == TypeTags.JSON) {
-                return getElementType(source).tag == TypeTags.JSON;
+                return ((BJSONType) target).constraint.tag == TypeTags.NONE &&
+                        isAssignable(((BArrayType) source).getElementType(), target, unresolvedTypes);
             }
 
             // Then lhs type should 'any' type
@@ -481,7 +479,7 @@ public class Types {
             return false;
         }
 
-        return checkFieldEquivalency(lhsType, rhsType);
+        return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
@@ -1193,15 +1191,14 @@ public class Types {
     };
 
     private boolean checkPrivateObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                        List<TypePair> unresolvedTypes) {
-        for (int fieldCounter = 0; fieldCounter < lhsType.fields.size(); fieldCounter++) {
-            BField lhsField = lhsType.fields.get(fieldCounter);
-            BField rhsField = rhsType.fields.get(fieldCounter);
-            if (lhsField.name.equals(rhsField.name) &&
-                    isSameType(rhsField.type, lhsField.type)) {
-                continue;
+                                                  List<TypePair> unresolvedTypes) {
+        Map<Name, BField> rhsFields =
+                rhsType.fields.stream().collect(Collectors.toMap(BField::getName, field -> field));
+        for (BField lhsField : lhsType.fields) {
+            BField rhsField = rhsFields.get(lhsField.name);
+            if (rhsField == null || !isAssignable(rhsField.type, lhsField.type)) {
+                return false;
             }
-            return false;
         }
 
         BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
@@ -1225,18 +1222,15 @@ public class Types {
         return true;
     }
 
-    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType) {
+    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType,
+                                          List<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
                 Collectors.toMap(BField::getName, field -> field));
 
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            if (rhsField == null) {
-                return false;
-            }
-
-            if (!isSameType(rhsField.type, lhsField.type)) {
+            if (rhsField == null || !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -1245,26 +1239,18 @@ public class Types {
     }
 
     private boolean checkPublicObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                List<TypePair> unresolvedTypes) {
-        int fieldCounter = 0;
-        for (; fieldCounter < lhsType.fields.size(); fieldCounter++) {
-            BField lhsField = lhsType.fields.get(fieldCounter);
-            BField rhsField = rhsType.fields.get(fieldCounter);
-            if (Symbols.isPrivate(lhsField.symbol) ||
-                    Symbols.isPrivate(rhsField.symbol)) {
-                return false;
-            }
+                                                 List<TypePair> unresolvedTypes) {
+        Map<Name, BField> rhsFields =
+                rhsType.fields.stream().collect(Collectors.toMap(BField::getName, field -> field));
 
-            if (lhsField.name.equals(rhsField.name) &&
-                    isSameType(rhsField.type, lhsField.type)) {
-                continue;
-            }
+        // Check the whether there is any private fields in RHS type
+        if (rhsType.fields.stream().anyMatch(field -> Symbols.isPrivate(field.symbol))) {
             return false;
         }
 
-        // Check the rest of the fields in RHS type
-        for (; fieldCounter < rhsType.fields.size(); fieldCounter++) {
-            if (Symbols.isPrivate(rhsType.fields.get(fieldCounter).symbol)) {
+        for (BField lhsField : lhsType.fields) {
+            BField rhsField = rhsFields.get(lhsField.name);
+            if (rhsField == null || Symbols.isPrivate(lhsField.symbol) || !isAssignable(rhsField.type, lhsField.type)) {
                 return false;
             }
         }
