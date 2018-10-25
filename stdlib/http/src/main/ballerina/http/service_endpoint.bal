@@ -33,7 +33,7 @@ public type Listener object {
     private Connection conn;
     private ServiceEndpointConfiguration config;
 
-    # Gets invoked during package initialization to initialize the endpoint.
+    # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - Configurations for HTTP service endpoints
     public function init(ServiceEndpointConfiguration c);
@@ -196,7 +196,7 @@ public type WebSocketListener object {
     public new() {
     }
 
-    # Gets invoked during package initialization to initialize the endpoint.
+    # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
     public function init(ServiceEndpointConfiguration c) {

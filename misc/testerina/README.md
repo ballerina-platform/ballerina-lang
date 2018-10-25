@@ -44,12 +44,12 @@ Testerina allows you to create mocks or doubles at different layers for testing 
 
 #### Function Mocks
 
-With Function mocks we can replace a function interface from the same package or from a different package with a mock function. Function mock will look like something below,
+With Function mocks we can replace a function interface from the same module or from a different module with a mock function. Function mock will look like something below,
 
 ````ballerina
 @Description {value:"This is a mock function"}
 @test:Mock {
-    packageName:"src.persistence",
+    moduleName:"src.persistence",
     functionName:"addNewEvent"
 }
 function mockAddNewEvent (mod:Event evnt) returns json {
@@ -97,7 +97,7 @@ service<http:Service> PaymentService bind paymentGWEP {
 The above mock service can be started as shown below,
 
 ````
-test:startServices(<Package Name>);
+test:startServices(<module_name>);
 ````
 
 ### Helper Functions
@@ -124,7 +124,7 @@ test:assertFalse(false, msg = "errorMessage");
 
 Inorder to execute tests belonging to a selected group. Run the below command.
 
-ballerina ``test your_package --groups unit``
+ballerina ``test your_module --groups unit``
 
 Note: You can also use `--disable-groups` flag to exclude groups from executing. Also un-grouped tests will be added to a group named default.
 
@@ -135,20 +135,20 @@ e.g : ballerina test --list-groups
  
 ## Writing ballerina tests
 
-- Test can reside in any valid ballerina package. As a Best practice we put them into a subdirectory called tests within a package  
+- Test can reside in any valid ballerina module. As a Best practice we put them into a subdirectory called tests within a module  
 - Test file names and functions can have any name.  
-- We can execute all the tests or tests belonging to a specific package..
+- We can execute all the tests or tests belonging to a specific module..
 
 - If at least one assert fails, whole test function will be marked as failed.
 - Detailed information is shown in the test result summary.  
-> One package may contain more than one test file.
+> One module may contain more than one test file.
 
 ## Running ballerina tests
 
 Tests can be execute as shown below
 
-```./ballerina test <package_name> [FLAGS]``` Execute tests within a given package
+```./ballerina test <module_name> [FLAGS]``` Execute tests within a given module
 
 or
 
-```./ballerina test [FLAGS]``` Executes all the tests within packages
+```./ballerina test [FLAGS]``` Executes all the tests within modules

@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     int timestamp;
@@ -57,8 +55,14 @@ function startExternalTimeBatchwindowTest3() returns (TeacherOutput[]) {
         inputStreamExternalTimeBatchTest3.publish(t);
     }
 
-    runtime:sleep(5000);
-    io:println(globalEmployeeArray);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((lengthof globalEmployeeArray) == 1 || count == 10) {
+            break;
+        }
+    }
     return globalEmployeeArray;
 }
 

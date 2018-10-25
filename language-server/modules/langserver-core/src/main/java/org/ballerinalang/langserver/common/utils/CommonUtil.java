@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -41,6 +42,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.FiniteType;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -88,6 +90,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -115,6 +118,8 @@ public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
+
+    public static final String FILE_SEPARATOR = File.separator;
 
     public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
 
@@ -412,7 +417,9 @@ public class CommonUtil {
         annotationItem.setInsertText(insertText);
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        annotationItem.setKind(CompletionItemKind.Property);
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
                 .findAny();
@@ -436,7 +443,8 @@ public class CommonUtil {
         if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
             return null;
         }
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(ctx);
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
         Position start = new Position();
 
         if (!imports.isEmpty()) {
@@ -451,7 +459,7 @@ public class CommonUtil {
                 + CommonUtil.LINE_SEPARATOR;
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
     }
-    
+
     /**
      * Fill the completion items extracted from LS Index db with the auto import text edits.
      * Here the Completion Items are mapped against the respective package ID.
@@ -476,7 +484,7 @@ public class CommonUtil {
                 logger.error("Error While retrieving Package Symbol for text edits");
             }
         });
-        
+
         return returnList;
     }
 
@@ -619,6 +627,7 @@ public class CommonUtil {
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
             fieldItem.setLabel(bStructField.getName().getValue());
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
+            fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
             completionItems.add(fieldItem);
         });
@@ -647,6 +656,7 @@ public class CommonUtil {
         completionItem.setLabel(label);
         completionItem.setInsertText(insertText);
         completionItem.setDetail(ItemResolverConstants.NONE);
+        completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
         return completionItem;
@@ -669,33 +679,61 @@ public class CommonUtil {
                     + nameComponents[nameComponents.length - 1];
         }
     }
-    
+
+    /**
+     * Get the last item of the List.
+     * 
+     * @param list  List to get the Last Item
+     * @param <T>   List content Type
+     * @return      Extracted last Item
+     */
     public static <T> T getLastItem(List<T> list) {
         return list.get(list.size() - 1);
+    }
+
+    /**
+     * Check whether the source is a test source.
+     *
+     * @param relativeFilePath  source path relative to the package
+     * @return {@link Boolean}  Whether a test source or not
+     */
+    public static boolean isTestSource(String relativeFilePath) {
+        return relativeFilePath.split(FILE_SEPARATOR)[0].equals("tests");
+    }
+
+    /**
+     * Get the Source's owner BLang package, this can be either the parent package or the testable BLang package.
+     *
+     * @param relativePath          Relative source path
+     * @param parentPkg             parent package
+     * @return {@link BLangPackage} Resolved BLangPackage
+     */
+    public static BLangPackage getSourceOwnerBLangPackage(String relativePath, BLangPackage parentPkg) {
+        return isTestSource(relativePath) ? parentPkg.getTestablePkg() : parentPkg;
     }
 
     static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList, LSContext context) {
         BType bType = variable.getScopeEntry().symbol.getType();
         
         if (iterableType(bType)) {
-            SymbolInfo itrForEach = getIterableOpSymbolInfo(Snippet.ITR_FOREACH, bType,
+            SymbolInfo itrForEach = getIterableOpSymbolInfo(Snippet.ITR_FOREACH.get(), bType,
                     ItemResolverConstants.ITR_FOREACH_LABEL, context);
-            SymbolInfo itrMap = getIterableOpSymbolInfo(Snippet.ITR_MAP, bType,
+            SymbolInfo itrMap = getIterableOpSymbolInfo(Snippet.ITR_MAP.get(), bType,
                     ItemResolverConstants.ITR_MAP_LABEL, context);
-            SymbolInfo itrFilter = getIterableOpSymbolInfo(Snippet.ITR_FILTER, bType,
+            SymbolInfo itrFilter = getIterableOpSymbolInfo(Snippet.ITR_FILTER.get(), bType,
                     ItemResolverConstants.ITR_FILTER_LABEL, context);
-            SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT, bType,
+            SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT.get(), bType,
                     ItemResolverConstants.ITR_COUNT_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
 
             if (aggregateFunctionsAllowed(bType)) {
-                SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN, bType,
+                SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN.get(), bType,
                         ItemResolverConstants.ITR_MIN_LABEL, context);
-                SymbolInfo itrMax = getIterableOpSymbolInfo(Snippet.ITR_MAX, bType,
+                SymbolInfo itrMax = getIterableOpSymbolInfo(Snippet.ITR_MAX.get(), bType,
                         ItemResolverConstants.ITR_MAX_LABEL, context);
-                SymbolInfo itrAvg = getIterableOpSymbolInfo(Snippet.ITR_AVERAGE, bType,
+                SymbolInfo itrAvg = getIterableOpSymbolInfo(Snippet.ITR_AVERAGE.get(), bType,
                         ItemResolverConstants.ITR_AVERAGE_LABEL, context);
-                SymbolInfo itrSum = getIterableOpSymbolInfo(Snippet.ITR_SUM, bType,
+                SymbolInfo itrSum = getIterableOpSymbolInfo(Snippet.ITR_SUM.get(), bType,
                         ItemResolverConstants.ITR_SUM_LABEL, context);
                 symbolInfoList.addAll(Arrays.asList(itrMin, itrMax, itrAvg, itrSum));
             }
@@ -725,29 +763,16 @@ public class CommonUtil {
     /**
      * Get the current file's imports.
      * 
+     * @param pkg               BLangPackage to extract content from
      * @param ctx               LS Operation Context
      * @return {@link List}     List of imports in the current file
      */
-    public static List<BLangImportPackage> getCurrentFileImports(LSContext ctx) {
-        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
-        return bLangPackage.getImports().stream()
-                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get the current file's top level nodes.
-     *
-     * @param ctx               LS Operation Context
-     * @return {@link List}     List of top level nodes in the current file
-     */
-    public static List<TopLevelNode> getCurrentFileTopLevelNodes(LSContext ctx) {
-        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        String currentFile = ctx.get(DocumentServiceKeys.FILE_NAME_KEY);
-        return bLangPackage.topLevelNodes.stream()
-                .filter(topLevelNode -> topLevelNode.getPosition().getSource().getCompilationUnitName()
-                        .equals(currentFile))
+    public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
+        String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        return pkg.getImports().stream()
+                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile)
+                        && !(bLangImportPackage.getOrgName().getValue().equals("ballerina") 
+                        && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
                 .collect(Collectors.toList());
     }
 
@@ -761,42 +786,54 @@ public class CommonUtil {
                 || symbolContainsInvalidChars(symbol));
     }
 
-    // Private Methods
+    /**
+     * Get the TopLevel nodes of the current file.
+     *
+     * @param pkgNode           Current Package node
+     * @param ctx               Service Operation context
+     * @return {@link List}     List of Top Level Nodes
+     */
+    public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, LSContext ctx) {
+        String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
+                .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
+                .findAny().orElse(null);
+        return filteredCUnit == null ? new ArrayList<>() : filteredCUnit.getTopLevelNodes();
+    }
     
-    private static SymbolInfo getIterableOpSymbolInfo(Snippet operation, @Nullable BType bType, String label,
+    private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         String lambdaSignature = "";
         SymbolInfo.IterableOperationSignature signature;
         SymbolInfo iterableOperation = new SymbolInfo();
-        switch (operation) {
-            case ITR_FOREACH: {
+        switch (operation.getLabel()) {
+            case ItemResolverConstants.ITR_FOREACH_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation.getBlock()
+                lambdaSignature = operation.getString(isSnippet)
+                        .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+                break;
+            }
+            case ItemResolverConstants.ITR_MAP_LABEL: {
+                String params = getIterableOpLambdaParam(bType, context);
+                lambdaSignature = operation
                         .getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
-            case ITR_MAP: {
+            case ItemResolverConstants.ITR_FILTER_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation.getBlock()
+                lambdaSignature = operation
                         .getString(isSnippet)
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
-            case ITR_FILTER: {
-                String params = getIterableOpLambdaParam(bType, context);
-                lambdaSignature = operation.getBlock()
-                        .getString(isSnippet)
-                        .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
-                break;
-            }
-            case ITR_COUNT:
-            case ITR_MIN:
-            case ITR_MAX:
-            case ITR_AVERAGE:
-            case ITR_SUM:
-                lambdaSignature = operation.getBlock().getString(isSnippet);
+            case ItemResolverConstants.ITR_COUNT_LABEL:
+            case ItemResolverConstants.ITR_MIN_LABEL:
+            case ItemResolverConstants.ITR_MAX_LABEL:
+            case ItemResolverConstants.ITR_AVERAGE_LABEL:
+            case ItemResolverConstants.ITR_SUM_LABEL:
+                lambdaSignature = operation.getString(isSnippet);
                 break;
             default: {
                 // Do Nothing
@@ -815,13 +852,13 @@ public class CommonUtil {
         String params = "";
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         if (bType instanceof BMapType) {
-            params = Snippet.ITR_ON_MAP_PARAMS.getBlock().getString(isSnippet);
+            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet);
         } else if (bType instanceof BArrayType) {
             params = ((BArrayType) bType).eType.toString() + " v";
         } else if (bType instanceof BJSONType) {
-            params = Snippet.ITR_ON_JSON_PARAMS.getBlock().getString(isSnippet);
+            params = Snippet.ITR_ON_JSON_PARAMS.get().getString(isSnippet);
         } else if (bType instanceof BXMLType) {
-            params = Snippet.ITR_ON_XML_PARAMS.getBlock().getString(isSnippet);
+            params = Snippet.ITR_ON_XML_PARAMS.get().getString(isSnippet);
         }
 
         return params;

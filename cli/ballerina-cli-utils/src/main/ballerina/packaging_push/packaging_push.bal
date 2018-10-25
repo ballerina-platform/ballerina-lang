@@ -3,23 +3,23 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-# This functions pulls a package from ballerina central.
+# This functions pulls a module from ballerina central.
 #
 # + definedEndpoint - Endpoint defined with the proxy configurations
 # + accessToken - Access token
-# + mdFileContent - Package.md file content of the package
-# + summary - Summary of the package
-# + homePageURL - Website URL of the package
-# + repositoryURL - Source code URL of the package
-# + apiDocURL - API documentation URL of the package
-# + authors - Authors of the package
-# + keywords - Keywords which describes the package
-# + license - License of the package
-# + url - URL to be invoked to push the package
-# + dirPath - Directory path where the archived package resides
-# + ballerinaVersion - Ballerina version the package is built
-# + msg - Message printed when the package is pushed successfully which includes package info
-# + baloVersion - Balo version of the package
+# + mdFileContent - Module.md file content of the module
+# + summary - Summary of the module
+# + homePageURL - Website URL of the module
+# + repositoryURL - Source code URL of the module
+# + apiDocURL - API documentation URL of the module
+# + authors - Authors of the module
+# + keywords - Keywords which describes the module
+# + license - License of the module
+# + url - URL to be invoked to push the module
+# + dirPath - Directory path where the archived module resides
+# + ballerinaVersion - Ballerina version the module is built
+# + msg - Message printed when the module is pushed successfully which includes module info
+# + baloVersion - Balo version of the module
 function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
                 string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg, string baloVersion) {
     
@@ -69,7 +69,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     }
 }
 
-# This function will invoke the method to push the package.
+# This function will invoke the method to push the module.
 # + args - Arguments passed
 public function main (string... args) {
     http:Client httpEndpoint;

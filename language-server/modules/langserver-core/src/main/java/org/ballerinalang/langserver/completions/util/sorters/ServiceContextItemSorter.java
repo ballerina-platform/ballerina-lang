@@ -67,10 +67,6 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
     }
     
     private CompletionItem getResourceSnippet(boolean snippetCapability) {
-        CompletionItem resource = new CompletionItem();
-        Snippet.DEF_RESOURCE.getBlock().populateCompletionItem(resource, snippetCapability);
-        resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-        resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        return resource;
+        return Snippet.DEF_RESOURCE.get().build(new CompletionItem(), snippetCapability);
     }
 }

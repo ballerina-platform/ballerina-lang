@@ -21,8 +21,8 @@ package org.ballerinalang.packerina.init.models;
  * Constants which holds the bal file content.
  */
 public class FileContentConstants {
-    public static final String SERVICE_CONTENT = "// A system package containing protocol access constructs\n" +
-                                                "// Package objects referenced with 'http:' in code\n" +
+    public static final String SERVICE_CONTENT = "// A system module containing protocol access constructs\n" +
+                                                "// Module objects referenced with 'http:' in code\n" +
                                                 "import ballerina/http;\n" +
                                                 "\n" +
                                                 "# A service endpoint represents a listener.\n" +

@@ -86,9 +86,9 @@ function getResourceAuthConfig(FilterContext context) returns (boolean, string[]
     boolean resourceSecured;
     string[] authProviderIds = [];
     // get authn details from the resource level
-    ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
+    ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
         reflect:getResourceAnnotations(context.serviceType, context.resourceName));
-    ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
+    ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
         reflect:getServiceAnnotations(context.serviceType));
     // check if authentication is enabled
     resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
@@ -143,18 +143,18 @@ function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAut
 # Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then
 # from the service level, if it  is not there in the resource level.
 #
-# + annotationPackage - Annotation package name
+# + annotationModule - Annotation module name
 # + annotationName - Annotation name
 # + annData - Array of annotationData instances
 # + return - ListenerAuthConfig instance if its defined, else nil
-function getAuthAnnotation(string annotationPackage, string annotationName, reflect:annotationData[] annData) returns (
+function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns (
             ListenerAuthConfig?) {
     if (lengthof annData == 0) {
         return ();
     }
     reflect:annotationData|() authAnn;
     foreach ann in annData {
-        if (ann.name == annotationName && ann.pkgName == annotationPackage) {
+        if (ann.name == annotationName && ann.moduleName == annotationModule) {
             authAnn = ann;
             break;
         }

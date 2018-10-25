@@ -53,9 +53,9 @@ public type CircuitHealth record {
     int totalRequestCount;
     int lastUsedBucketId;
     time:Time startTime;
-    time:Time lastRequestTime;
-    time:Time lastErrorTime;
-    time:Time lastForcedOpenTime;
+    time:Time lastRequestTime?;
+    time:Time lastErrorTime?;
+    time:Time lastForcedOpenTime?;
     Bucket[] totalBuckets;
     !...
 };
@@ -98,7 +98,7 @@ public type Bucket record {
     int totalCount;
     int failureCount;
     int rejectedCount;
-    time:Time lastUpdatedTime;
+    time:Time lastUpdatedTime?;
     !...
 };
 
@@ -586,7 +586,7 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
             currentState = switchCircuitStateOpenToHalfOpenOnResetTime(circuitBreakerInferredConfig,
                                                                                     circuitHealth, currentState);
         }
-        circuitHealth.totalBuckets[currentBucketId].totalCount++;
+        circuitHealth.totalBuckets[currentBucketId].totalCount += 1;
         return currentState;
     }
 }
@@ -597,7 +597,7 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         circuitHealth.lastRequestSuccess = false;
         updateLastUsedBucketId(currentBucketId, circuitHealth);
-        circuitHealth.totalBuckets[currentBucketId].failureCount++;
+        circuitHealth.totalBuckets[currentBucketId].failureCount += 1;
         time:Time lastUpdated = time:currentTime();
         circuitHealth.lastErrorTime = lastUpdated;
         circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
@@ -611,7 +611,7 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResp
         time:Time lastUpdated = time:currentTime();
         updateLastUsedBucketId(currentBucketId, circuitHealth);
         if (circuitBreakerInferredConfig.statusCodes[inResponse.statusCode] == true) {
-            circuitHealth.totalBuckets[currentBucketId].failureCount++;
+            circuitHealth.totalBuckets[currentBucketId].failureCount += 1;
             circuitHealth.lastRequestSuccess = false;
             circuitHealth.lastErrorTime = lastUpdated;
             circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
@@ -699,7 +699,7 @@ function getCurrentBucketId(CircuitHealth circuitHealth, CircuitBreakerInferredC
 function updateRejectedRequestCount(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
     updateLastUsedBucketId(currentBucketId, circuitHealth);
-    circuitHealth.totalBuckets[currentBucketId].rejectedCount++;
+    circuitHealth.totalBuckets[currentBucketId].rejectedCount += 1;
 }
 
 # Reset the bucket values to default ones.
@@ -741,19 +741,19 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
             int index = currentBucketId;
             while (index >= 0) {
                 resetBucketStats(circuitHealth, index);
-                index--;
+                index -= 1;
             }
             int lastIndex = (lengthof circuitHealth.totalBuckets) - 1;
             while (lastIndex > currentBucketId) {
                 resetBucketStats(circuitHealth, lastIndex);
-                lastIndex--;
+                lastIndex -= 1;
             }
         } else {
             // If the current bucket (sub time window) is greater than last updated bucket. Stats of current bucket to
             // last used bucket needs to be reset without resetting last used bucket stat.
             while (currentBucketId > lastUsedBucketId && idleTime > rollingWindow.bucketSizeMillis) {
                 resetBucketStats(circuitHealth, currentBucketId);
-                currentBucketId--;
+                currentBucketId -= 1;
             }
         }
     }
@@ -767,7 +767,7 @@ function reInitializeBuckets(CircuitHealth circuitHealth) {
     int bucketIndex = 0;
     while (bucketIndex < lengthof circuitHealth.totalBuckets) {
         bucketArray[bucketIndex] = {};
-        bucketIndex++;
+        bucketIndex += 1;
     }
     circuitHealth.totalBuckets = bucketArray;
 }

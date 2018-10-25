@@ -1,0 +1,39 @@
+{
+  "name": "@ballerina/distribution",
+  "version": "0.982.1-SNAPSHOT",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\"",
+    "test-coverage": "npm run test -- --coverage",
+    "build": "webpack --mode=production ",
+    "build-dev": "webpack --mode=development",
+    "watch": "webpack --mode=development --watch --progress --info-verbosity verbose",
+    "start:dev": "webpack-dev-server  --mode=development --progress"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@ballerina/diagram": "file:../diagram",
+    "@ballerina/ballerina-by-examples": "file:../bbe",
+    "@ballerina/theme": "file:../theme",
+    "react-dom": "^16.2.0",
+    "react": "^16.2.0"
+  },
+  "devDependencies": {
+    "css-loader": "^1.0.0",
+    "less": "^2.7.2",
+    "less-loader": "^4.0.5",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.3",
+    "semantic-ui-less": "^2.3.2",
+    "style-loader": "^0.23.1",
+    "ts-loader": "^5.2.2",
+    "typescript": "^3.1.3",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "url-loader": "^0.5.8",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.9"
+  }
+}

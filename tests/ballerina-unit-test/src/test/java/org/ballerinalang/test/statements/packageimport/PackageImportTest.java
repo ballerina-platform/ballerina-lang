@@ -33,7 +33,7 @@ public class PackageImportTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateWarning(result, 0, "redeclared import package 'ballerina/math'", 4, 1);
+        BAssertUtil.validateWarning(result, 0, "redeclared import module 'ballerina/math'", 4, 1);
     }
 
     @Test
@@ -56,14 +56,14 @@ public class PackageImportTest {
     public void testInvalidImport1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve package 'abcd'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'abcd'", 1, 1);
     }
 
     @Test()
     public void testInvalidImport2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve package 'foo.x'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'foo.x'", 1, 1);
     }
 
 }

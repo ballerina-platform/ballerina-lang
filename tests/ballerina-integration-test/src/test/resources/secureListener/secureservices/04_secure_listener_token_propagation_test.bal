@@ -3,7 +3,7 @@ import ballerina/http;
 http:AuthProvider basicAuthProvider03 = {
     scheme:"basic",
     authStoreProvider:"config",
-    propagateToken: true,
+    propagateJwt: true,
     issuer:"ballerina",
     keyAlias:"ballerina",
     keyPassword:"ballerina",

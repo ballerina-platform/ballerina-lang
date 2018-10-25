@@ -27,10 +27,28 @@ public interface BallerinaCompoundOperator extends BallerinaCompositeElement {
   PsiElement getCompoundAdd();
 
   @Nullable
+  PsiElement getCompoundBitAnd();
+
+  @Nullable
+  PsiElement getCompoundBitOr();
+
+  @Nullable
+  PsiElement getCompoundBitXor();
+
+  @Nullable
   PsiElement getCompoundDiv();
 
   @Nullable
+  PsiElement getCompoundLeftShift();
+
+  @Nullable
+  PsiElement getCompoundLogicalShift();
+
+  @Nullable
   PsiElement getCompoundMul();
+
+  @Nullable
+  PsiElement getCompoundRightShift();
 
   @Nullable
   PsiElement getCompoundSub();

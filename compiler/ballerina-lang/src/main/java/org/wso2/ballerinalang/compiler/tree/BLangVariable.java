@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
@@ -39,7 +38,6 @@ import java.util.Set;
  */
 public abstract class BLangVariable extends BLangNode implements VariableNode {
 
-    public DocTag docTag;
     public BLangType typeNode;
     public BLangExpression expr;
     public Set<Flag> flagSet;

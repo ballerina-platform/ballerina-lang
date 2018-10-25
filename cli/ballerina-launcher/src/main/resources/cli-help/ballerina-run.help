@@ -1,16 +1,16 @@
 NAME
     Ballerina help run - Run Ballerina program source files, 
-    binaries, or packages
+    binaries, or modules
 
 SYNOPSIS
      ballerina run [-e] [--offline] [--observe]
          [--sourceroot] [-c|--config] [-printreturn] [-B]
-         <balfile | packagename | balxfile>[:function] [args...]
+         <balfile | module-name | balxfile>[:function] [args...]
 
 DESCRIPTION
-     Run command executes the given program or package.
+     Run command executes the given program or module.
 
-     If a Ballerina source file (.bal file) or a source package is 
+     If a Ballerina source file (.bal file) or a module is
      given, the run command compiles and runs it. The compilation 
      is done internally and does not generate a binary file. 
  
@@ -20,7 +20,7 @@ DESCRIPTION
      file run requires a compilation phase. 
 
      You must have either a public function or a service(s) or both in
-     order to run a program or a package. The function to run [:function]
+     order to run a program or a module. The function to run [:function]
      could also be specified, and if no function is specified and a
      function named 'main' would be considered the function to run if
      such a function exists.
@@ -34,11 +34,11 @@ OPTIONS
          If multiple parameters need to be provided, each parameter
          has to be specified using its own -e flag. Details of the
          environment parameters that the Ballerina standard library
-         packages support can be found in the relevant API
+         modules support can be found in the relevant API
          documentation.
 
      --offline
-         In a package build, the dependencies are always checked from 
+         In a module build, the dependencies are always checked from
          the remote repository (Ballerina Central) to check for latest 
          artifacts. If --offline is given, this remote check is not 
          done and the local artifacts will be used instead. 
@@ -73,7 +73,7 @@ OPTIONS
 
      -B <key=value>
          Provides Ballerina VM options to be used by the runtime
-         when executing a Ballerina program or package. VM options
+         when executing a Ballerina program or module. VM options
          are key/value pairs. If multiple VM options need to be
          provided, each option has to be specified using its
          own -B flag.
@@ -85,7 +85,7 @@ OPTIONS
 
 DEFAULT BEHAVIOR
      Runs the function ('main' or specified function) in the given
-     program or package.
+     program or module.
      If a function is specified but not present, the run command fails.
      If no function is specified and there is no main function defined,
      it will look for a service.
@@ -98,16 +98,16 @@ EXAMPLES
      Run the 'main' function and/or services in the hello binary program
      $ ballerina run hello.balx
 
-     Run the 'main' function and/or services in the hello package
+     Run the 'main' function and/or services in the hello module
      $ ballerina run hello
 
-     Run the 'main' function in the math package with three program args:
+     Run the 'main' function in the math module with three program args:
      add, 10 and 5. If the second and third parameters of the 'main'
      function are of types int and int, the second and third arguments
      would be passed as integer values 10 and 5
      $ ballerina run math add 10 5
 
-     Run the 'add' function in the math package with two program args:
+     Run the 'add' function in the math module with two program args:
      10 and 5. If the parameters of the 'add' function are of types int
      and int, the two arguments would be passed as integer values 10 and 5
      $ ballerina run math add 10 5

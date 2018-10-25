@@ -23,16 +23,16 @@ $ ballerina doc --help
 generate Ballerina API documentation
 
 Usage:
-ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedpackages] [-v]
+ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedmodules] [-v]
   sourcepath:
   Paths to the directories where Ballerina source files reside or a path to
-  a Ballerina file which does not belong to a package
+  a Ballerina file which does not belong to a module
 
 Flags:
   --template, -t   path to a custom templates directory to be used for API documentation generation
   --output, -o     path to the output directory where the API documentation will be written to
   --native, -n     read the source as native ballerina code
-  --exclude, -e    a comma separated list of package names to be filtered from the documentation
+  --exclude, -e    a comma separated list of module names to be filtered from the documentation
   --verbose, -v    enable debug level logs
 ```
 
@@ -46,7 +46,7 @@ $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ t
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs
 ```
-**Example 3:** Generate API documentation for the given Ballerina source directories and files, excluding `org.wso2.ballerina.connectors.twitter` package and copy them to the `{currentdir}/docs` directory:
+**Example 3:** Generate API documentation for the given Ballerina source directories and files, excluding `org.wso2.ballerina.connectors.twitter` module and copy them to the `{currentdir}/docs` directory:
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -e org.wso2.ballerina.connectors.twitter
 ```
@@ -65,7 +65,7 @@ $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -
 
 ## Using Docerina Maven Plugin
 
-The Docerina Maven plugin is used to generate Ballerina API documentation at the build time of a Ballerina Package.
+The Docerina Maven plugin is used to generate Ballerina API documentation at the build time of a Ballerina Module.
 
 ### Introduction
 
@@ -108,7 +108,7 @@ A sample pom.xml file configuration of the docerina Maven goal is shown below.
 Supported list of configuration parameters are listed below;
 
 * `sourceDir`: Comma separated list of the paths to the directories where Ballerina source files reside or 
-paths to Ballerina files which does not belong to a package.
+paths to Ballerina files which does not belong to a module.
 
  MANDATORY property.
  Example: `<sourceDir>/home/docerina/abc/src,/home/docerina/xyz/src</sourceDir>`
@@ -125,7 +125,7 @@ paths to Ballerina files which does not belong to a package.
  DEFAULT value is the embedded templates folder.
  Example: `<templatesDir>/home/docerina/templates</templatesDir>`
 
-* `packageFilter`: Comma separated list of package names to be filtered from the documentation.
+* `packageFilter`: Comma separated list of module names to be filtered from the documentation.
 
  OPTIONAL property.
  DEFAULT value is none.
@@ -183,12 +183,12 @@ Follow below steps to setup a Docerina development environment:
   
   ```
   cd [ballerina-home]/bin
-  ./ballerina doc [ballerina-package-path] # absolute file path of the ballerina source package
+  ./ballerina doc [ballerina-module-path] # absolute file path of the ballerina source module
   ```
   
 - Execute the below command to attach a remote debugging session to debug Docerina:
 
   ```
   cd [ballerina-home]/bin
-    ./ballerina --debug 5005 doc [ballerina-package-path] # absolute file path of the ballerina source package
+    ./ballerina --debug 5005 doc [ballerina-module-path] # absolute file path of the ballerina source module
   ```

@@ -1,6 +1,3 @@
-[submodule "tool-plugins/intellij/src/test/resources/BBE"]
-	path = tool-plugins/intellij/src/test/resources/BBE
-	url = https://github.com/ballerina-platform/ballerina-examples.git
 [submodule "tool-plugins/vscode/grammar/ballerina-grammar"]
 	path = tool-plugins/vscode/grammar/ballerina-grammar
 	url = https://github.com/ballerina-platform/ballerina-grammar.git

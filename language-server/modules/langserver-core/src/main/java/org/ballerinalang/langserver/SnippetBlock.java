@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver;
 
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 
 /**
@@ -27,26 +28,46 @@ import org.eclipse.lsp4j.InsertTextFormat;
  */
 public class SnippetBlock {
 
-    public SnippetBlock(String snippet) {
+    private String label = "";
+    private String detail = "";
+    private String snippet;
+    private SnippetType snippetType;
+
+    public SnippetBlock(String label, String snippet, String detail, SnippetType snippetType) {
+        this.label = label;
         this.snippet = snippet;
+        this.detail = detail;
+        this.snippetType = snippetType;
     }
 
-    private String snippet;
-    
+    public SnippetBlock(String snippet,  SnippetType snippetType) {
+        this.snippet = snippet;
+        this.snippetType = snippetType;
+    }
+
     /**
-     * Populate a given completionItem's insert text.
+     * Create a given completionItem's insert text.
      *
-     * @param completionItem    CompletionItem to modify
-     * @param isSnippet         Whether snippet is expected or plain text expected
+     * @param completionItem     CompletionItem to modify
+     * @param isSnippetSupported Whether snippet is expected or plain text expected
+     * @return modified Completion Item
      */
-    public void populateCompletionItem(CompletionItem completionItem, boolean isSnippet) {
-        if (isSnippet) {
+    public CompletionItem build(CompletionItem completionItem, boolean isSnippetSupported) {
+        if (isSnippetSupported) {
             completionItem.setInsertText(this.snippet);
             completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
         } else {
             completionItem.setInsertText(getPlainTextSnippet());
             completionItem.setInsertTextFormat(InsertTextFormat.PlainText);
         }
+        if (!label.isEmpty()) {
+            completionItem.setLabel(label);
+        }
+        if (!detail.isEmpty()) {
+            completionItem.setDetail(detail);
+        }
+        completionItem.setKind(getKind());
+        return completionItem;
     }
 
     /**
@@ -65,5 +86,34 @@ public class SnippetBlock {
         return this.snippet
                 .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
                 .replaceAll("(\\$\\{\\d\\})", "");
+    }
+
+    /**
+     * Returns LSP Snippet Type.
+     *
+     * @return {@link CompletionItemKind} LSP Snippet Type
+     */
+    private CompletionItemKind getKind() {
+        switch (snippetType) {
+            case KEYWORD:
+                return CompletionItemKind.Keyword;
+            case SNIPPET:
+                return CompletionItemKind.Snippet;
+            case STATEMENT:
+                return CompletionItemKind.Unit;
+            default:
+                return CompletionItemKind.Snippet;
+        }
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    /**
+     * Represents Snippet Types in B7a LS.
+     */
+    public enum SnippetType {
+        KEYWORD, SNIPPET, STATEMENT;
     }
 }

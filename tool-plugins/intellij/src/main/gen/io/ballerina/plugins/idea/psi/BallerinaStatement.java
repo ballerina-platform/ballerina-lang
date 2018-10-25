@@ -66,9 +66,6 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaNamespaceDeclarationStatement getNamespaceDeclarationStatement();
 
   @Nullable
-  BallerinaPostIncrementStatement getPostIncrementStatement();
-
-  @Nullable
   BallerinaRetryStatement getRetryStatement();
 
   @Nullable
