@@ -397,37 +397,47 @@ public class XMLUtils {
      *
      * @param xmlOne    the first XML value
      * @param xmlTwo    the second XML value
-     * @return  true if the two are equal, false if not
+     * @return  true if the two are equal, false if not equal or an exception is thrown while checking equality
      */
     public static boolean isEqual(BXML<?> xmlOne, BXML<?> xmlTwo) {
         XMLNodeType xmlOneNodeType = xmlOne.getNodeType();
         XMLNodeType xmlTwoNodeType = xmlTwo.getNodeType();
 
-        if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlTwoNodeType == XMLNodeType.SEQUENCE) {
-            BXMLSequence xmlSequenceOne = (BXMLSequence) xmlOne;
-            BXMLSequence xmlSequenceTwo = (BXMLSequence) xmlTwo;
+        try {
+            if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlTwoNodeType == XMLNodeType.SEQUENCE) {
+                BXMLSequence xmlSequenceOne = (BXMLSequence) xmlOne;
+                BXMLSequence xmlSequenceTwo = (BXMLSequence) xmlTwo;
 
-            if (xmlSequenceOne.length() != xmlSequenceTwo.length()) {
-                return false;
-            }
-
-            for (int i = 0; i < xmlSequenceOne.length(); i++) {
-                if (!isEqual((BXML<?>) xmlSequenceOne.value().get(i), (BXML<?>) xmlSequenceTwo.value().get(i))) {
+                if (xmlSequenceOne.length() != xmlSequenceTwo.length()) {
                     return false;
                 }
-            }
-            return true;
-        } else if (xmlOneNodeType != XMLNodeType.SEQUENCE && xmlTwoNodeType != XMLNodeType.SEQUENCE) {
-            try {
+
+                for (int i = 0; i < xmlSequenceOne.length(); i++) {
+                    if (!isEqual((BXML<?>) xmlSequenceOne.value().get(i), (BXML<?>) xmlSequenceTwo.value().get(i))) {
+                        return false;
+                    }
+                }
+                return true;
+            } else if (xmlOneNodeType != XMLNodeType.SEQUENCE && xmlTwoNodeType != XMLNodeType.SEQUENCE) {
                 switch ((xmlOne).getNodeType()) {
                     case ELEMENT:
                         return Arrays.equals(canonicalize((BXMLItem) xmlOne), canonicalize((BXMLItem) xmlTwo));
                     default:
                         return xmlOne.stringValue().equals(xmlTwo.stringValue());
                 }
-            } catch (Exception e) {
-                // ignore and return false
+            } else {
+                if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlOne.isSingleton().booleanValue()) {
+                    return Arrays.equals(canonicalize((BXMLItem) ((BXMLSequence) xmlOne).getItem(0)),
+                                         canonicalize((BXMLItem) xmlTwo));
+                }
+
+                if (xmlTwoNodeType == XMLNodeType.SEQUENCE && xmlTwo.isSingleton().booleanValue()) {
+                    return Arrays.equals(canonicalize((BXMLItem) xmlOne),
+                                         canonicalize((BXMLItem) ((BXMLSequence) xmlTwo).getItem(0)));
+                }
             }
+        } catch (Exception e) {
+            // ignore and return false
         }
         return false;
     }

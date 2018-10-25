@@ -722,6 +722,22 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
+    @Test
+    public void testXmlSequenceAndXmlItemEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testXmlSequenceAndXmlItemEqualityPositive");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as equal.");
+    }
+
+    @Test
+    public void testXmlSequenceAndXmlItemEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testXmlSequenceAndXmlItemEqualityNegative");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
+    }
+
     @Test(description = "Test equal and not equal with errors")
     public void testEqualAndNotEqualNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 20);
