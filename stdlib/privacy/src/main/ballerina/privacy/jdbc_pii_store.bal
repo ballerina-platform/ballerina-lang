@@ -43,7 +43,7 @@ public type JdbcPiiStore object {
     # Pseudonymize personally identifiable information (PII) and store PII and the pseudonymized identifier
     #
     # + pii - PII to be pseudonymized
-    # + return - pseudonymized identifier if storage operation was successful, error if storage operation failed
+    # + return - 36 characters long UUID if storage operation was successful, error if storage operation failed
     public function pseudonymize (string pii) returns string|error {
         endpoint jdbc:Client client = clientEndpoint;
         string dbQuery = buildInsertQuery(tableName, idColumn, piiColumn);

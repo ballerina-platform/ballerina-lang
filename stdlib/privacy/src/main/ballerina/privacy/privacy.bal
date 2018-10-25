@@ -18,7 +18,7 @@
 #
 # + store - storage used to persist the PII and the identifier
 # + pii - PII to be pseudonymized
-# + return - pseudonymized identifier if storage operation was successful, error if storage operation failed
+# + return - 36 characters long UUID if storage operation was successful, error if storage operation failed
 public function pseudonymize (PiiStore store, string pii) returns string|error {
     return store.pseudonymize(pii);
 }

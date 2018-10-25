@@ -101,6 +101,7 @@ function processSelectResult(string id, table<PiiData>|error queryResult) return
         table resultTable => {
             if (resultTable.hasNext()) {
                 PiiData piiData = check <PiiData> resultTable.getNext();
+                resultTable.close();
                 return piiData.pii;
             } else {
                 error err = { message: "Identifier " + id + " is not found in PII store" };
