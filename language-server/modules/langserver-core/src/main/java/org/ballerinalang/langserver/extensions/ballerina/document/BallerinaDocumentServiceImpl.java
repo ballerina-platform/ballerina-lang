@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getSourceRoot;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -130,6 +131,16 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             lock.ifPresent(Lock::unlock);
         }
         return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            Path sourceFilePath = new LSDocument(params.getDocumentIdentifier().getUri()).getPath();
+            BallerinaProject project = new BallerinaProject();
+            project.setPath(getSourceRoot(sourceFilePath));
+            return project;
+        });
     }
 
     private JsonElement getTreeForContent(String content) throws LSCompilerException, JSONGenerationException {

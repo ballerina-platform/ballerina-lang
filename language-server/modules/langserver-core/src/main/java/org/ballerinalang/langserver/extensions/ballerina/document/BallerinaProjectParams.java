@@ -15,24 +15,19 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
-
-import java.util.concurrent.CompletableFuture;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 /**
- * An extension interface for Language server to add features related to ballerina files.
- *
- * @since 0.981.2
+ * Represents a request to get Ballerina Project info.
  */
-@JsonSegment("ballerinaDocument")
-public interface BallerinaDocumentService {
-    @JsonRequest
-    CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request);
+public class BallerinaProjectParams {
+    private TextDocumentIdentifier documentIdentifier;
 
-    @JsonRequest
-    CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
+    public TextDocumentIdentifier getDocumentIdentifier() {
+        return documentIdentifier;
+    }
 
-    @JsonRequest
-    CompletableFuture<BallerinaProject> project(BallerinaProjectParams params);
+    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
+        this.documentIdentifier = documentIdentifier;
+    }
 }
