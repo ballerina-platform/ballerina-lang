@@ -29,4 +29,7 @@ public interface BallerinaObjectMember extends BallerinaCompositeElement {
   @Nullable
   BallerinaObjectFunctionDefinition getObjectFunctionDefinition();
 
+  @Nullable
+  BallerinaTypeReference getTypeReference();
+
 }

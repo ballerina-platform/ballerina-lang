@@ -213,6 +213,11 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-all</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
