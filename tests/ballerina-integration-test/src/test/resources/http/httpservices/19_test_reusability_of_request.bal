@@ -96,7 +96,7 @@ service<http:Service> testService_1 bind testEP {
         string secondVal;
         match secondResponse {
             error err => {
-                secondVal = err.message;
+                secondVal = err.reason();
             }
             http:Response response => {
                 secondVal = check response.getTextPayload();
@@ -143,7 +143,7 @@ service<http:Service> testService_2 bind testEP {
                 response.setTextPayload(untaint receivedVal);
             }
             error err => {
-                response.setTextPayload(untaint err.message);
+                response.setTextPayload(untaint err.reason());
             }
         }
         _ = outboundEP -> respond(response);

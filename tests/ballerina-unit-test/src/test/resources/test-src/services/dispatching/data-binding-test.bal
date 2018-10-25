@@ -10,6 +10,11 @@ type Person record {
     int age;
 };
 
+type Stock record {
+    int id;
+    float price;
+};
+
 service<http:Service> echo bind testEP {
 
     @http:ResourceConfig {
@@ -73,7 +78,7 @@ service<http:Service> echo bind testEP {
         methods: ["POST"],
         body: "person"
     }
-    body7(endpoint caller, http:Request req, error person) {
+    body7(endpoint caller, http:Request req, Stock person) {
         _ = caller->respond(());
     }
 
