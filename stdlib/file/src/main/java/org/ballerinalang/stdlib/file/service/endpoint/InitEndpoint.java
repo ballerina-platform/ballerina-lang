@@ -40,14 +40,14 @@ import java.nio.file.Paths;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "file",
-        functionName = "init",
+        functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
         args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ListenerEndpointConfiguration",
                           structPackage = "ballerina/file")
         },
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
+public class InitEndpoint extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
