@@ -138,10 +138,10 @@ service<http:Service> test bind mockEP {
         http:Response response = new;
         match (request.getBodyParts()) {
             error err => {
-                response.setTextPayload(untaint err.details().message);
+                response.setPayload(untaint err.details().message);
             }
             mime:Entity[] entity => {
-                response.setTextPayload("Body parts detected!");
+                response.setPayload("Body parts detected!");
             }
         }
         _ = caller -> respond(response);
