@@ -50,7 +50,7 @@ service<http:Service> test bind mockEP {
         http:Response outResponse = new;
         match (request.getBodyParts()) {
             error err => {
-                outResponse.setTextPayload(untaint err.message);
+                outResponse.setTextPayload(untaint err.details().message);
             }
             mime:Entity[] bodyParts => {
                 outResponse.setBodyParts(untaint bodyParts, contentType = contentType);
