@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,7 +71,7 @@ public class SourceGenTest {
 
             WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
             byte[] encoded1 = Files.readAllBytes(filePath);
-            String expected = new String(encoded1);
+            String expected = new String(encoded1, StandardCharsets.UTF_8);
             TestUtil.openDocument(serviceEndpoint, filePath);
             LSCompiler lsCompiler = new LSCompiler(documentManager);
             JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
