@@ -30,22 +30,6 @@ function main(string... args) {
         io:println(a);
         a--;
     }
-
-
-    try {
-        io:println("Start dividing numbers");
-
-        a = check divideNumbers(1, 0);
-
-    } catch (error err) {
-        
-        io:println("Error occurred: ", err.message);
-        
-        throw err;
-    } finally {
-
-        io:println("Finally block executed");
-    }
 }
 
 service<http:Service> sampleService bind { port: 9090 } {

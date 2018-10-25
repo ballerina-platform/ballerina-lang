@@ -117,7 +117,6 @@ public class RenameTest {
                 {"renameSimpleVariable.json", "renameSimpleVariable/renameSimpleVariable.bal"},
                 {"renameMap.json", "renameMap/renameMap.bal"},
                 {"renameWithinTransaction.json", "renameWithinTransaction/renameWithinTransaction.bal"},
-                {"renameWithinTryCatch.json", "renameWithinTryCatch/renameWithinTryCatch.bal"},
                 {"renameWithinWhile.json", "renameWithinWhile/renameWithinWhile.bal"},
         };
     }
