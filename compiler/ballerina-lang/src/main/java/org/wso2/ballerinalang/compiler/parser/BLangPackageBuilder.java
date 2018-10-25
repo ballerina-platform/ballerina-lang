@@ -1057,6 +1057,9 @@ public class BLangPackageBuilder {
         List<ExpressionNode> argExprList = exprNodeListStack.pop();
         BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
         tableLiteral.addWS(ws);
+        if (commaWsStack.size() > 0) {
+            tableLiteral.addWS(commaWsStack.pop());
+        }
         tableLiteral.tableDataRows = argExprList.stream().map(expr -> (BLangExpression) expr)
                 .collect(Collectors.toList());
     }
