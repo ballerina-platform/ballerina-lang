@@ -91,24 +91,34 @@ public class ReceivingEntityBody implements SenderState {
         boolean endOfStream = http2DataFrame.isEndOfStream();
 
         if (isServerPush) {
-            HttpCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
-            if (endOfStream) {
-                responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
-                http2ClientChannel.removePromisedMessage(streamId);
-            } else {
-                responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
-            }
+            onServerPushDataRead(outboundMsgHolder, streamId, endOfStream, data);
         } else {
-            HttpCarbonMessage responseMessage = outboundMsgHolder.getResponse();
-            if (endOfStream) {
-                responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
-                http2ClientChannel.removeInFlightMessage(streamId);
-            } else {
-                responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
-            }
+            onResponseDataRead(outboundMsgHolder, streamId, endOfStream, data);
         }
         if (endOfStream) {
             http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+        }
+    }
+
+    private void onServerPushDataRead(OutboundMsgHolder outboundMsgHolder, int streamId, boolean endOfStream,
+                                      ByteBuf data) {
+        HttpCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
+        if (endOfStream) {
+            responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
+            http2ClientChannel.removePromisedMessage(streamId);
+        } else {
+            responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
+        }
+    }
+
+    private void onResponseDataRead(OutboundMsgHolder outboundMsgHolder, int streamId, boolean endOfStream,
+                                    ByteBuf data) {
+        HttpCarbonMessage responseMessage = outboundMsgHolder.getResponse();
+        if (endOfStream) {
+            responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
+            http2ClientChannel.removeInFlightMessage(streamId);
+        } else {
+            responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
         }
     }
 }

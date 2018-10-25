@@ -146,7 +146,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     http2ClientChannel.getChannel().eventLoop().execute(() -> {
                         try {
                             writeOutboundRequest(ctx, httpContent);
-                        } catch (Exception ex) {
+                        } catch (Http2Exception ex) {
                             LOG.error("Failed to send the request : " + ex.getMessage(), ex);
                             outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
                         }

@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.EmptyHttp2Headers;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.ReferenceCountUtil;
@@ -76,7 +77,7 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception {
         writeContent(ctx, httpContent);
     }
 
@@ -104,7 +105,7 @@ public class SendingEntityBody implements SenderState {
         onPushPromiseRead(http2PushPromise, http2ClientChannel, outboundMsgHolder);
     }
 
-    private void writeContent(ChannelHandlerContext ctx, HttpContent msg) {
+    private void writeContent(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
         boolean release = true;
         try {
             boolean endStream;
@@ -140,8 +141,6 @@ public class SendingEntityBody implements SenderState {
                 outboundMsgHolder.setRequestWritten(true);
                 http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler));
             }
-        } catch (Exception ex) {
-            LOG.error("Error while writing request", ex);
         } finally {
             if (release) {
                 ReferenceCountUtil.release(msg);

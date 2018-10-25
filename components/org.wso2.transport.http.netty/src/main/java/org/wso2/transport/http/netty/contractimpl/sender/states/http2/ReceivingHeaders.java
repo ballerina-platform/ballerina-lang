@@ -107,47 +107,61 @@ public class ReceivingHeaders implements SenderState {
         boolean endOfStream = http2HeadersFrame.isEndOfStream();
 
         if (isServerPush) {
-            if (endOfStream) {
-                // Retrieve response message.
-                HttpCarbonResponse responseMessage = outboundMsgHolder.getPushResponse(streamId);
-                if (responseMessage != null) {
-                    onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
-                } else if (http2Headers.contains(HTTP2_METHOD)) {
-                    // if the header frame is an initial header frame and also it has endOfStream
-                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
-                    responseMessage.addHttpContent(new DefaultLastHttpContent());
-                    outboundMsgHolder.addPushResponse(streamId, responseMessage);
-                }
-                http2ClientChannel.removePromisedMessage(streamId);
-                http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
-            } else {
-                // Create response carbon message.
-                HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
-                        http2Headers, outboundMsgHolder);
-                outboundMsgHolder.addPushResponse(streamId, responseMessage);
-                http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
-            }
+            onServerPushHeadersRead(ctx, outboundMsgHolder, streamId, endOfStream,
+                    http2Headers, http2MessageStateContext);
         } else {
-            if (endOfStream) {
-                // Retrieve response message.
-                HttpCarbonResponse responseMessage = outboundMsgHolder.getResponse();
-                if (responseMessage != null) {
-                    onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
-                } else if (http2Headers.contains(HTTP2_METHOD)) {
-                    // if the header frame is an initial header frame and also it has endOfStream
-                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
-                    responseMessage.addHttpContent(new DefaultLastHttpContent());
-                    outboundMsgHolder.setResponse(responseMessage);
-                }
-                http2ClientChannel.removeInFlightMessage(streamId);
-                http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
-            } else {
-                // Create response carbon message.
-                HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
-                        http2Headers, outboundMsgHolder);
-                outboundMsgHolder.setResponse(responseMessage);
-                http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
+            onResponseHeadersRead(ctx, outboundMsgHolder, streamId, endOfStream,
+                    http2Headers, http2MessageStateContext);
+        }
+    }
+
+    private void onServerPushHeadersRead(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder, int streamId,
+                                         boolean endOfStream, Http2Headers http2Headers,
+                                         Http2MessageStateContext http2MessageStateContext) {
+        if (endOfStream) {
+            // Retrieve response message.
+            HttpCarbonResponse responseMessage = outboundMsgHolder.getPushResponse(streamId);
+            if (responseMessage != null) {
+                onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
+            } else if (http2Headers.contains(HTTP2_METHOD)) {
+                // if the header frame is an initial header frame and also it has endOfStream
+                responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
+                responseMessage.addHttpContent(new DefaultLastHttpContent());
+                outboundMsgHolder.addPushResponse(streamId, responseMessage);
             }
+            http2ClientChannel.removePromisedMessage(streamId);
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+        } else {
+            // Create response carbon message.
+            HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
+                    http2Headers, outboundMsgHolder);
+            outboundMsgHolder.addPushResponse(streamId, responseMessage);
+            http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
+        }
+    }
+
+    private void onResponseHeadersRead(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder, int streamId,
+                                       boolean endOfStream, Http2Headers http2Headers,
+                                       Http2MessageStateContext http2MessageStateContext) {
+        if (endOfStream) {
+            // Retrieve response message.
+            HttpCarbonResponse responseMessage = outboundMsgHolder.getResponse();
+            if (responseMessage != null) {
+                onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
+            } else if (http2Headers.contains(HTTP2_METHOD)) {
+                // if the header frame is an initial header frame and also it has endOfStream
+                responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
+                responseMessage.addHttpContent(new DefaultLastHttpContent());
+                outboundMsgHolder.setResponse(responseMessage);
+            }
+            http2ClientChannel.removeInFlightMessage(streamId);
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+        } else {
+            // Create response carbon message.
+            HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
+                    http2Headers, outboundMsgHolder);
+            outboundMsgHolder.setResponse(responseMessage);
+            http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
         }
     }
 
