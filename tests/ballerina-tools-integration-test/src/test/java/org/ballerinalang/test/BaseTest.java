@@ -18,27 +18,30 @@
 
 package org.ballerinalang.test;
 
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 /**
- * Parent test class for all tool integration test cases under tools-test-integration module. This will provide basic
+ * Parent test class for all integration test cases under test-integration module. This will provide basic
  * functionality for integration test. This will initialize a single ballerina instance which will be used
  * by all the test cases throughout.
  */
 public class BaseTest {
-    public static ServerInstance serverInstance;
+
+    protected static BalServer balServer;
+    protected static BMainInstance balClient;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException {
-        serverInstance = ServerInstance.initBallerinaServer();
+        balServer = new BalServer();
+        balClient = new BMainInstance(balServer);
     }
 
     @AfterSuite(alwaysRun = true)
     public void destroy() throws BallerinaTestException {
-        serverInstance.stopServer();
-        serverInstance.cleanup();
+        balServer.cleanup();
     }
 }

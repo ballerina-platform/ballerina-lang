@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -84,7 +85,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         // Then visit each top-level element sorted using the compilation unit
-        String fileName = lsContext.get(DocumentServiceKeys.FILE_NAME_KEY);
+        String fileName = lsContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit compilationUnit = pkgNode.getCompilationUnits().stream()
                 .filter(bLangCompilationUnit -> bLangCompilationUnit.getName().equals(fileName))
                 .findFirst().orElse(new BLangCompilationUnit());
@@ -200,6 +201,19 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         this.blockPositionStack.push(catchNode.pos);
         this.acceptNode(catchNode.body, catchBlockEnv);
         this.blockPositionStack.pop();
+    }
+
+    @Override
+    public void visit(BLangCompoundAssignment assignment) {
+        this.blockPositionStack.push(assignment.pos);
+        this.acceptNode(assignment.varRef, symbolEnv);
+        this.blockPositionStack.pop();
+
+        if (assignment.expr != null) {
+            this.blockPositionStack.push(assignment.expr.pos);
+            acceptNode(assignment.expr, symbolEnv);
+            this.blockPositionStack.pop();
+        }
     }
 
     // Private Methods

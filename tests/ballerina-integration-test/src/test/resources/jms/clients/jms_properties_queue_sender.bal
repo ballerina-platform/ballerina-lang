@@ -5,10 +5,10 @@ import ballerina/io;
 endpoint jms:SimpleQueueSender queueSender {
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'",
-    queueName: "MyQueue"
+    queueName: "MyPropQueue"
 };
 
-function main (string... args) {
+public function main (string... args) {
     // Create a Text message.
     jms:Message m = check queueSender.createTextMessage("Test Text");
     check m.setBooleanProperty("booleanProp", false);

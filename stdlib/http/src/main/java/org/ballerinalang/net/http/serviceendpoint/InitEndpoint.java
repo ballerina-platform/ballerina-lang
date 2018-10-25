@@ -34,16 +34,34 @@ import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.Parameter;
+import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
+import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -133,6 +151,10 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
 
+        listenerConfiguration.setPipeliningNeeded(true); //Pipelining is enabled all the time
+        listenerConfiguration.setPipeliningLimit(endpointConfig.getIntField(
+                HttpConstants.PIPELINING_REQUEST_LIMIT));
+
         return listenerConfiguration;
     }
 
@@ -182,57 +204,73 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
     }
 
     private ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
-        listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTPS);
-        Struct trustStore = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_TRUST_STORE);
-        Struct keyStore = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_KEY_STORE);
-        Struct protocols = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
-        Struct validateCert = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
-        Struct ocspStapling = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+        listenerConfiguration.setScheme(PROTOCOL_HTTPS);
+        Struct trustStore = sslConfig.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
+        Struct keyStore = sslConfig.getStructField(ENDPOINT_CONFIG_KEY_STORE);
+        Struct protocols = sslConfig.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
+        Struct validateCert = sslConfig.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
+        Struct ocspStapling = sslConfig.getStructField(ENDPOINT_CONFIG_OCSP_STAPLING);
+        String keyFile = sslConfig.getStringField(ENDPOINT_CONFIG_KEY);
+        String certFile = sslConfig.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = sslConfig.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = sslConfig.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
 
+        if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
+            throw new BallerinaException("Cannot configure both keyStore and keyFile at the same time.");
+        } else if (keyStore == null && (StringUtils.isBlank(keyFile) || StringUtils.isBlank(certFile))) {
+            throw new BallerinaException("Either keystore or certificateKey and server certificates must be provided "
+                    + "for secure connection");
+        }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
-            String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
+            String keyStoreFile = keyStore.getStringField(FILE_PATH);
             if (StringUtils.isBlank(keyStoreFile)) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
+                throw new BallerinaException("Keystore file location must be provided for secure connection.");
             }
+            String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(keyStorePassword)) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
+                throw new BallerinaException("Keystore password must be provided for secure connection");
             }
             listenerConfiguration.setKeyStoreFile(keyStoreFile);
             listenerConfiguration.setKeyStorePass(keyStorePassword);
+        } else {
+            listenerConfiguration.setServerKeyFile(keyFile);
+            listenerConfiguration.setServerCertificates(certFile);
+            if (StringUtils.isNotBlank(keyPassword)) {
+                listenerConfiguration.setServerKeyPassword(keyPassword);
+            }
         }
-        String sslVerifyClient = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT);
+        String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
+        if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
+            throw new BallerinaException(
+                    "Truststore location or trustCertificates must be provided to enable Mutual SSL");
+        }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
-            String trustStorePassword = trustStore.getStringField(HttpConstants.PASSWORD);
+            String trustStoreFile = trustStore.getStringField(FILE_PATH);
+            String trustStorePassword = trustStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
             }
             if (StringUtils.isBlank(trustStorePassword) && StringUtils.isNotBlank(sslVerifyClient)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
             listenerConfiguration.setTrustStoreFile(trustStoreFile);
             listenerConfiguration.setTrustStorePass(trustStorePassword);
+        } else if (StringUtils.isNotBlank(trustCerts)) {
+            listenerConfiguration.setServerTrustCertificates(trustCerts);
         }
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;
         if (protocols != null) {
-            List<Value> sslEnabledProtocolsValueList = Arrays
-                    .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
+            List<Value> sslEnabledProtocolsValueList = Arrays.asList(protocols.getArrayField(ENABLED_PROTOCOLS));
             if (!sslEnabledProtocolsValueList.isEmpty()) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
-                serverParameters = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
-                        sslEnabledProtocols);
+                serverParameters = new Parameter(ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 serverParamList.add(serverParameters);
             }
 
-            String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
@@ -274,10 +312,10 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
                 }
             }
         }
-        listenerConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
-        String serverEnableSessionCreation = String.valueOf(sslConfig
-                .getBooleanField(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
-        Parameter enableSessionCreationParam = new Parameter(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
+        listenerConfiguration.setTLSStoreType(PKCS_STORE_TYPE);
+        String serverEnableSessionCreation = String
+                .valueOf(sslConfig.getBooleanField(SSL_CONFIG_ENABLE_SESSION_CREATION));
+        Parameter enableSessionCreationParam = new Parameter(SSL_CONFIG_ENABLE_SESSION_CREATION,
                 serverEnableSessionCreation);
         serverParamList.add(enableSessionCreationParam);
         if (!serverParamList.isEmpty()) {

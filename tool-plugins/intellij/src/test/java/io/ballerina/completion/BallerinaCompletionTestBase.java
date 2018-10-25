@@ -54,7 +54,7 @@ public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFi
     static final List<String> SERVICE_ANNOTAION_TYPES = Arrays.asList("@http:ServiceConfig", "@http:ResourceConfig",
             "@grpc:ServiceConfig", "@grpc:ResourceConfig");
 
-    static final List<String> TEST_ANNOTATION_TYPES = Arrays.asList("@test:Config","test:Mock");
+    static final List<String> TEST_ANNOTATION_TYPES = Arrays.asList("@test:Config", "test:Mock");
 
     static final List<String> OTHER_ANNOTATIION_TYPES = Arrays.asList("@final", "@readonly", "@tainted", "@untainted",
             "@sensitive");

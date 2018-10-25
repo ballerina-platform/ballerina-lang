@@ -1,16 +1,16 @@
 type Person record {
-    int id,
-    int age,
-    float salary,
-    string name,
-    boolean married,
+    int id;
+    int age;
+    float salary;
+    string name;
+    boolean married;
     !...
 };
 
 type Employee object {
 
     public int id = 1;
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
 
 
@@ -67,4 +67,8 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
 
 function testEmptyTableCreateInvalid() {
     table t1 = table{};
+}
+
+function testUnknownTableType() {
+    table<Student> t1 = table {};
 }

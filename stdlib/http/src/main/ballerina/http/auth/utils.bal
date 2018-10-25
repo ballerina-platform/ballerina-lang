@@ -14,67 +14,34 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-documentation {
-    Authentication header name.
-}
-@final string AUTH_HEADER = "Authorization";
-documentation {
-    Basic authentication scheme.
-}
-@final string AUTH_SCHEME_BASIC = "Basic";
-documentation {
-    Bearer authentication scheme.
-}
-@final string AUTH_SCHEME_BEARER = "Bearer";
-documentation {
-    Auth annotation package.
-}
-@final string ANN_PACKAGE = "ballerina/http";
-documentation {
-    Resource level annotation name.
-}
+# Auth annotation module.
+@final string ANN_MODULE = "ballerina/http";
+# Resource level annotation name.
 @final string RESOURCE_ANN_NAME = "ResourceConfig";
-documentation {
-    Service level annotation name.
-}
+# Service level annotation name.
 @final string SERVICE_ANN_NAME = "ServiceConfig";
-documentation {
-    Auth provider config name.
-}
-@final string AUTH_PROVIDER_CONFIG = "config";
-documentation {
-    LDAP auth provider config name.
-}
-@final string AUTH_PROVIDER_LDAP = "ldap";
-documentation {
-    JDBC auth provider config name.
-}
-@final string AUTH_PROVIDER_JDBC = "jdbc";
-documentation {
-    AD auth provider config name.
-}
-@final string AUTH_PROVIDER_AD = "activeDirectory";
+# Authentication header name.
+@final public string AUTH_HEADER = "Authorization";
+# Basic authentication scheme.
+@final public string AUTH_SCHEME_BASIC = "Basic";
+# Bearer authentication scheme.
+@final public string AUTH_SCHEME_BEARER = "Bearer";
+# Auth provider config name.
+@final public string AUTH_PROVIDER_CONFIG = "config";
+# LDAP auth provider config name.
+@final public string AUTH_PROVIDER_LDAP = "ldap";
 
-documentation {
-    Authn scheme basic.
-}
-@final string AUTHN_SCHEME_BASIC = "basic";
-documentation {
-    Authn scheme JWT.
-}
-@final string AUTH_SCHEME_JWT = "jwt";
-documentation {
-    Authn scheme OAuth2.
-}
-@final string AUTH_SCHEME_OAUTH2 = "oauth2";
+# Authn scheme basic.
+@final public string AUTHN_SCHEME_BASIC = "basic";
+# Authn scheme JWT.
+@final public string AUTH_SCHEME_JWT = "jwt";
+# Authn scheme OAuth2.
+@final public string AUTH_SCHEME_OAUTH2 = "oauth2";
 
-documentation {
-    Extracts the basic authentication header value from the request.
-
-    P{{req}} Request instance
-    R{{}} Value of the basic authentication header, or nil if not found
-}
+# Extracts the basic authentication header value from the request.
+#
+# + req - Request instance
+# + return - Value of the basic authentication header, or nil if not found
 public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
     // extract authorization header
     try {
@@ -85,12 +52,10 @@ public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
     return ();
 }
 
-documentation {
-    Error handler.
-
-    P{{message}} Error message
-    R{{}} Error populated with the message
-}
+# Error handler.
+#
+# + message - Error message
+# + return - Error populated with the message
 function handleError(string message) returns (error) {
     error e = {message: message};
     return e;

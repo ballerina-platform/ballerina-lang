@@ -18,10 +18,10 @@
                   },
                   "end":{
                     "line":0,
-                    "character":30
+                    "character":0
                   }
                 },
-                "newText":"\ndocumentation {\n\t\n}\nfunction testDocumentation() {"
+                "newText":"# Description\n"
               }
             ]
           }

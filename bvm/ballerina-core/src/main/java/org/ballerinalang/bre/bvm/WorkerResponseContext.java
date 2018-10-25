@@ -57,7 +57,7 @@ public interface WorkerResponseContext {
      * Creates and returns the data channels used to communicate between the workers.
      * 
      * @param name the unique name of the data channel name requested
-     * @return the data channel 
+     * @return the data channel
      */
     WorkerDataChannel getWorkerDataChannel(String name);
     

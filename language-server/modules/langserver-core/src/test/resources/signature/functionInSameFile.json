@@ -4,7 +4,6 @@
     "character": 16
   },
   "expected": {
-    "id":"324",
     "result":{
       "signatures":[
         {
@@ -13,11 +12,11 @@
           "parameters":[
             {
               "label":"year",
-              "documentation":"       Year to print\n\t"
+              "documentation":"Year to print "
             },
             {
               "label":"message",
-              "documentation":"    Greeting message to print\n    "
+              "documentation":"Greeting message to print "
             }
           ]
         }

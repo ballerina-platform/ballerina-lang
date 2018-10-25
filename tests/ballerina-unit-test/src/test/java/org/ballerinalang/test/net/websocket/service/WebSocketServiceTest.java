@@ -83,4 +83,22 @@ public class WebSocketServiceTest {
         Assert.assertEquals(webSocketService.getMaxFrameSize(), 100000, "Incorrect maxFrameSize");
         Assert.assertEquals(webSocketService.getNegotiableSubProtocols(), new String[]{protocol});
     }
+
+    @Test(description = "Given WebSocketServiceConfig struct")
+    public void testNegotiatedSubProtocol() {
+        Service service = mock(Service.class);
+        Annotation annotation = mock(Annotation.class);
+        Struct struct = mock(Struct.class);
+        when(struct.getArrayField(WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS)).thenReturn(null);
+        when(annotation.getValue()).thenReturn(struct);
+        List<Annotation> annotationList = new ArrayList<>();
+        annotationList.add(annotation);
+        when(service.getAnnotationList(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                       WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)).thenReturn(
+                annotationList);
+
+        when(service.getResources()).thenReturn(new Resource[]{});
+        WebSocketService webSocketService = new WebSocketService(service);
+        Assert.assertEquals(webSocketService.getNegotiableSubProtocols(), new String[0]);
+    }
 }

@@ -5,7 +5,7 @@ public function testObjectWithSimpleInit () returns (int, string, int, string) {
 }
 
 type Person object {
-    public int age = 10,
+    public int age = 10;
     public string name;
 
     int year;

@@ -57,6 +57,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -72,7 +73,7 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors. Error scenarios cannot use this method.
      *
-     * @param sourceFilePath Path to source package/file
+     * @param sourceFilePath Path to source module/file
      * @return compileResult
      */
     public static CompileResult compileAndSetup(String sourceFilePath) {
@@ -85,8 +86,8 @@ public class BCompileUtil {
      * Compile and return the semantic errors. Error scenarios cannot use this method.
      *
      * @param obj this is to find the original callers location.
-     * @param sourceRoot  root path of the source packages
-     * @param packageName name of the package to compile
+     * @param sourceRoot  root path of the modules
+     * @param packageName name of the module to compile
      * @return compileResult
      */
     public static CompileResult compileAndSetup(Object obj, String sourceRoot, String packageName) {
@@ -95,11 +96,20 @@ public class BCompileUtil {
         return compileResult;
     }
 
-//    Compile methods
     /**
      * Compile and return the semantic errors.
      *
-     * @param sourceFilePath Path to source package/file
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileAndGetBIR(String sourceFilePath) {
+        return compile(sourceFilePath, CompilerPhase.BIR_GEN);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source module/file
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceFilePath) {
@@ -110,8 +120,8 @@ public class BCompileUtil {
      * Compile and return the semantic errors.
      *
      * @param obj this is to find the original callers location.
-     * @param sourceRoot  root path of the source packages
-     * @param packageName name of the package to compile
+     * @param sourceRoot  root path of the modules
+     * @param packageName name of the module to compile
      * @return Semantic errors
      */
     public static CompileResult compile(Object obj, String sourceRoot, String packageName) {
@@ -192,8 +202,8 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
-     * @param sourceRoot    root path of the source packages
-     * @param packageName   name of the package to compile
+     * @param sourceRoot    root path of the modules
+     * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
@@ -204,27 +214,38 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
-        return compile(context, packageName, compilerPhase);
+        return compile(context, packageName, compilerPhase, false);
     }
 
 
     /**
      * Compile with tests and return the semantic errors.
      *
-     * @param sourceRoot    root path of the source packages
-     * @param packageName   name of the package to compile
+     * @param context       Compiler Context
+     * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
-    public static CompileResult compileWithTests(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
+    public static CompileResult compileWithTests(CompilerContext context, String packageName,
+                                                 CompilerPhase compilerPhase) {
+        return compile(context, packageName, compilerPhase, true);
+    }
+
+    /**
+     * Create a compiler context.
+     *
+     * @param sourceRoot    source root or project directory path
+     * @param compilerPhase Compiler phase
+     * @return new compiler context object
+     */
+    public static CompilerContext createCompilerContext(String sourceRoot, CompilerPhase compilerPhase) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(TEST_ENABLED, "true");
-
-        return compile(context, packageName, compilerPhase);
+        return context;
     }
 
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
@@ -255,7 +276,7 @@ public class BCompileUtil {
     }
 
     private static CompileResult compile(CompilerContext context, String packageName,
-                                         CompilerPhase compilerPhase) {
+                                         CompilerPhase compilerPhase, boolean withTests) {
         CompileResult comResult = new CompileResult();
         // catch errors
         DiagnosticListener listener = comResult::addDiagnostic;
@@ -265,11 +286,22 @@ public class BCompileUtil {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName, true);
         comResult.setAST(packageNode);
-        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
+        if (comResult.getErrorCount() > 0) {
+            return comResult;
+        } else if (CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0 || compilerPhase == CompilerPhase.BIR_GEN) {
             return comResult;
         }
+        CompiledBinaryFile.ProgramFile programFile;
+        // If its executing tests, then check if the testable package is null or not. If its not null, then pass the
+        // testable package node to generate the package program file.
+        if (withTests && packageNode.containsTestablePkg()) {
+            programFile = compiler.getExecutableProgram(packageNode.getTestablePkg());
+        } else {
+            // If its not executing tests or if its executing tests and the testable package is not present then pass
+            // the bLangPackage node to generate the program file.
+            programFile = compiler.getExecutableProgram(packageNode);
+        }
 
-        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
         if (programFile != null) {
             ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
             comResult.setProgFile(pFile);
@@ -280,8 +312,8 @@ public class BCompileUtil {
     /**
      * Compile and return the compiled package node.
      *
-     * @param sourceFilePath Path to source package/file
-     * @return compiled package node
+     * @param sourceFilePath Path to source module/file
+     * @return compiled module node
      */
     public static BLangPackage compileAndGetPackage(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
@@ -308,19 +340,21 @@ public class BCompileUtil {
      * Compile and run a ballerina file.
      *
      * @param sourceFilePath Path to the ballerina file.
+     * @param functionName   The name of the function to run
      */
-    public static void run(String sourceFilePath) {
+    public static void run(String sourceFilePath, String functionName) {
         // TODO: improve. How to get the output
         CompileResult result = compile(sourceFilePath);
         ProgramFile programFile = result.getProgFile();
 
         // If there is no main or service entry point, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()
+                && !programFile.isServiceEPAvailable()) {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        if (programFile.isMainEPAvailable()) {
-            LauncherUtils.runMain(programFile, new String[0]);
+        if (programFile.isMainEPAvailable() || !MAIN_FUNCTION_NAME.equals(functionName)) {
+            LauncherUtils.runMain(programFile, functionName, new String[0], false);
         } else {
             LauncherUtils.runServices(programFile);
         }
@@ -376,7 +410,7 @@ public class BCompileUtil {
      *                    java.util.ServiceLoader}. Otherwise semantic analyzing capability providing wont work since it
      *                    cant find core package.
      * @param sourceRoot  source root of a project
-     * @param fileName    either the file name (if in project root) or the package name
+     * @param fileName    either the file name (if in project root) or the module name
      * @return list of diagnostics
      */
     public static List<Diagnostic> getDiagnostics(ClassLoader classLoader, String sourceRoot, String fileName) {

@@ -4,7 +4,6 @@
     "character": 21
   },
   "expected": {
-    "id":"324",
     "result":{
       "signatures":[
         {
@@ -13,7 +12,7 @@
           "parameters":[
             {
               "label":"headerValue",
-              "documentation":" The header value\n    "
+              "documentation":"The header value"
             }
           ]
         }

@@ -23,7 +23,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
@@ -84,7 +83,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -117,11 +115,11 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -175,7 +173,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -238,13 +235,11 @@ public class BLangPackageBuilder {
 
     private Stack<BlockNode> blockNodeStack = new Stack<>();
 
-    private Stack<VariableNode> varStack = new Stack<>();
+    private Stack<BLangVariable> varStack = new Stack<>();
 
-    private Stack<List<VariableNode>> varListStack = new Stack<>();
+    private Stack<List<BLangVariable>> varListStack = new Stack<>();
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
-
-    private Stack<List<BLangFunction>> objFunctionListStack = new Stack<>();
 
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
 
@@ -354,6 +349,8 @@ public class BLangPackageBuilder {
 
     private Stack<ScopeNode> scopeNodeStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> finiteTypeWsStack = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -365,7 +362,6 @@ public class BLangPackageBuilder {
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.compilerOptions = CompilerOptions.getInstance(context);
         this.compUnit = compUnit;
     }
@@ -391,6 +387,7 @@ public class BLangPackageBuilder {
         if (rhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             unionTypeNode = (BLangUnionTypeNode) rhsTypeNode;
             unionTypeNode.memberTypeNodes.add(0, lhsTypeNode);
+            unionTypeNode.addWS(ws);
             this.typeNodeStack.push(unionTypeNode);
             return;
         } else {
@@ -440,7 +437,6 @@ public class BLangPackageBuilder {
 
         typeDef.typeNode = recordTypeNode;
         typeDef.pos = pos;
-        typeDef.addWS(ws);
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
@@ -452,31 +448,34 @@ public class BLangPackageBuilder {
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
         this.varListStack.pop().forEach(variableNode -> {
-            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
             recordTypeNode.addField(variableNode);
         });
         return recordTypeNode;
     }
 
     void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                          boolean exprAvailable, int annotCount, boolean isPrivate) {
+                          boolean exprAvailable, int annotCount, boolean isPrivate, boolean isOptional) {
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
 
         if (!isPrivate) {
             field.flagSet.add(Flag.PUBLIC);
         }
+
+        if (isOptional) {
+            field.flagSet.add(Flag.OPTIONAL);
+        }
+
+        if (exprAvailable) {
+            field.flagSet.add(Flag.DEFAULTABLE);
+        }
     }
 
-    void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                          boolean exprAvailable, boolean docExist, boolean deprectedDocExit,
-                          int annotCount, boolean isPrivate, boolean isPublic) {
+    void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean exprAvailable,
+                          boolean deprecatedDocExit, int annotCount, boolean isPrivate, boolean isPublic) {
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
 
         attachAnnotations(field, annotCount);
-        if (docExist) {
-            attachDocumentations(field);
-        }
-        if (deprectedDocExit) {
+        if (deprecatedDocExit) {
             attachDeprecatedNode(field);
         }
 
@@ -596,7 +595,7 @@ public class BLangPackageBuilder {
 
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add((BLangType) v.getTypeNode()));
+            this.varListStack.pop().forEach(v -> functionTypeNode.params.add(v));
         }
 
         functionTypeNode.addWS(ws);
@@ -617,14 +616,9 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startObjFunctionList() {
-        this.objFunctionListStack.push(new ArrayList<>());
-    }
-
     void startFunctionDef() {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode);
-        attachDocumentations(functionNode);
         attachMarkdownDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
@@ -675,6 +669,22 @@ public class BLangPackageBuilder {
         return var;
     }
 
+    public BLangVariable addVarWithoutType(DiagnosticPos pos,
+                                           Set<Whitespace> ws,
+                                           String identifier,
+                                           boolean exprAvailable,
+                                           int annotCount) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNodeWithoutType(pos, ws, identifier, exprAvailable);
+        attachAnnotations(var, annotCount);
+        var.pos = pos;
+        if (this.varListStack.empty()) {
+            this.varStack.push(var);
+        } else {
+            this.varListStack.peek().add(var);
+        }
+        return var;
+    }
+
     public void endFormalParameterList(Set<Whitespace> ws) {
         this.commaWsStack.push(ws);
     }
@@ -716,14 +726,10 @@ public class BLangPackageBuilder {
         invNode.setReturnTypeNode(returnTypeNode);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
-                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
-                invNode.addParameter(variableNode);
-            });
+            this.varListStack.pop().forEach(invNode::addParameter);
 
             this.defaultableParamsList.forEach(variableDef -> {
                 BLangVariableDef varDef = (BLangVariableDef) variableDef;
-                varDef.var.docTag = DocTag.PARAM;
                 invNode.addDefaultableParameter(varDef);
             });
             this.defaultableParamsList = new ArrayList<>();
@@ -760,6 +766,16 @@ public class BLangPackageBuilder {
         endFunctionDef(pos, null, false, false, true, false, true);
     }
 
+    void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, PackageID pkgID) {
+        BLangArrowFunction arrowFunctionNode = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
+        arrowFunctionNode.pos = pos;
+        arrowFunctionNode.addWS(ws);
+        arrowFunctionNode.functionName = createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID));
+        arrowFunctionNode.params = this.varListStack.pop();
+        arrowFunctionNode.expression = (BLangExpression) this.exprNodeStack.pop();
+        addExpressionNode(arrowFunctionNode);
+    }
+
     private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {
         endpointListStack.push(endpointList);
     }
@@ -787,7 +803,8 @@ public class BLangPackageBuilder {
         }
     }
 
-    void markLastEndpointAsPublic() {
+    void markLastEndpointAsPublic(Set<Whitespace> ws) {
+        lastBuiltEndpoint.addWS(ws);
         lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
 
@@ -934,11 +951,16 @@ public class BLangPackageBuilder {
     }
 
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value) {
+        addLiteralValue(pos, ws, typeTag, value, String.valueOf(value));
+    }
+
+    void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
         BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
         litExpr.addWS(ws);
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;
         litExpr.value = value;
+        litExpr.originalValue = originalValue;
         addExpressionNode(litExpr);
     }
 
@@ -977,8 +999,16 @@ public class BLangPackageBuilder {
         tableLiteralNodes.push(tableLiteral);
     }
 
-    void addTableColumn(String columnName) {
-        this.tableLiteralNodes.peek().columns.add(new BLangTableLiteral.BLangTableColumn(columnName));
+    void endTableColumnDefinition(Set<Whitespace> ws) {
+        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
+    }
+
+    void addTableColumn(String columnName, DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableLiteral.BLangTableColumn tableColumn = new BLangTableLiteral.BLangTableColumn(columnName);
+        tableColumn.pos = pos;
+        tableColumn.addWS(ws);
+        this.tableLiteralNodes.peek().columns.add(tableColumn);
     }
 
     void markPrimaryKeyColumn(String columnName) {
@@ -1002,7 +1032,6 @@ public class BLangPackageBuilder {
                 //key
                 BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
                 keyExpr.pos = pos;
-                keyExpr.addWS(ws);
                 IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
                 identifierNode.setValue(keyNames.get(index).columnName);
                 keyExpr.variableName = (BLangIdentifier) identifierNode;
@@ -1011,13 +1040,23 @@ public class BLangPackageBuilder {
                 recordLiteral.keyValuePairs.add(keyValue);
                 ++index;
             }
+            recordLiteral.addWS(ws);
+            if (commaWsStack.size() > 0) {
+                recordLiteral.addWS(commaWsStack.pop());
+            }
             this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
         }
     }
 
-    void endTableDataRow() {
+    void endTableDataArray(Set<Whitespace> ws) {
+        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
+    }
+
+    void endTableDataRow(Set<Whitespace> ws) {
         List<ExpressionNode> argExprList = exprNodeListStack.pop();
         BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
         tableLiteral.tableDataRows = argExprList.stream().map(expr -> (BLangExpression) expr)
                 .collect(Collectors.toList());
     }
@@ -1274,7 +1313,6 @@ public class BLangPackageBuilder {
 
             IdentifierNode name = createIdentifier(Names.SELF.getValue());
             receiver.setName(name);
-            receiver.docTag = DocTag.RECEIVER;
             receiver.setTypeNode(typeNode);
             function.receiver = receiver;
             function.flagSet.add(Flag.ATTACHED);
@@ -1392,7 +1430,7 @@ public class BLangPackageBuilder {
         importDcl.alias = aliasNode;
         this.compUnit.addTopLevelNode(importDcl);
         if (this.imports.contains(importDcl)) {
-            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_PACKAGE, importDcl.getQualifiedPackageName());
+            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
         } else {
             this.imports.add(importDcl);
         }
@@ -1414,6 +1452,21 @@ public class BLangPackageBuilder {
         return var;
     }
 
+    private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
+                                                         Set<Whitespace> ws,
+                                                         String identifier,
+                                                         boolean exprAvailable) {
+        BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
+        var.pos = pos;
+        IdentifierNode name = this.createIdentifier(identifier);
+        var.setName(name);
+        var.addWS(ws);
+        if (exprAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
+        return var;
+    }
+
     void addGlobalVariable(DiagnosticPos pos,
                            Set<Whitespace> ws,
                            String identifier,
@@ -1424,24 +1477,27 @@ public class BLangPackageBuilder {
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
-        var.docTag = DocTag.VARIABLE;
-        attachDocumentations(var);
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
     }
 
-    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous) {
+    void startObjectType() {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        typeNodeStack.push(objectTypeNode);
+        startVarList();
+        startFieldBlockList();
+    }
+
+    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
+                       boolean isAbstract) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
         objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
-        objFunctionListStack.pop().forEach(f -> {
-            if (f.objInitFunction) {
-                objectTypeNode.initFunction = f;
-            } else {
-                objectTypeNode.functions.add(f);
-            }
-        });
+
+        if (isAbstract) {
+            objectTypeNode.flagSet.add(Flag.ABSTRACT);
+        }
 
         if (!isAnonymous) {
             addType(objectTypeNode);
@@ -1456,21 +1512,17 @@ public class BLangPackageBuilder {
 
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
-        typeDef.addWS(ws);
         this.compUnit.addTopLevelNode(typeDef);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
     }
 
     private BLangObjectTypeNode populateObjectTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.pop();
         objectTypeNode.pos = pos;
         objectTypeNode.addWS(ws);
         objectTypeNode.isAnonymous = isAnonymous;
-        this.varListStack.pop().forEach(variableNode -> {
-            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
-            objectTypeNode.addField(variableNode);
-        });
+        this.varListStack.pop().forEach(objectTypeNode::addField);
         return objectTypeNode;
     }
 
@@ -1483,6 +1535,10 @@ public class BLangPackageBuilder {
         if (fieldObjectWhitespace != null && ws != null) {
             fieldObjectWhitespace.addAll(ws);
         }
+    }
+
+    void endFiniteType(Set<Whitespace> ws) {
+        finiteTypeWsStack.push(ws);
     }
 
     void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
@@ -1502,6 +1558,7 @@ public class BLangPackageBuilder {
             BLangType memberType = (BLangType) typeNodeStack.pop();
             if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
                 members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
+                members.addWS(memberType.getWS());
             } else {
                 members.memberTypeNodes.add(memberType);
             }
@@ -1509,6 +1566,7 @@ public class BLangPackageBuilder {
 
         if (!exprNodeStack.isEmpty()) {
             BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+            finiteTypeNode.addWS(finiteTypeWsStack.pop());
             while (!exprNodeStack.isEmpty()) {
                 finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
             }
@@ -1523,7 +1581,6 @@ public class BLangPackageBuilder {
 
                 typeDef.typeNode = finiteTypeNode;
                 typeDef.pos = pos;
-                typeDef.addWS(ws);
                 this.compUnit.addTopLevelNode(typeDef);
 
                 members.memberTypeNodes.add(createUserDefinedType(pos, ws,
@@ -1543,9 +1600,12 @@ public class BLangPackageBuilder {
             typeDefinition.typeNode = members;
         }
 
+        if (finiteTypeWsStack.size() > 0) {
+            typeDefinition.addWS(finiteTypeWsStack.pop());
+        }
+
         typeDefinition.pos = pos;
         typeDefinition.addWS(ws);
-        attachDocumentations(typeDefinition);
         Collections.reverse(markdownDocumentationStack);
         attachMarkdownDocumentations(typeDefinition);
         attachDeprecatedNode(typeDefinition);
@@ -1558,14 +1618,10 @@ public class BLangPackageBuilder {
         invNode.addWS(ws);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
-                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
-                invNode.addParameter(variableNode);
-            });
+            this.varListStack.pop().forEach(invNode::addParameter);
 
             this.defaultableParamsList.forEach(variableDef -> {
                 BLangVariableDef varDef = (BLangVariableDef) variableDef;
-                varDef.var.docTag = DocTag.PARAM;
                 invNode.addDefaultableParameter(varDef);
             });
             this.defaultableParamsList = new ArrayList<>();
@@ -1576,9 +1632,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    void endObjectInitFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                  boolean publicFunc, boolean bodyExists, boolean docPresent,
-                                  boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
+    void endObjectInitFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicFunc,
+                                  boolean bodyExists, boolean markdownDocPresent, boolean deprecatedDocPresent,
+                                  int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.setName(this.createIdentifier(identifier));
@@ -1594,9 +1650,6 @@ public class BLangPackageBuilder {
         }
 
         attachAnnotations(function, annCount);
-        if (docPresent) {
-            attachDocumentations(function);
-        }
         if (markdownDocPresent) {
             attachMarkdownDocumentations(function);
         }
@@ -1614,13 +1667,12 @@ public class BLangPackageBuilder {
         function.returnTypeNode = nillTypeNode;
 
         function.objInitFunction = true;
-
-        this.objFunctionListStack.peek().add(function);
+        ((BLangObjectTypeNode) this.typeNodeStack.peek()).initFunction = function;
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
-                                      boolean nativeFunc, boolean bodyExists, boolean docPresent,
-                                      boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
+                                      boolean nativeFunc, boolean bodyExists, boolean markdownDocPresent,
+                                      boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
@@ -1650,9 +1702,6 @@ public class BLangPackageBuilder {
         function.attachedFunction = true;
 
         attachAnnotations(function, annCount);
-        if (docPresent) {
-            attachDocumentations(function);
-        }
         if (markdownDocPresent) {
             attachMarkdownDocumentations(function);
         }
@@ -1664,7 +1713,7 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.DEPRECATED);
         }
 
-        this.objFunctionListStack.peek().add(function);
+        ((BLangObjectTypeNode) this.typeNodeStack.peek()).addFunction(function);
     }
 
     void endObjectOuterFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean nativeFunc,
@@ -1698,10 +1747,8 @@ public class BLangPackageBuilder {
         IdentifierNode name = createIdentifier(Names.SELF.getValue());
         receiver.setName(name);
 
-        receiver.docTag = DocTag.RECEIVER;
         receiver.setTypeNode(objectType);
 
-        receiver.docTag = DocTag.RECEIVER;
         function.receiver = receiver;
         function.flagSet.add(Flag.ATTACHED);
 
@@ -1745,7 +1792,6 @@ public class BLangPackageBuilder {
         BLangAnnotation annotNode = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         annotNode.pos = pos;
         attachAnnotations(annotNode);
-        attachDocumentations(annotNode);
         attachMarkdownDocumentations(annotNode);
         attachDeprecatedNode(annotNode);
         this.annotationStack.add(annotNode);
@@ -1772,18 +1818,6 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(annotationNode);
     }
 
-    void startDocumentationAttachment(DiagnosticPos currentPos) {
-        BLangDocumentation docAttachmentNode =
-                (BLangDocumentation) TreeBuilder.createDocumentationNode();
-        docAttachmentNode.pos = currentPos;
-        docAttachmentStack.push(docAttachmentNode);
-    }
-
-    void endDocumentationAttachment(Set<Whitespace> ws) {
-        DocumentationNode docAttachmentNode = docAttachmentStack.peek();
-        docAttachmentNode.addWS(ws);
-    }
-
     void startMarkdownDocumentationString(DiagnosticPos currentPos) {
         BLangMarkdownDocumentation markdownDocumentationNode =
                 (BLangMarkdownDocumentation) TreeBuilder.createMarkdownDocumentationNode();
@@ -1796,71 +1830,61 @@ public class BLangPackageBuilder {
         markdownDocumentationNode.addWS(ws);
     }
 
-    void endMarkdownDocumentationText(DiagnosticPos pos, String text) {
+    void endMarkDownDocumentLine(Set<Whitespace> ws) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        markdownDocumentationNode.addWS(ws);
+    }
+
+    void endMarkdownDocumentationText(DiagnosticPos pos, Set<Whitespace> ws, String text) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownDocumentationLine documentationDescription =
                 (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
         documentationDescription.text = text;
         documentationDescription.pos = pos;
+        documentationDescription.addWS(ws);
         markdownDocumentationNode.addDocumentationLine(documentationDescription);
     }
 
-    void endParameterDocumentation(DiagnosticPos pos, String parameterName, String description) {
+    void endParameterDocumentationLine(Set<Whitespace> ws) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        markdownDocumentationNode.addWS(ws);
+    }
+
+    void endParameterDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String parameterName, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownParameterDocumentation parameterDocumentationNode =
                 (BLangMarkdownParameterDocumentation) TreeBuilder.createMarkdownParameterDocumentationNode();
         parameterDocumentationNode.parameterName = (BLangIdentifier) createIdentifier(parameterName);
         parameterDocumentationNode.pos = pos;
+        parameterDocumentationNode.addWS(ws);
         parameterDocumentationNode.addParameterDocumentationLine(description);
         markdownDocumentationNode.addParameter(parameterDocumentationNode);
     }
 
-    void endParameterDocumentationDescription(String description) {
+    void endParameterDocumentationDescription(Set<Whitespace> ws, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownParameterDocumentation parameterDocumentation =
                 markdownDocumentationNode.getParameters().getLast();
+        parameterDocumentation.addWS(ws);
         parameterDocumentation.addParameterDocumentationLine(description);
     }
 
-    void endReturnParameterDocumentation(DiagnosticPos pos, String description) {
+    void endReturnParameterDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownReturnParameterDocumentation returnParameterDocumentation =
                 (BLangMarkdownReturnParameterDocumentation) TreeBuilder
                         .createMarkdownReturnParameterDocumentationNode();
         returnParameterDocumentation.pos = pos;
+        returnParameterDocumentation.addWS(ws);
         returnParameterDocumentation.addReturnParameterDocumentationLine(description);
         markdownDocumentationNode.setReturnParameter(returnParameterDocumentation);
     }
 
-    void endReturnParameterDocumentationDescription(String description) {
+    void endReturnParameterDocumentationDescription(Set<Whitespace> ws, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownReturnParameterDocumentation returnParameter = markdownDocumentationNode.getReturnParameter();
+        returnParameter.addWS(ws);
         returnParameter.addReturnParameterDocumentationLine(description);
-    }
-
-    void setDocumentationAttachmentContent(DiagnosticPos pos,
-                                           Set<Whitespace> ws,
-                                           String contentText) {
-        DocumentationNode docAttachmentNode = docAttachmentStack.peek();
-        docAttachmentNode.addWS(ws);
-
-        docAttachmentNode.setDocumentationText(contentText);
-    }
-
-    void createDocumentationAttribute(DiagnosticPos pos,
-                                      Set<Whitespace> ws,
-                                      String attributeName,
-                                      String endText, String docPrefix) {
-        BLangDocumentationAttribute attrib =
-                (BLangDocumentationAttribute) TreeBuilder.createDocumentationAttributeNode();
-        attrib.documentationField = (BLangIdentifier) createIdentifier(attributeName);
-
-        attrib.documentationText = endText;
-        attrib.docTag = DocTag.fromString(docPrefix);
-
-        attrib.pos = pos;
-        attrib.addWS(ws);
-        docAttachmentStack.peek().addAttribute(attrib);
     }
 
     void createDeprecatedNode(DiagnosticPos pos,
@@ -1902,12 +1926,6 @@ public class BLangPackageBuilder {
     private void attachAnnotations(AnnotatableNode annotatableNode) {
         annotAttachmentStack.forEach(annotatableNode::addAnnotationAttachment);
         annotAttachmentStack.clear();
-    }
-
-    private void attachDocumentations(DocumentableNode documentableNode) {
-        if (!docAttachmentStack.empty()) {
-            documentableNode.addDocumentationAttachment(docAttachmentStack.pop());
-        }
     }
 
     private void attachMarkdownDocumentations(DocumentableNode documentableNode) {
@@ -1985,18 +2003,6 @@ public class BLangPackageBuilder {
 
     void addCompoundOperator(Set<Whitespace> ws) {
         this.operatorWs.push(ws);
-    }
-
-    void addPostIncrementStatement(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
-        BLangPostIncrement postIncrement =
-                (BLangPostIncrement) TreeBuilder.createPostIncrementNode();
-        postIncrement.setVariable((BLangVariableReference) exprNodeStack.pop());
-        postIncrement.pos = pos;
-        postIncrement.addWS(ws);
-        addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong("1"));
-        postIncrement.increment = (BLangExpression) exprNodeStack.pop();
-        postIncrement.opKind = OperatorKind.valueFrom(operator);
-        addStmtToCurrentBlock(postIncrement);
     }
 
     void addForeachStatement(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2251,22 +2257,35 @@ public class BLangPackageBuilder {
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 
-    void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend) {
+    void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend, boolean
+            hasKey) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
         workerSendNode.setWorkerName(this.createIdentifier(workerName));
         workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
+        //added to use for channels as well
+        if (hasKey) {
+            workerSendNode.keyExpr = workerSendNode.expr;
+            workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
+            workerSendNode.isChannel = true;
+        }
         addStmtToCurrentBlock(workerSendNode);
     }
 
-    void addWorkerReceiveStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
+    void addWorkerReceiveStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
         workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
         workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
         workerReceiveNode.pos = pos;
         workerReceiveNode.addWS(ws);
+        //if there are two expressions, this is a channel receive and the top expression is the key
+        if (hasKey) {
+            workerReceiveNode.keyExpr = workerReceiveNode.expr;
+            workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
+            workerReceiveNode.isChannel = true;
+        }
         addStmtToCurrentBlock(workerReceiveNode);
     }
 
@@ -2282,7 +2301,6 @@ public class BLangPackageBuilder {
         BLangService serviceNode = (BLangService) TreeBuilder.createServiceNode();
         serviceNode.pos = pos;
         attachAnnotations(serviceNode);
-        attachDocumentations(serviceNode);
         attachMarkdownDocumentations(serviceNode);
         attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);
@@ -2344,8 +2362,8 @@ public class BLangPackageBuilder {
         startEndpointDeclarationScope(((BLangResource) resourceNode).endpoints);
     }
 
-    void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName,
-                        boolean docExists, boolean markdownDocPresent, boolean isDeprecated, boolean hasParameters) {
+    void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName, boolean markdownDocPresent,
+                        boolean isDeprecated, boolean hasParameters) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
@@ -2353,9 +2371,6 @@ public class BLangPackageBuilder {
         BLangIdentifier name = (BLangIdentifier) createIdentifier(resourceName);
         name.pos = pos;
         resourceNode.setName(name);
-        if (docExists) {
-            attachDocumentations(resourceNode);
-        }
         if (markdownDocPresent) {
             attachMarkdownDocumentations(resourceNode);
         }
@@ -2363,16 +2378,13 @@ public class BLangPackageBuilder {
             attachDeprecatedNode(resourceNode);
         }
         if (hasParameters) {
-            BLangVariable firstParam = (BLangVariable) varListStack.peek().get(0);
+            BLangVariable firstParam = varListStack.peek().get(0);
             if (firstParam.name.value.startsWith("$") && varListStack.peek().size() > 1) {
                 // This is an endpoint variable
                 Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
                 resourceNode.addWS(wsBeforeComma);
             }
-            varListStack.pop().forEach(variableNode -> {
-                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
-                resourceNode.addParameter(variableNode);
-            });
+            varListStack.pop().forEach(resourceNode::addParameter);
         }
 
         // Set the return type node
@@ -2605,8 +2617,8 @@ public class BLangPackageBuilder {
         BLangVariableDef defaultableParam = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         defaultableParam.pos = pos;
         defaultableParam.addWS(ws);
-        List<VariableNode> params = this.varListStack.peek();
-        BLangVariable var = (BLangVariable) params.remove(params.size() - 1);
+        List<BLangVariable> params = this.varListStack.peek();
+        BLangVariable var = params.remove(params.size() - 1);
         var.expr = (BLangExpression) this.exprNodeStack.pop();
         defaultableParam.var = var;
         this.defaultableParamsList.add(defaultableParam);
@@ -2631,16 +2643,17 @@ public class BLangPackageBuilder {
                                                            Stack<String> precedingTextFragments,
                                                            String endingText) {
         List<BLangExpression> expressions = new ArrayList<>();
-
+        String originalValue = endingText;
         endingText = endingText == null ? "" : StringEscapeUtils.unescapeJava(endingText);
-        addLiteralValue(pos, ws, TypeTags.STRING, endingText);
+        addLiteralValue(pos, ws, TypeTags.STRING, endingText, originalValue);
         expressions.add((BLangExpression) exprNodeStack.pop());
 
         while (!precedingTextFragments.empty()) {
             expressions.add((BLangExpression) exprNodeStack.pop());
             String textFragment = precedingTextFragments.pop();
+            originalValue = textFragment;
             textFragment = textFragment == null ? "" : StringEscapeUtils.unescapeJava(textFragment);
-            addLiteralValue(pos, ws, TypeTags.STRING, textFragment);
+            addLiteralValue(pos, ws, TypeTags.STRING, textFragment, originalValue);
             expressions.add((BLangExpression) exprNodeStack.pop());
         }
 
@@ -2923,7 +2936,9 @@ public class BLangPackageBuilder {
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
         joinStreamingInput.addWS(ws);
         joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
-        joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        if (this.exprNodeStack.size() > 0) {
+            joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        }
         joinStreamingInput.setUnidirectionalBeforeJoin(isUnidirectionalBeforeJoin);
         joinStreamingInput.setUnidirectionalAfterJoin(isUnidirectionalAfterJoin);
         joinStreamingInput.setJoinType(joinType);
@@ -3275,6 +3290,11 @@ public class BLangPackageBuilder {
         }
 
         addStmtToCurrentBlock(foreverNode);
+
+        // implicit import of streams module, user doesn't want to import explicitly
+        List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
+        addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
+                nameComps.get(nameComps.size() - 1));
     }
 
     void startMatchExpression() {
@@ -3382,5 +3402,12 @@ public class BLangPackageBuilder {
 
     void startOnCompensationBlock() {
         startFunctionDef();
+    }
+
+    public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        TypeNode typeRef = typeNodeStack.pop();
+        typeRef.addWS(ws);
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
+        objectTypeNode.addTypeReference(typeRef);
     }
 }

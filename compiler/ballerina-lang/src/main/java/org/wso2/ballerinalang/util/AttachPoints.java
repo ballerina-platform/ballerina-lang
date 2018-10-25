@@ -35,6 +35,7 @@ public class AttachPoints {
     public static final int ENDPOINT = 32;
     public static final int PARAMETER = 64;
     public static final int ANNOTATION = 128;
+    public static final int CHANNEL = 256;
 
     public static int asMask(Set<AttachPoint> attachPoints) {
         int mask = 0;
@@ -63,6 +64,9 @@ public class AttachPoints {
                     break;
                 case ANNOTATION:
                     mask |= ANNOTATION;
+                    break;
+                case CHANNEL:
+                    mask |= CHANNEL;
                     break;
             }
         }

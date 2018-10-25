@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -68,7 +67,7 @@ public class BAnyTypeSuccessScenariosTest {
     public void testInputAnyAsTable() {
         BValue[] returns = BRunUtil.invokeFunction(result, "inputAnyAsTableTest");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStreamingJSON.class);
+        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
         Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1, \"name\":\"Jane\"}, {\"id\":2, \"name\":\"Anne\"}]");
     }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaWindowClauseImpl extends BallerinaCompositeElementImpl implements BallerinaWindowClause {
 
-  public BallerinaWindowClauseImpl(ASTNode node) {
+  public BallerinaWindowClauseImpl(@NotNull ASTNode node) {
     super(node);
   }
 

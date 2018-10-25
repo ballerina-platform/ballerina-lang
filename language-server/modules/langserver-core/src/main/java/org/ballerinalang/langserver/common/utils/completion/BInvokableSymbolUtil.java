@@ -96,7 +96,7 @@ public class BInvokableSymbolUtil {
                 && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind))) {
             List<String> funcArguments = CommonUtil.FunctionGenerator.getFuncArguments(bInvokableSymbol);
-            if (funcArguments != null) {
+            if (!funcArguments.isEmpty()) {
                 int funcArgumentsCount = funcArguments.size();
                 for (int itr = 0; itr < funcArgumentsCount; itr++) {
                     String argument = funcArguments.get(itr);

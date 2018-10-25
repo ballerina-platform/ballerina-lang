@@ -18,8 +18,10 @@
 package org.ballerinalang.test.jms;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.jms.util.EmbeddedBroker;
 import org.ballerinalang.test.jms.util.JMSClientHandler;
 import org.testng.annotations.AfterClass;
@@ -37,14 +39,32 @@ import java.util.concurrent.TimeUnit;
 @Test(groups = "jms-test")
 public class JMSConnectorTestCase extends BaseTest {
 
+    private BServerInstance serverInstance;
     private EmbeddedBroker embeddedBroker;
     private JMSClientHandler clientHandler;
+
+    @BeforeGroups(value = "jms-test", alwaysRun = true)
+    public void start() throws BallerinaTestException {
+
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
+        Utils.checkPortsAvailability(requiredPorts);
+
+        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "jms").getAbsolutePath();
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(basePath, "jmsservices");
+    }
+
+    @AfterGroups(value = "jms-test", alwaysRun = true)
+    public void stop() throws BallerinaTestException {
+        serverInstance.shutdownServer();
+    }
 
     @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         embeddedBroker = new EmbeddedBroker();
         embeddedBroker.startBroker();
-        clientHandler = new JMSClientHandler();
+        clientHandler = new JMSClientHandler(balServer);
     }
 
     @Test(description = "Test JMS Connector Queue consumer producer")
@@ -57,7 +77,6 @@ public class JMSConnectorTestCase extends BaseTest {
         waitForText(serverLog, TimeUnit.SECONDS, 20);
         waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        clientHandler.stop();
     }
 
     @Test(description = "Test JMS Connector topic subscriber producer")
@@ -70,7 +89,6 @@ public class JMSConnectorTestCase extends BaseTest {
         waitForText(serverLog, TimeUnit.SECONDS, 20);
         waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        clientHandler.stop();
     }
 
     @Test(description = "Test JMS Connector durable topic subscriber producer")
@@ -83,7 +101,6 @@ public class JMSConnectorTestCase extends BaseTest {
         waitForText(serverLog, TimeUnit.SECONDS, 20);
         waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        clientHandler.stop();
     }
 
     @Test(description = "Test JMS Connector simple queue receiver and producer")
@@ -96,7 +113,6 @@ public class JMSConnectorTestCase extends BaseTest {
         waitForText(serverLog, TimeUnit.SECONDS, 20);
         waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        clientHandler.stop();
     }
 
     @Test(description = "Test JMS property setters and getters")
@@ -110,7 +126,6 @@ public class JMSConnectorTestCase extends BaseTest {
         waitForText(serverLog, TimeUnit.SECONDS, 20);
         waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        clientHandler.stop();
     }
 
     @Test(description = "Test MB Connector simple queue receiver and producer")
@@ -123,7 +138,6 @@ public class JMSConnectorTestCase extends BaseTest {
         waitForText(serverLog, TimeUnit.SECONDS, 20);
         waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        clientHandler.stop();
     }
 
     @Test(description = "Test MB Connector simple topic subscriber and publisher")
@@ -136,7 +150,6 @@ public class JMSConnectorTestCase extends BaseTest {
         waitForText(serverLog, TimeUnit.SECONDS, 20);
         waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        clientHandler.stop();
     }
 
     @Test(description = "Test MB Connector simple topic subscriber and publisher")
@@ -150,13 +163,11 @@ public class JMSConnectorTestCase extends BaseTest {
         waitForText(serverLog, TimeUnit.SECONDS, 20);
         waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        clientHandler.stop();
     }
 
     @AfterClass(alwaysRun = true)
     private void cleanup() throws Exception {
         embeddedBroker.stop();
-        clientHandler.clean();
     }
 
     private void waitForText(LogLeecher logLeecher, TimeUnit timeUnit, int length) throws BallerinaTestException {
@@ -168,19 +179,4 @@ public class JMSConnectorTestCase extends BaseTest {
         serverInstance.addLogLeecher(logLeecher);
         return logLeecher;
     }
-
-    @BeforeGroups(value = "jms-test", alwaysRun = true)
-    public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
-        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "jms").getAbsolutePath();
-        String[] args = new String[]{"--sourceroot", basePath};
-        serverInstance.startBallerinaServer("jmsservices", args, requiredPorts);
-    }
-
-    @AfterGroups(value = "jms-test", alwaysRun = true)
-    public void stop() throws BallerinaTestException {
-        serverInstance.stopServer();
-    }
-
 }

@@ -158,7 +158,7 @@ public class FindStoreQueryRuntime implements StoreQueryRuntime {
     /**
      * This method sets the output attribute list of the given store query.
      *
-     * @param outputAttributeList
+     * @param outputAttributeList attribute list
      */
     public void setOutputAttributes(List<Attribute> outputAttributeList) {
         this.outputAttributes = outputAttributeList.toArray(new Attribute[outputAttributeList.size()]);

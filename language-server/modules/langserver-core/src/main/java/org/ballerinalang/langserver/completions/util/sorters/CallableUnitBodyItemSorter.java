@@ -19,11 +19,9 @@ package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -38,26 +36,26 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
     @Override
     public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
+        boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         
         this.clearItemsIfWorkerExists(ctx, completionItems);
         if (previousNode == null) {
-            this.populateWhenCursorBeforeOrAfterEp(completionItems);
-        } else if (previousNode instanceof BLangVariableDef) {
-            if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
-                    || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY)) {
-                CompletionItem workerItem = this.getWorkerSnippet();
-                workerItem.setSortText(Priority.PRIORITY160.toString());
-                completionItems.add(workerItem);
-            }
+            this.populateWhenCursorBeforeOrAfterEp(completionItems, isSnippet);
+        } else if (previousNode instanceof BLangVariableDef
+                && (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
+                || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY))) {
+            CompletionItem workerItem = this.getWorkerSnippet(isSnippet);
+            workerItem.setSortText(Priority.PRIORITY160.toString());
+            completionItems.add(workerItem);
         } else if (previousNode instanceof BLangWorker) {
-            completionItems.add(this.getWorkerSnippet());
+            completionItems.add(this.getWorkerSnippet(isSnippet));
         }
         this.setPriorities(completionItems);
     }
 
-    private void populateWhenCursorBeforeOrAfterEp(List<CompletionItem> completionItems) {
-        CompletionItem epSnippet = this.getEndpointSnippet();
-        CompletionItem workerSnippet = this.getWorkerSnippet();
+    private void populateWhenCursorBeforeOrAfterEp(List<CompletionItem> completionItems, boolean snippetCapability) {
+        CompletionItem epSnippet = this.getEndpointSnippet(snippetCapability);
+        CompletionItem workerSnippet = this.getWorkerSnippet(snippetCapability);
         this.setPriorities(completionItems);
 
         epSnippet.setSortText(Priority.PRIORITY150.toString());
@@ -66,13 +64,8 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         completionItems.add(workerSnippet);
     }
 
-    private CompletionItem getWorkerSnippet() {
-        CompletionItem workerItem = new CompletionItem();
-        workerItem.setLabel(ItemResolverConstants.WORKER);
-        workerItem.setInsertText(Snippet.WORKER.toString());
-        workerItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        workerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        return workerItem;
+    private CompletionItem getWorkerSnippet(boolean isSnippet) {
+        return Snippet.DEF_WORKER.get().build(new CompletionItem(), isSnippet);
     }
     
     private void clearItemsIfWorkerExists(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {

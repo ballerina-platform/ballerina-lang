@@ -97,15 +97,22 @@ public class OpenTracerBallerinaWrapper {
         if (parentSpanId == SYSTEM_TRACE_INDICATOR) {
             ObservabilityUtils.getParentContext(context).ifPresent(observerContext::setParent);
             ObservabilityUtils.setObserverContextToWorkerExecutionContext(workerExecutionContext, observerContext);
+            return startSpan(observerContext, true, spanName);
         } else if (parentSpanId != ROOT_SPAN_INDICATOR) {
             ObserverContext parentOContext = observerContextList.get(parentSpanId);
             if (parentOContext == null) {
                 return -1;
             }
             observerContext.setParent(parentOContext);
+            return startSpan(observerContext, true, spanName);
         }
 
-        TracingUtils.startObservation(observerContext, false);
+        return startSpan(observerContext, false, spanName);
+    }
+
+    private int startSpan(ObserverContext observerContext, boolean isClient, String spanName) {
+        observerContext.setActionName(spanName);
+        TracingUtils.startObservation(observerContext, isClient);
         int spanId = this.spanId.getAndIncrement();
         observerContextList.put(spanId, observerContext);
         return spanId;

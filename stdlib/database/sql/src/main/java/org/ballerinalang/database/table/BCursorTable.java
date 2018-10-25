@@ -33,20 +33,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  */
 public class BCursorTable extends BTable {
 
-    private boolean loadSQLTableToMemory;
-
-    public BCursorTable(DataIterator dataIterator, boolean loadSQLTableToMemory) {
+    public BCursorTable(DataIterator dataIterator) {
         super();
         this.iterator = dataIterator;
-        this.loadSQLTableToMemory = loadSQLTableToMemory;
     }
 
-    public void reset(boolean isInTransaction) {
-        if (loadSQLTableToMemory) {
-            iterator.reset(false);
-        } else {
-           iterator.reset(isInTransaction);
-        }
+    public void reset() {
+        iterator.reset();
         resetIterationHelperAttributes();
     }
 
@@ -64,6 +57,11 @@ public class BCursorTable extends BTable {
     }
 
     protected boolean isIteratorGenerationConditionMet() {
+        return false;
+    }
+
+    @Override
+    public boolean isInMemoryTable() {
         return false;
     }
 }

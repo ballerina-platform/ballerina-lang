@@ -1,5 +1,5 @@
 import ballerina/io;
-function main(string... args) {
+public function main(string... args) {
     int a = 10;
 
     transaction with retries = 1, oncommit = onCommitFunction, onabort = onAbortFunction {

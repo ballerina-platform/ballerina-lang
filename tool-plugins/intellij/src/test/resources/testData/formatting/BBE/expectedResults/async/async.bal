@@ -8,7 +8,7 @@ int count;
 endpoint http:Client clientEndpoint { 
     url: "https://postman-echo.com" };
 
-function main(string... args) {
+public function main(string... args) {
     // Asynchronously call the function named `sum()`.
     future<int> f1 = start sum(40, 50);
     // You can pass around the value of the `future` variable

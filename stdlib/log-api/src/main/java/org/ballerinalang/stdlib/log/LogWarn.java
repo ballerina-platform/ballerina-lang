@@ -23,7 +23,6 @@ import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.observability.ObservabilityUtils;
 
 /**
  * Extern function ballerina.log:printWarn.
@@ -33,18 +32,14 @@ import org.ballerinalang.util.observability.ObservabilityUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "log",
         functionName = "printWarn",
-        args = {@Argument(name = "msg", type = TypeKind.STRING)},
+        args = {@Argument(name = "msg", type = TypeKind.ANY)},
         isPublic = true
 )
 public class LogWarn extends AbstractLogFunction {
 
     public void execute(Context ctx) {
-        String pkg = getPackagePath(ctx);
-        String logMessage = getLogMessage(ctx, 0);
-        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.WARN.value()) {
-            getLogger(pkg).warn(logMessage);
-        }
-        ObservabilityUtils.logMessageToActiveSpan(ctx, BLogLevel.WARN.name(), logMessage, false);
-        ctx.setReturnValues();
+        logMessage(ctx, BLogLevel.WARN, (pkg, message) -> {
+            getLogger(pkg).warn(message);
+        });
     }
 }

@@ -35,6 +35,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -53,26 +54,46 @@ public class TableJSONDataSource implements JSONDataSource {
 
     private JSONObjectGenerator objGen;
 
-    private boolean isInTransaction;
-
-    public TableJSONDataSource(BTable df, boolean isInTransaction) {
-        this(df, new DefaultJSONObjectGenerator(), isInTransaction);
+    public TableJSONDataSource(BTable df) {
+        this(df, new DefaultJSONObjectGenerator());
     }
 
-    private TableJSONDataSource(BTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
+    private TableJSONDataSource(BTable df, JSONObjectGenerator objGen) {
         this.df = df;
         this.objGen = objGen;
-        this.isInTransaction = isInTransaction;
     }
 
     @Override
     public void serialize(JsonGenerator gen) throws IOException {
         gen.writeStartArray();
-        while (this.df.hasNext(this.isInTransaction)) {
-            this.df.moveToNext();
-            gen.serialize(this.objGen.transform(this.df));
+        while (this.hasNext()) {
+            gen.serialize(this.next());
         }
         gen.writeEndArray();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return this.df.hasNext();
+    }
+
+    @Override
+    public BRefType<?> next() {
+        try {
+            this.df.moveToNext();
+            return this.objGen.transform(this.df);
+        } catch (IOException e) {
+            throw new BLangRuntimeException("error while geting next data", e);
+        }
+    }
+
+    @Override
+    public BRefType<?> build() {
+        BRefValueArray values = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+        while (this.hasNext()) {
+            values.append(this.next());
+        }
+        return values;
     }
 
     /**

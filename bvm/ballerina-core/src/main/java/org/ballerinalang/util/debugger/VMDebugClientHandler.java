@@ -105,6 +105,11 @@ public class VMDebugClientHandler implements DebugClientHandler {
         pushMessageToClient(message);
     }
 
+    @Override
+    public void sendExpressionResults(MessageDTO message) {
+        pushMessageToClient(message);
+    }
+
     /**
      * Push message to client.
      *

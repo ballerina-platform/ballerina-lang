@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string data = "static";
 
     xmlns "http://ballerina.com/updated" as ns0;
@@ -16,6 +16,10 @@ function main (string... args) {
     var x4 = xml `<root xmlns:ns4="http://sample.com/wso2/f"></root>`;
     x4@["foo1"] = "foo";
     secureFunction(x4, x4);
+
+    if ("tests" == "test") {
+        secureFunction(ns0:book, ns0:book);
+    }
 }
 
 public function secureFunction (@sensitive any secureIn, any insecureIn) {

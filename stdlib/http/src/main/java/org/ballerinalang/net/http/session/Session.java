@@ -126,6 +126,7 @@ public interface Session {
      * Add header to response message.
      *
      * @param message which send to client
+     * @param isSecureRequest is Request Secure
      */
     void generateSessionHeader(HttpCarbonMessage message, boolean isSecureRequest);
 

@@ -286,9 +286,14 @@ public class JSONUtils {
      * @return JSON representation of the provided table
      */
     public static BRefType<?> toJSON(BTable table, boolean isInTransaction) {
-        return new BStreamingJSON(new TableJSONDataSource(table, isInTransaction));
+        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
+        if (table.isInMemoryTable()) {
+            return jsonDataSource.build();
+        }
+
+        return new BStreamingJSON(jsonDataSource);
     }
-    
+
     /**
      * Get an element from a JSON.
      * 
@@ -767,12 +772,12 @@ public class JSONUtils {
     /**
      * Convert a JSON node to an array.
      *
-     * @param arrayNode JSON to convert
+     * @param json JSON to convert
      * @param targetArrayType Type of the target array
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
      *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
      */
-    private static BNewArray convertJSONToBArray(BValue json, BArrayType targetArrayType) {
+    public static BNewArray convertJSONToBArray(BValue json, BArrayType targetArrayType) {
         if (!(json instanceof BNewArray)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));

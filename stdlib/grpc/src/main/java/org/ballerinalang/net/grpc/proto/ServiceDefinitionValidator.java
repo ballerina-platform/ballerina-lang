@@ -77,7 +77,7 @@ public class ServiceDefinitionValidator {
         }
         if (count > 1) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                    "There cannot be more than one resource annotations");
+                    "There cannot be more than one service annotations");
             return false;
         } else if (count == 1) {
             boolean isNameExists = false;

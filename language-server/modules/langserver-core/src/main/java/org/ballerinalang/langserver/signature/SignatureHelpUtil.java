@@ -20,8 +20,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.model.elements.DocAttachment;
-import org.ballerinalang.model.elements.DocTag;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
@@ -116,7 +115,7 @@ public class SignatureHelpUtil {
         if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD))) {
             functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols);
-        } else if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY))) {
+        } else if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY))) {
             functions = getEndpointActionsByName(idAgainst, visibleSymbols);
         } else {
             functions = visibleSymbols;
@@ -180,14 +179,11 @@ public class SignatureHelpUtil {
         Map<String, String> paramDescMap = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
-        DocAttachment docAttachment = bInvokableSymbol.getDocAttachment();
+        MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
         
-        signatureInfoModel.setSignatureDescription(docAttachment.getDescription().trim());
-        docAttachment.attributes.forEach(attribute -> {
-            if (attribute.docTag.equals(DocTag.PARAM)) {
-                paramDescMap.put(attribute.getName(), attribute.getDescription());
-            }
-        });
+        signatureInfoModel.setSignatureDescription(docAttachment.description.trim());
+        docAttachment.parameters.forEach(attribute ->
+                paramDescMap.put(attribute.getName(), attribute.getDescription()));
 
         bInvokableSymbol.getParameters().forEach(bVarSymbol -> {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
@@ -213,7 +209,7 @@ public class SignatureHelpUtil {
                     || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
                 if (">".equals(String.valueOf(c)) && "-".equals(String.valueOf(line.charAt(counter - 1)))) {
-                    delimiter.append(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY);
+                    delimiter.append(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY);
                     counter--;
                 } else {
                     delimiter.append(String.valueOf(c));
@@ -239,7 +235,7 @@ public class SignatureHelpUtil {
         String identifier = "";
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
                 || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)
-                || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
+                || UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)) {
             counter--;
             while (counter > 0) {
                 char c = line.charAt(counter);

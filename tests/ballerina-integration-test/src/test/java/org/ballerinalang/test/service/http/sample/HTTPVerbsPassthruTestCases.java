@@ -18,7 +18,8 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -33,7 +34,7 @@ import java.util.Map;
  * Testing the passthrough service for HTTP methods.
  */
 @Test(groups = "http-test")
-public class HTTPVerbsPassthruTestCases extends BaseTest {
+public class HTTPVerbsPassthruTestCases extends HttpBaseTest {
 
     private final int servicePort = 9108;
 
@@ -59,7 +60,8 @@ public class HTTPVerbsPassthruTestCases extends BaseTest {
                 serverInstance.getServiceURLHttp(servicePort, "headQuote/default"), "test", headers);
         if (response == null) {
             //Retrying to avoid intermittent test failure
-            response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("headQuote/default")
+            response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(Constant.DEFAULT_HTTP_PORT,
+                    "headQuote/default")
                     , "test", headers);
             ;
         }

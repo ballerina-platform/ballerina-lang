@@ -8,7 +8,7 @@ endpoint mb:SimpleTopicPublisher publisher {
     topicPattern: "testMbSimpleTopicSubscriberPublisher"
 };
 
-function main (string... args) {
+public function main (string... args) {
     // Create a Text message.
     mb:Message m = check publisher.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.

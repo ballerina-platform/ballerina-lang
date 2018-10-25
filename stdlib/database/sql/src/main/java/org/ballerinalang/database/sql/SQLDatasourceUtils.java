@@ -94,8 +94,9 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
 public class SQLDatasourceUtils {
 
     private static final String ORACLE_DATABASE_NAME = "oracle";
-    private static final String POSTGRES_DATABASE_NAME = "postgresql";
-    public static final String POSTGRES_DOUBLE = "float8";
+    public static final String POSTGRES_DATABASE_NAME = "postgresql";
+    private static final String POSTGRES_DOUBLE = "float8";
+    public static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
     private static final int ORACLE_CURSOR_TYPE = -10;
     private static final String TIME_FIELD = "time";
 
@@ -853,25 +854,17 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This will close the database connection.
-     *
-     * @param conn SQL connection
-     * @param isInTransaction Whether a transaction is in progress or not
-     */
-    public static void cleanupResources(Connection conn, boolean isInTransaction) {
-        cleanupResources(null, conn, isInTransaction);
-    }
-
-    /**
      * This will close database connection, statement and result sets.
      *
      * @param resultSets   SQL result sets
      * @param stmt SQL statement
      * @param conn SQL connection
-     * @param isInTransaction Whether a transaction is in progress or not
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
      */
     public static void cleanupResources(List<ResultSet> resultSets, Statement stmt, Connection conn,
-            boolean isInTransaction) {
+            boolean connectionClosable) {
         try {
             if (resultSets != null) {
                 for (ResultSet rs : resultSets) {
@@ -880,7 +873,7 @@ public class SQLDatasourceUtils {
                     }
                 }
             }
-            cleanupResources(stmt, conn, isInTransaction);
+            cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
             throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
@@ -892,14 +885,16 @@ public class SQLDatasourceUtils {
      * @param rs   SQL resultset
      * @param stmt SQL statement
      * @param conn SQL connection
-     * @param isInTransaction Whether a transaction is in progress or not
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
      */
-    public static void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean isInTransaction) {
+    public static void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean connectionClosable) {
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
             }
-            cleanupResources(stmt, conn, isInTransaction);
+            cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
             throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
@@ -910,14 +905,16 @@ public class SQLDatasourceUtils {
      *
      * @param stmt SQL statement
      * @param conn SQL connection
-     * @param isInTransaction Whether a transaction is in progress or not
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
      */
-    public static void cleanupResources(Statement stmt, Connection conn, boolean isInTransaction) {
+    public static void cleanupResources(Statement stmt, Connection conn, boolean connectionClosable) {
         try {
             if (stmt != null && !stmt.isClosed()) {
                 stmt.close();
             }
-            if (conn != null && !conn.isClosed() && !isInTransaction) {
+            if (conn != null && !conn.isClosed() && connectionClosable) {
                 conn.close();
             }
         } catch (SQLException e) {
@@ -997,6 +994,7 @@ public class SQLDatasourceUtils {
      * This will retrieve the string value for the given clob.
      *
      * @param data clob data
+     * @return string value
      */
     public static String getString(Clob data) {
         if (data == null) {
@@ -1018,6 +1016,7 @@ public class SQLDatasourceUtils {
      * This will retrieve the string value for the given blob.
      *
      * @param data blob data
+     * @return string value
      */
     public static String getString(Blob data) {
         // Directly allocating full length arrays for decode byte arrays since anyway we are building
@@ -1042,6 +1041,7 @@ public class SQLDatasourceUtils {
      * This will retrieve the string value for the given binary data.
      *
      * @param data binary data
+     * @return string value
      */
     public static String getString(byte[] data) {
         if (data == null) {
@@ -1076,6 +1076,10 @@ public class SQLDatasourceUtils {
 
     /**
      * This will retrieve the string value for the given array data.
+     *
+     * @param dataArray data
+     * @return string value
+     * @throws SQLException sql exception when reading result set
      */
     public static String getString(Array dataArray) throws SQLException {
         if (dataArray == null) {
@@ -1093,6 +1097,10 @@ public class SQLDatasourceUtils {
 
     /**
      * This will retrieve the string value for the given struct data.
+     *
+     * @param udt struct
+     * @return string value
+     * @throws SQLException sql exception when reading result set
      */
     public static String getString(Struct udt) throws SQLException {
         if (udt.getAttributes() != null) {
@@ -1562,10 +1570,23 @@ public class SQLDatasourceUtils {
         return columnDefs;
     }
 
-    public static Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
+    public static Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isSelectQuery)
             throws SQLException {
         Connection conn;
-        if (!isInTransaction) {
+        boolean isInTransaction = context.isInTransaction();
+        // Here when isSelectQuery condition is true i.e. in case of a select operation, we allow
+        // it to use a normal database connection. This is because,
+        // 1. In mysql (and possibly some other databases) another operation cannot be performed over a connection
+        // which has an open result set on top of it
+        // 2. But inside a transaction we use the same connection to perform all the db operation, so unless the
+        // result set is fully iterated, it won't be possible to perform rest of the operations inside the transaction
+        // 3. Therefore, we allow select operations to be performed on separate db connections inside transactions
+        // (XA or general transactions)
+        // 4. However for call operations, despite of the fact that they could output resultsets
+        // (as OUT params or return values) we do not use a separate connection, because,
+        // call operations can contain UPDATE actions as well inside the procedure which may require to happen in the
+        // same scope as any other individual UPDATE actions
+        if (!isInTransaction || isSelectQuery) {
             conn = datasource.getSQLConnection();
             return conn;
         } else {

@@ -67,7 +67,7 @@ function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @
 {{#if endpoints}}//======================================================
 //============Invocation of Generated Client============
 //======================================================
-function main (string... args) { {{#endpoints}}
+public function main (string... args) { {{#endpoints}}
     endpoint {{../name}}ClientEp ep{{@index}} {
         serviceUrl: "{{url}}"
     };{{/endpoints}}

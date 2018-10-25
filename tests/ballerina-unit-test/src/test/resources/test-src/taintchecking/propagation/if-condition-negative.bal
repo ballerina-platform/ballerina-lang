@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string path = "";
     if (lengthof args > 0) {
         path = args[0];

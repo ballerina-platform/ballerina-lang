@@ -16,10 +16,10 @@
                   },
                   "end":{
                     "line":3,
-                    "character":30
+                    "character":0
                   }
                 },
-                "newText":"documentation {\n\t\n}\nfunction testDocumentation() {"
+                "newText":"# Description\n"
               },
               {
                 "range":{
@@ -29,36 +29,36 @@
                   },
                   "end":{
                     "line":7,
-                    "character":33
+                    "character":0
                   }
                 },
-                "newText":"documentation {\n\t\n}\nendpoint http:Listener listener {"
+                "newText":"# Description\n"
               },
               {
                 "range":{
                   "start":{
-                    "line":14,
+                    "line":11,
                     "character":0
                   },
                   "end":{
-                    "line":14,
-                    "character":58
+                    "line":11,
+                    "character":0
                   }
                 },
-                "newText":"documentation {\n\t\n}\nservice<http:Service> testDocService bind { port: 9090 } {"
+                "newText":"# Description\n"
               },
               {
                 "range":{
                   "start":{
-                    "line":18,
-                    "character":0
+                    "line":15,
+                    "character":4
                   },
                   "end":{
-                    "line":18,
-                    "character":61
+                    "line":15,
+                    "character":4
                   }
                 },
-                "newText":"    documentation {\n    \t\n\t    P{{request}}\n    }\n    testDocResource (endpoint caller, http:Request request) {"
+                "newText":"# Description\n    #\n    # + caller - caller Parameter Description \n    # + request - request Parameter Description\n    "
               },
               {
                 "range":{
@@ -68,10 +68,10 @@
                   },
                   "end":{
                     "line":24,
-                    "character":27
+                    "character":0
                   }
                 },
-                "newText":"documentation {\n\t\n\tF{{field1}} \n\tF{{field2}}\n}\ntype testDocRecord record {"
+                "newText":"# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\n"
               },
               {
                 "range":{
@@ -81,10 +81,10 @@
                   },
                   "end":{
                     "line":29,
-                    "character":27
+                    "character":0
                   }
                 },
-                "newText":"documentation {\n\t\n\tF{{testField}} \n\tF{{testPrivate}} \n\tF{{testString}}\n}\ntype testDocObject object {"
+                "newText":"# Description\n#\n# + testField - testField Parameter Description \n# + testPrivate - testPrivate Parameter Description \n# + testString - testString Parameter Description\n"
               }
             ]
           }

@@ -19,16 +19,11 @@
 
 package org.ballerinalang.test.securelistener;
 
-import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
-import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,17 +31,7 @@ import java.util.Map;
  * Test cases for verifying no token propagation scenario.
  */
 @Test(groups = "secure-listener-test")
-public class NoTokenPropagationTest extends BaseTest {
-
-    @BeforeGroups(value = "secure-listener-test", alwaysRun = true)
-    public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096};
-        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "secureListener").getAbsolutePath();
-        String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        String[] args = new String[]{"--sourceroot", basePath, "--config", ballerinaConfPath};
-        serverInstance.startBallerinaServer("secureservices", args, requiredPorts);
-    }
+public class NoTokenPropagationTest extends SecureListenerBaseTest {
 
     @Test(description = "No JWT Token propagation, authn failure test")
     public void testTokenPropagationSuccess() throws Exception {
@@ -55,10 +40,5 @@ public class NoTokenPropagationTest extends BaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9090, "passthrough"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
-    }
-
-    @AfterGroups(value = "secure-listener-test", alwaysRun = true)
-    public void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

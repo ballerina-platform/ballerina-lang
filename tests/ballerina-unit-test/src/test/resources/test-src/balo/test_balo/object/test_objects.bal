@@ -67,7 +67,7 @@ public function testObjectWithInterface () returns (int, string, int, string) {
 }
 
 public type DustBin object {
-    public int age = 20,
+    public int age = 20;
     public string name = "sample name";
     public int year = 50;
     public string month = "february";
@@ -112,7 +112,7 @@ function returnDifferentObectInit() returns foo:Girl {
 }
 
 public type Women object {
-    public int age,
+    public int age;
 
     public new (age, int addVal) {
         age = age + addVal;
@@ -120,11 +120,11 @@ public type Women object {
 };
 
 type Vehicle object {
-    public int age,
-    public string name,
-    public foo:Bus emp,
-    public foo:Tyre foo,
-    public foo:Wheel bar,
+    public int age;
+    public string name;
+    public foo:Bus emp;
+    public foo:Tyre foo;
+    public foo:Wheel bar;
 };
 
 Vehicle v;
@@ -152,8 +152,8 @@ function testRecursiveObjectWithNill() returns int {
 }
 
 public type Office object {
-    public int age = 90,
-    public foo:Architect ep = new(88, "sanjiva"),
+    public int age = 90;
+    public foo:Architect ep = new(88, "sanjiva");
 };
 
 function testFieldWithExpr() returns (int, string) {
@@ -164,4 +164,68 @@ function testFieldWithExpr() returns (int, string) {
 function testObjectWithByteTypeFields() returns (byte[], byte[], byte[]) {
     foo:Desk desk;
     return (desk.dimensions, desk.code1, desk.code2);
+}
+
+// --------------Test abstract objects and object type reference -----------------
+
+public function testObjectReferingTypeFromBalo_1() returns (string, float) {
+    foo:Manager1 mgr = new();
+    return (mgr.getName(), mgr.getBonus(0.1));
+}
+
+// Test referring an object coming from a balo 
+type Manager2 object {
+    string dpt = "HR";
+
+    *foo:Employee2;
+
+    new(name, age=25) {
+        salary = 3000.0;
+    }
+
+    public function getBonus(float ratio, int months=6) returns float {
+        return self.salary*ratio*months;
+    }
+};
+
+function Manager2::getName(string greeting = "Hello") returns string {
+    return greeting + " " + self.name;
+}
+
+public function testObjectReferingTypeFromBalo_2() returns (string, float) {
+    Manager2 mgr2 = new("Jane");
+    return (mgr2.getName(), mgr2.getBonus(0.1));
+}
+
+// Test referring a type coming from a balo
+type Employee3 abstract object {
+    public float salary;
+    *foo:Person1;
+
+    public function getBonus(float ratio, int months=10) returns float;
+};
+
+// Test invking a method with default values, of an object
+// coming from a balo 
+type Manager3 object {
+    string dpt = "HR";
+
+    *Employee3;
+
+    new(name, age=25) {
+        salary = 3000.0;
+    }
+
+    public function getBonus(float ratio, int months=6) returns float {
+        return self.salary*ratio*months;
+    }
+};
+
+function Manager3::getName(string greeting = "Good morning") returns string {
+    return greeting + " " + self.name;
+}
+
+public function testObjectReferingTypeFromBalo_3() returns (string, float) {
+    Manager3 mgr3 = new("Jane");
+    return (mgr3.getName(), mgr3.getBonus(0.1));
 }

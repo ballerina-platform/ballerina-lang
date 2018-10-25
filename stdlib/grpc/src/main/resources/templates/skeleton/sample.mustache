@@ -1,19 +1,18 @@
 import ballerina/io;
 import ballerina/grpc;
 
-function main (string... args) {
-{{#nonBlockingEndpoint}}
-     endpoint {{connectorId}}Client {{connectorIdName}}Ep {
+public function main (string... args) {
+     endpoint {{serviceName}}Client ep {
         url:"http://localhost:9090"
-     };{{/nonBlockingEndpoint}}{{#blockingEndpoint}}
-    endpoint {{connectorId}}BlockingClient {{connectorIdName}}BlockingEp {
+     };
+{{#if blockingEP}}
+    endpoint {{serviceName}}BlockingClient blockingEp {
         url:"http://localhost:9090"
     };
-{{/blockingEndpoint}}
+{{/if}}
 }
 
-{{#messageListener}}
-service<grpc:Service> {{connectorId}}MessageListener {
+service<grpc:Service> {{serviceName}}MessageListener {
 
     onMessage (string message) {
         io:println("Response received from server: " + message);
@@ -29,4 +28,3 @@ service<grpc:Service> {{connectorId}}MessageListener {
         io:println("Server Complete Sending Responses.");
     }
 }
-{{/messageListener}}

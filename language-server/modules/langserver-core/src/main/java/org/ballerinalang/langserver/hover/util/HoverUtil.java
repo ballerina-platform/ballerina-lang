@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.model.Whitespace;
-import org.ballerinalang.model.elements.DocAttachment;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
@@ -134,7 +134,7 @@ public class HoverUtil {
         }
 
         return filteredBSymbol != null
-                ? getHoverFromDocAttachment(filteredBSymbol.getDocAttachment())
+                ? getHoverFromDocAttachment(filteredBSymbol.getMarkdownDocAttachment(), hoverContext)
                 : getDefaultHoverObject();
     }
 
@@ -186,20 +186,24 @@ public class HoverUtil {
     /**
      * Get the doc annotation attributes.
      *
-     * @param attributes        attributes to be extracted
+     * @param parameters        parameters to be extracted
      * @return {@link String }  extracted content of annotation
      */
-    private static String getDocAttributes(List<DocAttachment.DocAttribute> attributes) {
+    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters) {
         StringBuilder value = new StringBuilder();
-        for (DocAttachment.DocAttribute attribute : attributes) {
+        for (MarkdownDocAttachment.Parameter parameter : parameters) {
             value.append("- ")
-                    .append(attribute.name.trim())
+                    .append(parameter.name.trim())
                     .append(":")
-                    .append(attribute.description.trim()).append("\r\n");
+                    .append(parameter.description.trim()).append("\r\n");
         }
 
         return value.toString();
-    }   
+    }
+    
+    private static String getReturnValueDescription(String returnVal) {
+        return "- " + returnVal.trim() + "\r\n";
+    }
 
     /**
      * get the formatted string with markdowns.
@@ -217,19 +221,15 @@ public class HoverUtil {
      * @param docAttachment     Documentation attachment
      * @return {@link Hover}    hover object.
      */
-    private static Hover getHoverFromDocAttachment(DocAttachment docAttachment) {
+    private static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, LSContext context) {
         Hover hover = new Hover();
         StringBuilder content = new StringBuilder();
-        Map<String, List<DocAttachment.DocAttribute>> filterAttributes = filterDocumentationAttributes(docAttachment);
+        Map<String, List<MarkdownDocAttachment.Parameter>> filterAttributes =
+                filterDocumentationAttributes(docAttachment, context);
 
         if (!docAttachment.description.isEmpty()) {
             String description = "\r\n" + docAttachment.description.trim() + "\r\n";
             content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION, description));
-        }
-
-        if (filterAttributes.get(ContextConstants.DOC_RECEIVER) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.RECEIVER_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_RECEIVER))));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_PARAM) != null) {
@@ -242,14 +242,9 @@ public class HoverUtil {
                     getDocAttributes(filterAttributes.get(ContextConstants.DOC_FIELD))));
         }
 
-        if (filterAttributes.get(ContextConstants.DOC_RETURN) != null) {
+        if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
             content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_RETURN))));
-        }
-
-        if (filterAttributes.get(ContextConstants.DOC_VARIABLE) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.VARIABLE_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_VARIABLE))));
+                    getReturnValueDescription(docAttachment.returnValueDescription)));
         }
 
         List<Either<String, MarkedString>> contents = new ArrayList<>();
@@ -265,15 +260,29 @@ public class HoverUtil {
      * @param docAttachment     documentation node
      * @return {@link Map}      filtered content map
      */
-    private static Map<String, List<DocAttachment.DocAttribute>> filterDocumentationAttributes(
-            DocAttachment docAttachment) {
-        Map<String, List<DocAttachment.DocAttribute>> filteredAttributes = new HashMap<>();
-        for (DocAttachment.DocAttribute docAttribute : docAttachment.attributes) {
-            if (filteredAttributes.get(docAttribute.docTag.name()) == null) {
-                filteredAttributes.put(docAttribute.docTag.name(), new ArrayList<>());
-                filteredAttributes.get(docAttribute.docTag.name()).add(docAttribute);
+    private static Map<String, List<MarkdownDocAttachment.Parameter>> filterDocumentationAttributes(
+            MarkdownDocAttachment docAttachment, LSContext context) {
+        Map<String, List<MarkdownDocAttachment.Parameter>> filteredAttributes = new HashMap<>();
+        String paramType = "";
+        switch (context.get((NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY))) {
+            case ContextConstants.FUNCTION:
+                paramType = ContextConstants.DOC_PARAM;
+                break;
+            case ContextConstants.OBJECT:
+            case ContextConstants.RECORD:
+            case ContextConstants.TYPE_DEF:
+                paramType = ContextConstants.DOC_FIELD;
+                break;
+            default:
+                break;
+        }
+
+        for (MarkdownDocAttachment.Parameter parameter : docAttachment.parameters) {
+            if (filteredAttributes.get(paramType) == null) {
+                filteredAttributes.put(paramType, new ArrayList<>());
+                filteredAttributes.get(paramType).add(parameter);
             } else {
-                filteredAttributes.get(docAttribute.docTag.name()).add(docAttribute);
+                filteredAttributes.get(paramType).add(parameter);
             }
         }
 

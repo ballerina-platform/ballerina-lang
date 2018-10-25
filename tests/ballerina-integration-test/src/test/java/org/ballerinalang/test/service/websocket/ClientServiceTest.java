@@ -65,6 +65,7 @@ public class ClientServiceTest extends WebSocketTestCommons {
             dependsOnMethods = "testClientSuccessWithoutService")
     public void testClientSuccessWithWebSocketClientService() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.setCountDownLatch(countDownLatch);
         client.sendText("hey");
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
 

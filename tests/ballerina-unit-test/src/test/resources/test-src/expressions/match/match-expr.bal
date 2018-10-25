@@ -115,13 +115,13 @@ function testMatchErrorWithCauses() {
 }
 
 type Person record {
-    string name,
+    string name;
     !...
 };
 
 type Employee record {
-    string name,
-    int age,
+    string name;
+    int age;
     !...
 };
 

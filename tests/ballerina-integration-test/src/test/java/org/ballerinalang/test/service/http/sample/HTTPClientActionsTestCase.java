@@ -18,7 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -33,7 +33,7 @@ import java.util.Map;
  * Test HTTP client actions with direct payload.
  */
 @Test(groups = "http-test")
-public class HTTPClientActionsTestCase extends BaseTest {
+public class HTTPClientActionsTestCase extends HttpBaseTest {
     private final int servicePort = 9098;
 
     @Test

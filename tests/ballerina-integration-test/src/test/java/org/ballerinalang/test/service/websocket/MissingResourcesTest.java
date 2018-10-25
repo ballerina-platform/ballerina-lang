@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Class to test the use cases when certain resources are missing and messages come to these resources.
+ *
+ * @since 0.982.0
  */
 @Test(groups = "websocket-test")
 public class MissingResourcesTest extends WebSocketTestCommons {

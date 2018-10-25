@@ -109,7 +109,7 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverCurrentPackageFuncPosition")
     public Object[][] getCurrentPackageFunctionPositions() {
         return new Object[][]{
-                {new Position(47, 15), "currentPkg-function1.json"}
+                {new Position(45, 14), "currentPkg-function1.json"}
         };
     }
 
@@ -128,9 +128,9 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverCurrentPackageRecordPosition")
     public Object[][] getCurrentPackageStructPositions() {
         return new Object[][]{
-                {new Position(48, 7), "currentPkg-record.json"},
-                {new Position(53, 19), "currentPkg-record.json"},
-                {new Position(54, 8), "currentPkg-record.json"}
+                {new Position(46, 7), "currentPkg-record.json"},
+                {new Position(51, 19), "currentPkg-record.json"},
+                {new Position(52, 8), "currentPkg-record.json"}
         };
     }
 

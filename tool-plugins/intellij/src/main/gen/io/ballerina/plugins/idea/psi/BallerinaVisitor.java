@@ -72,6 +72,18 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
+  public void visitArrowFunction(@NotNull BallerinaArrowFunction o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitArrowFunctionExpression(@NotNull BallerinaArrowFunctionExpression o) {
+    visitExpression(o);
+  }
+
+  public void visitArrowParam(@NotNull BallerinaArrowParam o) {
+    visitCompositeElement(o);
+  }
+
   public void visitAssignmentStatement(@NotNull BallerinaAssignmentStatement o) {
     visitCompositeElement(o);
   }
@@ -165,6 +177,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitCatchClauses(@NotNull BallerinaCatchClauses o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitChannelDefinition(@NotNull BallerinaChannelDefinition o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitChannelType(@NotNull BallerinaChannelType o) {
     visitCompositeElement(o);
   }
 
@@ -293,6 +313,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitFloatingPointLiteral(@NotNull BallerinaFloatingPointLiteral o) {
+    visitCompositeElement(o);
+  }
+
   public void visitForeachStatement(@NotNull BallerinaForeachStatement o) {
     visitCompositeElement(o);
   }
@@ -341,6 +365,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   public void visitGlobalEndpointDefinition(@NotNull BallerinaGlobalEndpointDefinition o) {
     visitNamedElement(o);
     // visitTopLevelDefinition(o);
+  }
+
+  public void visitGlobalVariable(@NotNull BallerinaGlobalVariable o) {
+    visitCompositeElement(o);
   }
 
   public void visitGlobalVariableDefinition(@NotNull BallerinaGlobalVariableDefinition o) {
@@ -505,15 +533,15 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitObjectFunctions(@NotNull BallerinaObjectFunctions o) {
-    visitCompositeElement(o);
-  }
-
   public void visitObjectInitializer(@NotNull BallerinaObjectInitializer o) {
     visitCompositeElement(o);
   }
 
   public void visitObjectInitializerParameterList(@NotNull BallerinaObjectInitializerParameterList o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitObjectMember(@NotNull BallerinaObjectMember o) {
     visitCompositeElement(o);
   }
 
@@ -594,14 +622,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitPatternStreamingInput(@NotNull BallerinaPatternStreamingInput o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitPostArithmeticOperator(@NotNull BallerinaPostArithmeticOperator o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitPostIncrementStatement(@NotNull BallerinaPostIncrementStatement o) {
     visitCompositeElement(o);
   }
 
@@ -891,6 +911,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitTypeName(@NotNull BallerinaTypeName o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitTypeReference(@NotNull BallerinaTypeReference o) {
     visitCompositeElement(o);
   }
 

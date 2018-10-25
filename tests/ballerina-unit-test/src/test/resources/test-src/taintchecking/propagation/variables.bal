@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     // untainted data replaced by tainted value, again replaced by untainted value.
     string data = "sample";
     data = data + args[0];

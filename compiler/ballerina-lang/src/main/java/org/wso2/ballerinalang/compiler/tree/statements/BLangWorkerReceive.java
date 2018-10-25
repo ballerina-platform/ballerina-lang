@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -33,10 +34,18 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
 
     public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
+    public BLangExpression keyExpr;
+    public boolean isChannel = false;
+    public SymbolEnv env;
 
     @Override
     public BLangExpression getExpression() {
         return expr;
+    }
+
+    @Override
+    public BLangExpression getKeyExpression() {
+        return keyExpr;
     }
 
     @Override

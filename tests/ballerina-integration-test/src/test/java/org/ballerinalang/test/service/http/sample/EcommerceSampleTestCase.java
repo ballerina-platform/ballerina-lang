@@ -18,7 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -34,7 +34,7 @@ import java.util.Map;
  * ballerina_home/samples/restfulService/ecommerceService.bal.
  */
 @Test(groups = "http-test")
-public class EcommerceSampleTestCase extends BaseTest {
+public class EcommerceSampleTestCase extends HttpBaseTest {
 
     private final int servicePort = 9095;
 

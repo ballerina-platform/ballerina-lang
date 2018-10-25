@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.packerina.SearchUtils;
 import picocli.CommandLine;
@@ -25,6 +24,7 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.launcher.LauncherUtils.createUsageExceptionWithHelp;
 import static org.ballerinalang.packerina.cmd.Constants.SEARCH_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -33,7 +33,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = SEARCH_COMMAND, description = "search for packages within Ballerina Central")
+@CommandLine.Command(name = SEARCH_COMMAND, description = "search for modules within Ballerina Central")
 public class SearchCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
 
@@ -42,9 +42,6 @@ public class SearchCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-
-    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
-    private String javaDebugPort;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
@@ -62,11 +59,11 @@ public class SearchCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw new BLangCompilerException("no keyword given");
+            throw createUsageExceptionWithHelp("no keyword given");
         }
 
         if (argList.size() > 1) {
-            throw new BLangCompilerException("too many arguments");
+            throw createUsageExceptionWithHelp("too many arguments");
         }
 
         String searchArgs = argList.get(0);
@@ -81,12 +78,12 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("searches for packages within Ballerina Central \n");
+        out.append("searches for modules within Ballerina Central \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append(" ballerina search [<org>|<package>|<text>] \n");
+        out.append(" ballerina search [<org>|<module>|<text>] \n");
     }
 
     @Override

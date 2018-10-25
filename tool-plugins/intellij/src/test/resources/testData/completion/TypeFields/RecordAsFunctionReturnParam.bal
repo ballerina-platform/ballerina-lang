@@ -8,7 +8,7 @@ function getUser(string name, int age) returns User {
     return;
 }
 
-function main(string... args) {
+public function main(string... args) {
     User user = getUser("Ballerina", 1);
     user.<caret>
 }

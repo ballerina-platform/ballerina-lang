@@ -23,9 +23,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
 
 /**
@@ -33,20 +30,12 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANN
  */
 public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
-    @Deprecated
-    public List<BAnnotationAttributeSymbol> attributes;
     public BTypeSymbol attachedType;
     public int attachPoints;
 
     public BAnnotationSymbol(Name name, int flags, int attachPoints, PackageID pkgID, BType type, BSymbol owner) {
         super(ANNOTATION, flags, name, pkgID, type, owner);
         this.attachPoints = attachPoints;
-        attributes = new ArrayList<>();
-    }
-
-    @Override
-    public List<BAnnotationAttributeSymbol> getAttributes() {
-        return attributes;
     }
 
     @Override
@@ -63,7 +52,6 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     @Override
     public BAnnotationSymbol createLabelSymbol() {
         BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, attachPoints, Names.EMPTY, pkgID, type, owner);
-        copy.attributes = attributes;
         copy.attachedType = attachedType;
         copy.isLabel = true;
         return copy;

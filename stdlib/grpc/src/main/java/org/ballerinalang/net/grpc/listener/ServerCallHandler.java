@@ -244,10 +244,10 @@ public abstract class ServerCallHandler {
 
     /**
      * Callbacks for consuming incoming RPC messages.
-     * <p>
+     *
      * <p>Any contexts are guaranteed to arrive before any messages, which are guaranteed before half
      * close, which is guaranteed before completion.
-     * <p>
+     *
      * <p>Implementations are free to block for extended periods of time. Implementations are not
      * required to be thread-safe.
      */
@@ -270,7 +270,7 @@ public abstract class ServerCallHandler {
          * The call was cancelled and the server is encouraged to abort processing to save resources,
          * since the client will not process any further messages. Cancellations can be caused by
          * timeouts, explicit cancellation by the client, network errors, etc.
-         * <p>
+         *
          * <p>There will be no further callbacks for the call.
          */
         void onCancel();
@@ -278,7 +278,7 @@ public abstract class ServerCallHandler {
         /**
          * The call is considered complete and {@link #onCancel} is guaranteed not to be called.
          * However, the client is not guaranteed to have received all messages.
-         * <p>
+         *
          * <p>There will be no further callbacks for the call.
          */
         void onComplete();

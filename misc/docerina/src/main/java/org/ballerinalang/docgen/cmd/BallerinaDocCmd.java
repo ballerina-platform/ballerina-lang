@@ -35,14 +35,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * doc command for ballerina which generates documentation for Ballerina packages.
+ * doc command for ballerina which generates documentation for Ballerina modules.
  */
 @CommandLine.Command(name = "doc", description = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
 
     @CommandLine.Parameters(description = "either the path to the directories where Ballerina source files reside or"
-            + " a path to a Ballerina file which does not belong to a package")
+            + " a path to a Ballerina file which does not belong to a module")
     private List<String> argList;
 
     @CommandLine.Option(names = {"--output", "-o"},
@@ -53,7 +53,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
             description = "path to a custom templates directory to be used for API documentation generation")
     private String templatesDir;
 
-    @CommandLine.Option(names = {"--exclude"}, description = "a comma separated list of package names to be "
+    @CommandLine.Option(names = {"--exclude"}, description = "a comma separated list of module names to be "
             + "filtered from the documentation")
     private String packageFilter;
 
@@ -70,7 +70,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
     private boolean debugEnabled;
 
     @CommandLine.Option(names = {"--sourceroot"},
-            description = "path to the directory containing source files and packages")
+            description = "path to the directory containing source files and modules")
     private String sourceRoot;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
@@ -126,12 +126,12 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder stringBuilder) {
         stringBuilder
-                .append("ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedpackages] [-v]"
+                .append("ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedmodules] [-v]"
                         + System.lineSeparator())
                 .append("  sourcepath:" + System.lineSeparator())
                 .append("  Paths to the directories where Ballerina source files reside or a path to"
                         + System.lineSeparator())
-                .append("  a Ballerina file which does not belong to a package" + System.lineSeparator());
+                .append("  a Ballerina file which does not belong to a module" + System.lineSeparator());
     }
 
     @Override

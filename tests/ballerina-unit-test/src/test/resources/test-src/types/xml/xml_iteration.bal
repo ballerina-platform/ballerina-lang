@@ -36,7 +36,7 @@ function foreachTest() returns (int, string)[] {
 
     foreach i, x in bookstore["book"] {
         titles[count] = (i, x["title"].getTextValue());
-        count++;
+        count += 1;
     }
 
     return titles;
@@ -46,24 +46,24 @@ function foreachOpTest() returns (int, string)[] {
     (int, string)[] titles = [];
     int count = 0;
 
-    bookstore["book"].foreach(((int, xml) entry) => {
+    bookstore["book"].foreach(function ((int, xml) entry) {
         var (index, value) = entry;
         titles[count] = (index, value["title"].getTextValue());
-        count++;
+        count += 1;
     });
 
     return titles;
 }
 
 function mapOpTest() returns xml[] {
-    xml[] titles = bookstore["book"].map((xml book) => xml {
+    xml[] titles = bookstore["book"].map(function (xml book) returns xml {
         return book["author"];
     });
     return titles;
 }
 
 function filterOpTest() returns xml[] {
-    xml[] books = bookstore["book"].filter((xml book) => boolean {
+    xml[] books = bookstore["book"].filter(function (xml book) returns boolean {
         if (check <int>book["year"].getTextValue() > 2004) {
             return true;
         }
@@ -73,12 +73,12 @@ function filterOpTest() returns xml[] {
 }
 
 function chainedIterableOps() returns xml[] {
-    xml[] authors = bookstore["book"].filter((xml book) => boolean {
+    xml[] authors = bookstore["book"].filter(function (xml book) returns boolean {
                                         if (check <int>book["year"].getTextValue() > 2004) {
                                             return true;
                                         }
                                         return false;
-                                    }).map((xml book) => xml {
+                                    }).map(function (xml book) returns xml {
                                         return book["author"];
                                     });
     return authors;

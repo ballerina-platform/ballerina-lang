@@ -3,7 +3,7 @@ struct User {
     int age;
 }
 
-function main (string[] args) {
+public function main (string... args) {
     User user = {};
     var temp = user;
     var temp2 = temp;

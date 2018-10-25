@@ -10,23 +10,26 @@
     }
   },
   "expected": {
-    "documentThis": {
-      "title": "Document This",
-      "command": "ADD_DOC",
-      "arguments": [
-        {
-          "argumentK": "node.type",
-          "argumentV": "service"
-        },
-        {
-          "argumentK": "node.line",
-          "argumentV": "11"
-        }
-      ]
-    },
-    "documentAll": {
-      "title":"Document All",
-      "command":"ADD_ALL_DOC"
+    "size": 2,
+    "actions": {
+      "documentThis": {
+        "title": "Document This",
+        "command": "ADD_DOC",
+        "arguments": [
+          {
+            "argumentK": "node.type",
+            "argumentV": "service"
+          },
+          {
+            "argumentK": "node.line",
+            "argumentV": "11"
+          }
+        ]
+      },
+      "documentAll": {
+        "title": "Document All",
+        "command": "ADD_ALL_DOC"
+      }
     }
   }
 }

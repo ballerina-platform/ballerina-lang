@@ -19,15 +19,13 @@ import ballerina/math;
 import ballerina/mime;
 import ballerina/runtime;
 
-documentation {
-    Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
-    to provide retrying over HTTP requests.
-
-    F{{serviceUri}} Target service url
-    F{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
-    F{{retryConfig}} Configurations associated with retry
-    F{{httpClient}}  HTTP client for outbound HTTP requests
-}
+# Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
+# to provide retrying over HTTP requests.
+#
+# + serviceUri - Target service url
+# + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+# + retryConfig - Configurations associated with retry
+# + httpClient - HTTP client for outbound HTTP requests
 public type RetryClient object {
 
     public string serviceUri;
@@ -35,183 +33,151 @@ public type RetryClient object {
     public RetryConfig retryConfig;
     public CallerActions httpClient;
 
-    documentation {
-        Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
-        to provide retrying over HTTP requests.
-
-        P{{serviceUri}} Target service url
-        P{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
-        P{{retryConfig}} Configurations associated with retry
-        P{{httpClient}}  HTTP client for outbound HTTP requests
-    }
+    # Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
+    # to provide retrying over HTTP requests.
+    #
+    # + serviceUri - Target service url
+    # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
+    # + retryConfig - Configurations associated with retry
+    # + httpClient - HTTP client for outbound HTTP requests
     public new(serviceUri, config, retryConfig, httpClient) {}
 
-    documentation {
-        The `post()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
-    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # The `post()` function wraps the underlying HTTP actions in a way to provide
+    # retrying functionality for a given endpoint to recover from network level failures.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
+    public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    documentation {
-        The `head()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
-    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # The `head()` function wraps the underlying HTTP actions in a way to provide
+    # retrying functionality for a given endpoint to recover from network level failures.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
+    public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    documentation {
-        The `put()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
-    public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # The `put()` function wraps the underlying HTTP actions in a way to provide
+    # retrying functionality for a given endpoint to recover from network level failures.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
+    public function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    documentation {
-        The `forward()` function wraps the underlying HTTP actions in a way to provide retrying functionality
-        for a given endpoint with inbound request's HTTP verb to recover from network level failures.
-
-        P{{path}} Resource path
-        P{{request}} An HTTP inbound request message
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
+    # The `forward()` function wraps the underlying HTTP actions in a way to provide retrying functionality
+    # for a given endpoint with inbound request's HTTP verb to recover from network level failures.
+    #
+    # + path - Resource path
+    # + request - An HTTP inbound request message
+    # + return - The HTTP `Response` message, or an error if the invocation fails
     public function forward(string path, Request request) returns Response|error;
 
-    documentation {
-        The `execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps the
-        underlying HTTP actions in a way to provide retrying functionality for a given endpoint to recover
-        from network level failures.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
-    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # The `execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps the
+    # underlying HTTP actions in a way to provide retrying functionality for a given endpoint to recover
+    # from network level failures.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error;
 
-    documentation {
-        The `patch()` function wraps the undeline underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
-    public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # The `patch()` function wraps the undeline underlying HTTP actions in a way to provide
+    # retrying functionality for a given endpoint to recover from network level failures.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
+    public function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    documentation {
-        The `delete()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
-    public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # The `delete()` function wraps the underlying HTTP actions in a way to provide
+    # retrying functionality for a given endpoint to recover from network level failures.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
+    public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    documentation {
-        The `get()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
-    public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # The `get()` function wraps the underlying HTTP actions in a way to provide
+    # retrying functionality for a given endpoint to recover from network level failures.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
+    public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    documentation {
-        The `options()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The HTTP `Response` message, or an error if the invocation fails
-    }
-    public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # The `options()` function wraps the underlying HTTP actions in a way to provide
+    # retrying functionality for a given endpoint to recover from network level failures.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The HTTP `Response` message, or an error if the invocation fails
+    public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
-    documentation {
-	Submits an HTTP request to a service with the specified HTTP verb.
-	The `submit()` function does not give out a `Response` as the result,
-	rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
-
-        P{{httpVerb}} The HTTP verb value
-        P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
-        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    }
-    public function submit(string httpVerb, string path,  Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # Submits an HTTP request to a service with the specified HTTP verb.
+	#cThe `submit()` function does not give out a `Response` as the result,
+	#crather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+    #
+    # + httpVerb - The HTTP verb value
+    # + path - The resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
+    public function submit(string httpVerb, string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns HttpFuture|error;
 
-    documentation {
-	Retrieves the `Response` for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP response message, or an error if the invocation fails
-    }
+    # Retrieves the `Response` for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP response message, or an error if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|error;
 
-    documentation {
-	Checks whether a `PushPromise` exists for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} A `boolean` that represents whether a `PushPromise` exists
-    }
+    # Checks whether a `PushPromise` exists for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns (boolean);
 
-    documentation {
-	Retrieves the next available `PushPromise` for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP Push Promise message, or an error if the invocation fails
-    }
+    # Retrieves the next available `PushPromise` for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP Push Promise message, or an error if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
-    documentation {
-	Retrieves the promised server push `Response` message.
-
-        P{{promise}} The related `PushPromise`
-        R{{}} A promised HTTP `Response` message, or an error if the invocation fails
-    }
+    # Retrieves the promised server push `Response` message.
+    #
+    # + promise - The related `PushPromise`
+    # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|error;
 
-    documentation {
-	Rejects a `PushPromise`.
-	When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
-
-        P{{promise}} The Push Promise to be rejected
-    }
+    # Rejects a `PushPromise`.
+	# When a `PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
+    #
+    # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise);
 };
 
-function RetryClient::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function RetryClient::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_POST, self);
 }
 
-function RetryClient::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function RetryClient::head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
-function RetryClient::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function RetryClient::put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PUT, self);
@@ -221,37 +187,37 @@ function RetryClient::forward(string path, Request request) returns Response|err
     return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-function RetryClient::execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
+function RetryClient::execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel
                                                                     |mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryClientExecuteAction(path, req, httpVerb, self);
 }
 
-function RetryClient::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function RetryClient::patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
-function RetryClient::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function RetryClient::delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
-function RetryClient::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function RetryClient::get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_GET, self);
 }
 
-function RetryClient::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function RetryClient::options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
-function RetryClient::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|
+function RetryClient::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|
                                                                     mime:Entity[]|() message) returns HttpFuture|error {
     Request req = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, req);

@@ -4,9 +4,14 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -19,17 +24,34 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -41,10 +63,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -67,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpressio
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -74,21 +101,31 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -98,6 +135,17 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
@@ -112,9 +160,8 @@ import java.util.Map;
  * <ul>
  * <li>Uninitialized variable referencing validation</li>
  * </ul>
- * </p>
  * 
- * @since 0.982.0
+ * @since 0.985.0
  */
 public class DataflowAnalyzer extends BLangNodeVisitor {
 
@@ -135,6 +182,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             codeGenerator = new DataflowAnalyzer(context);
         }
         return codeGenerator;
+    }
+
+    private void startScope() {
+        // Start a new branch count for the new scope
+        this.currentScope = new Scope(this.currentScope);
+    }
+
+    private void startBranch() {
+        // Increment branch count
+        this.currentScope.pathsCount++;
+    }
+
+    private void endScope() {
+        this.currentScope = this.currentScope.parent;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -233,14 +294,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangPostIncrement increment) {
-        analyzeNode(increment.varRef);
-        analyzeNode(increment.increment);
+    public void visit(BLangCompoundAssignment compoundAssignNode) {
+        // TODO
     }
 
     @Override
-    public void visit(BLangCompoundAssignment compoundAssignNode) {
-        // TODO
+    public void visit(BLangBreak breakNode) {
     }
 
     @Override
@@ -574,10 +633,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEnumeratorAccessExpr enumeratorAccessExpr) {
-    }
-
-    @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
     }
 
@@ -590,18 +645,202 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(exprStmtNode.expr);
     }
 
-    private void startScope() {
-        // Start a new branch count for the new scope
-        this.currentScope = new Scope(this.currentScope);
+    @Override
+    public void visit(BLangAction actionNode) {
     }
 
-    private void startBranch() {
-        // Increment branch count
-        this.currentScope.pathsCount++;
+    @Override
+    public void visit(BLangAnnotation annotationNode) {
     }
 
-    private void endScope() {
-        this.currentScope = this.currentScope.parent;
+    @Override
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+    }
+
+    @Override
+    public void visit(BLangDeprecatedNode deprecatedNode) {
+    }
+
+    @Override
+    public void visit(BLangAbort abortNode) {
+    }
+
+    @Override
+    public void visit(BLangDone doneNode) {
+    }
+
+    @Override
+    public void visit(BLangRetry retryNode) {
+    }
+
+    @Override
+    public void visit(BLangContinue continueNode) {
+    }
+
+    @Override
+    public void visit(BLangCatch catchNode) {
+    }
+
+    @Override
+    public void visit(BLangOrderBy orderBy) {
+    }
+
+    @Override
+    public void visit(BLangOrderByVariable orderByVariable) {
+    }
+
+    @Override
+    public void visit(BLangLimit limit) {
+    }
+
+    @Override
+    public void visit(BLangGroupBy groupBy) {
+    }
+
+    @Override
+    public void visit(BLangHaving having) {
+    }
+
+    @Override
+    public void visit(BLangSelectExpression selectExpression) {
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+    }
+
+    @Override
+    public void visit(BLangWhere whereClause) {
+    }
+
+    @Override
+    public void visit(BLangStreamingInput streamingInput) {
+    }
+
+    @Override
+    public void visit(BLangJoinStreamingInput joinStreamingInput) {
+    }
+
+    @Override
+    public void visit(BLangTableQuery tableQuery) {
+    }
+
+    @Override
+    public void visit(BLangStreamAction streamAction) {
+    }
+
+    @Override
+    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
+    }
+
+    @Override
+    public void visit(BLangWindow windowClause) {
+    }
+
+    @Override
+    public void visit(BLangPatternStreamingInput patternStreamingInput) {
+    }
+
+    @Override
+    public void visit(BLangForever foreverStatement) {
+    }
+
+    @Override
+    public void visit(BLangActionInvocation actionInvocationExpr) {
+    }
+
+    @Override
+    public void visit(BLangTypedescExpr accessExpr) {
+    }
+
+    @Override
+    public void visit(BLangXMLQName xmlQName) {
+    }
+
+    @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+    }
+
+    @Override
+    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+        // TODO Auto-generated method stub
+        super.visit(streamingQueryStatement);
+    }
+
+    @Override
+    public void visit(BLangWithinClause withinClause) {
+    }
+
+    @Override
+    public void visit(BLangOutputRateLimit outputRateLimit) {
+    }
+
+    @Override
+    public void visit(BLangValueType valueType) {
+    }
+
+    @Override
+    public void visit(BLangArrayType arrayType) {
+    }
+
+    @Override
+    public void visit(BLangBuiltInRefTypeNode builtInRefType) {
+    }
+
+    @Override
+    public void visit(BLangConstrainedType constrainedType) {
+    }
+
+    @Override
+    public void visit(BLangUserDefinedType userDefinedType) {
+    }
+
+    @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangMarkdownDocumentationLine bLangMarkdownDocumentationLine) {
+    }
+
+    @Override
+    public void visit(BLangMarkdownParameterDocumentation bLangDocumentationParameter) {
+    }
+
+    @Override
+    public void visit(BLangMarkdownReturnParameterDocumentation bLangMarkdownReturnParameterDocumentation) {
+    }
+
+    @Override
+    public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
+    }
+
+    @Override
+    public void visit(BLangCompensate compensateNode) {
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
     }
 
     /**
@@ -639,6 +878,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             // If all the branches of parents are covered, mark this variable as initialized for parent also
             VarInfo parentScopeVarInfo = this.parent.unInitVars.get(varSymbol);
+            if (parentScopeVarInfo == null) {
+                return;
+            }
+
             parentScopeVarInfo.initCount++;
             if (this.parent.pathsCount == parentScopeVarInfo.initCount) {
                 parent.markAsInitilaized(varSymbol);
@@ -665,7 +908,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         @Override
         public String toString() {
-            return "initCount:" + initCount;
+            return "initCount: " + initCount;
         }
     }
+
 }

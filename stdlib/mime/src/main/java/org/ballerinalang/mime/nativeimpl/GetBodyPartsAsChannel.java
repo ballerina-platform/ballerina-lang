@@ -23,8 +23,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import static org.ballerinalang.mime.util.HeaderUtil.isMultipart;
-import static org.ballerinalang.mime.util.MimeConstants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeUtil.getContentTypeWithParameters;
 import static org.ballerinalang.mime.util.MimeUtil.getNewMultipartDelimiter;
 
@@ -58,7 +58,7 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
                 EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
                         outputStream.toByteArray()));
                 BMap<String, BValue> byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
-                        IOConstants.IO_PACKAGE, BYTE_CHANNEL_STRUCT);
+                        IOConstants.IO_PACKAGE, READABLE_BYTE_CHANNEL_STRUCT);
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));
                 context.setReturnValues(byteChannelStruct);
             } else {

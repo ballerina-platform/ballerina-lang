@@ -17,7 +17,11 @@
 */
 package org.ballerinalang.langserver.completion;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
@@ -27,18 +31,32 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.List;
 
 /**
  * Abstract negative test class for completions.
  */
 public abstract class CompletionNegativeTest extends CompletionTest {
+
+    private JsonParser parser = new JsonParser();
+
+    private Gson gson = new Gson();
+
     @Override
     @Test(dataProvider = "completion-negative-data-provider")
-    public void test(String config, String configPath) throws WorkspaceDocumentException {
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
+
+        String response = getResponse(configJsonObject);
+        JsonObject json = parser.parse(response).getAsJsonObject();
+        Type collectionType = new TypeToken<List<CompletionItem>>() {
+        }.getType();
+        JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
+
+        List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
         List<CompletionItem> negativeList = getExpectedList(configJsonObject);
         Assert.assertEquals(false, CompletionTestUtil.containsAtLeastOne(negativeList, responseItemList));
     }

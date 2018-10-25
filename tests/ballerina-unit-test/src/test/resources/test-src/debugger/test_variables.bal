@@ -1,9 +1,12 @@
 int gInt = 5;
 string gStr = "str";
 boolean gBool = true;
+string gNewStr = callFunc();
+json gJson = null;
+Person gPerson = new;
 byte gByte = 255;
 
-function main(string... args) {
+public function main(string... args) {
     int x = 10;
     int z = gInt + x;
     int y = x + z;
@@ -12,13 +15,19 @@ function main(string... args) {
 }
 
 type Foo record {
-    int count,
-    string last,
+    int count;
+    string last;
 };
 
 type Person object {
-    public int age,
-    public string name,
-    public Person? parent,
-    private string email = "default@abc.com",
+    public int age;
+    public string name;
+    public Person? parent;
+    private string email = "default@abc.com";
 };
+
+function callFunc() returns (string) {
+    string newStr = "ABCDEFG";
+    newStr = newStr + " HIJ";
+    return newStr;
+}

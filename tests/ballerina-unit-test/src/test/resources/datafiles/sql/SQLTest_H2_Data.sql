@@ -78,8 +78,6 @@ INSERT INTO employeeItr VALUES (1, 'Manuri', 'Sri Lanka');
 /
 INSERT INTO employeeItr VALUES (2, 'Devni', 'Sri Lanka');
 /
-INSERT INTO employeeItr VALUES (3, 'Thurani', 'Sri Lanka');
-/
 CREATE TABLE employeeAdd (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));
 /
 CREATE TABLE employeeDel (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));

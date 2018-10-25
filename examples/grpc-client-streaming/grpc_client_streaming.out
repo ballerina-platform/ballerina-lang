@@ -1,0 +1,13 @@
+# Create a Ballerina project and a module inside it.
+# Add grpc_client_streaming.bal file inside the module directory and
+# build the project.
+# For example, if you create a module named 'service', execute the following command to build
+# the 'service' module.
+$ ballerina build service
+
+# Once you build the project, the following files will be generated inside target directory.
+# * service.balx
+# * grpc/HelloWorld.proto
+
+# Run the service using the following command.
+$ ballerina run target/service.balx

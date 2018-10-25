@@ -33,6 +33,7 @@ import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,14 +84,17 @@ public class StartForever extends BlockingNativeCallableUnit {
             streamSpecificInputHandlerMap.put(streamId, siddhiAppRuntime.getInputHandler(streamId));
         }
 
-        BRefValueArray functionPointerArray = (BRefValueArray) context.getRefArgument(4);
-
+        Set<String> alreadySubscribedStreams = new HashSet<>();
         for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
             BStream stream = (BStream) inputStreamReferenceArray.get(i);
-            InputHandler inputHandler = streamSpecificInputHandlerMap.get(stream.getStreamId());
-            stream.subscribe(inputHandler);
+            if (!alreadySubscribedStreams.contains(stream.getStreamId())) {
+                InputHandler inputHandler = streamSpecificInputHandlerMap.get(stream.getStreamId());
+                stream.subscribe(inputHandler);
+                alreadySubscribedStreams.add(stream.getStreamId());
+            }
         }
 
+        BRefValueArray functionPointerArray = (BRefValueArray) context.getRefArgument(4);
         for (int i = 0; i < functionPointerArray.size(); i++) {
             BFunctionPointer functionPointer = (BFunctionPointer) functionPointerArray.get(i);
             String functionName = functionPointer.value().getName();

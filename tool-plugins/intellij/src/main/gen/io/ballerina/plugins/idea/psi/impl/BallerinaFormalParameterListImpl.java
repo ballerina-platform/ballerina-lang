@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaFormalParameterListImpl extends BallerinaCompositeElementImpl implements BallerinaFormalParameterList {
 
-  public BallerinaFormalParameterListImpl(ASTNode node) {
+  public BallerinaFormalParameterListImpl(@NotNull ASTNode node) {
     super(node);
   }
 

@@ -17,13 +17,9 @@
 */
 package org.ballerinalang.model.symbols;
 
-import java.util.List;
-
 /**
  * @since 0.94
  */
 public interface AnnotationSymbol extends Symbol {
 
-    @Deprecated
-    List<? extends AnnotationAttributeSymbol> getAttributes();
 }

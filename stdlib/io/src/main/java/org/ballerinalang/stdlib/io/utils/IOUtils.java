@@ -183,6 +183,7 @@ public class IOUtils {
      * @param content the initialized array which should be filled with the content.
      * @param context context of the extern function call.
      * @param channel the channel the content should be read into.
+     * @return the number of bytes read.
      * @throws InterruptedException during interrupt error.
      * @throws ExecutionException   errors which occurs while execution.
      */

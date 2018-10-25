@@ -61,6 +61,7 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -128,6 +129,39 @@ public class BLangFunctions {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             invokePackageInitFunction(info.getInitFunctionInfo());
         }
+    }
+
+    /**
+     * This will order the package imports and invoke each package test init function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestInitFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestInitFunctionInfo() != null)
+              .forEach(packageInfo -> invokePackageInitFunction(packageInfo.getTestInitFunctionInfo()));
+    }
+
+    /**
+     * This will order the package imports and invoke each package start function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestStartFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStartFunctionInfo() != null)
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStartFunctionInfo()));
+    }
+
+    /**
+     * This will order the package imports and invoke each package stop function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestStopFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStopFunctionInfo() != null)
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStopFunctionInfo()));
     }
 
     /**
@@ -443,7 +477,7 @@ public class BLangFunctions {
         WorkerData workerLocal = BLangVMUtils
                 .createWorkerDataForLocal(workerInfo, parentCtx, argRegs, callableUnitInfo.getParamTypes());
         if (initWorkerLocalData != null) {
-            BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
+            BLangVMUtils.mergeInitWorkerData(initWorkerLocalData, workerLocal, initWorkerCAI);
         }
         WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
@@ -469,7 +503,7 @@ public class BLangFunctions {
     }
     
     private static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
-        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(initFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -482,7 +516,7 @@ public class BLangFunctions {
     }
 
     private static void invokeVMUtilFunction(FunctionInfo utilFuncInfo, WorkerExecutionContext context) {
-        invokeCallable(utilFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(utilFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -496,7 +530,7 @@ public class BLangFunctions {
 
     public static void invokeServiceInitFunction(FunctionInfo initFuncInfo) {
         WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
-        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(initFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);

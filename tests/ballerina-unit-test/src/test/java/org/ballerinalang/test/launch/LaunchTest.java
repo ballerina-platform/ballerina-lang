@@ -36,7 +36,7 @@ import java.util.HashMap;
 public class LaunchTest {
 
     @Test(expectedExceptions = {BLangCompilerException.class },
-            expectedExceptionsMessageRegExp = "cannot find package 'xxxx'")
+            expectedExceptionsMessageRegExp = "no ballerina source files found in module xxxx")
     public void testRunNonExistingPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/launch/", "xxxx");
         Assert.assertEquals(result.getErrorCount(), 0);
@@ -61,7 +61,15 @@ public class LaunchTest {
     @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "ballerina: cannot find program file 'non_existing.balx'")
     public void testNonExistingBalx() {
-        LauncherUtils.runProgram(Paths.get("test-src", "launch"), Paths.get("non_existing.balx"), false,
-                new HashMap<>(), null, new String[] {}, true, false);
+        LauncherUtils.runProgram(Paths.get("test-src", "launch"), Paths.get("non_existing.balx"), new HashMap<>(),
+                                 null, new String[]{}, true, false);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*error: error, message: 'string' cannot be converted to 'int'.*")
+    public void testMainFailureWithService() {
+        LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/launch/main-and-service"),
+                                 Paths.get("main_and_service.bal"),
+                                 new HashMap<>(), null, new String[]{"10s"}, true, false);
     }
 }

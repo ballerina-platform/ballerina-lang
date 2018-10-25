@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlItemImpl extends BallerinaCompositeElementImpl implements BallerinaXmlItem {
 
-  public BallerinaXmlItemImpl(ASTNode node) {
+  public BallerinaXmlItemImpl(@NotNull ASTNode node) {
     super(node);
   }
 

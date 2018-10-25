@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -75,6 +76,7 @@ public class CompilerDriver {
     private final CompilerPluginRunner compilerPluginRunner;
     private final Desugar desugar;
     private final CodeGenerator codeGenerator;
+    private final BIRGen birGenerator;
     private final CompilerPhase compilerPhase;
     private final SymbolResolver symResolver;
     private final DataflowAnalyzer dataflowAnalyzer;
@@ -103,6 +105,7 @@ public class CompilerDriver {
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
+        this.birGenerator = BIRGen.getInstance(context);
         this.compilerPhase = getCompilerPhase();
         this.symResolver = SymbolResolver.getInstance(context);
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
@@ -221,6 +224,10 @@ public class CompilerDriver {
     }
 
     public BLangPackage codegen(BLangPackage pkgNode) {
+        if (this.compilerPhase == CompilerPhase.BIR_GEN) {
+            return this.birGenerator.genBIR(pkgNode);
+        }
+
         return this.codeGenerator.generateBALO(pkgNode);
     }
 
@@ -237,11 +244,18 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
+        if (pkgNode.containsTestablePkg()) {
+            // We have to check both the compilation unit nodes in the package and testable node
+            return checkNextPhase(nextPhase) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty() ||
+                    pkgNode.getTestablePkg().getCompilationUnits().isEmpty());
+        }
+        return (checkNextPhase(nextPhase)) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
+    }
 
-        return (nextPhase == CompilerPhase.TAINT_ANALYZE ||
+    private boolean checkNextPhase(CompilerPhase nextPhase) {
+        return nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
-                nextPhase == CompilerPhase.DESUGAR)
-                && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
+                nextPhase == CompilerPhase.DESUGAR;
     }
 
     private BLangPackage getBuiltInPackage() {

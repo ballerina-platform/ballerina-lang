@@ -172,7 +172,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         //when Content-Type header is not set, treat it as "application/octet-stream"
         contentMediaType = (contentMediaType != null ? contentMediaType : HttpConstants.VALUE_ATTRIBUTE);
         for (String consumeType : consumesList) {
-            if (contentMediaType.equals(consumeType.trim())) {
+            if (contentMediaType.equalsIgnoreCase(consumeType.trim())) {
                 return resource;
             }
         }
@@ -215,7 +215,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         List<String> noWildCardMediaTypes = acceptMediaTypes.stream()
                 .filter(mediaType -> !mediaType.contains("/*")).collect(Collectors.toList());
         for (String produceType : producesList) {
-            if (noWildCardMediaTypes.contains(produceType)) {
+            if (noWildCardMediaTypes.stream().anyMatch(produceType::equalsIgnoreCase)) {
                 return resource;
             }
         }

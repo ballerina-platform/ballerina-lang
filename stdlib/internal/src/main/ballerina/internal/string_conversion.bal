@@ -12,13 +12,11 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License.package internal;
+// under the License.
 
-documentation {
-    Converts given byte array to a string.
-
-    P{{content}} Byte array content to be converted
-    P{{encoding}} Encoding to used in byte array conversion to string
-    R{{}} String representation of the given byte array
-}
+# Converts given byte array to a string.
+#
+# + content - Byte array content to be converted
+# + encoding - Encoding to used in byte array conversion to string
+# + return - String representation of the given byte array
 public extern function byteArrayToString(byte[] content, string encoding) returns string;

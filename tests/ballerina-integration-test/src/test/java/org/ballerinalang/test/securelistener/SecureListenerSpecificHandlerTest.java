@@ -19,17 +19,12 @@
 package org.ballerinalang.test.securelistener;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,30 +32,16 @@ import java.util.Map;
  * Test cases for verifying specific auth handler with secured listener.
  */
 @Test(groups = "broken")
-public class SecureListenerSpecificHandlerTest extends BaseTest {
-    private ServerInstance ballerinaServer;
-
-    @BeforeClass
-    public void setup() throws Exception {
-        String basePath = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "secureListener")
-                .getAbsolutePath();
-        String balFilePath = basePath + File.separator + "secure-listener-specific-handler-test.bal";
-        String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        startServer(balFilePath, ballerinaConfPath);
-    }
-
-    private void startServer(String balFile, String configPath) throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServerWithConfigPath(balFile, configPath);
-    }
+public class SecureListenerSpecificHandlerTest extends SecureListenerBaseTest {
+    private final int servicePort = 9093;
 
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccess() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
+                .getServiceURLHttp(servicePort, "echo/test"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
@@ -70,7 +51,8 @@ public class SecureListenerSpecificHandlerTest extends BaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
+                .getServiceURLHttp(servicePort, "echo/test"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
@@ -80,7 +62,8 @@ public class SecureListenerSpecificHandlerTest extends BaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
+                .getServiceURLHttp(servicePort, "echo/test"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
@@ -90,7 +73,8 @@ public class SecureListenerSpecificHandlerTest extends BaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/path/1"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
+                .getServiceURLHttp(servicePort, "echo/path/1"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
@@ -100,13 +84,9 @@ public class SecureListenerSpecificHandlerTest extends BaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/path/1"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
+                .getServiceURLHttp(servicePort, "echo/path/1"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
-    }
-
-    @AfterClass
-    public void tearDown() throws Exception {
-        ballerinaServer.stopServer();
     }
 }

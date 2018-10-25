@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaJoinTypeImpl extends BallerinaCompositeElementImpl implements BallerinaJoinType {
 
-  public BallerinaJoinTypeImpl(ASTNode node) {
+  public BallerinaJoinTypeImpl(@NotNull ASTNode node) {
     super(node);
   }
 

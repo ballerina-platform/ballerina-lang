@@ -19,34 +19,31 @@
 package org.ballerinalang.test.service.websub;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
+
+import java.io.File;
 
 /**
  * Base test class for WebSub integration test cases which initializes required ballerina server instances before
  * and after tests are run.
  */
 public class WebSubBaseTest extends BaseTest {
-    static ServerInstance webSubSubscriber;
-    static ServerInstance webSubPublisher;
-    static ServerInstance webSubPublisherService;
+    protected static BServerInstance publisherServerInstance;
 
-    @BeforeSuite(alwaysRun = true)
+    @BeforeGroups(value = "websub-test", alwaysRun = true)
     public void init() throws BallerinaTestException {
-        webSubSubscriber = ServerInstance.initBallerinaServer();
-        webSubPublisher = ServerInstance.initBallerinaServer();
-        webSubPublisherService = ServerInstance.initBallerinaServer();
+        int[] requiredPorts = new int[]{8080, 9191, 8081};
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                          "websub").getAbsolutePath();
+        publisherServerInstance = new BServerInstance(balServer);
+        publisherServerInstance.startServer(balFile, "services", requiredPorts);
     }
 
-    @AfterSuite(alwaysRun = true)
-    public void clean() throws BallerinaTestException {
-        webSubSubscriber.stopServer();
-        webSubSubscriber.cleanup();
-        webSubPublisher.stopServer();
-        webSubPublisher.cleanup();
-        webSubPublisherService.stopServer();
-        webSubPublisherService.cleanup();
+    @AfterGroups(value = "websub-test")
+    public void cleanup() throws Exception {
+        publisherServerInstance.shutdownServer();
     }
 }

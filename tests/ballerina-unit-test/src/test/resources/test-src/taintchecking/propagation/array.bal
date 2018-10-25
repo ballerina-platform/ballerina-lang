@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string[] data = ["Ballerina", "Colombo"];
     secureFunction(data[0], data[0]);
 

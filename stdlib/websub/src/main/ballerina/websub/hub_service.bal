@@ -87,7 +87,7 @@ service<http:Service> hubService {
                 error e => log:printError("Error responding to subscription change request", err = e);
                 () => {
                     if (validSubscriptionChangeRequest) {
-                        verifyIntent(callback, topic, params);
+                        verifyIntentAndAddSubscription(callback, topic, params);
                     }
                 }
             }
@@ -105,8 +105,7 @@ service<http:Service> hubService {
                 done;
             }
 
-            string secret = params[PUBLISHER_SECRET] but { () => "" };
-            match(registerTopicAtHub(topic, secret)) {
+            match(registerTopicAtHub(topic)) {
                 error e => {
                     string errorMessage = e.message;
                     response.statusCode = http:BAD_REQUEST_400;
@@ -136,8 +135,7 @@ service<http:Service> hubService {
                 done;
             }
 
-            string secret = params[PUBLISHER_SECRET] but { () => "" };
-            match(unregisterTopicAtHub(topic, secret)) {
+            match(unregisterTopicAtHub(topic)) {
                 error e => {
                     string errorMessage = e.message;
                     response.statusCode = http:BAD_REQUEST_400;
@@ -196,36 +194,6 @@ service<http:Service> hubService {
                             contentType = request.getHeader(CONTENT_TYPE);
                         }
                         stringPayload = request.getPayloadAsString() but { error => "" };
-                    }
-
-                    if (hubTopicRegistrationRequired) {
-                        string secret = retrievePublisherSecret(topic);
-                        if (secret != "") {
-                            if (request.hasHeader(PUBLISHER_SIGNATURE)) {
-                                string publisherSignature = request.getHeader(PUBLISHER_SIGNATURE);
-                                var signatureValidation = validateSignature(publisherSignature, stringPayload, secret);
-                                match (signatureValidation) {
-                                    error err => {
-                                        string errorMessage = "Signature validation failed for publish request"
-                                                                + "for topic[" + topic + "]: " + err.message;
-                                        log:printError(errorMessage);
-                                        response.statusCode = http:BAD_REQUEST_400;
-                                        response.setTextPayload(untaint errorMessage);
-                                        var responseError = client->respond(response);
-                                        match(responseError) {
-                                            error e => log:printError("Error responding on signature validation failure"
-                                                        + " for publish request", err = e);
-                                            () => {}
-                                        }
-                                        done;
-                                    }
-                                    () => {
-                                        log:printDebug("Signature validation successful for publish request "
-                                                + "for Topic [" + topic + "]");
-                                    }
-                                }
-                            }
-                        }
                     }
 
                     error? publishStatus = ();
@@ -291,14 +259,12 @@ service<http:Service> hubService {
     }
 }
 
-documentation {
-    Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
-
-    P{{mode}} Mode specified in the subscription change request parameters
-    P{{topic}} Topic specified in the subscription change request parameters
-    P{{callback}} Callback specified in the subscription change request parameters
-    R{{}} `error` if validation failed for the subscription request
-}
+# Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
+#
+# + mode - Mode specified in the subscription change request parameters
+# + topic - Topic specified in the subscription change request parameters
+# + callback - Callback specified in the subscription change request parameters
+# + return - `error` if validation failed for the subscription request
 function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns error? {
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
@@ -317,14 +283,12 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
     return err;
 }
 
-documentation {
-    Function to initiate intent verification for a valid subscription/unsubscription request received.
-
-    P{{callback}} The callback URL of the new subscription/unsubscription request
-    P{{topic}} The topic specified in the new subscription/unsubscription request
-    P{{params}} Parameters specified in the new subscription/unsubscription request
-}
-function verifyIntent(string callback, string topic, map<string> params) {
+# Function to initiate intent verification for a valid subscription/unsubscription request received.
+#
+# + callback - The callback URL of the new subscription/unsubscription request
+# + topic - The topic specified in the new subscription/unsubscription request
+# + params - Parameters specified in the new subscription/unsubscription request
+function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
     endpoint http:Client callbackEp {
         url:callback,
         secureSocket: hubClientSecureSocket
@@ -368,6 +332,12 @@ function verifyIntent(string callback, string topic, map<string> params) {
                             subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
                             subscriptionDetails.createdAt = createdAt;
                             subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
+                            if (!isTopicRegistered(topic)) {
+                                match(registerTopicAtHub(topic)) {
+                                    error e => log:printError("Error registering topic for subscription: " + e.message);
+                                    () => {}
+                                }
+                            }
                             addSubscription(subscriptionDetails);
                         } else {
                             removeSubscription(topic, callback);
@@ -403,14 +373,11 @@ function verifyIntent(string callback, string topic, map<string> params) {
     }
 }
 
-documentation {
-    Function to add/remove the details of topics registered, in the database.
-
-    P{{mode}} Whether the change is for addition/removal
-    P{{topic}} The topic for which registration is changing
-    P{{secret}} The secret if specified when registering, empty string if not
-}
-function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
+# Function to add/remove the details of topics registered, in the database.
+#
+# + mode - Whether the change is for addition/removal
+# + topic - The topic for which registration is changing
+function changeTopicRegistrationInDatabase(string mode, string topic) {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
         username:hubDatabaseUsername,
@@ -419,16 +386,14 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:secret};
     if (mode == MODE_REGISTER) {
-        var updateStatus = subscriptionDbEp->update("INSERT INTO topics (topic,secret) VALUES (?,?)", para1, para2);
+        var updateStatus = subscriptionDbEp->update("INSERT INTO topics (topic) VALUES (?)", para1);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
             error err => log:printError("Error occurred updating registration data: " + err.message);
         }
     } else {
-        var updateStatus = subscriptionDbEp->update("DELETE FROM topics WHERE topic=? AND secret=?",
-            para1, para2);
+        var updateStatus = subscriptionDbEp->update("DELETE FROM topics WHERE topic=?", para1);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
             error err => log:printError("Error occurred updating unregistration data: " + err.message);
@@ -437,12 +402,10 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to add/change/remove the subscription details in the database.
-
-    P{{mode}} Whether the subscription change is for unsubscription/unsubscription
-    P{{subscriptionDetails}} The details of the subscription changing
-}
+# Function to add/change/remove the subscription details in the database.
+#
+# + mode - Whether the subscription change is for unsubscription/unsubscription
+# + subscriptionDetails - The details of the subscription changing
 function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscriptionDetails) {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -477,22 +440,16 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to initiate set up activities on startup/restart.
-}
+# Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        if (hubTopicRegistrationRequired) {
-            addTopicRegistrationsOnStartup();
-        }
+        addTopicRegistrationsOnStartup();
         addSubscriptionsOnStartup(); //TODO:verify against topics
     }
     return;
 }
 
-documentation {
-    Function to load topic registrations from the database.
-}
+# Function to load topic registrations from the database.
 function addTopicRegistrationsOnStartup() {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -501,7 +458,7 @@ function addTopicRegistrationsOnStartup() {
         poolOptions:{maximumPoolSize:5}
     };
     table dt;
-    var dbResult = subscriptionDbEp->select("SELECT topic, secret FROM topics", TopicRegistration);
+    var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
@@ -511,8 +468,7 @@ function addTopicRegistrationsOnStartup() {
     while (dt.hasNext()) {
         match (<TopicRegistration>dt.getNext()) {
             TopicRegistration registrationDetails => {
-                match(registerTopicAtHub(registrationDetails.topic, registrationDetails.secret,
-                        loadingOnStartUp = true)) {
+                match(registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true)) {
                     error e => log:printError("Error registering topic details retrieved from the database: "
                                                 + e.message);
                     () => {}
@@ -526,9 +482,7 @@ function addTopicRegistrationsOnStartup() {
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to add subscriptions to the broker on startup, if persistence is enabled.
-}
+# Function to add subscriptions to the broker on startup, if persistence is enabled.
 function addSubscriptionsOnStartup() {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -562,9 +516,7 @@ function addSubscriptionsOnStartup() {
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
-}
+# Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
 function clearSubscriptionDataInDb() {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -592,13 +544,11 @@ function clearSubscriptionDataInDb() {
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to fetch updates for a particular topic.
-
-    P{{topic}} The topic URL to be fetched to retrieve updates
-    R{{}} `http:Response` indicating the response received on fetching the topic URL if successful,
-          `error` if an HTTP error occurred
-}
+# Function to fetch updates for a particular topic.
+#
+# + topic - The topic URL to be fetched to retrieve updates
+# + return - `http:Response` indicating the response received on fetching the topic URL if successful,
+#            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
     endpoint http:Client topicEp {
         url:topic,
@@ -611,13 +561,11 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
     return fetchResponse;
 }
 
-documentation {
-    Function to distribute content to a subscriber on notification from publishers.
-
-    P{{callback}} The callback URL registered for the subscriber
-    P{{subscriptionDetails}} The subscription details for the particular subscriber
-    P{{webSubContent}} The content to be sent to subscribers
-}
+# Function to distribute content to a subscriber on notification from publishers.
+#
+# + callback - The callback URL registered for the subscriber
+# + subscriptionDetails - The subscription details for the particular subscriber
+# + webSubContent - The content to be sent to subscribers
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent) {
     endpoint http:Client callbackEp {
         url:callback,
@@ -647,8 +595,6 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                 generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
             } else if (SHA256.equalsIgnoreCase(hubSignatureMethod)) {
                 generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
-            } else if (MD5.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:MD5);
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);
@@ -684,24 +630,20 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
     }
 }
 
-documentation {
-    Struct to represent a topic registration.
-
-    F{{topic}} The topic for which notification would happen
-    F{{secret}} The secret if specified by the topic's publisher
-}
+// TODO: validate if no longer necessary
+# Struct to represent a topic registration.
+#
+# + topic - The topic for which notification would happen
 type TopicRegistration record {
-    string topic,
-    string secret,
+    string topic;
+    !...
 };
 
-documentation {
-    Object to represent a pending subscription/unsubscription request.
-
-    F{{mode}} Whether a pending subscription or unsubscription
-    F{{topic}} The topic for which the subscription or unsubscription is pending
-    F{{callback}} The callback specified for the pending subscription or unsubscription
-}
+# Object to represent a pending subscription/unsubscription request.
+#
+# + mode - Whether a pending subscription or unsubscription
+# + topic - The topic for which the subscription or unsubscription is pending
+# + callback - The callback specified for the pending subscription or unsubscription
 type PendingSubscriptionChangeRequest object {
 
     public string mode;
@@ -710,12 +652,12 @@ type PendingSubscriptionChangeRequest object {
 
     new (mode, topic, callback) {}
 
-    documentation {
-        Function to check if two pending subscription change requests are equal.
-
-        P{{pendingRequest}} The pending subscription change request to check against
-    }
-    function equals(PendingSubscriptionChangeRequest pendingRequest) returns (boolean) {
+    # Function to check if two pending subscription change requests are equal.
+    #
+    # + pendingRequest - The pending subscription change request to check against
+    #
+    # + return - `boolean` indicating whether the requests are equal or not
+    function equals(PendingSubscriptionChangeRequest pendingRequest) returns boolean {
         return pendingRequest.mode == mode && pendingRequest.topic == topic && pendingRequest.callback == callback;
     }
 };
@@ -724,13 +666,11 @@ function generateKey(string topic, string callback) returns (string) {
     return topic + "_" + callback;
 }
 
-documentation {
-    Function to build the link header for a request.
-
-    P{{hub}} The hub publishing the update
-    P{{topic}} The canonical URL of the topic for which the update occurred
-    R{{}} The link header content
-}
+# Function to build the link header for a request.
+#
+# + hub - The hub publishing the update
+# + topic - The canonical URL of the topic for which the update occurred
+# + return - The link header content
 function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;
