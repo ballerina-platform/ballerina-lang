@@ -994,6 +994,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTableColumnDefinition(BallerinaParser.TableColumnDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.endTableColumnDefinition(getWS(ctx));
+    }
+
+    @Override
     public void exitTableColumn(BallerinaParser.TableColumnContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1002,11 +1010,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean keyColumn = ctx.PRIMARYKEY() != null;
         if (keyColumn) {
             columnName = ctx.getChild(1).getText();
-            this.pkgBuilder.addTableColumn(columnName);
+            this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
             this.pkgBuilder.markPrimaryKeyColumn(columnName);
         } else {
-            this.pkgBuilder.addTableColumn(columnName);
+            this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
         }
+    }
+
+    @Override
+    public void exitTableDataArray(BallerinaParser.TableDataArrayContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endTableDataArray(getWS(ctx));
     }
 
     @Override
@@ -1015,7 +1032,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (ctx.expressionList() != null) {
-            this.pkgBuilder.endTableDataRow();
+            this.pkgBuilder.endTableDataRow(getWS(ctx));
         }
     }
 
