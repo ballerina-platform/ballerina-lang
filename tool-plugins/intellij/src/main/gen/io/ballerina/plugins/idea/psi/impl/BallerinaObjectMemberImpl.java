@@ -53,4 +53,10 @@ public class BallerinaObjectMemberImpl extends BallerinaCompositeElementImpl imp
     return PsiTreeUtil.getChildOfType(this, BallerinaObjectFunctionDefinition.class);
   }
 
+  @Override
+  @Nullable
+  public BallerinaTypeReference getTypeReference() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeReference.class);
+  }
+
 }
