@@ -29,7 +29,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,16 +48,14 @@ public class TopLevelResolver extends AbstractItemResolver {
         List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-
         if (this.isAnnotationStart(ctx)) {
             completionItems.addAll(CompletionItemResolver
                     .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
         } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.PUBLIC_KEYWORD)) {
             completionItems.addAll(addTopLevelItems(ctx));
             completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-        } else if (itemResolver == null
-                || itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
-            completionItems.addAll(getGlobalVarDefCompletions(ctx, poppedTokens));
+        } else if (itemResolver == null || itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
+            completionItems.addAll(getGlobalVarDefCompletions(ctx, poppedTokens, itemResolver));
         } else {
             completionItems.addAll(itemResolver.resolveItems(ctx));
         }
@@ -98,16 +95,15 @@ public class TopLevelResolver extends AbstractItemResolver {
     }
 
     private ArrayList<CompletionItem> getGlobalVarDefCompletions(LSServiceOperationContext context,
-                                                                 List<String> poppedTokens) {
+                                                                 List<String> poppedTokens,
+                                                                 AbstractItemResolver itemResolver) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         if (poppedTokens.size() < 2) {
             completionItems.addAll(addTopLevelItems(context));
             completionItems.addAll(this.populateBasicTypes(context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-        } else {
-            completionItems
-                    .addAll(CompletionItemResolver.getResolverByClass(BallerinaParser.DefinitionContext.class)
-                            .resolveItems(context));
+        } else if (itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
+            completionItems.addAll(itemResolver.resolveItems(context));
         }
 
         return completionItems;
