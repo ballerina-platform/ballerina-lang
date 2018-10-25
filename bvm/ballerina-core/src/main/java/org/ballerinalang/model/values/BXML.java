@@ -63,7 +63,9 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * End of a XML processing instruction.
      */
     public static final String PI_END = "?>";
-    
+
+    protected volatile boolean frozen = false;
+
     /**
      * Check whether the XML sequence is empty.
      * 
@@ -331,4 +333,11 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * @param qname Namespace qualified name of the children to be removed.
      */
     public abstract void removeChildren(String qname);
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isFrozen() {
+        return frozen;
+    }
 }

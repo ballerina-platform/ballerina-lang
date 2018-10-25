@@ -26,6 +26,7 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
@@ -74,6 +75,9 @@ public class BRefValueArray extends BNewArray implements Serializable {
     }
 
     public void add(long index, BRefType<?> value) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
@@ -163,5 +167,15 @@ public class BRefValueArray extends BNewArray implements Serializable {
     @Override
     public SerializableRefType serialize(SerializableState state) {
         return new SerializableBRefArray(this, state);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BValue freeze() {
+        Arrays.stream(this.values).forEach(BValue::freeze);
+        this.frozen = true;
+        return this;
     }
 }

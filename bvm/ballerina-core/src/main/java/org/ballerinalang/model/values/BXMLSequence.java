@@ -22,10 +22,12 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.namespace.QName;
@@ -165,6 +167,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (sequence.size() == 1) {
             ((BXMLItem) sequence.get(0)).setAttributes(attributes);
         }
@@ -254,6 +260,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
@@ -266,6 +276,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
@@ -422,6 +436,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void removeAttribute(String qname) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
@@ -465,10 +483,24 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void removeChildren(String qname) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
         ((BXMLItem) sequence.get(0)).removeChildren(qname);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BValue freeze() {
+        Arrays.stream(sequence.values).forEach(BValue::freeze);
+        this.frozen = true;
+        return this;
     }
 }

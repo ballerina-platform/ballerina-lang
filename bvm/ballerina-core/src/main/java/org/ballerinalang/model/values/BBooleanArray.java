@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -51,6 +52,9 @@ public class BBooleanArray extends BNewArray {
     }
 
     public void add(long index, int value) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }

@@ -18,6 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -41,6 +42,26 @@ public interface BValue {
      * @return A copy of this {@link BValue}
      */
     BValue copy();
+
+    /**
+     * Method to freeze a {@link BValue}, to disallow further modification.
+     *
+     * @return The frozen self instance
+     * @throws BLangFreezeException if the value is not freeze-able
+     */
+    default BValue freeze() {
+        throw new BLangFreezeException("freeze not allowed on " + getType());
+    }
+
+    /**
+     * Method to retrieve if the {@link BValue} is frozen, if applicable. Compile time checks ensure that the check
+     * is only possible on structured basic types.
+     *
+     * @return Whether the value is frozen
+     */
+    default boolean isFrozen() {
+        return false;
+    }
 
     /**
      * Default serialize implementation for {@link BValue}.

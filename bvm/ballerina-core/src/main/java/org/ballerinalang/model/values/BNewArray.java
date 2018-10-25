@@ -32,6 +32,7 @@ import java.lang.reflect.Array;
 public abstract class BNewArray implements BRefType, BCollection {
 
     protected BType arrayType;
+    protected volatile boolean frozen;
 
     /**
      * The maximum size of arrays to allocate.
@@ -152,5 +153,22 @@ public abstract class BNewArray implements BRefType, BCollection {
         public boolean hasNext() {
             return cursor < length;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFrozen() {
+        return frozen;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BValue freeze() {
+        this.frozen = true;
+        return this;
     }
 }

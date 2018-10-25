@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -48,6 +49,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean tableClosed;
+    private volatile boolean frozen;
 
     public BTable() {
         this.iterator = null;
@@ -201,6 +203,10 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
     public void performAddOperation(BMap<String, BValue> data, Context context) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         try {
             this.addData(data, context);
             context.setReturnValues();
@@ -233,6 +239,10 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         try {
             BType functionInputType = lambdaFunction.value().getParamTypes()[0];
             if (this.constraintType == null) {
@@ -374,5 +384,22 @@ public class BTable implements BRefType<Object>, BCollection {
         public boolean hasNext() {
             return table.hasNext();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFrozen() {
+        return frozen;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BValue freeze() {
+        this.frozen = true;
+        return this;
     }
 }

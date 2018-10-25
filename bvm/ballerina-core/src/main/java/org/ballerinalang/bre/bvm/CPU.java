@@ -109,6 +109,7 @@ import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -1499,7 +1500,13 @@ public class CPU {
                     handleError(ctx);
                     break;
                 }
-                ListUtils.execListAddOperation(list, index, refReg);
+
+                try {
+                    ListUtils.execListAddOperation(list, index, refReg);
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to add element: " + e.getMessage()));
+                    handleError(ctx);
+                }
                 break;
             case InstructionCodes.JSONASTORE:
                 i = operands[0];
@@ -1557,7 +1564,23 @@ public class CPU {
 
                 BRefType<?> value = sf.refRegs[k];
                 if (isValidMapInsertion(bMap.getType(), value)) {
-                    bMap.put(sf.stringRegs[j], value);
+                    try {
+                        bMap.put(sf.stringRegs[j], value);
+                    } catch (BLangFreezeException e) {
+                        String errMessage;
+                        switch (bMap.getType().getTag()) {
+                            case TypeTags.RECORD_TYPE_TAG:
+                                errMessage = "Invalid update of record field: ";
+                                break;
+                            case TypeTags.OBJECT_TYPE_TAG:
+                                errMessage = "Invalid update of object field: ";
+                                break;
+                            default:
+                                errMessage = "Invalid map insertion: ";
+                        }
+                        ctx.setError(BLangVMErrors.createError(ctx,  errMessage + e.getMessage()));
+                        handleError(ctx);
+                    }
                 } else {
                     // We reach here only for map insertions. Hence bMap.getType() is always BMapType
                     BType expType = ((BMapType) bMap.getType()).getConstrainedType();
@@ -1571,7 +1594,12 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
+                try {
+                    JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to set element to JSON: " + e.getMessage()));
+                    handleError(ctx);
+                }
                 break;
             default:
                 throw new UnsupportedOperationException();

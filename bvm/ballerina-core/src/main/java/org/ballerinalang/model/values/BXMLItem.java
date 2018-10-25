@@ -37,6 +37,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.util.XMLValidationUtils;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -348,6 +349,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (nodeType != XMLNodeType.ELEMENT || attributes == null) {
             return;
         }
@@ -473,6 +478,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (seq == null) {
             return;
         }
@@ -503,6 +512,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (seq == null) {
             return;
         }
@@ -696,6 +709,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void removeAttribute(String qname) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         if (nodeType != XMLNodeType.ELEMENT || qname.isEmpty()) {
             return;
         }
@@ -720,6 +737,10 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void removeChildren(String qname) {
+        if (frozen) {
+            throw new BLangFreezeException("modification not allowed on frozen value");
+        }
+
         switch (nodeType) {
             case ELEMENT:
                 /*
@@ -820,5 +841,14 @@ public final class BXMLItem extends BXML<OMNode> {
         public boolean hasNext() {
             return cursor == 0;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BValue freeze() {
+        this.frozen = true;
+        return this;
     }
 }
