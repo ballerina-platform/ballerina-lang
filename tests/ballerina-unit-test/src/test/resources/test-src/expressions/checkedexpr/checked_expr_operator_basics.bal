@@ -145,7 +145,7 @@ function testCheckExprInBinaryExpr6() returns string | customError {
     return str;
 }
 
-// This test case should throw an error since customError is not assignable to the myerror
+// This test case should panic an error since customError is not assignable to the myerror
 function testCheckExprInBinaryExpr7() returns string | customError {
     string str = "hello, " + check readLineError();
     return str;

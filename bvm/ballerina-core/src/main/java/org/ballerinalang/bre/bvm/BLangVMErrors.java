@@ -268,7 +268,7 @@ public class BLangVMErrors {
         if (causeArray != null) {
             return getCauseStackTraceArray(causeArray);
         } else if (causeError != null) {
-            return getCasueStackTrace(error);
+            return getCasueStackTrace(causeError);
         }
 
         return null;

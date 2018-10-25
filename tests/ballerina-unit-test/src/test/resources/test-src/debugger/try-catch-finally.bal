@@ -32,20 +32,20 @@ function testTryCatch(int value) returns (string){
             if(value > 10){
                 path = path + "onError ";
                 testerror tError = error("error" , { code : "test" });
-                throw tError;
+                panic tError;
             } else if( value < 0 ) {
                 path = path + "onInputError " ;
                 testInputerror tError = error("error", { input : "0" } );
-                throw tError;
+                panic tError;
             }
 
             path = path + "endInsideInnerTry ";
         } catch (testError ex){
             path = path + "innerTestErrorCatch:" + ex.code + " ";
-            throw ex;
+            panic ex;
         } catch (testDataError e){
             path = path + "innerDataErrorCatch:" + e.message + " ";
-            throw e;
+            panic e;
         } finally {
             path = path + "innerFinally ";
         }
@@ -81,7 +81,7 @@ function testThrow(int a) returns (int) {
 function testNestedThrow(int a) returns (int){
     error e  = error("test message");
     if (e != null) {
-        throw e;
+        panic e;
     }
     return 9;
 }
@@ -93,7 +93,7 @@ function testMethodCallInFinally () returns (string) {
     string s = "start";
     try {
         error e = error("test");
-        throw e;
+        panic e;
     }finally {
         return s + mockFunction();
     }

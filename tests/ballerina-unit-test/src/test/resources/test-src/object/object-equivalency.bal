@@ -550,7 +550,7 @@ type Person object {
 
     function getPerson() returns Person {
         error err = error("Unsupported operation");
-        throw err;
+        panic err;
     }
 };
 
