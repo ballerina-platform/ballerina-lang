@@ -334,7 +334,7 @@ function testTransactonErrorThrow() returns (int, int, int) {
             int i = 0;
             if (i == 0) {
                 error err = error("error" );
-                throw err;
+                panic err;
             }
         } onretry {
             returnVal = -1;
@@ -370,7 +370,7 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
         try {
             if (i == 0) {
                 error err = error("error" );
-                throw err;
+                panic err;
             }
         } catch (error err) {
             catchValue = -1;

@@ -196,7 +196,7 @@ service<http:Service> sample3 bind echoEP {
             runtime:sleep(100);
             message = "sample Response";
             error err = error("error occurred");
-            throw err;
+            panic err;
         }
         //http:Response res = new;
         //_ = conn -> respond(res);
