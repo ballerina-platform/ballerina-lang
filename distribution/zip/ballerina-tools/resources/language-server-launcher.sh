@@ -31,13 +31,18 @@
 BALLERINA_DEBUG_LOG=false;
 DEBUG_MODE=false;
 DEBUG_PORT=5005;
+CUSTOM_CLASSPATH="";
 # ----------------------------------------------------------------------------
 
 # ---------------------- Command Line Args ---------------------------
 while [ "$1" != "" ]; do
     if [ "$1" = "--debug" ];
-      then
-        DEBUG_MODE=true;
+    then
+       DEBUG_MODE=true;
+    elif [ "$1" = "--classpath" ];
+    then
+       shift
+       CUSTOM_CLASSPATH="$1";
     fi
     # Add more if elseif clauses or use a switch case to check $1
     # if parsing more arguments is required in future.
@@ -161,6 +166,8 @@ CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/bre/lib/*
 
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/lib/tools/lang-server/lib/*
 
+CLASSPATHS="$CLASSPATHS":"$CUSTOM_CLASSPATH"
+
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
@@ -182,4 +189,4 @@ $JAVACMD \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.debugLog=$DEBUG_LOG \
 	-cp "$CLASSPATHS" \
-	 org.ballerinalang.langserver.launchers.stdio.Main 
+	 org.ballerinalang.langserver.launchers.stdio.Main
