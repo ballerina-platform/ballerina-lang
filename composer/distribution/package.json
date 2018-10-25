@@ -8,8 +8,7 @@
     "test-coverage": "npm run test -- --coverage",
     "build": "webpack --mode=production ",
     "build-dev": "webpack --mode=development",
-    "watch": "webpack --mode=development --watch --progress --info-verbosity verbose",
-    "start:dev": "webpack-dev-server  --mode=development --progress"
+    "watch": "webpack-dev-server  --mode=development --progress"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",

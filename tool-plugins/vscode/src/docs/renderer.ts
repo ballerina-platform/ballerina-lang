@@ -2,9 +2,14 @@ import { Uri, ExtensionContext } from 'vscode';
 import * as path from 'path';
 
 export function render(context: ExtensionContext): string {
-    const { extensionPath } = context;
-    const onDiskPath = Uri.file(path.join(extensionPath, 'resources', 'composer', 'composer.js'));
-    const mainJsPath = onDiskPath.with({ scheme: 'vscode-resource' });
+    let composerJsSrc;
+    if (process.env.COMPOSER_DEBUG === "true") {
+        const { extensionPath } = context;
+        const onDiskPath = Uri.file(path.join(extensionPath, 'resources', 'composer', 'composer.js'));
+        composerJsSrc = onDiskPath.with({ scheme: 'vscode-resource' });
+    } else {
+        composerJsSrc = 'http://localhost:9000/composer.js';
+    }
 
     return `
         <!doctype html>
@@ -21,7 +26,9 @@ export function render(context: ExtensionContext): string {
                     switch (event.data.command) {
                         case 'update':
                             astJson = event.data.json;
-                            ballerinaComposer.renderDocuments(astJson, el);
+                            if (ballerinaComposer) {
+                                ballerinaComposer.renderDocuments(astJson, el);
+                            }
                             break;
                     }
                 });
@@ -32,7 +39,7 @@ export function render(context: ExtensionContext): string {
                     }
                 }
             </script>
-            <script onload="loadedScript();" src="${mainJsPath}"></script>
+            <script onload="loadedScript();" src="${composerJsSrc}"></script>
         </body>
         </html> 
     `;
