@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function checkEqualityOfTwoTypes() returns boolean {
+function checkRefEqualityOfTwoTypes() returns boolean {
     int a;
     string b;
     return a === b;
 }
 
-function checkEqualityOfArraysOfDifferentTypes() returns boolean {
+function checkRefEqualityOfArraysOfDifferentTypes() returns boolean {
     int[2] a;
     string[2] b;
     boolean bool1 = a === b;
@@ -32,7 +32,7 @@ function checkEqualityOfArraysOfDifferentTypes() returns boolean {
     return bool1 && bool2;
 }
 
-function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
+function checkRefEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
     map<int> a;
     map<float> b;
     boolean bool1 = a === b;
@@ -44,7 +44,7 @@ function checkEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
     return bool1 && bool2;
 }
 
-function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
+function checkRefEqualityOfTuplesOfDifferentTypes() returns boolean {
     (string, int) a;
     (boolean, float) b;
     boolean bool1 = a === b;
@@ -56,13 +56,13 @@ function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
     return bool1 && bool2;
 }
 
-function checkEqualityOfRecordsOfIncompatibleTypes() returns boolean {
+function checkRefEqualityOfRecordsOfIncompatibleTypes() returns boolean {
     Employee e = { name: "Maryam" };
     Person p = { name: "Maryam" };
     return e === p;
 }
 
-function checkEqualityWithJsonForIncompatibleType() returns boolean {
+function checkRefEqualityWithJsonForIncompatibleType() returns boolean {
     (string, int) t = ("Hi", 1);
     json j = "Hi 1";
     boolean bool1 = t === j;
@@ -74,7 +74,7 @@ function checkEqualityWithJsonForIncompatibleType() returns boolean {
     return bool1 && bool2;
 }
 
-function checkEqualityWithJsonForPrimitiveTypes() returns boolean {
+function checkRefEqualityWithJsonForPrimitiveTypes() returns boolean {
     int i = 1;
     json j = i;
     boolean bool1 = i === j;
@@ -100,6 +100,12 @@ function checkEqualityWithJsonForPrimitiveTypes() returns boolean {
     return bool1;
 }
 
+function checkRefEqualityOfObjectsOfIncompatibleTypes() returns boolean {
+    Abc a = new("abc", 12);
+    Def d = new("abc", 12);
+    return a === d;
+}
+
 type Employee record {
     string name;
     int id;
@@ -108,4 +114,18 @@ type Employee record {
 type Person record {
     string name;
     int area;
+};
+
+type Abc object {
+    public string name;
+    private int area;
+
+    public new(name, area) {}
+};
+
+type Def object {
+    public string name;
+    private int id;
+
+    public new(name, id) {}
 };

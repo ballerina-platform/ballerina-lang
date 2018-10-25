@@ -30,6 +30,23 @@ type ClosedEmployee record {
     !...
 };
 
+type Abc object {
+    public string name;
+    float salary;
+    private int id;
+
+    public new(name, salary, id) {}
+};
+
+type Def object {
+    public string name;
+    float salary;
+    private int id;
+    private int idTwo = 0;
+
+    public new(name, salary, id) {}
+};
+
 function testBooleanRefEquality(boolean a, boolean b) returns boolean {
     return a === b;
 }
@@ -305,6 +322,25 @@ function testXmlRefEqualityNegative() returns boolean {
     xml x4 = x3;
     x3 = xml `<book><name>The World</name></book>`;
     return x1 === x2 || x3 === x4;
+}
+
+function testObjectRefEqualityPositive() returns boolean {
+    Def abcOne = new("abc", 100.0, 23);
+    Abc abcTwo = abcOne;
+    Abc abcThree = abcOne;
+    boolean refEquals = abcTwo === abcOne && abcOne === abcThree && abcTwo === abcThree;
+
+    abcThree = abcTwo;
+    return refEquals && isRefEqual(abcThree, abcTwo) && abcTwo === abcThree;
+}
+
+function testObjectRefEqualityNegative() returns boolean {
+    Abc abcOne = new("abc", 100.0, 23);
+    Abc abcTwo = new("abc", 100.0, 23);
+    boolean refEquals = abcOne === abcTwo || abcTwo === abcOne;
+
+    Abc abcThree = abcTwo;
+    return refEquals || isRefEqual(abcThree, abcOne);
 }
 
 function isRefEqual(any a, any b) returns boolean {

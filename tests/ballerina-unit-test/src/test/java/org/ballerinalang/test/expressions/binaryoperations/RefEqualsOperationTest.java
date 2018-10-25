@@ -312,9 +312,27 @@ public class RefEqualsOperationTest {
                            "Expected xml values to be identified as not reference equal");
     }
 
+    @Test
+    public void testObjectRefEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testObjectRefEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
+                          "Expected objects to be identified as reference equal");
+    }
+
+    @Test
+    public void testObjectRefEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testObjectRefEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
+                           "Expected objects to be identified as not reference equal");
+    }
+
     @Test(description = "Test reference equal with errors")
     public void testRefEqualNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 15);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         validateError(resultNegative, 0, "operator '===' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '===' not defined for 'int[2]' and 'string[2]'", 26, 21);
         validateError(resultNegative, 2, "operator '===' not defined for 'float|int[]' and 'boolean|xml[]'", 30,
@@ -336,6 +354,7 @@ public class RefEqualsOperationTest {
         validateError(resultNegative, 12, "operator '===' not defined for 'float' and 'json'", 89, 13);
         validateError(resultNegative, 13, "operator '===' not defined for 'boolean' and 'json'", 94, 13);
         validateError(resultNegative, 14, "operator '===' not defined for '()' and 'json'", 98, 13);
+        validateError(resultNegative, 15, "operator '===' not defined for 'Abc' and 'Def'", 106, 12);
     }
 
     @DataProvider(name = "equalBooleanValues")
