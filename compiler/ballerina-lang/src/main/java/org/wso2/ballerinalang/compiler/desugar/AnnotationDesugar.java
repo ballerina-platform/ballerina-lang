@@ -50,7 +50,7 @@ public class AnnotationDesugar {
 
     private static final String ANNOTATION_DATA = "$annotation_data";
     private static final String DOT = ".";
-    private BLangVariable annotationMap;
+    private BLangSimpleVariable annotationMap;
 
     private static final CompilerContext.Key<AnnotationDesugar> ANNOTATION_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -106,7 +106,7 @@ public class AnnotationDesugar {
     }
 
     private void handleFunctionAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
-                                           BLangVariable annotationMap) {
+                                           BLangSimpleVariable annotationMap) {
         for (BLangFunction function : pkgNode.functions) {
             generateAnnotations(function, function.symbol.name.value, initFunction, annotationMap);
         }

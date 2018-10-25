@@ -836,7 +836,9 @@ public class BLangPackageBuilder {
         invNode.setReturnTypeNode(returnTypeNode);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(invNode::addParameter);
+            this.varListStack.pop().forEach(variableNode -> {
+                invNode.addParameter((SimpleVariableNode) variableNode);
+            });
 
             this.defaultableParamsList.forEach(variableDef -> {
                 BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) variableDef;
@@ -1657,7 +1659,9 @@ public class BLangPackageBuilder {
         objectTypeNode.pos = pos;
         objectTypeNode.addWS(ws);
         objectTypeNode.isAnonymous = isAnonymous;
-        this.varListStack.pop().forEach(objectTypeNode::addField);
+        this.varListStack.pop().forEach(variableNode -> {
+            objectTypeNode.addField((SimpleVariableNode) variableNode);
+        });
         return objectTypeNode;
     }
 
@@ -1753,7 +1757,9 @@ public class BLangPackageBuilder {
         invNode.addWS(ws);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(invNode::addParameter);
+            this.varListStack.pop().forEach(variableNode -> {
+                invNode.addParameter((SimpleVariableNode) variableNode);
+            });
 
             this.defaultableParamsList.forEach(variableDef -> {
                 BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) variableDef;
@@ -2536,7 +2542,9 @@ public class BLangPackageBuilder {
                 Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
                 resourceNode.addWS(wsBeforeComma);
             }
-            varListStack.pop().forEach(resourceNode::addParameter);
+            varListStack.pop().forEach(variableNode -> {
+                resourceNode.addParameter((SimpleVariableNode) variableNode);
+            });
         }
 
         // Set the return type node

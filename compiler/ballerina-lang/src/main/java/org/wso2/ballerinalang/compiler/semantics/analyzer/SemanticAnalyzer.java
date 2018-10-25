@@ -157,9 +157,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -174,7 +172,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -695,42 +692,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariableDef tupleVariableDef) {
         analyzeDef(tupleVariableDef.var, env);
-    }
-
-    public void visit(BLangPostIncrement postIncrement) {
-        BLangExpression varRef = postIncrement.varRef;
-        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
-            if (postIncrement.opKind == OperatorKind.ADD) {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_ALLOWED_VARIABLE,
-                        OperatorKind.INCREMENT, varRef);
-            } else {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_ALLOWED_VARIABLE,
-                        OperatorKind.DECREMENT, varRef);
-            }
-            return;
-        } else {
-            this.typeChecker.checkExpr(varRef, env);
-        }
-        this.typeChecker.checkExpr(postIncrement.increment, env);
-        if (varRef.type == symTable.intType || varRef.type == symTable.floatType) {
-            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(postIncrement.opKind, varRef.type,
-                    postIncrement.increment.type);
-            postIncrement.modifiedExpr = getBinaryExpr(varRef,
-                    postIncrement.increment,
-                    postIncrement.opKind,
-                    opSymbol);
-        } else {
-            if (postIncrement.opKind == OperatorKind.ADD) {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
-                        OperatorKind.INCREMENT, varRef.type);
-            } else {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
-                        OperatorKind.DECREMENT, varRef.type);
-            }
-        }
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {

@@ -43,7 +43,7 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     public BSymbol symbol;
 
     // This is a cache of the fields referred through the type references
-    public List<BLangVariable> referencedFields;
+    public List<BLangSimpleVariable> referencedFields;
 
     public BLangStructureTypeNode() {
         this.fields = new ArrayList<>();

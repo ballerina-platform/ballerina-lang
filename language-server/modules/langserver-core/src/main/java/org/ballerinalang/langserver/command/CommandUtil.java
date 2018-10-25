@@ -301,7 +301,8 @@ public class CommandUtil {
         int offset = functionPos.getStartColumn();
 
         bLangFunction.getParameters()
-                .forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangVariable) param, offset)));
+                .forEach(param ->
+                        attributes.add(getDocAttributeFromBLangVariable((BLangSimpleVariable) param, offset)));
         if (bLangFunction.symbol.retType.getKind() != TypeKind.NIL) {
             attributes.add(getReturnFieldDescription(offset));
         }

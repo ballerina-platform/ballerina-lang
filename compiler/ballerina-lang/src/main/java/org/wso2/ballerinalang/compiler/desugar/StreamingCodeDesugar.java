@@ -926,7 +926,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     onExpr.lhsExpr.pos, env);
             BLangSimpleVariable rhsDataMap = createMapTypeVariable(getVariableName(JOIN_CONDITION_LAMBDA_PARAM_REFERENCE) +
                     1, onExpr.rhsExpr.pos, env);
-            BLangLambdaFunction conditionFunc = createLambdaWithVarArg(joinStreamingInput.pos, new BLangVariable[]
+            BLangLambdaFunction conditionFunc = createLambdaWithVarArg(joinStreamingInput.pos, new BLangSimpleVariable[]
                     {lhsDataMap, rhsDataMap}, TypeKind.BOOLEAN);
             mapVarArgs.addAll(Arrays.asList(lhsDataMap, rhsDataMap));
             onExpr.accept(this);
@@ -1187,7 +1187,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 invocation.argExprs.add(nextProcPointer);
                 invocation.namedArgs.add(nextProcPointer);
 
-                BLangVariableDef windowDef = createVariableDef(invocation, windowInvokableType,
+                BLangSimpleVariableDef windowDef = createVariableDef(invocation, windowInvokableType,
                         windowInvokableTypeVarSymbol, window.pos, WINDOW_FUNC_REFERENCE, WINDOW_OBJECT_NAME);
                 stmts.add(windowDef);
 
@@ -1220,11 +1220,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return windowInvokableSymbol;
     }
 
-    private BLangVariableDef createVariableDef(BLangExpression expr, BType exprType,
+    private BLangSimpleVariableDef createVariableDef(BLangExpression expr, BType exprType,
                                                BVarSymbol exprTypeSymbol,
                                                DiagnosticPos pos, String exprVarName, String objName) {
 
-        BLangVariable windowInvokableTypeVariable =
+        BLangSimpleVariable windowInvokableTypeVariable =
                 ASTBuilderUtil.createVariable(pos, getVariableName(exprVarName), exprType, expr,
                         exprTypeSymbol);
 
