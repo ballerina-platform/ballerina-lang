@@ -26,7 +26,7 @@ export default class Description extends React.Component {
 
             const value = escape(part.value);
             if(part.added) {
-                source += `<span class="added">${value}</span>`;
+                source += `<span class="__added">${value}</span>`;
             } else {
                 source += value;
             }
@@ -38,7 +38,9 @@ export default class Description extends React.Component {
             className={this.props.className}
             renderers={{
                 inlineCode: block => {
-                    return <code></code>
+                    const value = block.value.replace(
+                        new RegExp('<span class="__added">((?:.|\s)*)<\/span>'), '$1');
+                    return <code>{value}</code>
                 }
             }}
         />
