@@ -254,11 +254,16 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT typeName GT)?
+    |   errorTypeName
     |   functionTypeName
     ;
 
 functionTypeName
     :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameter?
+    ;
+
+errorTypeName
+    :   TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
     ;
 
 xmlNamespaceName
@@ -290,6 +295,7 @@ statement
     |   forkJoinStatement
     |   tryCatchStatement
     |   throwStatement
+    |   panicStatement
     |   returnStatement
     |   workerInteractionStatement
     |   expressionStmt
@@ -349,11 +355,6 @@ tableData
 
 arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
-    ;
-
-typeInitExpr
-    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
-    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
@@ -467,25 +468,34 @@ timeoutClause
     :   TIMEOUT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS  LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// Depricated since 0.983.0, use trap expressoin. TODO : Remove this.
 tryCatchStatement
     :   TRY LEFT_BRACE statement* RIGHT_BRACE catchClauses
     ;
 
+// TODO : Remove this.
 catchClauses
     :   catchClause+ finallyClause?
     |   finallyClause
     ;
 
+// TODO : Remove this.
 catchClause
     :   CATCH LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// TODO : Remove this.
 finallyClause
     :   FINALLY LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// Depricated since 0.983.0, use panic instead. TODO : Remove this.
 throwStatement
     :   THROW expression SEMICOLON
+    ;
+
+panicStatement
+    :   PANIC expression SEMICOLON
     ;
 
 returnStatement
@@ -624,6 +634,7 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
+    |   errorConstructorExpr                                                # errorConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
@@ -641,9 +652,23 @@ expression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
+    |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeName                                                            # typeAccessExpression
+    ;
+
+typeInitExpr
+    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
+    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    ;
+
+errorConstructorExpr
+    :   TYPE_ERROR LEFT_PARENTHESIS expression (COMMA expression)? RIGHT_PARENTHESIS
+    ;
+
+trapExpr
+    :   TRAP expression
     ;
 
 awaitExpression

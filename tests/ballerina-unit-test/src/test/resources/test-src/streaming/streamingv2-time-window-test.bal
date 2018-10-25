@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Teacher record {
     string name;
@@ -54,7 +53,6 @@ function startTimeWindowTest() returns (Teacher[]) {
         }
     }
 
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 

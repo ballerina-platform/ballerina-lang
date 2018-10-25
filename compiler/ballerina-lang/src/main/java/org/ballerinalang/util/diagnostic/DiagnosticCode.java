@@ -254,8 +254,14 @@ public enum DiagnosticCode {
     MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
     MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
 
-    // Safe Assignment operator related errors
-    SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
+    // error type related errors
+    REQUIRE_ERROR_MAPPING_VALUE("require.error.mapping.value"),
+
+    THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
+    TRY_STMT_NOT_SUPPORTED("try.stmt.not.supported"),
+
+    UNKNOWN_BUILTIN_FUNCTION("unknown.builtin.method"),
+    UNSUPPORTED_BUILTIN_METHOD("unsupported.builtin.method"),
 
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),

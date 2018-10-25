@@ -49,6 +49,7 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -467,25 +468,25 @@ public class CPU {
                             return;
                         }
                         break;
-                    case InstructionCodes.THROW:
+                    case InstructionCodes.PANIC:
                         i = operands[0];
                         if (i >= 0) {
-                            BMap<String, BValue> error = (BMap) sf.refRegs[i];
+                            BError error = (BError) sf.refRegs[i];
                             if (error == null) {
                                 handleNullRefError(ctx);
                                 break;
                             }
-    
                             BLangVMErrors.attachStackFrame(error, ctx);
                             ctx.setError(error);
                         }
                         handleError(ctx);
                         break;
-                    case InstructionCodes.ERRSTORE:
-                        i = operands[0];
-                        sf.refRegs[i] = ctx.getError();
-                        // clear error
-                        ctx.setError(null);
+                    case InstructionCodes.ERROR:
+                        createNewError(operands, ctx, sf);
+                        break;
+                    case InstructionCodes.REASON:
+                    case InstructionCodes.DETAIL:
+                        handleErrorBuiltinMethods(opcode, operands, sf);
                         break;
                     case InstructionCodes.FPCALL:
                         i = operands[0];
@@ -783,6 +784,29 @@ public class CPU {
                 ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                 handleError(ctx);
             }
+        }
+    }
+
+    private static void createNewError(int[] operands, WorkerExecutionContext ctx, WorkerData sf) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+        int l = operands[3];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[i];
+        sf.refRegs[l] = new BError(typeRefCPEntry.getType(), sf.stringRegs[j], sf.refRegs[k]);
+    }
+
+    private static void handleErrorBuiltinMethods(int opcode, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int j = operands[1];
+        BError error = (BError) sf.refRegs[i];
+        switch (opcode) {
+            case InstructionCodes.REASON:
+                sf.stringRegs[j] = error.getReason();
+                break;
+            case InstructionCodes.DETAIL:
+                sf.refRegs[j] = error.getDetails();
+                break;
         }
     }
 
@@ -2544,7 +2568,7 @@ public class CPU {
 
     private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
                                             String sourceType, String targetType) {
-        BMap<String, BValue> errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
+        BError errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
@@ -2561,7 +2585,7 @@ public class CPU {
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
                                                   int errorRegIndex, String errorMessage) {
-        BMap<String, BValue> errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
+        BError errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
@@ -2645,7 +2669,7 @@ public class CPU {
             if (ctx.getError() == null) {
                 ctx.ip = startOfNoThrowEndIP;
             } else {
-                String errorMsg = ctx.getError().get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+                String errorMsg = ctx.getError().reason;
                 if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
                     ctx.ip = startOfNoThrowEndIP;
                 } else {
@@ -3569,10 +3593,10 @@ public class CPU {
     }
 
     public static void handleError(WorkerExecutionContext ctx) {
+        // TODO: Fix me
         int ip = ctx.ip;
         ip--;
-        ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip,
-                ctx.getError());
+        ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip);
         if (match != null) {
             ctx.ip = match.getIpTarget();
         } else {

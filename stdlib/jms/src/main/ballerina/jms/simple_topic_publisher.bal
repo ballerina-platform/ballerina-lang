@@ -73,8 +73,8 @@ public type SimpleTopicPublisher object {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
             () => {
-                error e = {message:"Topic publisher cannot be nil"};
-                throw e;
+                error e = error("Topic publisher cannot be nil");
+                panic e;
             }
         }
     }
@@ -92,8 +92,8 @@ public type SimpleTopicPublisher object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                error e = error("Session cannot be nil");
+                panic e;
             }
         }
     }
@@ -105,8 +105,8 @@ public type SimpleTopicPublisher object {
         match (session) {
             Session s => return s.createMapMessage(message);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                error e = error("Session cannot be nil");
+                panic e;
             }
         }
     }

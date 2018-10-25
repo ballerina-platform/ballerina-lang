@@ -81,7 +81,10 @@ public class WebSubSubscriberConstants {
     // SubscriptionDetails struct field names
     public static final String SUBSCRIPTION_DETAILS_TOPIC = "topic";
     public static final String SUBSCRIPTION_DETAILS_CALLBACK = "callback";
-    public static final String SUBSCRIPTION_DETAILS_SECRET = "sceret";
+    public static final String SUBSCRIPTION_DETAILS_SECRET = "secret";
+    public static final String SUBSCRIPTION_DETAILS_LEASE_SECONDS = "leaseSeconds";
+    public static final String SUBSCRIPTION_DETAILS_CREATED_AT = "createdAt";
+    public static final String SUBSCRIPTION_DETAILS = "SubscriberDetails";
 
     // IntentVerificationRequest
     public static final String VERIFICATION_REQUEST_MODE = "mode";

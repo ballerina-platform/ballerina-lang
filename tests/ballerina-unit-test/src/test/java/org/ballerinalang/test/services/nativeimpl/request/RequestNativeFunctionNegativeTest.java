@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -112,8 +113,8 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertTrue((returnVals[0].stringValue().contains("{message:\"Entity body is not json compatible " +
-                "since the received content-type is : text/plain\", cause:null}")));
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                "{\"message\":\"Entity body is not json compatible since the received content-type is : text/plain\"}");
     }
 
     @Test(description = "Test getTextPayload method with JSON payload")
@@ -171,8 +172,8 @@ public class RequestNativeFunctionNegativeTest {
         inRequest.put(REQUEST_ENTITY_FIELD, entity);
         BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertTrue(returnVals[0].stringValue().contains("{message:\"Error occurred while retrieving xml data " +
-                "from entity : Empty xml payload\", cause:null}"));
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                "{\"message\":\"Error occurred while retrieving xml data from entity : Empty xml payload\"}");
     }
 
     @Test

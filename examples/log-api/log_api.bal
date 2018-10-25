@@ -1,7 +1,7 @@
 import ballerina/log;
 
 public function main() {
-    error err = { message: "error occurred" };
+    error err = error("error occurred");
 
     // The Ballerina log API provides functions to log at five levels, which are
     // `DEBUG`, `ERROR`, `INFO`, `TRACE`, and `WARN`. By default, all log

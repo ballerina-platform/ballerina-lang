@@ -22,7 +22,7 @@ function testCounterError() returns (float) {
     observe:Gauge gauge = new("requests_total", desc = "Total requests.", tags = tags);
     error? err = gauge.register();
     match err {
-        error e => throw e;
+        error e => panic e;
         () => {
             gauge.increment(amount = 5.0);
             return gauge.getValue();

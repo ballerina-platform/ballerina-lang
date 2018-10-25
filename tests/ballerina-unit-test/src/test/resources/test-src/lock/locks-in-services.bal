@@ -195,8 +195,8 @@ service<http:Service> sample3 bind echoEP {
             io:println("************** waiting inside first request");
             runtime:sleep(100);
             message = "sample Response";
-            error err = {message:"error occurred"};
-            throw err;
+            error err = error("error occurred");
+            panic err;
         }
         //http:Response res = new;
         //_ = conn -> respond(res);

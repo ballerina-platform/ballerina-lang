@@ -70,7 +70,7 @@ function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boo
         response.setTextPayload("Authentication failure");
         var value = caller->respond(response);
         match value {
-            error err => throw err;
+            error err => panic err;
             () => {}
         }
         return false;

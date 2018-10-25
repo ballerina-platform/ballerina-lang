@@ -46,7 +46,8 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
     
     @Override
     public String toString() {
-        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR || constraint.tag == TypeTags.NIL) {
+        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.SEMANTIC_ERROR
+                || constraint.tag == TypeTags.NIL) {
             return super.toString();
         }
 

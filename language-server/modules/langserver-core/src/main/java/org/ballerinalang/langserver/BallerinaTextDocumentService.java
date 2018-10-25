@@ -37,7 +37,8 @@ import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
-import org.ballerinalang.langserver.formatting.FormattingUtil;
+import org.ballerinalang.langserver.formatting.FormattingSourceGen;
+import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
@@ -433,11 +434,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
                 // Source generation for given ast.
                 JsonObject ast = TextDocumentFormatUtil.getAST(fileUri, lsCompiler, documentManager, formatContext);
-                SourceGen sourceGen = new SourceGen(0);
+                FormattingSourceGen sourceGen = new FormattingSourceGen();
                 sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-                FormattingUtil formattingUtil = new FormattingUtil();
+                FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
                 formattingUtil.accept(ast.getAsJsonObject("model"));
-                textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
+                textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"));
                 textEdit = new TextEdit(range, textEditContent);
                 return Collections.singletonList(textEdit);
             } catch (Exception e) {

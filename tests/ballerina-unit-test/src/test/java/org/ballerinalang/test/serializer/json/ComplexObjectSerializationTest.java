@@ -17,10 +17,16 @@
  */
 package org.ballerinalang.test.serializer.json;
 
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.Serializable;
@@ -31,6 +37,36 @@ import java.util.Map;
  * Test serialization and deserialization of complex object structures.
  */
 public class ComplexObjectSerializationTest {
+
+    private CompileResult compileResult;
+
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile("test-src/serializer/json/types-bal.bal");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test(description = "Test serializing record type object")
+    public void testRecordSerialization() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getThatStudent");
+        BMap<String, BValue> thatStudent = (BMap<String, BValue>) returns[0];
+
+        JsonSerializer jsonSerializer = new JsonSerializer();
+        String serializedStudent = jsonSerializer.serialize(thatStudent);
+        BMap reincarnatedStudent = jsonSerializer.deserialize(serializedStudent, BMap.class);
+
+        BRecordType origType = (BRecordType) thatStudent.getType();
+        BRecordType newType = (BRecordType) reincarnatedStudent.getType();
+
+        Assert.assertEquals(origType.isPublic(), newType.isPublic());
+        Assert.assertEquals(origType.getValueClass(), newType.getValueClass());
+        Assert.assertEquals(origType.getName(), newType.getName());
+        Assert.assertEquals(origType.toString(), newType.toString());
+        Assert.assertEquals(origType.sealed, origType.sealed);
+        Assert.assertEquals(origType.restFieldType.toString(), newType.restFieldType.toString());
+        Assert.assertEquals(((BRecordType) origType.getFields()[2].getFieldType()).sealed,
+                ((BRecordType) newType.getFields()[2].getFieldType()).sealed);
+    }
 
     @SuppressWarnings("unchecked")
     @Test(description = "Test serializing complex keys in a Map")
@@ -102,7 +138,7 @@ public class ComplexObjectSerializationTest {
         Assert.assertTrue(deserialize.resolved);
         Assert.assertEquals(deserialize.i, 42);
     }
-
+    
     static class Shadowee {
         private final int i;
 

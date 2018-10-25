@@ -47,11 +47,6 @@ class BBooleanType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_BOOLEAN);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.BOOLEAN_TAG;
     }

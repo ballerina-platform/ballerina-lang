@@ -65,7 +65,7 @@ function createHeader(JwtHeader header) returns (string) {
 function createPayload(JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
-        error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
+        error err = error("Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty.");
         return err;
     }
     payloadJson[SUB] = payload.sub;

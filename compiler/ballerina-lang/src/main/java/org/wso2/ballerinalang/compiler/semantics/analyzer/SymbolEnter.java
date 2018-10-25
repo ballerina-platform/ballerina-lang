@@ -105,7 +105,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -877,7 +876,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             structureType.fields =
                     Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
                             .peek(field -> defineNode(field, typeDefEnv))
-                            .filter(field -> field.symbol.type != symTable.errType) // filter out erroneous fields 
+                            .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                             .map(field -> new BField(names.fromIdNode(field.name), field.symbol, field.expr != null))
                             .collect(Collectors.toList());
 
@@ -1053,7 +1052,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add it to the enclosing scope
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            varSymbol.type = symTable.errType;
+            varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
@@ -1080,7 +1079,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Add it to the enclosing scope
         // Find duplicates
         if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
-            varSymbol.type = symTable.errType;
+            varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
@@ -1229,7 +1228,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver.type == null) {
             funcNode.receiver.type = symResolver.resolveTypeNode(funcNode.receiver.typeNode, env);
         }
-        if (funcNode.receiver.type.tag == TypeTags.ERROR) {
+        if (funcNode.receiver.type.tag == TypeTags.SEMANTIC_ERROR) {
             return true;
         }
 
@@ -1298,7 +1297,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Get the inherited fields from the type references
         structureTypeNode.referencedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
-            if (referredType == symTable.errType) {
+            if (referredType == symTable.semanticError) {
                 return Stream.empty();
             }
 

@@ -76,7 +76,7 @@ lambdaFunction
 
 arrowFunction
     :   arrowParam EQUAL_GT expression
-    |   LEFT_PARENTHESIS arrowParam (COMMA arrowParam)* RIGHT_PARENTHESIS EQUAL_GT expression
+    |   LEFT_PARENTHESIS (arrowParam (COMMA arrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT expression
     ;
 
 arrowParam
@@ -94,10 +94,14 @@ typeDefinition
 objectBody
     :   objectMember* objectInitializer? objectMember*
     ;
-
 objectMember
     :   objectFieldDefinition
     |   objectFunctionDefinition
+    |   typeReference
+    ;
+
+typeReference
+    :   MUL simpleTypeName SEMICOLON
     ;
 
 objectInitializer
@@ -113,7 +117,7 @@ objectFieldDefinition
     ;
 
 fieldDefinition
-    :   annotationAttachment* typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -277,7 +281,6 @@ statement
     |   assignmentStatement
     |   tupleDestructuringStatement
     |   compoundAssignmentStatement
-    |   postIncrementStatement
     |   ifElseStatement
     |   matchStatement
     |   foreachStatement
@@ -371,15 +374,12 @@ compoundOperator
     |   COMPOUND_SUB
     |   COMPOUND_MUL
     |   COMPOUND_DIV
-    ;
-
-postIncrementStatement
-    :   variableReference postArithmeticOperator SEMICOLON
-    ;
-
-postArithmeticOperator
-    :   INCREMENT
-    |   DECREMENT
+    |   COMPOUND_BIT_AND
+    |   COMPOUND_BIT_OR
+    |   COMPOUND_BIT_XOR
+    |   COMPOUND_LEFT_SHIFT
+    |   COMPOUND_RIGHT_SHIFT
+    |   COMPOUND_LOGICAL_SHIFT
     ;
 
 variableReferenceList
@@ -717,6 +717,7 @@ simpleLiteral
     :   (SUB)? integerLiteral
     |   (SUB)? floatingPointLiteral
     |   QuotedStringLiteral
+    |   SymbolicStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
     |   blobLiteral
@@ -923,8 +924,8 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   expression whereClause? functionInvocation* windowClause? functionInvocation* whereClause? (AS
-    alias=Identifier)?
+    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
+        whereClause? (AS alias=Identifier)?
     ;
 
 joinStreamingInput
