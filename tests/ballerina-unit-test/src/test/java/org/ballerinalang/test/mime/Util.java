@@ -37,6 +37,7 @@ import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -657,5 +658,11 @@ public class Util {
         blobDataSource.serialize(outStream);
         Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8),
                 "Ballerina binary file part");
+    }
+
+    public static void verifyMimeError(BValue returnValue, String errMsg) {
+        Assert.assertEquals(((BError) returnValue).getReason(), MimeConstants.MIME_ERROR_CODE);
+        Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
+                .stringValue(), errMsg);
     }
 }
