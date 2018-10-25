@@ -111,9 +111,7 @@ public class SourceGenTest {
      */
     static class FileVisitor extends SimpleFileVisitor<Path> {
         private List<File> files;
-        private String[] ignoredFiles = {"table_queries.bal", "table.bal", "csv_io.bal",
-                "channels_correlation.bal", "channels_workers.bal", "grpc_bidirectional_streaming_client.bal",
-                "symbolic_string_literal.bal", "table_literal_syntax.bal", "compensate-stmt.bal",
+        private String[] ignoredFiles = {"grpc_bidirectional_streaming_client.bal", "compensate-stmt.bal",
                 "function-with-two-rest-params.bal", "redundant-compression-config.bal",
                 "taintchecking/annotations/lambda.bal", "high_loc.bal", "test_objects.bal",
                 "lang/annotations/variable-as-attribute-value.bal", "lang/annotations/constant-as-attribute-value.bal",
