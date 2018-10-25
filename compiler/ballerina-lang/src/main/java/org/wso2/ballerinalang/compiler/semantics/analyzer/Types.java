@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -179,7 +180,39 @@ public class Types {
     }
 
     public boolean isValueType(BType type) {
-        return type.tag < TypeTags.TYPEDESC;
+        return type.tag < TypeTags.JSON;
+    }
+
+    public boolean isDataType(BType type) {
+        if (type.tag <= TypeTags.ANYDATA) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.MAP && isDataType(((BMapType) type).constraint)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) type;
+            List<BType> fieldTypes = recordType.fields.stream().map(field -> field.type).collect(Collectors.toList());
+            return allDataTypes(fieldTypes) && (recordType.sealed || isDataType(recordType.restFieldType));
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return allDataTypes(unionType.memberTypes);
+        }
+
+        if (type.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) type;
+            return allDataTypes(tupleType.tupleTypes);
+        }
+
+        return type.tag == TypeTags.ARRAY && isDataType(((BArrayType) type).eType);
+    }
+
+    private boolean allDataTypes(Collection<BType> types) {
+        return types.stream().allMatch(this::isDataType);
     }
 
     public boolean isBrandedType(BType type) {
@@ -214,6 +247,10 @@ public class Types {
         }
 
         if (target.tag == TypeTags.ANY && !isValueType(source)) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.ANYDATA && isDataType(source)) {
             return true;
         }
 
@@ -863,6 +900,8 @@ public class Types {
                     return symTable.notFoundSymbol;
                 }
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
+            } else if (s.tag == TypeTags.ANYDATA) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2MAP);
             } else if (t.constraint.tag != TypeTags.ANY) {
                 // Semantically fail rest of the casts for Constrained Maps.
                 // Eg:- ANY2MAP cast is undefined for Constrained Maps.
@@ -947,7 +986,7 @@ public class Types {
 
         @Override
         public BSymbol visit(BRecordType t, BType s) {
-            if (s == symTable.anyType) {
+            if (s == symTable.anyType || s == symTable.anydataType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2T);
             }
 
@@ -966,7 +1005,7 @@ public class Types {
 
         @Override
         public BSymbol visit(BTableType t, BType s) {
-            if (s == symTable.anyType) {
+            if (s == symTable.anyType || s.tag == symTable.anydataType.tag) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2DT);
             }
 

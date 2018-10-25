@@ -124,6 +124,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -2938,6 +2939,10 @@ public class CPU {
             return checkFunctionCast(rhsType, (BFunctionType) lhsType);
         }
 
+        if (lhsType.getTag() == TypeTags.ANYDATA_TAG && isDataType(rhsType)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -3001,6 +3006,40 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    private static boolean isDataType(BType type) {
+        if (type.getTag() <= TypeTags.ANYDATA_TAG) {
+            return true;
+        }
+
+        if (type.getTag() == TypeTags.MAP_TAG && isDataType(((BMapType) type).getConstrainedType())) {
+            return true;
+        }
+
+        if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            BRecordType recordType = (BRecordType) type;
+            List<BType> fieldTypes = Arrays.stream(recordType.getFields())
+                                            .map(BField::getFieldType)
+                                            .collect(Collectors.toList());
+            return allDataTypes(fieldTypes) && (recordType.sealed || isDataType(recordType.restFieldType));
+        }
+
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionType = (BUnionType) type;
+            return allDataTypes(unionType.getMemberTypes());
+        }
+
+        if (type.getTag() == TypeTags.TUPLE_TAG) {
+            BTupleType tupleType = (BTupleType) type;
+            return allDataTypes(tupleType.getTupleTypes());
+        }
+
+        return type.getTag() == TypeTags.ARRAY_TAG && isDataType(((BArrayType) type).getElementType());
+    }
+
+    private static boolean allDataTypes(Collection<BType> types) {
+        return types.stream().allMatch(CPU::isDataType);
     }
 
     private static BType getElementType(BType type) {
@@ -3334,6 +3373,7 @@ public class CPU {
                 }
                 return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
+            case TypeTags.ANYDATA_TAG:
                 return true;
             default:
                 return false;

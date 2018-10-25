@@ -136,7 +136,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -388,7 +387,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Change the expected type to map,
             expType = symTable.mapType;
         }
-        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.OBJECT) {
+        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.ANYDATA || expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.errType;
             return;
