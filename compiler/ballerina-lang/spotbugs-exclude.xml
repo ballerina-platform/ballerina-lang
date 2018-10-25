@@ -85,4 +85,7 @@
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.packaging.converters.URIConverter"/>
     </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.BIRGen"/>
+    </Match>
 </FindBugsFilter>

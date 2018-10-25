@@ -35,7 +35,6 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 
 /**
  * Test cases for tuple variable definition.
