@@ -24,6 +24,7 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
+import org.ballerinalang.util.debugger.LineNumberInfoHolder;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,17 +34,19 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
 
     Map<String, List<ExecutedInstruction>> executedInstructionOrderMap;
 
-    public CoverageInstructionHandlerImpl(Map<String, List<ExecutedInstruction>> executedInstructionOrderMap) {
+    LineNumberInfoHolder lineNumberInfoHolder;
+
+    public CoverageInstructionHandlerImpl(Map<String, List<ExecutedInstruction>> executedInstructionOrderMap,
+                                          ProgramFile programFile) {
         this.executedInstructionOrderMap = executedInstructionOrderMap;
+        this.lineNumberInfoHolder = new LineNumberInfoHolder();
+        this.lineNumberInfoHolder.processPkgInfo(programFile.getPackageInfoEntries());
     }
 
     public void handle(WorkerExecutionContext ctx, Instruction instruction) {
 
-        ProgramFile programFile = ctx.programFile;
-        Debugger debugger = programFile.getDebugger();
         String pkgPath = ctx.callableUnitInfo.getPkgPath();
-        LineNumberInfo lineNumberInfo = debugger.getDebugInfoHolder().getPackageInfoMap()
-                .get(pkgPath).getLineNumberInfoHolder().getLineNumberInfo(ctx.ip);
+        LineNumberInfo lineNumberInfo = lineNumberInfoHolder.getPackageInfoMap().get(pkgPath).getLineNumberInfo(ctx.ip);
 
             ExecutedInstruction executedInstruction = new ExecutedInstruction(ctx.ip, pkgPath,
                     lineNumberInfo.getFileName(), ctx.callableUnitInfo.getName());

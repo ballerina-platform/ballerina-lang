@@ -378,11 +378,21 @@ public class BTestRunner {
             // print package test results
             tReport.printTestSuiteSummary(packageName);
 
-            CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
-            CoverageManager coverageManager = new CoverageManager();
-            List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
-                    coverageManager.getExecutedInstructionOrderMap(), suite);
-            coverageDataFormatter.writeFormattedCovDataToFile(packageLCovDataList, sourceRoot);
+            // Coverage report handling
+            try {
+
+                CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
+                CoverageManager coverageManager = CoverageManager.getInstance();
+                List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
+                        coverageManager.getExecutedInstructionOrderMap(), suite);
+                coverageDataFormatter.writeFormattedCovDataToFile(packageLCovDataList, sourceRoot);
+
+            } catch(Throwable e) {
+                String errorMsg = String.format("\t[fail] [coverage report generation] :\n\t    " +
+                        "%s", Utils.formatError(e.getMessage()));
+                errStream.println(errorMsg);
+            }
+
         });
     }
 

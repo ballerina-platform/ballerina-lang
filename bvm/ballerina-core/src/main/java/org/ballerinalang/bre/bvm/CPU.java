@@ -157,7 +157,8 @@ public class CPU {
     public static void exec(WorkerExecutionContext ctx) {
         ctx.programFile.setTestFile(true);
         if(instructionHandler == null && ctx.programFile.isTestFile()) {
-            instructionHandler = new CoverageManager().getCoverageInstructionHandler();
+            CoverageManager coverageManager = CoverageManager.getInstance();
+            instructionHandler = coverageManager.getCoverageInstructionHandler(ctx.programFile);
         }
 
         while (ctx != null && !ctx.isRootContext()) {

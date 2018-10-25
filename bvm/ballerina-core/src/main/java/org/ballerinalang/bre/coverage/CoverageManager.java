@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.coverage;
 
 import org.ballerinalang.bre.coverage.impl.CoverageInstructionHandlerImpl;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.List;
 import java.util.Map;
@@ -25,16 +26,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CoverageManager {
 
-    private static Map<String, List<ExecutedInstruction>> executedInstructionOrderMap = new ConcurrentHashMap<>();
+    private static final Map<String, List<ExecutedInstruction>> executedInstructionOrderMap = new ConcurrentHashMap<>();
 
-    private static InstructionHandler coverageInstructionHandler = new
-            CoverageInstructionHandlerImpl(executedInstructionOrderMap);
+    private static final CoverageManager coverageManger = new CoverageManager();
 
-    public InstructionHandler getCoverageInstructionHandler() {
+    private static InstructionHandler coverageInstructionHandler;
+
+    private CoverageManager() {}
+
+    public static CoverageManager getInstance() {
+        return coverageManger;
+    }
+
+    public static InstructionHandler getCoverageInstructionHandler(ProgramFile programFile) {
+        if(coverageInstructionHandler == null) {
+            coverageInstructionHandler = new CoverageInstructionHandlerImpl(executedInstructionOrderMap, programFile);
+        }
+
         return coverageInstructionHandler;
     }
 
-    public Map<String, List<ExecutedInstruction>> getExecutedInstructionOrderMap() {
+    public static Map<String, List<ExecutedInstruction>> getExecutedInstructionOrderMap() {
         return executedInstructionOrderMap;
     }
 }

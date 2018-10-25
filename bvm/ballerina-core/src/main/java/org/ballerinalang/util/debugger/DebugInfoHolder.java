@@ -40,9 +40,10 @@ import java.util.stream.Collectors;
  */
 public class DebugInfoHolder {
 
-    private Map<String, DebuggerPkgInfo> packageInfoMap = new HashMap<>();
+    private LineNumberInfoHolder lineNumberInfoHolder;
 
     DebugInfoHolder(ProgramFile programFile) {
+        lineNumberInfoHolder = new LineNumberInfoHolder();
         this.init(programFile);
     }
 
@@ -51,38 +52,7 @@ public class DebugInfoHolder {
     }
 
     private void processPkgInfos(PackageInfo[] pkgInfos) {
-        Arrays.stream(pkgInfos).forEach(this::processPkgInfo);
-    }
-
-    /**
-     * Process and build information required for debugging the package.
-     *
-     * @param packageInfo   To extract relevant information.
-     */
-    private void processPkgInfo(PackageInfo packageInfo) {
-        LineNumberInfoHolder lineNumberInfoHolder = new LineNumberInfoHolder(packageInfo.getInstructionCount());
-        DebuggerPkgInfo debuggerPkgInfo = new DebuggerPkgInfo(lineNumberInfoHolder);
-
-        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) packageInfo
-                .getAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
-
-        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList().stream().sorted(
-                Comparator.comparing(LineNumberInfo::getIp)).collect(Collectors.toList());
-
-        LineNumberInfo currentLineNoInfo = null;
-        for (LineNumberInfo lineNoInfo : lineNumberInfos) {
-            if (currentLineNoInfo == null) {
-                currentLineNoInfo = lineNoInfo;
-                continue;
-            }
-            debuggerPkgInfo.populateLineNumbers(currentLineNoInfo.getIp(), lineNoInfo.getIp(), currentLineNoInfo);
-            currentLineNoInfo = lineNoInfo;
-        }
-        if (currentLineNoInfo != null) {
-            debuggerPkgInfo.populateLineNumbers(currentLineNoInfo.getIp(),
-                    packageInfo.getInstructionCount(), currentLineNoInfo);
-        }
-        packageInfoMap.put(packageInfo.getPkgPath(), debuggerPkgInfo);
+        this.lineNumberInfoHolder.processPkgInfo(pkgInfos);
     }
 
     /**
@@ -92,10 +62,11 @@ public class DebugInfoHolder {
      * @return True if success, False otherwise
      */
     private boolean addDebugPoint(BreakPointDTO breakPointDTO) {
-        if (packageInfoMap.get(breakPointDTO.getPackagePath()) == null) {
+        if (this.lineNumberInfoHolder.getPackageInfoMap().get(breakPointDTO.getPackagePath()) == null) {
             return false;
         }
-        return packageInfoMap.get(breakPointDTO.getPackagePath()).markDebugPoint(breakPointDTO);
+        return DebuggerPkgInfo.markDebugPoint(breakPointDTO, this.lineNumberInfoHolder.getPackageInfoMap()
+                .get(breakPointDTO.getPackagePath()));
     }
 
     /**
@@ -106,7 +77,7 @@ public class DebugInfoHolder {
      */
     List<BreakPointDTO> addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
         List<BreakPointDTO> deployedBreakPoints = new ArrayList<>();
-        packageInfoMap.values().forEach(DebuggerPkgInfo::clearDebugPoints);
+        this.lineNumberInfoHolder.getPackageInfoMap().values().forEach(DebuggerPkgInfo::clearDebugPoints);
         for (BreakPointDTO nodeLocation : breakPointDTOS) {
             if (addDebugPoint(nodeLocation)) {
                 deployedBreakPoints.add(nodeLocation);
@@ -116,27 +87,16 @@ public class DebugInfoHolder {
     }
 
     void clearDebugLocations() {
-        packageInfoMap.values().forEach(DebuggerPkgInfo::clearDebugPoints);
+        this.lineNumberInfoHolder.getPackageInfoMap().values().forEach(DebuggerPkgInfo::clearDebugPoints);
     }
 
     LineNumberInfo getLineNumber(String packagePath, int ip) {
-        return packageInfoMap.get(packagePath).lineNumberInfoHolder.getLineNumberInfo(ip);
-    }
-
-    public Map<String, DebuggerPkgInfo> getPackageInfoMap() {
-        return packageInfoMap;
+        return this.lineNumberInfoHolder.getPackageInfoMap().get(packagePath).getLineNumberInfo(ip);
     }
 
     public static class DebuggerPkgInfo {
-        LineNumberInfoHolder lineNumberInfoHolder;
-        //key - fileName:ln, value - LineNumberInfo
-        Map<String, LineNumberInfo> lineNumbers = new HashMap<>();
 
-        DebuggerPkgInfo(LineNumberInfoHolder lineNumberInfoHolder) {
-            this.lineNumberInfoHolder = lineNumberInfoHolder;
-        }
-
-        boolean markDebugPoint(BreakPointDTO breakPointDTO) {
+        public static boolean markDebugPoint(BreakPointDTO breakPointDTO, PackageLineNumberInfo packageLineNumberInfo) {
             // TODO: Need to improve/change this logic.
             String fileName = breakPointDTO.getFileName();
             if (fileName.contains("/")) {
@@ -147,7 +107,7 @@ public class DebugInfoHolder {
                 fileName = pathArray[pathArray.length - 1];
             }
             String fileNameAndNo = fileName + ":" + breakPointDTO.getLineNumber();
-            LineNumberInfo lineNumberInfo = lineNumbers.get(fileNameAndNo);
+            LineNumberInfo lineNumberInfo = packageLineNumberInfo.getLineNumbers().get(fileNameAndNo);
             if (lineNumberInfo == null) {
                 return false;
             }
@@ -155,23 +115,8 @@ public class DebugInfoHolder {
             return true;
         }
 
-        void populateLineNumbers(int beginIp, int endIp, LineNumberInfo lineNumberInfo) {
-            lineNumberInfoHolder.addLineNumberInfo(beginIp, endIp, lineNumberInfo);
-            String fileName = lineNumberInfo.getFileName();
-            if (fileName.contains(File.separator)) {
-                String[] pathArray = fileName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
-                fileName = pathArray[pathArray.length - 1];
-            }
-            String fileNameAndNo = fileName + ":" + lineNumberInfo.getLineNumber();
-            lineNumbers.put(fileNameAndNo, lineNumberInfo);
-        }
-
-        void clearDebugPoints() {
-            lineNumbers.values().forEach(l -> l.setDebugPoint(false));
-        }
-
-        public LineNumberInfoHolder getLineNumberInfoHolder() {
-            return lineNumberInfoHolder;
+        public static void clearDebugPoints(PackageLineNumberInfo packageLineNumberInfo) {
+            packageLineNumberInfo.getLineNumbers().values().forEach(l -> l.setDebugPoint(false));
         }
     }
 }

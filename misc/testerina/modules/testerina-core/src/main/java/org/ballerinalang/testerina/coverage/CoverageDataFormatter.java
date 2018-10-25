@@ -18,6 +18,7 @@
 package org.ballerinalang.testerina.coverage;
 
 import org.ballerinalang.bre.coverage.*;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.util.codegen.LineNumberInfo;
@@ -143,11 +144,8 @@ public class CoverageDataFormatter {
 
         boolean skipTestFunctionIps = false;
 
-        for(String beforeSuiteFuncName : suite.getBeforeSuiteFunctionNames()) {
-            if(beforeSuiteFuncName.equals(executedInstruction.getFunctionName())) {
-                skipTestFunctionIps = true;
-                break;
-            }
+        if(suite.getBeforeSuiteFunctionNames().contains(executedInstruction.getFunctionName())) {
+            skipTestFunctionIps = true;
         }
 
         for(Test test : suite.getTests()) {
@@ -168,21 +166,37 @@ public class CoverageDataFormatter {
             }
         }
 
-        for(String afterSuiteFuncName : suite.getAfterSuiteFunctionNames()) {
-            if(afterSuiteFuncName.equals(executedInstruction.getFunctionName())) {
-                skipTestFunctionIps = true;
-                break;
-            }
+        if(suite.getAfterSuiteFunctionNames().contains(executedInstruction.getFunctionName())) {
+           skipTestFunctionIps = true;
         }
 
         return skipTestFunctionIps;
     }
 
-    public void writeFormattedCovDataToFile(List<LCovData> packageLCovDataList, String sourceRoot) {
+    public void writeFormattedCovDataToFile(List<LCovData> packageLCovDataList, String sourceRoot) throws IOException {
 
-        String coverageFilename = "testCoverageFileName.info";
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        String customCovReportname = configRegistry.getAsString("coverage.report.name");
+        String customCovReportPath = configRegistry.getAsString("coverage.report.path");
+
+        String covReportFolderName = "coverage";
+        String defaultCovReportFilename = "coverage.info";
         String projectOutputPath = sourceRoot + "/target";
         StringBuffer lcovOutputStrBuf = new StringBuffer();
+
+        String covReportFilePath;
+        if(customCovReportPath ==  null) {
+            covReportFilePath = projectOutputPath + "/" + covReportFolderName;
+        } else {
+            covReportFilePath = customCovReportPath + "/" + covReportFolderName;
+        }
+
+        String covReportFileName;
+        if(customCovReportname ==  null) {
+            covReportFileName = defaultCovReportFilename;
+        } else {
+            covReportFileName = customCovReportname;
+        }
 
         for(LCovData lCovData : packageLCovDataList) {
             lcovOutputStrBuf.append("TN:").append(lCovData.getTestName()).append("\n");
@@ -199,17 +213,28 @@ public class CoverageDataFormatter {
             }
         }
 
-        System.out.println("lcov out: " + lcovOutputStrBuf.toString());
-//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(projectOutputPath, coverageFilename )))) {
-//
-//            bw.write(lcovOutputStrBuf.toString());
-//
-//            System.out.println("Done");
-//
-//        } catch (IOException e) {
-//
-//            e.printStackTrace();
-//
-//        }
+        BufferedWriter covReportFileBufWriter = null;
+        try {
+
+            File covReportDir = new File(covReportFilePath);
+            covReportDir.mkdirs();
+
+            File covReportFile = new File(covReportDir, covReportFileName);
+            FileWriter covReportFileWriter = new FileWriter(covReportFile);
+            covReportFileBufWriter = new BufferedWriter(covReportFileWriter);
+
+            covReportFileBufWriter.write(lcovOutputStrBuf.toString());
+
+            System.out.println("Coverage report is written to " + covReportFilePath + "/" + covReportFileName);
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        } finally {
+            if(covReportFileBufWriter != null) {
+                covReportFileBufWriter.close();
+            }
+        }
     }
 }
