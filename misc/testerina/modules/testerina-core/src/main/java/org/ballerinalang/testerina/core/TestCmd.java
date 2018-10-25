@@ -84,6 +84,9 @@ public class TestCmd implements BLauncherCmd {
     @CommandLine.Option(names = "--exclude-packages", split = ",", description = "packages to be excluded")
     private List<String> excludedPackageList;
 
+    @CommandLine.Option(names = "--coverage", hidden = true, description = "to create coverage data file")
+    private boolean coverageFlag;
+
     public void execute() {
         if (helpFlag) {
             outStream.println(BLauncherCmd.getCommandUsageInfo("test"));
@@ -148,6 +151,7 @@ public class TestCmd implements BLauncherCmd {
             Utils.setManifestConfigs();
         }
         BTestRunner testRunner = new BTestRunner();
+        testRunner.setCoverageFlag(coverageFlag);
         if (listGroups) {
             testRunner.listGroups(sourceRootPath.toString(), paths);
             Runtime.getRuntime().exit(0);

@@ -156,9 +156,11 @@ public class CPU {
 
     public static void exec(WorkerExecutionContext ctx) {
         ctx.programFile.setTestFile(true);
-        if(instructionHandler == null && ctx.programFile.isTestFile()) {
-            CoverageManager coverageManager = CoverageManager.getInstance();
-            instructionHandler = coverageManager.getCoverageInstructionHandler(ctx.programFile);
+        if(instructionHandler == null) {
+            if(Boolean.parseBoolean(System.getProperty("coverage.flag")) && ctx.programFile.isTestFile()) {
+                CoverageManager coverageManager = CoverageManager.getInstance();
+                instructionHandler = coverageManager.getCoverageInstructionHandler(ctx.programFile);
+            }
         }
 
         while (ctx != null && !ctx.isRootContext()) {
@@ -199,7 +201,7 @@ public class CPU {
     
                 Instruction instruction = ctx.code[ctx.ip];
 
-                if(instructionHandler != null && ctx.programFile.isTestFile()) {
+                if(instructionHandler != null) {
                     instructionHandler.handle(ctx, instruction);
                 }
 

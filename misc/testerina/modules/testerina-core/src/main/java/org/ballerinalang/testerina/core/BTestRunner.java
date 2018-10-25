@@ -63,6 +63,8 @@ public class BTestRunner {
     private TesterinaReport tReport = new TesterinaReport();
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
+    private boolean coverageFlag = false;
+
     /**
      * Executes a given set of ballerina program files.
      *
@@ -379,18 +381,22 @@ public class BTestRunner {
             tReport.printTestSuiteSummary(packageName);
 
             // Coverage report handling
-            try {
+            if(coverageFlag) {
 
-                CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
-                CoverageManager coverageManager = CoverageManager.getInstance();
-                List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
-                        coverageManager.getExecutedInstructionOrderMap(), suite);
-                coverageDataFormatter.writeFormattedCovDataToFile(packageLCovDataList, sourceRoot);
+                try {
 
-            } catch(Throwable e) {
-                String errorMsg = String.format("\t[fail] [coverage report generation] :\n\t    " +
-                        "%s", Utils.formatError(e.getMessage()));
-                errStream.println(errorMsg);
+                    CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
+                    CoverageManager coverageManager = CoverageManager.getInstance();
+                    List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
+                            coverageManager.getExecutedInstructionOrderMap(), suite);
+                    coverageDataFormatter.writeFormattedCovDataToFile(packageLCovDataList, sourceRoot);
+
+                } catch(Throwable e) {
+                    String errorMsg = String.format("\t[fail] [coverage report generation] :\n\t    " +
+                            "%s", Utils.formatError(e.getMessage()));
+                    errStream.println(errorMsg);
+                }
+
             }
 
         });
@@ -440,5 +446,9 @@ public class BTestRunner {
         return tReport;
     }
 
+    public void setCoverageFlag(boolean coverageFlag) {
+        System.setProperty("coverage.flag", Boolean.toString(coverageFlag));
+        this.coverageFlag = coverageFlag;
+    }
 }
 
