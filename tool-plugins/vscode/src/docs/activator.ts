@@ -16,7 +16,10 @@
  * under the License.
  *
  */
-import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent } from 'vscode';
+import {
+	workspace, commands, window, Uri, ViewColumn,
+	ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent
+} from 'vscode';
 import * as _ from 'lodash';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../core/extended-language-client';
@@ -29,7 +32,7 @@ let activeEditor: TextEditor | undefined;
 
 function updateWebView(ast: BallerinaAST, docUri: Uri): void {
 	if (previewPanel) {
-		previewPanel.webview.postMessage({ 
+		previewPanel.webview.postMessage({
 			command: 'update',
 			json: ast,
 			docUri: docUri.toString()
@@ -39,34 +42,34 @@ function updateWebView(ast: BallerinaAST, docUri: Uri): void {
 
 function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): void {
 	const didChangeDisposable = workspace.onDidChangeTextDocument(
-			_.debounce((e: TextDocumentChangeEvent) => {
-		if (activeEditor && (e.document === activeEditor.document) &&
-			e.document.fileName.endsWith('.bal')) {
-			const docUri = e.document.uri;
-			langClient.getAST(docUri)
-				.then((resp) => {
-					if (resp.ast) {
-						updateWebView(resp.ast, docUri);
-					}
-				});
-		}
-	}, DEBOUNCE_WAIT));
+		_.debounce((e: TextDocumentChangeEvent) => {
+			if (activeEditor && (e.document === activeEditor.document) &&
+				e.document.fileName.endsWith('.bal')) {
+				const docUri = e.document.uri;
+				langClient.getAST(docUri)
+					.then((resp) => {
+						if (resp.ast) {
+							updateWebView(resp.ast, docUri);
+						}
+					});
+			}
+		}, DEBOUNCE_WAIT));
 
-	const changeActiveEditorDisposable =  window.onDidChangeActiveTextEditor(
-			(activatedEditor: TextEditor | undefined) => {
-		if (window.activeTextEditor && activatedEditor 
-					&& (activatedEditor.document === window.activeTextEditor.document) 
-					&& activatedEditor.document.fileName.endsWith('.bal')) {
-			activeEditor = window.activeTextEditor;
-			const docUri = activatedEditor.document.uri;
-			langClient.getAST(docUri)
-				.then((resp) => {
-					if (resp.ast) {
-						updateWebView(resp.ast, docUri);
-					}
-				});
-		}
-	});
+	const changeActiveEditorDisposable = window.onDidChangeActiveTextEditor(
+		(activatedEditor: TextEditor | undefined) => {
+			if (window.activeTextEditor && activatedEditor
+				&& (activatedEditor.document === window.activeTextEditor.document)
+				&& activatedEditor.document.fileName.endsWith('.bal')) {
+				activeEditor = window.activeTextEditor;
+				const docUri = activatedEditor.document.uri;
+				langClient.getAST(docUri)
+					.then((resp) => {
+						if (resp.ast) {
+							updateWebView(resp.ast, docUri);
+						}
+					});
+			}
+		});
 
 	if (previewPanel) {
 		previewPanel.reveal(ViewColumn.Two, true);
@@ -76,14 +79,14 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): vo
 	previewPanel = window.createWebviewPanel(
 		'ballerinaDocs',
 		"Ballerina Docs",
-		{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
+		{ viewColumn: ViewColumn.Two, preserveFocus: true },
 		{
 			enableScripts: true,
 			retainContextWhenHidden: true,
 		}
 	);
 	const editor = window.activeTextEditor;
-	if(!editor) {
+	if (!editor) {
 		return;
 	}
 	activeEditor = editor;
@@ -94,11 +97,11 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): vo
 	}
 
 	langClient.getAST(editor.document.uri)
-	.then((resp) => {
-		if (resp.ast) {
-			updateWebView(resp.ast, editor.document.uri);
-		}
-	});
+		.then((resp) => {
+			if (resp.ast) {
+				updateWebView(resp.ast, editor.document.uri);
+			}
+		});
 
 	previewPanel.onDidDispose(() => {
 		previewPanel = undefined;
@@ -108,27 +111,27 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): vo
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    let context = <ExtensionContext> ballerinaExtInstance.context;
-    let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+	let context = <ExtensionContext>ballerinaExtInstance.context;
+	let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 	const docsRenderDisposable = commands.registerCommand('ballerina.showDocs', () => {
 		return ballerinaExtInstance.onReady()
-		.then(() => {
-			const { experimental } = langClient.initializeResult!.capabilities;
-			const serverProvidesAST = experimental && experimental.astProvider;
+			.then(() => {
+				const { experimental } = langClient.initializeResult!.capabilities;
+				const serverProvidesAST = experimental && experimental.astProvider;
 
-			if (!serverProvidesAST) {
-				ballerinaExtInstance.showMessageServerMissingCapability();
-				return {};
-			}
-			showDocs(context, langClient);
-		})
-		.catch((e) => {
-			if (!ballerinaExtInstance.isValidBallerinaHome()) {
-				ballerinaExtInstance.showMessageInvalidBallerinaHome();
-			} else {
-				ballerinaExtInstance.showPluginActivationError();
-			}
-		});
+				if (!serverProvidesAST) {
+					ballerinaExtInstance.showMessageServerMissingCapability();
+					return {};
+				}
+				showDocs(context, langClient);
+			})
+			.catch((e) => {
+				if (!ballerinaExtInstance.isValidBallerinaHome()) {
+					ballerinaExtInstance.showMessageInvalidBallerinaHome();
+				} else {
+					ballerinaExtInstance.showPluginActivationError();
+				}
+			});
 	});
 
 	context.subscriptions.push(docsRenderDisposable);
