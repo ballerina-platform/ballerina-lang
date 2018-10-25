@@ -42,9 +42,7 @@ service helloWorldWithoutSSL bind serviceEndpointWithoutSSL {
         path: "/"
     }
     sayHelloGet(endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setTextPayload("Version: " + untaint req.httpVersion);
-        _ = caller->respond(res);
+        _ = caller->respond("Version: " + untaint req.httpVersion);
     }
 }
 
@@ -58,8 +56,6 @@ service helloWorldWithSSL bind serviceEndpointWithSSL {
         path: "/"
     }
     sayHelloGet(endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setTextPayload("Version: " + untaint req.httpVersion);
-        _ = caller->respond(res);
+        _ = caller->respond("Version: " + untaint req.httpVersion);
     }
 }

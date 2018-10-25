@@ -37,7 +37,7 @@ public class Http2ToHttp1FallbackTestCase extends Http2BaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
-        Assert.assertTrue(responseData.contains("1.1"), responseData);
+        Assert.assertEquals("Version: 1.1", responseData, "HTTP/2.0 to HTTP/1.1 server fallback scenario failed");
     }
 
     @Test(description = "Test HTTP/2.0 to HTTP/1.1 server fallback scenario with SSL enabled")
@@ -48,6 +48,7 @@ public class Http2ToHttp1FallbackTestCase extends Http2BaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
-        Assert.assertTrue(responseData.contains("1.1"), responseData);
+        Assert.assertEquals("Version: 1.1", responseData,
+                "HTTP/2.0 to HTTP/1.1 server fallback scenario with SSL enabled failed");
     }
 }
