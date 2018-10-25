@@ -150,6 +150,10 @@
             {
                 "command": "ballerina.showExamples",
                 "title": "Ballerina: Show Examples"
+            },
+            {
+                "command": "ballerina.runAllTests",
+                "title": "Ballerina: Run All Tests"
             }
         ],
         "menus": {
