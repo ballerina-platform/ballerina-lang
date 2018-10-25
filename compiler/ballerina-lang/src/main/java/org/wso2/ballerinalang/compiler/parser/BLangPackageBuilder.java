@@ -143,9 +143,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -954,13 +954,14 @@ public class BLangPackageBuilder {
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value) {
         addLiteralValue(pos, ws, typeTag, value, String.valueOf(value));
     }
+
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
         BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
         litExpr.addWS(ws);
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;
         litExpr.value = value;
-        litExpr.orginalValue = originalValue;
+        litExpr.originalValue = originalValue;
         addExpressionNode(litExpr);
     }
 
@@ -1436,9 +1437,9 @@ public class BLangPackageBuilder {
     }
 
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
-                                              Set<Whitespace> ws,
-                                              String identifier,
-                                              boolean exprAvailable) {
+                                                         Set<Whitespace> ws,
+                                                         String identifier,
+                                                         boolean exprAvailable) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
@@ -2919,7 +2920,9 @@ public class BLangPackageBuilder {
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
         joinStreamingInput.addWS(ws);
         joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
-        joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        if (this.exprNodeStack.size() > 0) {
+            joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        }
         joinStreamingInput.setUnidirectionalBeforeJoin(isUnidirectionalBeforeJoin);
         joinStreamingInput.setUnidirectionalAfterJoin(isUnidirectionalAfterJoin);
         joinStreamingInput.setJoinType(joinType);
@@ -3271,6 +3274,11 @@ public class BLangPackageBuilder {
         }
 
         addStmtToCurrentBlock(foreverNode);
+
+        // implicit import of streams module, user doesn't want to import explicitly
+        List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
+        addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
+                nameComps.get(nameComps.size() - 1));
     }
 
     void startMatchExpression() {
@@ -3379,7 +3387,7 @@ public class BLangPackageBuilder {
     void startOnCompensationBlock() {
         startFunctionDef();
     }
-    
+
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TypeNode typeRef = typeNodeStack.pop();
         typeRef.addWS(ws);
@@ -3388,11 +3396,11 @@ public class BLangPackageBuilder {
     }
 
     public void createTypeTestExpression(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangTypeCheckExpr typeCheckExpr = (BLangTypeCheckExpr) TreeBuilder.createTypeCheckExpressionNode();
-        typeCheckExpr.expr = (BLangExpression) this.exprNodeStack.pop();
-        typeCheckExpr.typeNode = (BLangType) this.typeNodeStack.pop();
-        typeCheckExpr.pos = pos;
-        typeCheckExpr.addWS(ws);
-        addExpressionNode(typeCheckExpr);
+        BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        typeTestExpr.expr = (BLangExpression) this.exprNodeStack.pop();
+        typeTestExpr.typeNode = (BLangType) this.typeNodeStack.pop();
+        typeTestExpr.pos = pos;
+        typeTestExpr.addWS(ws);
+        addExpressionNode(typeTestExpr);
     }
 }

@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -80,8 +81,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -154,7 +153,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
         populatePackageNode(pkgNode);
-        defineNode(pkgNode, null);
+        defineNode(pkgNode, this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol));
         return pkgNode;
     }
 
@@ -165,6 +164,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    public BLangPackage defineTestablePackage(BLangTestablePackage pkgNode, SymbolEnv env,
+                                              List<BLangImportPackage> enclPkgImports) {
+        populatePackageNode(pkgNode, enclPkgImports);
+        defineNode(pkgNode, env);
+        return pkgNode;
+    }
 
     // Visitor methods
 
@@ -175,13 +180,24 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Create PackageSymbol
-        BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        BPackageSymbol pkgSymbol;
+        if (Symbols.isFlagOn(Flags.asMask(pkgNode.flagSet), Flags.TESTABLE)) {
+            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable, Flags.asMask(pkgNode.flagSet));
+        } else {
+            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        }
+
         pkgNode.symbol = pkgSymbol;
-        SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, builtinEnv);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
-        createPackageInitFunctions(pkgNode);
+        defineConstructs(pkgNode, pkgEnv);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
+                                                                                   pkgNode.imports));
+        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+    }
+
+    private void defineConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
@@ -218,9 +234,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
         pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
-
-        definePackageInitFunctions(pkgNode, pkgEnv);
-        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -776,6 +789,19 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     /**
+     * Visit each compilation unit (.bal file) and add each top-level node in the compilation unit to the
+     * testable package node.
+     *
+     * @param pkgNode current package node
+     * @param enclPkgImports imports of the enclosed package
+     */
+    private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
+        populatePackageNode(pkgNode);
+        // Remove recurring imports from the testable package which appears in the enclosing bLangPackage
+        pkgNode.getImports().removeIf(enclPkgImports::contains);
+    }
+
+    /**
      * Visit each top-level node and add it to the package node.
      *
      * @param pkgNode  current package node
@@ -998,9 +1024,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    public void defineSymbol(BSymbol symbol, SymbolEnv env) {
+    /**
+     * Define a symbol that is unique only for the current scope.
+     * 
+     * @param pos Line number information of the source file
+     * @param symbol Symbol to be defines
+     * @param env Environment to define the symbol
+     */
+    public void defineShadowedSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
-        env.scope.define(symbol.name, symbol);
+        if (symResolver.checkForUniqueSymbolInCurrentScope(pos, env, symbol, symbol.tag)) {
+            env.scope.define(symbol.name, symbol);
+        }
     }
 
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
@@ -1178,53 +1213,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return receiver;
     }
 
-    private void definePackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
-        BLangFunction initFunction = pkgNode.initFunction;
-        // Add package level namespace declarations to the init function
-        pkgNode.xmlnsList.forEach(xmlns -> {
-            initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
-        });
-
-        defineNode(pkgNode.initFunction, env);
-        pkgNode.symbol.initFunctionSymbol = pkgNode.initFunction.symbol;
-
-        addInitReturnStatement(pkgNode.startFunction.body);
-        defineNode(pkgNode.startFunction, env);
-        pkgNode.symbol.startFunctionSymbol = pkgNode.startFunction.symbol;
-
-        addInitReturnStatement(pkgNode.stopFunction.body);
-        defineNode(pkgNode.stopFunction, env);
-        pkgNode.symbol.stopFunctionSymbol = pkgNode.stopFunction.symbol;
-    }
-
-    private void createPackageInitFunctions(BLangPackage pkgNode) {
-        String alias = pkgNode.symbol.pkgID.toString();
-        pkgNode.initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.INIT_FUNCTION_SUFFIX);
-        pkgNode.startFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.START_FUNCTION_SUFFIX);
-        pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.STOP_FUNCTION_SUFFIX);
-    }
-
     private IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         if (value != null) {
             node.setValue(value);
         }
         return node;
-    }
-
-    private void addInitReturnStatement(BLangBlockStmt bLangBlockStmt) {
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(bLangBlockStmt.pos, symTable.nilType);
-        bLangBlockStmt.addStatement(returnStmt);
-    }
-
-    private BLangXMLNSStatement createNamespaceDeclrStatement(BLangXMLNS xmlns) {
-        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
-        xmlnsStmt.xmlnsDecl = xmlns;
-        xmlnsStmt.pos = xmlns.pos;
-        return xmlnsStmt;
     }
 
     private boolean validateFuncReceiver(BLangFunction funcNode) {
@@ -1325,8 +1319,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
-            return ((BStructureType) referredType).fields.stream()
-                    .map(field -> ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type));
+            return ((BStructureType) referredType).fields.stream().map(field -> {
+                BLangVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
+                var.flagSet = field.symbol.getFlags();
+                return var;
+            });
         }).collect(Collectors.toList());
     }
 

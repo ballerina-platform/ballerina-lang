@@ -25,9 +25,9 @@ import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
+import org.ballerinalang.model.types.BFutureType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
@@ -364,7 +364,7 @@ public class CPU {
                     case InstructionCodes.IRSHIFT:
                     case InstructionCodes.ILSHIFT:
                     case InstructionCodes.IURSHIFT:
-                    case InstructionCodes.TYPE_CHECK:
+                    case InstructionCodes.TYPE_TEST:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1831,14 +1831,12 @@ public class CPU {
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
                 break;
-            case InstructionCodes.TYPE_CHECK:
+            case InstructionCodes.TYPE_TEST:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[j];
-                BValue value = sf.refRegs[i];
-                BType type = value == null ? BTypes.typeNull : value.getType();
-                sf.intRegs[k] = checkIsType(type, typeRefCPEntry.getType()) ? 1 : 0;
+                sf.intRegs[k] = checkIsType(sf.refRegs[i], typeRefCPEntry.getType()) ? 1 : 0;
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2835,16 +2833,7 @@ public class CPU {
     }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType, List<TypePair> unresolvedTypes) {
-        BType rhsType = BTypes.typeNull;
-
-        if (rhsValue == null && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        }
-
-        if (rhsValue != null) {
-            rhsType = rhsValue.getType();
-        }
-
+        BType rhsType = rhsValue == null ? BTypes.typeNull : rhsValue.getType();
         if (isSameOrAnyType(rhsType, lhsType)) {
             return true;
         }
@@ -2899,17 +2888,29 @@ public class CPU {
     }
 
     private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
-        if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.FLOAT_TAG) {
             return true;
         } else if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
             return true;
+        }
+
+        if (lhsType.getTag() == TypeTags.JSON_TAG) {
+            switch (rhsType.getTag()) {
+                case TypeTags.INT_TAG:
+                case TypeTags.FLOAT_TAG:
+                case TypeTags.STRING_TAG:
+                case TypeTags.BOOLEAN_TAG:
+                case TypeTags.NULL_TAG:
+                case TypeTags.JSON_TAG:
+                    return true;
+                case TypeTags.ARRAY_TAG:
+                    if (((BJSONType) lhsType).getConstrainedType() != null) {
+                        return false;
+                    }
+                    return checkCastByType(((BArrayType) rhsType).getElementType(), lhsType, unresolvedTypes);
+                default:
+                    return false;
+            }
         }
 
         if (rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG && lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -3088,19 +3089,18 @@ public class CPU {
             return false;
         }
 
-        return checkEquivalencyOfTwoRecords(lhsType, rhsType);
+        return checkFieldEquivalency(lhsType, rhsType);
     }
 
     private static boolean checkPrivateObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
-        for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
-            BField lhsField = lhsType.getFields()[fieldCounter];
-            BField rhsField = rhsType.getFields()[fieldCounter];
-            if (lhsField.fieldName.equals(rhsField.fieldName) &&
-                    isSameType(rhsField.fieldType, lhsField.fieldType)) {
-                continue;
+        Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
+                Collectors.toMap(BField::getFieldName, field -> field));
+        for (BField lhsField : lhsType.getFields()) {
+            BField rhsField = rhsFields.get(lhsField.fieldName);
+            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
+                return false;
             }
-            return false;
         }
 
         BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
@@ -3120,26 +3120,17 @@ public class CPU {
 
     private static boolean checkPublicObjectsEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                            List<TypePair> unresolvedTypes) {
-        int fieldCounter = 0;
-        for (; fieldCounter < lhsType.getFields().length; fieldCounter++) {
-            // Return false if either field is private
-            BField lhsField = lhsType.getFields()[fieldCounter];
-            BField rhsField = rhsType.getFields()[fieldCounter];
-            if (!Flags.isFlagOn(lhsField.flags, Flags.PUBLIC) ||
-                    !Flags.isFlagOn(rhsField.flags, Flags.PUBLIC)) {
-                return false;
-            }
-
-            if (lhsField.fieldName.equals(rhsField.fieldName) &&
-                    isSameType(rhsField.fieldType, lhsField.fieldType)) {
-                continue;
-            }
+        // Check the whether there is any private fields in RHS type
+        if (Arrays.stream(rhsType.getFields()).anyMatch(field -> !Flags.isFlagOn(field.flags, Flags.PUBLIC))) {
             return false;
         }
 
-        // Check the rest of the fields in RHS type
-        for (; fieldCounter < rhsType.getFields().length; fieldCounter++) {
-            if (!Flags.isFlagOn(rhsType.getFields()[fieldCounter].flags, Flags.PUBLIC)) {
+        Map<String, BField> rhsFields =
+                Arrays.stream(rhsType.getFields()).collect(Collectors.toMap(BField::getFieldName, field -> field));
+        for (BField lhsField : lhsType.getFields()) {
+            BField rhsField = rhsFields.get(lhsField.fieldName);
+            if (rhsField == null || !Flags.isFlagOn(lhsField.flags, Flags.PUBLIC) ||
+                    !isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 return false;
             }
         }
@@ -3171,24 +3162,16 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkEquivalencyOfTwoRecords(BRecordType lhsType, BRecordType rhsType) {
+    private static boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType) {
         Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
                 Collectors.toMap(BField::getFieldName, field -> field));
-
-        BField[] fields = lhsType.getFields();
-        for (int fieldCounter = 0; fieldCounter < fields.length; fieldCounter++) {
-            BField lhsField = fields[fieldCounter];
+        for (BField lhsField : lhsType.getFields()) {
             BField rhsField = rhsFields.get(lhsField.fieldName);
 
-            if (rhsField == null) {
-                return false;
-            }
-
-            if (!isSameType(rhsField.fieldType, lhsField.fieldType)) {
+            if (rhsField == null || !isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -3794,7 +3777,12 @@ public class CPU {
         compensationTable.index++;
     }
 
-    private static boolean checkIsType(BType sourceType, BType targetType) {
+    private static boolean checkIsType(BValue sourceVal, BType targetType) {
+        if (targetType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(sourceVal, targetType);
+        }
+
+        BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
         return checkIsType(sourceType, targetType, new ArrayList<>());
     }
 
@@ -3812,7 +3800,6 @@ public class CPU {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
-            case TypeTags.FUTURE_TAG:
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -3835,6 +3822,10 @@ public class CPU {
                 return true;
             case TypeTags.OBJECT_TYPE_TAG:
                 return isAssignable(sourceType, targetType, unresolvedTypes);
+            case TypeTags.FINITE_TYPE_TAG:
+                return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
+            case TypeTags.FUTURE_TAG:
+                return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             default:
                 return false;
         }
@@ -3844,18 +3835,8 @@ public class CPU {
         if (sourceType.getTag() != TypeTags.MAP_TAG) {
             return false;
         }
-
-        BType sourceConstraint = ((BMapType) sourceType).getConstrainedType();
-        BType targetConstraint = targetType.getConstrainedType();
-        if (sourceConstraint == targetConstraint) {
-            return true;
-        }
-
-        if (sourceConstraint == null || targetConstraint == null) {
-            return false;
-        }
-
-        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+        return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                unresolvedTypes);
     }
 
     private static boolean checkIsJSONType(BType sourceType, BJSONType targetType,
@@ -3913,7 +3894,7 @@ public class CPU {
             return false;
         }
 
-        if (targetType.getFields().length> sourceRecordType.getFields().length) {
+        if (targetType.getFields().length > sourceRecordType.getFields().length) {
             return false;
         }
 
@@ -3936,18 +3917,8 @@ public class CPU {
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
         }
-
-        BType sourceConstraint = ((BTableType) sourceType).getConstrainedType();
-        BType targetConstraint = targetType.getConstrainedType();
-        if (sourceConstraint == targetConstraint) {
-            return true;
-        }
-
-        if (sourceConstraint == null || targetConstraint == null) {
-            return false;
-        }
-
-        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+        return checkContraints(((BTableType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                unresolvedTypes);
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
@@ -3979,6 +3950,40 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    private static boolean checkIsFiniteType(BType sourceType, BFiniteType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.FINITE_TYPE_TAG) {
+            return false;
+        }
+
+        BFiniteType sourceFiniteType = (BFiniteType) sourceType;
+        if (sourceFiniteType.valueSpace.size() != targetType.valueSpace.size()) {
+            return false;
+        }
+
+        return sourceFiniteType.valueSpace.stream().allMatch(value -> targetType.valueSpace.contains(value));
+    }
+
+    private static boolean checkIsFutureType(BType sourceType, BFutureType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.FUTURE_TAG) {
+            return false;
+        }
+        return checkContraints(((BFutureType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                unresolvedTypes);
+    }
+
+    private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
+                                           List<TypePair> unresolvedTypes) {
+        if (sourceConstraint == null) {
+            sourceConstraint = BTypes.typeAny;
+        }
+
+        if (targetConstraint == null) {
+            targetConstraint = BTypes.typeAny;
+        }
+
+        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
     }
 
     /**

@@ -25,13 +25,33 @@ import org.ballerinalang.model.tree.types.TypeNode;
  * 
  * @since 0.985.0
  */
-public interface TypeCheckExpressionNode extends ExpressionNode {
+public interface TypeTestExpressionNode extends ExpressionNode {
 
+    /**
+     * Get the expression associated with the type check.
+     * 
+     * @return Expression associated with the type check.
+     */
     ExpressionNode getExpression();
 
+    /**
+     * Get the expression associated with the type check.
+     * 
+     * @param expr Expression associated with the type check.
+     */
     void setExpression(ExpressionNode expr);
 
+    /**
+     * Get the type node of this type check expression.
+     * 
+     * @return Type node of this type check expression.
+     */
     TypeNode getTypeNode();
 
+    /**
+     * Set the type node of this type check expression.
+     * 
+     * @param type Type node of this type check expression.
+     */
     void setTypeNode(TypeNode type);
 }

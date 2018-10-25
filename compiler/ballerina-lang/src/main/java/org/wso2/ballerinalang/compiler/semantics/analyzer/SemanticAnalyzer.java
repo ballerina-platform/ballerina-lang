@@ -110,9 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -164,8 +162,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**
@@ -175,6 +172,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
+    private static final String AGGREGATOR_OBJECT_NAME = "Aggregator";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -191,8 +189,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
-
-    private Stack<List<BType>> guardedTypes = new Stack<>();
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -230,9 +226,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
-                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        pkgNode.topLevelNodes.stream()
+                             .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
+                                     ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+                             .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -243,10 +240,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
 
-        analyzeDef(pkgNode.initFunction, pkgEnv);
-        analyzeDef(pkgNode.startFunction, pkgEnv);
-        analyzeDef(pkgNode.stopFunction, pkgEnv);
-
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
@@ -362,7 +356,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationNode.symbol.scope, env);
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoint = AttachPoint.ANNOTATION;
             annotationAttachment.accept(this);
@@ -594,15 +587,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIf ifNode) {
         typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
 
-        Optional<BLangTypeCheckExpr> typeGuard = getTypeGuard(ifNode.expr);
-        if (typeGuard.isPresent()) {
-            BLangTypeCheckExpr typeCheck = typeGuard.get();
-            if (typeCheck.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) typeCheck.expr;
-                SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(ifNode.body, env);
-                typeCheck.symbol = new BVarSymbol(0, names.fromIdNode(varRef.variableName), ifBodyEnv.scope.owner.pkgID,
-                        typeCheck.typeNode.type, this.env.scope.owner);
-                symbolEnter.defineSymbol(typeCheck.symbol, ifBodyEnv);
+        Map<BVarSymbol, BType> typeGuards = typeChecker.getTypeGuards(ifNode.expr);
+        if (!typeGuards.isEmpty()) {
+            SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(ifNode.body, env);
+            for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
+                BVarSymbol originalVarSymbol = entry.getKey();
+                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, ifBodyEnv.scope.owner.pkgID,
+                        entry.getValue(), this.env.scope.owner);
+                symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
+
+                // Cache the type guards, to be reused at the desugar.
+                ifNode.typeGuards.put(originalVarSymbol, varSymbol);
             }
         }
 
@@ -636,7 +631,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchStmtPatternClause patternClause) {
         // If the variable is not equal to '_', then define the variable in the block scope
         if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) patternClause.body, env);
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
             symbolEnter.defineNode(patternClause.variable, blockEnv);
             analyzeStmt(patternClause.body, blockEnv);
             return;
@@ -1387,8 +1382,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
         if (!isSiddhiRuntimeEnabled) {
-            if (isGroupByAvailable && expressionNode.getKind() == NodeKind.INVOCATION) {
-                ((BLangExpression) expressionNode).accept(this);
+            if (expressionNode.getKind() == NodeKind.INVOCATION) {
+                BLangInvocation invocation = (BLangInvocation) expressionNode;
+                BSymbol invocationSymbol = symResolver.
+                        resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
+                        scope.lookup(new Name(invocation.name.value)).symbol;
+                BSymbol aggregatorSymbol = symResolver.
+                        resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
+                        scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol;
+
+                if (invocationSymbol != null && invocationSymbol.type.getReturnType().tsymbol != aggregatorSymbol) {
+                    this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+                }
             } else {
                 this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
             }
@@ -2081,21 +2086,5 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
                     func.symbol.receiverSymbol.type);
         }
-    }
-
-    private Optional<BLangTypeCheckExpr> getTypeGuard(BLangExpression expr) {
-        switch (expr.getKind()) {
-            case TYPE_CHECK_EXPR:
-                return Optional.of((BLangTypeCheckExpr) expr);
-            case BRACED_TUPLE_EXPR:
-                BLangBracedOrTupleExpr bracedExpr = (BLangBracedOrTupleExpr) expr;
-                if (bracedExpr.isBracedExpr) {
-                    return getTypeGuard(bracedExpr.expressions.get(0));
-                }
-                break;
-            default:
-                break;
-        }
-        return Optional.empty();
     }
 }

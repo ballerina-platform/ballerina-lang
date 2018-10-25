@@ -98,9 +98,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -127,14 +127,16 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -798,7 +800,23 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangTernaryExpr ternaryExpr) {
         BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
-        BType thenType = checkExpr(ternaryExpr.thenExpr, env, expType);
+
+        SymbolEnv thenEnv = env;
+        Map<BVarSymbol, BType> typeGuards = getTypeGuards(ternaryExpr.expr);
+        if (!typeGuards.isEmpty()) {
+            thenEnv = SymbolEnv.createExpressionEnv(ternaryExpr, env);
+            for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
+                BVarSymbol originalVarSymbol = entry.getKey();
+                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
+                        entry.getValue(), this.env.scope.owner);
+                symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
+
+                // Cache the type guards, to be reused at the desugar.
+                ternaryExpr.typeGuards.put(originalVarSymbol, varSymbol);
+            }
+        }
+
+        BType thenType = checkExpr(ternaryExpr.thenExpr, thenEnv, expType);
         BType elseType = checkExpr(ternaryExpr.elseExpr, env, expType);
         if (condExprType == symTable.errType || thenType == symTable.errType || elseType == symTable.errType) {
             resultType = symTable.errType;
@@ -1391,11 +1409,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTypeCheckExpr typeCheckExpr) {
-        typeCheckExpr.typeNode.type = symResolver.resolveTypeNode(typeCheckExpr.typeNode, env);
-        checkExpr(typeCheckExpr.expr, env);
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.typeNode.type = symResolver.resolveTypeNode(typeTestExpr.typeNode, env);
+        checkExpr(typeTestExpr.expr, env);
 
-        resultType = types.checkType(typeCheckExpr, symTable.booleanType, expType);
+        resultType = types.checkType(typeTestExpr, symTable.booleanType, expType);
     }
 
     // Private methods
@@ -2297,5 +2315,50 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return matchExprTypes;
+    }
+
+    /**
+     * Returns the type guards included in a given expression.
+     * 
+     * @param expr Expression to get type guards
+     * @return A map of type guards, with the original variable symbol as keys
+     *         and their guarded type.
+     */
+    Map<BVarSymbol, BType> getTypeGuards(BLangExpression expr) {
+        Map<BVarSymbol, BType> typeGuards = new HashMap<>();
+        collectTypeGuards(expr, typeGuards);
+        return typeGuards;
+    }
+
+    private Map<BVarSymbol, BType> collectTypeGuards(BLangExpression expr, Map<BVarSymbol, BType> typeGuards) {
+        switch (expr.getKind()) {
+            case TYPE_TEST_EXPR:
+                BLangTypeTestExpr typeTest = (BLangTypeTestExpr) expr;
+                if (typeTest.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTest.expr).symbol;
+                    if (!typeGuards.containsKey(varSymbol)) {
+                        typeGuards.put(varSymbol, typeTest.typeNode.type);
+                    } else {
+                        // TODO: handle two type-tests for same var
+                    }
+                }
+                break;
+            case BRACED_TUPLE_EXPR:
+                BLangBracedOrTupleExpr bracedExpr = (BLangBracedOrTupleExpr) expr;
+                if (bracedExpr.isBracedExpr) {
+                    collectTypeGuards(bracedExpr.expressions.get(0), typeGuards);
+                }
+                break;
+            case BINARY_EXPR:
+                BLangBinaryExpr binExpr = (BLangBinaryExpr) expr;
+                if (binExpr.getOperatorKind() == OperatorKind.AND) {
+                    collectTypeGuards(binExpr.lhsExpr, typeGuards);
+                    collectTypeGuards(binExpr.rhsExpr, typeGuards);
+                }
+                break;
+            default:
+                break;
+        }
+        return typeGuards;
     }
 }

@@ -1,5 +1,5 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,24 +18,22 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.TypeCheckExpressionNode;
+import org.ballerinalang.model.tree.expressions.TypeTestExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 /**
- * Implementation of {@link BinaryExpressionNode}.
- *
- * @since 0.94
+ * Represents a type test expression in Ballerina.
+ * Syntax: x is T
+ * 
+ * @since 0.985.0
  */
-public class BLangTypeCheckExpr extends BLangExpression implements TypeCheckExpressionNode {
+public class BLangTypeTestExpr extends BLangExpression implements TypeTestExpressionNode {
 
     public BLangExpression expr;
     public BLangType typeNode;
-    public BVarSymbol symbol;
 
     @Override
     public BLangExpression getExpression() {
@@ -59,7 +57,7 @@ public class BLangTypeCheckExpr extends BLangExpression implements TypeCheckExpr
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.TYPE_CHECK_EXPR;
+        return NodeKind.TYPE_TEST_EXPR;
     }
 
     @Override

@@ -50,3 +50,19 @@ function testSimpleRecordTypes_1() returns string {
     return "n/a";
 }
 
+
+function testSimpleTernary() returns string {
+    any a = "hello";
+    return a is string ? (a is int ? "a is a string and an int" : "a is a string and not an int") : "a is not a string";
+}
+
+function testTypeGuardsWithAnd() returns string {
+    int|string x = 5;
+    if (x is int && x > 4) {
+        int y = x;
+        return "x is greater than 4: " + <string> y;
+    } else {
+        string s = x;
+        return s;
+    }
+}

@@ -62,8 +62,8 @@ public class BIntegerValueNegativeTest {
         expectedError = "extraneous input '912'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 14, 14);
 
-        expectedError = "mismatched input '}'. expecting {'but', 'is', ';', '?', '+', '-', '*', '/', '%', '==', '!=', " +
-                "'>', '<', '>=', '<=', '&&', '||', '&', '^', '...', '|', '?:', '..<'}";
+        expectedError = "mismatched input '}'. expecting {'but', 'is', ';', '?', '+', '-', '*', '/', '%', '==', " +
+                "'!=', '>', '<', '>=', '<=', '&&', '||', '&', '^', '...', '|', '?:', '..<'}";
         BAssertUtil.validateError(compileResult, index, expectedError, 18, 1);
     }
 }

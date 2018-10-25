@@ -86,9 +86,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCheckExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -147,6 +147,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 public abstract class BLangNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTestablePackage testablePkgNode) {
         throw new AssertionError();
     }
 
@@ -554,7 +558,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangTypeCheckExpr typeCheckExpr) {
+    public void visit(BLangTypeTestExpr typeTestExpr) {
         throw new AssertionError();
     }
 

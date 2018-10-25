@@ -77,6 +77,27 @@ function testNilType() returns (string) {
     }
 }
 
+function testTypeChecksWithLogicalAnd() returns string {
+    int|string x = "hello";
+    float|boolean y = true;
+    if (x is int && y is float) {
+        return "int and float";
+    } else if (x is int && y is boolean) {
+        return "int and boolean";
+    } else if (x is string && y is float) {
+        return "string and float";
+    } else if (x is string && y is boolean) {
+        return "string and boolean";
+    } else {
+        return "I don't know";
+    }
+}
+
+function testTypeCheckInTernary() returns string {
+    any a = 6;
+    return a is string ? "A string" : a is int ? "An integer" : "Not an integer nor string";
+}
+
 // ========================== Records ==========================
 
 type A1 record {
@@ -353,6 +374,104 @@ function testObjectWithUnorderedFields() returns (string, string, string, string
     return (s1, s2, s3, s4);
 }
 
+public type A4 abstract object {
+    public int p;
+    public string q;
+};
+
+public type B4 abstract object {
+    public float r;
+    *A4;
+};
+
+public type C4 object {
+    *B4;
+    public boolean s;
+    
+    public new (p, q, r, s) {}
+};
+
+function testPublicObjectEquivalency() returns (string, string, string) {
+    any x = new C4(5, "foo", 6.7, true);
+    string s1 = "n/a";
+    string s2 = "n/a";
+    string s3 = "n/a";
+
+    if(x is A4) {
+        s1 = "values: " + x.p + ", " + x.q;
+    }
+
+    if (x is B4) {
+        s2 = "values: " + x.p + ", " + x.q + ", " + x.r;
+    }
+
+    if (x is Person) {   // shouldn't match
+        s3 = "values: " + x.name + ", " + x.age;
+    }
+
+    return (s1, s2, s3);
+}
+
+type A5 abstract object {
+    int p;
+    string q;
+};
+
+type B5 abstract object {
+    float r;
+    *A5;
+};
+
+type C5 object {
+    *B5;
+    boolean s;
+    
+    new (p, q, r, s) {}
+};
+
+function testPrivateObjectEquivalency() returns (string, string, string) {
+    any x = new C5(5, "foo", 6.7, true);
+    string s1 = "n/a";
+    string s2 = "n/a";
+    string s3 = "n/a";
+
+    if(x is A5) {
+        s1 = "values: " + x.p + ", " + x.q;
+    }
+
+    if (x is B5) {
+        s2 = "values: " + x.p + ", " + x.q + ", " + x.r;
+    }
+
+    if (x is Person) {   // shouldn't match
+        s3 = "values: " + x.name + ", " + x.age;
+    }
+
+    return (s1, s2, s3);
+}
+
+function testAnonymousObjectEquivalency() returns (string, string, string) {
+    any x = new C4(5, "foo", 6.7, true);
+    string s1 = "n/a";
+    string s2 = "n/a";
+    string s3 = "n/a";
+
+    if(x is abstract object { public float r; *A4; }) {
+        s1 = "values: " + x.p + ", " + x.q + ", " + x.r;
+    }
+
+    if(x is object {  public int p;  public string q;  public float r;  public boolean s;}) {
+        s2 = "values: " + x.p + ", " + x.q + ", " + x.r + ", " + x.s;
+    }
+
+    if(x is object { public int p;  public boolean q;  public float r;}) {  // shouldn't match
+        s3 = "values: " + x.p + ", " + x.q + ", " + x.r;
+    }
+
+    return (s1, s2, s3);
+}
+
+
 // ========================== Arrays ==========================
 
 function testSimpleArrays() returns (boolean, boolean, boolean, boolean, boolean) {
@@ -462,4 +581,56 @@ function checkJSON(json j) returns string {
     } else {
         return "json object";
     }
+}
+
+function testJsonArrays() returns (boolean, boolean, boolean) {
+    json[] p = [1, 2, 3];
+    json[][] q = [[1, 2, 3], [4, 5, 6]];
+    int[][] r = [[1, 2, 3], [4, 5, 6]];
+    any x = p;
+    any y = q;
+    json z = r;
+    boolean b0 = x is int[];
+    boolean b1 = y is int[][];
+    boolean b3 = z is int[][];
+
+    return (b0, b1, b3);
+}
+
+// ========================== Finite type ==========================
+
+type State "on"|"off";
+
+function testFiniteType() returns (boolean, boolean, boolean) {
+    State a = "on";
+    any b = a;
+    any c = "off";
+    any d = "hello";
+
+    return (b is State, c is State, d is State);
+}
+
+function testFiniteTypeInTuple() returns (boolean, boolean, boolean, boolean) {
+    (State, string) x = ("on", "off");
+    any y = x;
+    
+    boolean b0 = y is (State, State);
+    boolean b1 = y is (State, string);
+    boolean b2 = y is (string, State);
+    boolean b3 = y is (string, string);
+
+    return (b0, b1, b2, b3);
+}
+
+function testFiniteTypeInTuplePoisoning() returns (State, State) {
+    (State, string) x = ("on", "off");
+    any y = x;
+    (State, State) z = ("on", "on");
+    
+    if (y is (State, State)) {
+        z = y;
+    }
+
+    x[1] = "surprise!";
+    return (z[0], z[1]);
 }

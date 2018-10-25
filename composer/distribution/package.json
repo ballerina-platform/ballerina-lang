@@ -16,6 +16,7 @@
   "dependencies": {
     "@ballerina/diagram": "file:../diagram",
     "@ballerina/ballerina-by-examples": "file:../bbe",
+    "@ballerina/theme": "file:../theme",
     "react-dom": "^16.2.0",
     "react": "^16.2.0"
   },
