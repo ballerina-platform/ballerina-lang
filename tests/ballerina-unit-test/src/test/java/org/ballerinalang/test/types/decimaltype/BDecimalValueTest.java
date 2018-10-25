@@ -21,6 +21,7 @@ package org.ballerinalang.test.types.decimaltype;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -136,6 +137,21 @@ public class BDecimalValueTest {
         BDecimal value = (BDecimal) returns[0];
         Assert.assertTrue(value.decimalValue().compareTo(new Decimal("-4.565")) == 0,
                 "Invalid decimal value returned.");
+    }
+
+    @Test(description = "Test decimal comparison operations")
+    public void testDecimalComparisonOperations() {
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalComparisonOperations", new BValue[]{});
+        Assert.assertEquals(returns.length, 6);
+        for (int i = 0; i < 6; i++) {
+            Assert.assertSame(returns[i].getClass(), BBoolean.class);
+            BBoolean val = (BBoolean) returns[i];
+            if (i % 2 == 0) {
+                Assert.assertEquals(val.booleanValue(), false, "Invalid boolean value returned.");
+            } else {
+                Assert.assertEquals(val.booleanValue(), true, "Invalid boolean value returned.");
+            }
+        }
     }
 
     @Test(description = "Test decimal value passed as a parameter")

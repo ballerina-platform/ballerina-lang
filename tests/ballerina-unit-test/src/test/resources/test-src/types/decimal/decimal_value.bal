@@ -77,6 +77,21 @@ function testDecimalNegation() returns (decimal) {
     return -a; // EXPECTED: -4.565
 }
 
+// Decimal comparison operations.
+function testDecimalComparisonOperations() returns (boolean, boolean, boolean, boolean, boolean, boolean) {
+    decimal d1 = 45.678432;
+    decimal d2 = 45.678432005;
+
+    boolean b1 = (d1 == d2);
+    boolean b2 = (d1 != d2);
+    boolean b3 = (d1 > d2);
+    boolean b4 = (d1 < d2);
+    boolean b5 = (d1 >= d2);
+    boolean b6 = (d1 <= d2);
+
+    return (b1, b2, b3, b4, b5, b6);
+}
+
 // Decimal value passed as a parameter.
 function testDecimalParameter(decimal a, decimal b) returns (decimal, decimal) {
     decimal c;
