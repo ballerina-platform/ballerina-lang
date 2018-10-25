@@ -5,5 +5,5 @@ declare module '@ballerina/diagram' {
 }
 
 declare module '@ballerina/documentation' {
-    export function render(ast: any, el: any): void;
+    export function renderDocPreview(ast: any, el: any): void;
 }

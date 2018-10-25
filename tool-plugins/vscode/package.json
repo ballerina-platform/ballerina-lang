@@ -141,19 +141,22 @@
         "commands": [
             {
                 "command": "ballerina.showDiagram",
-                "title": "Ballerina: Show Diagram",
+                "title": "Show Diagram",
                 "icon": {
                     "dark": "./resources/images/icons/design-view-white.svg",
                     "light": "./resources/images/icons/design-view.svg"
-                }
+                },
+                "category": "Ballerina"
             },
             {
                 "command": "ballerina.showExamples",
-                "title": "Ballerina: Show Examples"
+                "title": "Show Examples",
+                "category": "Ballerina"
             },
             {
                 "command": "ballerina.showDocs",
-                "title": "Ballerina: Show Docs"
+                "title": "Open Doc Prview",
+                "category": "Ballerina"
             }
         ],
         "menus": {

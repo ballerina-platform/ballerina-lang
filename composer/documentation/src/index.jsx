@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App';
+import DocPreview from './components/App';
 
-export default function render(ast, el) {
-    ReactDOM.render(<App ast={ast}/>, el);
+export function renderDocPreview(ast, el) {
+    ReactDOM.render(<DocPreview ast={ast}/>, el);
 }

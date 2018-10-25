@@ -4,11 +4,11 @@ import * as path from 'path';
 export function render(context: ExtensionContext): string {
     let composerJsSrc;
     if (process.env.COMPOSER_DEBUG === "true") {
+        composerJsSrc = 'http://localhost:9000/composer.js';
+    } else {
         const { extensionPath } = context;
         const onDiskPath = Uri.file(path.join(extensionPath, 'resources', 'composer', 'composer.js'));
         composerJsSrc = onDiskPath.with({ scheme: 'vscode-resource' });
-    } else {
-        composerJsSrc = 'http://localhost:9000/composer.js';
     }
 
     return `
@@ -26,7 +26,7 @@ export function render(context: ExtensionContext): string {
                     switch (event.data.command) {
                         case 'update':
                             astJson = event.data.json;
-                            if (ballerinaComposer) {
+                            if (window.ballerinaComposer) {
                                 ballerinaComposer.renderDocuments(astJson, el);
                             }
                             break;
@@ -35,7 +35,7 @@ export function render(context: ExtensionContext): string {
 
                 function loadedScript() {
                     if(astJson) {
-                        ballerinaComposer.renderDocuments(astJson, el);
+                        ballerinaComposer.renderDocPreview(astJson, el);
                     }
                 }
             </script>

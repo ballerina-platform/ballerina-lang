@@ -1,7 +1,7 @@
 import React from 'react';
 import Documentation from './Documentation';
 
-export default class App extends React.Component {
+export default class DocPreview extends React.Component {
     getDocumentationDetails(node) {
         const { markdownDocumentationAttachment: mdDoc } = node;
 
@@ -35,7 +35,6 @@ export default class App extends React.Component {
                 description: mdDoc.returnParameterDocumentation,
             };
         }
-        console.log(returnParameter);
         const documentationDetails = {
             title: node.name.value,
             description: mdDoc.documentation,
