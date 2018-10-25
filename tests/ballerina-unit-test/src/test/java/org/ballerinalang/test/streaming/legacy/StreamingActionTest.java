@@ -46,16 +46,16 @@ public class StreamingActionTest {
     public void testStreamingActionNegativeType() {
         Assert.assertEquals(resultNegativeInvalidType.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegativeInvalidType, 1, "undefined symbol 'emp'",
-                45, 37);
+                44, 37);
     }
 
     @Test(description = "Test streaming action query with errors")
     public void testStreamingActionNegativeArgumentCount() {
         Assert.assertEquals(resultNegativeInvalidArgumentCount.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 0,
-                                  "mismatched input ','. expecting ')'", 44, 27);
+                                  "mismatched input ','. expecting ')'", 43, 27);
         BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 1,
-                                  "mismatched input ')'. expecting ';'", 44, 34);
+                                  "mismatched input ')'. expecting ';'", 43, 34);
     }
 
 }
