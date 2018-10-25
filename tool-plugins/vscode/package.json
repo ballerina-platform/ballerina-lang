@@ -188,15 +188,18 @@
         "ws": "^4.0.0"
     },
     "devDependencies": {
+        "@types/chai": "^4.1.6",
         "@types/glob": "^5.0.36",
         "@types/lodash": "^4.14.116",
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
+        "chai": "^4.2.0",
         "decache": "^4.4.0",
         "istanbul": "^0.4.5",
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.12.0",
+        "ts-node": "^7.0.1",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.36.2",

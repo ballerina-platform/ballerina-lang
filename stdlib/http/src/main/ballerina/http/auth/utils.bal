@@ -14,34 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-# Authentication header name.
-@final string AUTH_HEADER = "Authorization";
-# Basic authentication scheme.
-@final string AUTH_SCHEME_BASIC = "Basic";
-# Bearer authentication scheme.
-@final string AUTH_SCHEME_BEARER = "Bearer";
 # Auth annotation module.
 @final string ANN_MODULE = "ballerina/http";
 # Resource level annotation name.
 @final string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
 @final string SERVICE_ANN_NAME = "ServiceConfig";
+# Authentication header name.
+@final public string AUTH_HEADER = "Authorization";
+# Basic authentication scheme.
+@final public string AUTH_SCHEME_BASIC = "Basic";
+# Bearer authentication scheme.
+@final public string AUTH_SCHEME_BEARER = "Bearer";
 # Auth provider config name.
-@final string AUTH_PROVIDER_CONFIG = "config";
+@final public string AUTH_PROVIDER_CONFIG = "config";
 # LDAP auth provider config name.
-@final string AUTH_PROVIDER_LDAP = "ldap";
-# JDBC auth provider config name.
-@final string AUTH_PROVIDER_JDBC = "jdbc";
-# AD auth provider config name.
-@final string AUTH_PROVIDER_AD = "activeDirectory";
+@final public string AUTH_PROVIDER_LDAP = "ldap";
 
 # Authn scheme basic.
-@final string AUTHN_SCHEME_BASIC = "basic";
+@final public string AUTHN_SCHEME_BASIC = "basic";
 # Authn scheme JWT.
-@final string AUTH_SCHEME_JWT = "jwt";
+@final public string AUTH_SCHEME_JWT = "jwt";
 # Authn scheme OAuth2.
-@final string AUTH_SCHEME_OAUTH2 = "oauth2";
+@final public string AUTH_SCHEME_OAUTH2 = "oauth2";
 
 # Extracts the basic authentication header value from the request.
 #
@@ -49,10 +44,9 @@
 # + return - Value of the basic authentication header, or nil if not found
 public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
     // extract authorization header
-    try {
-        return req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
+    match trap req.getHeader(AUTH_HEADER) {
+        string s => return s;
+        error e => log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.reason());
     }
     return ();
 }
@@ -62,6 +56,6 @@ public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
 # + message - Error message
 # + return - Error populated with the message
 function handleError(string message) returns (error) {
-    error e = {message: message};
+    error e = error(message);
     return e;
 }

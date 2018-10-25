@@ -1,0 +1,15 @@
+{
+  "position": {
+    "line": 3,
+    "character": 10
+  },
+  "source": "function/source/panicStatementErrorSuggestions.bal",
+  "items": [
+    {
+      "label":"err",
+      "kind":"Unit",
+      "detail":"error",
+      "insertText":"err"
+    }
+  ]
+}

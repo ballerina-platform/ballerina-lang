@@ -59,27 +59,26 @@ function testFailureScenario () returns (http:Response | error) {
         timeoutMillis:5000
     };
 
-    error err = {};
+    http:Response response;
     http:FailoverActions foClient = backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
     foClient.failoverInferredConfig.failoverClientsArray = httpClients;
-io:println(counter);
     while (counter < 1) {
        http:Request request = new;
        match foClient.get("/hello", message = request) {
             http:Response res => {
+                counter = counter + 1;
+                response = res;
             }
             error httpConnectorError => {
-                io:println(httpConnectorError);
-                err = httpConnectorError;
+                counter = counter + 1;
+                return httpConnectorError;
             }
         }
-
-        counter = counter + 1;
     }
-    return err;
+    return response;
 }
 
 public type MockClient object {
@@ -87,32 +86,32 @@ public type MockClient object {
     public http:ClientEndpointConfig config;
 
     public function post (string path, http:Request req) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function head (string path, http:Request req) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function put (string path, http:Request req) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function execute (string httpVerb, string path, http:Request req) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function patch (string path, http:Request req) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function delete (string path, http:Request req) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
@@ -123,7 +122,7 @@ public type MockClient object {
                 response = res;
             }
             error httpConnectorError => {
-                string message = httpConnectorError.message;
+                string message = httpConnectorError.reason();
                 response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                 response.setTextPayload(message);
             }
@@ -132,22 +131,22 @@ public type MockClient object {
     }
 
     public function options (string path, http:Request req) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function forward (string path, http:Request req) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function submit (string httpVerb, string path, http:Request req) returns (http:HttpFuture | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function getResponse (http:HttpFuture httpFuture)  returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
@@ -156,12 +155,12 @@ public type MockClient object {
     }
 
     public function getNextPromise (http:HttpFuture httpFuture) returns (http:PushPromise | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
     public function getPromisedResponse (http:PushPromise promise) returns (http:Response | error) {
-        error httpConnectorError = {message:"Unsupported fuction for MockClient"};
+        error httpConnectorError = error("Unsupported fuction for MockClient");
         return httpConnectorError;
     }
 
@@ -171,7 +170,7 @@ public type MockClient object {
 
 function handleFailoverScenario (int count) returns (http:Response | error) {
     if (count == 0) {
-        error err = {message:"Connection refused"};
+        error err = error("Connection refused");
         return err;
     } else {
         http:Response inResponse = new;

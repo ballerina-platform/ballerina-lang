@@ -46,11 +46,12 @@ public type HttpJwtAuthnHandler object {
 
 function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     string authHeader;
-    try {
-        authHeader = req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
-        return false;
+    match trap req.getHeader(AUTH_HEADER) {
+        string s => authHeader = s;
+        error e => {
+            log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.reason());
+            return false;
+        }
     }
     if (authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");

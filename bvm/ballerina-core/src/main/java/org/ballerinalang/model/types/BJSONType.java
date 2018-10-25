@@ -60,15 +60,6 @@ public class BJSONType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        if (constraint == null) {
-            return new TypeSignature(TypeSignature.SIG_JSON);
-        } else {
-            return new TypeSignature(TypeSignature.SIG_JSON, constraint.getPackagePath(), constraint.getName());
-        }
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.JSON_TAG;
     }

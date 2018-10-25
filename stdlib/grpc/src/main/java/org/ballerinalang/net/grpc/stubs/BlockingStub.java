@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -119,13 +120,12 @@ public class BlockingStub extends AbstractStub {
 
         @Override
         public void onClose(Status status, HttpHeaders trailers) {
-            BMap<String, BValue> httpConnectorError = null;
+            BError httpConnectorError = null;
             BRefValueArray inboundResponse = null;
             if (status.isOk()) {
                 if (value == null) {
                     // No value received so mark the future as an error
-                    httpConnectorError = MessageUtils.getConnectorError(dataContext.context,
-                            Status.Code.INTERNAL.toStatus()
+                    httpConnectorError = MessageUtils.getConnectorError(Status.Code.INTERNAL.toStatus()
                                     .withDescription("No value received for unary call").asRuntimeException());
                 } else {
                     BValue responseBValue = MessageUtils.generateRequestStruct(value, dataContext.context
@@ -141,7 +141,7 @@ public class BlockingStub extends AbstractStub {
                     inboundResponse = contentTuple;
                 }
             } else {
-                httpConnectorError = MessageUtils.getConnectorError(dataContext.context, status.asRuntimeException());
+                httpConnectorError = MessageUtils.getConnectorError(status.asRuntimeException());
             }
             if (inboundResponse != null) {
                 dataContext.context.setReturnValues(inboundResponse);

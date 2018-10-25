@@ -19,6 +19,7 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -88,7 +89,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
 
         @Override
         public void onError(Throwable throwable) {
-            BMap<String, BValue> httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
+            BError httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

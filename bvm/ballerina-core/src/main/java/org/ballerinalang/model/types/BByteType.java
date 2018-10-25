@@ -50,11 +50,6 @@ class BByteType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_BYTE);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.BYTE_TAG;
     }

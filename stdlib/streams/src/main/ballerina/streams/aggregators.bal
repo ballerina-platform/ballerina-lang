@@ -21,7 +21,8 @@ public type Aggregator abstract object {
 
     public function clone() returns Aggregator;
 
-    public function process(any value, EventType eventType) returns any;
+    public function process(any value, EventType eventType) returns any|error;
+
 };
 
 public type Sum object {
@@ -33,7 +34,7 @@ public type Sum object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
@@ -56,7 +57,7 @@ public type Sum object {
                 return fSum;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -83,7 +84,7 @@ public type Average object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
@@ -110,7 +111,7 @@ public type Average object {
                 }
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -137,7 +138,7 @@ public type Count object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         if (eventType == "CURRENT") {
             count += 1;
         } else if (eventType == "EXPIRED"){
@@ -168,7 +169,7 @@ public type DistinctCount object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         string key = crypto:crc32(value);
         if (eventType == "CURRENT") {
             int preVal = distinctValues[key] ?: 0;
@@ -211,7 +212,7 @@ public type Max object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
@@ -290,7 +291,7 @@ public type Max object {
                 return fMax;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -320,7 +321,7 @@ public type Min object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT") {
@@ -399,7 +400,7 @@ public type Min object {
                 return fMin;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -430,7 +431,7 @@ public type StdDev object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         float fVal;
         match value {
             int i => {
@@ -440,7 +441,7 @@ public type StdDev object {
                 fVal = f;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -510,7 +511,7 @@ public type MaxForever object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
@@ -539,7 +540,7 @@ public type MaxForever object {
                 return fMax;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }
@@ -566,7 +567,7 @@ public type MinForever object {
 
     }
 
-    public function process(any value, EventType eventType) returns any {
+    public function process(any value, EventType eventType) returns any|error {
         match value {
             int i => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
@@ -595,7 +596,7 @@ public type MinForever object {
                 return fMin;
             }
             any a => {
-                error e = { message: "Unsupported attribute type found" };
+                error e = error("Unsupported attribute type found");
                 return e;
             }
         }

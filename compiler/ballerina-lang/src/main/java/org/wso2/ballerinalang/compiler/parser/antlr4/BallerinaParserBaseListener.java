@@ -724,6 +724,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterXmlNamespaceName(BallerinaParser.XmlNamespaceNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -899,18 +911,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTypeInitExpr(BallerinaParser.TypeInitExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeInitExpr(BallerinaParser.TypeInitExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1271,6 +1271,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitThrowStatement(BallerinaParser.ThrowStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPanicStatement(BallerinaParser.PanicStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPanicStatement(BallerinaParser.PanicStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1840,6 +1852,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBracedOrTupleExpression(BallerinaParser.BracedOrTupleExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1859,6 +1883,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTrapExpression(BallerinaParser.TrapExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -2020,6 +2056,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterErrorConstructorExpression(BallerinaParser.ErrorConstructorExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorConstructorExpression(BallerinaParser.ErrorConstructorExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2051,6 +2099,42 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTypeInitExpr(BallerinaParser.TypeInitExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeInitExpr(BallerinaParser.TypeInitExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTrapExpr(BallerinaParser.TrapExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTrapExpr(BallerinaParser.TrapExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

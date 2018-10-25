@@ -24,8 +24,9 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -205,7 +206,7 @@ public abstract class ServerCallHandler {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BType errorType = paramDetails.get(1).getVarType();
-        BMap<String, BValue> errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
+        BError errorStruct = MessageUtils.getConnectorError((BErrorType) errorType, error.getError());
         signatureParams[1] = errorStruct;
         BMap<String, BValue> headerStruct = getHeaderStruct(resource);
         if (headerStruct != null) {

@@ -14,26 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Representation of `NullReferenceException`
-#
-# + message - error message
-# + cause - optional error cause
-public type NullReferenceException record {
-    string message;
-    error? cause;
-    !...
-};
-
-# Representation of `IllegalStateException`
-#
-# + message - error message
-# + cause - optional error cause
-public type IllegalStateException record {
-    string message;
-    error? cause;
-    !...
-};
-
 # Representation of `CallStackElement`
 #
 # + callableName - Callable name
@@ -58,15 +38,3 @@ public extern function getCallStack() returns CallStackElement[];
 # + e - optional `error` instance
 # + return - `CallStackElement` instance
 public extern function getErrorCallStackFrame(error? e) returns CallStackElement;
-
-# Representation of `CallFailedException`
-#
-# + message - Error message
-# + cause - optional `error` instance
-# + causes - optional array of `error` instances
-public type CallFailedException record {
-    string message;
-    error? cause;
-    error[]? causes;
-    !...
-};
