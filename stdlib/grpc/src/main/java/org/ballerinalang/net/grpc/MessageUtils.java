@@ -404,12 +404,10 @@ public class MessageUtils {
                     byte[] value;
                     if (responseValue instanceof BMap) {
                         value = ((BByteArray) ((BMap) responseValue).get(fieldName)).getBytes();
-                        responseMessage.addField(fieldName, value);
-
                     } else {
                         value = ((BByteArray) responseValue).getBytes();
-                        responseMessage.addField(fieldName, value);
                     }
+                    responseMessage.addField(fieldName, value);
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
