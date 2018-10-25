@@ -36,23 +36,37 @@ import org.testng.annotations.Test;
 public class BallerinaStreamsV2OrderByTest {
 
     private CompileResult result;
+    private CompileResult result2;
     private CompileResult resultWithAlias;
+    private CompileResult resultWithAlias2;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-orderby-test.bal");
+        result2 = BCompileUtil.compile("test-src/streaming/streamingv2-orderby-with-functions-test.bal");
         resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-orderby-test.bal");
+        resultWithAlias2 =
+                BCompileUtil.compile("test-src/streaming/alias/streamingv2-orderby-with-functions-test.bal");
     }
 
-    @Test(description = "Test filter streaming query")
-    public void testFilterQuery() {
+    @Test(description = "Test OrderBy streaming query")
+    public void testOrderByQuery() {
         executeFunction(result);
     }
 
-    @Test(description = "Test filter streaming query")
-    public void testFilterQueryWithAlias() {
+    @Test(description = "Test OrderBy streaming query with Alias")
+    public void testOrderByQueryWithAlias() {
         executeFunction(resultWithAlias);
+    }
+
+    @Test(description = "Test orderBy streaming query with functions")
+    public void testOrderByQueryWithFunc() {
+        executeFunction(result2);
+    }
+    @Test(description = "Test orderBy streaming query with alias with functions")
+    public void testOrderByQueryWithFuncWithAlias() {
+        executeFunction(resultWithAlias2);
     }
 
     private void executeFunction(CompileResult result) {

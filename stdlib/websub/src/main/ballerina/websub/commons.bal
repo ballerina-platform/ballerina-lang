@@ -71,7 +71,7 @@ import ballerina/reflect;
 @final string SHA256 = "SHA256";
 
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
-@final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
+@final string WEBSUB_MODULE_NAME = "ballerina/websub";
 
 
 # The identifier to be used to identify the mode in which update content should be identified.
@@ -345,8 +345,60 @@ public type Notification object {
     public function getFormParams() returns map<string>|error {
         return request.getFormParams();
     }
-
 };
+
+# Function to retrieve hub and topic URLs from the `http:response` from a publisher to a discovery request.
+#
+# + response - The `http:Response` received
+# + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
+public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
+    string[] linkHeaders;
+    if (response.hasHeader("Link")) {
+        linkHeaders = response.getHeaders("Link");
+    }
+
+    if (lengthof linkHeaders == 0) {
+        error websubError = { message: "Link header unavailable in discovery response" };
+        return websubError;
+    }
+
+    int hubIndex = 0;
+    string[] hubs;
+    string topic;
+    string[] linkHeaderConstituents = [];
+    if (lengthof linkHeaders == 1) {
+        linkHeaderConstituents = linkHeaders[0].split(",");
+    } else {
+        linkHeaderConstituents = linkHeaders;
+    }
+
+    foreach link in linkHeaderConstituents {
+        string[] linkConstituents = link.split(";");
+        if (linkConstituents[1] != "") {
+            string url = linkConstituents[0].trim();
+            url = url.replace("<", "");
+            url = url.replace(">", "");
+            if (linkConstituents[1].contains("rel=\"hub\"")) {
+                hubs[hubIndex] = url;
+                hubIndex += 1;
+            } else if (linkConstituents[1].contains("rel=\"self\"")) {
+                if (topic != "") {
+                    error websubError = { message: "Link Header contains > 1 self URLs" };
+                    return websubError;
+                } else {
+                    topic = url;
+                }
+            }
+        }
+    }
+
+    if (lengthof hubs > 0 && topic != "") {
+        return (topic, hubs);
+    }
+
+    error websubError = {message: "Hub and/or Topic URL(s) not identified in link header of discovery response"};
+    return websubError;
+}
 
 # Record representing a WebSub subscription change request.
 #
@@ -473,6 +525,16 @@ public type WebSubHub object {
     # + return - `error` if an error occurred with unregistration
     public function unregisterTopic(string topic) returns error?;
 
+    # Retrieves topics currently recognized by the Hub.
+    #
+    # + return - An array of available topics
+    public extern function getAvailableTopics() returns string[];
+
+    # Retrieves details of subscribers registered to receive updates for a particular topic.
+    #
+    # + topic - The topic for which details need to be retrieved
+    # + return - An array of subscriber details
+    public extern function getSubscribers(string topic) returns SubscriberDetails[];
 };
 
 function WebSubHub::stop() returns boolean {
@@ -510,10 +572,18 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
 }
 
 function WebSubHub::registerTopic(string topic) returns error? {
+    if (!hubTopicRegistrationRequired) {
+        error e = { message: "Remote topic registration not allowed/not required at the Hub" };
+        return e;
+    }
     return registerTopicAtHub(topic);
 }
 
 function WebSubHub::unregisterTopic(string topic) returns error? {
+    if (!hubTopicRegistrationRequired) {
+        error e = { message: "Remote topic unregistration not allowed/not required at the Hub" };
+        return e;
+    }
     return unregisterTopicAtHub(topic);
 }
 
@@ -533,7 +603,7 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
     response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
 }
 
-# Struct to represent Subscription Details retrieved from the database.
+# Record to represent Subscription Details retrieved from the database.
 #
 # + topic - The topic for which the subscription is added
 # + callback - The callback specified for the particular subscription
@@ -552,7 +622,7 @@ type SubscriptionDetails record {
 function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
     foreach annData in annotationDataArray {
-        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.pkgName == WEBSUB_PACKAGE_NAME) {
+        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
             SubscriberServiceConfiguration subscriberServiceAnnotation =
                                                             check <SubscriberServiceConfiguration> (annData.value);
             return subscriberServiceAnnotation;
@@ -584,5 +654,17 @@ public type HubStartedUpError record {
     string message;
     error? cause;
     WebSubHub startedUpHub;
+    !...
+};
+
+# Record to represent Subscriber Details.
+#
+# + callback - The callback specified for the particular subscription
+# + leaseSeconds - The lease second period specified for the particular subscription
+# + createdAt - The time at which the subscription was created
+public type SubscriberDetails record {
+    string callback;
+    int leaseSeconds;
+    int createdAt;
     !...
 };

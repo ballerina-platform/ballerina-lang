@@ -28,12 +28,12 @@ public type APIListener object {
         secureListener = new;
     }
 
-    # Gets called when the endpoint is being initialize during package init time.
+    # Gets called when the endpoint is being initialize during module init time.
     #
     # + c - The `SecureEndpointConfiguration` of the endpoint
     public function init(SecureEndpointConfiguration c);
 
-    # Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
+    # Gets called every time a service attaches itself to this endpoint. Also happens at module initialization.
     #
     # + serviceType - The type of the service to be registered
     public function register(typedesc serviceType);

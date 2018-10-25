@@ -115,7 +115,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -147,6 +146,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 public abstract class BLangNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTestablePackage testablePkgNode) {
         throw new AssertionError();
     }
 
@@ -220,10 +223,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangAssignment assignNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangPostIncrement increment) {
         throw new AssertionError();
     }
 

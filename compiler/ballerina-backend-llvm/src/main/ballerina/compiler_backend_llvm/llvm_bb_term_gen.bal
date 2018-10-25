@@ -53,7 +53,7 @@ type BbTermGenrator object {
         int i = 0;
         while (i < argsCount) {
             loaddedVars[i] = parent.genLoadLocalToTempVar(ops[i]);
-            i++;
+            i += 1;
         }
         return loaddedVars;
     }
@@ -98,7 +98,7 @@ function stringMul(string str, int factor) returns string {
     string result;
     while i < factor {
         result = result + str;
-        i++;
+        i += 1;
     }
     return result;
 }

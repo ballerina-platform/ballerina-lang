@@ -86,10 +86,10 @@ service<http:Service> helloWorld bind { port: 8086 } {
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
         if (counter % 5 == 3) {
-            counter++;
+            counter += 1;
             runtime:sleep(3000);
         } else {
-            counter++;
+            counter += 1;
         }
         res.setPayload("Hello World!!!");
         caller->respond(res) but {

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The hashing algorithms supported by this package.
+# The hashing algorithms supported by this module.
 public type Algorithm "SHA1"|"SHA256"|"MD5";
 
 # The `SHA1` hashing algorithm
@@ -24,7 +24,7 @@ public type Algorithm "SHA1"|"SHA256"|"MD5";
 # The `MD5` hashing algorithm
 @final public Algorithm MD5 = "MD5";
 
-# The encoding types supported for the HMAC key, by this package.
+# The encoding types supported for the HMAC key, by this module.
 public type Encoding "UTF-8"|"BASE64"|"HEX";
 
 # The `UTF-8` encoding

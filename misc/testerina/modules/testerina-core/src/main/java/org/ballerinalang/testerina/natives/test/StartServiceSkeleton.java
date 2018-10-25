@@ -35,7 +35,7 @@ import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -53,28 +53,28 @@ import java.nio.file.Paths;
  * @since 0.97.0
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServiceSkeleton", args =
-        {@Argument(name = "packageName", type = TypeKind
+        {@Argument(name = "moduleName", type = TypeKind
                 .STRING), @Argument(name = "swaggerFilePath", type = TypeKind.STRING)}, returnType = {@ReturnType
         (type = TypeKind.BOOLEAN)}, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Start a " +
-        "service skeleton from a given Swagger definition in the given ballerina package.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of " +
-        "the package"), @Attribute(name = "swaggerFilePath", value = "Path to the Swagger definition")})
+        "service skeleton from a given Swagger definition in the given ballerina module.")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "moduleName", value = "Name of " +
+        "the module"), @Attribute(name = "swaggerFilePath", value = "Path to the Swagger definition")})
 public class StartServiceSkeleton extends BlockingNativeCallableUnit {
 
     private static PrintStream errStream = System.err;
 
     @Override
     public void execute(Context ctx) {
-        String packageName = ctx.getStringArgument(0);
+        String moduleName = ctx.getStringArgument(0);
         String swaggerFilePath = ctx.getStringArgument(1);
 
-        //TODO : validate for duplicate package in the source which can conflict with mock packages
+        //TODO : validate for duplicate module in the source which can conflict with mock module
         String sourceRoot = System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT);
         initTempDir(sourceRoot);
         Path rootDir = Paths.get(sourceRoot, TesterinaConstants.TESTERINA_TEMP_DIR);
         CodeGenerator generator = new CodeGenerator();
-        generator.setSrcPackage(packageName);
+        generator.setSrcPackage(moduleName);
 
         try {
             generator.generate(GeneratorConstants.GenType.MOCK, swaggerFilePath, rootDir.toString());
@@ -84,7 +84,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
                     + "service from the [Swagger file] %s [cause] %s", swaggerFilePath, e.getMessage()), e);
         }
 
-        CompileResult compileResult = BCompileUtil.compile(rootDir.toString(), packageName, CompilerPhase.CODE_GEN);
+        CompileResult compileResult = BCompileUtil.compile(rootDir.toString(), moduleName, CompilerPhase.CODE_GEN);
 
         // print errors
         for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
@@ -98,7 +98,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         ProgramFile programFile = compileResult.getProgFile();
         programFile.setProgramFilePath(Paths.get(rootDir.toString()));
         // start the service
-        Utils.startService(programFile);
+        TesterinaUtils.startService(programFile);
         // keep a reference to be used in stop service skeleton
         TesterinaRegistry.getInstance().addSkeletonProgramFile(programFile);
         ctx.setReturnValues(new BBoolean(true));

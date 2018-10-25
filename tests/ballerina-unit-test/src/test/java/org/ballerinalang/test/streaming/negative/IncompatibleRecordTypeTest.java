@@ -36,6 +36,7 @@ public class IncompatibleRecordTypeTest {
 
     @BeforeClass
     public void setup() {
+
         resultNegative = BCompileUtil.
                 compile("test-src/streaming/negative/streaming-invalid-record-type-negative-test.bal");
         resultNegativeForInvalidOrder = BCompileUtil.
@@ -48,7 +49,7 @@ public class IncompatibleRecordTypeTest {
         BAssertUtil.validateError(resultNegative, 0,
                 "invalid stream attribute type found. it should be either integer or long or " +
                         "string or boolean type attribute",
-                44, 9);
+                43, 9);
     }
 
     @Test(description = "Test filter streaming query with invalid stream attribute order")
@@ -56,15 +57,15 @@ public class IncompatibleRecordTypeTest {
         Assert.assertEquals(resultNegativeForInvalidOrder.getErrorCount(), 3);
         BAssertUtil.validateError(resultNegativeForInvalidOrder, 0,
                 "incompatible stream action argument type 'Employee' defined",
-                46, 9);
+                45, 9);
 
         BAssertUtil.validateError(resultNegativeForInvalidOrder, 1,
                 "incompatible types: expected type 'int' for attribute 'age', found 'string'",
-                46, 9);
+                45, 9);
 
         BAssertUtil.validateError(resultNegativeForInvalidOrder, 2,
                 "incompatible types: expected type 'string' for attribute 'status', found 'int'",
-                46, 9);
+                45, 9);
 
     }
 }

@@ -33,6 +33,19 @@ DEBUG_MODE=false;
 DEBUG_PORT=5005;
 # ----------------------------------------------------------------------------
 
+# ---------------------- Command Line Args ---------------------------
+while [ "$1" != "" ]; do
+    if [ '$1' = '--debug' ];
+      then
+        DEBUG_MODE=true
+    fi
+    # Add more if elseif clauses or use a switch case to check $1
+    # if parsing more arguments is required in future.
+    # Shift all the parameters down by one
+    shift
+done
+# ---------------------- Command Line Args ---------------------------
+
 # OS specific support.  $var _must_ be set to either true or false.
 #ulimit -n 100000
 BASE_DIR=$PWD
@@ -133,7 +146,7 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 if [ $DEBUG_MODE = true ]; then
-  JAVA_DEBUG="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
+  JAVA_DEBUG="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT"
   echo "Please start the remote debugging client to continue..."
 else
   JAVA_DEBUG=""

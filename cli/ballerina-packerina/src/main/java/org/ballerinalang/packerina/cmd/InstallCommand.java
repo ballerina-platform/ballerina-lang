@@ -32,7 +32,7 @@ import static org.ballerinalang.packerina.cmd.Constants.INSTALL_COMMAND;
  *
  * @since 0.90
  */
-@CommandLine.Command(name = INSTALL_COMMAND, description = "install packages to the home repository")
+@CommandLine.Command(name = INSTALL_COMMAND, description = "install modules to the home repository")
 public class InstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
@@ -44,7 +44,7 @@ public class InstallCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--sourceroot"},
-            description = "path to the directory containing source files and packages")
+            description = "path to the directory containing source files and modules")
     private String sourceRoot;
 
     @CommandLine.Option(names = {"--no-build"}, description = "skip building before installing")
@@ -75,12 +75,12 @@ public class InstallCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("install packages to the home repository \n");
+        out.append("install modules to the home repository \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina install <package-name> \n");
+        out.append("  ballerina install <module-name> \n");
     }
 
     @Override

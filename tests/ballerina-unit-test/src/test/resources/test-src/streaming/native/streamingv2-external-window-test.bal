@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
@@ -63,8 +62,15 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
         inputStream.publish(t);
     }
 
-    runtime:sleep(1000);
-    io:println("output: ", globalEmployeeArray);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((lengthof globalEmployeeArray) == 4 || count == 10) {
+            break;
+        }
+    }
+
     return globalEmployeeArray;
 }
 
@@ -106,7 +112,8 @@ function createStreamingConstruct() {
             };
         });
 
-    streams:ExternalTimeWindow tmpWindow = streams:externalTimeWindow(select.process, "inputStream.timeStamp", 1000);
+    streams:Window tmpWindow = streams:externalTimeWindow("inputStream.timeStamp", 1000,
+        nextProcessPointer = select.process);
 
     inputStream.subscribe(function (Teacher t) {
             map keyVal = <map>t;

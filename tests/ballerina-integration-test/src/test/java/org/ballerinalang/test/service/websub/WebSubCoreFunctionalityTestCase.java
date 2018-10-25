@@ -149,7 +149,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         remoteHubNotificationLogLeecherTwo.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websub" + File.separator + "test_unsubscription_client.bal")
@@ -165,7 +165,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification",
+    @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
             description = "Tests that no notifications are received after unsubscription",
             expectedExceptions = BallerinaTestException.class,
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
@@ -216,6 +216,29 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testSubscriberDetailsRetrievalFromHub() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("x-topic", "http://one.websub.topic.com");
+        HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo", headers);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertTrue(response.getData().contains("{\"callback\":\"http://localhost:8181/websub"));
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testAvailableTopicsRetrievalFromHub() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo");
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "{\"Topic_1\":\"http://one.websub.topic.com\", " +
+                "\"Topic_2\":\"http://three.websub.topic.com\", \"Topic_3\":\"http://four.websub.topic.com\", " +
+                "\"Topic_4\":\"http://one.redir.topic.com\", \"Topic_5\":\"http://two.redir.topic.com\", " +
+                "\"Topic_6\":\"http://two.websub.topic.com\"}");
     }
 
     @AfterClass

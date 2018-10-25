@@ -17,7 +17,7 @@
 # gRPC Service Stub for outbound gRPC requests. gRPC client code not directly calls these functions.
 # Generated client endpoint actions uses these functions to interact with gRPC service.
 #
-# client - client endpoint.
+# + client - client endpoint.
 public type Stub object {
     public Client client;
 
