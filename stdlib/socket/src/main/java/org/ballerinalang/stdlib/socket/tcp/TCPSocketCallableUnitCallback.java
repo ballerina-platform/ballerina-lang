@@ -19,8 +19,7 @@
 package org.ballerinalang.stdlib.socket.tcp;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 
 /**
  * Socket callback for service resource execution.
@@ -33,6 +32,6 @@ public class TCPSocketCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BMap<String, BValue> error) {
+    public void notifyFailure(BError error) {
     }
 }
