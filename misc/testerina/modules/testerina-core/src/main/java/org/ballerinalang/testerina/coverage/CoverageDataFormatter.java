@@ -23,14 +23,12 @@ import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -217,6 +215,9 @@ public class CoverageDataFormatter {
         try {
 
             File covReportDir = new File(covReportFilePath);
+            if(covReportDir.exists()) {
+                covReportDir.delete();
+            }
             covReportDir.mkdirs();
 
             File covReportFile = new File(covReportDir, covReportFileName);

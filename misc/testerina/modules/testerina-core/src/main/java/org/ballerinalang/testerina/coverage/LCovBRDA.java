@@ -1,4 +1,4 @@
-package org.ballerinalang.bre.coverage;
+package org.ballerinalang.testerina.coverage;
 
 public class LCovBRDA {
 

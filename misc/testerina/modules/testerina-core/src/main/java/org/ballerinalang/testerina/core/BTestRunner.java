@@ -20,7 +20,7 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.testerina.coverage.CoverageDataFormatter;
 import org.ballerinalang.bre.coverage.CoverageManager;
-import org.ballerinalang.bre.coverage.LCovData;
+import org.ballerinalang.testerina.coverage.LCovData;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
