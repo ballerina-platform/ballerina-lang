@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -653,7 +654,24 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        // Todo
+        Name name = names.fromIdNode(constant.name);
+        PackageID pkgID = env.enclPkg.symbol.pkgID;
+        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, null,
+                env.scope.owner);
+        constantSymbol.value = (BLangLiteral) constant.value;
+        constantSymbol.valueTypeTag = ((BLangLiteral) constant.value).typeTag;
+        constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
+
+        // Note - constant.typeNode.type will be resolved in the semantic analyzer since we might not be able to
+        // resolve the type properly at this point.
+
+        // Add it to the enclosing scope.
+        if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+            constantSymbol.type = symTable.errType;
+        }
+        Scope enclScope = env.scope;
+        enclScope.define(constantSymbol.name, constantSymbol);
+        constant.symbol = constantSymbol;
     }
 
     @Override
