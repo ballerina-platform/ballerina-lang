@@ -57,7 +57,7 @@ public class HttpPipeliningListener implements HttpConnectorListener {
                 httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
                 httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
                 httpResponse.setSequenceId(httpRequest.getSequenceId());
-                httpResponse.setPipeliningNeeded(httpRequest.isPipeliningNeeded());
+                httpResponse.setPipeliningEnabled(httpRequest.isPipeliningEnabled());
                 ChannelHandlerContext sourceContext = httpRequest.getSourceContext();
                 Long nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
                 httpResponse.setHeader("x-sequence-number", nextSequenceNumber.toString());

@@ -32,6 +32,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,14 +82,15 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private SocketAddress remoteAddress;
     private boolean connectedState;
 
-    private boolean pipeliningNeeded; //Based on the pipelining config
+    private boolean pipeliningEnabled; //Based on the pipelining config
     private long pipeliningLimit; //Max number of responses allowed to be queued when pipelining is enabled
     private long sequenceId = 1L; //Keep track of the request order for http 1.1 pipelining
     private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
+    private EventExecutorGroup pipeliningGroup;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels, boolean
-                                 pipeliningNeeded, long pipeliningLimit) {
+                                 pipeliningEnabled, long pipeliningLimit, EventExecutorGroup pipeliningGroup) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.chunkConfig = chunkConfig;
@@ -97,8 +99,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.idleTimeout = false;
         this.serverName = serverName;
         this.allChannels = allChannels;
-        this.pipeliningNeeded = pipeliningNeeded;
+        this.pipeliningEnabled = pipeliningEnabled;
         this.pipeliningLimit = pipeliningLimit;
+        this.pipeliningGroup = pipeliningGroup;
     }
 
     @SuppressWarnings("unchecked")
@@ -242,7 +245,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      * These properties are needed in ballerina side for pipelining checks.
      */
     private void setRequestProperties() {
-        inboundRequestMsg.setPipeliningNeeded(pipeliningNeeded); //Value of listener config
+        inboundRequestMsg.setPipeliningEnabled(pipeliningEnabled); //Value of listener config
         String connectionHeaderValue = inboundRequestMsg.getHeader(HttpHeaderNames.CONNECTION.toString());
         String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
         inboundRequestMsg.setKeepAlive(isKeepAliveConnection(keepAliveConfig, connectionHeaderValue,
@@ -261,6 +264,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
         if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
             ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(EXPECTED_SEQUENCE_NUMBER);
+        }
+
+        if (ctx.channel().attr(Constants.PIPELINING_EXECUTOR).get() == null) {
+            ctx.channel().attr(Constants.PIPELINING_EXECUTOR).set(pipeliningGroup);
         }
     }
 

@@ -55,7 +55,7 @@ public class HttpPipeliningTestCase {
     public void setUp() {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        listenerConfiguration.setPipeliningNeeded(true);
+        listenerConfiguration.setPipeliningEnabled(true);
         ServerConnector serverConnector = httpConnectorFactory.createServerConnector(
                 new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();

@@ -25,6 +25,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -167,12 +168,16 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setServerName(serverName);
     }
 
-    public void setPipeliningNeeded(boolean pipeliningNeeded) {
-        httpServerChannelInitializer.setPipeliningNeeded(pipeliningNeeded);
+    public void setPipeliningEnabled(boolean pipeliningEnabled) {
+        httpServerChannelInitializer.setPipeliningEnabled(pipeliningEnabled);
     }
 
     public void setPipeliningLimit(long pipeliningLimit) {
         httpServerChannelInitializer.setPipeliningLimit(pipeliningLimit);
+    }
+
+    public void setPipeliningThreadGroup(EventExecutorGroup pipeliningGroup) {
+        httpServerChannelInitializer.setPipeliningThreadGroup(pipeliningGroup);
     }
 
     class HttpServerConnector implements ServerConnector {

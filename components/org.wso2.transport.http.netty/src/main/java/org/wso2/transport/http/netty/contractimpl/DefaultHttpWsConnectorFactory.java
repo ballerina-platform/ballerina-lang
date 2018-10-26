@@ -23,6 +23,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -43,6 +46,9 @@ import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketClie
 import java.util.Map;
 import javax.net.ssl.SSLException;
 
+import static org.wso2.transport.http.netty.contract.Constants.PIPELINING_THREAD_COUNT;
+import static org.wso2.transport.http.netty.contract.Constants.PIPELINING_THREAD_POOL_NAME;
+
 /**
  * Implementation of HttpWsConnectorFactory interface.
  */
@@ -51,6 +57,8 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventLoopGroup clientGroup;
+    private EventExecutorGroup pipeliningGroup;
+
     private final ChannelGroup allChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public DefaultHttpWsConnectorFactory() {
@@ -87,8 +95,14 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addKeepAliveBehaviour(listenerConfig.getKeepAliveConfig());
         serverConnectorBootstrap.addServerHeader(listenerConfig.getServerHeader());
 
-        serverConnectorBootstrap.setPipeliningNeeded(listenerConfig.isPipeliningNeeded());
+        serverConnectorBootstrap.setPipeliningEnabled(listenerConfig.isPipeliningEnabled());
         serverConnectorBootstrap.setPipeliningLimit(listenerConfig.getPipeliningLimit());
+
+        if (listenerConfig.isPipeliningEnabled()) {
+            pipeliningGroup = new DefaultEventExecutorGroup(PIPELINING_THREAD_COUNT, new DefaultThreadFactory(
+                    PIPELINING_THREAD_POOL_NAME));
+            serverConnectorBootstrap.setPipeliningThreadGroup(pipeliningGroup);
+        }
 
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
     }
@@ -126,9 +140,12 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
 
     @Override
     public void shutdown() throws InterruptedException {
-        this.allChannels.close().sync();
-        this.workerGroup.shutdownGracefully().sync();
-        this.bossGroup.shutdownGracefully().sync();
-        this.clientGroup.shutdownGracefully().sync();
+        allChannels.close().sync();
+        workerGroup.shutdownGracefully().sync();
+        bossGroup.shutdownGracefully().sync();
+        clientGroup.shutdownGracefully().sync();
+        if (pipeliningGroup != null) {
+            pipeliningGroup.shutdownGracefully().sync();
+        }
     }
 }
