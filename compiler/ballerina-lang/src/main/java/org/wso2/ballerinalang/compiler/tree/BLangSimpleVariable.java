@@ -33,7 +33,6 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
 
     public BLangIdentifier name;
 
-    public boolean safeAssignment = false;
     public boolean isField;
     public BVarSymbol symbol;
 
@@ -56,11 +55,6 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     @Override
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
-    }
-
-    @Override
-    public boolean isSafeAssignment() {
-        return safeAssignment;
     }
 
     @Override

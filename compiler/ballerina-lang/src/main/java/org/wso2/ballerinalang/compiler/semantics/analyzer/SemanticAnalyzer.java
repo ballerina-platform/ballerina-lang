@@ -640,10 +640,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if ((env.scope.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            symbolEnter.defineNode(recordVar, env);
-
-        }
+        symbolEnter.defineNode(recordVar, env);
 
         if (recordVar.restParam != null) {
             ((BLangVariable) recordVar.restParam).type = symTable.mapType;

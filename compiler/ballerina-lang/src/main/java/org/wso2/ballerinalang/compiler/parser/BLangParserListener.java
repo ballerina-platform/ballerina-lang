@@ -1012,7 +1012,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.Identifier() != null) {
+        if (ctx.Identifier() != null
+                && (ctx.parent instanceof BallerinaParser.TupleBindingPatternContext
+                || ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
     }

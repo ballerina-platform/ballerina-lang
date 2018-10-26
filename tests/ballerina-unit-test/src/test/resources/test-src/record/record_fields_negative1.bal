@@ -17,5 +17,5 @@ function textPrivateRecordAccess4() {
 }
 
 function textPrivateRecordAccess5() {
-    baz:privatePerson p = {age:21, name:"Mad"};
+    baz:PrivatePerson p = {age:21, name:"Mad"};
 }

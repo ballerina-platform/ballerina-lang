@@ -26,6 +26,4 @@ public interface SimpleVariableNode extends VariableNode, AnnotatableNode, Docum
     
     void setName(IdentifierNode name);
 
-    boolean isSafeAssignment();
-    
 }
