@@ -145,7 +145,8 @@ public class AnnotationDesugar {
     }
 
     private BLangSimpleVariable createGlobalAnnotationMapVar(BLangPackage pkgNode) {
-        BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA, symTable.mapType);
+        BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA,
+                symTable.mapType);
         ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
         pkgNode.addGlobalVariable(annotationMap);
         return annotationMap;

@@ -358,8 +358,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createOrderingFunctionPointer(BLangExpression expr) {
-        BLangSimpleVariable orderFuncMapVariable = createMapTypeVariable(getVariableName(ORDERING_FUNC_VAR_ARG), expr.pos,
-                                                                   env);
+        BLangSimpleVariable orderFuncMapVariable = createMapTypeVariable(getVariableName(ORDERING_FUNC_VAR_ARG),
+                expr.pos, env);
         BLangLambdaFunction orderingFunc = createLambdaWithVarArg(expr.pos, new BLangSimpleVariable[]
                 {orderFuncMapVariable}, TypeKind.ANY);
         BLangBlockStmt lambdaBody = orderingFunc.function.body;
@@ -922,10 +922,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     public void visit(BLangJoinStreamingInput joinStreamingInput) {
         BLangBinaryExpr onExpr = (BLangBinaryExpr) joinStreamingInput.getOnExpression();
         if (onExpr != null) {
-            BLangSimpleVariable lhsDataMap = createMapTypeVariable(getVariableName(JOIN_CONDITION_LAMBDA_PARAM_REFERENCE),
-                    onExpr.lhsExpr.pos, env);
-            BLangSimpleVariable rhsDataMap = createMapTypeVariable(getVariableName(JOIN_CONDITION_LAMBDA_PARAM_REFERENCE) +
-                    1, onExpr.rhsExpr.pos, env);
+            BLangSimpleVariable lhsDataMap =
+                    createMapTypeVariable(getVariableName(JOIN_CONDITION_LAMBDA_PARAM_REFERENCE), onExpr.lhsExpr.pos,
+                            env);
+            BLangSimpleVariable rhsDataMap =
+                    createMapTypeVariable(getVariableName(JOIN_CONDITION_LAMBDA_PARAM_REFERENCE) + 1,
+                            onExpr.rhsExpr.pos, env);
             BLangLambdaFunction conditionFunc = createLambdaWithVarArg(joinStreamingInput.pos, new BLangSimpleVariable[]
                     {lhsDataMap, rhsDataMap}, TypeKind.BOOLEAN);
             mapVarArgs.addAll(Arrays.asList(lhsDataMap, rhsDataMap));
