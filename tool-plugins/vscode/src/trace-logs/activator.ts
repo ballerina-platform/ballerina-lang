@@ -52,6 +52,12 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
         {
             methodName: 'showDetails',
             handler: (trace: any) => {
+                // if (traceDetailsPanel) {
+                //     traceDetailsPanel.reveal(undefined, true);
+                //     const html = renderDetailView(context, langClient, trace);
+                //     traceDetailsPanel.webview.html = html;
+                //     return Promise.resolve();
+                // }
                 // TODO: optimize this logic to reuse existing traceDetailsPanel
                 traceDetailsPanel = window.createWebviewPanel(
                     'ballerinaNetworkLogsDetails',
@@ -67,7 +73,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
                 traceDetailsPanel.onDidDispose(() => {
                     traceDetailsPanel = undefined;
                 });
-                return Promise.resolve(trace);
+                return Promise.resolve();
             }
         },
         {
@@ -80,7 +86,6 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
     );
 
     traceLogsPanel.onDidDispose(() => {
-        traceLogsPanel = undefined;
         traceDetailsPanel!.dispose();
 	});
 }
@@ -113,8 +118,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     ballerinaExtInstance.onReady().then(()=>{
         langClient.onNotification('window/traceLogs', (trace: Object) => {
+            traces.push(trace);
             if (traceLogsPanel && traceLogsPanel.webview) {
-                traces.push(trace);
                 traceLogsPanel.webview.postMessage({
                     command: 'updateTraces',
                 });

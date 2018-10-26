@@ -49,7 +49,14 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
         body.vscode-dark, body.vscode-light {
             background-color: #1e1e1e;
             color: white;
-        }`;
+        }
+        #trace-details code {
+            border: none;
+        }
+        #trace-details {
+            color: #ffffffe6;
+        }
+        `;
     const script = `
         function renderDetailedTrace(trace) {
             try {
