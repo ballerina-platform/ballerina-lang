@@ -844,19 +844,30 @@ public class Util {
      */
     public static void setBackPressureListener(boolean passthrough, BackPressureHandler backpressureHandler,
                                                ChannelHandlerContext inContext) {
-        if (inContext != null && passthrough) {
-            backpressureHandler.getBackPressureObservable().setListener(
-                    new PassthroughBackPressureListener(inContext));
-        } else {
-            backpressureHandler.getBackPressureObservable().setListener(
-                    new DefaultBackPressureListener());
+        if (backpressureHandler != null) {
+            if (inContext != null && passthrough) {
+                backpressureHandler.getBackPressureObservable().setListener(
+                        new PassthroughBackPressureListener(inContext));
+            } else {
+                backpressureHandler.getBackPressureObservable().setListener(
+                        new DefaultBackPressureListener());
+            }
         }
     }
 
-    public static void checkWritableAndNotify(ChannelHandlerContext context, BackPressureHandler backpressureHandler) {
-        Channel channel = context.channel();
-        if (!channel.isWritable() && channel.isActive()) {
-            backpressureHandler.getBackPressureObservable().notifyUnWritable();
+    /**
+     * Checks if channel is unWritable and notifies BackPressure observable.
+     *
+     * @param context             The context on which to check writablity.
+     * @param backpressureHandler The back pressure handler with the observable.
+     */
+    public static void checkUnWritabilityAndNotify(ChannelHandlerContext context,
+                                                   BackPressureHandler backpressureHandler) {
+        if (backpressureHandler != null) {
+            Channel channel = context.channel();
+            if (!channel.isWritable() && channel.isActive()) {
+                backpressureHandler.getBackPressureObservable().notifyUnWritable();
+            }
         }
     }
 }

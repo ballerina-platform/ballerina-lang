@@ -202,7 +202,7 @@ public class TargetChannel {
                 .setSenderState(new SendingHeaders(messageStateContext, this, httpVersion, chunkConfig,
                                                    httpInboundResponseFuture));
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent -> {
-            Util.checkWritableAndNotify(targetHandler.getContext(), backpressureHandler);
+            Util.checkUnWritabilityAndNotify(targetHandler.getContext(), backpressureHandler);
             this.channel.eventLoop().execute(() -> {
                 try {
                     writeOutboundRequest(httpOutboundRequest, httpContent);

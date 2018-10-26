@@ -79,7 +79,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         }
 
         outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent -> {
-            Util.checkWritableAndNotify(sourceContext, backpressureHandler);
+            Util.checkUnWritabilityAndNotify(sourceContext, backpressureHandler);
             this.sourceContext.channel().eventLoop().execute(() -> {
                 try {
                     writeOutboundResponse(outboundResponseMsg, httpContent);
