@@ -154,6 +154,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.runAllTests",
+                "title": "Run All Tests"
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.showDocs",
                 "title": "Open Doc Prview",
                 "category": "Ballerina"

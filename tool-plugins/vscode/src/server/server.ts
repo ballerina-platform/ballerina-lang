@@ -32,6 +32,9 @@ export function getServerOptions(ballerinaHome: string) : ServerOptions {
         cmd += ' --debug';
         log('Language Server is staring in debug mode');
     }
+    if (process.env.LS_CUSTOM_CLASSPATH !== '') {
+        cmd += ' --classpath ' + process.env.LS_CUSTOM_CLASSPATH;
+    }
     return (() => {
         return Promise.resolve(exec(cmd, {
             cwd
