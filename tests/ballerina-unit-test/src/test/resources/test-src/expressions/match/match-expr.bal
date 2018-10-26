@@ -106,7 +106,7 @@ function testMatchErrorWithCauses() {
 
     error? err2 = err1;
     match err2 {
-        error err3 => throw err3.cause but { 
+        error err3 => panic err3.cause but {
             error err4 => err4.cause but { 
                 () => err4 
             },

@@ -35,6 +35,7 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_RUNTIME_PKG;
@@ -163,8 +164,7 @@ public class BLangVMErrors {
 
     private static BError generateError(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
             boolean attachCallStack, String reason) {
-        BMap<String, BValue> details = new BMap<>(BTypes.typeMap);
-        return generateError(programFile, callableUnitInfo, attachCallStack, BTypes.typeError, reason, details);
+        return generateError(programFile, callableUnitInfo, attachCallStack, BTypes.typeError, reason, null);
     }
 
     private static BError generateError(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
@@ -174,7 +174,8 @@ public class BLangVMErrors {
 
     private static BError generateError(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
             boolean attachCallStack, BErrorType type, String reason, BMap<String, BValue> details) {
-        BError error = new BError(type, reason, details);
+        BMap<String, BValue> detailMap = Optional.ofNullable(details).orElse(new BMap<>(BTypes.typeMap));
+        BError error = new BError(type, Optional.ofNullable(reason).orElse(""), detailMap);
         if (attachCallStack) {
             attachStackFrame(programFile, error, callableUnitInfo);
         }
@@ -268,7 +269,7 @@ public class BLangVMErrors {
         if (causeArray != null) {
             return getCauseStackTraceArray(causeArray);
         } else if (causeError != null) {
-            return getCasueStackTrace(error);
+            return getCasueStackTrace(causeError);
         }
 
         return null;

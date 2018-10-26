@@ -42,7 +42,7 @@ public type SecureListener object {
     # Initializes the endpoint.
     #
     # + return - An `error` if an error occurs during initialization of the endpoint
-    public function initEndpoint() returns (error);
+    public function initEndpoint() returns (error?);
 
     # Gets called every time a service attaches itself to this endpoint. Also happens at module initialization.
     #
@@ -214,16 +214,16 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, 
                                 authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
                             }
                             () => {
-                                error e = {message: "Authstore config not provided for : " + provider.authStoreProvider };
-                                throw e;
+                                error e = error("Authstore config not provided for : " + provider.authStoreProvider);
+                                panic e;
                             }
                         }
                     } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
                         auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
                         authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
                     } else {
-                        error configError = {message: "Unsupported auth store provider : " + provider.authStoreProvider };
-                        throw configError;
+                        error configError = error("Unsupported auth store provider : " + provider.authStoreProvider);
+                        panic configError;
                     }
                 }
             }
@@ -270,14 +270,14 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
                     }
                 }
                 () => {
-                    error e = {message: "Authstore config not provided for : " + authProvider.authStoreProvider };
-                    throw e;
+                    error e = error("Authstore config not provided for : " + authProvider.authStoreProvider);
+                    panic e;
                 }
             }
         } else {
             // other auth providers are unsupported yet
-            error e = {message: "Invalid auth provider: " + authProvider.authStoreProvider };
-            throw e;
+            error e = error("Invalid auth provider: " + authProvider.authStoreProvider);
+            panic e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
         return <HttpAuthnHandler>basicAuthHandler;
@@ -293,8 +293,9 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
         return <HttpAuthnHandler>jwtAuthnHandler;
     } else {
-        error e = {message: "Invalid auth scheme: " + authProvider.scheme};
-        throw e;
+        // TODO: create other HttpAuthnHandlers
+        error e = error("Invalid auth scheme: " + authProvider.scheme);
+        panic e;
     }
 }
 
@@ -302,7 +303,7 @@ function SecureListener::register(typedesc serviceType) {
     self.httpListener.register(serviceType);
 }
 
-function SecureListener::initEndpoint() returns (error) {
+function SecureListener::initEndpoint() returns (error?) {
     return self.httpListener.initEndpoint();
 }
 

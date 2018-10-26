@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -41,14 +40,14 @@ import java.nio.file.Paths;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "file",
-        functionName = "init",
+        functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
         args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ListenerEndpointConfiguration",
                           structPackage = "ballerina/file")
         },
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
+public class InitEndpoint extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

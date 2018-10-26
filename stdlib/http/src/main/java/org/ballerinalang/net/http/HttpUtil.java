@@ -44,6 +44,7 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -92,6 +93,7 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
@@ -116,6 +118,9 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STO
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
@@ -259,7 +264,7 @@ public class HttpUtil {
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
-            return new BValue[]{MimeUtil.createError(context,
+            return new BValue[]{MimeUtil.createError(context, MIME_ERROR_CODE,
                     "Error occurred during entity construction: " + throwable.getMessage())};
         }
     }
@@ -489,7 +494,13 @@ public class HttpUtil {
      * @return Error struct
      */
     public static BError getError(Context context, String errMsg) {
-        return BLangVMErrors.createError(context, errMsg);
+        BMap<String, BValue> httpErrorRecord = createHTTPErrorRecord(context);
+        httpErrorRecord.put(HTTP_ERROR_MESSAGE, new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, HTTP_ERROR_CODE, httpErrorRecord);
+    }
+
+    private static BMap<String, BValue> createHTTPErrorRecord(Context context) {
+        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
     }
 
     /**
@@ -501,9 +512,9 @@ public class HttpUtil {
      */
     public static BError getError(Context context, Throwable throwable) {
         if (throwable.getMessage() == null) {
-            return BLangVMErrors.createError(context, IO_EXCEPTION_OCCURED);
+            return getError(context, IO_EXCEPTION_OCCURED);
         } else {
-            return BLangVMErrors.createError(context, throwable.getMessage());
+            return getError(context, throwable.getMessage());
         }
     }
 

@@ -59,27 +59,26 @@ function testFailureScenario () returns (http:Response | error) {
         timeoutMillis:5000
     };
 
-    error err = {};
+    http:Response response;
     http:FailoverActions foClient = backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
     foClient.failoverInferredConfig.failoverClientsArray = httpClients;
-io:println(counter);
     while (counter < 1) {
        http:Request request = new;
        match foClient.get("/hello", message = request) {
             http:Response res => {
+                counter = counter + 1;
+                response = res;
             }
             error httpConnectorError => {
-                io:println(httpConnectorError);
-                err = httpConnectorError;
+                counter = counter + 1;
+                return httpConnectorError;
             }
         }
-
-        counter = counter + 1;
     }
-    return err;
+    return response;
 }
 
 public type MockClient object {
@@ -123,7 +122,7 @@ public type MockClient object {
                 response = res;
             }
             error httpConnectorError => {
-                string message = httpConnectorError.message;
+                string message = httpConnectorError.reason();
                 response.statusCode = http:INTERNAL_SERVER_ERROR_500;
                 response.setTextPayload(message);
             }

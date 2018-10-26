@@ -380,12 +380,12 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Throw Statement Snippet Block.
+     * Get Panic Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getThrowStatementSnippet() {
-        return new SnippetBlock(ItemResolverConstants.THROW, "throw ", ItemResolverConstants.STATEMENT_TYPE,
+    public static SnippetBlock getPanicStatementSnippet() {
+        return new SnippetBlock(ItemResolverConstants.PANIC, "panic ", ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
 
@@ -404,16 +404,14 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Try-Catch Statement Snippet Block.
+     * Get Trap Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getTryCatchStatementSnippet() {
-        String snippet = "try {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
-                + "} catch (${2:error} ${3:err}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
-                + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.TRY, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+    public static SnippetBlock getTrapSnippet() {
+        String snippet = "trap ";
+        return new SnippetBlock(ItemResolverConstants.TRAP, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET);
     }
 
     /**
@@ -479,7 +477,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getErrorDefinitionSnippet() {
-        String snippet = "error ${1:name} = { description: \"${2}\" };";
+        String snippet = "error ${1:name} = error(\"${2:errorCode}\", { message: \"${3}\" });";
         return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }

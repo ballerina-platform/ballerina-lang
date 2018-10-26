@@ -75,6 +75,6 @@ function checkAndThrow(){
 
     match p {
         float quoteValue => qVal = quoteValue;
-        InvalidNameError err => throw err;
+        InvalidNameError err => panic err;
     }
 }

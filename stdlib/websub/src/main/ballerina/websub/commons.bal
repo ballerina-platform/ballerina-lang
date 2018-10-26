@@ -358,7 +358,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
     }
 
     if (lengthof linkHeaders == 0) {
-        error websubError = error( "Link header unavailable in discovery response" );
+        error websubError = error("Link header unavailable in discovery response");
         return websubError;
     }
 
@@ -383,7 +383,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
                 hubIndex += 1;
             } else if (linkConstituents[1].contains("rel=\"self\"")) {
                 if (topic != "") {
-                    error websubError = error ("Link Header contains > 1 self URLs" );
+                    error websubError = error("Link Header contains > 1 self URLs");
                     return websubError;
                 } else {
                     topic = url;

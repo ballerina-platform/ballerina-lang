@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -192,6 +193,13 @@ public class SymbolEnv {
             scope = new Scope(env.scope.owner);
             node.scope = scope;
         }
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createExpressionEnv(BLangExpression node, SymbolEnv env) {
+        Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);
         return symbolEnv;

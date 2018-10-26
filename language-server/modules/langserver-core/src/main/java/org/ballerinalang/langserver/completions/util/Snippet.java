@@ -98,11 +98,11 @@ public enum Snippet {
 
     STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
 
-    STMT_THROW(SnippetGenerator.getThrowStatementSnippet()),
+    STMT_PANIC(SnippetGenerator.getPanicStatementSnippet()),
 
     STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),
 
-    STMT_TRY_CATCH(SnippetGenerator.getTryCatchStatementSnippet()),
+    STMT_TRAP(SnippetGenerator.getTrapSnippet()),
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
