@@ -30,8 +30,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @State(
         name = BallerinaConstants.BALLERINA_LIBRARIES_SERVICE_NAME,
-        storages = @Storage(file = StoragePathMacros.APP_CONFIG + "/" +
-                BallerinaConstants.BALLERINA_LIBRARIES_CONFIG_FILE)
+        storages = @Storage( value = BallerinaConstants.BALLERINA_LIBRARIES_CONFIG_FILE)
 )
 public class BallerinaApplicationLibrariesService extends
         BallerinaLibrariesService<BallerinaApplicationLibrariesService.BallerinaApplicationLibrariesState> {
