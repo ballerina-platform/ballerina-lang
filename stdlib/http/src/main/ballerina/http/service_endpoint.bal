@@ -38,7 +38,7 @@ public type Listener object {
     # + c - Configurations for HTTP service endpoints
     public function init(ServiceEndpointConfiguration c);
 
-    public extern function initEndpoint() returns error;
+    public extern function initEndpoint() returns error?;
 
     # Gets invoked when binding a service to the endpoint.
     #
@@ -166,8 +166,9 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 function Listener::init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
-    if (err != null) {
-        throw err;
+    match err {
+        error e => panic e;
+        () => {}
     }
 }
 

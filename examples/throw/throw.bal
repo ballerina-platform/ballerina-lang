@@ -12,7 +12,7 @@ function readRecord(Record|() value) {
             io:println("Record ID: ", rec.id, ", value: ", rec.name);
         }
         (any|()) => {
-            error err = { message: "Record is null" };
+            error err = error("Record is null");
             throw err;
         }
     }

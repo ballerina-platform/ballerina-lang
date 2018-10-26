@@ -159,7 +159,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for not a folder situation.")
+    @Test(description = "Check the negative test for not a folder situation.", enabled = false)
     public void testNegativeNotDirectory() {
         try {
             Files.createFile(Paths.get("target", "fs", "file.txt"));
@@ -173,7 +173,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for folder not exist.")
+    @Test(description = "Check the negative test for folder not exist.", enabled = false)
     public void testNegativeDirectoryNotExist() {
         try {
             final CompileResult compileResult = BCompileUtil

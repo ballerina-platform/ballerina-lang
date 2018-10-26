@@ -63,8 +63,8 @@ public type SimpleDurableTopicSubscriber object {
         match (self.consumerActions) {
             DurableTopicSubscriberActions c => return c;
             () => {
-                error e = {message:"Durable topic subscriber consumerActions cannot be nil."};
-                throw e;
+                error e = error("Durable topic subscriber consumerActions cannot be nil.");
+                panic e;
             }
         }
     }

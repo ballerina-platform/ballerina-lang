@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -54,7 +55,7 @@ public class ToXML extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context ctx) {
         BXML<?> xml = null;
-        BMap<String, BValue> error = null;
+        BError error = null;
         try {
             // Accessing Parameters
             BValue json = ctx.getNullableRefArgument(0);

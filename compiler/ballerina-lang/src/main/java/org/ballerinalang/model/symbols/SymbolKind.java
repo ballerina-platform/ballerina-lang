@@ -37,6 +37,7 @@ public enum SymbolKind {
     PACKAGE_VARIABLE,
     TRANSFORMER,
     TYPE_DEF,
+    ERROR,
 
     PARAMETER,
     LOCAL_VARIABLE,

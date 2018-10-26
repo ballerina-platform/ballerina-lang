@@ -29,10 +29,10 @@ public function main (string... args) {
     http:Request req = new;
     var resp = clientEP->post("/proxy/server", req);
     match resp {
-        error err => io:println(err.message);
+        error err => io:println(err.reason());
         http:Response response => {
             match (response.getTextPayload()) {
-                error payloadError => io:println(payloadError.message);
+                error payloadError => io:println(payloadError.reason());
                 string res => io:println(res);
             }
         }

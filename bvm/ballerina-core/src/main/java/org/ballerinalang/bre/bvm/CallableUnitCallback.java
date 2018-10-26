@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 
 /**
  * This interface represents a callback to report back a success or a
@@ -40,6 +39,6 @@ public interface CallableUnitCallback {
      *
      * @param error the error to be reported when the operation failed
      */
-    void notifyFailure(BMap<String, BValue> error);
+    void notifyFailure(BError error);
 
 }

@@ -371,34 +371,6 @@ public class SourceGen {
                  + join(node.getAsJsonArray("expressions"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams)
                  + "]" + a("", sourceGenParams.isShouldIndent());
         }
-        public String getSourceForArrayType(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            if (node.get("isRestParam") != null
-                         && node.get("isRestParam") .getAsBoolean() && node.get("grouped") != null
-                         && node.get("grouped") .getAsBoolean() && node.get("elementType") != null) {
-                return w("", sourceGenParams) + "("
-                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("elementType"), pretty, replaceLambda)
-                 + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent());
-            } else if (node.get("isRestParam") != null
-                         && node.get("isRestParam") .getAsBoolean() && node.get("elementType") != null) {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("elementType"), pretty, replaceLambda);
-            } else if (node.get("grouped") != null
-                         && node.get("grouped") .getAsBoolean() && node.get("elementType") != null
-                         && node.get("dimensionAsString") != null) {
-                return w("", sourceGenParams) + "("
-                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("elementType"), pretty, replaceLambda)
-                 + w("", sourceGenParams) + node.get("dimensionAsString").getAsString()
-                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
-                 + ")" + a("", sourceGenParams.isShouldIndent());
-            } else {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("elementType"), pretty, replaceLambda)
-                 + w("", sourceGenParams) + node.get("dimensionAsString").getAsString()
-                 + a("", sourceGenParams.isShouldIndent());
-            }
-        }
         public String getSourceForArrowExpr(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             if (node.get("hasParantheses") != null
                          && node.get("hasParantheses") .getAsBoolean() && node.get("parameters") != null
@@ -6754,6 +6726,63 @@ public class SourceGen {
                 return join(node.getAsJsonArray("topLevelNodes"), pretty, replaceLambda,
                         "", null, false, sourceGenParams) +
                         w("", sourceGenParams);
+            case "ArrayType":
+                if (node.has("dimensions") &&
+                        node.get("dimensions").getAsInt() > 0 &&
+                        node.has("ws")) {
+                    String dimensionAsString = "";
+                    JsonObject startingBracket = null;
+                    JsonObject endingBracket = null;
+                    StringBuilder content = new StringBuilder();
+                    JsonArray arrayTypeWS = node.getAsJsonArray("ws");
+                    for (int j = 0; j < arrayTypeWS.size(); j++) {
+                        if (arrayTypeWS.get(j).getAsJsonObject().get("text").getAsString().equals("[")) {
+                            startingBracket = arrayTypeWS.get(j).getAsJsonObject();
+                        } else if (arrayTypeWS.get(j).getAsJsonObject().get("text").getAsString().equals("]")) {
+                            endingBracket = arrayTypeWS.get(j).getAsJsonObject();
+
+                            dimensionAsString += startingBracket.get("text").getAsString() + content.toString()
+                                    + endingBracket.get("ws").getAsString()
+                                    + endingBracket.get("text").getAsString();
+
+                            startingBracket = null;
+                            endingBracket = null;
+                            content = new StringBuilder();
+                        } else if (startingBracket != null) {
+                            content.append(arrayTypeWS.get(j).getAsJsonObject().get("ws").getAsString())
+                                    .append(arrayTypeWS.get(j).getAsJsonObject().get("text").getAsString());
+                        }
+                    }
+
+                    node.addProperty("dimensionAsString", dimensionAsString);
+                }
+
+                if (node.get("isRestParam") != null
+                        && node.get("isRestParam") .getAsBoolean() && node.get("grouped") != null
+                        && node.get("grouped") .getAsBoolean() && node.get("elementType") != null) {
+                    return w("", sourceGenParams) + "("
+                            + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                            + getSourceOf(node.getAsJsonObject("elementType"), pretty, replaceLambda)
+                            + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent());
+                } else if (node.get("isRestParam") != null
+                        && node.get("isRestParam") .getAsBoolean() && node.get("elementType") != null) {
+                    return a("", sourceGenParams.isShouldIndent())
+                            + getSourceOf(node.getAsJsonObject("elementType"), pretty, replaceLambda);
+                } else if (node.get("grouped") != null
+                        && node.get("grouped") .getAsBoolean() && node.get("elementType") != null
+                        && node.get("dimensionAsString") != null) {
+                    return w("", sourceGenParams) + "("
+                            + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                            + getSourceOf(node.getAsJsonObject("elementType"), pretty, replaceLambda)
+                            + w("", sourceGenParams) + node.get("dimensionAsString").getAsString()
+                            + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                            + ")" + a("", sourceGenParams.isShouldIndent());
+                } else {
+                    return a("", sourceGenParams.isShouldIndent())
+                            + getSourceOf(node.getAsJsonObject("elementType"), pretty, replaceLambda)
+                            + w("", sourceGenParams) + node.get("dimensionAsString").getAsString()
+                            + a("", sourceGenParams.isShouldIndent());
+                }
             case "MarkdownDocumentation":
                 JsonArray markDownWS = node.getAsJsonArray("ws");
                 StringBuilder docString = new StringBuilder();
@@ -6831,8 +6860,6 @@ public class SourceGen {
             return getSourceForAnnotationAttachment(node, pretty, replaceLambda, sourceGenParams);
         case "ArrayLiteralExpr":
             return getSourceForArrayLiteralExpr(node, pretty, replaceLambda, sourceGenParams);
-        case "ArrayType":
-            return getSourceForArrayType(node, pretty, replaceLambda, sourceGenParams);
         case "ArrowExpr":
             return getSourceForArrowExpr(node, pretty, replaceLambda, sourceGenParams);
         case "Assignment":

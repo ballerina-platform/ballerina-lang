@@ -37,7 +37,7 @@ service<http:WebSocketService> PingPongTestService1 bind { port: 9092 } {
         wsEp.attributes[ASSOCIATED_CONNECTION2] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION2] = wsEp;
         wsClientEp->ready() but {
-            error e => log:printError(e.message, err = e)
+            error e => log:printError("Error starting client", err = e)
         };
     }
 

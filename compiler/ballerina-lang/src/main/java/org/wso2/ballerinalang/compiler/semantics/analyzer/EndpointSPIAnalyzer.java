@@ -261,7 +261,7 @@ public class EndpointSPIAnalyzer {
             if (endpoint != null && endpoint.initFunction != null && endpoint.initFunction.getParameters().size() > 0) {
                 return endpoint.initFunction.getParameters().get(0).type;
             }
-            return symTable.errType;
+            return symTable.semanticError;
         }
         final Endpoint endpoint = validSPIs.get(structSymbol);
         return endpoint.initFunction.getParameters().get(0).type;

@@ -88,6 +88,7 @@ TYPE_FLOAT      : 'float' ;
 TYPE_DECIMAL    : 'decimal' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
+TYPE_ERROR      : 'error' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
@@ -116,6 +117,8 @@ TRY         : 'try' ;
 CATCH       : 'catch' ;
 FINALLY     : 'finally' ;
 THROW       : 'throw' ;
+PANIC       : 'panic' ;
+TRAP        : 'trap' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
@@ -138,6 +141,7 @@ SCOPE       : 'scope';
 COMPENSATION: 'compensation';
 COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
+IS          : 'is' ;
 
 // Separators
 

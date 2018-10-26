@@ -18,13 +18,17 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.antlr.v4.runtime.Token;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Global Variable Definition Context resolver for the completion items.
@@ -32,6 +36,13 @@ import java.util.List;
 public class ParserRuleGlobalVariableDefinitionContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        List<String> consumedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        if (consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {
+            return CompletionItemResolver.getResolverByClass(BallerinaParser.DefinitionContext.class)
+                    .resolveItems(context);
+        }
         return CompletionItemResolver
                 .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class).resolveItems(context);
     }

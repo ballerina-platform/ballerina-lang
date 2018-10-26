@@ -21,6 +21,6 @@ service<http:WebSocketService> pushTextFailure bind { port: 9089 } {
     byte[] content;
     onOpen(endpoint caller) {
         _ = caller->close(timeoutInSecs = 0);
-        caller->pushText("hey") but {error err => io:println(err.message)};
+        caller->pushText("hey") but {error e => io:println(e.detail().message)};
     }
 }

@@ -160,7 +160,7 @@ public class BallerinaRunUtil {
         if (callableUnitSignature == null) {
             return false;
         }
-        if(!isPublicFunction(functionDefinitionNode)){
+        if (!isPublicFunction(functionDefinitionNode)) {
             return false;
         }
         // Get the function name.

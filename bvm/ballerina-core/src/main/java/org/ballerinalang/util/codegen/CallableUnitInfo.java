@@ -51,7 +51,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     protected BType[] retParamTypes;
 
     protected int signatureCPIndex;
-    protected String signature;
 
     public int attachedToTypeCPIndex;
     public BType attachedToType;
@@ -176,38 +175,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public boolean hasReturnType() {
         return hasReturnType;
-    }
-    
-    public String getSignature() {
-        if (signature != null) {
-            return signature;
-        }
-
-        StringBuilder strBuilder = new StringBuilder("(");
-        for (BType paramType : paramTypes) {
-            strBuilder.append(paramType.getSig());
-        }
-        strBuilder.append(")(");
-
-        for (BType retType : retParamTypes) {
-            strBuilder.append(retType.getSig());
-        }
-        strBuilder.append(")");
-
-        signature = strBuilder.toString();
-        return signature;
-    }
-
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
-
-    public int getSignatureCPIndex() {
-        return signatureCPIndex;
-    }
-
-    public void setSignatureCPIndex(int signatureCPIndex) {
-        this.signatureCPIndex = signatureCPIndex;
     }
 
     public WorkerInfo getDefaultWorkerInfo() {

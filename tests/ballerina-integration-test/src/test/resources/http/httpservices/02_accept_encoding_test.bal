@@ -36,7 +36,7 @@ service<http:Service> passthrough bind passthroughEP2 {
                 error err => {
                     http:Response res = new;
                     res.statusCode = 500;
-                    res.setTextPayload(err.message);
+                    res.setTextPayload(err.reason());
                     _ = caller -> respond(res);
                 }
             }
@@ -49,7 +49,7 @@ service<http:Service> passthrough bind passthroughEP2 {
                 error err => {
                     http:Response res = new;
                     res.statusCode = 500;
-                    res.setTextPayload(err.message);
+                    res.setTextPayload(err.reason());
                     _ = caller -> respond(res);
                 }
             }
@@ -62,7 +62,7 @@ service<http:Service> passthrough bind passthroughEP2 {
                 error err => {
                     http:Response res = new;
                     res.statusCode = 500;
-                    res.setTextPayload(err.message);
+                    res.setTextPayload(err.reason());
                     _ = caller -> respond(res);
                 }
             }

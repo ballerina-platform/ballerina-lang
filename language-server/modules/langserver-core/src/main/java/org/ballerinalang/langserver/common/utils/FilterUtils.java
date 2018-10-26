@@ -12,6 +12,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -20,7 +21,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -210,10 +210,8 @@ public class FilterUtils {
             return  ((BArrayType) bType).eType.tsymbol.pkgID;
         } else if (bType instanceof BUnionType) {
             List<BType> memberTypeList = new ArrayList<>(((BUnionType) bType).getMemberTypes());
-            memberTypeList.removeIf(type -> (type instanceof BRecordType
-                    && ((BRecordType) type).tsymbol.getName().getValue().equals("error"))
-                    || type instanceof BNilType);
-            
+            memberTypeList.removeIf(type -> type.tsymbol instanceof BErrorTypeSymbol || type instanceof BNilType);
+
             if (memberTypeList.size() == 1) {
                 return memberTypeList.get(0).tsymbol.pkgID;
             }
@@ -224,9 +222,7 @@ public class FilterUtils {
     
     private static BType getBTypeForUnionType(BUnionType bType) {
         List<BType> memberTypeList = new ArrayList<>(bType.getMemberTypes());
-        memberTypeList.removeIf(type -> (type instanceof BRecordType
-                && ((BRecordType) type).tsymbol.getName().getValue().equals("error"))
-                || type instanceof BNilType);
+        memberTypeList.removeIf(type -> type.tsymbol instanceof BErrorTypeSymbol || type instanceof BNilType);
 
         if (memberTypeList.size() == 1) {
             return memberTypeList.get(0);

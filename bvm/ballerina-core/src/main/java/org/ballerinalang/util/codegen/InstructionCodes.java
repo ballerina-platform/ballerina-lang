@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.util.codegen;
 
 /**
@@ -97,144 +97,147 @@ public interface InstructionCodes {
     int DGSTORE = 63;
     int RGSTORE = 64;
 
-    int MAPSTORE = 65;
-    int JSONSTORE = 66;
+    int ERROR = 65;
+    int PANIC = 66;
+    int REASON = 67;
+    int DETAIL = 68;
 
-    int IADD = 67;
-    int FADD = 68;
-    int SADD = 69;
-    int DADD = 70;
+    int MAPSTORE = 69;
+    int JSONSTORE = 70;
 
-    int SCOPE_END = 71;
-    int LOOP_COMPENSATE = 72;
+    int IADD = 71;
+    int FADD = 72;
+    int SADD = 73;
+    int DADD = 74;
 
-    int XMLADD = 73;
-    int ISUB = 74;
-    int FSUB = 75;
-    int DSUB = 76;
-    int IMUL = 77;
-    int FMUL = 78;
-    int DMUL = 79;
-    int IDIV = 80;
-    int FDIV = 81;
-    int DDIV = 82;
-    int IMOD = 83;
-    int FMOD = 84;
-    int DMOD = 85;
-    int INEG = 86;
-    int FNEG = 87;
-    int DNEG = 88;
-    int BNOT = 89;
+    int SCOPE_END = 75;
+    int LOOP_COMPENSATE = 76;
 
-    int IEQ = 90;
-    int FEQ = 91;
-    int SEQ = 92;
-    int BEQ = 93;
-    int DEQ = 94;
-    int REQ = 95;
+    int XMLADD = 77;
+    int ISUB = 78;
+    int FSUB = 79;
+    int DSUB = 80;
+    int IMUL = 81;
+    int FMUL = 82;
+    int DMUL = 83;
+    int IDIV = 84;
+    int FDIV = 85;
+    int DDIV = 86;
+    int IMOD = 87;
+    int FMOD = 88;
+    int DMOD = 89;
+    int INEG = 90;
+    int FNEG = 91;
+    int DNEG = 92;
+    int BNOT = 93;
 
-    int INE = 96;
-    int FNE = 97;
-    int SNE = 98;
-    int BNE = 99;
-    int DNE = 100;
-    int RNE = 101;
+    int IEQ = 94;
+    int FEQ = 95;
+    int SEQ = 96;
+    int BEQ = 97;
+    int DEQ = 98;
+    int REQ = 99;
 
-    int IGT = 102;
-    int FGT = 103;
-    int DGT = 104;
+    int INE = 100;
+    int FNE = 101;
+    int SNE = 102;
+    int BNE = 103;
+    int DNE = 104;
+    int RNE = 105;
 
-    int IGE = 105;
-    int FGE = 106;
-    int DGE = 107;
+    int IGT = 106;
+    int FGT = 107;
+    int DGT = 108;
 
-    int ILT = 108;
-    int FLT = 109;
-    int DLT = 110;
+    int IGE = 109;
+    int FGE = 110;
+    int DGE = 111;
 
-    int ILE = 111;
-    int FLE = 112;
-    int DLE = 113;
+    int ILT = 112;
+    int FLT = 113;
+    int DLT = 114;
 
-    int REQ_NULL = 114;
-    int RNE_NULL = 115;
+    int ILE = 115;
+    int FLE = 116;
+    int DLE = 117;
 
-    int BR_TRUE = 116;
-    int BR_FALSE = 117;
+    int REQ_NULL = 118;
+    int RNE_NULL = 119;
 
-    int GOTO = 118;
-    int HALT = 119;
-    int TR_RETRY = 120;
-    int CALL = 121;
-    int VCALL = 122;
-    int THROW = 123;
-    int ERRSTORE = 124;
-    int FPCALL = 125;
-    int FPLOAD = 126;
-    int VFPLOAD = 127;
+    int BR_TRUE = 120;
+    int BR_FALSE = 121;
 
-    int SEQ_NULL = 128;
-    int SNE_NULL = 129;
+    int GOTO = 122;
+    int HALT = 123;
+    int TR_RETRY = 124;
+    int CALL = 125;
+    int VCALL = 126;
+    int FPCALL = 127;
+    int FPLOAD = 128;
+    int VFPLOAD = 129;
+
+    int SEQ_NULL = 130;
+    int SNE_NULL = 131;
 
     // Type Conversion related instructions
-    int I2F = 130;
-    int I2S = 131;
-    int I2B = 132;
-    int I2D = 133;
-    int F2I = 134;
-    int F2S = 135;
-    int F2B = 136;
-    int F2D = 137;
-    int S2I = 138;
-    int S2F = 139;
-    int S2B = 140;
-    int S2D = 141;
-    int B2I = 142;
-    int B2F = 143;
-    int B2S = 144;
-    int B2D = 145;
-    int D2I = 146;
-    int D2F = 147;
-    int D2S = 148;
-    int D2B = 149;
-    int DT2JSON = 150;
-    int DT2XML = 151;
-    int T2MAP = 152;
-    int T2JSON = 153;
-    int MAP2T = 154;
-    int JSON2T = 155;
-    int XML2S = 157;
+    int I2F = 132;
+    int I2S = 133;
+    int I2B = 134;
+    int I2D = 135;
+    int F2I = 136;
+    int F2S = 137;
+    int F2B = 138;
+    int F2D = 139;
+    int S2I = 140;
+    int S2F = 141;
+    int S2B = 142;
+    int S2D = 143;
+    int B2I = 144;
+    int B2F = 145;
+    int B2S = 146;
+    int B2D = 147;
+    int D2I = 148;
+    int D2F = 149;
+    int D2S = 150;
+    int D2B = 151;
+    int DT2JSON = 152;
+    int DT2XML = 153;
+    int T2MAP = 154;
+    int T2JSON = 155;
+    int MAP2T = 156;
+    int JSON2T = 157;
+    int XML2S = 158;
 
-    int BILSHIFT = 158;
-    int BIRSHIFT = 159;
-    int ILSHIFT = 160;
-    int IRSHIFT = 161;
+    int BILSHIFT = 159;
+    int BIRSHIFT = 160;
+    int ILSHIFT = 161;
+    int IRSHIFT = 162;
 
     // Type cast
-    int I2ANY = 162;
-    int F2ANY = 163;
-    int S2ANY = 164;
-    int B2ANY = 165;
-    int D2ANY = 166;
-    int ANY2I = 167;
-    int ANY2F = 168;
-    int ANY2S = 169;
-    int ANY2B = 170;
-    int ANY2D = 171;
-    int ANY2JSON = 172;
-    int ANY2XML = 173;
-    int ANY2MAP = 174;
-    int ANY2STM = 175;
-    int ANY2DT = 176;
-    int ANY2SCONV = 177;
-    int ANY2BI = 178;
-    int BI2ANY = 179;
-    int ANY2E = 180;
-    int ANY2T = 181;
-    int ANY2C = 182;
-    int CHECKCAST = 183;
+    int I2ANY = 163;
+    int F2ANY = 164;
+    int S2ANY = 165;
+    int B2ANY = 166;
+    int D2ANY = 167;
+    int ANY2I = 168;
+    int ANY2F = 169;
+    int ANY2S = 170;
+    int ANY2B = 171;
+    int ANY2D = 172;
+    int ANY2JSON = 173;
+    int ANY2XML = 174;
+    int ANY2MAP = 175;
+    int ANY2STM = 176;
+    int ANY2DT = 177;
+    int ANY2SCONV = 178;
+    int ANY2BI = 179;
+    int BI2ANY = 180;
+    int ANY2E = 181;
+    int ANY2T = 182;
+    int ANY2C = 183;
+    int CHECKCAST = 184;
 
-    int ANY2TYPE = 184;
+    int ANY2TYPE = 185;
 
     int LOCK = 186;
     int UNLOCK = 187;
@@ -246,7 +249,7 @@ public interface InstructionCodes {
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
     int FORKJOIN = 192;
-    
+
     int AWAIT = 193;
 
     int MAP2JSON = 194;
@@ -254,7 +257,7 @@ public interface InstructionCodes {
 
     int IS_ASSIGNABLE = 196;
     int O2JSON = 197;
-    
+
     int ARRAY2JSON = 198;
     int JSON2ARRAY = 199;
 
@@ -309,6 +312,7 @@ public interface InstructionCodes {
     int XMLLOADALL = 250;
     int NEWXMLSEQ = 251;
 
+    int TYPE_TEST = 251;
     int TYPELOAD = 252;
 
     int TEQ = 253;

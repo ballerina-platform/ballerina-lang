@@ -54,6 +54,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Serialize Ballerina {@code PackageInfo} structure to a byte stream.
@@ -512,8 +513,8 @@ public class PackageInfoWriter {
                     attrDataOutStream.writeInt(errorTableEntry.ipFrom);
                     attrDataOutStream.writeInt(errorTableEntry.ipTo);
                     attrDataOutStream.writeInt(errorTableEntry.ipTarget);
-                    attrDataOutStream.writeInt(errorTableEntry.priority);
-                    attrDataOutStream.writeInt(errorTableEntry.errorStructCPIndex);
+                    attrDataOutStream.writeInt(
+                            Optional.ofNullable(errorTableEntry.errorVarIndex).map(Operand::getValue).orElse(-1));
                 }
                 break;
 
