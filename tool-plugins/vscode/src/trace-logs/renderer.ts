@@ -47,6 +47,12 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
         .inverted .ui.dropdown .menu .item .text {
             color: #1e1e1e!important;
         }
+        .icon.inbound {
+            color: #00bcd4;
+        }
+        .icon.outbound {
+            color: #f1772a;
+        }
     `;
     return getLibraryWebViewContent(context, body, script, styles);
 }
