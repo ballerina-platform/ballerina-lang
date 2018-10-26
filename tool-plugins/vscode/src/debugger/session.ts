@@ -235,6 +235,13 @@ export class BallerinaDebugSession extends LoggingDebugSession {
                 executableArgs = executableArgs.concat(commandOptions);
             }
 
+            if (args.networkLogs) {
+                executableArgs.push('-e');
+                executableArgs.push('b7a.http.tracelog.host=localhost');
+                executableArgs.push('-e');
+                executableArgs.push('b7a.http.tracelog.port=5010');
+            }
+
             executableArgs.push(<string>this._debugTarget);
 
             if (Array.isArray(scriptArguments) && scriptArguments.length) {

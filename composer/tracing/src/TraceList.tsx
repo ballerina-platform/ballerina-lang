@@ -19,8 +19,9 @@
 import * as React from "react";
 import * as _ from 'lodash';
 import moment from 'moment';
-import { Grid, Icon } from 'semantic-ui-react';
-import './index.scss';
+import { Table, Icon } from 'semantic-ui-react';
+// import './index.scss';
+
 
 const directionToIcon = {
     INBOUND: {
@@ -34,12 +35,12 @@ const directionToIcon = {
 };
 
 export interface TraceListState {
-    selected: string | undefined
 }
 
 export interface TraceListProps {
     traces: Array<any>;
-    selected: string | undefined;
+    selected?: string;
+    onSelected: Function,
 }
 
 /**
@@ -47,33 +48,13 @@ export interface TraceListProps {
  * @extends React.Component
  */
 class TraceList extends React.Component<TraceListProps, TraceListState> {
-    // static defaultProps = {
-    //     traces: []
-    // }
     constructor(props: any, context: any) {
         super(props);
-        this.state = {
-            selected: undefined,
-        };
-        this.toggleDetails = this.toggleDetails.bind(this);
     }
 
     getDirectionIcon(logger:string, direction: string) {
         directionToIcon[direction] = directionToIcon[direction] || {};
         return directionToIcon[direction][logger];
-    }
-
-    toggleDetails(id: string) {
-        if (id === this.state.selected){
-            this.setState({
-                selected: undefined,
-            });
-        } else {
-            this.setState({
-                selected: id,
-            });
-        }
-
     }
 
     /**
@@ -82,57 +63,39 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
     render() {
         return (
             <div id='logs-console'>
-                <Grid style={{ margin: 0 }}>
-                    <Grid.Row className='table-heading'>
-                        <Grid.Column className='summary'>
-                            &nbsp;
-                        </Grid.Column>
-                        <Grid.Column className='activity'>
-                            Activity Id
-                        </Grid.Column>
-                        <Grid.Column className='time'>
-                            Time
-                        </Grid.Column>
-                        <Grid.Column className='path'>
-                            Path
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-                <Grid
-                    className='table-content'
-                >
-                    {this.props.traces.map((record: any) => {
-                        const timeString = moment(parseInt(record.millis)).format('HH:mm:ss.SSS');
-                        return (
-                            <Grid.Row
-                                className={ this.props.selected === record.id ? 'active clickable' : 'clickable'}
-                                key={record.id}
-                                // onClick={() => this.props.onToggleDetails(record.id)}
-                            >
-                                <Grid.Column
-                                    className='wrap-text summary'
-                                >
-                                    <Icon
-                                        name={this.getDirectionIcon(record.logger,
-                                            record.message.direction)}
-                                        title={record.message.direction}
-                                    />
-                                </Grid.Column>
-                                <Grid.Column className='wrap-text activity'>
-                                    {record.message.id}
-                                </Grid.Column>
-                                <Grid.Column className='wrap-text time'>
-                                    {timeString}
-                                </Grid.Column>
-                                <Grid.Column className='wrap-text path'>
-                                    {record.message.httpMethod}
-                                    &nbsp;
-                                    {record.message.path}
-                                </Grid.Column>
-                            </Grid.Row>
-                        );
-                    })}
-                </Grid>
+                <Table celled>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.HeaderCell></Table.HeaderCell>
+                            <Table.HeaderCell>Path</Table.HeaderCell>
+                            <Table.HeaderCell>Method</Table.HeaderCell>
+                            <Table.HeaderCell>Time</Table.HeaderCell>
+                        </Table.Row>
+                    </Table.Header>
+
+                    <Table.Body>
+                        {this.props.traces.map((record: any) => {
+                            const timeString = moment(parseInt(record.millis)).format('HH:mm:ss.SSS');
+                            return (
+                                <Table.Row
+                                    className={ this.props.selected === record.id ? 'active clickable' : 'clickable'}
+                                    key={record.id
+                                }>
+                                    <Table.Cell>
+                                        <Icon
+                                            name={this.getDirectionIcon(record.logger,
+                                                record.message.direction)}
+                                            title={record.message.direction}
+                                        />
+                                    </Table.Cell>
+                                    <Table.Cell>{record.message.path}</Table.Cell>
+                                    <Table.Cell>{record.message.httpMethod}</Table.Cell>
+                                    <Table.Cell>{timeString}</Table.Cell>
+                                </Table.Row>
+                            );
+                        })}
+                    </Table.Body>
+                </Table>
             </div>
         );
     }
