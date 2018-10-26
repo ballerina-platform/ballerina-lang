@@ -124,14 +124,13 @@ public class Util {
         HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
         setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
-                               outboundNettyResponse);
+                outboundNettyResponse);
 
         return outboundNettyResponse;
     }
 
     public static HttpResponse createFullHttpResponse(HttpCarbonMessage outboundResponseMsg,
-                                                      String inboundReqHttpVersion, String serverName,
-                                                      boolean keepAlive, ByteBuf fullContent) {
+            String inboundReqHttpVersion, String serverName, boolean keepAlive, ByteBuf fullContent) {
 
         HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
@@ -139,7 +138,7 @@ public class Util {
                 new DefaultFullHttpResponse(httpVersion, httpResponseStatus, fullContent, false);
 
         setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
-                               outboundNettyResponse);
+                outboundNettyResponse);
 
         return outboundNettyResponse;
     }
@@ -170,7 +169,7 @@ public class Util {
     public static HttpResponseStatus getHttpResponseStatus(HttpCarbonMessage msg) {
         int statusCode = Util.getIntValue(msg, Constants.HTTP_STATUS_CODE, 200);
         String reasonPhrase = Util.getStringValue(msg, Constants.HTTP_REASON_PHRASE,
-                                                  HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
         return new HttpResponseStatus(statusCode, reasonPhrase);
     }
 
@@ -180,7 +179,7 @@ public class Util {
         HttpVersion httpVersion = getHttpVersion(outboundRequestMsg);
         String requestPath = getRequestPath(outboundRequestMsg);
         HttpRequest outboundNettyRequest = new DefaultHttpRequest(httpVersion, httpMethod,
-                                                                  (String) outboundRequestMsg.getProperty(TO), false);
+                (String) outboundRequestMsg.getProperty(TO), false);
         outboundNettyRequest.setMethod(httpMethod);
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
@@ -208,7 +207,7 @@ public class Util {
         HttpVersion httpVersion;
         if (null != outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) {
             httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX
-                                                  + outboundRequestMsg.getProperty(Constants.HTTP_VERSION), true);
+                    + outboundRequestMsg.getProperty(Constants.HTTP_VERSION), true);
         } else {
             httpVersion = new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true);
         }
@@ -284,7 +283,7 @@ public class Util {
      * Returns the status of chunking compatibility with http version.
      *
      * @param httpVersion http version string.
-     * @return boolean value of status.
+     * @return  boolean value of status.
      */
     public static boolean isVersionCompatibleForChunking(String httpVersion) {
         return Float.valueOf(httpVersion) >= Constants.HTTP_1_1;
@@ -305,13 +304,13 @@ public class Util {
      * Configure outbound HTTP pipeline for SSL configuration.
      *
      * @param socketChannel Socket channel of outbound connection
-     * @param sslConfig     {@link SSLConfig}
-     * @param host          host of the connection
-     * @param port          port of the connection
+     * @param sslConfig {@link SSLConfig}
+     * @param host host of the connection
+     * @param port port of the connection
      * @throws SSLException if any error occurs in the SSL connection
      */
     public static void configureHttpPipelineForSSL(SocketChannel socketChannel, String host, int port,
-                                                   SSLConfig sslConfig) throws SSLException {
+            SSLConfig sslConfig) throws SSLException {
         LOG.debug("adding ssl handler");
         ChannelPipeline pipeline = socketChannel.pipeline();
         SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
@@ -331,7 +330,7 @@ public class Util {
             if (sslConfig.getTrustStore() != null) {
                 sslHandlerFactory.createSSLContextFromKeystores();
                 sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled(),
-                                                    sslHandlerFactory);
+                        sslHandlerFactory);
             } else {
                 sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
             }
@@ -344,8 +343,7 @@ public class Util {
     }
 
     private static SSLEngine getSslEngineForCerts(SocketChannel socketChannel, String host, int port,
-                                                  SSLConfig sslConfig, SSLHandlerFactory sslHandlerFactory)
-            throws SSLException {
+            SSLConfig sslConfig, SSLHandlerFactory sslHandlerFactory) throws SSLException {
         SslContext sslContext = sslHandlerFactory.createHttpTLSContextForClient();
         SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
         SSLEngine sslEngine = sslHandler.engine();
@@ -360,16 +358,15 @@ public class Util {
     /**
      * Set configurations to create ssl engine.
      *
-     * @param sslConfig                   ssl related configurations
-     * @param host                        host of the connection
-     * @param port                        port of the connection
+     * @param sslConfig ssl related configurations
+     * @param host host of the connection
+     * @param port port of the connection
      * @param hostNameVerificationEnabled true if host name verification is enabled
-     * @param sslHandlerFactory           an instance of sslHandlerFactory
+     * @param sslHandlerFactory an instance of sslHandlerFactory
      * @return ssl engine
      */
     private static SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig, String host, int port,
-                                                     boolean hostNameVerificationEnabled,
-                                                     SSLHandlerFactory sslHandlerFactory) {
+            boolean hostNameVerificationEnabled, SSLHandlerFactory sslHandlerFactory) {
         // set the pipeline factory, which creates the pipeline for each newly created channels
         SSLEngine sslEngine = null;
         if (sslConfig != null) {
@@ -506,8 +503,8 @@ public class Util {
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
     /**
-     * Replace system property holders in the property values. e.g. Replace ${carbon.home} with value of the carbon.home
-     * system property.
+     * Replace system property holders in the property values.
+     * e.g. Replace ${carbon.home} with value of the carbon.home system property.
      *
      * @param value string value to substitute
      * @return String substituted string
@@ -528,15 +525,15 @@ public class Util {
             // Due to reported bug under CARBON-14746
             sysPropValue = sysPropValue.replace("\\", "\\\\");
             matcher.appendReplacement(sb, sysPropValue);
-        }
-        while (matcher.find());
+        } while (matcher.find());
         matcher.appendTail(sb);
         return sb.toString();
     }
 
     /**
-     * A utility which allows reading variables from the environment or System properties. If the variable in available
-     * in the environment as well as a System property, the System property takes precedence.
+     * A utility which allows reading variables from the environment or System properties.
+     * If the variable in available in the environment as well as a System property, the System property takes
+     * precedence.
      *
      * @param variableName System/environment variable name
      * @param defaultValue default value to be returned if the specified system variable is not specified.
@@ -590,16 +587,16 @@ public class Util {
     }
 
     /**
-     * Send back no entity body response and close the connection. This function is mostly used when we send back error
-     * messages.
+     * Send back no entity body response and close the connection. This function is mostly used
+     * when we send back error messages.
      *
-     * @param ctx         connection
-     * @param status      response status
+     * @param ctx connection
+     * @param status response status
      * @param httpVersion of the response
-     * @param serverName  server name
+     * @param serverName server name
      */
     public static void sendAndCloseNoEntityBodyResp(ChannelHandlerContext ctx, HttpResponseStatus status,
-                                                    HttpVersion httpVersion, String serverName) {
+            HttpVersion httpVersion, String serverName) {
         HttpResponse outboundResponse = new DefaultHttpResponse(httpVersion, status);
         outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
         outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
@@ -618,8 +615,7 @@ public class Util {
      * @param channelFuture            the channel future related to response write operation
      */
     public static void checkForResponseWriteStatus(HttpCarbonMessage inboundRequestMsg,
-                                                   HttpResponseFuture outboundRespStatusFuture,
-                                                   ChannelFuture channelFuture) {
+                                           HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
@@ -656,7 +652,7 @@ public class Util {
      * Creates HTTP carbon message.
      *
      * @param httpMessage HTTP message
-     * @param ctx         Channel handler context
+     * @param ctx Channel handler context
      * @return HttpCarbonMessage
      */
     public static HttpCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
@@ -682,14 +678,13 @@ public class Util {
 
     /**
      * Create a HttpCarbonMessage using the netty inbound http request.
-     *
      * @param httpRequestHeaders of inbound request
-     * @param ctx                of the inbound request
-     * @param sourceHandler      instance which handled the particular request
+     * @param ctx of the inbound request
+     * @param sourceHandler instance which handled the particular request
      * @return HttpCarbon message
      */
     public static HttpCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders,
-                                                              ChannelHandlerContext ctx, SourceHandler sourceHandler) {
+            ChannelHandlerContext ctx, SourceHandler sourceHandler) {
 
         HttpCarbonMessage inboundRequestMsg =
                 new HttpCarbonRequest(httpRequestHeaders, new DefaultListener(ctx));
@@ -699,7 +694,7 @@ public class Util {
         inboundRequestMsg.setProperty(Constants.SRC_HANDLER, sourceHandler);
         HttpVersion protocolVersion = httpRequestHeaders.protocolVersion();
         inboundRequestMsg.setProperty(Constants.HTTP_VERSION,
-                                      protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+                protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
         inboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpRequestHeaders.method().name());
         InetSocketAddress localAddress = null;
 
@@ -727,10 +722,9 @@ public class Util {
 
     /**
      * Create a HttpCarbonMessage using the netty inbound response message.
-     *
-     * @param ctx                 of the inbound response message
+     * @param ctx of the inbound response message
      * @param httpResponseHeaders of the inbound response message
-     * @param outboundRequestMsg  is the correlated outbound request message
+     * @param outboundRequestMsg is the correlated outbound request message
      * @return HttpCarbon message
      */
     public static HttpCarbonMessage createInboundRespCarbonMsg(ChannelHandlerContext ctx,
@@ -738,7 +732,7 @@ public class Util {
                                                                HttpCarbonMessage outboundRequestMsg) {
         HttpCarbonMessage inboundResponseMsg = new HttpCarbonResponse(httpResponseHeaders, new DefaultListener(ctx));
         inboundResponseMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY,
-                                       new PooledDataStreamerFactory(ctx.alloc()));
+                new PooledDataStreamerFactory(ctx.alloc()));
 
         inboundResponseMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         inboundResponseMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponseHeaders.status().code());
@@ -753,8 +747,7 @@ public class Util {
 
     /**
      * Check whether a connection should alive or not.
-     *
-     * @param keepAliveConfig    of the connection
+     * @param keepAliveConfig of the connection
      * @param outboundRequestMsg of this particular transaction
      * @return true if the connection should be kept alive
      * @throws ConfigurationException for invalid configurations
@@ -762,24 +755,22 @@ public class Util {
     public static boolean isKeepAlive(KeepAliveConfig keepAliveConfig, HttpCarbonMessage outboundRequestMsg)
             throws ConfigurationException {
         switch (keepAliveConfig) {
-            case AUTO:
-                return Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) >
-                        Constants.HTTP_1_0;
-            case ALWAYS:
-                return true;
-            case NEVER:
-                return false;
-            default:
-                // The execution will never reach here. In case execution reach here means it should be an invalid value
-                // for keep-alive configurations.
-                throw new ConfigurationException("Invalid keep-alive configuration value : "
-                                                         + keepAliveConfig.toString());
+        case AUTO:
+            return Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0;
+        case ALWAYS:
+            return true;
+        case NEVER:
+            return false;
+        default:
+            // The execution will never reach here. In case execution reach here means it should be an invalid value
+            // for keep-alive configurations.
+            throw new ConfigurationException("Invalid keep-alive configuration value : "
+                    + keepAliveConfig.toString());
         }
     }
 
     /**
      * Check whether a particular request is expecting continue.
-     *
      * @param inboundRequestMsg in question
      * @return true if the request expects 100-continue response
      */
