@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.programfile;
 
 /**
@@ -249,7 +249,7 @@ public interface InstructionCodes {
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
     int FORKJOIN = 192;
-    
+
     int AWAIT = 193;
 
     int MAP2JSON = 194;
@@ -257,7 +257,7 @@ public interface InstructionCodes {
 
     int IS_ASSIGNABLE = 196;
     int O2JSON = 197;
-    
+
     int ARRAY2JSON = 198;
     int JSON2ARRAY = 199;
 
@@ -275,42 +275,42 @@ public interface InstructionCodes {
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
 
-    int NEW_INT_RANGE = 219;
-    int ITR_NEW = 220;
-    int ITR_HAS_NEXT = 221;
-    int ITR_NEXT = 222;
-    int INT_RANGE = 223;
+    int NEW_INT_RANGE = 218;
+    int ITR_NEW = 219;
+    int ITR_HAS_NEXT = 220;
+    int ITR_NEXT = 221;
+    int INT_RANGE = 222;
 
-    int I2BI = 224;
-    int BI2I = 225;
-    int BIXOR = 226;
-    int IXOR = 227;
-    int BACONST = 228;
-    int IURSHIFT = 229;
+    int I2BI = 223;
+    int BI2I = 224;
+    int BIXOR = 225;
+    int IXOR = 226;
+    int BACONST = 227;
+    int IURSHIFT = 228;
 
-    int IRET = 230;
-    int FRET = 231;
-    int SRET = 232;
-    int BRET = 233;
-    int DRET = 234;
-    int RRET = 235;
-    int RET = 236;
+    int IRET = 229;
+    int FRET = 230;
+    int SRET = 231;
+    int BRET = 232;
+    int DRET = 233;
+    int RRET = 234;
+    int RET = 235;
 
-    int XML2XMLATTRS = 237;
-    int XMLATTRS2MAP = 238;
-    int XMLATTRLOAD = 239;
-    int XMLATTRSTORE = 240;
-    int S2QNAME = 241;
-    int NEWQNAME = 242;
-    int NEWXMLELEMENT = 243;
-    int NEWXMLCOMMENT = 244;
-    int NEWXMLTEXT = 245;
-    int NEWXMLPI = 246;
-    int XMLSEQSTORE = 247;
-    int XMLSEQLOAD = 248;
-    int XMLLOAD = 249;
-    int XMLLOADALL = 250;
-    int NEWXMLSEQ = 251;
+    int XML2XMLATTRS = 236;
+    int XMLATTRS2MAP = 237;
+    int XMLATTRLOAD = 238;
+    int XMLATTRSTORE = 239;
+    int S2QNAME = 240;
+    int NEWQNAME = 241;
+    int NEWXMLELEMENT = 242;
+    int NEWXMLCOMMENT = 243;
+    int NEWXMLTEXT = 244;
+    int NEWXMLPI = 245;
+    int XMLSEQSTORE = 246;
+    int XMLSEQLOAD = 247;
+    int XMLLOAD = 248;
+    int XMLLOADALL = 249;
+    int NEWXMLSEQ = 250;
 
     int TYPE_TEST = 251;
     int TYPELOAD = 252;
