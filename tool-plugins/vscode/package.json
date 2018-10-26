@@ -117,6 +117,11 @@
                                 "type": "integer",
                                 "default": 5000,
                                 "description": "How long to wait for the debug server to start up in miliseconds"
+                            },
+                            "debugTests": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Indicates whether to debug the tests for the given script."
                             }
                         }
                     }
@@ -134,6 +139,13 @@
                         "name": "Ballerina Remote Debug",
                         "host": "127.0.0.1",
                         "port": 5000
+                    },
+                    {
+                        "type": "ballerina",
+                        "request": "launch",
+                        "name": "Ballerina Debug Tests",
+                        "script": "${file}",
+                        "debugTests": true
                     }
                 ]
             }
