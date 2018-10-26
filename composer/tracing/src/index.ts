@@ -59,6 +59,9 @@ function mergeRelatedMessages(traces: Array<any>) {
 
 function filterEmptyLogs(traces: Array<any>) {
     return traces.filter((trace: any) => {
+        if (trace.message.headers.trim() === "" && trace.message.payload.trim() === "") {
+            return false;
+        }
         const direction = trace.message.direction || "";
         return direction.length > 0;
     });
