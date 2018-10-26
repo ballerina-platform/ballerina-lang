@@ -109,14 +109,15 @@ public class Field {
             if (primType != null) {
                 fieldDescriptorBuilder.setType(primType);
             } else {
-                if (type instanceof BStructureType || type instanceof FiniteType || type.getKind().typeName().equals("byte")) {
+                if (type instanceof BStructureType || type instanceof FiniteType || type.getKind().typeName()
+                        .equals("byte")) {
                     if (type.getKind().typeName().equals(BYTE)) {
                         fieldType = BYTES;
                     }
                     fieldDescriptorBuilder.setTypeName(fieldType);
                 } else {
-                    throw new GrpcServerException("Unsupported field type, field type " + type.getKind().typeName() +
-                            " currently not supported.");
+                    throw new GrpcServerException("Unsupported field type, field type " + type.getKind().typeName()
+                            + " currently not supported.");
                 }
             }
             return this;
