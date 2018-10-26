@@ -53,7 +53,15 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
 
 
 export function renderDetailView (context: ExtensionContext, langClient: ExtendedLangClient, trace: any) {
-    const body = `<div id="trace-details"><br/> Loading ... </>`;
+    const body = `<div id="trace-details"><br/> 
+        <div class="ui segment">
+            <div class="ui active transition visible dimmer" style="display: flex !important;">
+                <div class="content">
+                    <div class="ui text loader">Loading</div>
+                </div>
+            </div>
+        </div>
+    </div>`;
     const traceString = encodeURIComponent(JSON.stringify(trace));
     const styles = `
         body.vscode-dark, body.vscode-light {
