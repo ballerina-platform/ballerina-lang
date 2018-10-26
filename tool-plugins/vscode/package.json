@@ -155,7 +155,7 @@
             },
             {
                 "command": "ballerina.runAllTests",
-                "title": "Run All Tests"
+                "title": "Run All Tests",
                 "category": "Ballerina"
             },
             {
