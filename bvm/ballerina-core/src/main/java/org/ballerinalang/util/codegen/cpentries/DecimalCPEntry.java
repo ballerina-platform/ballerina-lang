@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 /**
  * {@code DecimalCPEntry} represents a Ballerina decimal value in the constant pool.
  *
- * @since 0.982
+ * @since 0.985.0
  */
 public class DecimalCPEntry implements ConstantPoolEntry {
 

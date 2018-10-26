@@ -29,7 +29,7 @@ import java.util.StringJoiner;
 /**
  * The {@code BDecimalArray} represents a decimal array in Ballerina.
  *
- * @since 0.982
+ * @since 0.985.0
  */
 public class BDecimalArray extends BNewArray {
 

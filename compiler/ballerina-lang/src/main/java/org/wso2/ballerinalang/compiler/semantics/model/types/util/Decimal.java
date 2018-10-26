@@ -26,7 +26,7 @@ import static java.math.MathContext.DECIMAL128;
  * {@code Decimal} contains the implementation of IEEE 754R standard based
  * Decimal128 floating point number representation.
  *
- * @since 0.982
+ * @since 0.985.0
  */
 public class Decimal extends BigDecimal {
 
