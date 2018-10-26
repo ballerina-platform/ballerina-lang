@@ -705,7 +705,6 @@
                                 ballerina-http,
                                 ballerina-io,
                                 ballerina-internal,
-                                ballerina-jdbc,
                                 ballerina-jms,
                                 ballerina-log-api,
                                 ballerina-math,
@@ -807,11 +806,6 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-io-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-jdbc-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
