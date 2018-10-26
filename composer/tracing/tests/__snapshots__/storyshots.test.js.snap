@@ -1,20 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Storyshots Detail view detail view 1`] = `
+<div
+  className="ui inverted segment detail-view"
+>
+  <code>
+    <pre>
+      
+    </pre>
+  </code>
+  <code>
+    <pre>
+      payload
+    </pre>
+  </code>
+</div>
+`;
+
 exports[`Storyshots ToolBar tool bar 1`] = `
 <div
   className="logs-console-toolbar"
 >
-  <span
-    className="filter-message.id pull-right"
+  <div
+    className="ui inverted menu"
   >
-    <label
-      htmlFor="dropdown"
+    <a
+      className="item"
+      onClick={[Function]}
     >
-      Activity Id
-    </label>
+      <i
+        aria-hidden="true"
+        className="ban icon"
+      />
+    </a>
     <div
       aria-expanded={false}
-      className="ui dropdown"
+      className="ui item dropdown filter-message.id pull-right"
+      inverted={true}
       onBlur={[Function]}
       onChange={[Function]}
       onClick={[Function]}
@@ -27,19 +49,21 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         aria-live="polite"
         className="text"
         role="alert"
-      />
+      >
+        Activity Id: all
+      </div>
       <i
         aria-hidden="true"
         className="dropdown icon"
         onClick={[Function]}
       />
       <div
-        className="left menu transition"
+        className="menu transition"
       >
         <div
-          aria-checked={false}
+          aria-checked={true}
           aria-selected={true}
-          className="selected item"
+          className="active selected item"
           onClick={[Function]}
           role="option"
           style={
@@ -74,18 +98,10 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         </div>
       </div>
     </div>
-  </span>
-  <span
-    className="filter-logger pull-right"
-  >
-    <label
-      htmlFor="dropdown"
-    >
-      Logger
-    </label>
     <div
       aria-expanded={false}
-      className="ui dropdown"
+      className="ui item dropdown filter-logger pull-right"
+      inverted={true}
       onBlur={[Function]}
       onChange={[Function]}
       onClick={[Function]}
@@ -98,19 +114,21 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         aria-live="polite"
         className="text"
         role="alert"
-      />
+      >
+        Logger: all
+      </div>
       <i
         aria-hidden="true"
         className="dropdown icon"
         onClick={[Function]}
       />
       <div
-        className="left menu transition"
+        className="menu transition"
       >
         <div
-          aria-checked={false}
+          aria-checked={true}
           aria-selected={true}
-          className="selected item"
+          className="active selected item"
           onClick={[Function]}
           role="option"
           style={
@@ -145,18 +163,10 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         </div>
       </div>
     </div>
-  </span>
-  <span
-    className="filter-message.path pull-right"
-  >
-    <label
-      htmlFor="dropdown"
-    >
-      Path
-    </label>
     <div
       aria-expanded={false}
-      className="ui dropdown"
+      className="ui item dropdown filter-message.path pull-right"
+      inverted={true}
       onBlur={[Function]}
       onChange={[Function]}
       onClick={[Function]}
@@ -169,19 +179,21 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         aria-live="polite"
         className="text"
         role="alert"
-      />
+      >
+        Path: all
+      </div>
       <i
         aria-hidden="true"
         className="dropdown icon"
         onClick={[Function]}
       />
       <div
-        className="left menu transition"
+        className="menu transition"
       >
         <div
-          aria-checked={false}
+          aria-checked={true}
           aria-selected={true}
-          className="selected item"
+          className="active selected item"
           onClick={[Function]}
           role="option"
           style={
@@ -216,18 +228,10 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         </div>
       </div>
     </div>
-  </span>
-  <span
-    className="filter-message.direction pull-right"
-  >
-    <label
-      htmlFor="dropdown"
-    >
-      Inbound/Outbound
-    </label>
     <div
       aria-expanded={false}
-      className="ui dropdown"
+      className="ui item dropdown filter-message.direction pull-right"
+      inverted={true}
       onBlur={[Function]}
       onChange={[Function]}
       onClick={[Function]}
@@ -240,19 +244,21 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         aria-live="polite"
         className="text"
         role="alert"
-      />
+      >
+        Inbound/Outbound: all
+      </div>
       <i
         aria-hidden="true"
         className="dropdown icon"
         onClick={[Function]}
       />
       <div
-        className="left menu transition"
+        className="menu transition"
       >
         <div
-          aria-checked={false}
+          aria-checked={true}
           aria-selected={true}
-          className="selected item"
+          className="active selected item"
           onClick={[Function]}
           role="option"
           style={
@@ -287,18 +293,10 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         </div>
       </div>
     </div>
-  </span>
-  <span
-    className="filter-message.httpMethod pull-right"
-  >
-    <label
-      htmlFor="dropdown"
-    >
-      Method
-    </label>
     <div
       aria-expanded={false}
-      className="ui dropdown"
+      className="ui item dropdown filter-message.httpMethod pull-right"
+      inverted={true}
       onBlur={[Function]}
       onChange={[Function]}
       onClick={[Function]}
@@ -312,7 +310,7 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         className="text"
         role="alert"
       >
-        All
+        Method: all
       </div>
       <i
         aria-hidden="true"
@@ -320,7 +318,7 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         onClick={[Function]}
       />
       <div
-        className="left menu transition"
+        className="menu transition"
       >
         <div
           aria-checked={true}
@@ -360,7 +358,7 @@ exports[`Storyshots ToolBar tool bar 1`] = `
         </div>
       </div>
     </div>
-  </span>
+  </div>
 </div>
 `;
 
@@ -368,167 +366,152 @@ exports[`Storyshots trace list list traces 1`] = `
 <div
   id="logs-console"
 >
-  <div
-    className="ui grid"
-    style={
-      Object {
-        "margin": 0,
-      }
-    }
+  <table
+    className="ui celled inverted table"
   >
-    <div
-      className="row table-heading"
+    <thead
+      className=""
     >
-      <div
-        className="column summary"
+      <tr
+        className=""
       >
-         
-      </div>
-      <div
-        className="column activity"
-      >
-        Activity Id
-      </div>
-      <div
-        className="column time"
-      >
-        Time
-      </div>
-      <div
-        className="column path"
-      >
-        Path
-      </div>
-    </div>
-  </div>
-  <div
-    className="ui grid table-content"
-  >
-    <div
-      className="row clickable"
-      onClick={[Function]}
-    >
-      <div
-        className="column wrap-text summary"
-      >
-        <i
-          aria-hidden="true"
-          className="icon"
-          title="direction"
+        <th
+          className=""
         />
-      </div>
-      <div
-        className="column wrap-text activity"
-      >
-        id1
-      </div>
-      <div
-        className="column wrap-text time"
-      >
-        13:21:35.575
-      </div>
-      <div
-        className="column wrap-text path"
-      >
-        GET
-         
-        /path
-      </div>
-    </div>
-    <div
-      className="row clickable"
-      onClick={[Function]}
+        <th
+          className=""
+        >
+          Path
+        </th>
+        <th
+          className=""
+        >
+          Method
+        </th>
+        <th
+          className=""
+        >
+          Time
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      className=""
     >
-      <div
-        className="column wrap-text summary"
+      <tr
+        className="clickable"
       >
-        <i
-          aria-hidden="true"
-          className="icon"
-          title="direction"
-        />
-      </div>
-      <div
-        className="column wrap-text activity"
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          /path
+        </td>
+        <td
+          className=""
+        >
+          GET
+        </td>
+        <td
+          className=""
+        >
+          13:21:35.575
+        </td>
+      </tr>
+      <tr
+        className="clickable"
       >
-        id2
-      </div>
-      <div
-        className="column wrap-text time"
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          /path2
+        </td>
+        <td
+          className=""
+        >
+          POST
+        </td>
+        <td
+          className=""
+        >
+          13:21:35.575
+        </td>
+      </tr>
+      <tr
+        className="clickable"
       >
-        13:21:35.575
-      </div>
-      <div
-        className="column wrap-text path"
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          /path3
+        </td>
+        <td
+          className=""
+        >
+          POST
+        </td>
+        <td
+          className=""
+        >
+          13:21:35.575
+        </td>
+      </tr>
+      <tr
+        className="clickable"
       >
-        POST
-         
-        /path2
-      </div>
-    </div>
-    <div
-      className="row clickable"
-      onClick={[Function]}
-    >
-      <div
-        className="column wrap-text summary"
-      >
-        <i
-          aria-hidden="true"
-          className="icon"
-          title="direction"
-        />
-      </div>
-      <div
-        className="column wrap-text activity"
-      >
-        id3
-      </div>
-      <div
-        className="column wrap-text time"
-      >
-        13:21:35.575
-      </div>
-      <div
-        className="column wrap-text path"
-      >
-        POST
-         
-        /path3
-      </div>
-    </div>
-    <div
-      className="row clickable"
-      onClick={[Function]}
-    >
-      <div
-        className="column wrap-text summary"
-      >
-        <i
-          aria-hidden="true"
-          className="icon"
-          title="direction"
-        />
-      </div>
-      <div
-        className="column wrap-text activity"
-      >
-        id4
-      </div>
-      <div
-        className="column wrap-text time"
-      >
-        13:21:35.575
-      </div>
-      <div
-        className="column wrap-text path"
-      >
-        POST
-         
-        /path4
-      </div>
-    </div>
-  </div>
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          /path4
+        </td>
+        <td
+          className=""
+        >
+          POST
+        </td>
+        <td
+          className=""
+        >
+          13:21:35.575
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 `;
 
@@ -536,167 +519,152 @@ exports[`Storyshots trace list list traces selected 1`] = `
 <div
   id="logs-console"
 >
-  <div
-    className="ui grid"
-    style={
-      Object {
-        "margin": 0,
-      }
-    }
+  <table
+    className="ui celled inverted table"
   >
-    <div
-      className="row table-heading"
+    <thead
+      className=""
     >
-      <div
-        className="column summary"
+      <tr
+        className=""
       >
-         
-      </div>
-      <div
-        className="column activity"
-      >
-        Activity Id
-      </div>
-      <div
-        className="column time"
-      >
-        Time
-      </div>
-      <div
-        className="column path"
-      >
-        Path
-      </div>
-    </div>
-  </div>
-  <div
-    className="ui grid table-content"
-  >
-    <div
-      className="row clickable"
-      onClick={[Function]}
-    >
-      <div
-        className="column wrap-text summary"
-      >
-        <i
-          aria-hidden="true"
-          className="icon"
-          title="direction"
+        <th
+          className=""
         />
-      </div>
-      <div
-        className="column wrap-text activity"
-      >
-        id1
-      </div>
-      <div
-        className="column wrap-text time"
-      >
-        13:21:35.575
-      </div>
-      <div
-        className="column wrap-text path"
-      >
-        GET
-         
-        /path
-      </div>
-    </div>
-    <div
-      className="row clickable"
-      onClick={[Function]}
+        <th
+          className=""
+        >
+          Path
+        </th>
+        <th
+          className=""
+        >
+          Method
+        </th>
+        <th
+          className=""
+        >
+          Time
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      className=""
     >
-      <div
-        className="column wrap-text summary"
+      <tr
+        className="clickable"
       >
-        <i
-          aria-hidden="true"
-          className="icon"
-          title="direction"
-        />
-      </div>
-      <div
-        className="column wrap-text activity"
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          /path
+        </td>
+        <td
+          className=""
+        >
+          GET
+        </td>
+        <td
+          className=""
+        >
+          13:21:35.575
+        </td>
+      </tr>
+      <tr
+        className="clickable"
       >
-        id2
-      </div>
-      <div
-        className="column wrap-text time"
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          /path2
+        </td>
+        <td
+          className=""
+        >
+          POST
+        </td>
+        <td
+          className=""
+        >
+          13:21:35.575
+        </td>
+      </tr>
+      <tr
+        className="clickable"
       >
-        13:21:35.575
-      </div>
-      <div
-        className="column wrap-text path"
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          /path3
+        </td>
+        <td
+          className=""
+        >
+          POST
+        </td>
+        <td
+          className=""
+        >
+          13:21:35.575
+        </td>
+      </tr>
+      <tr
+        className="clickable"
       >
-        POST
-         
-        /path2
-      </div>
-    </div>
-    <div
-      className="row clickable"
-      onClick={[Function]}
-    >
-      <div
-        className="column wrap-text summary"
-      >
-        <i
-          aria-hidden="true"
-          className="icon"
-          title="direction"
-        />
-      </div>
-      <div
-        className="column wrap-text activity"
-      >
-        id3
-      </div>
-      <div
-        className="column wrap-text time"
-      >
-        13:21:35.575
-      </div>
-      <div
-        className="column wrap-text path"
-      >
-        POST
-         
-        /path3
-      </div>
-    </div>
-    <div
-      className="row clickable"
-      onClick={[Function]}
-    >
-      <div
-        className="column wrap-text summary"
-      >
-        <i
-          aria-hidden="true"
-          className="icon"
-          title="direction"
-        />
-      </div>
-      <div
-        className="column wrap-text activity"
-      >
-        id4
-      </div>
-      <div
-        className="column wrap-text time"
-      >
-        13:21:35.575
-      </div>
-      <div
-        className="column wrap-text path"
-      >
-        POST
-         
-        /path4
-      </div>
-    </div>
-  </div>
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          /path4
+        </td>
+        <td
+          className=""
+        >
+          POST
+        </td>
+        <td
+          className=""
+        >
+          13:21:35.575
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 `;
 
@@ -706,17 +674,22 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
     <div
       className="logs-console-toolbar"
     >
-      <span
-        className="filter-message.id pull-right"
+      <div
+        className="ui inverted menu"
       >
-        <label
-          htmlFor="dropdown"
+        <a
+          className="item"
+          onClick={[Function]}
         >
-          Activity Id
-        </label>
+          <i
+            aria-hidden="true"
+            className="ban icon"
+          />
+        </a>
         <div
           aria-expanded={false}
-          className="ui dropdown"
+          className="ui item dropdown filter-message.id pull-right"
+          inverted={true}
           onBlur={[Function]}
           onChange={[Function]}
           onClick={[Function]}
@@ -729,19 +702,21 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             aria-live="polite"
             className="text"
             role="alert"
-          />
+          >
+            Activity Id: all
+          </div>
           <i
             aria-hidden="true"
             className="dropdown icon"
             onClick={[Function]}
           />
           <div
-            className="left menu transition"
+            className="menu transition"
           >
             <div
-              aria-checked={false}
+              aria-checked={true}
               aria-selected={true}
-              className="selected item"
+              className="active selected item"
               onClick={[Function]}
               role="option"
               style={
@@ -776,18 +751,10 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             </div>
           </div>
         </div>
-      </span>
-      <span
-        className="filter-logger pull-right"
-      >
-        <label
-          htmlFor="dropdown"
-        >
-          Logger
-        </label>
         <div
           aria-expanded={false}
-          className="ui dropdown"
+          className="ui item dropdown filter-logger pull-right"
+          inverted={true}
           onBlur={[Function]}
           onChange={[Function]}
           onClick={[Function]}
@@ -800,19 +767,21 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             aria-live="polite"
             className="text"
             role="alert"
-          />
+          >
+            Logger: all
+          </div>
           <i
             aria-hidden="true"
             className="dropdown icon"
             onClick={[Function]}
           />
           <div
-            className="left menu transition"
+            className="menu transition"
           >
             <div
-              aria-checked={false}
+              aria-checked={true}
               aria-selected={true}
-              className="selected item"
+              className="active selected item"
               onClick={[Function]}
               role="option"
               style={
@@ -847,160 +816,10 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             </div>
           </div>
         </div>
-      </span>
-      <span
-        className="filter-message.path pull-right"
-      >
-        <label
-          htmlFor="dropdown"
-        >
-          Path
-        </label>
         <div
           aria-expanded={false}
-          className="ui dropdown"
-          onBlur={[Function]}
-          onChange={[Function]}
-          onClick={[Function]}
-          onFocus={[Function]}
-          onMouseDown={[Function]}
-          role="listbox"
-          tabIndex={0}
-        >
-          <div
-            aria-live="polite"
-            className="text"
-            role="alert"
-          />
-          <i
-            aria-hidden="true"
-            className="dropdown icon"
-            onClick={[Function]}
-          />
-          <div
-            className="left menu transition"
-          >
-            <div
-              aria-checked={false}
-              aria-selected={false}
-              className="item"
-              onClick={[Function]}
-              role="option"
-              style={
-                Object {
-                  "pointerEvents": "all",
-                }
-              }
-            >
-              <span
-                className="text"
-              >
-                All
-              </span>
-            </div>
-            <div
-              aria-checked={true}
-              aria-selected={true}
-              className="active selected item"
-              onClick={[Function]}
-              role="option"
-              style={
-                Object {
-                  "pointerEvents": "all",
-                }
-              }
-            >
-              <span
-                className="text"
-              >
-                
-              </span>
-            </div>
-          </div>
-        </div>
-      </span>
-      <span
-        className="filter-message.direction pull-right"
-      >
-        <label
-          htmlFor="dropdown"
-        >
-          Inbound/Outbound
-        </label>
-        <div
-          aria-expanded={false}
-          className="ui dropdown"
-          onBlur={[Function]}
-          onChange={[Function]}
-          onClick={[Function]}
-          onFocus={[Function]}
-          onMouseDown={[Function]}
-          role="listbox"
-          tabIndex={0}
-        >
-          <div
-            aria-live="polite"
-            className="text"
-            role="alert"
-          />
-          <i
-            aria-hidden="true"
-            className="dropdown icon"
-            onClick={[Function]}
-          />
-          <div
-            className="left menu transition"
-          >
-            <div
-              aria-checked={false}
-              aria-selected={false}
-              className="item"
-              onClick={[Function]}
-              role="option"
-              style={
-                Object {
-                  "pointerEvents": "all",
-                }
-              }
-            >
-              <span
-                className="text"
-              >
-                All
-              </span>
-            </div>
-            <div
-              aria-checked={true}
-              aria-selected={true}
-              className="active selected item"
-              onClick={[Function]}
-              role="option"
-              style={
-                Object {
-                  "pointerEvents": "all",
-                }
-              }
-            >
-              <span
-                className="text"
-              >
-                
-              </span>
-            </div>
-          </div>
-        </div>
-      </span>
-      <span
-        className="filter-message.httpMethod pull-right"
-      >
-        <label
-          htmlFor="dropdown"
-        >
-          Method
-        </label>
-        <div
-          aria-expanded={false}
-          className="ui dropdown"
+          className="ui item dropdown filter-message.path pull-right"
+          inverted={true}
           onBlur={[Function]}
           onChange={[Function]}
           onClick={[Function]}
@@ -1014,7 +833,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             className="text"
             role="alert"
           >
-            All
+            Path: all
           </div>
           <i
             aria-hidden="true"
@@ -1022,7 +841,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             onClick={[Function]}
           />
           <div
-            className="left menu transition"
+            className="menu transition"
           >
             <div
               aria-checked={true}
@@ -1062,205 +881,317 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             </div>
           </div>
         </div>
-      </span>
+        <div
+          aria-expanded={false}
+          className="ui item dropdown filter-message.direction pull-right"
+          inverted={true}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onMouseDown={[Function]}
+          role="listbox"
+          tabIndex={0}
+        >
+          <div
+            aria-live="polite"
+            className="text"
+            role="alert"
+          >
+            Inbound/Outbound: all
+          </div>
+          <i
+            aria-hidden="true"
+            className="dropdown icon"
+            onClick={[Function]}
+          />
+          <div
+            className="menu transition"
+          >
+            <div
+              aria-checked={true}
+              aria-selected={true}
+              className="active selected item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                All
+              </span>
+            </div>
+            <div
+              aria-checked={false}
+              aria-selected={false}
+              className="item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          aria-expanded={false}
+          className="ui item dropdown filter-message.httpMethod pull-right"
+          inverted={true}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onMouseDown={[Function]}
+          role="listbox"
+          tabIndex={0}
+        >
+          <div
+            aria-live="polite"
+            className="text"
+            role="alert"
+          >
+            Method: all
+          </div>
+          <i
+            aria-hidden="true"
+            className="dropdown icon"
+            onClick={[Function]}
+          />
+          <div
+            className="menu transition"
+          >
+            <div
+              aria-checked={true}
+              aria-selected={true}
+              className="active selected item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                All
+              </span>
+            </div>
+            <div
+              aria-checked={false}
+              aria-selected={false}
+              className="item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div>
     <div
       id="logs-console"
     >
-      <div
-        className="ui grid"
-        style={
-          Object {
-            "margin": 0,
-          }
-        }
+      <table
+        className="ui celled inverted table"
       >
-        <div
-          className="row table-heading"
+        <thead
+          className=""
         >
-          <div
-            className="column summary"
+          <tr
+            className=""
           >
-             
-          </div>
-          <div
-            className="column activity"
-          >
-            Activity Id
-          </div>
-          <div
-            className="column time"
-          >
-            Time
-          </div>
-          <div
-            className="column path"
-          >
-            Path
-          </div>
-        </div>
-      </div>
-      <div
-        className="ui grid table-content"
-      >
-        <div
-          className="row clickable"
-          onClick={[Function]}
-        >
-          <div
-            className="column wrap-text summary"
-          >
-            <i
-              aria-hidden="true"
-              className="icon"
-              title=""
+            <th
+              className=""
             />
-          </div>
-          <div
-            className="column wrap-text activity"
-          >
-            0xdb0d6c88
-          </div>
-          <div
-            className="column wrap-text time"
-          >
-            14:15:38.205
-          </div>
-          <div
-            className="column wrap-text path"
-          >
-            
-             
-            
-          </div>
-        </div>
-        <div
-          className="row clickable"
-          onClick={[Function]}
+            <th
+              className=""
+            >
+              Path
+            </th>
+            <th
+              className=""
+            >
+              Method
+            </th>
+            <th
+              className=""
+            >
+              Time
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          className=""
         >
-          <div
-            className="column wrap-text summary"
+          <tr
+            className="clickable"
           >
-            <i
-              aria-hidden="true"
-              className="icon"
-              title=""
-            />
-          </div>
-          <div
-            className="column wrap-text activity"
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title=""
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              14:15:38.205
+            </td>
+          </tr>
+          <tr
+            className="clickable"
           >
-            0xdb0d6c88
-          </div>
-          <div
-            className="column wrap-text time"
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title=""
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              14:15:38.205
+            </td>
+          </tr>
+          <tr
+            className="clickable"
           >
-            14:15:38.205
-          </div>
-          <div
-            className="column wrap-text path"
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title=""
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              14:15:38.205
+            </td>
+          </tr>
+          <tr
+            className="clickable"
           >
-            
-             
-            
-          </div>
-        </div>
-        <div
-          className="row clickable"
-          onClick={[Function]}
-        >
-          <div
-            className="column wrap-text summary"
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title=""
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              14:15:38.205
+            </td>
+          </tr>
+          <tr
+            className="clickable"
           >
-            <i
-              aria-hidden="true"
-              className="icon"
-              title=""
-            />
-          </div>
-          <div
-            className="column wrap-text activity"
-          >
-            0xdb0d6c88
-          </div>
-          <div
-            className="column wrap-text time"
-          >
-            14:15:38.205
-          </div>
-          <div
-            className="column wrap-text path"
-          >
-            
-             
-            
-          </div>
-        </div>
-        <div
-          className="row clickable"
-          onClick={[Function]}
-        >
-          <div
-            className="column wrap-text summary"
-          >
-            <i
-              aria-hidden="true"
-              className="icon"
-              title=""
-            />
-          </div>
-          <div
-            className="column wrap-text activity"
-          >
-            0xdb0d6c88
-          </div>
-          <div
-            className="column wrap-text time"
-          >
-            14:15:38.205
-          </div>
-          <div
-            className="column wrap-text path"
-          >
-            
-             
-            
-          </div>
-        </div>
-        <div
-          className="row clickable"
-          onClick={[Function]}
-        >
-          <div
-            className="column wrap-text summary"
-          >
-            <i
-              aria-hidden="true"
-              className="icon"
-              title=""
-            />
-          </div>
-          <div
-            className="column wrap-text activity"
-          >
-            0xdb0d6c88
-          </div>
-          <div
-            className="column wrap-text time"
-          >
-            14:15:38.205
-          </div>
-          <div
-            className="column wrap-text path"
-          >
-            
-             
-            
-          </div>
-        </div>
-      </div>
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title=""
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              14:15:38.205
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

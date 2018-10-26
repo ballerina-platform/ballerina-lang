@@ -3,6 +3,7 @@ import { storiesOf } from '@storybook/react';
 import 'semantic-ui-css/semantic.min.css';
 import './toolbar';
 import './trace-list';
+import './detailView';
 import TraceLogs from '../src/TraceLogs';
 
 const traces:any = [{
