@@ -147,6 +147,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -3454,5 +3455,14 @@ public class BLangPackageBuilder {
         typeRef.addWS(ws);
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
         objectTypeNode.addTypeReference(typeRef);
+    }
+
+    public void createTypeTestExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        typeTestExpr.expr = (BLangExpression) this.exprNodeStack.pop();
+        typeTestExpr.typeNode = (BLangType) this.typeNodeStack.pop();
+        typeTestExpr.pos = pos;
+        typeTestExpr.addWS(ws);
+        addExpressionNode(typeTestExpr);
     }
 }

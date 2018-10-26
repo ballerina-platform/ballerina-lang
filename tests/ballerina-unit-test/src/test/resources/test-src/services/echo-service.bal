@@ -135,7 +135,8 @@ service<http:Service> echo bind echoEP {
                 res.setJsonPayload(untaint responseJson);
             }
             error err => {
-                res.setTextPayload(untaint err.reason());
+                string errMsg = <string> err.detail().message;
+                res.setTextPayload(errMsg);
             }
         }
         _ = conn -> respond(res);

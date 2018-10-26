@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -51,25 +52,13 @@ public class BJSONValueTest {
 
     @Test
     public void testJsonInitWithUnsupportedtypes() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 6);
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
 
         // testJsonArrayWithUnsupportedtypes
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'json', found 'table'", 3, 30);
 
         // testJsonInitWithUnsupportedtypes
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'json', found 'table'", 9, 39);
-
-        // testIntArrayToJsonAssignment
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'json', found 'int[]'", 15, 14);
-
-        // testFloatArrayToJsonAssignment
-        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'json', found 'float[]'", 21, 14);
-
-        // testStringArrayToJsonAssignment
-        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'json', found 'string[]'", 27, 14);
-
-        // testBooleanArrayToJsonAssignment
-        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'json', found 'boolean[]'", 33, 14);
     }
 
     @Test
@@ -497,5 +486,41 @@ public class BJSONValueTest {
             expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be converted to 'int\\[\\].*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
+    }
+
+    @Test
+    public void testIntArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[1, 5, 9, 4]");
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 5);
+    }
+
+    @Test
+    public void testFloatArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[1.3, 5.4, 9.4, 4.5]");
+        Assert.assertTrue(returns[1] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 5.4);
+    }
+
+    @Test
+    public void testStringArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"apple\", \"orange\", \"grape\"]");
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "orange");
+    }
+
+    @Test
+    public void testBooleanArrayToJsonAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanArrayToJsonAssignment");
+        Assert.assertTrue(returns[0] instanceof BNewArray);
+        Assert.assertEquals(returns[0].stringValue(), "[true, true, false, true]");
+        Assert.assertTrue(returns[1] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 }

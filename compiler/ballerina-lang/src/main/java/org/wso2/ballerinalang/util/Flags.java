@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.model.elements.Flag;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -97,5 +98,69 @@ public class Flags {
             }
         }
         return mask;
+    }
+
+    public static Set<Flag> unMask(int mask) {
+        Set<Flag> flagSet = new HashSet<>();
+        int flagVal;
+        for (Flag flag : Flag.values()) {
+            switch (flag) {
+                case PUBLIC:
+                    flagVal = PUBLIC;
+                    break;
+                case PRIVATE:
+                    flagVal = PRIVATE;
+                    break;
+                case NATIVE:
+                    flagVal = NATIVE;
+                    break;
+                case FINAL:
+                    flagVal = FINAL;
+                    break;
+                case ATTACHED:
+                    flagVal = ATTACHED;
+                    break;
+                case DEPRECATED:
+                    flagVal = DEPRECATED;
+                    break;
+                case READONLY:
+                    flagVal = READONLY;
+                    break;
+                case FUNCTION_FINAL:
+                    flagVal = FUNCTION_FINAL;
+                    break;
+                case INTERFACE:
+                    flagVal = INTERFACE;
+                    break;
+                case DEFAULTABLE_CHECKED:
+                    flagVal = DEFAULTABLE_CHECKED;
+                    break;
+                case DEFAULTABLE:
+                    flagVal = DEFAULTABLE;
+                    break;
+                case RECORD:
+                    flagVal = RECORD;
+                    break;
+                case COMPENSATE:
+                    flagVal = COMPENSATE;
+                    break;
+                case ABSTRACT:
+                    flagVal = ABSTRACT;
+                    break;
+                case OPTIONAL:
+                    flagVal = OPTIONAL;
+                    break;
+                default:
+                    continue;
+            }
+            addIfFlagOn(flagSet, mask, flagVal, flag);
+        }
+        return flagSet;
+    }
+
+    private static void addIfFlagOn(Set<Flag> flagSet, int mask, int flagVal, Flag flag) {
+        if ((mask & flagVal) == flagVal) {
+            flagSet.add(flag);
+        }
     }
 }

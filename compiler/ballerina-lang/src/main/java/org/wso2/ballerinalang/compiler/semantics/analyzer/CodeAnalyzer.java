@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -1152,6 +1153,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         // TODO: Fix me.
+    }
+    
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        analyzeNode(typeTestExpr.expr, env);
+        if (typeTestExpr.typeNode.type == symTable.semanticError) {
+            return;
+        }
+
+        // Check whether the condition is always true. If the variable type is assignable to target type,
+        // then type check will always evaluate to true. 
+        if (types.isAssignable(typeTestExpr.expr.type, typeTestExpr.typeNode.type)) {
+            dlog.error(typeTestExpr.pos, DiagnosticCode.UNNECESSARY_CONDITION);
+            return;
+        }
+
+        // Check whether the target type can ever be present as the type of the source.
+        // It'll be only possible iff, the target type has been assigned to the source
+        // variable at some point. To do that, a value of target type should be assignable 
+        // to the type of the source variable.
+        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type)) {
+            dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
+                    typeTestExpr.typeNode.type);
+        }
     }
 
     // private methods
