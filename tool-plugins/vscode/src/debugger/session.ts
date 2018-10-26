@@ -47,6 +47,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     private _debugServer: ChildProcess | undefined;
     private _debugPort: string | undefined;
     private _debugTests: boolean = false;
+    private _noDebug: boolean | undefined;
 
     constructor(){
         super('ballerina-debug.txt');
@@ -177,7 +178,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             this.terminate("Couldn't start the debug server. Please set ballerina.home.");
             return;
         }
-
+        this._noDebug = args.noDebug;
         const openFile = args.script;
         const scriptArguments = args.scriptArguments;
         const commandOptions = args.commandOptions;
@@ -283,7 +284,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             this._dirPaths.set(args.source.name, path.dirname(args.source.path));
             this._debugManager.removeAllBreakpoints(fileName);
             const bps: Array<any> = [];
-            if (args.breakpoints) {
+            if (!this._noDebug && args.breakpoints) {
                 args.breakpoints.forEach((bp, i) => {
                     this._debugManager.addBreakPoint(bp.line, fileName, pkg);
                     bps.push({id: i, line: bp.line, verified: true});
