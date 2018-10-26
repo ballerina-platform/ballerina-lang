@@ -228,7 +228,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
+        // Visit constants first.
         pkgNode.topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
+                .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
+
+        pkgNode.topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
                 .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
                         ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
@@ -1485,7 +1491,33 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        // Todo
+        BLangLiteral value = (BLangLiteral) constant.value;
+        // Check the value to set the type to it.
+        typeChecker.checkExpr(value, env);
+        BLangType typeNode = constant.typeNode;
+        if (typeNode != null) {
+            // Resolve the type node and update the type of the type node.
+            typeNode.type = symResolver.resolveTypeNode(typeNode, env);
+            // If the constant's type node's type is a finite type, we need to check whether the literal value is
+            // assignable to it.
+            //
+            // Eg - type ABC "Ballerina";
+            //      const ABC name = "Ballerina";
+            //
+            // Otherwise we directly check whether it can be assigned.
+            if (typeNode.type.tag == TypeTags.FINITE) {
+                // Need to check this separately. Otherwise the next else-if will be invoked.
+                if (!types.isAssignableToFiniteType(typeNode.type, value)) {
+                    dlog.error(constant.pos, DiagnosticCode.INCOMPATIBLE_TYPES, typeNode.type, value.type);
+                    return;
+                }
+            } else if (!types.isAssignable(value.type, typeNode.type)) {
+                dlog.error(constant.pos, DiagnosticCode.INCOMPATIBLE_TYPES, typeNode.type, value.type);
+                return;
+            }
+            // Update the symbol's value type tag. This is done because we need to support decimal type.
+            constant.symbol.valueTypeTag = typeNode.type.tag;
+        }
     }
 
     // Private methods
