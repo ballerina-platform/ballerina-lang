@@ -38,6 +38,8 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 
 /**
  * State between start and end of inbound response entity body read.
+ *
+ * @since 6.0.241
  */
 public class ReceivingEntityBody implements SenderState {
 

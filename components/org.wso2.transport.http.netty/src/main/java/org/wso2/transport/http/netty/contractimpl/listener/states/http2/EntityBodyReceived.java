@@ -34,6 +34,8 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 
 /**
  * State between end of inbound request payload read and start of outbound response or push response headers write.
+ *
+ * @since 6.0.241
  */
 public class EntityBodyReceived implements ListenerState {
 

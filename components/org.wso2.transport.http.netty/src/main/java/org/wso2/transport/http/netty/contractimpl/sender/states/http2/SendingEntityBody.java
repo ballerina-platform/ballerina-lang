@@ -50,6 +50,8 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 
 /**
  * State between start and end of outbound request entity body write.
+ *
+ * @since 6.0.241
  */
 public class SendingEntityBody implements SenderState {
 

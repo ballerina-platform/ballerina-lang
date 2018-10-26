@@ -22,6 +22,8 @@ import org.wso2.transport.http.netty.contractimpl.sender.states.http2.SenderStat
 
 /**
  * Context class to manipulate current state of the HTTP/2 message.
+ *
+ * @since 6.0.241
  */
 public class Http2MessageStateContext {
 

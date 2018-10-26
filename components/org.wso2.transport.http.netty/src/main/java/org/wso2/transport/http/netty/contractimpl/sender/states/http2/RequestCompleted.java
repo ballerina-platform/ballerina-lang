@@ -34,6 +34,8 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 
 /**
  * State between end of payload write and start of response headers read.
+ *
+ * @since 6.0.241
  */
 public class RequestCompleted implements SenderState {
 

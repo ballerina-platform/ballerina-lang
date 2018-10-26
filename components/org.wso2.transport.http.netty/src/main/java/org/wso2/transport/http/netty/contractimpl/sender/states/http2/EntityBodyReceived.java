@@ -33,6 +33,8 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 
 /**
  * State of successfully read response.
+ *
+ * @since 6.0.241
  */
 public class EntityBodyReceived implements SenderState {
 

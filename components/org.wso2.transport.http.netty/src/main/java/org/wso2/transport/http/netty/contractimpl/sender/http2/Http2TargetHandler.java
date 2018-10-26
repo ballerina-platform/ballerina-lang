@@ -142,7 +142,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             httpOutboundRequest.getHttp2MessageStateContext()
                     .setSenderState(new SendingHeaders(Http2TargetHandler.this, this));
             // Write Content
-            httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
+            httpOutboundRequest.getHttpContentAsync().setMessageListener(httpContent ->
                     http2ClientChannel.getChannel().eventLoop().execute(() -> {
                         try {
                             writeOutboundRequest(ctx, httpContent);
@@ -150,7 +150,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                             LOG.error("Failed to send the request : " + ex.getMessage(), ex);
                             outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
                         }
-                    })));
+                    }));
         }
 
         private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {

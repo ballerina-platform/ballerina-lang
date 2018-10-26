@@ -67,6 +67,8 @@ import static org.wso2.transport.http.netty.contract.Constants.TO;
 
 /**
  * HTTP/2 utility functions for states.
+ *
+ * @since 6.0.241
  */
 public class Http2StateUtil {
 
@@ -131,7 +133,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Write HTTP2 headers to outbound response.
+     * Writes HTTP2 headers to outbound response.
      *
      * @param ctx                      the channel handler context
      * @param encoder                  the HTTP2 connection encoder
@@ -152,7 +154,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Write HTTP2 promise.
+     * Writes an HTTP2 promise.
      *
      * @param pushPromise              HTTP/2 promise message
      * @param ctx                      the channel handler context
@@ -186,7 +188,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Validate the state of promised stream with the original stream id and given stream id.
+     * Validates the state of promised stream with the original stream id and given stream id.
      *
      * @param originalStreamId  the original id of the stream
      * @param streamId          the id of the stream to be validated
@@ -207,7 +209,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Check for the validity of stream id.
+     * Checks for the validity of stream id.
      *
      * @param streamId the id of the stream
      * @param conn     HTTP2 connection
@@ -218,7 +220,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Release the {@link io.netty.buffer.ByteBuf} content.
+     * Releases the {@link io.netty.buffer.ByteBuf} content.
      *
      * @param http2SourceHandler the HTTP2 source handler
      * @param dataFrame          the HTTP2 data frame to be released
@@ -234,7 +236,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Send {@link org.wso2.transport.http.netty.message.Http2Reset} frame with `NO_ERROR` error code.
+     * Sends {@link org.wso2.transport.http.netty.message.Http2Reset} frame with `NO_ERROR` error code.
      *
      * @param ctx      the channel handler context
      * @param encoder  the HTTP2 connection encoder
@@ -249,7 +251,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Write HTTP2 headers.
+     * Writes HTTP2 headers.
      *
      * @param ctx                the channel handler context
      * @param outboundMsgHolder  the outbound message holder
@@ -284,7 +286,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Initiate HTTP2 stream.
+     * Initiates a HTTP2 stream.
      *
      * @param ctx                the channel handler context
      * @param connection         the HTTP2 connection
@@ -305,7 +307,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Return the stream id of next stream.
+     * Returns the stream id of next stream.
      *
      * @param conn the HTTP2 connection
      * @return the next stream id
@@ -315,7 +317,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Create stream with given stream id.
+     * Creates a stream with given stream id.
      *
      * @param conn     the HTTP2 connection
      * @param streamId the id of the stream
@@ -329,7 +331,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Add push promise message.
+     * Adds a push promise message.
      *
      * @param http2PushPromise   the HTTP2 push promise
      * @param http2ClientChannel the client channel related to the handler
@@ -355,7 +357,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Release the {@link io.netty.buffer.ByteBuf} content.
+     * Releases the {@link io.netty.buffer.ByteBuf} content.
      *
      * @param httpContent the HTTP2 content
      */

@@ -28,12 +28,14 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * ListenerStates of HTTP/2 source handler.
+ * Listener states of HTTP/2 source handler.
+ *
+ * @since 6.0.241
  */
 public interface ListenerState {
 
     /**
-     * Read headers of inbound request.
+     * Reads headers of inbound request.
      *
      * @param headersFrame inbound header frame
      * @throws Http2Exception if an error occurs while reading
@@ -41,7 +43,7 @@ public interface ListenerState {
     void readInboundRequestHeaders(Http2HeadersFrame headersFrame) throws Http2Exception;
 
     /**
-     * Read entity body of inbound request.
+     * Reads entity body of inbound request.
      *
      * @param http2SourceHandler HTTP2 source handler
      * @param dataFrame          inbound data frame
@@ -50,7 +52,7 @@ public interface ListenerState {
     void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) throws Http2Exception;
 
     /**
-     * Write headers of outbound response.
+     * Writes headers of outbound response.
      *
      * @param http2OutboundRespListener outbound response listener of response future
      * @param outboundResponseMsg       outbound response message
@@ -63,7 +65,7 @@ public interface ListenerState {
                                       int streamId) throws Http2Exception;
 
     /**
-     * Write entity body of outbound response.
+     * Writes entity body of outbound response.
      *
      * @param http2OutboundRespListener outbound response listener of response future
      * @param outboundResponseMsg       outbound response message
@@ -76,7 +78,7 @@ public interface ListenerState {
                                    int streamId) throws Http2Exception;
 
     /**
-     * Write the outbound promise message.
+     * Writes the outbound promise message.
      *
      * @param http2OutboundRespListener outbound response listener of response future
      * @param pushPromise               outbound promise message

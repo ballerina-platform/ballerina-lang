@@ -44,6 +44,8 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 
 /**
  * State between start and end of inbound request headers read.
+ *
+ * @since 6.0.241
  */
 public class ReceivingHeaders implements ListenerState {
 

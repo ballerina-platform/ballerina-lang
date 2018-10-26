@@ -75,9 +75,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         if (remoteAddress != null) {
             this.remoteAddress = remoteAddress;
         }
-        this.outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
+        outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         inboundRequestArrivalTime = Calendar.getInstance();
-        this.http2MessageStateContext = inboundRequestMsg.getHttp2MessageStateContext();
+        http2MessageStateContext = inboundRequestMsg.getHttp2MessageStateContext();
     }
 
     @Override

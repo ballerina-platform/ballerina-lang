@@ -61,6 +61,8 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 
 /**
  * State between start and end of outbound response or push response entity body write.
+ *
+ * @since 6.0.241
  */
 public class SendingEntityBody implements ListenerState {
 

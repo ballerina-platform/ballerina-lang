@@ -28,12 +28,14 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * SenderStates of target handler.
+ * Sender states of target handler.
+ *
+ * @since 6.0.241
  */
 public interface SenderState {
 
     /**
-     * Write headers of outbound request.
+     * Writes headers of outbound request.
      *
      * @param ctx         the channel handler context
      * @param httpContent the initial content of the entity body
@@ -41,7 +43,7 @@ public interface SenderState {
     void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception;
 
     /**
-     * Write entity body of outbound request.
+     * Writes entity body of outbound request.
      *
      * @param ctx         the channel handler context
      * @param httpContent the content of the entity body
@@ -49,7 +51,7 @@ public interface SenderState {
     void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception;
 
     /**
-     * Read headers of inbound response.
+     * Reads headers of inbound response.
      *
      * @param ctx                      the channel handler context
      * @param http2HeadersFrame        the HTTP/2 header frame
@@ -62,7 +64,7 @@ public interface SenderState {
                                     Http2MessageStateContext http2MessageStateContext);
 
     /**
-     * Write headers of outbound request.
+     * Writes headers of outbound request.
      *
      * @param ctx                      the channel handler context
      * @param http2DataFrame           the HTTP/2 data frame
@@ -75,7 +77,7 @@ public interface SenderState {
                                  Http2MessageStateContext http2MessageStateContext);
 
     /**
-     * Read inbound promise.
+     * Reads inbound promise.
      *
      * @param http2PushPromise  the HTTP/2 promise frame
      * @param outboundMsgHolder the outbound message holder
