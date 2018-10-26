@@ -101,7 +101,7 @@ service<http:Service> testService bind { port: 9098 } {
                         value = returnValue;
                     }
                     error payloadErr => {
-                        value = payloadErr.reason();
+                        value = <string> payloadErr.detail().message;
                     }
                 }
             }

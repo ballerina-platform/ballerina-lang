@@ -24,7 +24,8 @@ service<http:Service> echo1 bind echoEP1 {
             }
             error payloadErr => {
                 resp.statusCode = 500;
-                resp.setPayload(untaint payloadErr.reason());
+                string errMsg = <string> payloadErr.detail().message;
+                resp.setPayload(errMsg);
                 log:printError("Failed to retrieve payload from request: " + payloadErr.reason());
                 caller->respond(resp) but {
                     error e => log:printError("Error sending response", err = e)
