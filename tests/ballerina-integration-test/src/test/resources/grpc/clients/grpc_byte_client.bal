@@ -23,11 +23,9 @@ function testByteArray() returns (string) {
     };
     string statement = "Lion in Town.";
     byte[] bytes = statement.toByteArray("UTF-8");
-    io:println(bytes);
     var addResponse = blockingEp->checkBytes(bytes);
     match addResponse {
         (byte[], grpc:Headers) payload => {
-            io:println("Inside byte[], grpc:Headers");
             byte[] result;
             grpc:Headers resHeaders;
             (result, resHeaders) = payload;

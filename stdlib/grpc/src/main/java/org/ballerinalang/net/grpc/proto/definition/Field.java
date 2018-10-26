@@ -27,9 +27,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.BYTE;
-import static org.ballerinalang.net.grpc.GrpcConstants.BYTES;
-
 /**
  * Field definition builder.
  *
@@ -109,11 +106,7 @@ public class Field {
             if (primType != null) {
                 fieldDescriptorBuilder.setType(primType);
             } else {
-                if (type instanceof BStructureType || type instanceof FiniteType || type.getKind().typeName()
-                        .equals("byte")) {
-                    if (type.getKind().typeName().equals(BYTE)) {
-                        fieldType = BYTES;
-                    }
+                if (type instanceof BStructureType || type instanceof FiniteType) {
                     fieldDescriptorBuilder.setTypeName(fieldType);
                 } else {
                     throw new GrpcServerException("Unsupported field type, field type " + type.getKind().typeName()
@@ -172,6 +165,6 @@ public class Field {
         BALLERINA_TO_PROTO_MAP.put("int", "int64");
         BALLERINA_TO_PROTO_MAP.put("boolean", "bool");
         BALLERINA_TO_PROTO_MAP.put("string", "string");
-        BALLERINA_TO_PROTO_MAP.put("blob", "byte");
+        BALLERINA_TO_PROTO_MAP.put("byte", "bytes");
     }
 }
