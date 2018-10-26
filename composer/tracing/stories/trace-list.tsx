@@ -96,9 +96,9 @@ const traces = [{
 
 storiesOf('trace list', module)
   .add('list traces', () => {
-    return (<TraceList traces={traces} selected="" />);
+    return (<TraceList traces={traces} onSelected={()=>{}} />);
   })
   .add('list traces selected', () => {
-    return (<TraceList traces={traces} selected='uuid1' />);
+    return (<TraceList traces={traces} onSelected={()=>{}} />);
   });
 

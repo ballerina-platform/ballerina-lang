@@ -6,95 +6,111 @@ import './trace-list';
 import TraceLogs from '../src/TraceLogs';
 
 const traces:any = [{
-    "id": "uuid1",
-    "logDate": "2018-09-18T18:51Z",
-    "millis": "1537276895575",
-    "sequence": "1",
-    "logger": "http.tracelog.downstream",
-    "level": "FINEST",
-    "sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
-    "sourceMethod": "trace",
-    "thread": "15",
-    "rawMessage": "[id: 0x838f2718, correlatedSource: n/a, host:/0:0:0:0:0:0:0:1:9090 - remote:/0:0:0:0:0:0:0:1:46220] ACTIVE",
-    "message": {
-        "id": "id1",
-        "direction": "direction",
-        "headers": "headers",
-        "httpMethod": "GET",
-        "path": "/path",
-        "contentType": "contentType",
-        "payload": "payload",
-        "headerType": "headerType",
-    }
-
-},
-{
-    "id": "uuid2",
-    "logDate": "2018-09-18T18:51Z",
-    "millis": "1537276895575",
-    "sequence": "1",
-    "logger": "http.tracelog.downstream",
-    "level": "FINEST",
-    "sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
-    "sourceMethod": "trace",
-    "thread": "15",
-    "rawMessage": "[id: 0x838f2718, correlatedSource: n/a, host:/0:0:0:0:0:0:0:1:9090 - remote:/0:0:0:0:0:0:0:1:46220] ACTIVE",
-    "message": {
-        "id": "id2",
-        "direction": "direction",
-        "headers": "headers",
-        "httpMethod": "POST",
-        "path": "/path2",
-        "contentType": "contentType",
-        "payload": "payload",
-        "headerType": "headerType",
-    }
-},
-{
-    "id": "uuid3",
-    "logDate": "2018-09-18T18:51Z",
-    "millis": "1537276895575",
-    "sequence": "1",
-    "logger": "http.tracelog.downstream",
-    "level": "FINEST",
-    "sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
-    "sourceMethod": "trace",
-    "thread": "15",
-    "rawMessage": "[id: 0x838f2718, correlatedSource: n/a, host:/0:0:0:0:0:0:0:1:9090 - remote:/0:0:0:0:0:0:0:1:46220] ACTIVE",
-    "message": {
-        "id": "id3",
-        "direction": "direction",
-        "headers": "headers",
-        "httpMethod": "POST",
-        "path": "/path3",
-        "contentType": "contentType",
-        "payload": "payload",
-        "headerType": "headerType",
-    }
-},
-{
-    "id": "uuid4",
-    "logDate": "2018-09-18T18:51Z",
-    "millis": "1537276895575",
-    "sequence": "1",
-    "logger": "http.tracelog.downstream",
-    "level": "FINEST",
-    "sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
-    "sourceMethod": "trace",
-    "thread": "15",
-    "rawMessage": "[id: 0x838f2718, correlatedSource: n/a, host:/0:0:0:0:0:0:0:1:9090 - remote:/0:0:0:0:0:0:0:1:46220] ACTIVE",
-    "message": {
-        "id": "id4",
-        "direction": "direction",
-        "headers": "headers",
-        "httpMethod": "POST",
-        "path": "/path4",
-        "contentType": "contentType",
-        "payload": "payload",
-        "headerType": "headerType",
-    }
-}
-];
+	"id": "5cfc3200-b742-44d8-a27b-55deccf91b58",
+	"level": "FINEST",
+	"logDate": "2018-10-25T19:45Z",
+	"logger": "http.tracelog.downstream",
+	"message": {
+		"contentType": "",
+		"direction": "",
+		"headerType": "",
+		"headers": "",
+		"httpMethod": "",
+		"id": "0xdb0d6c88",
+		"path": "",
+		"payload": ""
+	},
+	"millis": "1540476938205",
+	"rawMessage": "[id: 0xdb0d6c88] REGISTERED",
+	"sequence": "0",
+	"sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
+	"sourceMethod": "trace",
+	"thread": "19"
+}, {
+	"id": "5cfc3200-b742-44d8-a27b-55deccf91b59",
+	"level": "FINEST",
+	"logDate": "2018-10-25T19:45Z",
+	"logger": "http.tracelog.downstream",
+	"message": {
+		"contentType": "",
+		"direction": "",
+		"headerType": "",
+		"headers": "",
+		"httpMethod": "",
+		"id": "0xdb0d6c88",
+		"path": "",
+		"payload": ""
+	},
+	"millis": "1540476938205",
+	"rawMessage": "[id: 0xdb0d6c88] REGISTERED",
+	"sequence": "0",
+	"sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
+	"sourceMethod": "trace",
+	"thread": "19"
+}, {
+	"id": "5cfc3200-b742-44d8-a27b-55deccf91b56",
+	"level": "FINEST",
+	"logDate": "2018-10-25T19:45Z",
+	"logger": "http.tracelog.downstream",
+	"message": {
+		"contentType": "",
+		"direction": "",
+		"headerType": "",
+		"headers": "",
+		"httpMethod": "",
+		"id": "0xdb0d6c88",
+		"path": "",
+		"payload": ""
+	},
+	"millis": "1540476938205",
+	"rawMessage": "[id: 0xdb0d6c88] REGISTERED",
+	"sequence": "0",
+	"sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
+	"sourceMethod": "trace",
+	"thread": "19"
+}, {
+	"id": "6cfc3200-b742-44d8-a27b-55deccf91b57",
+	"level": "FINEST",
+	"logDate": "2018-10-25T19:45Z",
+	"logger": "http.tracelog.downstream",
+	"message": {
+		"contentType": "",
+		"direction": "",
+		"headerType": "",
+		"headers": "",
+		"httpMethod": "",
+		"id": "0xdb0d6c88",
+		"path": "",
+		"payload": ""
+	},
+	"millis": "1540476938205",
+	"rawMessage": "[id: 0xdb0d6c88] REGISTERED",
+	"sequence": "0",
+	"sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
+	"sourceMethod": "trace",
+	"thread": "19"
+}, {
+	"id": "7cfc3200-b742-44d8-a27b-55deccf91b57",
+	"level": "FINEST",
+	"logDate": "2018-10-25T19:45Z",
+	"logger": "http.tracelog.downstream",
+	"message": {
+		"contentType": "",
+		"direction": "",
+		"headerType": "",
+		"headers": "",
+		"httpMethod": "",
+		"id": "0xdb0d6c88",
+		"path": "",
+		"payload": ""
+	},
+	"millis": "1540476938205",
+	"rawMessage": "[id: 0xdb0d6c88] REGISTERED",
+	"sequence": "0",
+	"sourceClass": "io.netty.util.internal.logging.Slf4JLogger",
+	"sourceMethod": "trace",
+	"thread": "19"
+}];
 
 const filters = {
     "message.id": "Activity Id",
@@ -106,5 +122,5 @@ const filters = {
 
 storiesOf('trace logs', module)
     .add('Trace Logs toolbar and component', () => {
-        return (<TraceLogs traces={traces} selected='uuid1' filters={filters} clearLogs={()=>{}}/>);
+        return (<TraceLogs traces={traces} filters={filters} clearLogs={()=>{}}/>);
     });
