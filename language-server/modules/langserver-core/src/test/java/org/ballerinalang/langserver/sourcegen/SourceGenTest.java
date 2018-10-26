@@ -113,7 +113,8 @@ public class SourceGenTest {
     static class FileVisitor extends SimpleFileVisitor<Path> {
         private List<File> files;
         private String[] ignoredFiles = {"grpc_bidirectional_streaming_client.bal", "compensate-stmt.bal",
-                "function-with-two-rest-params.bal", "redundant-compression-config.bal",
+                "function-with-two-rest-params.bal", "redundant-compression-config.bal", "symbolic-string-test.bal",
+                "identifier-literal-success.bal", "entity-body-with-charset-test.bal",
                 "taintchecking/annotations/lambda.bal", "high_loc.bal", "test_objects.bal",
                 "lang/annotations/variable-as-attribute-value.bal", "lang/annotations/constant-as-attribute-value.bal",
                 "lang/annotations/multityped-attribute-array.bal", "lang/annotations/default-values.bal",
