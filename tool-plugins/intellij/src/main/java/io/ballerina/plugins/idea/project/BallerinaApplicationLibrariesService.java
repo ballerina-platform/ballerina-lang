@@ -20,7 +20,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
 import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
@@ -28,12 +27,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Provides Ballerina application library services.
  */
-@State(
-        name = BallerinaConstants.BALLERINA_LIBRARIES_SERVICE_NAME,
-        storages = @Storage( value = BallerinaConstants.BALLERINA_LIBRARIES_CONFIG_FILE)
-)
-public class BallerinaApplicationLibrariesService extends
-        BallerinaLibrariesService<BallerinaApplicationLibrariesService.BallerinaApplicationLibrariesState> {
+@State(name = BallerinaConstants.BALLERINA_LIBRARIES_SERVICE_NAME,
+       storages = @Storage(value = BallerinaConstants.BALLERINA_LIBRARIES_CONFIG_FILE))
+public class BallerinaApplicationLibrariesService
+        extends BallerinaLibrariesService<BallerinaApplicationLibrariesService.BallerinaApplicationLibrariesState> {
 
     @NotNull
     @Override
