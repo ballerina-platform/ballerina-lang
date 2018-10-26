@@ -36,6 +36,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
@@ -50,10 +51,12 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangPackage extends BLangNode implements PackageNode {
+
     public List<BLangCompilationUnit> compUnits;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
     public List<BLangEndpoint> globalEndpoints;
+    public List<BLangConstant> constants;
     public List<BLangVariable> globalVars;
     public List<BLangService> services;
     public List<BLangFunction> functions;
@@ -81,6 +84,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
         this.globalEndpoints = new ArrayList<>();
+        this.constants = new ArrayList<>();
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
         this.functions = new ArrayList<>();
@@ -118,6 +122,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<? extends EndpointNode> getGlobalEndpoints() {
         return globalEndpoints;
+    }
+
+    @Override
+    public List<BLangConstant> getConstants() {
+        return constants;
     }
 
     @Override

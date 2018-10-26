@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.expressions.LiteralNode;
+
 import java.util.List;
 
 /**
@@ -37,6 +39,8 @@ public interface PackageNode extends Node {
     void addNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl);
 
     List<? extends EndpointNode> getGlobalEndpoints();
+
+    List<? extends LiteralNode> getConstants();
 
     List<? extends VariableNode> getGlobalVariables();
 

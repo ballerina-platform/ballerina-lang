@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -193,7 +194,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
-                                                                                   pkgNode.imports));
+                pkgNode.imports));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
@@ -206,11 +207,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.typePrecedence = 0;
         defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
 
-        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
-
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
         pkgEnv.logErrors = true;
+
+        pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
+
+        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         // Sort type definitions with precedence, before defining their members.
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
@@ -649,6 +652,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstant constant) {
+        // Todo
+    }
+
+    @Override
     public void visit(BLangVariable varNode) {
         // this is a field variable defined for object init function
         if (varNode.isField) {
@@ -796,7 +804,7 @@ public class SymbolEnter extends BLangNodeVisitor {
      * Visit each compilation unit (.bal file) and add each top-level node in the compilation unit to the
      * testable package node.
      *
-     * @param pkgNode current package node
+     * @param pkgNode        current package node
      * @param enclPkgImports imports of the enclosed package
      */
     private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
@@ -858,6 +866,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case ENDPOINT:
                 pkgNode.globalEndpoints.add((BLangEndpoint) node);
+                break;
+            case CONSTANT:
+                pkgNode.constants.add((BLangConstant) node);
                 break;
         }
     }
