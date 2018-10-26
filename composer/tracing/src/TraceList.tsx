@@ -69,6 +69,7 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                             <Table.HeaderCell></Table.HeaderCell>
                             <Table.HeaderCell>Path</Table.HeaderCell>
                             <Table.HeaderCell>Method</Table.HeaderCell>
+                            <Table.HeaderCell>Direction</Table.HeaderCell>
                             <Table.HeaderCell>Time</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
@@ -91,6 +92,7 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                                     </Table.Cell>
                                     <Table.Cell>{record.message.path}</Table.Cell>
                                     <Table.Cell>{record.message.httpMethod}</Table.Cell>
+                                    <Table.Cell>{record.message.direction}</Table.Cell>
                                     <Table.Cell>{timeString}</Table.Cell>
                                 </Table.Row>
                             );
