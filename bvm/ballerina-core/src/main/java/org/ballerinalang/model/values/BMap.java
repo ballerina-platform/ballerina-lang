@@ -431,11 +431,11 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      * {@inheritDoc}
      */
     @Override
-    public BRefType freeze() {
+    public BValue freeze() {
         writeLock.lock();
         try {
             this.frozen = true;
-            map.values().forEach(mapVal -> ((BRefType) mapVal).freeze());
+            map.values().forEach(BValue::freeze);
         } finally {
             writeLock.unlock();
         }

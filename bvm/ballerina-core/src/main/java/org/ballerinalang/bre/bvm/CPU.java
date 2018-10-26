@@ -823,7 +823,7 @@ public class CPU {
         switch (opcode) {
             case InstructionCodes.FREEZE:
                 try {
-                    sf.refRegs[j] = value.freeze();
+                    sf.refRegs[j] = (BRefType<?>) value.freeze();
                 } catch (BLangFreezeException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);

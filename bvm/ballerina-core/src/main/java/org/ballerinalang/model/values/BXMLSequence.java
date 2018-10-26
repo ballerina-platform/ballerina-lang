@@ -499,7 +499,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BRefType<BRefValueArray> freeze() {
-        Arrays.stream(sequence.values).forEach(BRefType::freeze);
+        Arrays.stream(sequence.values).forEach(BValue::freeze);
         this.frozen = true;
         return this;
     }

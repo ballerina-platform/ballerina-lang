@@ -847,7 +847,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public BRefType freeze() {
+    public BValue freeze() {
         this.frozen = true;
         return this;
     }

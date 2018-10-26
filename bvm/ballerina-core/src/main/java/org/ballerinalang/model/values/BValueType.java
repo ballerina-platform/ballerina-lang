@@ -24,8 +24,6 @@ package org.ballerinalang.model.values;
  */
 public abstract class BValueType implements BValue {
 
-    private volatile boolean frozen = false;
-
     /**
      * Returns the value of the specified number as an {@code int},
      * which may involve rounding or truncation.
@@ -54,6 +52,13 @@ public abstract class BValueType implements BValue {
     public abstract double floatValue();
 
     public abstract boolean booleanValue();
+
+    /**
+     * {@inheritDoc}
+     */
+    public BValue freeze() {
+        return this;
+    }
 
     /**
      * Default BValueType toString implementation.
