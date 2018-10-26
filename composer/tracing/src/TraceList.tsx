@@ -63,7 +63,7 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
     render() {
         return (
             <div id='logs-console'>
-                <Table celled inverted>
+                <Table celled inverted unstackable>
                     <Table.Header>
                         <Table.Row>
                             <Table.HeaderCell></Table.HeaderCell>
@@ -79,8 +79,9 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                             return (
                                 <Table.Row
                                     className={ this.props.selected === record.id ? 'active clickable' : 'clickable'}
-                                    key={record.id
-                                }>
+                                    key={record.id}
+                                    onClick={() => this.props.onSelected(record)}	
+                                >
                                     <Table.Cell>
                                         <Icon
                                             name={this.getDirectionIcon(record.logger,
