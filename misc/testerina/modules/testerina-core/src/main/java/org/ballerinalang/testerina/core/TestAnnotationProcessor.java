@@ -67,7 +67,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
-    private static final String PACKAGE = "packageName";
+    private static final String MODULE = "moduleName";
     private static final String FUNCTION = "functionName";
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
@@ -98,9 +98,14 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         if (!enabled) {
             return;
         }
-        suite = registry.getTestSuites().get(getPackageName((BLangPackage) ((BLangFunction) functionNode).parent));
+        String packageName = getPackageName((BLangPackage) ((BLangFunction) functionNode).parent);
+        suite = registry.getTestSuites().get(packageName);
+        // Check if the registry contains a test suite for the package
         if (suite == null) {
-            return;
+            // Add a test suite to the registry if it does not contain one pertaining to the package name
+            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
+            // Get the test suite related to the package from registry
+            suite = registry.getTestSuites().get(packageName);
         }
         // traverse through the annotations of this function
         for (AnnotationAttachmentNode attachmentNode : annotations) {
@@ -126,7 +131,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     attributes.forEach(attributeNode -> {
                         String name = attributeNode.getKey().toString();
                         String value = attributeNode.getValue().toString();
-                        if (PACKAGE.equals(name)) {
+                        if (MODULE.equals(name)) {
                             vals[0] = value;
                         } else if (FUNCTION.equals(name)) {
                             vals[1] = value;
@@ -222,9 +227,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     /**
      * TODO this is a temporary solution, till we get a proper API from Ballerina Core.
-     * This method will get executed at the completion of the processing of a ballerina package.
+     * This method will get executed at the completion of the processing of a ballerina module.
      *
-     * @param programFile {@link ProgramFile} corresponds to the current ballerina package
+     * @param programFile {@link ProgramFile} corresponds to the current ballerina module
      */
     public void packageProcessed(ProgramFile programFile) {
         if (!enabled) {
@@ -234,10 +239,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
         if (suite == null) {
-            throw new BallerinaException("No test suite found for [package]: " + programFile.getEntryPkgName());
+            throw new BallerinaException("No test suite found for [module]: " + programFile.getEntryPkgName());
         }
-        suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
-                TesterinaFunction.Type.INIT));
+        // By default the test init function is set as the init function of the test suite
+        FunctionInfo initFunction = programFile.getEntryPackage().getTestInitFunctionInfo();
+        // But if there is no test init function, then the package init function is set as the init function of the
+        // test suite
+        if (initFunction == null) {
+            initFunction = programFile.getEntryPackage().getInitFunctionInfo();
+        }
+        suite.setInitFunction(new TesterinaFunction(programFile, initFunction, TesterinaFunction.Type.TEST_INIT));
         // add all functions of the package as utility functions
         Arrays.stream(programFile.getEntryPackage().getFunctionInfoEntries()).forEach(functionInfo -> {
             suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));
@@ -367,14 +378,15 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         BType bType = func.getbFunction().getRetParamTypes()[0];
                         if (bType.getTag() == TypeTags.ARRAY_TAG) {
                             BArrayType bArrayType = (BArrayType) bType;
-                            if (bArrayType.getElementType().getTag() != TypeTags.ARRAY_TAG) {
+                            int tag = bArrayType.getElementType().getTag();
+                            if (!(tag == TypeTags.ARRAY_TAG || tag == TypeTags.TUPLE_TAG)) {
                                 String message = String.format("Data provider function [%s] should return an array of" +
-                                        " arrays.", dataProvider);
+                                        " arrays or an array of tuples.", dataProvider);
                                 throw new BallerinaException(message);
                             }
                         } else {
                             String message = String.format("Data provider function [%s] should return an array of " +
-                                    "arrays.", dataProvider);
+                                    "arrays or an array of tuples.", dataProvider);
                             throw new BallerinaException(message);
                         }
                     } else {
@@ -450,7 +462,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     int idx = testNames.indexOf(dependsOnFn);
                     if (idx == -1) {
                         String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
-                                ".", test.getTestFunction().getName(), dependsOnFn);
+                                                               ".", test.getTestFunction().getName(), dependsOnFn);
                         throw new BallerinaException(message);
                     }
                     dependencyMatrix[i].add(idx);

@@ -102,6 +102,9 @@ import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.STOP_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.TEST_INIT_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.TEST_START_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.TEST_STOP_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.codegen.InstructionCodes.COMPENSATE;
 
 /**
@@ -647,6 +650,14 @@ public class PackageInfoReader {
         packageInfo.setInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + INIT_FUNCTION_SUFFIX));
         packageInfo.setStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + START_FUNCTION_SUFFIX));
         packageInfo.setStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + STOP_FUNCTION_SUFFIX));
+
+        // Set for the testable package
+        packageInfo.setTestInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                TEST_INIT_FUNCTION_SUFFIX));
+        packageInfo.setTestStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                 TEST_START_FUNCTION_SUFFIX));
+        packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
+                                                                                TEST_STOP_FUNCTION_SUFFIX));
 
         // TODO Improve this. We should be able to this in a single pass.
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
@@ -1472,7 +1483,7 @@ public class PackageInfoReader {
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
-                            " in package " + packageInfo.getPkgPath());
+                            " in module " + packageInfo.getPkgPath());
             }
         }
     }
@@ -1732,7 +1743,7 @@ public class PackageInfoReader {
             PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
             pkgFileReader.readPackage(pkgPath);
         } catch (IOException e) {
-            throw new BLangRuntimeException("error reading package: " + pkgPath, e);
+            throw new BLangRuntimeException("error reading module: " + pkgPath, e);
         }
 
         return programFile.getPackageInfo(pkgPath);

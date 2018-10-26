@@ -23,13 +23,13 @@ package org.ballerinalang.util.diagnostic;
  */
 public enum DiagnosticCode {
 
-    UNDEFINED_PACKAGE("undefined.package"),
-    UNUSED_IMPORT_PACKAGE("unused.import.package"),
-    PACKAGE_NOT_FOUND("package.not.found"),
-    REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
-    INVALID_PACKAGE_DECLARATION("invalid.package.declaration"),
-    MISSING_PACKAGE_DECLARATION("missing.package.declaration"),
-    UNEXPECTED_PACKAGE_DECLARATION("unexpected.package.declaration"),
+    UNDEFINED_MODULE("undefined.module"),
+    UNUSED_IMPORT_MODULE("unused.import.module"),
+    MODULE_NOT_FOUND("module.not.found"),
+    REDECLARED_IMPORT_MODULE("redeclared.import.module"),
+    INVALID_MODULE_DECLARATION("invalid.module.declaration"),
+    MISSING_MODULE_DECLARATION("missing.module.declaration"),
+    UNEXPECTED_MODULE_DECLARATION("unexpected.module.declaration"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     REDECLARED_BUILTIN_SYMBOL("redeclared.builtin.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
@@ -185,6 +185,7 @@ public enum DiagnosticCode {
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
+    DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),

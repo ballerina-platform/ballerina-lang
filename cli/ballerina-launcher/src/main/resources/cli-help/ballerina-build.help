@@ -4,12 +4,12 @@ NAME
 
 SYNOPSIS
     ballerina build [-o <output>] [-c] [--offline] [--skiptests]
-        <balfile | packagename> 
+        <balfile | module-name>
         
 DESCRIPTION
      Compiles Ballerina sources and writes the output to a file. 
 
-     By default, output filename for a package is the package name 
+     By default, output filename for a module is the module name
      suffixed with ‘.balx’. The default output for a source will  
      replace the ‘.bal’ suffix with ‘.balx’. 
 
@@ -22,7 +22,7 @@ OPTIONS
           filename may or may not contain the ‘.balx’ suffix. 
 
      -c 
-          Builds a compiled package. 
+          Builds a compiled module.
 
      --offline
           Builds offline without downloading dependencies.
@@ -34,7 +34,7 @@ OPTIONS
           expense of a megabyte of virtual memory.
 
 DEFAULT BEHAVIOR
-     Generates a compiled binary file for the source or package given 
+     Generates a compiled binary file for the source or module given
      with ‘.balx’ file extension. 
 
 EXAMPLES
@@ -42,17 +42,17 @@ EXAMPLES
      $ ballerina build hello.bal
      This will generate a hello.balx output binary file 
 
-     Build hello package
+     Build hello module
      $ ballerina build hello
      This will generate a hello.balx output binary file and place 
      within target folder
 
-     Build math package with the output named calculate
+     Build math module with the output named calculate
      $ ballerina build -o calculate math
      This will generate a calculate.balx output binary file and place 
      within target folder
 
-     Build hello package by skipping test execution
+     Build hello module by skipping test execution
      $ ballerina build hello --skiptests
      This will generate a hello.balx output binary file without test
      execution and place within target folder

@@ -65,7 +65,7 @@ public class BLangProgramRunner {
         }
         PackageInfo entryPkgInfo = programFile.getEntryPackage();
         if (entryPkgInfo == null) {
-            throw new BallerinaException("entry package not found in  '" + programFile.getProgramFilePath() + "'");
+            throw new BallerinaException("entry module not found in  '" + programFile.getProgramFilePath() + "'");
         }
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);

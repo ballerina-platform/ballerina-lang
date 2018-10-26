@@ -23,12 +23,12 @@ public type Listener object {
 
     private CallerAction conn;
 
-    # Gets called when the endpoint is being initialize during package init time.
+    # Gets called when the endpoint is being initialize during module init time.
     #
     # + config - The ServiceEndpointConfiguration of the endpoint.
     public extern function init(ServiceEndpointConfiguration config);
 
-    # Gets called every time a service attaches itself to this endpoint - also happens at package init time.
+    # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
     # + serviceType - The type of the service to be registered.
     public extern function register(typedesc serviceType);

@@ -44,7 +44,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/BBE/examples";
+        return "../../examples";
     }
 
     private String getExpectedResultPath() {

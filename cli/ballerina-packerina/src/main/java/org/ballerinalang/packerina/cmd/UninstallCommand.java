@@ -32,7 +32,7 @@ import static org.ballerinalang.packerina.cmd.Constants.UNINSTALL_COMMAND;
  *
  * @since 0.90
  */
-@CommandLine.Command(name = UNINSTALL_COMMAND, description = "Uninstalls packages from the user repository")
+@CommandLine.Command(name = UNINSTALL_COMMAND, description = "Uninstalls modules from the user repository")
 public class UninstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
@@ -52,7 +52,7 @@ public class UninstallCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageExceptionWithHelp("no package given");
+            throw LauncherUtils.createUsageExceptionWithHelp("no module given");
         }
 
         if (argList.size() > 1) {
@@ -69,12 +69,12 @@ public class UninstallCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("uninstall packages from the user repository \n");
+        out.append("uninstall modules from the user repository \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina uninstall <packagename> \n");
+        out.append("  ballerina uninstall <module-name> \n");
     }
 
     @Override
