@@ -489,6 +489,10 @@ public class CPU {
                     case InstructionCodes.DETAIL:
                         handleErrorBuiltinMethods(opcode, operands, sf);
                         break;
+                    case InstructionCodes.IS_FROZEN:
+                    case InstructionCodes.FREEZE:
+                        handleFreezeBuiltinMethods(ctx, opcode, operands, sf);
+                        break;
                     case InstructionCodes.FPCALL:
                         i = operands[0];
                         if (sf.refRegs[i] == null) {
@@ -807,6 +811,26 @@ public class CPU {
                 break;
             case InstructionCodes.DETAIL:
                 sf.refRegs[j] = error.getDetails();
+                break;
+        }
+    }
+
+    private static void handleFreezeBuiltinMethods(WorkerExecutionContext ctx, int opcode, int[] operands,
+                                                   WorkerData sf) {
+        int i = operands[0];
+        int j = operands[1];
+        BRefType value = sf.refRegs[i];
+        switch (opcode) {
+            case InstructionCodes.FREEZE:
+                try {
+                    sf.refRegs[j] = value.freeze();
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
+                break;
+            case InstructionCodes.IS_FROZEN:
+                sf.intRegs[j] = value.isFrozen() ? 1 : 0;
                 break;
         }
     }

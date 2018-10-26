@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.util.exceptions.BLangFreezeException;
+
 /**
  * The {@code BRefType} represents a reference type value in Ballerina.
  *
@@ -26,4 +28,23 @@ package org.ballerinalang.model.values;
 public interface BRefType<T> extends BValue {
 
     T value();
+
+    /**
+     * Method to freeze a {@link BValue}, to disallow further modification.
+     *
+     * @return The frozen self instance
+     */
+    default BRefType freeze() {
+        throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
+    }
+
+    /**
+     * Method to retrieve if the {@link BValue} is frozen, if applicable. Compile time checks ensure that the check
+     * is only possible on structured basic types.
+     *
+     * @return Whether the value is frozen
+     */
+    default boolean isFrozen() {
+        throw new BLangFreezeException("isFrozen not allowed on '" + getType() + "'");
+    }
 }

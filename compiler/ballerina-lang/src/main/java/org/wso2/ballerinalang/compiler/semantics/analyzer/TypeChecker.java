@@ -1775,6 +1775,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     resultType = symTable.semanticError;
                 }
                 break;
+            case FREEZE:
+                handleFreezeFunction(iExpr, function, type);
+                break;
+            case IS_FROZEN:
+                handleIsFrozenFunction(iExpr, function, type);
+                break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
                 return;
@@ -1796,6 +1802,25 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (function == BLangBuiltInMethod.DETAIL) {
             resultType = type.detailType;
         }
+    }
+
+    private void handleFreezeFunction(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
+        if (iExpr.argExprs.size() > 0) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+        }
+
+        // TODO: 10/25/18 fail if the type would not be anydata
+        // TODO: 10/25/18 if the type is not a sub-type of anydata, set type|error as the result type
+        resultType = type;
+    }
+
+    private void handleIsFrozenFunction(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
+        if (iExpr.argExprs.size() > 0) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+        }
+
+        // TODO: 10/25/18 fail if the type would not be a structured basic type
+        resultType = symTable.booleanType;
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {

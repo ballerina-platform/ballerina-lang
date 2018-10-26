@@ -18,8 +18,7 @@
 package org.ballerinalang.util.exceptions;
 
 /**
- * {@code BallerinaRuntimeException} represents an error that occurs in the Ballerina runtime, while attempting
- * freezing a value.
+ * Represents an error that occurs in the Ballerina runtime, while attempting freezing a value.
  *
  * @since 0.983.0
  */

@@ -30,7 +30,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -1244,10 +1243,20 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBuiltInMethodInvocation iExpr) {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
-        if (iExpr.builtInMethod == BLangBuiltInMethod.REASON) {
-            emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
-        } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
-            emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+
+        switch (iExpr.builtInMethod) {
+            case REASON:
+                emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
+                break;
+            case DETAIL:
+                emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+                break;
+            case FREEZE:
+                emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
+                break;
+            case IS_FROZEN:
+                emit(InstructionCodes.IS_FROZEN, iExpr.expr.regIndex, regIndex);
+                break;
         }
     }
 

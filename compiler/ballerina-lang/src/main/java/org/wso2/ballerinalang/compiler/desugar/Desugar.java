@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -2005,7 +2006,26 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
+        if (iExpr.builtInMethod == BLangBuiltInMethod.FREEZE) {
+            visitFreezeBuiltInMethodInvocation(iExpr);
+            return;
+        }
         result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+    }
+
+    private void visitFreezeBuiltInMethodInvocation(BLangInvocation iExpr) {
+        switch (iExpr.expr.type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.STRING:
+            case TypeTags.FLOAT:
+            case TypeTags.BOOLEAN:
+                // since x.freeze() === x, replace the invocation with the invocation expression
+                result = iExpr.expr;
+                break;
+            default:
+                result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
+        }
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {

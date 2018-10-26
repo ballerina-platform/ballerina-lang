@@ -173,8 +173,8 @@ public class BRefValueArray extends BNewArray implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public BValue freeze() {
-        Arrays.stream(this.values).forEach(BValue::freeze);
+    public BRefType freeze() {
+        Arrays.stream(this.values).forEach(BRefType::freeze);
         this.frozen = true;
         return this;
     }

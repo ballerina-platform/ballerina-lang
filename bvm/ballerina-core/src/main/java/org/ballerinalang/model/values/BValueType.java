@@ -56,23 +56,6 @@ public abstract class BValueType implements BValue {
     public abstract boolean booleanValue();
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BValue freeze() {
-        this.frozen = true;
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isFrozen() {
-        return frozen;
-    }
-
-    /**
      * Default BValueType toString implementation.
      * @return The string representation of this object
      */

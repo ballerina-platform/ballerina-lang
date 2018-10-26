@@ -167,7 +167,7 @@ public abstract class BNewArray implements BRefType, BCollection {
      * {@inheritDoc}
      */
     @Override
-    public BValue freeze() {
+    public BRefType freeze() {
         this.frozen = true;
         return this;
     }

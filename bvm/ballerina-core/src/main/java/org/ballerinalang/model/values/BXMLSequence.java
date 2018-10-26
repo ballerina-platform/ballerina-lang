@@ -498,8 +498,8 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BValue freeze() {
-        Arrays.stream(sequence.values).forEach(BValue::freeze);
+    public BRefType<BRefValueArray> freeze() {
+        Arrays.stream(sequence.values).forEach(BRefType::freeze);
         this.frozen = true;
         return this;
     }

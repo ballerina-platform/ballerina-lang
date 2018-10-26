@@ -91,6 +91,9 @@ public interface InstructionCodes {
     int BGSTORE = 64;
     int RGSTORE = 65;
 
+    int FREEZE = 68;
+    int IS_FROZEN = 69;
+
     int ERROR = 70;
     int PANIC = 71;
     int REASON = 72;
