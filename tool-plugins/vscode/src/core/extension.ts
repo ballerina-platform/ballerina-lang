@@ -58,7 +58,7 @@ export class BallerinaExtension {
         this.context = context;
     }
 
-    init(): void {
+    init(onBeforeInit: Function): void {
         try {
             // Register pre init handlers.
             this.registerPreInitHandlers();
@@ -95,6 +95,7 @@ export class BallerinaExtension {
             this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
                 getServerOptions(this.getBallerinaHome()), this.clientOptions, false);
 
+            onBeforeInit(this.langClient);
             // Following was put in to handle server startup failiers.
             const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                 if (stateChangeEvent.newState === LS_STATE.Stopped) {

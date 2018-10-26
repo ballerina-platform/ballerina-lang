@@ -17,6 +17,7 @@
     "@ballerina/theme": "file:../theme",
     "@ballerina/diagram": "file:../diagram",
     "@ballerina/documentation": "file:../documentation",
+    "@ballerina/tracing": "file:../tracing",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
   },

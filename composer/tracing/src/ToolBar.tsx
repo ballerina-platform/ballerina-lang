@@ -17,7 +17,7 @@
  */
 import * as React from "react";
 import * as _ from 'lodash';
-import { Dropdown, Button } from 'semantic-ui-react';
+import { Dropdown } from 'semantic-ui-react';
 
 export interface ToolBarState {
     filterValue: any,
@@ -87,11 +87,6 @@ export default class ToolBar extends React.Component<ToolBarProps, ToolBarState>
 
         return (
             <div className='logs-console-toolbar'>
-                <Button
-                    icon='trash alternate outline'
-                    className='pull-left clear-button'
-                    onClick={() => this.props.clearLogs()}
-                />
                 {
                     keys.map((key) => {
                         groupedTraces[key] = groupedTraces[key] || [];

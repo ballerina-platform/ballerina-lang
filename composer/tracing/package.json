@@ -2,7 +2,7 @@
   "name": "@ballerina/tracing",
   "version": "0.982.1-SNAPSHOT",
   "description": "",
-  "main": "index.js",
+  "main": "lib/src/index.js",
   "scripts": {
     "storybook": "start-storybook -p 9002 -c .storybook",
     "compile": "tsc -p ./",
@@ -38,6 +38,7 @@
     "url-loader": "^1.1.2"
   },
   "dependencies": {
+    "@types/react-dom": "^16.0.9",
     "moment": "^2.22.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
