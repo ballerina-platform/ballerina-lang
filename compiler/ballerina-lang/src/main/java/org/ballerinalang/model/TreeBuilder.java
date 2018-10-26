@@ -175,6 +175,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -325,6 +326,10 @@ public class TreeBuilder {
         return new BLangLiteral();
     }
 
+    public static LiteralNode createConstantNode() {
+        return new BLangConstant();
+    }
+
     public static ArrayLiteralNode createArrayLiteralNode() {
         return new BLangArrayLiteral();
     }
@@ -456,7 +461,7 @@ public class TreeBuilder {
     public static TypeDefinition createTypeDefinition() {
         return new BLangTypeDefinition();
     }
-    
+
     public static ActionNode createActionNode() {
         return new BLangAction();
     }

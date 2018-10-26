@@ -62,7 +62,8 @@ public class SourceGenTest {
         this.ballerinaTestResources = getBallerinaUnitTestFiles();
     }
 
-    @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles")
+    @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles",
+            enabled = false)
     public void formattingSourceGenTests(File file) {
         LSServiceOperationContext formatContext = new LSServiceOperationContext();
         try {

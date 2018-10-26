@@ -63,6 +63,7 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
@@ -120,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -1455,6 +1457,21 @@ public class BLangPackageBuilder {
         return var;
     }
 
+    private LiteralNode generateConstantNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                             boolean isTypeAvailable) {
+        BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
+        constantNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.value = identifier;
+        constantNode.setName(name);
+        constantNode.addWS(ws);
+        if (isTypeAvailable) {
+            constantNode.setTypeNode(this.typeNodeStack.pop());
+        }
+        constantNode.setValue(this.exprNodeStack.pop());
+        return constantNode;
+    }
+
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
                                                          Set<Whitespace> ws,
                                                          String identifier,
@@ -1468,6 +1485,19 @@ public class BLangPackageBuilder {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         return var;
+    }
+
+    void addConstant(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isPublic,
+                     boolean isTypeAvailable) {
+        BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, isTypeAvailable);
+        attachAnnotations(constantNode);
+        constantNode.flagSet.add(Flag.CONST);
+        if (isPublic) {
+            constantNode.flagSet.add(Flag.PUBLIC);
+        }
+        attachMarkdownDocumentations(constantNode);
+        attachDeprecatedNode(constantNode);
+        this.compUnit.addTopLevelNode(constantNode);
     }
 
     void addGlobalVariable(DiagnosticPos pos,
