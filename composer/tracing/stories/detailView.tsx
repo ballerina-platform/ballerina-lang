@@ -22,8 +22,8 @@ storiesOf('Detail view', module)
                 "headers": "headers",
                 "httpMethod": "POST",
                 "path": "/path4",
-                "contentType": "contentType",
-                "payload": "payload",
+                "contentType": "application/json",
+                "payload": '{"foo": "bar"}',
                 "headerType": "headerType",
 
             }
