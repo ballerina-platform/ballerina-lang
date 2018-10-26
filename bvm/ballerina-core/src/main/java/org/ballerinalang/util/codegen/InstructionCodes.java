@@ -282,6 +282,7 @@ public interface InstructionCodes {
     int XMLLOADALL = 249;
     int NEWXMLSEQ = 250;
 
+    int TYPE_TEST = 251;
     int TYPELOAD = 252;
 
     int TEQ = 253;

@@ -163,6 +163,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**
@@ -172,7 +173,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    private static final String STREAMS_STDLIB_PACKAGE_NAME = "streams";
     private static final String AGGREGATOR_OBJECT_NAME = "Aggregator";
 
     private SymbolTable symTable;
@@ -190,8 +190,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
-
-    private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -359,7 +357,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationNode.symbol.scope, env);
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoint = AttachPoint.ANNOTATION;
             annotationAttachment.accept(this);
@@ -591,6 +588,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIf ifNode) {
         typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
 
+        Map<BVarSymbol, BType> typeGuards = typeChecker.getTypeGuards(ifNode.expr);
+        if (!typeGuards.isEmpty()) {
+            SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(ifNode.body, env);
+            for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
+                BVarSymbol originalVarSymbol = entry.getKey();
+                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, ifBodyEnv.scope.owner.pkgID,
+                        entry.getValue(), this.env.scope.owner);
+                symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
+
+                // Cache the type guards, to be reused at the desugar.
+                ifNode.typeGuards.put(originalVarSymbol, varSymbol);
+            }
+        }
+
         BType actualType = ifNode.expr.type;
         if (TypeTags.TUPLE == actualType.tag) {
             dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
@@ -621,7 +632,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchStmtPatternClause patternClause) {
         // If the variable is not equal to '_', then define the variable in the block scope
         if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) patternClause.body, env);
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
             symbolEnter.defineNode(patternClause.variable, blockEnv);
             analyzeStmt(patternClause.body, blockEnv);
             return;
@@ -1378,7 +1389,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
                         scope.lookup(new Name(invocation.name.value)).symbol;
                 BSymbol aggregatorSymbol = symResolver.
-                        resolvePkgSymbol(invocation.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                        resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
                         scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol;
 
                 if (invocationSymbol != null && invocationSymbol.type.getReturnType().tsymbol != aggregatorSymbol) {
