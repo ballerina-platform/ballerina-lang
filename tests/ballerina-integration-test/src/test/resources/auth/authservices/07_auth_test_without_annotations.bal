@@ -19,7 +19,7 @@ import ballerina/io;
 import ballerina/auth;
 
 endpoint http:APIListener listener7 {
-    port:9096
+    port:9098
 };
 
 service<http:Service> echo7 bind listener7 {
