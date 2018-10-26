@@ -179,7 +179,7 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:Re
             return;
         }
         error httpConnectorError => {
-            //map data = { cause: err }; TODO : Fix me.
+            // map data = { cause: err }; TODO : Fix me.
             error webSubError = error("Publish failed for topic [" + topic + "]");
             return webSubError;
         }
@@ -288,9 +288,9 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                     return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                                                                 httpClientEndpoint.config.auth, remainingRedirects - 1);
                 }
-                error subscriptionError = error( "Redirection response received for subscription change request"
+                error subscriptionError = error("Redirection response received for subscription change request"
                                             + " made with followRedirects disabled or after maxCount exceeded: Hub ["
-                                            + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" );
+                                            + hub + "], Topic [" + subscriptionChangeRequest.topic + "]");
                 return subscriptionError;
             } else if (!isSuccessStatusCode(responseStatusCode)) {
                 var responsePayload = httpResponse.getTextPayload();

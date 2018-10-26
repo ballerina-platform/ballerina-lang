@@ -48,7 +48,7 @@ service<http:Service> retryDemoService bind serviceEndpoint1 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
-                errorResponse.setPayload(responseError.message);
+                errorResponse.setPayload(responseError.reason());
                 caller->respond(errorResponse) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -90,7 +90,7 @@ service<http:Service> mockHelloService bind serviceEndpoint1 {
                 match req.getBodyParts() {
                     // Setting the error response in case of an error
                     error err => {
-                        log:printError(err.message);
+                        log:printError(err.reason());
                         response.setPayload("Error in decoding multiparts!");
                         response.statusCode = 500;
                     }
