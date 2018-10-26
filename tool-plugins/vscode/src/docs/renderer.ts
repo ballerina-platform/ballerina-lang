@@ -27,7 +27,7 @@ export function render(context: ExtensionContext): string {
                         case 'update':
                             astJson = event.data.json;
                             if (window.ballerinaComposer) {
-                                ballerinaComposer.renderDocuments(astJson, el);
+                                ballerinaComposer.renderDocPreview(astJson, el);
                             }
                             break;
                     }
