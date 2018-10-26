@@ -391,6 +391,11 @@ exports[`Storyshots trace list list traces 1`] = `
         <th
           className=""
         >
+          Direction
+        </th>
+        <th
+          className=""
+        >
           Time
         </th>
       </tr>
@@ -424,6 +429,11 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
+          direction
+        </td>
+        <td
+          className=""
+        >
           13:21:35.575
         </td>
       </tr>
@@ -449,6 +459,11 @@ exports[`Storyshots trace list list traces 1`] = `
           className=""
         >
           POST
+        </td>
+        <td
+          className=""
+        >
+          direction
         </td>
         <td
           className=""
@@ -482,6 +497,11 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
+          direction
+        </td>
+        <td
+          className=""
+        >
           13:21:35.575
         </td>
       </tr>
@@ -507,6 +527,11 @@ exports[`Storyshots trace list list traces 1`] = `
           className=""
         >
           POST
+        </td>
+        <td
+          className=""
+        >
+          direction
         </td>
         <td
           className=""
@@ -548,6 +573,11 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <th
           className=""
         >
+          Direction
+        </th>
+        <th
+          className=""
+        >
           Time
         </th>
       </tr>
@@ -581,6 +611,11 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
+          direction
+        </td>
+        <td
+          className=""
+        >
           13:21:35.575
         </td>
       </tr>
@@ -606,6 +641,11 @@ exports[`Storyshots trace list list traces selected 1`] = `
           className=""
         >
           POST
+        </td>
+        <td
+          className=""
+        >
+          direction
         </td>
         <td
           className=""
@@ -639,6 +679,11 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
+          direction
+        </td>
+        <td
+          className=""
+        >
           13:21:35.575
         </td>
       </tr>
@@ -664,6 +709,11 @@ exports[`Storyshots trace list list traces selected 1`] = `
           className=""
         >
           POST
+        </td>
+        <td
+          className=""
+        >
+          direction
         </td>
         <td
           className=""
@@ -1051,6 +1101,11 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             <th
               className=""
             >
+              Direction
+            </th>
+            <th
+              className=""
+            >
               Time
             </th>
           </tr>
@@ -1084,30 +1139,6 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             <td
               className=""
             >
-              14:15:38.205
-            </td>
-          </tr>
-          <tr
-            className="clickable"
-            onClick={[Function]}
-          >
-            <td
-              className=""
-            >
-              <i
-                aria-hidden="true"
-                className="icon"
-                title=""
-              />
-            </td>
-            <td
-              className=""
-            >
-              
-            </td>
-            <td
-              className=""
-            >
               
             </td>
             <td
@@ -1142,6 +1173,11 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             <td
               className=""
             >
+              
+            </td>
+            <td
+              className=""
+            >
               14:15:38.205
             </td>
           </tr>
@@ -1171,6 +1207,11 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             <td
               className=""
             >
+              
+            </td>
+            <td
+              className=""
+            >
               14:15:38.205
             </td>
           </tr>
@@ -1186,6 +1227,45 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
                 className="icon"
                 title=""
               />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              14:15:38.205
+            </td>
+          </tr>
+          <tr
+            className="clickable"
+            onClick={[Function]}
+          >
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title=""
+              />
+            </td>
+            <td
+              className=""
+            >
+              
             </td>
             <td
               className=""

@@ -45,7 +45,10 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
 
     const html = render(context, langClient);
     if (traceLogsPanel && html) {
-        traceLogsPanel!.webview.html = html;
+        traceLogsPanel.webview.html = html;
+        traceLogsPanel.webview.postMessage({
+            command: 'updateTraces',
+        });
     }
 
     WebViewRPCHandler.create([
@@ -81,7 +84,21 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
             handler: (args: Array<Object>) => {
                 return Promise.resolve(traces);
             }
-        }], 
+        },
+        {
+            methodName: 'clearLogs',
+            handler: () => {
+                traces = [];
+                if (traceLogsPanel && traceLogsPanel.webview) {
+                    traceLogsPanel.webview.postMessage({
+                        command: 'updateTraces',
+                    });
+                }
+                return Promise.resolve();
+            }
+        },
+        
+    ], 
         traceLogsPanel.webview
     );
 
