@@ -2,11 +2,11 @@
 
 exports[`Storyshots Detail view detail view 1`] = `
 <div
-  className="ui inverted segment detail-view"
+  className="ui compact inverted padded segment"
 >
   <code>
     <pre>
-      
+      headers
     </pre>
   </code>
   <code>
@@ -367,7 +367,7 @@ exports[`Storyshots trace list list traces 1`] = `
   id="logs-console"
 >
   <table
-    className="ui celled inverted table"
+    className="ui celled inverted unstackable table"
   >
     <thead
       className=""
@@ -400,6 +400,7 @@ exports[`Storyshots trace list list traces 1`] = `
     >
       <tr
         className="clickable"
+        onClick={[Function]}
       >
         <td
           className=""
@@ -428,6 +429,7 @@ exports[`Storyshots trace list list traces 1`] = `
       </tr>
       <tr
         className="clickable"
+        onClick={[Function]}
       >
         <td
           className=""
@@ -456,6 +458,7 @@ exports[`Storyshots trace list list traces 1`] = `
       </tr>
       <tr
         className="clickable"
+        onClick={[Function]}
       >
         <td
           className=""
@@ -484,6 +487,7 @@ exports[`Storyshots trace list list traces 1`] = `
       </tr>
       <tr
         className="clickable"
+        onClick={[Function]}
       >
         <td
           className=""
@@ -520,7 +524,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
   id="logs-console"
 >
   <table
-    className="ui celled inverted table"
+    className="ui celled inverted unstackable table"
   >
     <thead
       className=""
@@ -553,6 +557,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
     >
       <tr
         className="clickable"
+        onClick={[Function]}
       >
         <td
           className=""
@@ -581,6 +586,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
       </tr>
       <tr
         className="clickable"
+        onClick={[Function]}
       >
         <td
           className=""
@@ -609,6 +615,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
       </tr>
       <tr
         className="clickable"
+        onClick={[Function]}
       >
         <td
           className=""
@@ -637,6 +644,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
       </tr>
       <tr
         className="clickable"
+        onClick={[Function]}
       >
         <td
           className=""
@@ -1019,7 +1027,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
       id="logs-console"
     >
       <table
-        className="ui celled inverted table"
+        className="ui celled inverted unstackable table"
       >
         <thead
           className=""
@@ -1052,6 +1060,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
         >
           <tr
             className="clickable"
+            onClick={[Function]}
           >
             <td
               className=""
@@ -1080,6 +1089,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
           </tr>
           <tr
             className="clickable"
+            onClick={[Function]}
           >
             <td
               className=""
@@ -1108,6 +1118,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
           </tr>
           <tr
             className="clickable"
+            onClick={[Function]}
           >
             <td
               className=""
@@ -1136,6 +1147,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
           </tr>
           <tr
             className="clickable"
+            onClick={[Function]}
           >
             <td
               className=""
@@ -1164,6 +1176,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
           </tr>
           <tr
             className="clickable"
+            onClick={[Function]}
           >
             <td
               className=""
