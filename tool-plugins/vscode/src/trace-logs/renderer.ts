@@ -19,6 +19,9 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
                         console.log(traces, window);
                         ballerinaComposer.renderTraceLogs(document.getElementById("traces"), traces, (trace)=>{
                             webViewRPCHandler.invokeRemoteMethod('showDetails', trace);
+                        }, ()=>{
+                            console.log('clear logs');
+                            webViewRPCHandler.invokeRemoteMethod('clearLogs');
                         });
                     });
                     console.log('Successfully rendered tracing...');
