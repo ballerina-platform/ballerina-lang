@@ -1,12 +1,12 @@
 NAME
-    Ballerina search - Search for packages within Ballerina Central
+    Ballerina search - Search for modules within Ballerina Central
 
 SYNOPSIS
     ballerina search <text>
 
 DESCRIPTION
      Searches Ballerina Central for the given text appearing in 
-     organization name, package name, or package descriptions. 
+     organization name, module name, or module descriptions.
 
      Search text is treated as case-insensitive when search is executed. 
 
@@ -20,5 +20,5 @@ EXAMPLES
      Search for Gmail connector
      $ ballerina search Gmail
 
-     Search for packages from WSO2 
+     Search for modules from WSO2
      $ ballerina search wso2

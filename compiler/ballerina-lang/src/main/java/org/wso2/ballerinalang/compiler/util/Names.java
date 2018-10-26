@@ -35,7 +35,9 @@ public class Names {
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
     public static final Name TRANSACTION_ORG = new Name("ballerina");
+    public static final Name STREAMS_ORG = new Name("ballerina");
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");
+    public static final Name STREAMS_MODULE = new Name("streams");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
@@ -46,6 +48,9 @@ public class Names {
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
     public static final Name START_FUNCTION_SUFFIX = new Name(".<start>");
     public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");
+    public static final Name TEST_INIT_FUNCTION_SUFFIX = new Name(".<testinit>");
+    public static final Name TEST_START_FUNCTION_SUFFIX = new Name(".<teststart>");
+    public static final Name TEST_STOP_FUNCTION_SUFFIX = new Name(".<teststop>");
     public static final Name INIT_ACTION_SUFFIX = new Name("<init>");
     public static final Name SELF = new Name("self");
     public static final Name OBJECT_INIT_SUFFIX = new Name("new");

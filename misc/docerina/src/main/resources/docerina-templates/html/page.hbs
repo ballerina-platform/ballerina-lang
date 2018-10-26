@@ -80,7 +80,7 @@
             </div>
             <div class="cBlallerina-io-docs-right-nav-container">
                 <div class="cLectColStyle cLeftColTop">
-                    <div class="cBallerina-io-docs-Title cBallerina-io-packages">BALLERINA PACKAGES</div>
+                    <div class="cBallerina-io-docs-Title cBallerina-io-packages">BALLERINA MODULES</div>
 
                     <div class="cCollaps-Menu" id="iBallerinaPACKAGEStoc">
 
@@ -133,35 +133,11 @@
                                                     </a>
                                                 </li>
                                             {{/exists}}
-                                            {{#exists constructs "type"}}
-                                                <li>
-                                                    <a href="#TypeDefinitions">
-                                                        <div class="construct-icon">
-                                                            <span class="fw-type"> </span>
-                                                        </div>
-                                                        <div class="construct-name">
-                                                            Type Definitions
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            {{/exists}}
-                                            {{#exists constructs "annotation"}}
-                                                <li>
-                                                    <a href="#Annotations">
-                                                        <div class="construct-icon">
-                                                            <span class="fw-annotation"> </span>
-                                                        </div>
-                                                        <div class="construct-name">
-                                                            Annotations
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            {{/exists}}
                                             {{#exists constructs "record"}}
                                                 <li>
                                                     <a href="#RecordsSummary">
                                                         <div class="construct-icon">
-                                                            <span class="fw-struct"> </span>
+                                                            <span class="fw-record"> </span>
                                                         </div>
                                                         <div class="construct-name">
                                                             Records
@@ -205,6 +181,18 @@
                                                     </a>
                                                 </li>
                                             {{/exists}}
+                                            {{#exists constructs "type"}}
+                                                <li>
+                                                    <a href="#TypeDefinitions">
+                                                        <div class="construct-icon">
+                                                            <span class="fw-type"> </span>
+                                                        </div>
+                                                        <div class="construct-name">
+                                                            Type Definitions
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            {{/exists}}
                                             {{#exists constructs "globalvar"}}
                                                 <li>
                                                     <a href="#GlobalVariables">
@@ -215,8 +203,21 @@
                                                             Global Variables
                                                         </div>
                                                     </a>
+                                            </li>
+                                            {{/exists}}
+                                            {{#exists constructs "annotation"}}
+                                                <li>
+                                                    <a href="#Annotations">
+                                                        <div class="construct-icon">
+                                                            <span class="fw-annotation"> </span>
+                                                        </div>
+                                                        <div class="construct-name">
+                                                            Annotations
+                                                        </div>
+                                                    </a>
                                                 </li>
                                             {{/exists}}
+
                                             {{#each constructs}}
                                                 {{#unless isGlobalVariable}} {{#unless isType}} {{#unless isAnnotation}}
                                                     <li>
@@ -225,7 +226,7 @@
                                                                 <span class="{{icon}}"> </span>
                                                             </div>
                                                             <div class="construct-name">
-                                                                {{name}} {{#if isConnector}} ({{#each fields}}<a href="{{href}}">{{dataType}}</a> {{name}}{{#unless @last}} ,{{/unless}}{{/each}}) {{/if}}
+                                                                {{name}}
                                                             </div>
                                                         </a>
                                                     </li>
@@ -268,7 +269,7 @@
                                 <div id="content" class="nano">
                                     <div class="nano-content">
                                         <h1 class="thin-text padding-bottom">
-                                            <span class="bold">{{heading.value}}</span> {{#if heading.isPackageName}} package {{/if}}
+                                            <span class="bold">{{heading.value}}</span> {{#if heading.isPackageName}} module {{/if}}
                                         </h1>
                                         {{#if description}}
                                             <div class="cAPIdocsDescription">

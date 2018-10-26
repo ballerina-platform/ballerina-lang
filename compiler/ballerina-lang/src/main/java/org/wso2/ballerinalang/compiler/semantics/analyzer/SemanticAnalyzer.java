@@ -171,6 +171,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
+    private static final String AGGREGATOR_OBJECT_NAME = "Aggregator";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -226,9 +227,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
-                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        pkgNode.topLevelNodes.stream()
+                             .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
+                                     ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+                             .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -239,10 +241,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
 
-        analyzeDef(pkgNode.initFunction, pkgEnv);
-        analyzeDef(pkgNode.startFunction, pkgEnv);
-        analyzeDef(pkgNode.stopFunction, pkgEnv);
-
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
@@ -1371,8 +1370,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
         if (!isSiddhiRuntimeEnabled) {
-            if (isGroupByAvailable && expressionNode.getKind() == NodeKind.INVOCATION) {
-                ((BLangExpression) expressionNode).accept(this);
+            if (expressionNode.getKind() == NodeKind.INVOCATION) {
+                BLangInvocation invocation = (BLangInvocation) expressionNode;
+                BSymbol invocationSymbol = symResolver.
+                        resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
+                        scope.lookup(new Name(invocation.name.value)).symbol;
+                BSymbol aggregatorSymbol = symResolver.
+                        resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
+                        scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol;
+
+                if (invocationSymbol != null && invocationSymbol.type.getReturnType().tsymbol != aggregatorSymbol) {
+                    this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+                }
             } else {
                 this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
             }

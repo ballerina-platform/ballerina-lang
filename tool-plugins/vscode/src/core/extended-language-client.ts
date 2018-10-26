@@ -75,6 +75,18 @@ export interface BallerinaFragmentASTRequest {
 export interface BallerinaFragmentASTResponse {
 }
 
+export interface BallerinaProject {
+    path?: string;
+    version?: string;
+    author?: string;
+}
+export interface GetBallerinaProjectParams {
+    documentIdentifier: {
+        uri: string;
+    };
+}
+
+
 export class ExtendedLangClient extends LanguageClient {
 
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
@@ -107,5 +119,9 @@ export class ExtendedLangClient extends LanguageClient {
     getEndpoints(): Thenable<Array<any>> {
         return this.sendRequest("ballerinaSymbol/endpoints", {})
                     .then((resp: any) => resp.endpoints);
+    }
+
+    getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
+        return this.sendRequest("ballerinaDocument/project", params);
     }
 }

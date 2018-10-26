@@ -29,42 +29,42 @@ import java.io.IOException;
  * Test class to populate Manifest object by reading the toml.
  */
 public class ManifestProcessorTest {
-    @Test(description = "Package name in package section has an effect")
+    @Test(description = "Module name in module section has an effect")
     public void testPackageName() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "#Name of the package \n org-name = \"foo\"");
+                "#Name of the module \n org-name = \"foo\"");
         Assert.assertEquals(manifest.getName(), "foo");
     }
 
     @Test(description = "Attribute with single comment doesn't have an effect")
     public void testAttributeWithSingleComment() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "#Name of the package \n org-name = \"foo\"");
+                "#Name of the module \n org-name = \"foo\"");
         Assert.assertEquals(manifest.getName(), "foo");
     }
 
     @Test(description = "Attribute with multiline comments doesn't have an effect")
     public void testAttributeWithMultilineComments() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "# Name of the package \n #This is the package congif section \n org-name = \"foo/string\"");
+                "# Name of the module \n #This is the module config section \n org-name = \"foo/string\"");
         Assert.assertEquals(manifest.getName(), "foo/string");
     }
 
-    @Test(description = "Key with special characters in package section has no effect")
+    @Test(description = "Key with special characters in module section has no effect")
     public void testPackageNameWithSpecialCharacters() throws IOException {
         ManifestProcessor.parseTomlContentFromString("[project] \n" +
                 "name-value = \"org-name/string\"");
         Assert.assertNotEquals(null, "\"org-name/string\"");
     }
 
-    @Test(description = "Version in package section has an effect")
+    @Test(description = "Version in module section has an effect")
     public void testVersion() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project]\n" +
                 "version = \"1.0.0\"");
         Assert.assertEquals(manifest.getVersion(), "1.0.0");
     }
 
-    @Test(description = "Authors in package section has an effect")
+    @Test(description = "Authors in module section has an effect")
     public void testAuthors() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
                 "authors = [\"tyler@wso2.com\", \"manu@wso2.com\"]");
@@ -72,54 +72,54 @@ public class ManifestProcessorTest {
         Assert.assertEquals(manifest.getAuthors().get(1), "manu@wso2.com");
     }
 
-    @Test(description = "Empty author array in package section has an effect")
+    @Test(description = "Empty author array in module section has an effect")
     public void testEmptyAuthorArray() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
                 "authors = []");
         Assert.assertEquals(manifest.getAuthors().size(), 0);
     }
 
-    @Test(description = "Description in package section has an effect")
+    @Test(description = "Description in module section has an effect")
     public void testDescription() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "description = \"This is a description about the package\"");
-        Assert.assertEquals(manifest.getDescription(), "This is a description about the package");
+                "description = \"This is a description about the module\"");
+        Assert.assertEquals(manifest.getDescription(), "This is a description about the module");
     }
 
-    @Test(description = "Documentation url in package section has an effect")
+    @Test(description = "Documentation url in module section has an effect")
     public void testDocumentationURL() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n " +
                 "documentation = \"https://ballerinalang.org/docs/api/0.95.5/\"");
         Assert.assertEquals(manifest.getDocumentationURL(), "https://ballerinalang.org/docs/api/0.95.5/");
     }
 
-    @Test(description = "Homepage url in package section has an effect")
+    @Test(description = "Homepage url in module section has an effect")
     public void testHomePageURL() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n " +
                 "homepage = \"https://ballerinalang.org/\"");
         Assert.assertEquals(manifest.getHomepageURL(), "https://ballerinalang.org/");
     }
 
-    @Test(description = "Repository url in package section has an effect")
+    @Test(description = "Repository url in module section has an effect")
     public void testRepositoryURL() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n " +
                 "repository = \"https://github.com/ballerinalang/ballerina\"");
         Assert.assertEquals(manifest.getRepositoryURL(), "https://github.com/ballerinalang/ballerina");
     }
 
-    @Test(description = "Version in non-package section has no effect")
+    @Test(description = "Version in non-module section has no effect")
     public void testVersionNeg() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[patches] \n version = \"v1\"");
         Assert.assertNotEquals(manifest.getVersion(), "v1");
     }
 
-    @Test(description = "Location in package section has no effect")
+    @Test(description = "Location in module section has no effect")
     public void testLocationNeg() throws IOException {
         ManifestProcessor.parseTomlContentFromString("[project] \n location = \"local\"");
         Assert.assertNotEquals(null, "local");
     }
 
-    @Test(description = "Readme file path in package section has an effect")
+    @Test(description = "Readme file path in module section has an effect")
     public void testReadmeFilePath() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n " +
                 "readme = \"https://github.com/ballerinalang/composer/blob/master/README.md\"");
@@ -127,7 +127,7 @@ public class ManifestProcessorTest {
                 "/master/README.md");
     }
 
-    @Test(description = "Keywords in package section has an effect")
+    @Test(description = "Keywords in module section has an effect")
     public void testKeywords() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
                 "keywords=[\"ballerina\",\"security\",\"security\"]");
@@ -136,7 +136,7 @@ public class ManifestProcessorTest {
         Assert.assertEquals(manifest.getKeywords().size(), 3);
     }
 
-    @Test(description = "Description in package section has an effect")
+    @Test(description = "Description in module section has an effect")
     public void testLicenseDescription() throws IOException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n " +
                 "license = \"MIT OR Apache-2.0\"");

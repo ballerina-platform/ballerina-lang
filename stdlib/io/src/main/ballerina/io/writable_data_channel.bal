@@ -19,8 +19,9 @@
 # BIG_ENDIAN - specifies the bytes to be in the order of most significant byte first
 #
 # LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
-public type ByteOrder "BE";
+public type ByteOrder "BE"|"LE";
 @final public ByteOrder BIG_ENDIAN = "BE";
+@final public ByteOrder LITTLE_ENDIAN = "LE";
 
 # Represents a WritableDataChannel for writing data.
 public type WritableDataChannel object {

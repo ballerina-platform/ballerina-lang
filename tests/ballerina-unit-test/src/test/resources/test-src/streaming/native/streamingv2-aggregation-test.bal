@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
@@ -63,7 +62,6 @@ function startAggregationQuery() returns (TeacherOutput[]) {
         }
     }
 
-    io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
 

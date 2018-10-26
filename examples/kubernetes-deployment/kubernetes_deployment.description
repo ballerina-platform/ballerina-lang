@@ -1,5 +1,5 @@
 //Ballerina supports generating kubernetes artifacts based on annotations.
-//A single Ballerina package is mapped to a single Kubernetes deployment.
+//A single Ballerina module is mapped to a single Kubernetes deployment.
 //Minikube or Docker for Mac/Windows should be configured and
 //Kubernetes should be [enabled](https://github.com/ballerinax/kubernetes/tree/master/samples#prerequisites)
 //to run the example.

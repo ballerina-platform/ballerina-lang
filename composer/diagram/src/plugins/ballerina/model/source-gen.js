@@ -102,6 +102,42 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     switch (node.kind) {
         case 'CompilationUnit':
             return join(node.topLevelNodes, pretty, replaceLambda, l, w) + w();
+        case 'ArrayType':
+            if (node.dimensions > 0 && node.ws) {
+                node.dimensionAsString = "";
+                let startingBracket;
+                let endingBracket;
+                let content = "";
+
+                for (let j = 0; j < node.ws.length; j++) {
+                    if (node.ws[j].text === '[') {
+                        startingBracket = node.ws[j];
+                    } else if (node.ws[j].text === ']') {
+                        endingBracket = node.ws[j];
+                        node.dimensionAsString += startingBracket.text + content +
+                            endingBracket.ws + endingBracket.text;
+
+                        content = "";
+                        startingBracket = null;
+                        endingBracket = null;
+                    } else if (startingBracket) {
+                        content += node.ws[j].ws + node.ws[j].text;
+                    }
+                }
+            }
+
+            if (node.isRestParam && node.grouped && node.elementType) {
+                return w() + '('
+                    + getSourceOf(node.elementType, pretty, l, replaceLambda) + w() + ')';
+            } else if (node.isRestParam && node.elementType) {
+                return getSourceOf(node.elementType, pretty, l, replaceLambda);
+            } else if (node.grouped && node.elementType && node.dimensionAsString) {
+                return w() + '('
+                    + getSourceOf(node.elementType, pretty, l, replaceLambda) + w() + node.dimensionAsString + w() + ')';
+            } else {
+                return getSourceOf(node.elementType, pretty, l, replaceLambda) + w()
+                    + node.dimensionAsString;
+            }
         case 'MarkdownDocumentation':
             let docString = "";
 
@@ -321,19 +357,6 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'ArrayLiteralExpr':
             return w() + '['
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ']';
-        case 'ArrayType':
-            if (node.isRestParam && node.grouped && node.elementType) {
-                return w() + '('
-                 + getSourceOf(node.elementType, pretty, l, replaceLambda) + w() + ')';
-            } else if (node.isRestParam && node.elementType) {
-                return getSourceOf(node.elementType, pretty, l, replaceLambda);
-            } else if (node.grouped && node.elementType && node.dimensionAsString) {
-                return w() + '('
-                 + getSourceOf(node.elementType, pretty, l, replaceLambda) + w() + node.dimensionAsString + w() + ')';
-            } else {
-                return getSourceOf(node.elementType, pretty, l, replaceLambda) + w()
-                 + node.dimensionAsString;
-            }
         case 'ArrowExpr':
             if (node.hasParantheses && node.parameters && node.expression) {
                 return w() + '('

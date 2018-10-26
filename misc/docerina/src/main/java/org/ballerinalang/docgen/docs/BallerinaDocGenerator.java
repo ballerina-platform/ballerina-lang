@@ -70,7 +70,7 @@ public class BallerinaDocGenerator {
     private static final PrintStream out = System.out;
 
     private static final String BSOURCE_FILE_EXT = ".bal";
-    private static final String PACKAGE_CONTENT_FILE = "Package.md";
+    private static final String MODULE_CONTENT_FILE = "Module.md";
     private static final Path BAL_BUILTIN = Paths.get("ballerina", "builtin");
     private static final String HTML = ".html";
 
@@ -92,7 +92,7 @@ public class BallerinaDocGenerator {
         Map<String, PackageDoc> docsMap = generatePackageDocsMap(sourceRoot, packageFilter, isNative, sources, offline);
 
         if (docsMap.size() == 0) {
-            out.println("docerina: no package definitions found!");
+            out.println("docerina: no module definitions found!");
             return;
         }
 
@@ -137,8 +137,8 @@ public class BallerinaDocGenerator {
 
         List<Link> packageNameList = PackageName.convertList(packageNames);
 
-        String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "page");
-        String packageToCTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TOC_TEMPLATE_NAME_KEY, "toc");
+        String packageTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "page");
+        String packageToCTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TOC_TEMPLATE_NAME_KEY, "toc");
 
         List<Path> resources = new ArrayList<>();
 
@@ -154,7 +154,7 @@ public class BallerinaDocGenerator {
 
                 String packagePath = refinePackagePath(bLangPackage);
                 if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: starting to generate docs for package: " + packagePath);
+                    out.println("docerina: starting to generate docs for module: " + packagePath);
                 }
 
                 // other normal packages
@@ -181,10 +181,10 @@ public class BallerinaDocGenerator {
                 resources.addAll(packageDoc.resources);
 
                 if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: generated docs for package: " + packagePath);
+                    out.println("docerina: generated docs for module: " + packagePath);
                 }
             } catch (IOException e) {
-                out.println(String.format("docerina: API documentation generation failed for Package %s: %s",
+                out.println(String.format("docerina: API documentation generation failed for module %s: %s",
                         packageDoc.bLangPackage.packageID.toString(), e.getMessage()));
                 log.error(String.format("API documentation generation failed for %s", packageDoc.bLangPackage
                         .packageID.toString()), e);
@@ -231,8 +231,8 @@ public class BallerinaDocGenerator {
         }
 
         try {
-            //Generate the index file with the list of all packages
-            String indexTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "index");
+            //Generate the index file with the list of all modules
+            String indexTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "index");
             String indexFilePath = output + File.separator + "index" + HTML;
             Writer.writeHtmlDocument(packageNameList, indexTemplateName, indexFilePath);
         } catch (IOException e) {
@@ -242,23 +242,23 @@ public class BallerinaDocGenerator {
 
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("docerina: successfully generated the index HTML file.");
-            out.println("docerina: generating the package-list HTML file.");
+            out.println("docerina: generating the module-list HTML file.");
         }
 
         try {
-            // Generate package-list.html file which prints the list of processed packages
-            String pkgListTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_LIST_TEMPLATE_NAME_KEY,
-                    "package-list");
+            // Generate module-list.html file which prints the list of processed packages
+            String pkgListTemplateName = System.getProperty(BallerinaDocConstants.MODULE_LIST_TEMPLATE_NAME_KEY,
+                    "module-list");
 
-            String pkgListFilePath = output + File.separator + "package-list" + HTML;
+            String pkgListFilePath = output + File.separator + "module-list" + HTML;
             Writer.writeHtmlDocument(packageNameList, pkgListTemplateName, pkgListFilePath);
         } catch (IOException e) {
-            out.println(String.format("docerina: failed to create the package-list.html. Cause: %s", e.getMessage()));
-            log.error("Failed to create the package-list.html file.", e);
+            out.println(String.format("docerina: failed to create the module-list.html. Cause: %s", e.getMessage()));
+            log.error("Failed to create the module-list.html file.", e);
         }
 
         if (BallerinaDocUtils.isDebugEnabled()) {
-            out.println("docerina: successfully generated the package-list HTML file.");
+            out.println("docerina: successfully generated the module-list HTML file.");
         }
 
         try {
@@ -370,13 +370,13 @@ public class BallerinaDocGenerator {
             String sourceRoot, Path packagePath, String packageFilter, boolean isNative, boolean offline)
             throws IOException {
 
-        // find the Package.md file
+        // find the Module.md file
         Path packageMd;
         Path absolutePkgPath = Paths.get(sourceRoot).resolve(packagePath);
         Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
             Path fileName = path.getFileName();
             if (fileName != null) {
-                return fileName.toString().equals(PACKAGE_CONTENT_FILE);
+                return fileName.toString().equals(MODULE_CONTENT_FILE);
             }
             return false;
         }).findFirst();
@@ -419,12 +419,12 @@ public class BallerinaDocGenerator {
         }
 
         if (bLangPackage == null) {
-            out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
+            out.println(String.format("docerina: invalid Ballerina module: %s", packagePath));
         } else {
             String packageName = packageNameToString(bLangPackage.packageID);
             if (isFilteredPackage(packageName, packageFilter)) {
                 if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: package " + packageName + " excluded");
+                    out.println("docerina: module " + packageName + " excluded");
                 }
             } else {
                 dataHolder.getPackageMap().put(packageName, new PackageDoc(packageMd == null ? null : packageMd
