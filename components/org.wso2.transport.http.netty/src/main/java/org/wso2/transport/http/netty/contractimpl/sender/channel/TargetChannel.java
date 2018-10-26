@@ -26,7 +26,9 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
+import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
@@ -180,6 +182,11 @@ public class TargetChannel {
     }
 
     public void writeContent(HttpCarbonMessage httpOutboundRequest) {
+        BackPressureHandler backpressureHandler = Util.getBackPressureHandler(targetHandler.getContext());
+
+        Util.setBackPressureListener(httpOutboundRequest.isPassthrough(), backpressureHandler,
+                                     httpOutboundRequest.getSourceContext());
+
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
         }
@@ -194,17 +201,19 @@ public class TargetChannel {
         httpOutboundRequest.getMessageStateContext()
                 .setSenderState(new SendingHeaders(messageStateContext, this, httpVersion, chunkConfig,
                                                    httpInboundResponseFuture));
-        httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
-                this.channel.eventLoop().execute(() -> {
-                    try {
-                        writeOutboundRequest(httpOutboundRequest, httpContent);
-                    } catch (Exception exception) {
-                        String errorMsg = "Failed to send the request : "
-                                + exception.getMessage().toLowerCase(Locale.ENGLISH);
-                        LOG.error(errorMsg, exception);
-                        this.targetHandler.getHttpResponseFuture().notifyHttpListener(exception);
-                    }
-                })));
+        httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent -> {
+            Util.checkUnWritabilityAndNotify(targetHandler.getContext(), backpressureHandler);
+            this.channel.eventLoop().execute(() -> {
+                try {
+                    writeOutboundRequest(httpOutboundRequest, httpContent);
+                } catch (Exception exception) {
+                    String errorMsg = "Failed to send the request : "
+                            + exception.getMessage().toLowerCase(Locale.ENGLISH);
+                    LOG.error(errorMsg, exception);
+                    this.targetHandler.getHttpResponseFuture().notifyHttpListener(exception);
+                }
+            });
+        }));
     }
 
     private void writeOutboundRequest(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {

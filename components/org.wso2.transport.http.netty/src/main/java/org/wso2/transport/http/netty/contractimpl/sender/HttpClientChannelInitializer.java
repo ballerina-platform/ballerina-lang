@@ -42,6 +42,7 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.config.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.FrameLogger;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
@@ -235,6 +236,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     public void configureHttpPipeline(ChannelPipeline pipeline, TargetHandler targetHandler) {
         pipeline.addLast(Constants.HTTP_CLIENT_CODEC, new HttpClientCodec());
         addCommonHandlers(pipeline);
+        pipeline.addLast(Constants.BACK_PRESSURE_HANDLER, new BackPressureHandler());
         pipeline.addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
