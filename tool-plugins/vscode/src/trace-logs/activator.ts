@@ -55,17 +55,17 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
         {
             methodName: 'showDetails',
             handler: (trace: any) => {
-                // if (traceDetailsPanel) {
-                //     traceDetailsPanel.reveal(undefined, true);
-                //     const html = renderDetailView(context, langClient, trace);
-                //     traceDetailsPanel.webview.html = html;
-                //     return Promise.resolve();
-                // }
+                if (traceDetailsPanel) {
+                    traceDetailsPanel.reveal(traceDetailsPanel.viewColumn);
+                    const html = renderDetailView(context, langClient, trace);
+                    traceDetailsPanel.webview.html = html;
+                    return Promise.resolve();
+                }
                 // TODO: optimize this logic to reuse existing traceDetailsPanel
                 traceDetailsPanel = window.createWebviewPanel(
                     'ballerinaNetworkLogsDetails',
                     "Ballerina Network Log Details",
-                    { viewColumn: ViewColumn.Beside, preserveFocus: true } ,
+                    { viewColumn: ViewColumn.Beside } ,
                     {
                         enableScripts: true,
                         retainContextWhenHidden: false,
