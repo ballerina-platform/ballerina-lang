@@ -77,7 +77,7 @@ public class Respond extends ConnectionAction {
         BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-        outboundResponseMsg.setPipeliningNeeded(inboundRequestMsg.isPipeliningNeeded());
+        outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
         outboundResponseMsg.setSequenceId(inboundRequestMsg.getSequenceId());
         setCacheControlHeader(outboundResponseStruct, outboundResponseMsg);
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
