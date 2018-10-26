@@ -48,8 +48,8 @@
                                  instance="com.github.gtache.lsp.settings.CoursierSettings"/>
 
         <applicationService id="LSPState"
-                            serviceInterface="com.github.gtache.lsp.settings.LSPState"
-                            serviceImplementation="com.github.gtache.lsp.settings.LSPState"/>
+                            serviceInterface="com.github.gtache.lsp.settings.BallerinaLSPState"
+                            serviceImplementation="com.github.gtache.lsp.settings.BallerinaLSPState"/>
 
         <!--<gotoSymbolContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoSymbolContributor"-->
                                <!--id="LSPGotoSymbolContributor"/>-->
