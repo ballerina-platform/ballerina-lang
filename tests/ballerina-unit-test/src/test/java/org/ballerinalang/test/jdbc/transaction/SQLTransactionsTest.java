@@ -229,14 +229,14 @@ public class SQLTransactionsTest {
     }
 
     //Following methods are used as UDFs
-    public static void InsertPersonDataSuccessful(Connection conn, int regid1, int regid2) throws SQLException {
+    public static void insertPersonDataSuccessful(Connection conn, int regid1, int regid2) throws SQLException {
         conn.createStatement().executeUpdate("INSERT INTO Customers (firstName, lastName, registrationID, creditLimit,"
                 + " country)  values ('James', 'Clerk', " + regid1 + ", 5000.75, 'USA')");
         conn.createStatement().executeUpdate("INSERT INTO Customers (firstName, lastName, registrationID, creditLimit,"
                 + " country)  values ('James', 'Clerk', " + regid2 + ", 5000.75, 'USA')");
     }
 
-    public static void InsertPersonDataFailure(Connection conn, int regid1, int regid2) throws SQLException {
+    public static void insertPersonDataFailure(Connection conn, int regid1, int regid2) throws SQLException {
         conn.createStatement().executeUpdate("INSERT INTO Customers (firstName, lastName, registrationID, creditLimit,"
                 + " country)  values ('James', 'Clerk', " + regid1 + ", 5000.75, 'USA')");
         conn.createStatement().executeUpdate("INSERT INTO Customers (firstName, lastName, registrationID, creditLimit,"
