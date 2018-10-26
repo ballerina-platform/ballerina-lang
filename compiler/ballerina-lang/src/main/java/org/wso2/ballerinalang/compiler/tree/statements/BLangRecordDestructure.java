@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 /**
  * Implementation of {@link RecordDestructureNode}.
  *
- * @since 0.982.1
+ * @since 0.985.0
  */
 public class BLangRecordDestructure extends BLangStatement implements RecordDestructureNode {
 
@@ -78,5 +78,10 @@ public class BLangRecordDestructure extends BLangStatement implements RecordDest
     @Override
     public NodeKind getKind() {
         return NodeKind.TUPLE_DESTRUCTURE;
+    }
+
+    @Override
+    public String toString() {
+        return declaredWithVar ? "var " : "" + varRef + " = " + expr;
     }
 }

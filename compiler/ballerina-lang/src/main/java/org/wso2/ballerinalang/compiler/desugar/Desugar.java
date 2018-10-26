@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -814,36 +815,36 @@ public class Desugar extends BLangNodeVisitor {
     private void createVarDefStmts(BLangRecordVariable parentRecordVariable, BLangBlockStmt parentBlockStmt,
                                    BVarSymbol recordVarSymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
 
-        List<BLangRecordVariableKeyValueNode> variableList = parentRecordVariable.variableList;
-        for (BLangRecordVariableKeyValueNode variableKeyValueNode : variableList) {
-            if (variableKeyValueNode.getValue().getKind() == NodeKind.VARIABLE) {
+        List<BLangRecordVariableKeyValue> variableList = parentRecordVariable.variableList;
+        for (BLangRecordVariableKeyValue recordFieldKeyValue : variableList) {
+            if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.VARIABLE) {
                 BLangLiteral indexExpr = ASTBuilderUtil.
-                        createLiteral(((BLangVariable) variableKeyValueNode.getValue()).pos, symTable.stringType,
-                                variableKeyValueNode.getKey().getValue());
-                createSimpleVarDefStmt((BLangSimpleVariable) variableKeyValueNode.getValue(), parentBlockStmt,
+                        createLiteral((recordFieldKeyValue.valueBindingPattern).pos, symTable.stringType,
+                                recordFieldKeyValue.key.value);
+                createSimpleVarDefStmt((BLangSimpleVariable) recordFieldKeyValue.valueBindingPattern, parentBlockStmt,
                         indexExpr, recordVarSymbol, parentIndexAccessExpr);
-            } else if (variableKeyValueNode.getValue().getKind() == NodeKind.TUPLE_VARIABLE) {
-                BLangTupleVariable tupleVariable = (BLangTupleVariable) variableKeyValueNode.getValue();
+            } else if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.TUPLE_VARIABLE) {
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) recordFieldKeyValue.valueBindingPattern;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVariable.pos, symTable.stringType,
-                        variableKeyValueNode.getKey().getValue());
+                        recordFieldKeyValue.key.value);
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
                         new BArrayType(symTable.anyType), recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
-                createVarDefStmts((BLangTupleVariable) variableKeyValueNode.getValue(),
+                createVarDefStmts((BLangTupleVariable) recordFieldKeyValue.valueBindingPattern,
                         parentBlockStmt, recordVarSymbol, arrayAccessExpr);
-            } else if (variableKeyValueNode.getValue().getKind() == NodeKind.RECORD_VARIABLE) {
-                BLangRecordVariable recordVariable = (BLangRecordVariable) variableKeyValueNode.getValue();
+            } else if (recordFieldKeyValue.valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
+                BLangRecordVariable recordVariable = (BLangRecordVariable) recordFieldKeyValue.valueBindingPattern;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVariable.pos, symTable.stringType,
-                        variableKeyValueNode.getKey().getValue());
+                        recordFieldKeyValue.key.value);
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
                         parentRecordVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
                         recordVarSymbol, indexExpr);
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
-                createVarDefStmts((BLangRecordVariable) variableKeyValueNode.getValue(), parentBlockStmt,
+                createVarDefStmts((BLangRecordVariable) recordFieldKeyValue.valueBindingPattern, parentBlockStmt,
                         recordVarSymbol, arrayAccessExpr);
             }
         }

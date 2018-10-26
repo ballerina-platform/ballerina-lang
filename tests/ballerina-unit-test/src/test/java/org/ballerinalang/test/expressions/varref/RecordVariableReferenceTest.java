@@ -36,9 +36,9 @@ import org.testng.annotations.Test;
 import java.text.MessageFormat;
 
 /**
- * TestCases for Record Variable Definitions.
+ * TestCases for Record Variable References.
  *
- * @since 0.982.0
+ * @since 0.985.0
  */
 public class RecordVariableReferenceTest {
 
@@ -178,10 +178,10 @@ public class RecordVariableReferenceTest {
         final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 46, 48);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 46, 40);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 46, 19);
         BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 46, 12);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 46, 19);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 46, 40);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 46, 48);
         BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 46, 66);
         BAssertUtil.validateError(resultNegative, ++i,
                 MessageFormat.format(expectingClosedRecord, "'Age'"), 46, 35);

@@ -40,12 +40,12 @@ public interface RecordVariableReferenceNode extends VariableReferenceNode {
 
     IdentifierNode getPackageAlias();
 
-    List<? extends BLangRecordVarRef.BLangRecordVarRefKeyValue> getRecordRefFields();
+    List<? extends BLangRecordVarRef.BLangRecordVarRefKeyValueNode> getRecordRefFields();
 
     /**
      * Interface for key and value of a record var ref.
      */
-    interface BLangRecordVariableKeyValueNode {
+    interface BLangRecordVarRefKeyValueNode {
 
         IdentifierNode getVariableName();
 

@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
+import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -950,21 +951,40 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startRecordVariableList();
+    }
+
+    @Override
     public void exitEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        int numberOfVars = ctx.fieldBindingPattern().size();
-        boolean restParam = false;
-        boolean closed = false;
+
+        RestBindingPatternState restBindingPattern;
         if (ctx.restBindingPattern() != null) {
             if (ctx.restBindingPattern().sealedLiteral() != null) {
-                closed = true;
+                restBindingPattern = RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
             } else {
-                restParam = true;
+                restBindingPattern = RestBindingPatternState.OPEN_REST_BINDING_PATTERN;
             }
+        } else {
+            restBindingPattern = RestBindingPatternState.NO_BINDING_PATTERN;
         }
-        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), numberOfVars, restParam, closed);
+        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), restBindingPattern);
+    }
+
+    @Override
+    public void enterEntryRefBindingPattern(BallerinaParser.EntryRefBindingPatternContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startRecordVariableReferenceList();
     }
 
     @Override
@@ -973,17 +993,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        int numberOfVars = ctx.fieldRefBindingPattern().size();
-        boolean restParam = false;
-        boolean closed = false;
+        RestBindingPatternState restBindingPattern;
         if (ctx.restRefBindingPattern() != null) {
             if (ctx.restRefBindingPattern().sealedLiteral() != null) {
-                closed = true;
+                restBindingPattern = RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
             } else {
-                restParam = true;
+                restBindingPattern = RestBindingPatternState.OPEN_REST_BINDING_PATTERN;
             }
+        } else {
+            restBindingPattern = RestBindingPatternState.NO_BINDING_PATTERN;
         }
-        this.pkgBuilder.addRefRecordVariable(getCurrentPos(ctx), getWS(ctx), numberOfVars, restParam, closed);
+        this.pkgBuilder.addRecordVariableReference(getCurrentPos(ctx), getWS(ctx), restBindingPattern);
     }
 
     @Override
@@ -992,9 +1012,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.Identifier() != null
-                && (ctx.parent instanceof BallerinaParser.TupleBindingPatternContext
-                || ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)) {
+        if (ctx.Identifier() != null) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
     }

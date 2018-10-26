@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of RecordVariableReferenceNode.
@@ -58,13 +59,9 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
 
     @Override
     public String toString() {
-//        StringBuilder br = new StringBuilder();
-//        if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
-//            br.append(String.valueOf(pkgAlias)).append(":");
-//        }
-//        br.append(String.valueOf(variableName));
-//        return br.toString();
-        return null; // todo
+        return " {" + recordRefFields.stream()
+                .map(BLangRecordVarRefKeyValue::toString)
+                .collect(Collectors.joining(",")) + "}";
     }
 
     @Override
@@ -82,8 +79,7 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
      *
      * @since 0.985.0
      */
-    public static class BLangRecordVarRefKeyValue implements
-            RecordVariableReferenceNode.BLangRecordVariableKeyValueNode {
+    public static class BLangRecordVarRefKeyValue implements BLangRecordVarRefKeyValueNode {
 
         public BLangExpression variableReference;
 
@@ -98,6 +94,11 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
         @Override
         public BLangExpression getBindingPattern() {
             return variableReference;
+        }
+
+        @Override
+        public String toString() {
+            return variableName + ": " + variableReference;
         }
     }
 

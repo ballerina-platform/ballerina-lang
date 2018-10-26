@@ -26,13 +26,14 @@ import org.ballerinalang.model.tree.VariableNode;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.985.0
  */
 public class BLangRecordVariable extends BLangVariable implements RecordVariableNode {
 
-    public List<BLangRecordVariableKeyValueNode> variableList;
+    public List<BLangRecordVariableKeyValue> variableList;
     public VariableNode restParam;
     public boolean isClosed;
 
@@ -44,7 +45,7 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     }
 
     @Override
-    public List<BLangRecordVariableKeyValueNode> getVariables() {
+    public List<BLangRecordVariableKeyValue> getVariables() {
         return variableList;
     }
 
@@ -60,7 +61,9 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
 
     @Override
     public String toString() {
-        return String.valueOf(type) + " " + (expr != null ? " = " + String.valueOf(expr) : "");
+        return String.valueOf(type) + " {" + variableList.stream()
+                .map(BLangRecordVariableKeyValue::toString)
+                .collect(Collectors.joining(",")) + "} = " + this.expr;
     }
 
     /**
@@ -81,6 +84,11 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
         @Override
         public BLangVariable getValue() {
             return valueBindingPattern;
+        }
+
+        @Override
+        public String toString() {
+            return key + ": " + valueBindingPattern;
         }
     }
 }

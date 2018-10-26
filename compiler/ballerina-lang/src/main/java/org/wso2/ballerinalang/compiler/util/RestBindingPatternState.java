@@ -16,29 +16,14 @@
  * under the License.
  *
  */
-package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+package org.wso2.ballerinalang.compiler.util;
 
 /**
- * var {a: c, b} = {a: "Sam", b: 1}.
- *
- * @since 0.985.0
+ * Enum to hold the state of the rest binding pattern in a record variable.
  */
-public interface RecordDestructureNode extends StatementNode {
-
-    RecordVariableReferenceNode getVariableRefs();
-
-    void addVariableRef(VariableReferenceNode variableReferenceNode);
-
-    ExpressionNode getExpression();
-
-    void setExpression(ExpressionNode expression);
-
-    boolean isDeclaredWithVar();
-
-    void setDeclaredWithVar(boolean isDeclaredWithVar);
-
+public enum RestBindingPatternState {
+    NO_BINDING_PATTERN,
+    CLOSED_REST_BINDING_PATTERN,
+    OPEN_REST_BINDING_PATTERN
 }

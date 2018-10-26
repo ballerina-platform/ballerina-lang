@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
 /**
  * TestCases for Record Variable Definitions.
  *
- * @since 0.982.0
+ * @since 0.985.0
  */
 public class RecordVariableDefinitionTest {
 
@@ -246,7 +246,7 @@ public class RecordVariableDefinitionTest {
         String invalidRecordBindingPattern = "invalid record binding pattern; ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
-        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 19);
+        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 36);
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 45, 13);
         BAssertUtil.validateError(resultNegative, ++i,

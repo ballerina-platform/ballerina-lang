@@ -215,6 +215,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
+import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -251,9 +252,9 @@ public class BLangPackageBuilder {
 
     private Stack<List<BLangVariable>> varListStack = new Stack<>();
 
-    private Stack<BLangRecordVariableKeyValue> recordVarStack = new Stack<>();
+    private Stack<List<BLangRecordVariableKeyValue>> recordVarListStack = new Stack<>();
 
-    private Stack<BLangRecordVarRefKeyValue> recordVarRefStack = new Stack<>();
+    private Stack<List<BLangRecordVarRefKeyValue>> recordVarRefListStack = new Stack<>();
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
 
@@ -704,7 +705,7 @@ public class BLangPackageBuilder {
         tupleVariable.pos = pos;
         tupleVariable.addWS(ws);
         for (int i = 0; i < members; i++) {
-            final BLangVariable member = (BLangVariable) this.varStack.pop();
+            final BLangVariable member = this.varStack.pop();
             tupleVariable.memberVariables.add(0, member);
         }
         this.varStack.push(tupleVariable);
@@ -722,33 +723,47 @@ public class BLangPackageBuilder {
 
     }
 
-    void addRecordVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam, boolean closed) {
+    void startRecordVariableList() {
+        recordVarListStack.push(new ArrayList<>());
+    }
+
+    void startRecordVariableReferenceList() {
+        recordVarRefListStack.push(new ArrayList<>());
+    }
+
+    void addRecordVariable(DiagnosticPos pos, Set<Whitespace> ws, RestBindingPatternState restBindingPattern) {
         BLangRecordVariable recordVariable = (BLangRecordVariable) TreeBuilder.createRecordVariableNode();
         recordVariable.pos = pos;
         recordVariable.addWS(ws);
-        recordVariable.isClosed = closed;
-        for (int i = 0; i < members; i++) {
-            final BLangRecordVariableKeyValue member = this.recordVarStack.pop();
-            recordVariable.variableList.add(member);
-        }
-        if (hasRestParam) {
-            recordVariable.restParam = this.varStack.pop();
+        recordVariable.variableList = this.recordVarListStack.pop();
+        switch (restBindingPattern) {
+            case OPEN_REST_BINDING_PATTERN:
+                recordVariable.restParam = this.varStack.pop();
+                break;
+            case CLOSED_REST_BINDING_PATTERN:
+                recordVariable.isClosed = true;
+                break;
+            case NO_BINDING_PATTERN:
+                break;
         }
         this.varStack.push(recordVariable);
     }
 
-    void addRefRecordVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam,
-                              boolean closed) {
+    void addRecordVariableReference(DiagnosticPos pos, Set<Whitespace> ws, RestBindingPatternState restBindingPattern) {
         BLangRecordVarRef recordVarRef = (BLangRecordVarRef) TreeBuilder.createRecordVariableReferenceNode();
         recordVarRef.pos = pos;
         recordVarRef.addWS(ws);
-        recordVarRef.isClosed = closed;
-        for (int i = 0; i < members; i++) {
-            recordVarRef.recordRefFields.add(this.recordVarRefStack.pop());
+        switch (restBindingPattern) {
+            case OPEN_REST_BINDING_PATTERN:
+                recordVarRef.restParam = this.exprNodeStack.pop();
+                break;
+            case CLOSED_REST_BINDING_PATTERN:
+                recordVarRef.isClosed = true;
+                break;
+            case NO_BINDING_PATTERN:
+                break;
         }
-        if (hasRestParam) {
-            recordVarRef.restParam = this.exprNodeStack.pop();
-        }
+        recordVarRef.recordRefFields = this.recordVarRefListStack.pop();
         this.exprNodeStack.push(recordVarRef);
     }
 
@@ -759,7 +774,7 @@ public class BLangPackageBuilder {
             addBindingPatternMemberVariable(pos, ws, identifier);
         }
         recordKeyValue.valueBindingPattern = this.varStack.pop();
-        this.recordVarStack.push(recordKeyValue);
+        this.recordVarListStack.peek().add(recordKeyValue);
     }
 
     void addFieldRefBindingMemberVar(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
@@ -775,7 +790,7 @@ public class BLangPackageBuilder {
         BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
         keyValue.variableName = (BLangIdentifier) createIdentifier(identifier);
         keyValue.variableReference = expression;
-        this.recordVarRefStack.push(keyValue);
+        this.recordVarRefListStack.peek().add(keyValue);
     }
 
     public BLangVariable addVarWithoutType(DiagnosticPos pos,
