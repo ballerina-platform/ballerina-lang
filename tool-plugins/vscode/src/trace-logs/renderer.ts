@@ -32,6 +32,7 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             }
             
             drawTraces();
+            drawTraces();
             `;
     const body = `<div id="traces" />`;
 
@@ -40,13 +41,19 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             background-color: #1e1e1e;
             color: white;
         }
+        .clickable {
+            cursor: pointer;
+        }
+        .inverted .ui.dropdown .menu .item .text {
+            color: #1e1e1e!important;
+        }
     `;
     return getLibraryWebViewContent(context, body, script, styles);
 }
 
 
 export function renderDetailView (context: ExtensionContext, langClient: ExtendedLangClient, trace: any) {
-    const body = `<div id="trace-details" />`;
+    const body = `<div id="trace-details"><br/> Loading ... </>`;
     const traceString = encodeURIComponent(JSON.stringify(trace));
     const styles = `
         body.vscode-dark, body.vscode-light {
