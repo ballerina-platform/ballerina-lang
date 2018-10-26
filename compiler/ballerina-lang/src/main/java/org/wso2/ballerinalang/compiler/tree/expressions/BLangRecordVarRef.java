@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Implementation of RecordVariableReferenceNode.
  *
- * @since 0.94
+ * @since 0.985.0
  */
 public class BLangRecordVarRef extends BLangVariableReference implements RecordVariableReferenceNode {
 
@@ -80,7 +80,7 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
     /**
      * This static inner class represents key/value pair of a record var ref.
      *
-     * @since 0.982.1
+     * @since 0.985.0
      */
     public static class BLangRecordVarRefKeyValue implements
             RecordVariableReferenceNode.BLangRecordVariableKeyValueNode {

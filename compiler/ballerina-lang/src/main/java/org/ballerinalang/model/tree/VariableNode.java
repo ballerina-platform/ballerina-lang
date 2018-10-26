@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
- * @since 0.94
+ * @since 0.985.0
  */
 public interface VariableNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
     

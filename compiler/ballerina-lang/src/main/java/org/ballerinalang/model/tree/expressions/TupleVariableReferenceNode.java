@@ -23,9 +23,14 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import java.util.List;
 
 /**
- * a.
+ * Represents a tuple variable reference node
+ *      string s;
+ *      int i;
+ *      boolean b;
  *
- * @since 0.982.1
+ *      (s, i, b) = ("Foo", 12, true);
+ *
+ * @since 0.985.0
  */
 public interface TupleVariableReferenceNode extends VariableReferenceNode {
 

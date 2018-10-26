@@ -20,7 +20,7 @@ package org.ballerinalang.model.tree;
 import java.util.List;
 
 /**
- * @since 0.982.0
+ * @since 0.985.0
  */
 public interface TupleVariableNode extends VariableNode, AnnotatableNode, DocumentableNode, TopLevelNode {
 

@@ -53,7 +53,7 @@ public interface MatchNode {
     /**
      * {@code MatchStatementStaticBindingPatternNode} represents a static pattern inside a match statement.
      *
-     * @since 0.983.0
+     * @since 0.985.0
      */
     interface MatchStatementStaticBindingPatternNode extends MatchStatementBindingPatternNode {
 

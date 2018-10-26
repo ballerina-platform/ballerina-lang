@@ -24,9 +24,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import java.util.List;
 
 /**
- * a.
+ * Represents a record variable reference node.
  *
- * @since 0.982.1
+ *     string fName;
+ *     boolean married;
+ *     int theAge;
+ *     string format;
+ *     map theMap;
+ *
+ *     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
+ *
+ * @since 0.985.0
  */
 public interface RecordVariableReferenceNode extends VariableReferenceNode {
 

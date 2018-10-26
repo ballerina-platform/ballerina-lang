@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 /**
  * Implementation of TupleVariableReferenceNode.
  *
- * @since 0.982.1
+ * @since 0.985.0
  */
 public class BLangTupleVarRef extends BLangVariableReference implements TupleVariableReferenceNode {
 

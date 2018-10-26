@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import java.util.List;
 
 /**
- * @since 0.982.0
+ * @since 0.985.0
  */
 public interface RecordVariableNode extends VariableNode, AnnotatableNode, DocumentableNode, TopLevelNode {
 

@@ -82,7 +82,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     /**
      * {@code BLangMatchStmtBindingPatternClause} is the parent class for all the pattern clauses.
      *
-     * @since 0.983.0
+     * @since 0.985.0
      */
     public abstract static class BLangMatchStmtBindingPatternClause extends BLangNode implements
             MatchStatementBindingPatternNode {
@@ -135,7 +135,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
      * {@code BLangMatchStmtStaticBindingPatternClause} represents a static/constant pattern inside a type switch
      * statement.
      *
-     * @since 0.983.0
+     * @since 0.985.0
      */
     public static class BLangMatchStmtStaticBindingPatternClause extends BLangMatchStmtBindingPatternClause
             implements MatchStatementStaticBindingPatternNode {

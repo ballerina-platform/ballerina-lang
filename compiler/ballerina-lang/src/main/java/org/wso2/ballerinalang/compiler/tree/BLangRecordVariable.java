@@ -28,7 +28,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 /**
- * @since 0.982.0
+ * @since 0.985.0
  */
 public class BLangRecordVariable extends BLangVariable implements RecordVariableNode {
 
