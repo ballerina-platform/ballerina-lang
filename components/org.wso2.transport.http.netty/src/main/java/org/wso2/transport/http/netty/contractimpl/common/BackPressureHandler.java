@@ -35,13 +35,13 @@ public class BackPressureHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) {
         if (ctx.channel().isWritable()) {
-            backPressureObservable.notifyRelease();
+            backPressureObservable.notifyWritable();
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        backPressureObservable.notifyRelease();
+        backPressureObservable.notifyWritable();
         ctx.fireChannelInactive();
     }
 

@@ -26,10 +26,10 @@ public interface BackPressureListener {
     /**
      * Get notified to start throttling.
      */
-    void onAcquire();
+    void onUnWritable();
 
     /**
      * Get notified to release throttling.
      */
-    void onRelease();
+    void onWritable();
 }

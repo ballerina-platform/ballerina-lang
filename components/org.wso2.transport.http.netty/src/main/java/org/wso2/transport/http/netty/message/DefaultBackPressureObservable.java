@@ -33,22 +33,22 @@ public class DefaultBackPressureObservable implements BackPressureObservable {
     @Override
     public void removeListener() {
         if (listener != null) {
-            listener.onRelease();
+            listener.onWritable();
             listener = null;
         }
     }
 
     @Override
-    public void notifyAcquire() {
+    public void notifyUnWritable() {
         if (listener != null) {
-            listener.onAcquire();
+            listener.onUnWritable();
         }
     }
 
     @Override
-    public void notifyRelease() {
+    public void notifyWritable() {
         if (listener != null) {
-            listener.onRelease();
+            listener.onWritable();
         }
     }
 }

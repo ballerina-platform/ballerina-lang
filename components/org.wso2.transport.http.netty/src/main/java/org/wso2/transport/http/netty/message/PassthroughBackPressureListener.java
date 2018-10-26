@@ -30,31 +30,26 @@ public class PassthroughBackPressureListener implements BackPressureListener {
     private static final Logger LOG = LoggerFactory.getLogger(PassthroughBackPressureListener.class);
 
     private Channel inChannel;
-    private Channel outChannel;
 
     /**
      * Sets the incoming and outgoing message channels.
      *
      * @param inContext  This will be used to block and resume read interest of the incoming channel.
-     * @param outContext This will be used to check the writability of the outgoing channel.
      */
-    public PassthroughBackPressureListener(ChannelHandlerContext inContext, ChannelHandlerContext outContext) {
+    public PassthroughBackPressureListener(ChannelHandlerContext inContext) {
         inChannel = inContext.channel();
-        outChannel = outContext.channel();
     }
 
     @Override
-    public void onAcquire() {
-        if (!outChannel.isWritable()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Read disabled for inChannel {}", inChannel.id());
-            }
-            inChannel.config().setAutoRead(false);
+    public void onUnWritable() {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Read disabled for inChannel {}", inChannel.id());
         }
+        inChannel.config().setAutoRead(false);
     }
 
     @Override
-    public void onRelease() {
+    public void onWritable() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Read enabled for inChannel {}", inChannel.id());
         }

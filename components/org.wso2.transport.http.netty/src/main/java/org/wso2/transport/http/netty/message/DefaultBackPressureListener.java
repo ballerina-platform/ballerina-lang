@@ -18,8 +18,6 @@
 
 package org.wso2.transport.http.netty.message;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,39 +30,32 @@ public class DefaultBackPressureListener implements BackPressureListener {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultBackPressureListener.class);
 
     private Semaphore semaphore;
-    private Channel channel;
 
     /**
      * Creates the semaphore and sets the source or target channel.
-     *
-     * @param context The {@link org.wso2.transport.http.netty.contractimpl.listener.SourceHandler} context for
-     *                outbound response and the
-     *                {@link org.wso2.transport.http.netty.contractimpl.sender.TargetHandler} context for the
-     *                outbound request.
      */
-    public DefaultBackPressureListener(ChannelHandlerContext context) {
-        this.channel = context.channel();
+    public DefaultBackPressureListener() {
+
         this.semaphore = new Semaphore(0);
     }
 
     @Override
-    public void onAcquire() {
-        if (!channel.isWritable() && channel.isActive()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Semaphore acquired for channel {}.", channel.id());
-            }
-            try {
-                semaphore.acquire();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+    public void onUnWritable() {
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Semaphore acquired.");
+        }
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
     @Override
-    public void onRelease() {
+    public void onWritable() {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Semaphore released for channel {}.", channel.id());
+            LOG.debug("Semaphore released.");
         }
         semaphore.release();
     }

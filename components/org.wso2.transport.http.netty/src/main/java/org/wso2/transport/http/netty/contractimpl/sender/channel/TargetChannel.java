@@ -184,8 +184,8 @@ public class TargetChannel {
     public void writeContent(HttpCarbonMessage httpOutboundRequest) {
         BackPressureHandler backpressureHandler = Util.getBackPressureHandler(targetHandler.getContext());
 
-        Util.setBackPressureObservableListener(httpOutboundRequest.isPassthrough(), backpressureHandler,
-                                               httpOutboundRequest.getSourceContext(), targetHandler.getContext());
+        Util.setBackPressureListener(httpOutboundRequest.isPassthrough(), backpressureHandler,
+                                     httpOutboundRequest.getSourceContext());
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
@@ -202,9 +202,7 @@ public class TargetChannel {
                 .setSenderState(new SendingHeaders(messageStateContext, this, httpVersion, chunkConfig,
                                                    httpInboundResponseFuture));
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent -> {
-            if (backpressureHandler != null) {
-                backpressureHandler.getBackPressureObservable().notifyAcquire();
-            }
+            Util.checkWritableAndNotify(targetHandler.getContext(), backpressureHandler);
             this.channel.eventLoop().execute(() -> {
                 try {
                     writeOutboundRequest(httpOutboundRequest, httpContent);

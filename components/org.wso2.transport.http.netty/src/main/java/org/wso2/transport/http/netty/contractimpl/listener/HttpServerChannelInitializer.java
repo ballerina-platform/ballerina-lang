@@ -211,9 +211,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
         serverPipeline.addLast(Constants.BACK_PRESSURE_HANDLER, new BackPressureHandler());
-        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
-                this.interfaceId, this.chunkConfig, keepAliveConfig, this.serverName, this.allChannels,
-                this.pipeliningNeeded, this.pipeliningLimit, this.pipeliningGroup));
+        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
+                               new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
+                                                 keepAliveConfig, this.serverName, this.allChannels,
+                                       this.pipeliningNeeded, this.pipeliningLimit, this.pipeliningGroup));
         if (socketIdleTimeout >= 0) {
             serverPipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                                      new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS));

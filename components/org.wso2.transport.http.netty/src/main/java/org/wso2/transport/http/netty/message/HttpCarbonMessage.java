@@ -458,7 +458,9 @@ public class HttpCarbonMessage {
     }
 
     /**
-     * @return true if it is a passthrough(when message body is not built).
+     * The passthrough(when message body is not built) status of the message.
+     *
+     * @return true if it is a passthrough.
      */
     public boolean isPassthrough() {
         return passthrough;

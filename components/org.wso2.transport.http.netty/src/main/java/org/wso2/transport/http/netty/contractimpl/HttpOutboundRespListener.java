@@ -72,16 +72,14 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     @Override
     public void onMessage(HttpCarbonMessage outboundResponseMsg) {
         BackPressureHandler backpressureHandler = Util.getBackPressureHandler(sourceContext);
-        Util.setBackPressureObservableListener(outboundResponseMsg.isPassthrough(), backpressureHandler,
-                                               outboundResponseMsg.getTargetContext(), sourceContext);
+        Util.setBackPressureListener(outboundResponseMsg.isPassthrough(), backpressureHandler,
+                                     outboundResponseMsg.getTargetContext());
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
         }
 
         outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent -> {
-            if (backpressureHandler != null) {
-                backpressureHandler.getBackPressureObservable().notifyAcquire();
-            }
+            Util.checkWritableAndNotify(sourceContext, backpressureHandler);
             this.sourceContext.channel().eventLoop().execute(() -> {
                 try {
                     writeOutboundResponse(outboundResponseMsg, httpContent);

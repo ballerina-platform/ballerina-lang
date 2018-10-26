@@ -37,10 +37,10 @@ public interface BackPressureObservable {
     /**
      * Notify to start throttling.
      */
-    void notifyAcquire();
+    void notifyUnWritable();
 
     /**
      * Notify to release throttling.
      */
-    void notifyRelease();
+    void notifyWritable();
 }
