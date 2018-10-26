@@ -59,4 +59,13 @@ function name1() {
                   {1, 26, 3000.50, "jui", false}
             ]
     };
+
+    Person p2 = {id:1, age:26, salary:3000.50, name:"marcus", married:false};
+
+        Person p3 = {id:1, age:26, salary:3000.50, name:"jui", married:false};
+
+    table<Person> dt8 = table {
+   {primarykey id, primarykey age, salary, name, married},
+           [ p2,p3]
+    };
 }

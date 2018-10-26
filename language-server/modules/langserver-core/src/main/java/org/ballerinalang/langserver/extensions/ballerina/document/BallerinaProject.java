@@ -15,24 +15,38 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
-
-import java.util.concurrent.CompletableFuture;
-
 /**
- * An extension interface for Language server to add features related to ballerina files.
- *
- * @since 0.981.2
+ * Represents metadata of a Ballerina Project.
  */
-@JsonSegment("ballerinaDocument")
-public interface BallerinaDocumentService {
-    @JsonRequest
-    CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request);
+public class BallerinaProject {
 
-    @JsonRequest
-    CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
+    private String path;
 
-    @JsonRequest
-    CompletableFuture<BallerinaProject> project(BallerinaProjectParams params);
+    private String version;
+
+    private String author;
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 }
