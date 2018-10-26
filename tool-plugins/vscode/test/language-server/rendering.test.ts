@@ -19,7 +19,6 @@
  */
 
 
-import { expect } from 'chai';
 import * as path from 'path';
 import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
@@ -47,7 +46,7 @@ suite('Rendering Tests', function () {
 
     var bbeFiles = globSync(getBBEPath() + "/**/*.bal", {});
     bbeFiles.forEach(function (file) {
-        test('Running through ' + path.basename(file), function (done) {
+        test.skip('Running through ' + path.basename(file), function (done) {
             langClient.onReady().then(() => {
                 langClient.getAST(Uri.file(file)).then((response) => {
                     done();
