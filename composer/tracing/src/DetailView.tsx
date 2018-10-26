@@ -51,10 +51,17 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
         const headers = trace.message.headers || '';
         const payload = trace.message.payload;
         const headersArray = headers.split('\n');
-
+        if (payload.trim() ===  "" && headers.trim() === "") {
+            return (
+                <code>
+                    <pre>{trace.rawMessage}</pre>
+                </code>
+            );
+        }
         return (
             <Segment inverted padded compact>
-                <code>
+                {
+                    headersArray.length && <code>
                     <pre>
                         {headersArray.map((header: string, index: number) => {
                             const endChar = headersArray.length - 1 === index ? '' : '\n';
@@ -73,6 +80,7 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
                         })}
                     </pre>
                 </code>
+                }
                 {
                     trace.message.contentType === 'application/json' && isJson(payload) ?
                         <ReactJson
