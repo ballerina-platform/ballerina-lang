@@ -1,57 +1,51 @@
+body {
+    overflow: auto;
+}
+
 .documentation {
-    margin: 10px;
-    margin-bottom: 30px;
+    margin: 30px 0;
 }
 
-.documentation .title {
+#ballerina-documentation {
+    padding: 0 30px;
+}
+
+.title {
+    font-weight: 400;
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.title .icon {
+    font-size: 26px !important;
+}
+
+.description {
     font-size: 15px;
-    margin-bottom: 5px;
 }
 
-.documentation p {
-    line-height: 1.2em;
+.return-details {
+    margin: 20px 0;
 }
 
-.documentation .parameters {
-    width: 100%;
+.return-details strong {
+    font-weight: 600;
 }
 
-.documentation .return-parameters {
-    min-width: 100px;
+.return-details .return-description {
+    font-style: italic;
 }
 
-.documentation table {
-    margin-top: 5px;
-    text-align: left;
-    font-size: 13px;
-    border-collapse: collapse;
+.type {
+    color: #569cd6;
+    font-style: italic;
 }
 
-.documentation table th
-{
-    border-bottom:1px solid;
-}
-
-.documentation table td
-{
-    padding-top: 3px;
-}
-
-.documentation table th,
-.documentation table td {
-    vertical-align: top;
-    border-right:1px solid;
-    border-color: #555555;
-    padding-left: 3px;
-    min-width: 100px;
-    max-width: 200px;
-}
-
-.documentation table th:last-child, 
-.documentation table td:last-child  {
-    border-right: none;
-}
-
-.documentation table td p {
-    margin: 0;
+code {
+    background: #E0E1E2;
+    border: none;
+    color: #000;
+    padding: 1px 3px;
+    font-family: monospace, monospace;
+    font-size: 0.9em;
 }

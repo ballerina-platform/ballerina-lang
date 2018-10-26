@@ -14,7 +14,8 @@
     "escape-html": "^1.0.3",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "react-markdown": "^4.0.0"
+    "react-markdown": "^4.0.0",
+    "semantic-ui-react": "^0.82.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
