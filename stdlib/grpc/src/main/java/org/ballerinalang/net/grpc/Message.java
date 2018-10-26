@@ -231,19 +231,19 @@ public class Message {
                         }
                         break;
                     }
-                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
-                    if (fieldDescriptor.isRepeated()) {
-                        List<byte[]> messages = new ArrayList<>();
-                        if (this.fields.containsKey(name)) {
-                            messages = (List<byte[]>) this.fields.get(name);
+                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
+                        if (fieldDescriptor.isRepeated()) {
+                            List<byte[]> messages = new ArrayList<>();
+                            if (this.fields.containsKey(name)) {
+                                messages = (List<byte[]>) this.fields.get(name);
+                            }
+                            messages.add(input.readByteArray());
+                            this.fields.put(name, messages);
+                        } else {
+                            this.fields.put(name, input.readByteArray());
                         }
-                        messages.add(input.readByteArray());
-                        this.fields.put(name, messages);
-                    } else {
-                        this.fields.put(name, input.readByteArray());
+                        break;
                     }
-                    break;
-                }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                         if (fieldDescriptor.isRepeated()) {
                             List<Message> messages = new ArrayList<>();
