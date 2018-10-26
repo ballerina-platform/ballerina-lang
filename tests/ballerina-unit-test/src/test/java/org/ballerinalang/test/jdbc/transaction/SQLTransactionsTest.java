@@ -46,7 +46,7 @@ public class SQLTransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql_transaction_test.bal");
+        result = BCompileUtil.compile("test-src/jdbc/transaction/sql_transaction_test.bal");
         testDatabase = new FileBasedTestDatabase(DBType.H2,
                 "datafiles/sql/SQLTableCreate.sql", DB_DIRECTORY, DB_NAME);
     }
