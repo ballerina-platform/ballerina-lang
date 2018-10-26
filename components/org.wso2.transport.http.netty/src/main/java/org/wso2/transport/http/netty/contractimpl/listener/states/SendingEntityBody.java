@@ -249,8 +249,8 @@ public class SendingEntityBody implements ListenerState {
                     EventExecutorGroup pipeliningExecutor = sourceContext.channel().attr(Constants.PIPELINING_EXECUTOR)
                             .get();
                     //IMPORTANT:Pipelining logic should never be executed in an I/O thread as it might lead to I/O
-                    //thread blocking scenarios in outbound trottling. Here the pipelining logic runs in a thread that
-                    //belongs to the pipelining pool.
+                    //thread blocking scenarios in outbound trottling. Here, the pipelining logic runs in a thread that
+                    //belongs to the pipelining thread pool.
                     pipeliningExecutor.execute(() -> outboundResponseMsg.getPipeliningFuture().
                             notifyPipeliningListener(sourceContext));
 
