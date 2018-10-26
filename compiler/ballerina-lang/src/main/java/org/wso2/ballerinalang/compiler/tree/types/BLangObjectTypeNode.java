@@ -80,5 +80,4 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
         //TODO fix
         return "object { " + this.fields + " }";
     }
-
 }

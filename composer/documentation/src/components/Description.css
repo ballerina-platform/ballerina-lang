@@ -1,0 +1,11 @@
+.__added {
+    animation: newAdd 3s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes newAdd {
+    from {
+        background-color: rgb(225, 225, 50);
+    }
+    to {}
+}

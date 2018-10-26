@@ -29,8 +29,8 @@
         "column": 0,
         "category": "Language concepts",
         "samples": [{
-                "name": "Packages",
-                "url": "packages"
+                "name": "Modules",
+                "url": "modules"
             },
             {
                 "name": "Variables",
@@ -125,6 +125,10 @@
             {
                 "name": "String Template Literal",
                 "url": "string-template"
+            },
+            {
+                "name": "Symbolic String Literal",
+                "url": "symbolic-string-literal"
             },
             {
                 "name": "Arrays",

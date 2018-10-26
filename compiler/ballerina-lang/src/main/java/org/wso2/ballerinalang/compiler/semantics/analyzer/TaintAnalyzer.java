@@ -126,7 +126,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -171,6 +170,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
+
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 
 /**
  * Generate taint-table for each invokable node.
@@ -265,7 +266,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.TAINT_ANALYZE)) {
             return;
         }
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        analyze(pkgNode, pkgEnv);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+    }
+
+    private void analyze(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         SymbolEnv prevPkgEnv = this.currPkgEnv;
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
@@ -444,13 +450,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         assignNode.expr.accept(this);
         BLangExpression varRefExpr = assignNode.varRef;
         visitAssignment(varRefExpr, this.taintedStatus, assignNode.pos);
-    }
-
-    @Override
-    public void visit(BLangPostIncrement postIncrement) {
-        BLangExpression varRefExpr = postIncrement.varRef;
-        varRefExpr.accept(this);
-        visitAssignment(varRefExpr, this.taintedStatus, postIncrement.pos);
     }
 
     @Override
@@ -665,10 +664,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordDestructure stmt) {
         stmt.expr.accept(this);
         // Propagate tainted status of each variable separately (when multi returns are used).
-//        for (int varIndex = 0; varIndex < stmt.varRefs.size(); varIndex++) {
-//            BLangExpression varRefExpr = stmt.varRefs.get(varIndex);
-//            visitAssignment(varRefExpr, taintedStatus, stmt.pos);
-//        }
+        for (int varIndex = 0; varIndex < stmt.varRef.recordRefFields.size(); varIndex++) {
+            BLangRecordVarRefKeyValue varRefExpr = stmt.varRef.recordRefFields.get(varIndex);
+            visitAssignment(varRefExpr.variableReference, taintedStatus, stmt.pos);
+        }
     }
 
     @Override
@@ -1459,7 +1458,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * @param taintedStatus Tainted status.
      */
     private void setTaintedStatus(BLangVariableReference varNode, TaintedStatus taintedStatus) {
-        if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || !varNode.symbol.tainted)) {
+        if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || (varNode.symbol != null
+                && !varNode.symbol.tainted))) {
             setTaintedStatus(varNode.symbol, taintedStatus);
         }
     }
@@ -2012,12 +2012,22 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Update the tainted state of the given argument expression of a function invocation. This will make sure tainted
+     * state changes made within the invoked function is reflected back on the arguments.
+     *
+     * XML access expressions do not have a variable symbol attached. Therefore, such simple variable references are not
+     * updated. Since such expressions only result in simple values, this does not affect the accuracy of the analyzer.
+     *
+     * @param varRefExpr argument expressions
+     * @param varTaintedStatus tainted status of the argument
+     */
     private void updateArgTaintedStatus(BLangExpression varRefExpr, TaintedStatus varTaintedStatus) {
         if (varRefExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 || varRefExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
                 || varRefExpr.getKind() == NodeKind.BRACED_TUPLE_EXPR
-                || varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                || varRefExpr.getKind() == NodeKind.VARIABLE_DEF) {
+                || (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) varRefExpr).pkgSymbol.tag != SymTag.XMLNS)) {
             visitAssignment(varRefExpr, varTaintedStatus, varRefExpr.pos);
         }
     }

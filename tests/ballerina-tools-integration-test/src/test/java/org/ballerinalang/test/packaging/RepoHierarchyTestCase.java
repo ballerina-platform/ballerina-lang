@@ -72,11 +72,11 @@ public class RepoHierarchyTestCase extends BaseTest {
     }
     
     /**
-     * Installing package 'a' to home repository.
+     * Installing module 'a' to home repository.
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test installing package 'a'", dependsOnMethods = "testInitProject")
-    public void testInstallingPackageA() throws BallerinaTestException {
+    @Test(description = "Test installing module 'a'", dependsOnMethods = "testInitProject")
+    public void testInstallingModuleA() throws BallerinaTestException {
         String[] clientArgs = {"a"};
     
         balClient.runMain("install", clientArgs, envVariables, new String[]{},
@@ -88,11 +88,11 @@ public class RepoHierarchyTestCase extends BaseTest {
     }
     
     /**
-     * Installing package 'b' to home repository.
+     * Installing module 'b' to home repository.
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test installing package 'b'", dependsOnMethods = "testInstallingPackageA")
-    public void testInstallingPackageB() throws BallerinaTestException {
+    @Test(description = "Test installing module 'b'", dependsOnMethods = "testInstallingModuleA")
+    public void testInstallingModuleB() throws BallerinaTestException {
         String[] clientArgs = {"b"};
         
         balClient.runMain("install", clientArgs, envVariables, new String[]{},
@@ -104,11 +104,11 @@ public class RepoHierarchyTestCase extends BaseTest {
     }
     
     /**
-     * Run main function of package 'x'. This should print 'Print A from Home'.
+     * Run main function of module 'x'. This should print 'Print A from Home'.
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Test running package 'x'", dependsOnMethods = "testInstallingPackageB")
-    public void testRunningPackageX() throws BallerinaTestException {
+    @Test(description = "Test running module 'x'", dependsOnMethods = "testInstallingModuleB")
+    public void testRunningModuleX() throws BallerinaTestException {
         String outputMessage = "Print A from Home";
         LogLeecher clientLeecher = new LogLeecher(outputMessage);
         balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
@@ -117,13 +117,13 @@ public class RepoHierarchyTestCase extends BaseTest {
     }
     
     /**
-     * Change print content of 'x' package from 'Print A from Home' to 'Print A from Proj'. Running the 'x' package
+     * Change print content of 'x' module from 'Print A from Home' to 'Print A from Proj'. Running the 'x' module
      * should print 'Print A from Proj'.
-     * @throws IOException Error changing the contents of the package.
+     * @throws IOException Error changing the contents of the module.
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Change content in package 'x' function", dependsOnMethods = "testRunningPackageX")
-    public void testRunningModifiedPackageX() throws IOException, BallerinaTestException {
+    @Test(description = "Change content in module 'x' function", dependsOnMethods = "testRunningModuleX")
+    public void testRunningModifiedModuleX() throws IOException, BallerinaTestException {
         File aPkgPrinterFile = tempProjectDirectory.resolve("a").resolve("printer.bal").toFile();
         String fileContext = FileUtils.readFileToString(aPkgPrinterFile);
         fileContext = fileContext.replaceAll("Print A from Home", "Print A from Proj");
@@ -137,13 +137,13 @@ public class RepoHierarchyTestCase extends BaseTest {
     }
 
     /**
-     * Change package name of 'b' to 'bc' and run 'x' package. This should print 'Print A from Home'.The 'b' package
+     * Change module name of 'b' to 'bc' and run 'x' module. This should print 'Print A from Home'.The 'b' module
      * should be resolved from project repository.
-     * @throws IOException Error when modifying the package name.
+     * @throws IOException Error when modifying the module name.
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Change content in package 'x' function", dependsOnMethods = "testRunningModifiedPackageX")
-    public void testRunningWithPackageBFromProjectRepo() throws IOException, BallerinaTestException {
+    @Test(description = "Change content in module 'x' function", dependsOnMethods = "testRunningModifiedModuleX")
+    public void testRunningWithModuleBFromProjectRepo() throws IOException, BallerinaTestException {
         Files.copy(tempProjectDirectory.resolve("b"), tempProjectDirectory.resolve("bc"));
         FileUtils.deleteDirectory(tempProjectDirectory.resolve("b").toFile());
 
@@ -155,14 +155,14 @@ public class RepoHierarchyTestCase extends BaseTest {
     }
 
     /**
-     * Remove the project repository and run 'x' package. This should print 'Print A from Home'.The 'b' package
+     * Remove the project repository and run 'x' module. This should print 'Print A from Home'.The 'b' module
      * should be resolved from home repository.
      * @throws IOException Error when removing project repo.
      * @throws BallerinaTestException When an error occurs executing the command.
      */
-    @Test(description = "Change content in package 'x' function",
-          dependsOnMethods = "testRunningWithPackageBFromProjectRepo")
-    public void testRunningWithPackageBFromProjectHome() throws IOException, BallerinaTestException {
+    @Test(description = "Change content in module 'x' function",
+          dependsOnMethods = "testRunningWithModuleBFromProjectRepo")
+    public void testRunningWithModuleBFromProjectHome() throws IOException, BallerinaTestException {
         FileUtils.deleteDirectory(tempProjectDirectory.resolve(".ballerina").resolve("repo").toFile());
 
         String outputMessage = "Print A from Home";

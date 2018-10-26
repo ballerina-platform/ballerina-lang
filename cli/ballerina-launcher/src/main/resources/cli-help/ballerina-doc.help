@@ -4,16 +4,16 @@ NAME
 SYNOPSIS
     ballerina doc [-t|--template] [--sourceroot <path>] 
         [-o <path>|--output <path>] [-n|--native]
-        [-e <package, ...>|--exclude <package, ...>]
+        [-e <module, ...>|--exclude <module, ...>]
         [-c <path>|--config <path>] [-v|--verbose] [-e] 
-        [<balfile>|<packagename]
+        [<balfile>|<module-name]
 
 DESCRIPTION
      Ballerina doc command generates API documentation for a given 
-     program or package. 
+     program or module.
 
-     By default if no source or package name is given, it will generate 
-     API documentation for all the packages in the current project
+     By default if no source or module name is given, it will generate
+     API documentation for all the modules in the current project
      folder. 
 
      The default output location of API docs is a folder named 
@@ -26,7 +26,7 @@ OPTIONS
          to format the generated API documentation.
   
      --sourceroot <path>     
-         Path to the directory containing source files and packages.
+         Path to the directory containing source files and modules.
 
      -o <path>
      --output <path>
@@ -37,9 +37,9 @@ OPTIONS
      --native
          Reads the source as native Ballerina code. 
 
-     -e <package, ...>
-     --exclude <package, ...>
-         Comma-separated list of package names to be excluded from 
+     -e <module, ...>
+     --exclude <module, ...>
+         Comma-separated list of module names to be excluded from
          generated documentation. 
 
      -c <path>
@@ -61,7 +61,7 @@ OPTIONS
          If multiple parameters need to be provided, each parameter
          has to be specified using its own -e flag. Details of the
          environment parameters that the Ballerina standard library
-         packages support can be found in the relevant API
+         modules support can be found in the relevant API
          documentation.
 
 EXAMPLES
@@ -75,5 +75,5 @@ EXAMPLES
      output to docs folder
      $ ballerina doc -o docs hello_service.bal 
 
-     Generate API documentation for math package  
+     Generate API documentation for math module
      $ ballerina doc math

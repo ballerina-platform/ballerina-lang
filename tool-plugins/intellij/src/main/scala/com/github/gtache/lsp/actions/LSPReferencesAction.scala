@@ -1,6 +1,7 @@
 package com.github.gtache.lsp.actions
 
 import com.github.gtache.lsp.editor.EditorEventManager
+import com.github.gtache.lsp.utils.ApplicationUtils.invokeLater
 import com.intellij.find.FindBundle
 import com.intellij.find.findUsages.{FindUsagesOptions, PsiElement2UsageTargetAdapter}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
@@ -29,24 +30,12 @@ class LSPReferencesAction extends DumbAwareAction {
         val elem = ut.getElement
         new UsageInfo(elem, -1, -1, false)
       })
-
-      val presentation = createPresentation(targets.head.getElement, new FindUsagesOptions(editor.getProject), toOpenInNewTab = false)
-      /*val factory = new Factory[UsageSearcher] {
-        override def create(): UsageSearcher = {
-          new UsageSearcher {
-            override def generate(processor: Processor[Usage]): Unit = {
-              processor.process()
-            }
-          }
-        }
+      if (targets.nonEmpty) {
+        invokeLater(() => {
+          val presentation = createPresentation(targets.head.getElement, new FindUsagesOptions(editor.getProject), toOpenInNewTab = false)
+          new UsageViewManagerImpl(editor.getProject).showUsages(Array(targets.head), usageInfo.map(ui => new UsageInfo2UsageAdapter(ui)).toArray, presentation)
+        })
       }
-      new UsageViewImpl(editor.getProject,
-        createPresentation(targets.head.getElement, new FindUsagesOptions(editor.getProject),toOpenInNewTab = false),
-        targets.toArray,
-        null
-      )*/
-
-      new UsageViewManagerImpl(editor.getProject).showUsages(Array(targets.head), usageInfo.map(ui => new UsageInfo2UsageAdapter(ui)).toArray, presentation)
     }
   }
 

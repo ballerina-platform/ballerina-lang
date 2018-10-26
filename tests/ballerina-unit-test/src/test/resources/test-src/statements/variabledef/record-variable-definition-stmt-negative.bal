@@ -99,3 +99,26 @@ function testVariableAssignment2() {
     format = true;
     married = "A";
 }
+
+type UnionOne record {
+    boolean var1;
+    int var2;
+    float var3;
+};
+
+type UnionTwo record {
+    int var1;
+    float var2;
+};
+
+type UnionThree record {
+    int var1;
+    float var2;
+    UnionOne|UnionTwo var3;
+};
+
+function testRecordVarWithUnionType() {
+    UnionOne u1 = {var1: false, var2: 12, restP1: "stringP1", restP2: true};
+    UnionThree u3 = {var1: 50, var2: 51.1, var3: u1};
+    UnionThree {var1, var2, var3: {var1: var3, var2: var4}, ...rest} = u3;
+}

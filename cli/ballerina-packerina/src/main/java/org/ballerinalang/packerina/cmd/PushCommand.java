@@ -33,7 +33,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = PUSH_COMMAND, description = "push package source and binaries available locally to "
+@CommandLine.Command(name = PUSH_COMMAND, description = "push modules and binaries available locally to "
         + "Ballerina Central")
 public class PushCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
@@ -51,7 +51,7 @@ public class PushCommand implements BLauncherCmd {
     private String repositoryHome;
 
     @CommandLine.Option(names = {"--sourceroot"},
-            description = "path to the directory containing source files and packages")
+            description = "path to the directory containing source files and modules")
     private String sourceRoot;
 
     @CommandLine.Option(names = {"--no-build"}, description = "skip building before pushing")
@@ -88,12 +88,12 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("push packages to the ballerina central repository");
+        out.append("push modules to the ballerina central repository");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina push <package-name> \n");
+        out.append("  ballerina push <module-name> \n");
     }
 
     @Override

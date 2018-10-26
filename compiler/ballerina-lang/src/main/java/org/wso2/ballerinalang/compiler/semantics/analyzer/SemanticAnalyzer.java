@@ -138,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -186,6 +185,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
+    private static final String AGGREGATOR_OBJECT_NAME = "Aggregator";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -202,7 +202,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
-    private boolean isWindowAvailable;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
@@ -242,9 +241,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
-                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        pkgNode.topLevelNodes.stream()
+                             .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
+                                     ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+                             .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -255,10 +255,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
 
-        analyzeDef(pkgNode.initFunction, pkgEnv);
-        analyzeDef(pkgNode.startFunction, pkgEnv);
-        analyzeDef(pkgNode.stopFunction, pkgEnv);
-
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
@@ -344,6 +341,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         objectTypeNode.fields.forEach(field -> analyzeDef(field, env));
         objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
+
+        // Validate the referenced functions that don't have implementations within the function.
+        ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
+                .forEach(func -> validateReferencedFunction(objectTypeNode.pos, func, env));
 
         if (objectTypeNode.initFunction == null) {
             return;
@@ -604,7 +605,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void validateRecordVariable(BLangRecordVariable recordVar) {
         if (recordVar.type.tag != TypeTags.RECORD) {
-            dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN);
+            dlog.error(recordVar.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
             return;
         }
 
@@ -623,7 +624,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
-
             boolean foundMatch = false;
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
@@ -638,8 +638,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (!foundMatch) {
-                dlog.error(recordVar.pos,
-                        DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, variable.getKey().getValue(), recordVar.type);
+                dlog.error(recordVar.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
+                        variable.getKey().getValue(), recordVar.type);
                 return;
             }
         }
@@ -692,42 +692,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariableDef tupleVariableDef) {
         analyzeDef(tupleVariableDef.var, env);
-    }
-
-    public void visit(BLangPostIncrement postIncrement) {
-        BLangExpression varRef = postIncrement.varRef;
-        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
-            if (postIncrement.opKind == OperatorKind.ADD) {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_ALLOWED_VARIABLE,
-                        OperatorKind.INCREMENT, varRef);
-            } else {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_ALLOWED_VARIABLE,
-                        OperatorKind.DECREMENT, varRef);
-            }
-            return;
-        } else {
-            this.typeChecker.checkExpr(varRef, env);
-        }
-        this.typeChecker.checkExpr(postIncrement.increment, env);
-        if (varRef.type == symTable.intType || varRef.type == symTable.floatType) {
-            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(postIncrement.opKind, varRef.type,
-                    postIncrement.increment.type);
-            postIncrement.modifiedExpr = getBinaryExpr(varRef,
-                    postIncrement.increment,
-                    postIncrement.opKind,
-                    opSymbol);
-        } else {
-            if (postIncrement.opKind == OperatorKind.ADD) {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
-                        OperatorKind.INCREMENT, varRef.type);
-            } else {
-                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
-                        OperatorKind.DECREMENT, varRef.type);
-            }
-        }
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
@@ -1173,6 +1137,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateDefaultable(BLangRecordTypeNode recordTypeNode) {
         boolean defaultableStatus = true;
         for (BLangSimpleVariable field : recordTypeNode.fields) {
+            if (field.flagSet.contains(Flag.OPTIONAL) && field.expr != null) {
+                dlog.error(field.pos, DiagnosticCode.DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS, field.name.value);
+            }
             if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
@@ -1634,10 +1601,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWindow windowClause) {
-        isWindowAvailable = true;
-        ExpressionNode expressionNode = windowClause.getFunctionInvocation();
-        ((BLangExpression) expressionNode).accept(this);
-        isWindowAvailable = false;
+        //do nothing
     }
 
     @Override
@@ -1647,7 +1611,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
         if (!isSiddhiRuntimeEnabled) {
-            if ((isGroupByAvailable || isWindowAvailable)) {
+            if ((isGroupByAvailable)) {
                 for (BLangExpression arg : invocationExpr.argExprs) {
                     typeChecker.checkExpr(arg, env);
                     switch (arg.getKind()) {
@@ -1743,8 +1707,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
         if (!isSiddhiRuntimeEnabled) {
-            if (isGroupByAvailable && expressionNode.getKind() == NodeKind.INVOCATION) {
-                ((BLangExpression) expressionNode).accept(this);
+            if (expressionNode.getKind() == NodeKind.INVOCATION) {
+                BLangInvocation invocation = (BLangInvocation) expressionNode;
+                BSymbol invocationSymbol = symResolver.
+                        resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
+                        scope.lookup(new Name(invocation.name.value)).symbol;
+                BSymbol aggregatorSymbol = symResolver.
+                        resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
+                        scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol;
+
+                if (invocationSymbol != null && invocationSymbol.type.getReturnType().tsymbol != aggregatorSymbol) {
+                    this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+                }
             } else {
                 this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
             }
@@ -2286,7 +2260,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * Validate functions attached to objects.
      *
      * @param funcNode Function node
-     * @return True if the function is an unimplemented method inside a non-abstract object.
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
@@ -2307,7 +2280,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // If the function is attached to an abstract object, it don't need to have an implementation
+        // If the function is attached to an abstract object, it don't need to have an implementation.
         if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
             if (funcNode.body != null) {
                 dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
@@ -2316,10 +2289,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // There must be an implementation at the outer level, if the function is an interface
+        // There must be an implementation at the outer level, if the function is an interface.
         if (funcNode.interfaceFunction && !env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
                     funcNode.receiver.type);
+        }
+    }
+
+    private void validateReferencedFunction(DiagnosticPos pos, BAttachedFunction func, SymbolEnv env) {
+        if (Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.ABSTRACT)) {
+            return;
+        }
+
+        if (!Symbols.isFlagOn(func.symbol.flags, Flags.INTERFACE)) {
+            return;
+        }
+
+        // There must be an implementation at the outer level, if the function is an interface.
+        if (!env.enclPkg.objAttachedFunctions.contains(func.symbol)) {
+            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, func.funcName,
+                    func.symbol.receiverSymbol.type);
         }
     }
 }

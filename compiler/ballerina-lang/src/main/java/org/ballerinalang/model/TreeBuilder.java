@@ -112,7 +112,6 @@ import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementStaticBindingPatternNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementTypedBindingPatternNode;
-import org.ballerinalang.model.tree.statements.PostIncrementNode;
 import org.ballerinalang.model.tree.statements.RecordDestructureNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
@@ -153,6 +152,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -236,7 +236,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -278,6 +277,10 @@ public class TreeBuilder {
 
     public static PackageNode createPackageNode() {
         return new BLangPackage();
+    }
+
+    public static BLangTestablePackage createTestablePackageNode() {
+        return new BLangTestablePackage();
     }
 
     public static IdentifierNode createIdentifierNode() {
@@ -506,10 +509,6 @@ public class TreeBuilder {
 
     public static CompoundAssignmentNode createCompoundAssignmentNode() {
         return new BLangCompoundAssignment();
-    }
-
-    public static PostIncrementNode createPostIncrementNode() {
-        return new BLangPostIncrement();
     }
 
     public static AbortNode createAbortNode() {

@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.tree.NodeKind;
 import org.eclipse.lsp4j.CompletionItem;
@@ -117,23 +116,17 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
     
     private void fillFunctionSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
         CompletionItem functionSignatureItem = new CompletionItem();
-        functionSignatureItem.setLabel(ItemResolverConstants.FUNCTION_SIGNATURE);
-        Snippet.DEF_FUNCTION_SIGNATURE.getBlock().populateCompletionItem(functionSignatureItem, snippetCapability);
-        functionSignatureItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        Snippet.DEF_FUNCTION_SIGNATURE.get().build(functionSignatureItem, snippetCapability);
         completionItems.add(functionSignatureItem);
         
         CompletionItem functionItem = new CompletionItem();
-        functionItem.setLabel(ItemResolverConstants.FUNCTION);
-        Snippet.DEF_FUNCTION.getBlock().populateCompletionItem(functionItem, snippetCapability);
-        functionItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        Snippet.DEF_FUNCTION.get().build(functionItem, snippetCapability);
         completionItems.add(functionItem);
     }
     
     private void fillInitializerSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
         CompletionItem constructorItem = new CompletionItem();
-        constructorItem.setLabel(ItemResolverConstants.NEW_OBJECT_CONSTRUCTOR_TYPE);
-        Snippet.DEF_NEW_OBJECT_CONSTRUCTOR.getBlock().populateCompletionItem(constructorItem, snippetCapability);
-        constructorItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        Snippet.DEF_NEW_OBJECT_CONSTRUCTOR.get().build(constructorItem, snippetCapability);
         completionItems.add(constructorItem);
     }
 }

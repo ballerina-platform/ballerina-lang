@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Desugar annotations into executable entries.
@@ -51,6 +50,7 @@ public class AnnotationDesugar {
 
     private static final String ANNOTATION_DATA = "$annotation_data";
     private static final String DOT = ".";
+    private BLangSimpleVariable annotationMap;
 
     private static final CompilerContext.Key<AnnotationDesugar> ANNOTATION_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -72,13 +72,19 @@ public class AnnotationDesugar {
         this.names = Names.getInstance(context);
     }
 
+    /**
+     * Initialize annotation map.
+     *
+     * @param pkgNode package node
+     */
+    void initializeAnnotationMap(BLangPackage pkgNode) {
+        annotationMap = createGlobalAnnotationMapVar(pkgNode);
+    }
+
     protected void rewritePackageAnnotations(BLangPackage pkgNode) {
         BLangFunction initFunction = pkgNode.initFunction;
 
-        // This is the variable which store all package level annotations.
-        BLangSimpleVariable annotationMap = createGlobalAnnotationMapVar(pkgNode);
-
-        // handle Service Annotations.
+        // Handle service annotations
         for (BLangService service : pkgNode.services) {
             generateAnnotations(service, service.name.value, initFunction, annotationMap);
             for (BLangResource resource : service.resources) {
@@ -86,7 +92,21 @@ public class AnnotationDesugar {
                 generateAnnotations(resource, key, initFunction, annotationMap);
             }
         }
+
         // Handle Function Annotations.
+        handleFunctionAnnotations(pkgNode, initFunction, annotationMap);
+
+        // Handle Global Endpoint Annotations.
+        for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
+            generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
+        }
+
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
+        pkgNode.initFunction.body.stmts.add(returnStmt);
+    }
+
+    private void handleFunctionAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
+                                           BLangSimpleVariable annotationMap) {
         for (BLangFunction function : pkgNode.functions) {
             generateAnnotations(function, function.symbol.name.value, initFunction, annotationMap);
         }
@@ -110,13 +130,6 @@ public class AnnotationDesugar {
                 }
             }
         }
-
-        for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
-            generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
-        }
-
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target,
@@ -132,16 +145,9 @@ public class AnnotationDesugar {
     }
 
     private BLangSimpleVariable createGlobalAnnotationMapVar(BLangPackage pkgNode) {
-        DiagnosticPos pos = pkgNode.pos;
-        BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA,
-                symTable.mapType);
+        BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA, symTable.mapType);
         ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
         pkgNode.addGlobalVariable(annotationMap);
-
-        final BLangRecordLiteral recordLiteralNode = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
-        final BLangAssignment annMapAssignment = ASTBuilderUtil.createAssignmentStmt(pos, pkgNode.initFunction.body);
-        annMapAssignment.expr = recordLiteralNode;
-        annMapAssignment.setVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
         return annotationMap;
     }
 

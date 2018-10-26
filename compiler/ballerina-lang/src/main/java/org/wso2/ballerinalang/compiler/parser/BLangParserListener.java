@@ -469,9 +469,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startVarList();
-        this.pkgBuilder.startObjFunctionList();
-        this.pkgBuilder.startFieldBlockList();
+        this.pkgBuilder.startObjectType();
     }
 
     /**
@@ -491,6 +489,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, isAbstract);
+    }
+
+    @Override
+    public void exitTypeReference(BallerinaParser.TypeReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addTypeReference(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -547,8 +554,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
+        boolean isOptional = ctx.QUESTION_MARK() != null;
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
-                ctx.annotationAttachment().size(), false);
+                                         ctx.annotationAttachment().size(), false, isOptional);
     }
 
     /**
@@ -1096,6 +1104,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTableColumnDefinition(BallerinaParser.TableColumnDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.endTableColumnDefinition(getWS(ctx));
+    }
+
+    @Override
     public void exitTableColumn(BallerinaParser.TableColumnContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1104,11 +1120,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean keyColumn = ctx.PRIMARYKEY() != null;
         if (keyColumn) {
             columnName = ctx.getChild(1).getText();
-            this.pkgBuilder.addTableColumn(columnName);
+            this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
             this.pkgBuilder.markPrimaryKeyColumn(columnName);
         } else {
-            this.pkgBuilder.addTableColumn(columnName);
+            this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
         }
+    }
+
+    @Override
+    public void exitTableDataArray(BallerinaParser.TableDataArrayContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endTableDataArray(getWS(ctx));
     }
 
     @Override
@@ -1117,7 +1142,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (ctx.expressionList() != null) {
-            this.pkgBuilder.endTableDataRow();
+            this.pkgBuilder.endTableDataRow(getWS(ctx));
         }
     }
 
@@ -1194,7 +1219,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (KEYWORD_PUBLIC.equals(ctx.getChild(0).getText())) {
-            this.pkgBuilder.markLastEndpointAsPublic();
+            this.pkgBuilder.markLastEndpointAsPublic(getWS(ctx));
         }
     }
 
@@ -1260,19 +1285,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addCompoundOperator(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addPostIncrementStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.postArithmeticOperator().getText().substring(0, 1));
     }
 
     @Override
@@ -2296,25 +2308,32 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Object value;
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
         if (integerLiteralContext != null && (value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value, ctx.getText());
         } else if (ctx.floatingPointLiteral() != null) {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)),
+                                                node.getText());
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT,
-                        Double.parseDouble(getHexNodeValue(ctx, node)));
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getHexNodeValue(ctx, node)),
+                                                node.getText());
             }
         } else if ((node = ctx.BooleanLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()));
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()),
+                                            node.getText());
         } else if ((node = ctx.QuotedStringLiteral()) != null) {
             String text = node.getText();
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
         } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "null");
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
+        } else if ((node = ctx.SymbolicStringLiteral()) != null) {
+            String text = node.getText();
+            text = text.substring(1, text.length());
+            text = StringEscapeUtils.unescapeJava(text);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
         }
     }
 

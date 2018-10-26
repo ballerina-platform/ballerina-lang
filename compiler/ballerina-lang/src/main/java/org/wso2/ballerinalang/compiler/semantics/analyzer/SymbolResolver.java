@@ -358,7 +358,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // Lookup for an imported package
         BSymbol pkgSymbol = lookupSymbol(env, pkgAlias, symTag);
         if (pkgSymbol == symTable.notFoundSymbol) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_PACKAGE, pkgAlias.value);
+            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
         }
 
         return pkgSymbol;
@@ -733,33 +733,26 @@ public class SymbolResolver extends BLangNodeVisitor {
         // 2) lookup the typename in the package scope returned from step 1.
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
-        BSymbol pkgSymbol = resolvePkgSymbol(userDefinedTypeNode.pos, this.env,
-                names.fromIdNode(userDefinedTypeNode.pkgAlias));
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            resultType = symTable.errType;
-            return;
-        }
-
+        Name pkgAlias = names.fromIdNode(userDefinedTypeNode.pkgAlias);
         Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
         BSymbol symbol = symTable.notFoundSymbol;
 
-        // 2) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
+        // 1) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
         // Only valued types and ANNOTATION type allowed.
         if (env.scope.owner.tag == SymTag.ANNOTATION) {
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                    this.env, typeName, SymTag.ANNOTATION);
+            symbol = lookupSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName, SymTag.ANNOTATION);
         }
 
-        // 3) Lookup the current package scope.
+        // 2) Resolve the package scope using the package alias.
+        //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                    this.env, typeName, SymTag.VARIABLE_NAME);
+            symbol = lookupSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName, SymTag.VARIABLE_NAME);
         }
 
         if (symbol == symTable.notFoundSymbol) {
-            // 4) Lookup the root scope for types such as 'error'
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope,
-                    this.env, typeName, SymTag.VARIABLE_NAME);
+            // 3) Lookup the root scope for types such as 'error'
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName,
+                                        SymTag.VARIABLE_NAME);
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
@@ -777,7 +770,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         List<BType> paramTypes = new ArrayList<>();
-        functionTypeNode.getParamTypeNode().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t, env)));
+        functionTypeNode.getParams().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t.getTypeNode(), env)));
         BType retParamType = resolveTypeNode(functionTypeNode.returnTypeNode, this.env);
         resultType = new BInvokableType(paramTypes, retParamType, null);
     }

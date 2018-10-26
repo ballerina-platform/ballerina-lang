@@ -127,7 +127,7 @@ public class FileUtils {
         filesToBeArchived.forEach((path) -> {
             String fileName = path.getFileName().toString();
             Path dest = zipFS.getPath(SRC_DIR, fileName);
-            if (fileName.equals("Package.md")) {
+            if (fileName.equals("Module.md")) {
                 dest = zipFS.getPath(zipFS.getSeparator(), fileName);
             }
             try {

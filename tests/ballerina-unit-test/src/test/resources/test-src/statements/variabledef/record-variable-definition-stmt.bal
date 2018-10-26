@@ -97,6 +97,7 @@ function defineThreeRecordVariables() returns (string, int) {
     int intAddition = theAge1 + theAge2 + theAge3;
     return (stringAddition, intAddition);
 }
+
 function recordVariableWithRHSInvocation() returns string {
     Person {name: fName, married} = getPersonRecord();
     string name = fName + " Jill";
@@ -226,4 +227,28 @@ function testRecordInsideTupleInsideRecord2WithVar() returns (string, int, int, 
     Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
     var {namesOfChildren, children, child: {name, yearAndAge: (yearInt, {age, format})}} = parent;
     return (name, yearInt, age, format);
+}
+
+type UnionOne record {
+    boolean var1;
+    int var2;
+    float var3;
+};
+
+type UnionTwo record {
+    int var1;
+    float var2;
+};
+
+type UnionThree record {
+    int var1;
+    float var2;
+    UnionOne|UnionTwo var3;
+};
+
+function testRecordVarWithUnionType() returns (int, float, (UnionOne|UnionTwo)) {
+    UnionOne u1 = {var1: false, var2: 12, restP1: "stringP1", restP2: true};
+    UnionThree u3 = {var1: 50, var2: 51.1, var3: u1};
+    UnionThree {var1, var2, var3, ...rest} = u3;
+    return (var1, var2, var3);
 }

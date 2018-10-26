@@ -55,7 +55,7 @@ public type LoadBalanceClient object {
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
-# + algorithm - The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
+# + algorithm - The algorithm to be used for load balancing. The HTTP module provides 'roundRobin()' by default
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {
     CircuitBreakerConfig? circuitBreaker;

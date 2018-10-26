@@ -36,12 +36,15 @@ public class BallerinaStreamsV2JoinTest {
 
     private CompileResult result;
     private CompileResult resultWithAlias;
+    private CompileResult resultWithoutOnCondition;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-join-test.bal");
         resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-join-test.bal");
+        resultWithoutOnCondition = BCompileUtil.
+                compile("test-src/streaming/streamingv2-join-without-on-condition-test.bal");
     }
 
     @Test(description = "Test stream join query.")
@@ -76,5 +79,26 @@ public class BallerinaStreamsV2JoinTest {
 
         Assert.assertEquals(stock2.get("symbol").stringValue(), "WSO2");
         Assert.assertEquals(((BFloat) stock2.get("price")).floatValue(), 58.6);
+    }
+
+    @Test(description = "Test stream join query without on condition.")
+    public void testStreamJoinQueryWithoutOnCondition() {
+        System.setProperty("enable.siddhiRuntime", "true");
+        BValue[] stocksWithPrices = BRunUtil.invoke(resultWithoutOnCondition, "startJoinQuery");
+        Assert.assertNotNull(stocksWithPrices);
+        Assert.assertEquals(stocksWithPrices.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> stock1 = (BMap<String, BValue>) stocksWithPrices[0];
+        BMap<String, BValue> stock2 = (BMap<String, BValue>) stocksWithPrices[1];
+        BMap<String, BValue> stock3 = (BMap<String, BValue>) stocksWithPrices[2];
+
+        Assert.assertEquals(stock1.get("symbol").stringValue(), "WSO2");
+        Assert.assertEquals(((BFloat) stock1.get("price")).floatValue(), 55.6);
+
+        Assert.assertEquals(stock2.get("symbol").stringValue(), "MBI");
+        Assert.assertEquals(((BFloat) stock2.get("price")).floatValue(), 74.6);
+
+        Assert.assertEquals(stock3.get("symbol").stringValue(), "WSO2");
+        Assert.assertEquals(((BFloat) stock3.get("price")).floatValue(), 58.6);
     }
 }

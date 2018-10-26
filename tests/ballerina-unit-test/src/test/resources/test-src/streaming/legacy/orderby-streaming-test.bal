@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Employee record {
     string name;
@@ -74,7 +73,7 @@ function startOrderBy() returns (Employee[]) {
     }
 
     while (lengthof globalEmployeeArray != 10 || index < 20) {
-        index++;
+        index += 1;
         runtime:sleep(500);
     }
 
@@ -134,7 +133,7 @@ function startOrderBy2() returns (Employee[]) {
     }
 
     while (lengthof globalEmployeeArray2 != 10 || index < 20) {
-        index++;
+        index += 1;
         runtime:sleep(500);
     }
 
@@ -193,7 +192,7 @@ function startOrderBy3() returns (Employee[]) {
     }
 
     while (lengthof globalEmployeeArray3 != 10 || index < 20) {
-        index++;
+        index += 1;
         runtime:sleep(500);
     }
 
@@ -252,7 +251,7 @@ function startOrderBy4() returns (Employee[]) {
     }
 
     while (lengthof globalEmployeeArray4 != 10 || index < 20) {
-        index++;
+        index += 1;
         runtime:sleep(500);
     }
 
@@ -311,7 +310,7 @@ function startOrderBy5() returns (Employee[]) {
     }
 
     while (lengthof globalEmployeeArray5 != 10 || index < 20) {
-        index++;
+        index += 1;
         runtime:sleep(500);
     }
 
