@@ -1491,7 +1491,7 @@ public class BLangPackageBuilder {
                      boolean isTypeAvailable) {
         BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, isTypeAvailable);
         attachAnnotations(constantNode);
-        constantNode.flagSet.add(Flag.CONST);
+        constantNode.flagSet.add(Flag.CONSTANT);
         if (isPublic) {
             constantNode.flagSet.add(Flag.PUBLIC);
         }
