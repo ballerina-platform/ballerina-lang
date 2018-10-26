@@ -168,8 +168,8 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setServerName(serverName);
     }
 
-    public void setPipeliningNeeded(boolean pipeliningNeeded) {
-        httpServerChannelInitializer.setPipeliningNeeded(pipeliningNeeded);
+    public void setPipeliningEnabled(boolean pipeliningEnabled) {
+        httpServerChannelInitializer.setPipeliningEnabled(pipeliningEnabled);
     }
 
     public void setPipeliningLimit(long pipeliningLimit) {

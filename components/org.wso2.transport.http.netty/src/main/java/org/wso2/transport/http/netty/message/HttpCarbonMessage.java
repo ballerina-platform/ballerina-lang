@@ -66,7 +66,7 @@ public class HttpCarbonMessage {
     private ChannelHandlerContext targetContext;
     private HttpPipeliningFuture pipeliningFuture;
     private boolean keepAlive;
-    private boolean pipeliningNeeded;
+    private boolean pipeliningEnabled;
     private boolean passthrough = false;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
@@ -434,12 +434,12 @@ public class HttpCarbonMessage {
         this.keepAlive = keepAlive;
     }
 
-    public boolean isPipeliningNeeded() {
-        return pipeliningNeeded;
+    public boolean isPipeliningEnabled() {
+        return pipeliningEnabled;
     }
 
-    public void setPipeliningNeeded(boolean pipeliningNeeded) {
-        this.pipeliningNeeded = pipeliningNeeded;
+    public void setPipeliningEnabled(boolean pipeliningEnabled) {
+        this.pipeliningEnabled = pipeliningEnabled;
     }
 
     public HttpPipeliningFuture getPipeliningFuture() {

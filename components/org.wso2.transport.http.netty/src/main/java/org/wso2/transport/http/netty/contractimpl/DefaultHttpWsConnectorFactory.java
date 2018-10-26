@@ -95,10 +95,10 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addKeepAliveBehaviour(listenerConfig.getKeepAliveConfig());
         serverConnectorBootstrap.addServerHeader(listenerConfig.getServerHeader());
 
-        serverConnectorBootstrap.setPipeliningNeeded(listenerConfig.isPipeliningNeeded());
+        serverConnectorBootstrap.setPipeliningEnabled(listenerConfig.isPipeliningEnabled());
         serverConnectorBootstrap.setPipeliningLimit(listenerConfig.getPipeliningLimit());
 
-        if (listenerConfig.isPipeliningNeeded()) {
+        if (listenerConfig.isPipeliningEnabled()) {
             pipeliningGroup = new DefaultEventExecutorGroup(PIPELINING_THREAD_COUNT, new DefaultThreadFactory(
                     PIPELINING_THREAD_POOL_NAME));
             serverConnectorBootstrap.setPipeliningThreadGroup(pipeliningGroup);
