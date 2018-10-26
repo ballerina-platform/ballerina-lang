@@ -47,12 +47,13 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
         super(props);
     }
     render() {
-        const { trace, trace: { headers = '' } } = this.props;
+        const trace = this.props.trace;
+        const headers = trace.message.headers || '';
         const payload = trace.message.payload;
         const headersArray = headers.split('\n');
 
         return (
-            <Segment className='detail-view' inverted>
+            <Segment inverted padded compact>
                 <code>
                     <pre>
                         {headersArray.map((header: string, index: number) => {
