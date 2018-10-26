@@ -130,22 +130,22 @@
                     {
                         "type": "ballerina",
                         "request": "launch",
-                        "name": "Ballerina Debug",
+                        "name": "Ballerina",
                         "script": "${file}"
                     },
                     {
                         "type": "ballerina",
-                        "request": "attach",
-                        "name": "Ballerina Remote Debug",
-                        "host": "127.0.0.1",
-                        "port": 5000
+                        "request": "launch",
+                        "name": "Ballerina Test",
+                        "script": "${file}",
+                        "debugTests": true
                     },
                     {
                         "type": "ballerina",
-                        "request": "launch",
-                        "name": "Ballerina Debug Tests",
-                        "script": "${file}",
-                        "debugTests": true
+                        "request": "attach",
+                        "name": "Ballerina Remote",
+                        "host": "127.0.0.1",
+                        "port": 5000
                     }
                 ]
             }
