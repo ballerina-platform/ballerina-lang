@@ -159,7 +159,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for not a folder situation.", enabled = false)
+    @Test(description = "Check the negative test for not a folder situation.")
     public void testNegativeNotDirectory() {
         try {
             Files.createFile(Paths.get("target", "fs", "file.txt"));
@@ -167,20 +167,20 @@ public class DirectoryListenerConnectorTest {
                     .compileAndSetup("test-src/file/file-system-negative-not-folder.bal");
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(146, 193);
-            String expectedErrorMsg = "unable to find a directory : target/fs/file.txt";
+            String actualMsg = e.getMessage().substring(114, 160);
+            String expectedErrorMsg = "unable to find a directory: target/fs/file.txt";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid folder.");
         }
     }
 
-    @Test(description = "Check the negative test for folder not exist.", enabled = false)
+    @Test(description = "Check the negative test for folder not exist.")
     public void testNegativeDirectoryNotExist() {
         try {
             final CompileResult compileResult = BCompileUtil
                     .compileAndSetup("test-src/file/file-system-negative-folder-exist.bal");
             BServiceUtil.runService(compileResult);
         } catch (BLangRuntimeException e) {
-            String actualMsg = e.getMessage().substring(148, 186);
+            String actualMsg = e.getMessage().substring(116, 154);
             String expectedErrorMsg = "folder does not exist: hello/ballerina";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for non-exist folder.");
         }
