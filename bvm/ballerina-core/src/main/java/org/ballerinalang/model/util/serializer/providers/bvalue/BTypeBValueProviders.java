@@ -19,6 +19,7 @@ package org.ballerinalang.model.util.serializer.providers.bvalue;
 
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BType;
@@ -26,6 +27,7 @@ import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -200,6 +202,8 @@ public class BTypeBValueProviders {
         private static final String PACKAGE_PATH = "packagePath";
         private static final String TYPE_NAME = "typeName";
         private static final String FLAGS = "flags";
+        private static final String REST_FIELD_TYPE = "restFieldType";
+        private static final String CLOSED = "closed";
 
         @Override
         public Class<?> getType() {
@@ -219,13 +223,14 @@ public class BTypeBValueProviders {
             int restFieldSignatureCPIndex = recType.recordTypeInfo.getRestFieldSignatureCPIndex();
             String restFieldTypeSignature = recType.recordTypeInfo.getRestFieldTypeSignature();
 
-            BPacket packet = BPacket.from(typeName(), null);
-            packet.put(PACKAGE_PATH, new BString(packagePath));
-            packet.put(TYPE_NAME, new BString(typeName));
+            BPacket packet = BPacket.from(typeName(), serializer.toBValue(recType.getFields(), null));
+            packet.putString(PACKAGE_PATH, packagePath);
+            packet.putString(TYPE_NAME, typeName);
             packet.put(FLAGS, new BInteger(flags));
             packet.put(REST_FIELD_SIGNATURE_CP_INDEX, new BInteger(restFieldSignatureCPIndex));
-            packet.put(REST_FIELD_TYPE_SIGNATURE, new BString(restFieldTypeSignature));
-
+            packet.putString(REST_FIELD_TYPE_SIGNATURE, restFieldTypeSignature);
+            packet.put(CLOSED, new BBoolean(recType.sealed));
+            packet.put(REST_FIELD_TYPE, serializer.toBValue(recType.restFieldType, null));
             return packet;
         }
 
@@ -236,14 +241,23 @@ public class BTypeBValueProviders {
             String pkgPath = packet.get(PACKAGE_PATH).stringValue();
             int flags = (int) ((BInteger) packet.get(FLAGS)).intValue();
             int cpIndex = (int) ((BInteger) packet.get(REST_FIELD_SIGNATURE_CP_INDEX)).intValue();
-            String typeSig = packet.get(REST_FIELD_TYPE_SIGNATURE).stringValue();
+            BBoolean closed = (BBoolean) packet.get(CLOSED);
 
             RecordTypeInfo recTypeInfo = new RecordTypeInfo();
             recTypeInfo.setRestFieldSignatureCPIndex(cpIndex);
-            recTypeInfo.setRestFieldTypeSignature(typeSig);
+            BValue restFieldTypeSig = packet.get(REST_FIELD_TYPE_SIGNATURE);
+            if (restFieldTypeSig != null) {
+                String typeSig = restFieldTypeSig.stringValue();
+                recTypeInfo.setRestFieldTypeSignature(typeSig);
+            }
 
             BRecordType bRecType = new BRecordType(recTypeInfo, typeName, pkgPath, flags);
+            bRecType.setFields((BField[]) bValueDeserializer.deserialize(packet.getValue(), BField[].class));
+
             recTypeInfo.setType(bRecType);
+            bRecType.restFieldType = (BType) bValueDeserializer.deserialize(packet.get(REST_FIELD_TYPE), BType.class);
+            bRecType.sealed = closed.booleanValue();
+
             return bRecType;
         }
     }

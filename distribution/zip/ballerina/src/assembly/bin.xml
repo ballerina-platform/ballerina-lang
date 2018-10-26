@@ -99,6 +99,7 @@
             <scope>runtime</scope>
             <includes>
                 <!-- stdlib dependencies -->
+                <include>org.ballerinalang:ballerina-auth:jar</include>
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
                 <include>org.ballerinalang:ballerina-config-api:jar</include>
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
