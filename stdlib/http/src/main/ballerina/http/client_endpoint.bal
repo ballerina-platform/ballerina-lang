@@ -340,7 +340,7 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
     var retryConfigVal = configuration.retryConfig;
     match retryConfigVal {
         RetryConfig retryConfig => {
-            boolean [] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
+            boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
             RetryInferredConfig retryInferredConfig = {
                 count: retryConfig.count,
                 interval: retryConfig.interval,

@@ -95,7 +95,6 @@ service<http:Service> mockStatusCodeService bind { port: 8080 } {
                 error e => log:printError("Error sending response from the service", err = e)
             };
         } else {
-            http:Response res = new;
             caller->respond("Hello World!!!") but {
                 error e => log:printError("Error sending response from the service", err = e)
             };

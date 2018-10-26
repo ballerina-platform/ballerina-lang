@@ -23,10 +23,10 @@ import java.util.Map;
 /**
  * Util class for formatting.
  */
-public class FormattingUtil {
+public class FormattingVisitorEntry {
     private FormattingVisitor visitor;
 
-    public FormattingUtil() {
+    public FormattingVisitorEntry() {
         this.visitor = new FormattingVisitor();
     }
 
@@ -42,12 +42,18 @@ public class FormattingUtil {
             if (!child.getKey().equals("parent") && !child.getKey().equals("position") &&
                     !child.getKey().equals("ws")) {
                 if (child.getValue().isJsonObject() && child.getValue().getAsJsonObject().has("kind")) {
-                    accept(child.getValue().getAsJsonObject());
+                    if (!(child.getValue().getAsJsonObject().has("skipFormatting") &&
+                            child.getValue().getAsJsonObject().get("skipFormatting").getAsBoolean())) {
+                        accept(child.getValue().getAsJsonObject());
+                    }
                 } else if (child.getValue().isJsonArray()) {
                     for (int i = 0; i < child.getValue().getAsJsonArray().size(); i++) {
                         JsonElement childItem = child.getValue().getAsJsonArray().get(i);
                         if (childItem.isJsonObject() && childItem.getAsJsonObject().has("kind")) {
-                            accept(childItem.getAsJsonObject());
+                            if (!(childItem.getAsJsonObject().has("skipFormatting") &&
+                                    childItem.getAsJsonObject().get("skipFormatting").getAsBoolean())) {
+                                accept(childItem.getAsJsonObject());
+                            }
                         }
                     }
                 }
