@@ -201,11 +201,11 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     private void onHeaderRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame) {
         int streamId = http2HeadersFrame.getStreamId();
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        boolean isServerPush = false;
+        boolean serverPush = false;
         if (outboundMsgHolder == null) {
             outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
             if (outboundMsgHolder != null) {
-                isServerPush = true;
+                serverPush = true;
             } else {
                 LOG.warn("Header Frame received on channel: {} with invalid stream id: {} ",
                         http2ClientChannel, streamId);
@@ -214,17 +214,17 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
         Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame,
-                outboundMsgHolder, isServerPush, http2MessageStateContext);
+                outboundMsgHolder, serverPush, http2MessageStateContext);
     }
 
     private void onDataRead(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame) {
         int streamId = http2DataFrame.getStreamId();
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        boolean isServerPush = false;
+        boolean serverPush = false;
         if (outboundMsgHolder == null) {
             outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
             if (outboundMsgHolder != null) {
-                isServerPush = true;
+                serverPush = true;
             } else {
                 LOG.warn("Data Frame received on channel: {} with invalid stream id: {}",
                         http2ClientChannel, streamId);
@@ -233,7 +233,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
         Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
         http2MessageStateContext.getSenderState().readInboundResponseBody(ctx, http2DataFrame,
-                outboundMsgHolder, isServerPush, http2MessageStateContext);
+                outboundMsgHolder, serverPush, http2MessageStateContext);
     }
 
     private void onPushPromiseRead(Http2PushPromise http2PushPromise) {

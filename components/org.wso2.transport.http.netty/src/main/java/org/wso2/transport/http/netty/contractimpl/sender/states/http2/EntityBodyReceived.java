@@ -59,18 +59,18 @@ public class EntityBodyReceived implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                           OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
         // When promised response message is going to be sent after the original response or previous promised responses
         // has been sent.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
-                isServerPush, http2MessageStateContext);
+                serverPush, http2MessageStateContext);
     }
 
     @Override
     public void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
-                                        OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                        OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                         Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseBody is not a dependant action of this state");
     }

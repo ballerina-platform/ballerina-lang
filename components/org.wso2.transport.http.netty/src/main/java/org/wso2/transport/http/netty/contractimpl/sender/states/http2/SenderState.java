@@ -56,11 +56,11 @@ public interface SenderState {
      * @param ctx                      the channel handler context
      * @param http2HeadersFrame        the HTTP/2 header frame
      * @param outboundMsgHolder        the outbound message holder
-     * @param isServerPush             is this a server push response or not
+     * @param serverPush               is this a server push response or not
      * @param http2MessageStateContext the message state context
      */
     void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
-                                    OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                    OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                     Http2MessageStateContext http2MessageStateContext);
 
     /**
@@ -69,11 +69,11 @@ public interface SenderState {
      * @param ctx                      the channel handler context
      * @param http2DataFrame           the HTTP/2 data frame
      * @param outboundMsgHolder        the outbound message holder
-     * @param isServerPush             is this a server push response or not
+     * @param serverPush               is this a server push response or not
      * @param http2MessageStateContext the message state context
      */
     void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
-                                 OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                 OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                  Http2MessageStateContext http2MessageStateContext);
 
     /**

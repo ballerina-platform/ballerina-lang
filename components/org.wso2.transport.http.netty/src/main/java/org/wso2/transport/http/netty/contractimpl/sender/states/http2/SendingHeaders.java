@@ -90,19 +90,19 @@ public class SendingHeaders implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                           OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
         // This is an action due to an application error. When the initial frames of the response is being received
         // before sending the complete request.
         outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
-                isServerPush, http2MessageStateContext);
+                serverPush, http2MessageStateContext);
     }
 
     @Override
     public void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
-                                        OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                        OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                         Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
     }

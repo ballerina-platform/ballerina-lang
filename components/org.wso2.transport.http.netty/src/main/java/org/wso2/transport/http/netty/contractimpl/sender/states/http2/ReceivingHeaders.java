@@ -84,14 +84,14 @@ public class ReceivingHeaders implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                           OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
-        onHeadersRead(ctx, http2HeadersFrame, outboundMsgHolder, isServerPush, http2MessageStateContext);
+        onHeadersRead(ctx, http2HeadersFrame, outboundMsgHolder, serverPush, http2MessageStateContext);
     }
 
     @Override
     public void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
-                                        OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                        OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                         Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseBody is not a dependant action of this state");
     }
@@ -102,13 +102,13 @@ public class ReceivingHeaders implements SenderState {
     }
 
     private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
-                               OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                               OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                Http2MessageStateContext http2MessageStateContext) {
         int streamId = http2HeadersFrame.getStreamId();
         Http2Headers http2Headers = http2HeadersFrame.getHeaders();
         boolean endOfStream = http2HeadersFrame.isEndOfStream();
 
-        if (isServerPush) {
+        if (serverPush) {
             onServerPushHeadersRead(ctx, outboundMsgHolder, streamId, endOfStream,
                     http2Headers, http2MessageStateContext);
         } else {

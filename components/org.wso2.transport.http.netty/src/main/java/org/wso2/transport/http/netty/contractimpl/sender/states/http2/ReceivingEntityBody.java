@@ -66,19 +66,19 @@ public class ReceivingEntityBody implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                           OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
         // When trailer headers are going to be received after receiving entity body of the response.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
-                isServerPush, http2MessageStateContext);
+                serverPush, http2MessageStateContext);
     }
 
     @Override
     public void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
-                                        OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                        OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                         Http2MessageStateContext http2MessageStateContext) {
-        onDataRead(http2DataFrame, outboundMsgHolder, isServerPush, http2MessageStateContext);
+        onDataRead(http2DataFrame, outboundMsgHolder, serverPush, http2MessageStateContext);
     }
 
     @Override
@@ -86,13 +86,13 @@ public class ReceivingEntityBody implements SenderState {
         LOG.warn("readInboundPromise is not a dependant action of this state");
     }
 
-    private void onDataRead(Http2DataFrame http2DataFrame, OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+    private void onDataRead(Http2DataFrame http2DataFrame, OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                             Http2MessageStateContext http2MessageStateContext) {
         int streamId = http2DataFrame.getStreamId();
         ByteBuf data = http2DataFrame.getData();
         boolean endOfStream = http2DataFrame.isEndOfStream();
 
-        if (isServerPush) {
+        if (serverPush) {
             onServerPushDataRead(outboundMsgHolder, streamId, endOfStream, data);
         } else {
             onResponseDataRead(outboundMsgHolder, streamId, endOfStream, data);
