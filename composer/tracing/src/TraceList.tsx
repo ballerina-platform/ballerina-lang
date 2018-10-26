@@ -63,7 +63,7 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
     render() {
         return (
             <div id='logs-console'>
-                <Table celled>
+                <Table celled inverted>
                     <Table.Header>
                         <Table.Row>
                             <Table.HeaderCell></Table.HeaderCell>

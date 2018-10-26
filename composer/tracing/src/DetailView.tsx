@@ -48,7 +48,7 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
     }
     render() {
         const { trace, trace: { headers = '' } } = this.props;
-        // const payload = trace.payload;
+        const payload = trace.message.payload;
         const headersArray = headers.split('\n');
 
         return (
@@ -73,16 +73,16 @@ export default class DetailView extends React.Component<DetailViewProps, DetailV
                     </pre>
                 </code>
                 {
-                    isJson(trace) ?
+                    trace.message.contentType === 'application/json' && isJson(payload) ?
                         <ReactJson
-                            src={trace}
+                            src={JSON.parse(payload)}
                             theme='eighties'
                             name={false}
                             displayDataTypes={false}
                             collapsed={1}
                             displayObjectSize={false}
                             style={{ marginTop: 10, background: 'inherit' }}
-                        /> : <code><pre>{trace.payload}</pre></code>
+                        /> : <code><pre>{trace.message.payload}</pre></code>
                 }
 
             </Segment>
