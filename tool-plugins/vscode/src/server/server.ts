@@ -18,60 +18,26 @@
  *
  */
 import * as path from 'path';
-import { sync } from 'glob';
 import { log } from '../utils/logger';
 import { ServerOptions } from 'vscode-languageclient';
-import { getPluginConfig } from '../utils/config';
-
-const libPath: string = '/bre/lib/*';
-const jrePath: string = '/bre/lib/jre*';
-const langServerLibPath: string = '/lib/tools/lang-server/lib/*';
-const main: string = 'org.ballerinalang.langserver.launchers.stdio.Main';
-
-function getClassPath(ballerinaHome: string): string {
-    const config = getPluginConfig();
-    const customClassPath: string | undefined = config.classpath;
-	// in windows class path seperated by ';'
-	const sep = process.platform === 'win32' ? ';' : ':';
-    let classpath = path.join(ballerinaHome, langServerLibPath) + sep + path.join(ballerinaHome, libPath);
-
-    if (customClassPath) {
-        classpath =  customClassPath + sep + classpath;
-    }
-    return classpath;
-}
-
-function getExcecutable(ballerinaHome: string) : string {
-    let excecutable : string = 'java';
-    const { JAVA_HOME } = process.env;
-    const files = sync(path.join(ballerinaHome, jrePath));
-
-    if (files[0]) {
-        log(`Using java from ballerina.home: ${files[0]}`);
-        excecutable = path.join(files[0], 'bin', 'java');
-    } else if (JAVA_HOME) {
-        log(`Using java from JAVA_HOME: ${JAVA_HOME}`);
-        excecutable = path.join(JAVA_HOME, 'bin', 'java');
-    }
-    return excecutable;
-}
+import { exec } from 'child_process';
 
 export function getServerOptions(ballerinaHome: string) : ServerOptions {
-    const config = getPluginConfig();
-    const args: string[] = ['-cp', getClassPath(ballerinaHome)];
+    log(`Using Ballerina installtion at ${ballerinaHome}`);
+    let cmd: string = process.platform === 'win32' 
+                            ? 'language-server-launcher.bat'
+                            : 'sh language-server-launcher.sh';
+    const cwd = path.join(ballerinaHome, 'lib', 'tools', 'lang-server', 'launcher');
     if (process.env.LSDEBUG === "true") {
-        log('LSDEBUG is set to "true". Services will run on debug mode');
-        args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
+        cmd += ' --debug';
+        log('Language Server is staring in debug mode');
     }
-
-    log(`Using ballerina from ballerina.home: ${ballerinaHome}`);
-
-    const balHomeSysProp = `-Dballerina.home=${ballerinaHome}`;
-    const balDebugLogSysProp = `-Dballerina.debugLog=${config.debugLog}`;
-    return {
-        command: getExcecutable(ballerinaHome),
-        args: [balHomeSysProp, balDebugLogSysProp, ...args, main],
-        options: {
-        }
-    };
+    if (process.env.LS_CUSTOM_CLASSPATH !== '') {
+        cmd += ' --classpath ' + process.env.LS_CUSTOM_CLASSPATH;
+    }
+    return (() => {
+        return Promise.resolve(exec(cmd, {
+            cwd
+        }));
+    });
 }

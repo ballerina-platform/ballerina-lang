@@ -56,7 +56,7 @@ class BTreeHelper {
      * @param repeatedReferenceSet Set of hashCodes of repeated references.
      */
     @SuppressWarnings("unchecked")
-    public static void trimTree(BValue jsonObj, Set<Long> repeatedReferenceSet) {
+    static void trimTree(BValue jsonObj, Set<Long> repeatedReferenceSet) {
         if (jsonObj == null) {
             return;
         }

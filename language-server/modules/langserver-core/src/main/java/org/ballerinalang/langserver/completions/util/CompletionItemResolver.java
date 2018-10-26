@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -80,6 +81,8 @@ public enum CompletionItemResolver {
     TOP_LEVEL_CONTEXT(TopLevelResolver.class,
             new TopLevelResolver()),
     PACKAGE_LEVEL_CONTEXT(BLangPackage.class,
+            new TopLevelResolver()),
+    TESTABLE_PACKAGE_LEVEL_CONTEXT(BLangTestablePackage.class,
             new TopLevelResolver()),
     PACKAGE_NAME_CONTEXT(BallerinaParser.PackageNameContext.class,
             new PackageNameContextResolver()),
