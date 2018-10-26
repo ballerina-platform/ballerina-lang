@@ -37,6 +37,7 @@ definition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
+    |   constantDefinition
     ;
 
 serviceDefinition
@@ -150,6 +151,10 @@ objectFunctionDefinition
 
 annotationDefinition
     :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
+    ;
+
+constantDefinition
+    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
     ;
 
 globalVariableDefinition
