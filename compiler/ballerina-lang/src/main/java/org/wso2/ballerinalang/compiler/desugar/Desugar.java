@@ -694,10 +694,10 @@ public class Desugar extends BLangNodeVisitor {
         //  case 2:
         //  ((string, float) int)) ((a, b), c)) = (tuple)
         //
-        //  any[][] x = (tuple);
+        //  any[] x = (tuple);
         //  string a = x[0][0];
         //  float b = x[0][1];
-        //  int c = x[1][0];
+        //  int c = x[1];
         varDefNode.var = rewrite(varDefNode.var, env);
         BLangTupleVariable tupleVariable = varDefNode.var;
 
@@ -1112,12 +1112,11 @@ public class Desugar extends BLangNodeVisitor {
         //  a is string, b is float, c is int
         //  ((a, b), c)) = (tuple)
         //
-        //  any[][] x = (tuple);
+        //  any[] x = (tuple);
         //  string a = x[0][0];
         //  float b = x[0][1];
-        //  int c = x[1][0];
+        //  int c = x[1];
 
-        BLangTupleVarRef tupleVariable = (BLangTupleVarRef) tupleDestructure.varRef;
 
         //create tuple destruct block stmt
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(tupleDestructure.pos);
@@ -1135,7 +1134,7 @@ public class Desugar extends BLangNodeVisitor {
         variableDef.var = tuple;
 
         //create the variable definition statements using the root block stmt created
-        createVarRefAssignmentStmts(tupleVariable, blockStmt, tuple.symbol, null);
+        createVarRefAssignmentStmts(tupleDestructure.varRef, blockStmt, tuple.symbol, null);
 
         //finally rewrite the populated block statement
         result = rewrite(blockStmt, env);

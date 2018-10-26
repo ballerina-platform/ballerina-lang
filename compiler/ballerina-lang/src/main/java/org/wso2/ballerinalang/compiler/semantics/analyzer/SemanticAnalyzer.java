@@ -508,9 +508,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if ((env.scope.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-            symbolEnter.defineNode(varNode, env);
-        }
+        symbolEnter.defineNode(varNode, env);
 
         if (varNode.expr == null) {
             // we have no rhs to do type checking
@@ -561,9 +559,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             }
 
-            if ((env.scope.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-                symbolEnter.defineNode(tupleVariable, env);
-            }
+            symbolEnter.defineNode(tupleVariable, env);
 
         } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
             BLangRecordVariable recordVariable = (BLangRecordVariable) variable;

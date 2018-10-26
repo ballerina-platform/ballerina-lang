@@ -686,9 +686,9 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    BLangVariable addBindingMemberVar(DiagnosticPos pos,
-                                      Set<Whitespace> ws,
-                                      String identifier) {
+    BLangVariable addBindingPatternMemberVariable(DiagnosticPos pos,
+                                                  Set<Whitespace> ws,
+                                                  String identifier) {
         BLangSimpleVariable memberVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         memberVar.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
@@ -756,7 +756,7 @@ public class BLangPackageBuilder {
         BLangRecordVariableKeyValue recordKeyValue = new BLangRecordVariableKeyValue();
         recordKeyValue.key = (BLangIdentifier) this.createIdentifier(identifier);
         if (!bindingPattern) {
-            addBindingMemberVar(pos, ws, identifier);
+            addBindingPatternMemberVariable(pos, ws, identifier);
         }
         recordKeyValue.valueBindingPattern = this.varStack.pop();
         this.recordVarStack.push(recordKeyValue);

@@ -995,7 +995,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier() != null
                 && (ctx.parent instanceof BallerinaParser.TupleBindingPatternContext
                 || ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)) {
-            this.pkgBuilder.addBindingMemberVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+            this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
     }
 
@@ -1027,7 +1027,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         if (ctx.Identifier() != null) {
-            this.pkgBuilder.addBindingMemberVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+            this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
     }
 
