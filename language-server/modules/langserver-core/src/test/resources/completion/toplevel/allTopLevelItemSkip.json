@@ -117,7 +117,7 @@
     },
     {
       "label":"testBraced",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"testBraced"
@@ -144,7 +144,7 @@
     },
     {
       "label":"intResult",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"intResult"
@@ -181,7 +181,7 @@
     },
     {
       "label":"num1",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"num1"
@@ -206,7 +206,7 @@
     },
     {
       "label":"testBinary",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"testBinary"
@@ -225,7 +225,7 @@
     },
     {
       "label":"listener",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"ballerina/http:Listener",
       "sortText":"110",
       "insertText":"listener"
@@ -268,7 +268,7 @@
     },
     {
       "label":"fieldWithinFunction",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"fieldWithinFunction"
