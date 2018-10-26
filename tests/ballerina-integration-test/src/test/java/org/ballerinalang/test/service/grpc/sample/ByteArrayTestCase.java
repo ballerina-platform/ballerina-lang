@@ -33,6 +33,8 @@ import java.nio.file.Paths;
 
 /**
  * A test case to test byte array.
+ *
+ * @since 0.983.0
  */
 @Test(groups = "grpc-test")
 public class ByteArrayTestCase extends GrpcBaseTest {
