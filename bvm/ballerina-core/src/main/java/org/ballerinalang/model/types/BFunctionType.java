@@ -67,34 +67,23 @@ public class BFunctionType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_FUNCTION, getSigString());
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.FUNCTION_POINTER_TAG;
     }
 
-
-    private String getSigString() {
-        return "(" + getBTypeListAsString(paramTypes, true) + ")("
-                + getBTypeListAsString(retParamTypes, true) + ")";
-    }
-
     public static String getTypeName(BType[] parameterType, BType[] returnParameterType) {
-        return "function (" + (parameterType != null ? getBTypeListAsString(parameterType, false) : "") + ")"
-                + (returnParameterType != null ? " returns (" + getBTypeListAsString(returnParameterType, false) +
+        return "function (" + (parameterType != null ? getBTypeListAsString(parameterType) : "") + ")"
+                + (returnParameterType != null ? " returns (" + getBTypeListAsString(returnParameterType) +
                 ")" : "");
     }
 
-    private static String getBTypeListAsString(BType[] typeNames, boolean isSigNature) {
+    private static String getBTypeListAsString(BType[] typeNames) {
         StringBuffer br = new StringBuffer();
         int i = 0;
         for (BType type : typeNames) {
-            br.append(isSigNature ? type.getSig() : type.getName());
+            br.append(type.getName());
             if (++i < typeNames.length) {
-                br.append(isSigNature ? "" : ",");
+                br.append(",");
             }
         }
         return br.toString();

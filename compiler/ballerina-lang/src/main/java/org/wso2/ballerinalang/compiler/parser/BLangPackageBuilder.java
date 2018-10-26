@@ -121,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -143,6 +144,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -174,6 +176,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -190,6 +193,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -525,6 +529,19 @@ public class BLangPackageBuilder {
         refType.pos = pos;
         refType.addWS(ws);
         addType(refType);
+    }
+
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean isReasonTypeExists, boolean isDetailsTypeExists) {
+        BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        errorType.pos = pos;
+        errorType.addWS(ws);
+        if (isDetailsTypeExists) {
+            errorType.detailType = (BLangType) this.typeNodeStack.pop();
+        }
+        if (isReasonTypeExists) {
+            errorType.reasonType = (BLangType) this.typeNodeStack.pop();
+        }
+        addType(errorType);
     }
 
     void addConstraintType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -885,6 +902,17 @@ public class BLangPackageBuilder {
         this.addExpressionNode(objectInitNode);
     }
 
+    void addErrorConstructor(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsExprAvailable) {
+        BLangErrorConstructorExpr errorConstExpr = (BLangErrorConstructorExpr) TreeBuilder.createErrorConstructorNode();
+        errorConstExpr.pos = pos;
+        errorConstExpr.addWS(ws);
+        if (detailsExprAvailable) {
+            errorConstExpr.detailsExpr = (BLangExpression) exprNodeStack.pop();
+        }
+        errorConstExpr.reasonExpr = (BLangExpression) exprNodeStack.pop();
+        this.addExpressionNode(errorConstExpr);
+    }
+
     private void addStmtToCurrentBlock(StatementNode statement) {
         this.blockNodeStack.peek().addStatement(statement);
     }
@@ -947,6 +975,15 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(throwNode);
     }
 
+    void addPanicStmt(DiagnosticPos poc, Set<Whitespace> ws) {
+        ExpressionNode errorExpr = this.exprNodeStack.pop();
+        BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
+        panicNode.pos = poc;
+        panicNode.addWS(ws);
+        panicNode.expr = (BLangExpression) errorExpr;
+        addStmtToCurrentBlock(panicNode);
+    }
+
     private void addExpressionNode(ExpressionNode expressionNode) {
         this.exprNodeStack.push(expressionNode);
     }
@@ -1000,8 +1037,16 @@ public class BLangPackageBuilder {
         tableLiteralNodes.push(tableLiteral);
     }
 
-    void addTableColumn(String columnName) {
-        this.tableLiteralNodes.peek().columns.add(new BLangTableLiteral.BLangTableColumn(columnName));
+    void endTableColumnDefinition(Set<Whitespace> ws) {
+        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
+    }
+
+    void addTableColumn(String columnName, DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableLiteral.BLangTableColumn tableColumn = new BLangTableLiteral.BLangTableColumn(columnName);
+        tableColumn.pos = pos;
+        tableColumn.addWS(ws);
+        this.tableLiteralNodes.peek().columns.add(tableColumn);
     }
 
     void markPrimaryKeyColumn(String columnName) {
@@ -1025,7 +1070,6 @@ public class BLangPackageBuilder {
                 //key
                 BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
                 keyExpr.pos = pos;
-                keyExpr.addWS(ws);
                 IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
                 identifierNode.setValue(keyNames.get(index).columnName);
                 keyExpr.variableName = (BLangIdentifier) identifierNode;
@@ -1034,13 +1078,23 @@ public class BLangPackageBuilder {
                 recordLiteral.keyValuePairs.add(keyValue);
                 ++index;
             }
+            recordLiteral.addWS(ws);
+            if (commaWsStack.size() > 0) {
+                recordLiteral.addWS(commaWsStack.pop());
+            }
             this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
         }
     }
 
-    void endTableDataRow() {
+    void endTableDataArray(Set<Whitespace> ws) {
+        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
+    }
+
+    void endTableDataRow(Set<Whitespace> ws) {
         List<ExpressionNode> argExprList = exprNodeListStack.pop();
         BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.addWS(ws);
         tableLiteral.tableDataRows = argExprList.stream().map(expr -> (BLangExpression) expr)
                 .collect(Collectors.toList());
     }
@@ -1260,6 +1314,14 @@ public class BLangPackageBuilder {
         awaitExpr.addWS(ws);
         awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(awaitExpr);
+    }
+
+    void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
+        trapExpr.pos = pos;
+        trapExpr.addWS(ws);
+        trapExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(trapExpr);
     }
 
     void endFunctionDef(DiagnosticPos pos,
@@ -1540,9 +1602,9 @@ public class BLangPackageBuilder {
 
         while (!typeNodeStack.isEmpty()) {
             BLangType memberType = (BLangType) typeNodeStack.pop();
-            members.addWS(memberType.getWS());
             if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
                 members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
+                members.addWS(memberType.getWS());
             } else {
                 members.memberTypeNodes.add(memberType);
             }

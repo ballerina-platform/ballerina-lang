@@ -268,7 +268,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
     CallerActions httpClient = retryClient.httpClient;
     Response response = new;
     //TODO : Initialize the record type correctly once it is fixed.
-    error httpConnectorErr = {};
+    error httpConnectorErr = error("http connection err");
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the
     // to keep the request message to retry.

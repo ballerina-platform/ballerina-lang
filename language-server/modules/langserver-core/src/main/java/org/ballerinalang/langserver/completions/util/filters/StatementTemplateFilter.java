@@ -58,10 +58,6 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         CompletionItem forkItem = Snippet.STMT_FORK_JOIN.get().build(new CompletionItem(), isSnippet);
         completionItems.add(forkItem);
 
-        // Populate Try Catch Statement template
-        CompletionItem tryCatchItem = Snippet.STMT_TRY_CATCH.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(tryCatchItem);
-
         // Populate Transaction Statement template
         CompletionItem transactionItem = Snippet.STMT_TRANSACTION.get().build(new CompletionItem(), isSnippet);
         completionItems.add(transactionItem);
@@ -114,7 +110,7 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
 
         // Populate Throw Statement template
         CompletionItem throwItem = new CompletionItem();
-        Snippet.STMT_THROW.get().build(throwItem, isSnippet);
+        Snippet.STMT_PANIC.get().build(throwItem, isSnippet);
         completionItems.add(throwItem);
 
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));

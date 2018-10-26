@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -146,7 +147,7 @@ public class Types {
                            BType expType,
                            DiagnosticCode diagCode) {
         expr.type = checkType(expr.pos, actualType, expType, diagCode);
-        if (expr.type.tag == TypeTags.ERROR) {
+        if (expr.type.tag == TypeTags.SEMANTIC_ERROR) {
             return expr.type;
         }
 
@@ -160,11 +161,11 @@ public class Types {
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
-        if (expType.tag == TypeTags.ERROR) {
+        if (expType.tag == TypeTags.SEMANTIC_ERROR) {
             return expType;
         } else if (expType.tag == TypeTags.NONE) {
             return actualType;
-        } else if (actualType.tag == TypeTags.ERROR) {
+        } else if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
             return actualType;
         } else if (isAssignable(actualType, expType)) {
             return actualType;
@@ -172,7 +173,7 @@ public class Types {
 
         // e.g. incompatible types: expected 'int', found 'string'
         dlog.error(pos, diagCode, expType, actualType);
-        return symTable.errType;
+        return symTable.semanticError;
     }
 
     public boolean isSameType(BType source, BType target) {
@@ -240,6 +241,12 @@ public class Types {
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
         if (isSameType(source, target)) {
             return true;
+        }
+
+        if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ERROR) {
+            return isErrorTypeAssignable((BErrorType) source, (BErrorType) target);
+        } else if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ANY) {
+            return false;
         }
 
         if (source.tag == TypeTags.NIL && (isNullable(target) || target.tag == TypeTags.JSON)) {
@@ -312,6 +319,13 @@ public class Types {
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target, unresolvedTypes);
+    }
+
+    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target) {
+        if (target == symTable.errorType) {
+            return true;
+        }
+        return isAssignable(source.reasonType, target.reasonType) && isAssignable(source.detailType, target.detailType);
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
@@ -575,14 +589,14 @@ public class Types {
                     errorTypes = Lists.of(symTable.stringType, symTable.anyType);
                 }
                 break;
-            case TypeTags.ERROR:
-                return Collections.nCopies(variableSize, symTable.errType);
+            case TypeTags.SEMANTIC_ERROR:
+                return Collections.nCopies(variableSize, symTable.semanticError);
             default:
                 dlog.error(collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, collectionType);
-                return Collections.nCopies(variableSize, symTable.errType);
+                return Collections.nCopies(variableSize, symTable.semanticError);
         }
         dlog.error(collection.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, collectionType);
-        errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.errType));
+        errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.semanticError));
         return errorTypes;
     }
 
@@ -626,8 +640,7 @@ public class Types {
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
-        if (sourceType.tag == TypeTags.ERROR ||
-                targetType.tag == TypeTags.ERROR ||
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
@@ -682,7 +695,7 @@ public class Types {
                                                                      BType targetType,
                                                                      boolean safe,
                                                                      int opcode) {
-        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errStructType,
+        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errorType,
                 false, safe, opcode, null, null);
     }
 
@@ -1044,6 +1057,12 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BSemanticErrorType t, BType s) {
+            // TODO Implement. Not needed for now.
+            throw new AssertionError();
+        }
+
+        @Override
         public BSymbol visit(BErrorType t, BType s) {
             // TODO Implement. Not needed for now.
             throw new AssertionError();
@@ -1191,8 +1210,17 @@ public class Types {
         }
 
         @Override
-        public Boolean visit(BErrorType t, BType s) {
+        public Boolean visit(BSemanticErrorType t, BType s) {
             return true;
+        }
+
+        @Override
+        public Boolean visit(BErrorType t, BType s) {
+            if (s.tag != TypeTags.ERROR) {
+                return false;
+            }
+            BErrorType source = (BErrorType) s;
+            return isSameType(source.reasonType, t.reasonType) && isSameType(source.detailType, t.detailType);
         }
 
         @Override
@@ -1346,6 +1374,9 @@ public class Types {
      * @return Flag indicating whether the given type has a default value
      */
     public boolean defaultValueExists(DiagnosticPos pos, BType type) {
+        if (type.tag == TypeTags.ERROR) {
+            return false;
+        }
         if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEFAULTABLE)) {
             return true;
         }

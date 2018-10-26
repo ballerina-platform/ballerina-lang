@@ -20,6 +20,7 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -570,10 +571,8 @@ public class PackageInfoReader {
 
                 // Read action signature
                 int resSigCPIndex = dataInStream.readInt();
-                resourceInfo.setSignatureCPIndex(resSigCPIndex);
                 UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
                 String resSig = resSigUTF8Entry.getValue();
-                resourceInfo.setSignature(resSig);
                 setCallableUnitSignature(packageInfo, resourceInfo, resSig);
 
                 // Read parameter names
@@ -957,16 +956,8 @@ public class PackageInfoReader {
                     int ipFrom = dataInStream.readInt();
                     int ipTo = dataInStream.readInt();
                     int ipTarget = dataInStream.readInt();
-                    int priority = dataInStream.readInt();
-                    int errorStructCPIndex = dataInStream.readInt();
-                    ErrorTableEntry tableEntry = new ErrorTableEntry(ipFrom, ipTo,
-                            ipTarget, priority, errorStructCPIndex);
-
-                    if (errorStructCPIndex != -1) {
-                        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry)
-                                constantPool.getCPEntry(errorStructCPIndex);
-                        tableEntry.setError((TypeDefInfo) structureRefCPEntry.getStructureTypeInfo());
-                    }
+                    int regIndex = dataInStream.readInt();
+                    ErrorTableEntry tableEntry = new ErrorTableEntry(ipFrom, ipTo, ipTarget, regIndex);
                     tableAttributeInfo.addErrorTableEntry(tableEntry);
                 }
                 return tableAttributeInfo;
@@ -1133,8 +1124,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
                 case InstructionCodes.GOTO:
-                case InstructionCodes.THROW:
-                case InstructionCodes.ERRSTORE:
+                case InstructionCodes.PANIC:
                 case InstructionCodes.NEWXMLSEQ:
                 case InstructionCodes.LOOP_COMPENSATE:
                     i = codeStream.readInt();
@@ -1217,6 +1207,8 @@ public class PackageInfoReader {
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
+                case InstructionCodes.REASON:
+                case InstructionCodes.DETAIL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1321,6 +1313,7 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.MAPLOAD:
+                case InstructionCodes.ERROR:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1889,6 +1882,14 @@ public class PackageInfoReader {
                 returnTypes = new BType[]{retType};
             }
             return new BFunctionType(funcParams.toArray(new BType[funcParams.size()]), returnTypes);
+        }
+
+        @Override
+        public BType getErrorType(BType reasonType, BType detailsType) {
+            if (reasonType == BTypes.typeString && detailsType == BTypes.typeMap) {
+                return BTypes.typeError;
+            }
+            return new BErrorType(reasonType, detailsType);
         }
     }
 

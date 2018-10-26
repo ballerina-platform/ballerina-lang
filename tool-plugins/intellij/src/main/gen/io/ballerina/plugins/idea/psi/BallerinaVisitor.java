@@ -625,14 +625,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitPostArithmeticOperator(@NotNull BallerinaPostArithmeticOperator o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitPostIncrementStatement(@NotNull BallerinaPostIncrementStatement o) {
-    visitCompositeElement(o);
-  }
-
   public void visitProcIns(@NotNull BallerinaProcIns o) {
     visitCompositeElement(o);
   }
@@ -919,6 +911,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitTypeName(@NotNull BallerinaTypeName o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitTypeReference(@NotNull BallerinaTypeReference o) {
     visitCompositeElement(o);
   }
 

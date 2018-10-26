@@ -172,6 +172,10 @@ public type CompressionConfig record {
     !...
 };
 
+type HTTPError record {
+    string message;
+};
+
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////
@@ -278,8 +282,7 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
 }
 
 function getError() returns error {
-    error httpConnectorErr = {};
-    httpConnectorErr.message = "Unsupported connector action received.";
+    error httpConnectorErr = error("Unsupported connector action received.");
     return httpConnectorErr;
 }
 

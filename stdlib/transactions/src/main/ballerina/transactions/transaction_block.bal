@@ -68,8 +68,8 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
                     return txn.markForAbortion();
                 }
                 () => {
-                    error err = {message:"Unknown transaction"};
-                    throw err;
+                    error err = error("Unknown transaction");
+                    panic err;
                 }
             }
         }
@@ -87,8 +87,8 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
 function endTransaction(string transactionId, int transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        error err = {message:"Transaction: " + participatedTxnId + " not found"};
-        throw err;
+        error err = error("Transaction: " + participatedTxnId + " not found");
+        panic err;
     }
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is

@@ -22,7 +22,7 @@ function testFunc() {
     main();
 
     string statusCode = "The status code: ";
-    error err = { message: "response error" };
+    error err = error("response error");
     test:assertEquals(outputs[0], statusCode);
     test:assertEquals(outputs[1], err);
     test:assertEquals(outputs[2], statusCode);

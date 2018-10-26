@@ -23,8 +23,8 @@ function genObjectFileFromChannel(io:ReadableByteChannel byteChannel, string des
 function parseArgs(string[] args) returns (string, string) {
     var argLen = lengthof args;
     if (argLen != 2){
-        error err = { message: "Usage: compiler_backend_llvm <path-to-bir> <part-to-output-obj>" };
-        throw err;
+        error err = error("Usage: compiler_backend_llvm <path-to-bir> <part-to-output-obj>");
+        panic err;
     }
     return (untaint args[0], untaint args[1]);
 }
@@ -39,8 +39,8 @@ function checkMagic(bir:ChannelReader reader) {
     var magic = reader.readByteArray(4);
 
     if (!arrayEq(baloCodeHexSpeak, magic)){
-        error err = { message: "Invalid BIR binary content, unexptected header" };
-        throw err;
+        error err = error("Invalid BIR binary content, unexptected header");
+        panic err;
     }
 }
 
@@ -48,8 +48,8 @@ function checkVersion(bir:ChannelReader reader) {
     var birVersion = reader.readInt32();
     var supportedBirVersion = 1;
     if (birVersion != 1){
-        error err = { message: "Unsupported BIR version " + birVersion + ", supports version " + supportedBirVersion };
-        throw err;
+        error err = error("Unsupported BIR version " + birVersion + ", supports version " + supportedBirVersion);
+        panic err;
     }
 }
 
