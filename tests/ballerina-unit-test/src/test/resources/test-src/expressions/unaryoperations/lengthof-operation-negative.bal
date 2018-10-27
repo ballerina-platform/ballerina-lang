@@ -1,22 +1,22 @@
 function arrayLengthAccessNullArrayCase(int x, int y) returns (int) {
     int z = x + y;
     int[] arr;
-    int length;
-    length = (lengthof arr);
-    return length;
+    int lengthVal;
+    lengthVal = (lengthof arr);
+    return lengthVal;
 }
 
 
 function arrayLengthAccessTestJSONArrayNegativeNullCase(int x, int y) returns (int) {
     json arr;
-    int length;
-    length = (lengthof arr);
-    return length;
+    int lengthVal;
+    lengthVal = (lengthof arr);
+    return lengthVal;
 }
 
 function arrayLengthAccessNullMapCase(int x, int y) returns (int) {
     map m;
-    int length;
-    length = (lengthof m);
-    return length;
+    int lengthVal;
+    lengthVal = (lengthof m);
+    return lengthVal;
 }

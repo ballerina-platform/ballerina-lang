@@ -233,7 +233,7 @@ public type Apartment object {
 
 public type Desk object {
 
-    public int length = 23;
+    public int lengthVal = 23;
     public int width = 12;
     public float height = 4.5;
     public byte[] dimensions = [3,4,5,8];

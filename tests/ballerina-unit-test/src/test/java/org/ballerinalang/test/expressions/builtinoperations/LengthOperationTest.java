@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -14,8 +14,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.expressions.unaryoperations;
+package org.ballerinalang.test.expressions.builtinoperations;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -27,21 +28,22 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Class to test functionality of lengthof operator.
+ * Class to test functionality of the builtin length() operation.
+ *
+ * @version 0.983
  */
-public class LengthOfOperatorTest {
+public class LengthOperationTest {
 
-    CompileResult result;
-    CompileResult resNegative;
+    private CompileResult result;
+    private CompileResult resNegative;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/unaryoperations/lengthof-operation.bal");
-        resNegative = BCompileUtil.compile(
-                "test-src/expressions/unaryoperations/lengthof-operation-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/builtinoperations/length-operation.bal");
+        resNegative = BCompileUtil.compile("test-src/expressions/builtinoperations/length-operation-negative.bal");
     }
 
-    @Test(description = "Test lengthof unary expression")
+    @Test(description = "Test length of array when present in an assignment statement.")
     public void testArrayLengthAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestAssignmentCase", args);
@@ -54,7 +56,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Function invocation statement.")
+    @Test(description = "Test length of array when present in function invocation statement.")
     public void testArrayLengthAccessExprFunctionInvocationCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestFunctionInvocationCase", args);
@@ -67,7 +69,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Variable definition statement.")
+    @Test(description = "Test length of array when present in Variable definition statement.")
     public void testArrayLengthAccessExprVariableDefinitionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestVariableDefinitionCase", args);
@@ -80,7 +82,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Array initialization statement.")
+    @Test(description = "Test length of array when present in Array initialization statement.")
     public void testArrayLengthAccessExprArrayInitializationCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestArrayInitializerCase", args);
@@ -93,7 +95,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Map initialization statement.")
+    @Test(description = "Test length of array when present in Map initialization statement.")
     public void testArrayLengthAccessExprMapInitializationCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestMapInitializerCase", args);
@@ -106,7 +108,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Return statement.")
+    @Test(description = "Test length of array when present in Return statement.")
     public void testArrayLengthAccessExprReturnExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestReturnStatementCase", args);
@@ -119,7 +121,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in multi Return statement.")
+    @Test(description = "Test length of array when present in multi Return statement.")
     public void testArrayLengthAccessExprMultiReturnExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestMultiReturnStatementCase", args);
@@ -140,7 +142,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actualThird, expectedThird);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Type cast expression.")
+    @Test(description = "Test length of array when present in Type cast expression.")
     public void testArrayLengthAccessExprTypeCastExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestTypeCastExpressionCase", args);
@@ -153,7 +155,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in If condition.")
+    @Test(description = "Test length of array when present in If condition.")
     public void testArrayLengthAccessExprIfConditionExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestIfConditionCase", args);
@@ -166,7 +168,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Binary expression.")
+    @Test(description = "Test length of array when present in Binary expression.")
     public void testArrayLengthAccessExpBinaryExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestBinaryExpressionCase", args);
@@ -179,7 +181,7 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when present in Struct field access expression.")
+    @Test(description = "Test length of array when present in Struct field access expression.")
     public void testArrayLengthAccessExpStructFieldAccessCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestStructFieldAccessCase", args);
@@ -193,7 +195,7 @@ public class LengthOfOperatorTest {
     }
 
 
-    @Test(description = "Test lengthof unary expression when reference point to JSON array.")
+    @Test(description = "Test length of array when reference point to JSON array.")
     public void testArrayLengthAccessJSONArrayCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestJSONArrayCase", args);
@@ -206,29 +208,9 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when array is null.")
-    public void testArrayLengthAccessExpArrayNullCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BRunUtil.invoke(resNegative, "arrayLengthAccessNullArrayCase", args);
-    }
-
-    @Test(description = "Test lengthof unary expression when reference point to json null.",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
-    public void testArrayLengthAccessTestJSONArrayNegativeNullCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BRunUtil.invoke(resNegative, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);
-    }
-
-    @Test(description = "Test lengthof unary expression when reference point to null map.")
-    public void testArrayLengthAccessTestMapNegativeNullCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BRunUtil.invoke(resNegative, "arrayLengthAccessNullMapCase", args);
-    }
-
-    @Test(description = "Test lengthof map")
+    @Test(description = "Test length of map")
     public void lengthOfMap() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(result, "lengthOfMap", args);
 
         Assert.assertEquals(returns.length, 1);
@@ -239,10 +221,10 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof map empty")
-    public void lengthOfMapEmpty() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfMapEmpty", args);
+    @Test(description = "Test length of empty map")
+    public void lengthOfEmptyMap() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfEmptyMap", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -252,30 +234,143 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof string")
-    public void lengthOfString() {
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfString");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 11);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 10);
+    @Test(description = "Test length of single xml element")
+    public void lengthOfSingleXmlElement() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfSingleXmlElement", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof blob")
-    public void lengthOfBlob() {
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfBlob");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    @Test(description = "Test length of multiple xml elements")
+    public void lengthOfMultipleXmlElements() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfMultipleXmlElements", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 4;
+        Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof string")
-    public void lengthOfNullString() {
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfNullString");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    @Test(description = "Test length of tuple")
+    public void lengthOfTuple() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfTuple", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 2;
+        Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof JSON object")
-    public void lengthOfJSONObject() {
-        BValue[] returns = BRunUtil.invoke(result, "lengthOfJSONObject");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    @Test(description = "Test length of table")
+    public void lengthOfTable() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfTable", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
     }
+
+    @Test(description = "Test length of empty table")
+    public void lengthOfEmptyTable() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfEmptyTable", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test length of record")
+    public void lengthOfRecord() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfRecord", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 3;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test length of record without any fields")
+    public void lengthOfEmptyRecord() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfEmptyRecord", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 0;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test length of array when it is null.")
+    public void testArrayLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullArray", args);
+    }
+
+    @Test(description = "Test length of json when reference point to json that is null.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+    public void testJsonLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullJson", args);
+    }
+
+    @Test(description = "Test length of map when reference point to null map.")
+    public void testMapLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullMap", args);
+    }
+
+    @Test(description = "Test length of table when reference point to null table.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+    public void testTableLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullTable", args);
+    }
+
+    @Test(description = "Test length of tuple when it is null.")
+    public void testTupleLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullTuple", args);
+    }
+
+    @Test(description = "Test length of xml when it is null.")
+    public void testXMLLengthOfNull() {
+        BValue[] args = new BValue[0];
+        BRunUtil.invoke(result, "accessLengthOfNullXML", args);
+    }
+
+    // Negative test cases that fails at compilation
+    @Test(description = "Test invoking length operation on an object")
+    public void testNegativeTests() {
+        Assert.assertEquals(resNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 27, 24);
+        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 32, 21);
+    }
+
 }

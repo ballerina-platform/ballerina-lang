@@ -329,11 +329,11 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
 # + return - The log message to be printed after adding the right pad
 function rightPad (string logMsg, int logMsgLength) returns (string) {
     string msg = logMsg;
-    int length = logMsgLength;
+    int lengthVal = logMsgLength;
     int i = -1;
-    length = length - msg.length();
+    lengthVal = lengthVal - msg.length();
     string char = " ";
-    while (i < length) {
+    while (i < lengthVal) {
         msg = msg + char;
         i = i + 1;
     }

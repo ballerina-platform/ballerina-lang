@@ -30,6 +30,8 @@ public enum BLangBuiltInMethod {
 
     ISFINITE("isFinite"),
 
+    LENGTH("length"),
+
     REASON("reason"),
 
     DETAIL("detail"),

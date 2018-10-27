@@ -13,11 +13,21 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-function testNegativeTests() {
-    int nanVal = 0/0;
-    int infinityVal = 7/0;
-    int finiteVal = 10/5;
-    boolean isNaN = nanVal.isNaN();
-    boolean isInf = infinityVal.isInfinite();
-    boolean isFin = nanVal.isFinite();
+
+type Person object {
+    public int age;
+    public string firstName;
+    public string lastName;
+
+    new(age, firstName, lastName) {}
+};
+
+function assignLengthToInvalidType() {
+    int [] intArr = [1, 2];
+    string lengthVal = intArr.length();
+}
+
+function invokeLengthOnObject() {
+    Person p1 = new(5, "John", "Doe");
+    int lengthVal = p1.length();
 }

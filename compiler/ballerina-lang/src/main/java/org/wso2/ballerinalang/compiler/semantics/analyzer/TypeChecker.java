@@ -695,8 +695,14 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
         if (BLangBuiltInMethod.UNDEFINED != builtInFunction) {
-            checkBuiltinFunctionInvocation(iExpr, builtInFunction, exprType);
-            return;
+            // The builtin 'length' method should be handled in a special way since a user also can define a method with
+            // the name as 'length'. So this method will check if the builtin function name is 'length' and if its
+            // 'length' it will check if this builtin method can be applied to the types given. If the 'length' cannot
+            // be applied to the types given it will simply disregard the method as a builtin method.
+            if (validBuiltinOpInvocation(builtInFunction, exprType.tag)) {
+                checkBuiltinFunctionInvocation(iExpr, builtInFunction, exprType);
+                return;
+            }
         }
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
@@ -1786,6 +1792,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     resultType = symTable.semanticError;
                 }
                 break;
+            case LENGTH:
+                checkBuiltinLengthInvocationExpr(iExpr);
+                break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
                 return;
@@ -1814,6 +1823,32 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
         }
         resultType = this.symTable.getTypeFromTag(TypeTags.BOOLEAN);
+    }
+
+    private void checkBuiltinLengthInvocationExpr(BLangInvocation iExpr) {
+        if (iExpr.argExprs.size() > 0) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, "length");
+            return;
+        }
+        iExpr.type = this.symTable.getTypeFromTag(TypeTags.INT);
+        resultType = types.checkType(iExpr, iExpr.type, expType);
+    }
+
+    private boolean validBuiltinOpInvocation(BLangBuiltInMethod builtInFunction, int typeTag) {
+        if (BLangBuiltInMethod.LENGTH == builtInFunction) {
+            switch (typeTag) {
+                case TypeTags.ARRAY:
+                case TypeTags.JSON:
+                case TypeTags.MAP:
+                case TypeTags.RECORD:
+                case TypeTags.TABLE:
+                case TypeTags.TUPLE:
+                case TypeTags.XML:
+                    return true;
+            }
+            return false;
+        }
+        return true;
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {

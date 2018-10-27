@@ -50,8 +50,8 @@ public function main() {
     io:println("ReplaceAll: " + s7);
 
     //This returns the length of the string.
-    int length = statement.length();
-    io:println("Length: " + length);
+    int lengthVal = statement.length();
+    io:println("Length: " + lengthVal);
 
     //This removes any leading and trailing white spaces.
     string s8 = statement.trim();
