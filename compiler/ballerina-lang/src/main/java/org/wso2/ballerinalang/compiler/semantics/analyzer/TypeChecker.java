@@ -1776,6 +1776,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     resultType = symTable.semanticError;
                 }
                 break;
+            case ISNAN:
+            case ISINFINITE:
+            case ISFINITE:
+                if (type.tag == TypeTags.FLOAT) {
+                    handleBuiltInFunctions(iExpr, function);
+                } else {
+                    dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
+                    resultType = symTable.semanticError;
+                }
+                break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
                 return;
@@ -1797,6 +1807,13 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (function == BLangBuiltInMethod.DETAIL) {
             resultType = type.detailType;
         }
+    }
+
+    private void handleBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function) {
+        if (iExpr.argExprs.size() > 0) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+        }
+        resultType = this.symTable.getTypeFromTag(TypeTags.BOOLEAN);
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
