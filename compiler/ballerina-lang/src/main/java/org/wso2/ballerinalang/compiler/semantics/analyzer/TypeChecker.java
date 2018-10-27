@@ -1802,7 +1802,9 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.builtinMethodInvocation = true;
         iExpr.builtInMethod = function;
         if (resultType != null && resultType != symTable.semanticError) {
-            types.setImplicitCastExpr(iExpr, resultType, expType);
+            if (iExpr.impConversionExpr == null) {
+                types.setImplicitCastExpr(iExpr, resultType, expType);
+            }
         }
     }
 
