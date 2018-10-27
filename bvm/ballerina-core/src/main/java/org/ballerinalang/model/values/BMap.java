@@ -434,8 +434,15 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public BValue freeze() {
         writeLock.lock();
         try {
+            if (frozen) {
+                return this;
+            }
             this.frozen = true;
-            map.values().forEach(BValue::freeze);
+            map.values().forEach(val -> {
+                if (val != null) {
+                    val.freeze();
+                }
+            });
         } finally {
             writeLock.unlock();
         }

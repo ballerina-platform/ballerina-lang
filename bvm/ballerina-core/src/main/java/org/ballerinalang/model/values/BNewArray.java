@@ -168,6 +168,9 @@ public abstract class BNewArray implements BRefType, BCollection {
      */
     @Override
     public BValue freeze() {
+        if (frozen) {
+            return this;
+        }
         this.frozen = true;
         return this;
     }

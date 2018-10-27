@@ -848,6 +848,9 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BValue freeze() {
+        if (frozen) {
+            return this;
+        }
         this.frozen = true;
         return this;
     }

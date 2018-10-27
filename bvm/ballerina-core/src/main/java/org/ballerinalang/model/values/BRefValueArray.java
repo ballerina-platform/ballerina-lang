@@ -174,7 +174,14 @@ public class BRefValueArray extends BNewArray implements Serializable {
      */
     @Override
     public BValue freeze() {
-        Arrays.stream(this.values).forEach(BValue::freeze);
+        if (frozen) {
+            return this;
+        }
+        for (int i = 0; i < this.size; i++) {
+            if (this.get(i) != null) {
+                this.get(i).freeze();
+            }
+        }
         this.frozen = true;
         return this;
     }

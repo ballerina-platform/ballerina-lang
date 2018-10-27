@@ -399,6 +399,9 @@ public class BTable implements BRefType<Object>, BCollection {
      */
     @Override
     public BValue freeze() {
+        if (frozen) {
+            return this;
+        }
         this.frozen = true;
         return this;
     }
