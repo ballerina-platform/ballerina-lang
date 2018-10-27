@@ -23,22 +23,22 @@ import java.util.Map;
 /**
  * Class representing the state of the LSP settings.
  */
-@State(name = "LSPState", storages = @Storage(file = "LSPState.xml"))
-public final class LSPState implements PersistentStateComponent<LSPState> {
+@State(name = "BallerinaLSPgit State", storages = @Storage(value = "BallerinaLSPState.xml"))
+public final class BallerinaLSPState implements PersistentStateComponent<BallerinaLSPState> {
 
-    private static final Logger LOG = Logger.getInstance(LSPState.class);
+    private static final Logger LOG = Logger.getInstance(BallerinaLSPState.class);
 
 
     public Map<String, String[]> extToServ = new LinkedHashMap<>(10); //Must be public to be saved
     public Map<Timeouts, Integer> timeouts = new EnumMap<>(Timeouts.class);
     public List<String> coursierResolvers = new ArrayList<>(5);
 
-    public LSPState() {
+    public BallerinaLSPState() {
     }
 
     @Nullable
-    public static LSPState getInstance() {
-        return ServiceManager.getService(LSPState.class);
+    public static BallerinaLSPState getInstance() {
+        return ServiceManager.getService(BallerinaLSPState.class);
     }
 
     public List<String> getCoursierResolvers() {
@@ -66,12 +66,12 @@ public final class LSPState implements PersistentStateComponent<LSPState> {
     }
 
     @Override
-    public LSPState getState() {
+    public BallerinaLSPState getState() {
         return this;
     }
 
     @Override
-    public void loadState(final LSPState lspState) {
+    public void loadState(final BallerinaLSPState lspState) {
         XmlSerializerUtil.copyBean(lspState, this);
         LOG.info("LSP State loaded");
         if (extToServ != null && !extToServ.isEmpty()) {

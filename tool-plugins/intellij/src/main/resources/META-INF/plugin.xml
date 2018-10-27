@@ -48,18 +48,18 @@
                                  instance="com.github.gtache.lsp.settings.CoursierSettings"/>
 
         <applicationService id="LSPState"
-                            serviceInterface="com.github.gtache.lsp.settings.LSPState"
-                            serviceImplementation="com.github.gtache.lsp.settings.LSPState"/>
+                            serviceInterface="com.github.gtache.lsp.settings.BallerinaLSPState"
+                            serviceImplementation="com.github.gtache.lsp.settings.BallerinaLSPState"/>
 
-        <gotoSymbolContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoSymbolContributor"
-                               id="LSPGotoSymbolContributor"/>
+        <!--<gotoSymbolContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoSymbolContributor"-->
+                               <!--id="LSPGotoSymbolContributor"/>-->
         <gotoClassContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoClassContributor"
                               id="LSPGotoClassContributor"/>
         <typedHandler implementation="com.github.gtache.lsp.editor.listeners.LSPTypedHandler" id="LSPTypedHandler"/>
         <completion.contributor implementationClass="com.github.gtache.lsp.contributors.LSPCompletionContributor"
                                 id="LSPCompletionContributor" language="any"/>
-        <inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"
-                                id="LSPInspectionProvider"/>
+        <!--<inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"-->
+                                <!--id="LSPInspectionProvider"/>-->
         <fileDocumentSynchronizationVetoer
                 implementation="com.github.gtache.lsp.editor.listeners.LSPFileDocumentSynchronizationVetoer"
                 id="LSPFileDocumentSynchronizationVetoer"/>
@@ -99,11 +99,6 @@
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="io.ballerina.plugins.idea.marker.BallerinaTypeFunctionMarker"/>
 
-        <completion.contributor language="Ballerina"
-        implementationClass="io.ballerina.plugins.idea.completion.BallerinaKeywordContributor"/>
-        <completion.contributor language="Ballerina"
-        implementationClass="io.ballerina.plugins.idea.completion.BallerinaCompletionContributor"/>
-
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="io.ballerina.plugins.idea.usage.BallerinaFindUsageProvider"/>
 
@@ -135,14 +130,20 @@
         <lang.braceMatcher language="Ballerina"
                            implementationClass="io.ballerina.plugins.idea.codeinsight.highlighting.BallerinaPairedBraceMatcher"/>
 
+
+        <!--<completion.contributor language="Ballerina"-->
+        <!--implementationClass="io.ballerina.plugins.idea.completion.BallerinaKeywordContributor"/>-->
+        <!--<completion.contributor language="Ballerina"-->
+        <!--implementationClass="io.ballerina.plugins.idea.completion.BallerinaCompletionContributor"/>-->
+
         <!--live templates-->
-        <defaultLiveTemplatesProvider
-                implementation="io.ballerina.plugins.idea.template.BallerinaLiveTemplateProvider"/>
-        <liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaEverywhereContextType"/>
-        <liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$File"/>
-        <liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Service"/>
-        <liveTemplateContext
-                implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Function"/>
+        <!--<defaultLiveTemplatesProvider-->
+                <!--implementation="io.ballerina.plugins.idea.template.BallerinaLiveTemplateProvider"/>-->
+        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaEverywhereContextType"/>-->
+        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$File"/>-->
+        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Service"/>-->
+        <!--<liveTemplateContext-->
+                <!--implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Function"/>-->
 
         <!--formatter-->
         <lang.formatter language="Ballerina"
