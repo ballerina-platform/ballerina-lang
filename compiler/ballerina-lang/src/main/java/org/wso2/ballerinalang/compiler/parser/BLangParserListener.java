@@ -57,6 +57,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDI
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_EXTERN = "extern";
+    private static final String KEYWORD_KEY = "key";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -1006,13 +1007,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        String columnName = ctx.getChild(0).getText();
-        boolean keyColumn = ctx.PRIMARYKEY() != null;
-        if (keyColumn) {
-            columnName = ctx.getChild(1).getText();
-            this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
-            this.pkgBuilder.markPrimaryKeyColumn(columnName);
+
+        String columnName;
+        int childCount = ctx.getChildCount();
+        if (childCount == 2) {
+            boolean keyColumn = KEYWORD_KEY.equals(ctx.getChild(0).getText());
+            if (keyColumn) {
+                columnName = ctx.getChild(1).getText();
+                this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
+                this.pkgBuilder.markPrimaryKeyColumn(columnName);
+            } else {
+                DiagnosticPos pos = getCurrentPos(ctx);
+                dlog.error(pos, DiagnosticCode.TABLE_KEY_EXPECTED);
+            }
         } else {
+            columnName = ctx.getChild(0).getText();
             this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
         }
     }
