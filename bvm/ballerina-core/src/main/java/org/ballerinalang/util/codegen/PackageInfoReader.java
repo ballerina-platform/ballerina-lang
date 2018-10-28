@@ -340,6 +340,9 @@ public class PackageInfoReader {
         // Read resource info entries.
         readResourceInfoEntries(packageInfo);
 
+        // Read constant info entries
+        readConstantInfoEntries(packageInfo);
+
         // Read global var info entries
         readGlobalVarInfoEntries(packageInfo);
 
@@ -605,8 +608,8 @@ public class PackageInfoReader {
     private void readConstantInfoEntries(PackageInfo packageInfo) throws IOException {
         int constCount = dataInStream.readShort();
         for (int i = 0; i < constCount; i++) {
-            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
-            packageInfo.addConstantInfo(packageVarInfo.getName(), packageVarInfo);
+            ConstantInfo constantInfo = getConstantInfo(packageInfo, packageInfo);
+            packageInfo.addConstantInfo(constantInfo.getName(), constantInfo);
         }
     }
 
@@ -616,6 +619,33 @@ public class PackageInfoReader {
             PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
             packageInfo.addPackageVarInfo(packageVarInfo.getName(), packageVarInfo);
         }
+    }
+
+    private ConstantInfo getConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
+        // Read variable name;
+        int nameCPIndex = dataInStream.readInt();
+        UTF8CPEntry nameUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
+
+        // Read constant value type.
+        int valueTypeCPIndex = dataInStream.readInt();
+        UTF8CPEntry valueTypeUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueTypeCPIndex);
+
+        // Read value type tag.
+        int valueTypeTag = dataInStream.readInt();
+
+        // Read and ignore flags
+        dataInStream.readInt();
+
+        int globalMemIndex = dataInStream.readInt();
+
+        BType valueType = getBTypeFromDescriptor(packageInfo, valueTypeUTF8CPEntry.getValue());
+
+        ConstantInfo packageVarInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue(), valueTypeTag,
+                valueTypeCPIndex, globalMemIndex, valueType);
+
+        // Read attributes
+        readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
+        return packageVarInfo;
     }
 
     private PackageVarInfo getGlobalVarInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
@@ -653,11 +683,11 @@ public class PackageInfoReader {
 
         // Set for the testable package
         packageInfo.setTestInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                TEST_INIT_FUNCTION_SUFFIX));
+                TEST_INIT_FUNCTION_SUFFIX));
         packageInfo.setTestStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                 TEST_START_FUNCTION_SUFFIX));
+                TEST_START_FUNCTION_SUFFIX));
         packageInfo.setTestStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() +
-                                                                                TEST_STOP_FUNCTION_SUFFIX));
+                TEST_STOP_FUNCTION_SUFFIX));
 
         // TODO Improve this. We should be able to this in a single pass.
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();

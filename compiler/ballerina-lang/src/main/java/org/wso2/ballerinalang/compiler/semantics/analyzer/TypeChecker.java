@@ -133,6 +133,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -409,7 +410,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // required fields missing.
         if (recordLiteral.type.tag == TypeTags.RECORD) {
             checkMissingRequiredFields((BRecordType) recordLiteral.type, recordLiteral.keyValuePairs,
-                                       recordLiteral.pos);
+                    recordLiteral.pos);
         }
     }
 
@@ -649,7 +650,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If this is on lhs, no need to do type checking further. And null/error
         // will not propagate from parent expressions
-        if (indexBasedAccessExpr.lhsVar) { 
+        if (indexBasedAccessExpr.lhsVar) {
             indexBasedAccessExpr.originalType = actualType;
             indexBasedAccessExpr.type = actualType;
             resultType = actualType;
@@ -1488,13 +1489,13 @@ public class TypeChecker extends BLangNodeVisitor {
             if (structType.tag == TypeTags.RECORD) {
                 if (funcSymbol == symTable.notFoundSymbol) {
                     dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, iExpr.name.value,
-                               structType.getKind().typeName(), structType.tsymbol);
+                            structType.getKind().typeName(), structType.tsymbol);
                     resultType = symTable.errType;
                     return;
                 }
                 if (funcSymbol.type.tag != TypeTags.INVOKABLE) {
                     dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION, iExpr.name.value,
-                               structType);
+                            structType);
                     resultType = symTable.errType;
                     return;
                 }

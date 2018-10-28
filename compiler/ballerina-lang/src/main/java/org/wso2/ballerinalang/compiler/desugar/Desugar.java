@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -79,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -109,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstantRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -329,12 +332,12 @@ public class Desugar extends BLangNodeVisitor {
      */
     private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
-                                                                       new Name(bLangFunction.name.value),
-                                                                       env.enclPkg.packageID, bLangFunction.type,
-                                                                       env.enclPkg.symbol, true);
+                new Name(bLangFunction.name.value),
+                env.enclPkg.packageID, bLangFunction.type,
+                env.enclPkg.symbol, true);
         functionSymbol.retType = bLangFunction.returnTypeNode.type;
         // Add parameters
-        for (BLangVariable param: bLangFunction.requiredParams) {
+        for (BLangVariable param : bLangFunction.requiredParams) {
             functionSymbol.params.add(param.symbol);
         }
 
@@ -378,8 +381,15 @@ public class Desugar extends BLangNodeVisitor {
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
 
+        //        pkgNode.constants.forEach(constant -> {
+        //            BLangAssignment assignment = createAssignmentStmt(constant);
+        //            if (assignment.expr != null) {
+        //                pkgNode.initFunction.body.stmts.add(assignment);
+        //            }
+        //        });
+
         pkgNode.globalVars.forEach(globalVar -> {
-            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(globalVar);
+            BLangAssignment assignment = createAssignmentStmt(globalVar);
             if (assignment.expr == null) {
                 assignment.expr = getInitExpr(globalVar);
             }
@@ -485,7 +495,7 @@ public class Desugar extends BLangNodeVisitor {
                     if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
                             !Symbols.isFlagOn(field.symbol.flags, maskOptional)) {
                         recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
-                                                                          (BLangStatement) createAssignmentStmt(field));
+                                (BLangStatement) createAssignmentStmt(field));
                     }
                 });
 
@@ -1120,13 +1130,18 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangFieldVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
-            // Package variable | service variable
-            // We consider both of them as package level variables
-            genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
+            if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
+                genVarRefExpr = new BLangConstantRef((BConstantSymbol) varRefExpr.symbol);
+            } else {
 
-            //Only locking service level and package level variables
-            if (!enclLocks.isEmpty()) {
-                enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
+                // Package variable | service variable
+                // We consider both of them as package level variables
+                genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
+
+                //Only locking service level and package level variables
+                if (!enclLocks.isEmpty()) {
+                    enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
+                }
             }
         }
 
@@ -1149,19 +1164,19 @@ public class Desugar extends BLangNodeVisitor {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE &&
                     ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
-                                                             (BVarSymbol) fieldAccessExpr.symbol);
+                        (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                              (BVarSymbol) fieldAccessExpr.symbol, false);
+                        (BVarSymbol) fieldAccessExpr.symbol, false);
             }
         } else if (varRefType.tag == TypeTags.RECORD) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                 targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
-                                                             (BVarSymbol) fieldAccessExpr.symbol);
+                        (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                              (BVarSymbol) fieldAccessExpr.symbol, true);
+                        (BVarSymbol) fieldAccessExpr.symbol, true);
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
@@ -1169,7 +1184,7 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefType.tag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                  fieldAccessExpr.fieldKind);
+                    fieldAccessExpr.fieldKind);
         }
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
@@ -1190,10 +1205,10 @@ public class Desugar extends BLangNodeVisitor {
         BType varRefType = indexAccessExpr.expr.type;
         if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
-                                                          indexAccessExpr.expr,
-                                                          indexAccessExpr.indexExpr,
-                                                          (BVarSymbol) indexAccessExpr.symbol,
-                                                          false);
+                    indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr,
+                    (BVarSymbol) indexAccessExpr.symbol,
+                    false);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr,
                     !indexAccessExpr.type.isNullable());
@@ -2473,6 +2488,26 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = variable.expr;
         assignmentStmt.pos = variable.pos;
+        assignmentStmt.setVariable(varRef);
+        return assignmentStmt;
+    }
+
+    private BLangAssignment createAssignmentStmt(BLangConstant constant) {
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = constant.pos;
+        varRef.variableName = constant.name;
+
+        BConstantSymbol currentSymbol = constant.symbol;
+        BVarSymbol newSymbol = new BVarSymbol(currentSymbol.flags, currentSymbol.name,
+                constant.symbol.pkgID, currentSymbol.value.type, constant.symbol.owner);
+
+        varRef.symbol = newSymbol;
+        //        varRef.symbol = currentSymbol;
+        varRef.type = newSymbol.type;
+
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = currentSymbol.value;
+        assignmentStmt.pos = constant.pos;
         assignmentStmt.setVariable(varRef);
         return assignmentStmt;
     }

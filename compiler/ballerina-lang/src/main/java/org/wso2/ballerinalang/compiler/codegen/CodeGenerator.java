@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -99,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstantRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -164,6 +166,7 @@ import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
+import org.wso2.ballerinalang.programfile.ConstantInfo;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
@@ -409,7 +412,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
+        // Todo - Ignore?
+        // Visit constants first.
         pkgNode.topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
+                .forEach(constant -> genNode((BLangNode) constant, this.env));
+
+        pkgNode.topLevelNodes.stream()
+                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
                         pkgLevelNode.getKind() != NodeKind.XMLNS)
                 .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
@@ -473,6 +483,7 @@ public class CodeGenerator extends BLangNodeVisitor {
      * @param pkgNode package node
      */
     private void visitTopLevelNodes(BLangPackage pkgNode) {
+        pkgNode.constants.forEach(this::createConstantInfo);
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
         pkgNode.annotations.forEach(this::createAnnotationInfoEntry);
@@ -910,6 +921,11 @@ public class CodeGenerator extends BLangNodeVisitor {
             packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
             emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangConstantRef packageVarRef) {
+        int i = 1;
     }
 
     @Override
@@ -1447,7 +1463,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        // Todo - Remove
+        // Todo - Ignore?
+        int i = 0;
+
     }
 
     // private methods
@@ -2012,6 +2030,32 @@ public class CodeGenerator extends BLangNodeVisitor {
 
 
     // Create info entries
+
+    private void createConstantInfo(BLangConstant constant) {
+        BConstantSymbol constantSymbol = constant.symbol;
+        int valueTypeTag = constantSymbol.value.typeTag;
+        constantSymbol.varIndex = getPVIndex(valueTypeTag);
+
+        int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
+        int valueTypeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.value.type.getDesc());
+
+        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, valueTypeCPIndex, valueTypeTag,
+                constantSymbol.flags, constantSymbol.varIndex.value);
+        currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
+
+        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(constantSymbol.value);
+        constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
+
+        //        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(constantSymbol);
+        //        LocalVariableAttributeInfo pkgVarAttrInfo = (LocalVariableAttributeInfo)
+        //                currentPkgInfo.getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+        //        pkgVarAttrInfo.localVars.add(localVarInfo);
+        //
+        //        // TODO Populate annotation attribute
+
+        // Add documentation attributes
+        addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
+    }
 
     private void createPackageVarInfo(BLangVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;

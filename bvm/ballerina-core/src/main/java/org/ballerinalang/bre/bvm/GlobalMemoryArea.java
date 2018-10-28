@@ -19,11 +19,22 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.TypeSignature;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.LockableStructureType;
+import org.ballerinalang.util.codegen.ConstantInfo;
+import org.ballerinalang.util.codegen.DefaultValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
+import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 
 /**
  * This class is used hold the global memory area of a running Ballerina program.
@@ -133,6 +144,80 @@ public class GlobalMemoryArea {
             BStructureType dummyType = new BRecordType(null, "", "", 0);
             dummyType.setFieldTypeCount(globalVarCount);
             globalMemBlock[packageInfo.pkgIndex] = new GlobalMemoryBlock(dummyType);
+
+            // Populate constants values.
+            populateConstantValues(packageInfo);
+        }
+    }
+
+    private void populateConstantValues(PackageInfo packageInfo) {
+        for (ConstantInfo constantInfoEntry : packageInfo.getConstantInfoEntries()) {
+            AttributeInfo defaultValueAttributeInfo =
+                    constantInfoEntry.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+            if (defaultValueAttributeInfo == null) {
+                continue;
+            }
+            DefaultValue defaultValue = ((DefaultValueAttributeInfo) defaultValueAttributeInfo).getDefaultValue();
+
+            // Eg - const string name = "Ballerina";
+            // In the above sample, the type tag is `string`. So we get the string value from the defaultValue.
+            // Otherwise we don't know the type of the default value.
+            //
+            // constantInfoEntry contains the corresponding memory location. So we update the memory location
+            // with the default value directly.
+            switch (constantInfoEntry.getValueTypeTag()) {
+                case TypeTags.INT_TAG:
+                    globalMemBlock[packageInfo.pkgIndex].setIntField(constantInfoEntry.getGlobalMemIndex(),
+                            defaultValue.getIntValue());
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    globalMemBlock[packageInfo.pkgIndex].setFloatField(constantInfoEntry.getGlobalMemIndex(),
+                            defaultValue.getFloatValue());
+                    break;
+                case TypeTags.STRING_TAG:
+                    globalMemBlock[packageInfo.pkgIndex].setStringField(constantInfoEntry.getGlobalMemIndex(),
+                            defaultValue.getStringValue());
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    globalMemBlock[packageInfo.pkgIndex].setBooleanField(constantInfoEntry.getGlobalMemIndex(),
+                            defaultValue.getBooleanValue() ? 1 : 0);
+                    break;
+                default:
+                    // In the default case, we need to update the constantInfoEntry's memory location with a
+                    // reference value.
+                    // Eg -  type Mode "r";
+                    //       const Mode READ_ONLY = "r"; // In here, the type tag will be FINITE_TYPE_TAG.
+                    BRefType value;
+                    String typeDesc = defaultValue.getTypeDesc();
+                    switch (typeDesc) {
+                        case TypeSignature.SIG_BOOLEAN:
+                            boolean boolValue = defaultValue.getBooleanValue();
+                            value = new BBoolean(boolValue);
+                            break;
+                        case TypeSignature.SIG_INT:
+                            long intValue = defaultValue.getIntValue();
+                            value = new BInteger(intValue);
+                            break;
+                        case TypeSignature.SIG_BYTE:
+                            byte byteValue = defaultValue.getByteValue();
+                            value = new BByte(byteValue);
+                            break;
+                        case TypeSignature.SIG_FLOAT:
+                            double floatValue = defaultValue.getFloatValue();
+                            value = new BFloat(floatValue);
+                            break;
+                        case TypeSignature.SIG_STRING:
+                            String stringValue = defaultValue.getStringValue();
+                            value = new BString(stringValue);
+                            break;
+                        default:
+                            // Cannot have reference values since the constants only allow simple literals on the RHS.
+                            throw new ProgramFileFormatException("Unsupported default value type " + typeDesc);
+                    }
+
+                    globalMemBlock[packageInfo.pkgIndex].setRefField(constantInfoEntry.getGlobalMemIndex(), value);
+                    break;
+            }
         }
     }
 }

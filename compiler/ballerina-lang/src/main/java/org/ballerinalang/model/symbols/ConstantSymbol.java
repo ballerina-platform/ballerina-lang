@@ -27,5 +27,5 @@ public interface ConstantSymbol extends Symbol {
 
     BLangLiteral getValue();
 
-    int getValueTag();
+//    int getValueTag();
 }

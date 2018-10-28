@@ -395,6 +395,8 @@ public class Debugger {
                 callingLine.getLineNumber());
         message.addFrame(frameDTO);
 
+        // Todo - Add constants
+
         // Add global variables to the frame
         PackageVarInfo[] packageVarInfoEntries = ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName()).
                 getPackageInfoEntries();

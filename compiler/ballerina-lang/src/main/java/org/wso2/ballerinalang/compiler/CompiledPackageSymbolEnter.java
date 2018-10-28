@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -229,6 +230,9 @@ public class CompiledPackageSymbolEnter {
 
         // Read resource info entries.
         defineSymbols(dataInStream, rethrow(this::defineResource));
+
+        // Define package level variables
+        defineSymbols(dataInStream, rethrow(this::defineConstants));
 
         // Define package level variables
         defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
@@ -643,6 +647,31 @@ public class CompiledPackageSymbolEnter {
             readAttributes(dataInStream);
         }
         readAttributes(dataInStream);
+    }
+
+    private void defineConstants(DataInputStream dataInStream) throws IOException {
+        String constantName = getUTF8CPEntryValue(dataInStream);
+        String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+
+        int valueTypeTag = dataInStream.readInt();
+
+        int flags = dataInStream.readInt();
+        int memIndex = dataInStream.readInt();
+
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+
+        // Create variable symbol
+        BType varType = getBTypeFromDescriptor(valueTypeSig);
+        Scope enclScope = this.env.pkgSymbol.scope;
+        BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
+                this.env.pkgSymbol.pkgID, varType, enclScope.owner);
+
+        setDocumentation(constantSymbol, attrDataMap);
+
+        // Todo - What tag?
+        //        constantSymbol.varIndex = new RegIndex(memIndex, varType.tag);
+        constantSymbol.varIndex = new RegIndex(memIndex, valueTypeTag);
+        enclScope.define(constantSymbol.name, constantSymbol);
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {

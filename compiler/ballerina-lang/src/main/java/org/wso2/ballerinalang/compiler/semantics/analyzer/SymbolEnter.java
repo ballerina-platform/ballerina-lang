@@ -659,7 +659,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, null,
                 env.scope.owner);
         constantSymbol.value = (BLangLiteral) constant.value;
-        constantSymbol.valueTypeTag = ((BLangLiteral) constant.value).typeTag;
+        //        constantSymbol.valueTypeTag = ((BLangLiteral) constant.value).typeTag;
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Note - constant.typeNode.type will be resolved in the semantic analyzer since we might not be able to

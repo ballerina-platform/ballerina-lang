@@ -1493,7 +1493,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangConstant constant) {
         BLangLiteral value = (BLangLiteral) constant.value;
         // Check the value to set the type to it.
-        typeChecker.checkExpr(value, env);
+
         BLangType typeNode = constant.typeNode;
         if (typeNode != null) {
             // Resolve the type node and update the type of the type node.
@@ -1515,8 +1515,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(constant.pos, DiagnosticCode.INCOMPATIBLE_TYPES, typeNode.type, value.type);
                 return;
             }
+
+            // Check type of the value.
+            typeChecker.checkExpr(value, env, typeNode.type);
+
             // Update the symbol's value type tag. This is done because we need to support decimal type.
-            constant.symbol.valueTypeTag = typeNode.type.tag;
+            constant.symbol.value.typeTag = typeNode.type.tag;
+        } else {
+            // Todo - What should be the expected type?
+            // We don't have any expected type in this case.
+            typeChecker.checkExpr(value, env);
         }
     }
 
