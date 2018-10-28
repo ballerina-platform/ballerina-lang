@@ -21,14 +21,15 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
@@ -51,13 +52,13 @@ import java.util.stream.Collectors;
  * Interface for completion item resolvers.
  */
 public abstract class AbstractItemResolver {
-    
+
     public abstract List<CompletionItem> resolveItems(LSServiceOperationContext completionContext);
 
     /**
      * Populate the completion item list by considering the.
      *
-     * @param symbolInfoList    list of symbol information
+     * @param symbolInfoList list of symbol information
      * @return {@link List}     list of completion items
      */
     protected List<CompletionItem> getCompletionItemList(List<SymbolInfo> symbolInfoList) {
@@ -66,20 +67,24 @@ public abstract class AbstractItemResolver {
         symbolInfoList.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.isIterableOperation() ? null : symbolInfo.getScopeEntry().symbol;
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isIterableOperation()) {
-                completionItems.add(this.populateBallerinaFunctionCompletionItem(symbolInfo));
+                completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
-                completionItems.add(this.populateVariableDefCompletionItem(symbolInfo));
+                String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
+                completionItems.add(
+                        BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, symbolInfo.getSymbolName(), typeName)
+                );
             } else if (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol)) {
                 // Here skip all the package symbols since the package is added separately
-                completionItems.add(BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
+                completionItems.add(
+                        BTypeCompletionItemBuilder.build((BTypeSymbol) bSymbol, symbolInfo.getSymbolName()));
             }
         });
-        
         return completionItems;
     }
 
     /**
      * Populate the completion item list by either list.
+     *
      * @param list              Either List of completion items or symbol info
      * @return {@link List}     Completion Items List
      */
@@ -92,24 +97,6 @@ public abstract class AbstractItemResolver {
         }
         
         return completionItems;
-    }
-
-    /**
-     * Populate the Variable Definition Completion Item.
-     *
-     * @param symbolInfo                symbol information
-     * @return {@link CompletionItem}   completion item
-     */
-    protected CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(symbolInfo.getSymbolName());
-        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
-        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
-        completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
-        completionItem.setKind(CompletionItemKind.Unit);
-
-        return completionItem;
     }
 
     /**
@@ -158,7 +145,8 @@ public abstract class AbstractItemResolver {
         visibleSymbols.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             if (bSymbol instanceof BTypeSymbol) {
-                completionItems.add(BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
+                completionItems.add(
+                        BTypeCompletionItemBuilder.build((BTypeSymbol) bSymbol, symbolInfo.getSymbolName()));
             }
         });
         
@@ -270,19 +258,20 @@ public abstract class AbstractItemResolver {
 
     /**
      * Populate the Ballerina Function Completion Item.
+     *
      * @param symbolInfo - symbol information
      * @return completion item
      */
     private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
         if (symbolInfo.isIterableOperation()) {
-            return BInvokableSymbolUtil.getFunctionCompletionItem(
-                    symbolInfo.getIterableOperationSignature().getInsertText(),
-                    symbolInfo.getIterableOperationSignature().getLabel());
+            SymbolInfo.IterableOperationSignature signature =
+                    symbolInfo.getIterableOperationSignature();
+            return BFunctionCompletionItemBuilder.build(null, signature.getLabel(), signature.getInsertText());
         }
         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
         if (!(bSymbol instanceof BInvokableSymbol)) {
             return null;
         }
-        return BInvokableSymbolUtil.getFunctionCompletionItem((BInvokableSymbol) bSymbol);
+        return BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol);
     }
 }

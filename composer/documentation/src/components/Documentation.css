@@ -1,0 +1,57 @@
+.documentation {
+    margin: 10px;
+    margin-bottom: 30px;
+}
+
+.documentation .title {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.documentation p {
+    line-height: 1.2em;
+}
+
+.documentation .parameters {
+    width: 100%;
+}
+
+.documentation .return-parameters {
+    min-width: 100px;
+}
+
+.documentation table {
+    margin-top: 5px;
+    text-align: left;
+    font-size: 13px;
+    border-collapse: collapse;
+}
+
+.documentation table th
+{
+    border-bottom:1px solid;
+}
+
+.documentation table td
+{
+    padding-top: 3px;
+}
+
+.documentation table th,
+.documentation table td {
+    vertical-align: top;
+    border-right:1px solid;
+    border-color: #555555;
+    padding-left: 3px;
+    min-width: 100px;
+    max-width: 200px;
+}
+
+.documentation table th:last-child, 
+.documentation table td:last-child  {
+    border-right: none;
+}
+
+.documentation table td p {
+    margin: 0;
+}

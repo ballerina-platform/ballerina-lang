@@ -77,6 +77,29 @@ service<http:Service> publisher bind publisherServiceEP {
             };
         }
     }
+
+    topicInfo(endpoint caller, http:Request req) {
+        if (req.hasHeader("x-topic")) {
+            string topicName = req.getHeader("x-topic");
+            websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
+            json j = check <json> details[0];
+            caller->respond(j) but {
+                error e => log:printError("Error responding on topicInfo request", err = e)
+            };
+        } else {
+            map allTopics;
+            int index=1;
+            string [] availableTopics = webSubHub.getAvailableTopics();
+            foreach topic in availableTopics {
+                allTopics["Topic_" + index] = topic;
+                index += 1;
+            }
+            json j = check <json> allTopics;
+            caller->respond(j) but {
+                error e => log:printError("Error responding on topicInfo request", err = e)
+            };
+        }
+    }
 }
 
 service<http:Service> publisherTwo bind publisherServiceEP {
