@@ -31,7 +31,8 @@ public class TypeTags {
     public static final int JSON_TAG = BOOLEAN_TAG + 1;
     public static final int XML_TAG = JSON_TAG + 1;
     public static final int TABLE_TAG = XML_TAG + 1;
-    public static final int ANYDATA_TAG = TABLE_TAG + 1;
+    public static final int NULL_TAG = TABLE_TAG + 1;
+    public static final int ANYDATA_TAG = NULL_TAG + 1;
     public static final int RECORD_TYPE_TAG = ANYDATA_TAG + 1;
     public static final int TYPEDESC_TAG = RECORD_TYPE_TAG + 1;
     public static final int STREAM_TAG = TYPEDESC_TAG + 1;
@@ -42,8 +43,7 @@ public class TypeTags {
     public static final int SERVICE_TAG = ENDPOINT_TAG + 1;
     public static final int ARRAY_TAG = SERVICE_TAG + 1;
     public static final int UNION_TAG = ARRAY_TAG + 1;
-    public static final int NULL_TAG = UNION_TAG + 1;
-    public static final int PACKAGE_TAG = NULL_TAG + 1;
+    public static final int PACKAGE_TAG = UNION_TAG + 1;
     public static final int NONE_TAG = PACKAGE_TAG + 1;
     public static final int VOID_TAG = NONE_TAG + 1;
     public static final int XMLNS_TAG = VOID_TAG + 1;

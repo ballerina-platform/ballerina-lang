@@ -31,7 +31,8 @@ public class TypeTags {
     public static final int JSON = BOOLEAN + 1;
     public static final int XML = JSON + 1;
     public static final int TABLE = XML + 1;
-    public static final int ANYDATA = TABLE + 1;
+    public static final int NIL = TABLE + 1;
+    public static final int ANYDATA = NIL + 1;
     public static final int RECORD = ANYDATA + 1;
     public static final int TYPEDESC = RECORD + 1;
     public static final int STREAM = TYPEDESC + 1;
@@ -43,8 +44,7 @@ public class TypeTags {
     public static final int SERVICE = ENDPOINT + 1;
     public static final int ARRAY = SERVICE + 1;
     public static final int UNION = ARRAY + 1;
-    public static final int NIL = UNION + 1;
-    public static final int PACKAGE = NIL + 1;
+    public static final int PACKAGE = UNION + 1;
     public static final int NONE = PACKAGE + 1;
     public static final int VOID = NONE + 1;
     public static final int XMLNS = VOID + 1;
