@@ -1017,7 +1017,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // This is a tuple.
             BType actualType = new BTupleType(results);
 
-            if (expType.tag == TypeTags.ANY) {
+            if (expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
                 dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
                 resultType = symTable.semanticError;
                 return;

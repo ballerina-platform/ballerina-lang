@@ -1027,7 +1027,7 @@ public class Types {
 
         @Override
         public BSymbol visit(BTupleType t, BType s) {
-            if (s == symTable.anyType) {
+            if (s == symTable.anyType || s == symTable.anydataType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             }
             return symTable.notFoundSymbol;
