@@ -1233,31 +1233,20 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private void convertFieldAccessArgsToStringLiteral(BLangInvocation invocation) {
         //converting BLangFieldBaseAccess to BLangLiteral of string type, in argExprs
         BLangLiteral streamEventParameter;
-        for (int i = 0; i < invocation.argExprs.size(); i++) {
-            BLangExpression exp = invocation.argExprs.get(i);
-            if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-
-                String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
-                if (streamAliasMap.containsKey(variableName)) {
-                    variableName = streamAliasMap.get(variableName);
-                    ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
+        for (BLangExpression expression:invocation.argExprs) {
+            if (expression.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
+                for (int i = 0; i < ((BLangArrayLiteral) expression).exprs.size(); i++) {
+                    BLangExpression exp = ((BLangArrayLiteral) expression).exprs.get(i);
+                    if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                        String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
+                        if (streamAliasMap.containsKey(variableName)) {
+                            variableName = streamAliasMap.get(variableName);
+                            ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
+                        }
+                        streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
+                        ((BLangArrayLiteral) expression).exprs.set(i, streamEventParameter);
+                    }
                 }
-                streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
-                invocation.argExprs.set(i, streamEventParameter);
-            }
-        }
-
-        //converting BLangFieldBaseAccess to BLangLiteral of string type, in requiredArgs
-        for (int i = 0; i < invocation.requiredArgs.size(); i++) {
-            BLangExpression exp = invocation.requiredArgs.get(i);
-            if (exp.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                String variableName = ((BLangFieldBasedAccess) exp).expr.toString();
-                if (streamAliasMap.containsKey(variableName)) {
-                    variableName = streamAliasMap.get(variableName);
-                    ((BLangSimpleVarRef) ((BLangFieldBasedAccess) exp).expr).variableName.value = variableName;
-                }
-                streamEventParameter = createStringLiteral(exp.pos, (exp).toString());
-                invocation.requiredArgs.set(i, streamEventParameter);
             }
         }
     }
