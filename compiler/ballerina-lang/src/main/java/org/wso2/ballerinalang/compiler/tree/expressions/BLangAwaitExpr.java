@@ -22,6 +22,9 @@ import org.ballerinalang.model.tree.expressions.AwaitExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This represents the await expression implementation.
  * 
@@ -29,7 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNode {
 
-    private static final String AWAIT_KEYWORD = "await";
+    private static final String WAIT_KEYWORD = "wait";
     
     public BLangExpression expr;
 
@@ -45,12 +48,51 @@ public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNo
 
     @Override
     public String toString() {
-        return AWAIT_KEYWORD + " " + String.valueOf(expr);
+        return WAIT_KEYWORD + " " + String.valueOf(expr);
     }
 
     @Override
     public ExpressionNode getExpression() {
         return expr;
     }
-    
+
+    /**
+     * @since 0.983.0
+     */
+    public static class BLangWaitForAny extends BLangAwaitExpr {
+        public List<BLangExpression> exprList = new ArrayList<>();
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        public List<BLangExpression> getExpressionList() {
+            return exprList;
+        }
+
+        public String toString() {
+            return WAIT_KEYWORD + " " +  String.join("|", String.valueOf(exprList));
+        }
+    }
+
+    /**
+     * @since 0.983.0
+     */
+    public static class BLangWaitForAll extends BLangAwaitExpr {
+        public List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = new ArrayList<>();
+
+        public List<BLangRecordLiteral.BLangRecordKeyValue> getKeyValuePairs() {
+            return keyValuePairs;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        public String toString() {
+            return WAIT_KEYWORD + " {" +  String.join(",", String.valueOf(keyValuePairs)) + "}";
+        }
+    }
 }
