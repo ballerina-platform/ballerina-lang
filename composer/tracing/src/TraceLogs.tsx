@@ -19,7 +19,6 @@
 import * as React from "react";
 import ToolBar from './ToolBar';
 import TraceList from './TraceList';
-// import './index.scss';
 
 export interface TraceLogsState {
     filteredTraces: Array<any>;
