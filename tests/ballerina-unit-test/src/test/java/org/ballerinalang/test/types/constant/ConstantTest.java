@@ -21,6 +21,7 @@ package org.ballerinalang.test.types.constant;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,9 +40,79 @@ public class ConstantTest {
     }
 
     @Test
-    public void getName() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getName");
+    public void testConstInReturn() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInReturn");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
+    public void testConstWithTypeInReturn() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeInReturn");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testConstAsParam() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstAsParam");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
+    public void testConstInRecord() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInRecord");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
+    public void testConstAssignmentToGlobalVariable() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstAssignmentToGlobalVariable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
+    public void testConstAssignmentToLocalVariable() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstAssignmentToLocalVariable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
+    public void testConstWithTypeAssignmentToGlobalVariable() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeAssignmentToGlobalVariable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testConstWithTypeAssignmentToLocalVariable() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeAssignmentToLocalVariable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testConstConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstConcat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
+    }
+
+    @Test
+    public void testTypeConstants() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTypeConstants");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "GET");
+    }
+
+    @Test
+    public void testConstWithTypeAssignmentToType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeAssignmentToType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "GET");
     }
 }
