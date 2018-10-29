@@ -20,8 +20,6 @@ import * as React from "react";
 import * as _ from 'lodash';
 import moment from 'moment';
 import { Table, Icon } from 'semantic-ui-react';
-// import './index.scss';
-
 
 const directionToIcon = {
     INBOUND: {
