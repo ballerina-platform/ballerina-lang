@@ -16,7 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/http;
-import ballerina/jdbc;
+import ballerina/h2;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/sql;
@@ -378,11 +378,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
 function changeTopicRegistrationInDatabase(string mode, string topic) {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
@@ -407,11 +408,12 @@ function changeTopicRegistrationInDatabase(string mode, string topic) {
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscriptionDetails) {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
@@ -451,11 +453,12 @@ function setupOnStartup() {
 
 # Function to load topic registrations from the database.
 function addTopicRegistrationsOnStartup() {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
     table dt;
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
@@ -484,11 +487,12 @@ function addTopicRegistrationsOnStartup() {
 
 # Function to add subscriptions to the broker on startup, if persistence is enabled.
 function addSubscriptionsOnStartup() {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
 
     int time = time:currentTime().time;
@@ -518,11 +522,12 @@ function addSubscriptionsOnStartup() {
 
 # Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
 function clearSubscriptionDataInDb() {
-    endpoint jdbc:Client subscriptionDbEp {
-        url:hubDatabaseUrl,
-        username:hubDatabaseUsername,
-        password:hubDatabasePassword,
-        poolOptions:{maximumPoolSize:5}
+    endpoint h2:Client subscriptionDbEp {
+        path: hubDatabaseDirectory,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        poolOptions: { maximumPoolSize:5 }
     };
 
     var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");
