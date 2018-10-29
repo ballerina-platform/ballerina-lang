@@ -32,9 +32,7 @@ import java.util.List;
  *          !...
  *      };
  *
- *      Person p = {name: "Peter", married: true};
- *      Person {name: fName, married} = p;
- *
+ *      Person {name, married} = {name: "Peter", married: true};
  *
  * @since 0.985.0
  */
