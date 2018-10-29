@@ -151,6 +151,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceiveExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -254,7 +257,7 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> invocationWsStack = new Stack<>();
 
-    private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
+    private Stack<List<BLangRecordKeyValue>> recordKeyValNodeListStack = new Stack<>();
 
     private Stack<BLangTableLiteral> tableLiteralNodes = new Stack<>();
 
@@ -1022,14 +1025,36 @@ public class BLangPackageBuilder {
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
-        recordLiteralNodes.peek().keyValuePairs.add(keyValue);
+        recordKeyValNodeListStack.peek().add(keyValue);
     }
 
     void addMapStructLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangRecordLiteral recordTypeLiteralNode = recordLiteralNodes.pop();
+        BLangRecordLiteral recordTypeLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         recordTypeLiteralNode.pos = pos;
         recordTypeLiteralNode.addWS(ws);
+        recordTypeLiteralNode.keyValuePairs = recordKeyValNodeListStack.pop();
         addExpressionNode(recordTypeLiteralNode);
+    }
+
+    void addMapStructLiteralForWait(DiagnosticPos pos, Set<Whitespace> ws, List<String> identifiers) {
+        BLangAwaitExpr.BLangWaitForAll waitForAllExpr = TreeBuilder.createWaitForAllExpressionNode();
+        waitForAllExpr.pos = pos;
+        waitForAllExpr.addWS(ws);
+        // Check for the identifiers and add them as record key-value pairs
+        for (String identifierName : identifiers) {
+            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+            // Key
+            BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            keyExpr.pos = pos;
+            keyExpr.variableName = (BLangIdentifier) createIdentifier(identifierName);
+            keyExpr.pkgAlias = (BLangIdentifier) createIdentifier(null);
+            keyValue.key = new BLangRecordKey(keyExpr);
+            // Value
+            keyValue.valueExpr = keyExpr;
+            this.recordKeyValNodeListStack.peek().add(keyValue);
+        }
+        waitForAllExpr.keyValuePairs = recordKeyValNodeListStack.pop();
+        addExpressionNode(waitForAllExpr);
     }
 
     void startTableLiteral() {
@@ -1110,8 +1135,7 @@ public class BLangPackageBuilder {
     }
 
     void startMapStructLiteral() {
-        BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-        recordLiteralNodes.push(literalNode);
+        recordKeyValNodeListStack.push(new ArrayList<>());
     }
 
     void startExprNodeList() {
@@ -1312,10 +1336,28 @@ public class BLangPackageBuilder {
     }
 
     void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangAwaitExpr awaitExpr = TreeBuilder.createAwaitExpressionNode();
+        BLangAwaitExpr awaitExpr = TreeBuilder.createWaitExpressionNode();
+        awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
         awaitExpr.pos = pos;
         awaitExpr.addWS(ws);
-        awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(awaitExpr);
+    }
+
+    void createWaitExprForAny(DiagnosticPos pos, Set<Whitespace> ws, int noOfExprs) {
+        BLangAwaitExpr.BLangWaitForAny awaitExpr = TreeBuilder.createWaitForAnyExpressionNode();
+        // Wait for any
+        for (int i = 0; i < noOfExprs; i++) {
+            awaitExpr.exprList.add(0, (BLangExpression) exprNodeStack.pop());
+        }
+        awaitExpr.pos = pos;
+        awaitExpr.addWS(ws);
+        addExpressionNode(awaitExpr);
+    }
+
+    void createWaitExprForAll(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangAwaitExpr.BLangWaitForAll awaitExpr = TreeBuilder.createWaitForAllExpressionNode();
+        awaitExpr.pos = pos;
+        awaitExpr.addWS(ws);
         addExpressionNode(awaitExpr);
     }
 
@@ -2336,6 +2378,45 @@ public class BLangPackageBuilder {
             workerReceiveNode.isChannel = true;
         }
         addStmtToCurrentBlock(workerReceiveNode);
+    }
+
+    void addWorkerReceiveExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
+        BLangWorkerReceiveExpr workerReceiveExpr = TreeBuilder.createWorkerReceiveExpressionNode();
+        workerReceiveExpr.setWorkerName(this.createIdentifier(workerName));
+        workerReceiveExpr.pos = pos;
+        workerReceiveExpr.addWS(ws);
+        //if there are two expressions, this is a channel receive and the top expression is the key
+        if (hasKey) {
+            workerReceiveExpr.keyExpr = (BLangExpression) exprNodeStack.pop();
+            workerReceiveExpr.isChannel = true;
+        }
+        addExpressionNode(workerReceiveExpr);
+    }
+
+    void addWorkerFlushExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
+        BLangWorkerFlushExpr workerFlushExpr = TreeBuilder.createWorkerFlushExpressionNode();
+        workerFlushExpr.setWorkerName(this.createIdentifier(workerName));
+        workerFlushExpr.pos = pos;
+        workerFlushExpr.addWS(ws);
+        addExpressionNode(workerFlushExpr);
+    }
+
+    void addWorkerSendExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend,
+                           boolean hasKey, boolean async) {
+        BLangWorkerSendExpr workerSendExpr = TreeBuilder.createWorkerSendExpressionNode();
+        workerSendExpr.setWorkerName(this.createIdentifier(workerName));
+        workerSendExpr.expr = (BLangExpression) exprNodeStack.pop();
+        workerSendExpr.isForkJoinSend = isForkJoinSend;
+        workerSendExpr.pos = pos;
+        workerSendExpr.async = async;
+        workerSendExpr.addWS(ws);
+        //added to use for channels as well
+        if (hasKey) {
+            workerSendExpr.keyExpr = workerSendExpr.expr;
+            workerSendExpr.expr = (BLangExpression) exprNodeStack.pop();
+            workerSendExpr.isChannel = true;
+        }
+        addExpressionNode(workerSendExpr);
     }
 
     void addExpressionStmt(DiagnosticPos pos, Set<Whitespace> ws) {

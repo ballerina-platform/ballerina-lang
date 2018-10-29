@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.tree.expressions.WorkerSendExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
@@ -93,6 +94,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceiveExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -748,6 +751,18 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangScope scopeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWorkerReceiveExpr workerReceiveExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(WorkerSendExpressionNode workerSendExpressionNode) {
         throw new AssertionError();
     }
 }

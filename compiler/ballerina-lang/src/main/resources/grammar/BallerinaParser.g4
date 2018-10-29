@@ -320,6 +320,10 @@ recordLiteral
     :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
     ;
 
+waitForAllLiteral
+    :   LEFT_BRACE (Identifier | recordKeyValue) (COMMA (Identifier | recordKeyValue))* RIGHT_BRACE
+    ;
+
 recordKeyValue
     :   recordKey COLON expression
     ;
@@ -505,18 +509,26 @@ returnStatement
 
 workerInteractionStatement
     :   triggerWorker
-    |   workerReply
     ;
 
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
 triggerWorker
-    :   expression RARROW Identifier (COMMA expression)? SEMICOLON        #invokeWorker
-    |   expression RARROW FORK SEMICOLON              #invokeFork
+    :   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 
 // below left Identifier is of type WORKER or CHANNEL and the right Identifier is of type message
 workerReply
-    :   expression LARROW Identifier (COMMA expression)? SEMICOLON
+    :   LARROW Identifier (COMMA expression)?
+    ;
+
+flushWorker
+    :   FLUSH LEFT_BRACKET Identifier RIGHT_BRACKET
+    ;
+
+waitExpression
+    :   WAIT waitForAllLiteral             #waitForAll
+    |   WAIT expression (PIPE expression)+ #waitForAny
+    |   WAIT expression                    #waitForOne
     ;
 
 variableReference
@@ -653,11 +665,15 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   awaitExpression                                                     # awaitExprExpression
+    |   expression SYNCRARROW Identifier (COMMA expression)?                # workerSendSyncExpression
+    |   expression RARROW Identifier (COMMA expression)?                    # workerSendAsyncExpression
+    |   waitExpression                                                      # waitExprExpression
     |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeName                                                            # typeAccessExpression
+    |   workerReply                                                         # workerReceiveExpression
+    |   flushWorker                                                         # flushWorkerExpression
     ;
 
 typeInitExpr
@@ -671,10 +687,6 @@ errorConstructorExpr
 
 trapExpr
     :   TRAP expression
-    ;
-
-awaitExpression
-    :   AWAIT expression                                                    # awaitExpr
     ;
 
 shiftExpression

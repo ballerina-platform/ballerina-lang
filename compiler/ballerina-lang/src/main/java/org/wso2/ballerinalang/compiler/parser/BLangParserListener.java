@@ -1595,16 +1595,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
-                .expression().size() > 1);
-    }
-
-    @Override
     public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1619,8 +1609,78 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
-                .expression().size() > 1);
+        this.pkgBuilder.addWorkerReceiveExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
+                .expression() != null);
+    }
+
+    @Override
+    public void exitFlushWorker(BallerinaParser.FlushWorkerContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addWorkerFlushExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+    }
+
+    @Override
+    public void exitWorkerSendAsyncExpression(BallerinaParser.WorkerSendAsyncExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addWorkerSendExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
+                .expression().size() > 1, true);
+    }
+
+    @Override
+    public void exitWorkerSendSyncExpression(BallerinaParser.WorkerSendSyncExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addWorkerSendExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
+                .expression().size() > 1, false);
+    }
+
+    @Override
+    public void exitWaitForOne(BallerinaParser.WaitForOneContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitWaitForAny(BallerinaParser.WaitForAnyContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createWaitExprForAny(getCurrentPos(ctx), getWS(ctx), ctx.expression().size());
+    }
+
+    @Override
+    public void enterWaitForAllLiteral(BallerinaParser.WaitForAllLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startMapStructLiteral();
+    }
+
+    @Override
+    public void exitWaitForAllLiteral(BallerinaParser.WaitForAllLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        // add the identifier nodes as record key-value pairs
+        List <String> identifiers = new ArrayList<>();
+        for (TerminalNode terminalNode: ctx.Identifier()) {
+            identifiers.add(terminalNode.getText());
+        }
+
+        this.pkgBuilder.addMapStructLiteralForWait(getCurrentPos(ctx), getWS(ctx), identifiers);
     }
 
     /**
@@ -3150,17 +3210,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String contentText = ctx.deprecatedText() != null ? ctx.deprecatedText().getText() : "";
         this.pkgBuilder.createDeprecatedNode(getCurrentPos(ctx), getWS(ctx), contentText);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

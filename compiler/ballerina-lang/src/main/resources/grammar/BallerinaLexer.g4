@@ -142,6 +142,8 @@ COMPENSATION: 'compensation';
 COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
+FLUSH       : 'flush' ;
+WAIT        : 'wait' ;
 
 // Separators
 
@@ -203,7 +205,7 @@ ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
-
+SYNCRARROW      : '->>' ;
 
 // Compound Assignment operators.
 
