@@ -75,14 +75,16 @@ public class CreateObjectConstructorExecutor implements LSCommandExecutor {
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 false, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
         int finalLine = line;
         
         /*
         In the ideal situation Command execution exception should never throw. If thrown, create constructor command
         has been executed over a non object type node.
          */
-        TopLevelNode objectNode = bLangPackage.topLevelNodes.stream()
+        TopLevelNode objectNode = CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(topLevelNode -> topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).symbol.kind.equals(SymbolKind.OBJECT)
                         && topLevelNode.getPosition().getStartLine() - 1 == finalLine)

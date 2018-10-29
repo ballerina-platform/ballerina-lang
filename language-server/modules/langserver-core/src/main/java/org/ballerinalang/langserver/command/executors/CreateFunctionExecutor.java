@@ -115,7 +115,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             return new Object();
         }
 
-        String editText = CommonUtil.FunctionGenerator.createFunction(funcName, funcArgs, returnType, returnDefaultValue);
+        String editText = CommonUtil.FunctionGenerator.createFunction(funcName, funcArgs, returnType,
+                returnDefaultValue);
         Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
 
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();

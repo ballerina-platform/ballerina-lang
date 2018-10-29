@@ -49,9 +49,9 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
  * @since 0.983.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
-public class ImportPackageExecutor implements LSCommandExecutor {
+public class ImportModuleExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "IMPORT_PKG";
+    private static final String COMMAND = "IMPORT_MODULE";
 
     /**
      * {@inheritDoc}
@@ -66,7 +66,7 @@ public class ImportPackageExecutor implements LSCommandExecutor {
                 documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
                 textDocumentIdentifier.setUri(documentUri);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_PKG_NAME)) {
+            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
                 context.put(ExecuteCommandKeys.PKG_NAME_KEY, (String) ((LinkedTreeMap) arg).get(ARG_VALUE));
             }
         }
@@ -79,29 +79,28 @@ public class ImportPackageExecutor implements LSCommandExecutor {
             try {
                 fileContent = documentManager.getFileContent(compilationPath);
             } catch (WorkspaceDocumentException e) {
-                throw new LSCommandExecutorException("Error executing command Import package: " + e.getMessage());
+                throw new LSCommandExecutorException("Error executing command Import module: " + e.getMessage());
             }
             String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
             int totalLines = contentComponents.length;
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                    LSCustomErrorStrategy.class,
-                    false).getRight();
-            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                    bLangPackage.symbol.getName().getValue());
+            BLangPackage bLangPackage = lsCompiler
+                    .getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false)
+                    .getRight();
+            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+            BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
-            DiagnosticPos pos;
+            DiagnosticPos pos = null;
 
             // Filter the imports except the runtime import
-            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(bLangPackage, context);
+            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
 
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
                 pos = lastImport.getPosition();
-            } else {
-                pos = null;
             }
 
             int endCol = pos == null ? -1 : pos.getEndColumn() - 1;
@@ -117,9 +116,9 @@ public class ImportPackageExecutor implements LSCommandExecutor {
                 remainingTextToReplace = fileContent;
             }
 
-            String editText = (pos != null ? "\r\n" : "") + "import " + pkgName + ";"
-                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
-                    + remainingTextToReplace;
+            String editText = (pos != null ? CommonUtil.LINE_SEPARATOR : "") + "import " + pkgName + ";"
+                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r")
+                    ? "" : CommonUtil.LINE_SEPARATOR) + remainingTextToReplace;
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
 
             return applySingleTextEdit(editText, range, textDocumentIdentifier,

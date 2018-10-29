@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -37,8 +38,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.ballerinalang.langserver.command.CommandUtil.getDocumentationEditForNode;
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
+import static org.ballerinalang.langserver.command.CommandUtil.getDocumentationEditForNode;
 
 /**
  * Command executor for adding all documentation for top level items.
@@ -70,9 +71,13 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
                 .getRight();
 
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
+
         List<TextEdit> textEdits = new ArrayList<>();
         String fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        bLangPackage.topLevelNodes.stream()
+        CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
                 .forEach(topLevelNode -> {
                     CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
