@@ -23,7 +23,8 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import java.util.List;
 
 /**
- * Represents a tuple variable reference node
+ * Represents a tuple variable reference node.
+ * Example:
  *      string s;
  *      int i;
  *      boolean b;
