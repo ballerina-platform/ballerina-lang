@@ -35,58 +35,42 @@ service<http:WebSocketService> PingPongTestService2 bind { port: 9095 } {
         };
         wsEp.attributes[ASSOCIATED_CONNECTION3] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION3] = wsEp;
-        wsClientEp->ready() but {
-            error e => log:printError("Error starting client", err = e)
-        };
+        check wsClientEp->ready();
     }
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp;
 
         if (text == "ping-me") {
-            wsEp->ping(APPLICATION_DATA3) but {
-                error e => log:printError("Error sending server ping", err = e)
-            };
+            check wsEp->ping(APPLICATION_DATA3);
         }
 
         if (text == "ping-remote-server") {
             clientEp = getAssociatedClientEndpoint2(wsEp);
-            clientEp->ping(APPLICATION_DATA3) but {
-                error e => log:printError("Error sending client ping", err = e)
-            };
+            check clientEp->ping(APPLICATION_DATA3);
         }
 
         if (text == "tell-remote-server-to-ping") {
             clientEp = getAssociatedClientEndpoint2(wsEp);
             log:printInfo(clientEp.response.getHeader("upgrade"));
-            clientEp->pushText("ping") but {
-                error e => log:printError("Error sending client ping", err = e)
-            };
+            check clientEp->pushText("ping");
         }
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint2(wsEp);
-            clientEp->pushText(text + ":X-some-header") but {
-                error e => log:printError("Error sending request headers", err = e)
-            };
+            check clientEp->pushText(text + ":X-some-header");
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint2(wsEp);
-            clientEp->pushText(clientEp.response.getHeader("X-server-header")) but {
-                error e => log:printError("Error sending response headers", err = e)
-            };
+            check clientEp->pushText(clientEp.response.getHeader("X-server-header"));
         }
     }
 
     onPing(endpoint wsEp, byte[] localData) {
-        wsEp->pong(localData) but {
-            error e => log:printError("Error sending server pong", err = e)
-        };
+        check wsEp->pong(localData);
     }
 
     onPong(endpoint wsEp, byte[] localData) {
-        wsEp->pushText("pong-from-you") but {
-            error e => log:printError("Server text error", err = e)
-        };
+        check wsEp->pushText("pong-from-you");
     }
 
 }
@@ -95,23 +79,17 @@ service<http:WebSocketClientService> clientCallbackService2 {
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
-        serverEp->pushText(text) but {
-            error e => log:printError("Error sending client text", err = e)
-        };
+        check serverEp->pushText(text);
     }
 
     onPing(endpoint wsEp, byte[] localData) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
-        serverEp->pushText("ping-from-remote-server-received") but {
-            error e => log:printError("Error sending client text", err = e)
-        };
+        check serverEp->pushText("ping-from-remote-server-received");
     }
 
     onPong(endpoint wsEp, byte[] localData) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
-        serverEp->pushText("pong-from-remote-server-received") but {
-            error e => log:printError("Error sending client text", err = e)
-        };
+        check serverEp->pushText("pong-from-remote-server-received");
     }
 }
 
