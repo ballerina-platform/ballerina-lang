@@ -82,3 +82,44 @@ function testConstWithTypeAssignmentToType() returns ACTION {
     ACTION action = constActionWithType;
     return action;
 }
+
+const constActionWithoutType = "GET";
+
+function testConstWithoutTypeAssignmentToType() returns ACTION {
+    ACTION action = constActionWithoutType;
+    return action;
+}
+
+// -----------------------------------------------------------
+
+function testEqualityWithConstWithoutType() returns boolean {
+    return name == "Ballerina";
+}
+
+// -----------------------------------------------------------
+
+function testEqualityWithConstWithType() returns boolean {
+    return age == 10;
+}
+
+// -----------------------------------------------------------
+
+const booleanWithoutType = true;
+
+function testConstWithoutTypeInCondition() returns boolean {
+    if (booleanWithoutType) {
+        return true;
+    }
+    return false;
+}
+
+// -----------------------------------------------------------
+
+const boolean booleanWithType = true;
+
+function testConstWithTypeInCondition() returns boolean {
+    if (booleanWithoutType) {
+        return true;
+    }
+    return false;
+}

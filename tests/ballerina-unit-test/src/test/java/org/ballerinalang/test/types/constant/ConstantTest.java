@@ -21,6 +21,7 @@ package org.ballerinalang.test.types.constant;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -114,5 +115,40 @@ public class ConstantTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeAssignmentToType");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "GET");
+    }
+
+    @Test
+    public void testConstWithoutTypeAssignmentToType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeAssignmentToType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "GET");
+    }
+
+    @Test
+    public void testEqualityWithConstWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqualityWithConstWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testEqualityWithConstWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEqualityWithConstWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testConstWithoutTypeInCondition() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeInCondition");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testConstWithTypeInCondition() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeInCondition");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

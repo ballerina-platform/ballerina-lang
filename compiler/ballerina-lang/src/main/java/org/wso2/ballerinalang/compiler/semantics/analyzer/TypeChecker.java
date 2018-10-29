@@ -557,8 +557,27 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = symbol;
                 if ((expType.tag & TypeTags.FINITE) == TypeTags.FINITE) {
                     if (types.isAssignableToFiniteType(expType, ((BConstantSymbol) symbol).value)) {
-//                        types.setImplicitCastExpr(varRefExpr, ((BConstantSymbol) symbol).value.type, expType);
-                        resultType = expType;
+                        // If the actual type is not available, resultType should be the type of the value to avoid
+                        // accessing invalid registry locations. We need to set the implicit cast so it would get
+                        // added to the relevant registry.
+                        //
+                        // Eg - type Name "Ballerina";
+                        //      const name = "Ballerina";
+                        //      Name n = name;
+                        //
+                        // When we visit the `name` expression in the last line, we need to set the resultType as
+                        // `string` because the value is in the string registry. But it is assigned to a `n`
+                        // variable where it will read the value from ref regist here so it would get copied to the
+                        // ref registry properly.
+                        //
+                        // Eg - Name n = <Name>name;
+                        if (((BConstantSymbol) symbol).actualType == null) {
+                            types.setImplicitCastExpr(varRefExpr, ((BConstantSymbol) symbol).value.type, expType);
+                            resultType = ((BConstantSymbol) symbol).value.type;
+                            return;
+                        }
+                        // Otherwise set the actual type as the result type.
+                        resultType = ((BConstantSymbol) symbol).actualType;
                         return;
                     }
                 } else {
