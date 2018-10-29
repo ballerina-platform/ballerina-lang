@@ -622,7 +622,7 @@ public class PackageInfoReader {
     }
 
     private ConstantInfo getConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
-        // Read variable name;
+        // Read constant name;
         int nameCPIndex = dataInStream.readInt();
         UTF8CPEntry nameUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
 
@@ -633,17 +633,17 @@ public class PackageInfoReader {
         // Read value type tag.
         int valueTypeTag = dataInStream.readInt();
 
-        // Read and ignore flags
+        // Read and ignore flags.
         dataInStream.readInt();
 
         int globalMemIndex = dataInStream.readInt();
 
         BType valueType = getBTypeFromDescriptor(packageInfo, valueTypeUTF8CPEntry.getValue());
 
-        ConstantInfo packageVarInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue(), valueTypeTag,
-                valueTypeCPIndex, globalMemIndex, valueType);
+        ConstantInfo packageVarInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue(), valueTypeCPIndex,
+                valueTypeTag, globalMemIndex, valueType);
 
-        // Read attributes
+        // Read attributes.
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
         return packageVarInfo;
     }

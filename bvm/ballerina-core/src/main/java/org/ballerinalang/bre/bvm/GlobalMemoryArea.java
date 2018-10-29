@@ -160,11 +160,15 @@ public class GlobalMemoryArea {
             DefaultValue defaultValue = ((DefaultValueAttributeInfo) defaultValueAttributeInfo).getDefaultValue();
 
             // Eg - const string name = "Ballerina";
-            // In the above sample, the type tag is `string`. So we get the string value from the defaultValue.
-            // Otherwise we don't know the type of the default value.
+            // In the above sample, the type tag of the value is 4 (string type). So we get the string value from the
+            // defaultValue and store it in the `name` variable's memory location which is in the string registry.
             //
-            // constantInfoEntry contains the corresponding memory location. So we update the memory location
-            // with the default value directly.
+            // Eg - const Data name = "Ballerina";
+            // In the above example, the type tag of the value will be 30 (finite type). So we get the value from ref
+            // registry and store it in the `name` variable's memory location which is in the ref registry.
+            //
+            // Note - constantInfoEntry contains the corresponding memory location. So we directly update the memory
+            // location with the value directly.
             switch (constantInfoEntry.getValueTypeTag()) {
                 case TypeTags.INT_TAG:
                     globalMemBlock[packageInfo.pkgIndex].setIntField(constantInfoEntry.getGlobalMemIndex(),
@@ -187,35 +191,35 @@ public class GlobalMemoryArea {
                     // reference value.
                     // Eg -  type Mode "r";
                     //       const Mode READ_ONLY = "r"; // In here, the type tag will be FINITE_TYPE_TAG.
-                    BRefType value;
+                    BRefType refValue;
                     String typeDesc = defaultValue.getTypeDesc();
                     switch (typeDesc) {
                         case TypeSignature.SIG_BOOLEAN:
                             boolean boolValue = defaultValue.getBooleanValue();
-                            value = new BBoolean(boolValue);
+                            refValue = new BBoolean(boolValue);
                             break;
                         case TypeSignature.SIG_INT:
                             long intValue = defaultValue.getIntValue();
-                            value = new BInteger(intValue);
+                            refValue = new BInteger(intValue);
                             break;
                         case TypeSignature.SIG_BYTE:
                             byte byteValue = defaultValue.getByteValue();
-                            value = new BByte(byteValue);
+                            refValue = new BByte(byteValue);
                             break;
                         case TypeSignature.SIG_FLOAT:
                             double floatValue = defaultValue.getFloatValue();
-                            value = new BFloat(floatValue);
+                            refValue = new BFloat(floatValue);
                             break;
                         case TypeSignature.SIG_STRING:
                             String stringValue = defaultValue.getStringValue();
-                            value = new BString(stringValue);
+                            refValue = new BString(stringValue);
                             break;
                         default:
                             // Cannot have reference values since the constants only allow simple literals on the RHS.
                             throw new ProgramFileFormatException("Unsupported default value type " + typeDesc);
                     }
 
-                    globalMemBlock[packageInfo.pkgIndex].setRefField(constantInfoEntry.getGlobalMemIndex(), value);
+                    globalMemBlock[packageInfo.pkgIndex].setRefField(constantInfoEntry.getGlobalMemIndex(), refValue);
                     break;
             }
         }
