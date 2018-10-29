@@ -391,7 +391,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
             val doc = item.getDocumentation
             val filterText = item.getFilterText
             // Todo - Revert after fixing ballerina language server plain text snippet issues
-            val insertText = item.getInsertText.replaceAll("[$][{][^}]*[}]","")
+            val insertText = item.getInsertText.replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2").replaceAll("(\\$\\{\\d\\})", "")
             val insertFormat = item.getInsertTextFormat
             val kind = item.getKind
             val label = item.getLabel
