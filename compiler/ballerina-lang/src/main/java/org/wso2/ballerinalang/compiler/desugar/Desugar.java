@@ -3001,7 +3001,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == pattern.getKind()) { // static match patterns
             body = pattern.body;
-        } else if (NodeKind.MATCH_SIMPLE_PATTERN_CLAUSE == pattern.getKind()) { // old match patterns
+        } else if (NodeKind.MATCH_TYPED_PATTERN_CLAUSE == pattern.getKind()) { // old match patterns
             BLangMatchStmtTypedBindingPatternClause patternClause = (BLangMatchStmtTypedBindingPatternClause) pattern;
             // Add the variable definition to the body of the pattern clause
             if (patternClause.variable.name.value.equals(Names.IGNORE.value)) {
@@ -3069,7 +3069,7 @@ public class Desugar extends BLangNodeVisitor {
         BType patternType;
 
         switch (patternClause.getKind()) {
-            case MATCH_SIMPLE_PATTERN_CLAUSE:
+            case MATCH_TYPED_PATTERN_CLAUSE:
                 BLangMatchStmtTypedBindingPatternClause simplePattern =
                         (BLangMatchStmtTypedBindingPatternClause) patternClause;
                 patternType = simplePattern.variable.type;
