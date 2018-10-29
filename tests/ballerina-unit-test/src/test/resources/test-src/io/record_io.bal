@@ -28,7 +28,7 @@ function nextRecord() returns (string[]|error) {
             return err;
         }
         () => {
-            error e = {message: "Record channel not initialized properly"};
+            error e = error("Record channel not initialized properly");
             return e;
         }
     }

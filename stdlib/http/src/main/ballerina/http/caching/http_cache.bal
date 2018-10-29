@@ -75,18 +75,14 @@ public type HttpCache object {
     function get (string key) returns Response {
         match <Response[]>cache.get(key) {
             Response[] cacheEntry => return cacheEntry[lengthof cacheEntry - 1];
-            error err => throw err;
+            error err => panic err;
         }
     }
 
     function getAll (string key) returns Response[]|() {
-        try {
-            match <Response[]>cache.get(key) {
-                Response[] cacheEntry => return cacheEntry;
-                error err => return ();
-            }
-        } catch (error e) {
-            return ();
+        match trap <Response[]>cache.get(key) {
+            Response[] cacheEntry => return cacheEntry;
+            error err => return ();
         }
     }
 
@@ -156,15 +152,19 @@ function isCacheableStatusCode (int statusCode) returns boolean {
 }
 
 function addEntry (cache:Cache cache, string key, Response inboundResponse) {
-    try {
-        var existingResponses = cache.get(key);
-        match <Response[]>existingResponses {
-            Response[] cachedRespArray => cachedRespArray[lengthof cachedRespArray] = inboundResponse;
-            error err => throw err;
+    // TODO : Fix this logic.
+    var existingResponses = trap cache.get(key);
+    match existingResponses {
+        Response[] cachedRespArray => cachedRespArray[lengthof cachedRespArray] = inboundResponse;
+        error err => {
+            Response[] cachedResponses = [inboundResponse];
+            cache.put(key, cachedResponses);
+            //panic err;
         }
-    } catch (error e) {
-        Response[] cachedResponses = [inboundResponse];
-        cache.put(key, cachedResponses);
+        any => {
+            error e = error("unexpected error");
+            panic e;
+        }
     }
 }
 

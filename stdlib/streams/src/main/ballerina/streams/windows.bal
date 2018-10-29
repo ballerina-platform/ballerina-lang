@@ -200,7 +200,7 @@ public type TimeWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
     public function getCandidateEvents(
@@ -475,7 +475,7 @@ public type TimeBatchWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 };
 
@@ -585,8 +585,8 @@ public type ExternalTimeWindow object {
         match val {
             int value => return value;
             any => {
-                error err = { message: "external timestamp should be of type int" };
-                throw err;
+                error err = error("external timestamp should be of type int");
+                panic err;
             }
         }
     }
@@ -756,7 +756,7 @@ public type ExternalTimeBatchWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
     public function cloneAppend(StreamEvent currStreamEvent) {
@@ -928,8 +928,8 @@ public type ExternalTimeBatchWindow object {
         match val {
             int value => return value;
             any => {
-                error err = { message: "external timestamp should be of type int" };
-                throw err;
+                error err = error("external timestamp should be of type int");
+                panic err;
             }
         }
     }
@@ -1069,7 +1069,7 @@ public type TimeLengthWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
 };
@@ -1292,7 +1292,7 @@ public type DelayWindow object {
     }
 
     public function handleError(error e) {
-        io:println("Error occured", e);
+        io:println("Error occured", e.reason());
     }
 
     public function getCandidateEvents(

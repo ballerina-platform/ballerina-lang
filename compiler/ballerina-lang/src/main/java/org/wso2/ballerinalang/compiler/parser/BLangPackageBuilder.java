@@ -126,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -150,9 +151,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -182,6 +185,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -201,6 +205,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -542,6 +547,19 @@ public class BLangPackageBuilder {
         refType.pos = pos;
         refType.addWS(ws);
         addType(refType);
+    }
+
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean isReasonTypeExists, boolean isDetailsTypeExists) {
+        BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        errorType.pos = pos;
+        errorType.addWS(ws);
+        if (isDetailsTypeExists) {
+            errorType.detailType = (BLangType) this.typeNodeStack.pop();
+        }
+        if (isReasonTypeExists) {
+            errorType.reasonType = (BLangType) this.typeNodeStack.pop();
+        }
+        addType(errorType);
     }
 
     void addConstraintType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -1036,6 +1054,17 @@ public class BLangPackageBuilder {
         this.addExpressionNode(objectInitNode);
     }
 
+    void addErrorConstructor(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsExprAvailable) {
+        BLangErrorConstructorExpr errorConstExpr = (BLangErrorConstructorExpr) TreeBuilder.createErrorConstructorNode();
+        errorConstExpr.pos = pos;
+        errorConstExpr.addWS(ws);
+        if (detailsExprAvailable) {
+            errorConstExpr.detailsExpr = (BLangExpression) exprNodeStack.pop();
+        }
+        errorConstExpr.reasonExpr = (BLangExpression) exprNodeStack.pop();
+        this.addExpressionNode(errorConstExpr);
+    }
+
     private void addStmtToCurrentBlock(StatementNode statement) {
         this.blockNodeStack.peek().addStatement(statement);
     }
@@ -1096,6 +1125,15 @@ public class BLangPackageBuilder {
         throwNode.addWS(ws);
         throwNode.expr = (BLangExpression) throwExpr;
         addStmtToCurrentBlock(throwNode);
+    }
+
+    void addPanicStmt(DiagnosticPos poc, Set<Whitespace> ws) {
+        ExpressionNode errorExpr = this.exprNodeStack.pop();
+        BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
+        panicNode.pos = poc;
+        panicNode.addWS(ws);
+        panicNode.expr = (BLangExpression) errorExpr;
+        addStmtToCurrentBlock(panicNode);
     }
 
     private void addExpressionNode(ExpressionNode expressionNode) {
@@ -1431,6 +1469,14 @@ public class BLangPackageBuilder {
         awaitExpr.addWS(ws);
         awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(awaitExpr);
+    }
+
+    void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
+        trapExpr.pos = pos;
+        trapExpr.addWS(ws);
+        trapExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(trapExpr);
     }
 
     void endFunctionDef(DiagnosticPos pos,
@@ -3588,5 +3634,14 @@ public class BLangPackageBuilder {
         typeRef.addWS(ws);
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
         objectTypeNode.addTypeReference(typeRef);
+    }
+
+    public void createTypeTestExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        typeTestExpr.expr = (BLangExpression) this.exprNodeStack.pop();
+        typeTestExpr.typeNode = (BLangType) this.typeNodeStack.pop();
+        typeTestExpr.pos = pos;
+        typeTestExpr.addWS(ws);
+        addExpressionNode(typeTestExpr);
     }
 }

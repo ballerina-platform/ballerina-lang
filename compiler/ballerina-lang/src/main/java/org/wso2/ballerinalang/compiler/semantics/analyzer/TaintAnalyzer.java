@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -96,8 +97,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -126,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -134,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
@@ -169,6 +172,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -562,8 +566,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangThrow throwNode) {
-        /* ignore */
+    public void visit(BLangPanic throwNode) {
+        throwNode.expr.accept(this);
     }
 
     @Override
@@ -581,6 +585,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         overridingAnalysis = false;
+
+        // Copy the taint information from the original symbol to the newly created type guarded symbol
+        ifNode.typeGuards.forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+
         ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
             ifNode.elseStmt.accept(this);
@@ -672,8 +680,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCatch catchNode) {
-        SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(catchNode.body, env);
-        analyzeNode(catchNode.body, catchBlockEnv);
+        /* ignore */
     }
 
     @Override
@@ -923,6 +930,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 });
             }
             this.taintedStatus = exprTaintedStatus;
+        } else if (invocationExpr.builtinMethodInvocation) {
+            // TODO: Fix this properly.
+            taintedStatus = TaintedStatus.UNTAINTED;
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
@@ -931,9 +941,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     // table already attached. This will prevent the analyzer to go in to a loop unnecessarily.
                     ignoredInvokableSymbol = invokableSymbol;
                 }
-                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
-                        || (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
-                        && ignoredInvokableSymbol == invokableSymbol)) {
+                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS || (
+                        analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
+                                && ignoredInvokableSymbol == invokableSymbol)) {
                     this.taintedStatus = TaintedStatus.IGNORED;
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                 } else {
@@ -976,6 +986,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         overridingAnalysis = false;
+
+        // Copy the taint information from the original symbol to the newly created type guarded symbol
+        ternaryExpr.typeGuards
+                .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+
         ternaryExpr.thenExpr.accept(this);
         TaintedStatus thenTaintedCheckResult = this.taintedStatus;
         ternaryExpr.elseExpr.accept(this);
@@ -987,6 +1002,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangAwaitExpr awaitExpr) {
         awaitExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        trapExpr.expr.accept(this);
     }
 
     @Override
@@ -1210,6 +1230,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr match) {
         match.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        // TODO: Fix me.
+    }
+
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.expr.accept(this);
     }
 
     // Type nodes

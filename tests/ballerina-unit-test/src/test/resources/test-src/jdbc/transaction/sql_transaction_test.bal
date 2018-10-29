@@ -333,8 +333,8 @@ function testTransactonErrorThrow() returns (int, int, int) {
                       registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
             int i = 0;
             if (i == 0) {
-                error err = { message: "error" };
-                throw err;
+                error err = error("error" );
+                panic err;
             }
         } onretry {
             returnVal = -1;
@@ -369,8 +369,8 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
         int i = 0;
         try {
             if (i == 0) {
-                error err = { message: "error" };
-                throw err;
+                error err = error("error" );
+                panic err;
             }
         } catch (error err) {
             catchValue = -1;

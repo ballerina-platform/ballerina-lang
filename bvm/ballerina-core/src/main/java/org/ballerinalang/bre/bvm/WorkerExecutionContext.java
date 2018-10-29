@@ -18,8 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -72,7 +71,7 @@ public class WorkerExecutionContext {
     
     public boolean runInCaller;
 
-    private BMap<String, BValue> error;
+    private BError error;
 
     private DebugContext debugContext;
 
@@ -91,7 +90,7 @@ public class WorkerExecutionContext {
         configureDistributedTransactions();
     }
     
-    public WorkerExecutionContext(BMap<String, BValue> error) {
+    public WorkerExecutionContext(BError error) {
         this.error = error;
         this.workerInfo = new WorkerInfo(0, WORKER_NAME_NATIVE);
     }
@@ -154,11 +153,11 @@ public class WorkerExecutionContext {
         this.programFile.getDebugger().addWorkerContext(this);
     }
     
-    public void setError(BMap<String, BValue> error) {
+    public void setError(BError error) {
         this.error = error;
     }
     
-    public BMap<String, BValue> getError() {
+    public BError getError() {
         return error;
     }
 

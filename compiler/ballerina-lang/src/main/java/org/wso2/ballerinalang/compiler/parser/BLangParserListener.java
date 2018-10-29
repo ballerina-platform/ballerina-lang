@@ -879,6 +879,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.functionTypeName() != null) {
             return;
         }
+        if (ctx.errorTypeName() != null) {
+            return;
+        }
         String typeName = ctx.getChild(0).getText();
         if (ctx.nameReference() != null) {
             this.pkgBuilder.addConstraintType(getCurrentPos(ctx), getWS(ctx), typeName);
@@ -887,6 +890,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else {
             this.pkgBuilder.addBuiltInReferenceType(getCurrentPos(ctx), getWS(ctx), typeName);
         }
+    }
+
+    @Override
+    public void exitErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isReasonTypeExists = !ctx.typeName().isEmpty();
+        boolean isDetailsTypeExists = ctx.typeName().size() > 1;
+        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), isReasonTypeExists, isDetailsTypeExists);
     }
 
     @Override
@@ -1192,6 +1205,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean typeAvailable = ctx.userDefineTypeName() != null;
         boolean argsAvailable = ctx.invocationArgList() != null;
         this.pkgBuilder.addTypeInitExpression(getCurrentPos(ctx), getWS(ctx), initName, typeAvailable, argsAvailable);
+    }
+
+    @Override
+    public void exitErrorConstructorExpr(BallerinaParser.ErrorConstructorExprContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addErrorConstructor(getCurrentPos(ctx), getWS(ctx), ctx.COMMA() != null);
     }
 
     @Override
@@ -1671,6 +1693,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addThrowStmt(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitPanicStatement(BallerinaParser.PanicStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addPanicStmt(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -2167,6 +2198,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createUnaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
+    }
+
+    @Override
+    public void exitTypeTestExpression(BallerinaParser.TypeTestExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createTypeTestExpression(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -3235,6 +3274,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createTrapExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

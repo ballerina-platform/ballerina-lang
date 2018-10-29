@@ -83,6 +83,12 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.ERROR;
+        return typeSymbol;
+    }
+
     public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
                                                            BType type, BSymbol owner) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);
@@ -98,16 +104,6 @@ public class Symbols {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner);
         symbol.kind = SymbolKind.WORKER;
         return symbol;
-    }
-
-    public static BConnectorSymbol createConnectorSymbol(int flags,
-                                                         Name name,
-                                                         PackageID pkgID,
-                                                         BType type,
-                                                         BSymbol owner) {
-        BConnectorSymbol connectorSymbol = new BConnectorSymbol(flags, name, pkgID, type, owner);
-        connectorSymbol.kind = SymbolKind.CONNECTOR;
-        return connectorSymbol;
     }
 
     public static BServiceSymbol createServiceSymbol(int flags,

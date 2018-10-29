@@ -85,16 +85,11 @@ function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
 }
 
 function HttpBasicAuthnHandler::canHandle(Request req) returns (boolean) {
-    string basicAuthHeader;
-    try {
-        basicAuthHeader = req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        return false;
-    }
-    match basicAuthHeader {
-        string basicAuthHeaderStr => {
+    match trap req.getHeader(AUTH_HEADER) {
+        string basicAuthHeader => {
             return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
         }
+        error => return false;
     }
 }
 
@@ -104,12 +99,7 @@ function HttpBasicAuthnHandler::canHandle(Request req) returns (boolean) {
 # + return - A `string` tuple with the extracted username and password or `error` that occured while extracting credentials
 function extractBasicAuthCredentials(string authHeader) returns (string, string)|error {
     // extract user credentials from basic auth header
-    string decodedBasicAuthHeader;
-    try {
-        decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
-    } catch (error err) {
-        return err;
-    }
+    string decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
     string[] decodedCredentials = decodedBasicAuthHeader.split(":");
     if (lengthof decodedCredentials != 2) {
         return handleError("Incorrect basic authentication header format");

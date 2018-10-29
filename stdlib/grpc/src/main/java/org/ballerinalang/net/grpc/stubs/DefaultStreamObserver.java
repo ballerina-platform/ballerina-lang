@@ -20,8 +20,9 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
@@ -92,7 +93,7 @@ public class DefaultStreamObserver implements StreamObserver {
         List<ParamDetail> paramDetails = onError.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BType errorType = paramDetails.get(0).getVarType();
-        BMap<String, BValue> errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
+        BError errorStruct = MessageUtils.getConnectorError((BErrorType) errorType, error.getError());
         signatureParams[0] = errorStruct;
         BMap<String, BValue> headerStruct = getHeaderStruct(onError);
         if (headerStruct != null && signatureParams.length == 2) {

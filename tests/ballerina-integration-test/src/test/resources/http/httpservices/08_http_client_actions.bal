@@ -93,7 +93,7 @@ service<http:Service> testService bind { port: 9098 } {
         var clientResponse = clientEP2->post("/test1/directPayload", ());
         match clientResponse {
             error err => {
-                value = err.message;
+                value = err.reason();
             }
             http:Response res => {
                 match res.getTextPayload() {
@@ -101,7 +101,7 @@ service<http:Service> testService bind { port: 9098 } {
                         value = returnValue;
                     }
                     error payloadErr => {
-                        value = payloadErr.message;
+                        value = <string> payloadErr.detail().message;
                     }
                 }
             }

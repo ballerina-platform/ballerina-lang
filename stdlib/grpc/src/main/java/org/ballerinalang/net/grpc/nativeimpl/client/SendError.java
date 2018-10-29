@@ -66,7 +66,7 @@ public class SendError extends BlockingNativeCallableUnit {
 
         StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
                             "error. endpoint does not exist"))));
         } else {
@@ -75,7 +75,7 @@ public class SendError extends BlockingNativeCallableUnit {
                         .withDescription(errorMsg))));
             } catch (Exception e) {
                 LOG.error("Error while sending error to server.", e);
-                context.setError(MessageUtils.getConnectorError(context, e));
+                context.setError(MessageUtils.getConnectorError(e));
             }
         }
     }

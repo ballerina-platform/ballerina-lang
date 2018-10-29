@@ -71,6 +71,7 @@ public enum NodeKind {
     STRING_TEMPLATE_LITERAL,
     TERNARY_EXPR,
     AWAIT_EXPR,
+    TRAP_EXPR,
     TYPEDESC_EXPRESSION,
     TYPE_CONVERSION_EXPR,
     IS_ASSIGNABLE_EXPR,
@@ -90,7 +91,8 @@ public enum NodeKind {
     MATCH_EXPRESSION,
     MATCH_EXPRESSION_PATTERN_CLAUSE,
     CHECK_EXPR,
-
+    ERROR_CONSTRUCTOR,
+    TYPE_TEST_EXPR,
     DOCUMENTATION_DESCRIPTION,
     DOCUMENTATION_PARAMETER,
 
@@ -118,6 +120,7 @@ public enum NodeKind {
     REPLY,
     RETURN,
     THROW,
+    PANIC,
     TRANSACTION,
     TRANSFORM,
     TRY,
@@ -146,6 +149,7 @@ public enum NodeKind {
     VALUE_TYPE,
     RECORD_TYPE,
     OBJECT_TYPE,
+    ERROR_TYPE,
 
     /* Clauses */
     ORDER_BY,

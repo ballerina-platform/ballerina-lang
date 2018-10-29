@@ -32,14 +32,19 @@ service<network:Service> echo4 bind echoEP5 {
     }
     echo4 (endpoint caller, network:Request req) {
         var payload = req.getTextPayload();
+        network:Response resp = new;
         match payload {
             string payloadValue => {
-                network:Response resp = new;
                 resp.setTextPayload(untaint payloadValue);
                 _ = caller -> respond(resp);
             }
-            any | () => {
-                io:println("Error while fetching string payload");
+            error payloadErr => {
+                resp.statusCode = 500;
+                resp.setPayload(untaint payloadErr.reason());
+                log:printError("Failed to retrieve payload from request: " + payloadErr.reason());
+                caller->respond(resp) but {
+                    error e => log:printError("Error sending response", err = e)
+                };
             }
         }
     }

@@ -75,6 +75,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
 
+        mnemonics[InstructionCodes.ERROR] = "error";
+        mnemonics[InstructionCodes.PANIC] = "panic";
+        mnemonics[InstructionCodes.REASON] = "reason";
+        mnemonics[InstructionCodes.DETAIL] = "detail";
+
         mnemonics[InstructionCodes.MAPLOAD] = "mapload";
         mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";
@@ -115,7 +120,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SEQ] = "seq";
         mnemonics[InstructionCodes.BEQ] = "beq";
         mnemonics[InstructionCodes.REQ] = "req";
-        mnemonics[InstructionCodes.TEQ] = "teq";
+        mnemonics[InstructionCodes.TYPE_TEST] = "teq";
         mnemonics[InstructionCodes.INE] = "ine";
         mnemonics[InstructionCodes.FNE] = "fne";
         mnemonics[InstructionCodes.SNE] = "sne";
@@ -142,8 +147,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.VCALL] = "ncall";
-        mnemonics[InstructionCodes.THROW] = "throw";
-        mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
         mnemonics[InstructionCodes.FPLOAD] = "fp_load";
 
@@ -246,6 +249,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SCOPE_END] = "scope_end";
         mnemonics[InstructionCodes.COMPENSATE] = "compensate";
         mnemonics[InstructionCodes.LOOP_COMPENSATE] = "loop_compensate";
+
+        mnemonics[InstructionCodes.TYPE_TEST] = "type_test";
     }
 
     public static String getMnem(int opcode) {
