@@ -554,8 +554,23 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = symTable.typeDesc;
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
-                actualType = ((BConstantSymbol) symbol).value.type;
                 varRefExpr.symbol = symbol;
+                if ((expType.tag & TypeTags.FINITE) == TypeTags.FINITE) {
+                    if (types.isAssignableToFiniteType(expType, ((BConstantSymbol) symbol).value)) {
+//                        types.setImplicitCastExpr(varRefExpr, ((BConstantSymbol) symbol).value.type, expType);
+                        resultType = expType;
+                        return;
+                    }
+                } else {
+                    // Todo - Need to be the original type
+                    BType type = ((BConstantSymbol) symbol).actualType;
+                    // If the type is null, this means that the constant was defined without a type node. In such
+                    // cases, set the type of the value as the actual type.
+                    if (type == null) {
+                        type = ((BConstantSymbol) symbol).value.type;
+                    }
+                    actualType = type;
+                }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }

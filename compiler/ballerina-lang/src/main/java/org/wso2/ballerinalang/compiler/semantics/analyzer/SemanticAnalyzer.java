@@ -1498,6 +1498,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (typeNode != null) {
             // Resolve the type node and update the type of the type node.
             typeNode.type = symResolver.resolveTypeNode(typeNode, env);
+
+            // Set the actual type. This is needed later.
+            constant.symbol.actualType = typeNode.type;
+
             // If the constant's type node's type is a finite type, we need to check whether the literal value is
             // assignable to it.
             //
@@ -1519,6 +1523,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Check type of the value.
             typeChecker.checkExpr(value, env, typeNode.type);
 
+            // Todo - Revisit the logic
             // Update the symbol's value type tag. This is done because we need to support decimal type.
             constant.symbol.value.typeTag = typeNode.type.tag;
         } else {

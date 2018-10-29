@@ -32,6 +32,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CON
 public class BConstantSymbol extends BSymbol implements ConstantSymbol {
 
     public BLangLiteral value;
+    public BType actualType;
 //    public int valueTypeTag;
     public RegIndex varIndex;
 
@@ -48,4 +49,9 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
 //    public int getValueTag() {
 //        return valueTypeTag;
 //    }
+
+    @Override
+    public BType getActualType() {
+        return actualType;
+    }
 }

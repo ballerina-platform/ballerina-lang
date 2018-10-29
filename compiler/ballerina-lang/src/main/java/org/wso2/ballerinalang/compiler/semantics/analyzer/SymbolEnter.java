@@ -658,6 +658,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, null,
                 env.scope.owner);
+        constantSymbol.actualType = constant.type;
+
         constantSymbol.value = (BLangLiteral) constant.value;
         //        constantSymbol.valueTypeTag = ((BLangLiteral) constant.value).typeTag;
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
