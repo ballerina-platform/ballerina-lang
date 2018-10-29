@@ -35,21 +35,21 @@ public type SimpleQueueSender object {
     public function init(SimpleQueueSenderEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: config.initialContextFactory,
+                providerUrl: config.providerUrl,
+                connectionFactoryName: config.connectionFactoryName,
+                properties: config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: config.acknowledgementMode
             });
         self.session = newSession;
 
         QueueSender queueSender = new;
         QueueSenderEndpointConfiguration senderConfig = {
-            session:newSession,
+            session: newSession,
             queueName: c.queueName
         };
         queueSender.init(senderConfig);
@@ -76,7 +76,7 @@ public type SimpleQueueSender object {
         match (sender) {
             QueueSender s => return s.getCallerActions();
             () => {
-                error e = error("Queue sender cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Queue sender cannot be nil" });
                 panic e;
             }
         }
@@ -94,7 +94,7 @@ public type SimpleQueueSender object {
         match (session) {
             Session s => return s.createTextMessage(content);
             () => {
-                error e = error("Session cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
                 panic e;
             }
         }

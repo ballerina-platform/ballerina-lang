@@ -33,21 +33,21 @@ public type SimpleTopicSubscriber object {
     public function init(SimpleTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: config.initialContextFactory,
+                providerUrl: config.providerUrl,
+                connectionFactoryName: config.connectionFactoryName,
+                properties: config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: config.acknowledgementMode
             });
         self.session = newSession;
 
         TopicSubscriber topicSubscriber = new;
         TopicSubscriberEndpointConfiguration consumerConfig = {
-            session:newSession,
+            session: newSession,
             topicPattern: c.topicPattern,
             messageSelector: c.messageSelector
         };
@@ -64,7 +64,7 @@ public type SimpleTopicSubscriber object {
                 c.register(serviceType);
             }
             () => {
-                error e = error("Topic Subscriber cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Topic Subscriber cannot be nil" });
                 panic e;
             }
         }
@@ -82,7 +82,7 @@ public type SimpleTopicSubscriber object {
         match (subscriber) {
             TopicSubscriber c => return c.getCallerActions();
             () => {
-                error e = error("Topic subscriber cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Topic Subscriber cannot be nil" });
                 panic e;
             }
         }
@@ -101,7 +101,7 @@ public type SimpleTopicSubscriber object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = error("Session cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
                 panic e;
             }
         }
@@ -115,7 +115,7 @@ public type SimpleTopicSubscriber object {
         match (session) {
             Session s => return s.createMapMessage(message);
             () => {
-                error e = error("Session cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
                 panic e;
             }
         }

@@ -141,11 +141,11 @@ function TopicSubscriberActions::receiveFrom(Destination destination, int timeou
 function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        error topicSubscriberConfigError = error(errorMessage);
+        error topicSubscriberConfigError = error("{ballerina/jms}JMSError", { message: errorMessage });
         panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
-        error topicSubscriberConfigError = error(errorMessage);
+        error topicSubscriberConfigError = error("{ballerina/jms}JMSError", { message: errorMessage });
         panic topicSubscriberConfigError;
     }
 }

@@ -35,21 +35,21 @@ public type SimpleDurableTopicSubscriber object {
     public function init(SimpleDurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: config.initialContextFactory,
+                providerUrl: config.providerUrl,
+                connectionFactoryName: config.connectionFactoryName,
+                properties: config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: config.acknowledgementMode
             });
         self.session = newSession;
 
         DurableTopicSubscriber topicSubscriber = new;
         DurableTopicSubscriberEndpointConfiguration consumerConfig = {
-            session:newSession,
+            session: newSession,
             topicPattern: c.topicPattern,
             messageSelector: c.messageSelector,
             identifier: c.identifier
@@ -57,7 +57,7 @@ public type SimpleDurableTopicSubscriber object {
         topicSubscriber.init(consumerConfig);
         self.subscriber = topicSubscriber;
         self.consumerActions = new SimpleDurableTopicSubscriberActions(topicSubscriber.getCallerActions(), newSession,
-                                                                       c.identifier);
+            c.identifier);
     }
 
     # Binds the endpoint to a service
@@ -69,7 +69,7 @@ public type SimpleDurableTopicSubscriber object {
                 c.register(serviceType);
             }
             () => {
-                error e = error("Topic Subscriber cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Topic Subscriber cannot be nil" });
                 panic e;
             }
         }
@@ -87,7 +87,7 @@ public type SimpleDurableTopicSubscriber object {
         match (consumerActions) {
             SimpleDurableTopicSubscriberActions c => return c;
             () => {
-                error e = error("Consumer actions cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Consumer actions cannot be nil" });
                 panic e;
             }
         }
@@ -106,7 +106,7 @@ public type SimpleDurableTopicSubscriber object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = error("Session cannot be nil");
+                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
                 panic e;
             }
         }

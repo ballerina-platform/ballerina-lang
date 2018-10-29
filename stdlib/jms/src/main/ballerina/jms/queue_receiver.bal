@@ -141,11 +141,11 @@ function QueueReceiverActions::receiveFrom(Destination destination, int timeoutI
 function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        error queueReceiverConfigError = error(errorMessage);
+        error queueReceiverConfigError = error("{ballerina/jms}JMSError", { message: errorMessage });
         panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
-        error queueReceiverConfigError = error(errorMessage);
+        error queueReceiverConfigError = error("{ballerina/jms}JMSError", { message: errorMessage });
         panic queueReceiverConfigError;
     }
 }
