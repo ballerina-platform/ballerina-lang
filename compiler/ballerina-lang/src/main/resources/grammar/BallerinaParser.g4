@@ -560,13 +560,14 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause?
+    :   transactionClause onretryClause? committedClause? abortedClause?
     ;
 
 transactionClause
     :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// todo: remove oncommited and onabort statements
 transactionPropertyInitStatement
     :   retriesStatement
     |   oncommitStatement
@@ -584,6 +585,15 @@ lockStatement
 onretryClause
     :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
+
+committedClause
+    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+abortedClause
+    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 abortStatement
     :   ABORT SEMICOLON
     ;
@@ -595,11 +605,11 @@ retryStatement
 retriesStatement
     :   RETRIES ASSIGN expression
     ;
-
+// todo: remove
 oncommitStatement
     :   ONCOMMIT ASSIGN expression
     ;
-
+// todo: remove
 onabortStatement
     :   ONABORT ASSIGN expression
     ;
