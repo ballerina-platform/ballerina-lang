@@ -229,15 +229,14 @@ public type CustomLoadBalancerRule object {
 
     public int index;
 
+    public new (index) {}
+
     # Provides an HTTP client which is choosen according to the custom algorithm.
     #
     # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
     # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
     #            the algorithm implementation
-    public new (index) {}
-
     public function getNextCallerActions(http:CallerActions[] loadBalanceClientsArray) returns http:CallerActions|error;
-
 };
 
 function CustomLoadBalancerRule.getNextCallerActions(http:CallerActions[] loadBalanceClientsArray)
