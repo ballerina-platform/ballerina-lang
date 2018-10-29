@@ -38,7 +38,7 @@ function testNotNilPath () returns any {
 }
 
 function testErrorInMiddle () returns any {
-    error e = {message:"custom error"};
+    error e = error("custom error");
     Info inf = {address1 : e};
     Person prsn = {info1 : inf};
     Person|error p = prsn;
@@ -47,7 +47,7 @@ function testErrorInMiddle () returns any {
 }
 
 function testErrorInFirstVar () returns any {
-    error e = {message:"custom error"};
+    error e = error("custom error");
     Person|error p = e;
     string|error|() x = p!info1!address1!city;
     return x;

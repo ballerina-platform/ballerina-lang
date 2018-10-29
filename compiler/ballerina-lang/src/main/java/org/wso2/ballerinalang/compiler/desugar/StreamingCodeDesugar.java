@@ -186,6 +186,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     // Contains the StreamEvent.data variable args in conditional lambda functions like where and join on condition
     private List<BLangSimpleVariable> mapVarArgs = new ArrayList<>();
     private Map<String, String> streamAliasMap;
+    private Desugar desugar;
 
 
     private StreamingCodeDesugar(CompilerContext context) {
@@ -197,6 +198,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.desugar = Desugar.getInstance(context);
     }
 
     public static StreamingCodeDesugar getInstance(CompilerContext context) {
@@ -1453,8 +1455,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BLangIndexBasedAccess mapAccessExpr = ASTBuilderUtil.createIndexAccessExpr(mapRef, indexExpr);
             mapAccessExpr.pos = fieldAccessExpr.pos;
             mapAccessExpr.type = symTable.anyType;
-            conditionExpr = Desugar.addConversionExprIfRequired(mapAccessExpr, fieldAccessExpr.type, types, symTable,
-                    symResolver);
+            conditionExpr = desugar.addConversionExprIfRequired(mapAccessExpr, fieldAccessExpr.type);
         } else {
             conditionExpr = fieldAccessExpr;
         }
@@ -1735,8 +1736,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 BLangExpression mapAccessExpr = createMapVariableIndexAccessExpr((BVarSymbol)
                         createEventDataFieldAccessExpr(expr.pos, streamEventSymbol).symbol, expr);
-                BLangExpression castExpr = Desugar.addConversionExprIfRequired(mapAccessExpr, params.get(i).type,
-                        types, symTable, symResolver);
+                BLangExpression castExpr = desugar.addConversionExprIfRequired(mapAccessExpr, params.get(i).type);
                 args.add(castExpr);
             } else {
                 args.add(expr);
@@ -1771,7 +1771,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         checkedExpr.expr = conversionExpr;
         checkedExpr.type = conversionExpr.targetType;
-        checkedExpr.equivalentErrorTypeList = Collections.singletonList(symTable.errStructType);
+        checkedExpr.equivalentErrorTypeList = Collections.singletonList(symTable.errorType);
         checkedExpr.pos = conversionExpr.pos;
         return checkedExpr;
     }

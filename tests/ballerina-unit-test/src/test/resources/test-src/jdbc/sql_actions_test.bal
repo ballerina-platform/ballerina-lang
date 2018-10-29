@@ -132,7 +132,7 @@ function testGeneratedKeyOnInsert(string jdbcUrl, string userName, string passwo
             returnVal = b[0];
         }
         error err1 => {
-            returnVal = err1.message;
+            returnVal = err1.reason();
         }
     }
 
@@ -161,7 +161,7 @@ function testGeneratedKeyOnInsertEmptyResults(string jdbcUrl, string userName, s
             returnVal = lengthof b;
         }
         error err1 => {
-            returnVal = err1.message;
+            returnVal = err1.reason();
         }
     }
 
@@ -200,7 +200,7 @@ function testGeneratedKeyWithColumn(string jdbcUrl, string userName, string pass
             returnVal = b[0];
         }
         error err1 => {
-            returnVal = err1.message;
+            returnVal = err1.reason();
         }
     }
 
@@ -1512,7 +1512,7 @@ function testSelectLoadToMemory(string jdbcUrl, string userName, string password
 }
 
 function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, string password) returns (
-            CustomerFullName[], CustomerFullName[], error) {
+            CustomerFullName[], CustomerFullName[], error?) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -1526,30 +1526,29 @@ function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, 
     CustomerFullName[] fullNameArray1;
     CustomerFullName[] fullNameArray2;
     CustomerFullName[] fullNameArray3;
-    int i = 0;
-    foreach x in dt {
-        fullNameArray1[i] = x;
-        i += 1;
-    }
 
-    i = 0;
-    foreach x in dt {
-        fullNameArray2[i] = x;
-        i += 1;
-    }
+    fullNameArray1 = iterateTableAndReturnResultArray(dt);
+    fullNameArray2 = iterateTableAndReturnResultArray(dt);
     dt.close();
-    i = 0;
-    error e;
-    try {
-        foreach x in dt {
-            fullNameArray3[i] = x;
-            i += 1;
-        }
-    } catch (error err) {
-        e = err;
+
+    error? e;
+    var ret = trap iterateTableAndReturnResultArray(dt);
+    match ret {
+        CustomerFullName[] fullNameArray => fullNameArray3 = fullNameArray;
+        error err => e = err;
     }
     testDB.stop();
     return (fullNameArray1, fullNameArray2, e);
+}
+
+function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns CustomerFullName[] {
+    CustomerFullName[] fullNameArray;
+    int i;
+    foreach x in dt {
+        fullNameArray[i] = x;
+        i += 1;
+    }
+    return fullNameArray;
 }
 
 function testCloseConnectionPool(string jdbcUrl, string userName, string password, string connectionCountQuery)

@@ -59,15 +59,6 @@ public class BFutureType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        if (constraint == null) {
-            return new TypeSignature(TypeSignature.SIG_FUTURE);
-        } else {
-            return new TypeSignature(TypeSignature.SIG_FUTURE, constraint.getPackagePath(), constraint.getName());
-        }
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.FUTURE_TAG;
     }

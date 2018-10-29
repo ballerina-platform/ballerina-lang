@@ -65,7 +65,7 @@ public class GetCallerActions extends AbstractGrpcNativeFunction {
             BMap<String, BValue> endpointClient = (BMap<String, BValue>) clientType;
             context.setReturnValues(endpointClient);
         } else {
-            context.setError(MessageUtils.getConnectorError(context, new GrpcServerException("Error while " +
+            context.setError(MessageUtils.getConnectorError(new GrpcServerException("Error while " +
                     "retrieving endpoint client.")));
         }
     }

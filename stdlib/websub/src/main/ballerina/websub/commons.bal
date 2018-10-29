@@ -179,8 +179,8 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            error webSubError = {message: X_HUB_SIGNATURE + " header not present for subscription added" +
-                                            " specifying " + HUB_SECRET};
+            error webSubError = error(X_HUB_SIGNATURE + " header not present for subscription added" +
+                                            " specifying " + HUB_SECRET);
             return webSubError;
         }
         return;
@@ -196,8 +196,8 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     match (request.getPayloadAsString()) {
         string payloadAsString => { stringPayload = payloadAsString; }
         error entityError => {
-            error webSubError = {message:"Error extracting notification payload as string for signature validation: "
-                                            + entityError.message, cause: entityError};
+            error webSubError = error("Error extracting notification payload as string for signature validation: "
+                                            + entityError.reason());
             return webSubError;
         }
     }
@@ -222,12 +222,12 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     } else if (SHA256.equalsIgnoreCase(method)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
     } else {
-        error webSubError = {message:"Unsupported signature method: " + method};
+        error webSubError = error("Unsupported signature method: " + method);
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        error webSubError = {message:"Signature validation failed: Invalid Signature!"};
+        error webSubError = error("Signature validation failed: Invalid Signature!");
         return webSubError;
     }
     return;
@@ -358,7 +358,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
     }
 
     if (lengthof linkHeaders == 0) {
-        error websubError = { message: "Link header unavailable in discovery response" };
+        error websubError = error("Link header unavailable in discovery response");
         return websubError;
     }
 
@@ -383,7 +383,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
                 hubIndex += 1;
             } else if (linkConstituents[1].contains("rel=\"self\"")) {
                 if (topic != "") {
-                    error websubError = { message: "Link Header contains > 1 self URLs" };
+                    error websubError = error("Link Header contains > 1 self URLs");
                     return websubError;
                 } else {
                     topic = url;
@@ -396,7 +396,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
         return (topic, hubs);
     }
 
-    error websubError = {message: "Hub and/or Topic URL(s) not identified in link header of discovery response"};
+    error websubError = error( "Hub and/or Topic URL(s) not identified in link header of discovery response");
     return websubError;
 }
 
@@ -545,7 +545,7 @@ function WebSubHub::stop() returns boolean {
 function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
-        error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
+        error webSubError = error("Internal Ballerina Hub not initialized or incorrectly referenced");
         return webSubError;
     }
 
@@ -573,7 +573,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
 
 function WebSubHub::registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic registration not allowed/not required at the Hub" };
+        error e = error("Remote topic registration not allowed/not required at the Hub");
         return e;
     }
     return registerTopicAtHub(topic);
@@ -581,7 +581,7 @@ function WebSubHub::registerTopic(string topic) returns error? {
 
 function WebSubHub::unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic unregistration not allowed/not required at the Hub" };
+        error e = error("Remote topic unregistration not allowed/not required at the Hub");
         return e;
     }
     return unregisterTopicAtHub(topic);

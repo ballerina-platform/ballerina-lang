@@ -9,7 +9,7 @@ function openSocketConnection(string host, int port, io:SocketProperties prop) {
             socket = untaint s;
         }
         error err => {
-            throw err;
+            panic err;
         }
     }
 }

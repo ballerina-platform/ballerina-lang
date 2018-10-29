@@ -159,7 +159,7 @@ function Listener::sendSubscriptionRequests() {
                         self.setTopic(webSubServiceName, retTopic);
                     }
                     error websubError => {
-                        log:printError("Error sending out subscription request on start up: " + websubError.message);
+                        log:printError("Error sending out subscription request on start up: " + websubError.reason());
                         continue;
                     }
                 }
@@ -243,7 +243,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
-    error websubError = {};
+    error websubError = error("Dummy");
     match (discoveryResponse) {
         http:Response response => {
             match (extractTopicAndHubUrls(response)) {
@@ -257,8 +257,8 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
             }
         }
         error connErr => {
-            websubError = {message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
-                + connErr.message, cause:connErr};
+            websubError = error("Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
+                + connErr.reason());
         }
     }
     return websubError;
@@ -291,7 +291,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
     match (<int>strLeaseSeconds) {
         int convIntLeaseSeconds => { leaseSeconds = convIntLeaseSeconds; }
         error convError => {
-            log:printError("Error retreiving specified lease seconds value: " + convError.message);
+            log:printError("Error retreiving specified lease seconds value: " + convError.reason());
             return;
         }
     }
@@ -315,7 +315,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
         }
         error webSubError => {
             log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " +
-                    webSubError.message);
+                    webSubError.reason());
         }
     }
 }

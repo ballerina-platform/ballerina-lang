@@ -27,7 +27,13 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 
 /**
- * @since 0.94
+ * Represents a simple variable.
+ * Example:
+ *      int a = 3;
+ *      float b;
+ *      Foo f = expr;
+ *
+ * @since 0.985.0
  */
 public class BLangSimpleVariable extends BLangVariable implements SimpleVariableNode {
 

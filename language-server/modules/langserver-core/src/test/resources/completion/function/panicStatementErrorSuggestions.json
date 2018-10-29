@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 10,
-    "character": 14
+    "line": 3,
+    "character": 10
   },
-  "source": "function/source/throwStatementErrorSuggestions.bal",
+  "source": "function/source/panicStatementErrorSuggestions.bal",
   "items": [
     {
       "label":"err",

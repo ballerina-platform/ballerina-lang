@@ -2,7 +2,7 @@ function lazyInitThrowArrayIndexOutOfBound () {
     int[] arr = [];
     int x;
 
-    // This should throw an exception
+    // This should panic an exception
     x = arr[0];
 }
 

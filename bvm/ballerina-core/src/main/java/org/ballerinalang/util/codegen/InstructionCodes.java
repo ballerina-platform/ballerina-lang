@@ -91,6 +91,11 @@ public interface InstructionCodes {
     int BGSTORE = 64;
     int RGSTORE = 65;
 
+    int ERROR = 70;
+    int PANIC = 71;
+    int REASON = 72;
+    int DETAIL = 73;
+
     int MAPSTORE = 74;
     int JSONSTORE = 75;
 
@@ -149,11 +154,9 @@ public interface InstructionCodes {
     int TR_RETRY = 119;
     int CALL = 120;
     int VCALL = 121;
-    int THROW = 123;
-    int ERRSTORE = 124;
-    int FPCALL = 125;
-    int FPLOAD = 126;
-    int VFPLOAD = 127;
+    int FPCALL = 122;
+    int FPLOAD = 123;
+    int VFPLOAD = 124;
 
     int SEQ_NULL = 128;
     int SNE_NULL = 129;
@@ -279,6 +282,7 @@ public interface InstructionCodes {
     int XMLLOADALL = 249;
     int NEWXMLSEQ = 250;
 
+    int TYPE_TEST = 251;
     int TYPELOAD = 252;
 
     int TEQ = 253;

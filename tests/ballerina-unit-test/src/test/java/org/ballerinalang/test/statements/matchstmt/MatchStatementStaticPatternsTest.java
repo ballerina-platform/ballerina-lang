@@ -60,7 +60,7 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "'Default'");
     }
 
-    @Test(description = "Test asics of static pattern match statement 2")
+    @Test(description = "Test basics of static pattern match statement 2")
     public void testMatchStatementBasics2() {
 
         BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsBasic2", new BValue[]{});

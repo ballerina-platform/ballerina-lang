@@ -28,6 +28,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Represents a tuple variable node.
+ * Example:
+ *      (string, int, float) (s, i, f) = ("Foo", 12, 4.5);
+ *      ((string, boolean), int) ((s, b), i) = expr;
+ *
  * @since 0.985.0
  */
 public class BLangTupleVariable extends BLangVariable implements TupleVariableNode {

@@ -38,6 +38,7 @@ public class PushTextFailureTest extends WebSocketTestCommons {
     private static final String URL = "ws://localhost:9089/pushTextFailure";
     private LogLeecher logLeecher;
 
+    // Related file 07_pushText_failure.bal
     @BeforeClass(description = "Initializes the Ballerina server and client")
     public void setup() {
         String expectingErrorLog = "Close frame already sent. Cannot push text data!";

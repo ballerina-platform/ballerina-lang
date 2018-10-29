@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -81,7 +82,7 @@ public class JmsMessageListenerImpl implements MessageListener {
         }
 
         @Override
-        public void notifyFailure(BMap<String, BValue> bStruct) {
+        public void notifyFailure(BError bStruct) {
 
         }
     }

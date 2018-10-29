@@ -32,7 +32,7 @@ public class ItemResolverConstants {
     public static final String TRANSACTION = "transaction";
     public static final String ABORT = "abort";
     public static final String RETRY = "retry";
-    public static final String TRY = "try";
+    public static final String TRAP = "trap";
     public static final String WHILE = "while";
     public static final String ERROR = "error";
     public static final String LOCK = "lock";
@@ -42,12 +42,9 @@ public class ItemResolverConstants {
     public static final String BREAK = "break";
     public static final String TRIGGER_WORKER = "wtrg   Worker Trigger Statement";
     public static final String WORKER_REPLY = "wrply   Worker Reply Statement";
-    public static final String ATTACH = "attach";
     public static final String FOREACH = "foreach";
-    public static final String PRIVATE = "private";
     public static final String MATCH = "match";
-    public static final String THROW = "throw";
-    public static final String NEW = "new";
+    public static final String PANIC = "panic";
     public static final String LENGTHOF = "lengthof";
 
     public static final String FUNCTION = "function";
@@ -63,7 +60,6 @@ public class ItemResolverConstants {
     // End of Basic Constructs
 
     // Package Name Context Constants
-    public static final String PACKAGE = "package";
     public static final String IMPORT = "import";
     public static final String TYPE = "type ";
     // End of Package Name Context Constants
@@ -73,7 +69,6 @@ public class ItemResolverConstants {
     public static final String PACKAGE_TYPE = "Package";
     public static final String FUNCTION_TYPE = "Function";
     public static final String RESOURCE_TYPE = "Resource";
-    public static final String WORKER_TYPE = "Worker";
     public static final String KEYWORD_TYPE = "Keyword";
     public static final String SNIPPET_TYPE = "Snippet";
     public static final String STATEMENT_TYPE = "Statement";

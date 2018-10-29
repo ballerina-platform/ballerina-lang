@@ -29,6 +29,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ *
+ * Represents a record variable node.
+ *
+ * Example:
+ *      type Person record {
+ *          string name;
+ *          boolean married;
+ *          !...
+ *      };
+ *
+ *      Person {name, married} = {name: "Peter", married: true};
+ *
  * @since 0.985.0
  */
 public class BLangRecordVariable extends BLangVariable implements RecordVariableNode {

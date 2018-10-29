@@ -23,6 +23,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import java.util.List;
 
 /**
+ * Represents a record variable node.
+ *
+ * Example:
+ *      type Person record {
+ *          string name;
+ *          boolean married;
+ *          !...
+ *      };
+ *
+ *      Person {name, married} = {name: "Peter", married: true};
+ *
  * @since 0.985.0
  */
 public interface RecordVariableNode extends VariableNode, AnnotatableNode, DocumentableNode, TopLevelNode {

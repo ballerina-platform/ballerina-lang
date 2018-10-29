@@ -48,11 +48,6 @@ public class BStringType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_STRING);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.STRING_TAG;
     }

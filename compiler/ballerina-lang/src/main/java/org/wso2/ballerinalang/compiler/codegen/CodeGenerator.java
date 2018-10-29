@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -75,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -88,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -108,8 +111,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -137,12 +142,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -228,6 +233,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -1136,6 +1142,15 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorConstructorExpr errExpr) {
+        genNode(errExpr.reasonExpr, env);
+        genNode(errExpr.detailsExpr, env);
+        RegIndex regIndex = calcAndGetExprRegIndex(errExpr);
+        emit(InstructionCodes.ERROR, getTypeCPIndex(errExpr.type), errExpr.reasonExpr.regIndex,
+                errExpr.detailsExpr.regIndex, regIndex);
+    }
+
+    @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
@@ -1224,6 +1239,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangActionInvocation aIExpr) {
+    }
+
+    @Override
+    public void visit(BLangBuiltInMethodInvocation iExpr) {
+        genNode(iExpr.expr, this.env);
+        RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
+        if (iExpr.builtInMethod == BLangBuiltInMethod.REASON) {
+            emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
+        } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
+            emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+        }
     }
 
     public void visit(BLangTypeInit cIExpr) {
@@ -1338,6 +1364,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(awaitExpr.expr, this.env);
         Operand futureRegIndex = awaitExpr.expr.regIndex;
         this.emit(InstructionCodes.AWAIT, futureRegIndex, valueRegIndex);
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        ErrorTableAttributeInfo errorTable = getErrorTable(currentPkgInfo);
+
+        int fromIP = nextIP();
+        genNode(trapExpr.expr, env);
+        int toIP = nextIP();
+        RegIndex regIndex = calcAndGetExprRegIndex(trapExpr);
+        errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP, toIP, regIndex));
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
@@ -2337,7 +2374,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         callableUnitInfo.addWorkerInfo(worker.name.value, workerInfo);
     }
 
-    private ErrorTableAttributeInfo createErrorTableIfAbsent(PackageInfo packageInfo) {
+    private ErrorTableAttributeInfo getErrorTable(PackageInfo packageInfo) {
         ErrorTableAttributeInfo errorTable =
                 (ErrorTableAttributeInfo) packageInfo.getAttributeInfo(AttributeInfo.Kind.ERROR_TABLE);
         if (errorTable == null) {
@@ -2744,9 +2781,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(this.loopExitInstructionStack.peek());
     }
 
-    public void visit(BLangThrow throwNode) {
-        genNode(throwNode.expr, env);
-        emit(InstructionFactory.get(InstructionCodes.THROW, throwNode.expr.regIndex));
+    public void visit(BLangPanic panicNode) {
+        genNode(panicNode.expr, env);
+        emit(InstructionFactory.get(InstructionCodes.PANIC, panicNode.expr.regIndex));
     }
 
     public void visit(BLangIf ifNode) {
@@ -2827,7 +2864,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand gotoLockEndAddr = getOperand(-1);
         Instruction instructGotoLockEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoLockEndAddr);
         Operand[] operands = getOperands(lockNode);
-        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+        ErrorTableAttributeInfo errorTable = getErrorTable(currentPkgInfo);
 
         int fromIP = nextIP();
         emit((InstructionCodes.LOCK), operands);
@@ -2838,11 +2875,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit((InstructionCodes.UNLOCK), operands);
         emit(instructGotoLockEnd);
 
-        ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), 0, -1);
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), null);
         errorTable.addErrorTableEntry(errorTableEntry);
 
         emit((InstructionCodes.UNLOCK), operands);
-        emit(InstructionFactory.get(InstructionCodes.THROW, getOperand(-1)));
+        emit(InstructionFactory.get(InstructionCodes.PANIC, getOperand(-1)));
         gotoLockEndAddr.value = nextIP();
     }
 
@@ -2890,7 +2927,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                     (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onAbortFunction).symbol);
         }
 
-        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+        ErrorTableAttributeInfo errorTable = getErrorTable(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
         Operand transStmtAbortEndAddr = getOperand(-1);
         Operand transStmtFailEndAddr = getOperand(-1);
@@ -2934,9 +2971,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         retryEndWithThrowAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
 
-        emit(InstructionCodes.THROW, getOperand(-1));
-        ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
-                transBlockEndAddr, errorTargetIP, 0, -1);
+        emit(InstructionCodes.PANIC, getOperand(-1));
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value, transBlockEndAddr,
+                errorTargetIP, null);
         errorTable.addErrorTableEntry(errorTableEntry);
 
         transStmtAbortEndAddr.value = nextIP();
@@ -3180,7 +3217,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand gotoTryCatchEndAddr = getOperand(-1);
         Instruction instructGotoTryCatchEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoTryCatchEndAddr);
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
-        ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
+        ErrorTableAttributeInfo errorTable = getErrorTable(currentPkgInfo);
 
         int fromIP = nextIP();
         tryCatchErrorRangeToIPStack.push(toIPPlaceHolder);
@@ -3213,7 +3250,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Handle catch blocks.
         // Temporary error range list for new error ranges identified in catch blocks
         List<int[]> unhandledCatchErrorRangeList = new ArrayList<>();
-        int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             addLineNumberInfo(bLangCatch.pos);
             int targetIP = nextIP();
@@ -3247,10 +3283,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
             int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
-            int currentOrder = order++;
             for (int[] range : unhandledErrorRangeList) {
-                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], targetIP, currentOrder,
-                        structCPEntryIndex);
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], targetIP, null);
                 errorTable.addErrorTableEntry(errorTableEntry);
             }
         }
@@ -3260,25 +3294,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             // Create Error table entry for unhandled errors in try and catch(s) blocks
             for (int[] range : unhandledErrorRangeList) {
-                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), null);
                 errorTable.addErrorTableEntry(errorTableEntry);
             }
             // Append finally block instruction.
             genNode(tryNode.finallyBody, env);
-            emit(InstructionFactory.get(InstructionCodes.THROW, getOperand(-1)));
+            emit(InstructionFactory.get(InstructionCodes.PANIC, getOperand(-1)));
         }
         gotoTryCatchEndAddr.value = nextIP();
-    }
-
-    public void visit(BLangCatch bLangCatch) {
-        // Define local variable index for Error.
-        BLangSimpleVariable variable = bLangCatch.param;
-        RegIndex lvIndex = getLVIndex(variable.symbol.type.tag);
-        variable.symbol.varIndex = lvIndex;
-        emit(InstructionFactory.get(InstructionCodes.ERRSTORE, lvIndex));
-
-        // Visit Catch Block.
-        genNode(bLangCatch.body, env);
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -3295,6 +3318,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
 
         emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
+    }
+
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        genNode(typeTestExpr.expr, env);
+        Operand typeCPIndex = getTypeCPIndex(typeTestExpr.typeNode.type);
+        emit(InstructionCodes.TYPE_TEST, typeTestExpr.expr.regIndex, typeCPIndex,
+                calcAndGetExprRegIndex(typeTestExpr));
     }
 
     // private helper methods of visitors.

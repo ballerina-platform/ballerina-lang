@@ -91,7 +91,7 @@ service<http:Service> failoverDemoService03 bind failoverEP03 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -115,7 +115,7 @@ service<http:Service> failoverDemoService03 bind failoverEP03 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -139,7 +139,7 @@ service<http:Service> failoverDemoService03 bind failoverEP03 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -167,7 +167,7 @@ service<http:Service> failoverDemoService03 bind failoverEP03 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -219,7 +219,7 @@ service mock03 bind backendEP03 {
             match req.getBodyParts() {
                 // Setting the error response in case of an error
                 error err => {
-                    log:printError(err.message);
+                    log:printError(err.reason());
                     response.setPayload("Error in decoding multiparts!");
                     response.statusCode = 500;
                 }
