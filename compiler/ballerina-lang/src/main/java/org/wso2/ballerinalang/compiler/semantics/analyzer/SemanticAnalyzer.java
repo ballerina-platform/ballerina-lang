@@ -1502,6 +1502,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Set the actual type. This is needed later.
             constant.symbol.actualType = typeNode.type;
 
+            // Check type of the value.
+            typeChecker.checkExpr(value, env, typeNode.type);
+
             // If the constant's type node's type is a finite type, we need to check whether the literal value is
             // assignable to it.
             //
@@ -1519,9 +1522,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(constant.pos, DiagnosticCode.INCOMPATIBLE_TYPES, typeNode.type, value.type);
                 return;
             }
-
-            // Check type of the value.
-            typeChecker.checkExpr(value, env, typeNode.type);
 
             // Todo - Revisit the logic
             // Update the symbol's value type tag. This is done because we need to support decimal type.
