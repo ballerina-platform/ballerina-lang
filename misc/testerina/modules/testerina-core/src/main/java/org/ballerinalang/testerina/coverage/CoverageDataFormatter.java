@@ -37,100 +37,110 @@ public class CoverageDataFormatter {
     private String testName = null;
 
     public List<LCovData> getFormattedCoverageData(Map<String, List<ExecutedInstruction>> executedInstructionOrderMap,
-                                                   TestSuite suite) {
-
-        PackageInfo entryPackageInfo = suite.getProgramFile().getEntryPackage();
-        String entryPkgPath = entryPackageInfo.pkgPath;
+                                                   Map<String, TestSuite> testSuiteForProject) {
 
         List<LCovData> packageCoverageList = new ArrayList<>();
 
-        executedInstructionOrderMap.forEach((packagePath, executedInstructionOrder) -> {
+        testSuiteForProject.forEach((testPkgPath, suite) -> {
 
-            // get only current project's module
-            if(packagePath.equals(entryPkgPath)) {
+            PackageInfo entryPackageInfo = suite.getProgramFile().getEntryPackage();
+            String entryPkgPath = entryPackageInfo.pkgPath;
 
-                for(ExecutedInstruction executedInstruction : executedInstructionOrder) {
+            executedInstructionOrderMap.forEach((packagePath, executedInstructionOrder) -> {
 
-                    //TODO: init should be covered later. init has declarions and configs
-                    if(!((packagePath + ".<init>").equals(executedInstruction.getFunctionName()) ||
-                            (packagePath + ".<start>").equals(executedInstruction.getFunctionName()))) {
+                // get only current project's module
+                if(packagePath.equals(entryPkgPath)) {
 
-                        // filter out the source code Ips
-                        if(skipTestFunctionIps(executedInstruction, suite)) {
-                            continue;
-                        }
+                    for(ExecutedInstruction executedInstruction : executedInstructionOrder) {
 
-                        boolean lCovDataFound = false;
-                        for(LCovData lCovData : packageCoverageList) {
+                        //TODO: init should be covered later. init has declarions and global configs for functions
+                        //TODO: start should be covered later. start has declarions and global configs for services
+                        if(!(executedInstruction.getFunctionName().matches(".*\\.<init>") ||
+                                executedInstruction.getFunctionName().matches(".*\\.<start>") ||
+                                "ballerina/builtin".equals(executedInstruction.getPkgPath()) ||
+                                "ballerina/runtime".equals(executedInstruction.getPkgPath()) ||
+                                "ballerina/reflect".equals(executedInstruction.getPkgPath()) ||
+                                "ballerina/test".equals(executedInstruction.getPkgPath()) ||
+                                "ballerina/io".equals(executedInstruction.getPkgPath()))) {
 
-                            if(lCovData.getTestName().equals(testName)) {
-                                lCovDataFound = true;
-
-                                boolean lCovSourceFileFound = false;
-                                for(LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
-
-                                    if(lCovSourceFile.getSourceFilePath().equals(packagePath + "/" + executedInstruction.getFileName())) {
-                                        lCovSourceFileFound = true;
-
-                                        boolean lineNumFound = false;
-                                        LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
-                                        for(LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
-                                            if(lineNumberInfo.getLineNumber() == lCovDA.getLineNumber()) {
-                                                lineNumFound = true;
-
-                                                lCovDA.setLineExecutionCount(lCovDA.getLineExecutionCount() + 1);
-
-                                                break;
-                                            }
-                                        }
-                                        if(!lineNumFound) {
-                                            LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
-                                            lCovSourceFile.getlCovDAList().add(lCovDA);
-                                        }
-
-                                        break;
-                                    }
-                                }
-                                if(!lCovSourceFileFound) {
-
-                                    LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
-                                    LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
-
-                                    LCovSourceFile lCovSourceFile = new LCovSourceFile(
-                                            //TODO: package path should be package folder path
-                                            packagePath + "/" + executedInstruction.getFileName(), 1, 1);
-                                    lCovSourceFile.getlCovDAList().add(lCovDA);
-
-                                    lCovData.getlCovSourceFileList().add(lCovSourceFile);
-
-                                }
-
-                                break;
+                            // filter out the source code Ips
+                            if(skipTestFunctionIps(executedInstruction, suite)) {
+                                continue;
                             }
 
+                            boolean lCovDataFound = false;
+                            for(LCovData lCovData : packageCoverageList) {
 
-                        }
-                        if(!lCovDataFound) {
+                                if(lCovData.getTestName().equals(testName)) {
+                                    lCovDataFound = true;
 
-                            LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
-                            LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+                                    boolean lCovSourceFileFound = false;
+                                    for(LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
 
-                            LCovSourceFile lCovSourceFile = new LCovSourceFile(
-                                    //TODO: package path should be package folder path
-                                    packagePath + "/" + executedInstruction.getFileName(), 1, 1);
-                            lCovSourceFile.getlCovDAList().add(lCovDA);
+                                        if(lCovSourceFile.getSourceFilePath().equals(packagePath + "/" + executedInstruction.getFileName())) {
+                                            lCovSourceFileFound = true;
 
-                            LCovData lCovData = new LCovData(testName);
-                            lCovData.getlCovSourceFileList().add(lCovSourceFile);
+                                            boolean lineNumFound = false;
+                                            LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
+                                            for(LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
+                                                if(lineNumberInfo.getLineNumber() == lCovDA.getLineNumber()) {
+                                                    lineNumFound = true;
 
-                            packageCoverageList.add(lCovData);
+                                                    lCovDA.setLineExecutionCount(lCovDA.getLineExecutionCount() + 1);
+
+                                                    break;
+                                                }
+                                            }
+                                            if(!lineNumFound) {
+                                                LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+                                                lCovSourceFile.getlCovDAList().add(lCovDA);
+                                            }
+
+                                            break;
+                                        }
+                                    }
+                                    if(!lCovSourceFileFound) {
+
+                                        LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
+                                        LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+
+                                        LCovSourceFile lCovSourceFile = new LCovSourceFile(
+                                                //TODO: package path should be package folder path
+                                                packagePath + "/" + executedInstruction.getFileName(), 1, 1);
+                                        lCovSourceFile.getlCovDAList().add(lCovDA);
+
+                                        lCovData.getlCovSourceFileList().add(lCovSourceFile);
+
+                                    }
+
+                                    break;
+                                }
+
+
+                            }
+                            if(!lCovDataFound) {
+
+                                LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
+                                LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+
+                                LCovSourceFile lCovSourceFile = new LCovSourceFile(
+                                        //TODO: package path should be package folder path
+                                        packagePath + "/" + executedInstruction.getFileName(), 1, 1);
+                                lCovSourceFile.getlCovDAList().add(lCovDA);
+
+                                LCovData lCovData = new LCovData(testName);
+                                lCovData.getlCovSourceFileList().add(lCovSourceFile);
+
+                                packageCoverageList.add(lCovData);
+                            }
+
                         }
 
                     }
 
                 }
 
-            }
+            });
 
         });
 
@@ -207,7 +217,7 @@ public class CoverageDataFormatter {
                             .append(lCovDA.getLineExecutionCount()).append("\n");
                 }
 
-                lcovOutputStrBuf.append("end_of_record");
+                lcovOutputStrBuf.append("end_of_record").append("\n");
             }
         }
 

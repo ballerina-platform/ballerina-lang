@@ -18,7 +18,6 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.bre.coverage.CoverageManager;
 import org.ballerinalang.bre.coverage.InstructionHandler;
 import org.ballerinalang.channels.ChannelManager;
 import org.ballerinalang.channels.ChannelRegistry;
@@ -155,11 +154,15 @@ public class CPU {
     }
 
     public static void exec(WorkerExecutionContext ctx) {
-        ctx.programFile.setTestFile(true);
+
         if(instructionHandler == null) {
+            //TODO: Add debugger enabled scenario to the if statement
             if(Boolean.parseBoolean(System.getProperty("coverage.flag")) && ctx.programFile.isTestFile()) {
-                CoverageManager coverageManager = CoverageManager.getInstance();
-                instructionHandler = coverageManager.getCoverageInstructionHandler(ctx.programFile);
+                ServiceLoader<InstructionHandler> loader = ServiceLoader.load(InstructionHandler.class);
+                Iterator<InstructionHandler> iter = loader.iterator();
+                while(iter.hasNext()){
+                    instructionHandler = iter.next();
+                }
             }
         }
 

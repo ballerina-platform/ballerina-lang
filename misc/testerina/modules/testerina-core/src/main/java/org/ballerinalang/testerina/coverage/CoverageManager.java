@@ -15,9 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bre.coverage;
+package org.ballerinalang.testerina.coverage;
 
-import org.ballerinalang.bre.coverage.impl.CoverageInstructionHandlerImpl;
+import org.ballerinalang.bre.coverage.ExecutedInstruction;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.List;
@@ -28,9 +28,10 @@ public class CoverageManager {
 
     private static final Map<String, List<ExecutedInstruction>> executedInstructionOrderMap = new ConcurrentHashMap<>();
 
-    private static final CoverageManager coverageManger = new CoverageManager();
+    // for the project there can be multiple modules and each will have programFile
+    private static Map<String, ProgramFile> programFilesForProject;
 
-    private static InstructionHandler coverageInstructionHandler;
+    private static final CoverageManager coverageManger = new CoverageManager();
 
     private CoverageManager() {}
 
@@ -38,12 +39,12 @@ public class CoverageManager {
         return coverageManger;
     }
 
-    public static InstructionHandler getCoverageInstructionHandler(ProgramFile programFile) {
-        if(coverageInstructionHandler == null) {
-            coverageInstructionHandler = new CoverageInstructionHandlerImpl(executedInstructionOrderMap, programFile);
-        }
+    public static Map<String, ProgramFile> getProgramFilesForProject() {
+        return programFilesForProject;
+    }
 
-        return coverageInstructionHandler;
+    public static void setProgramFilesForProject(Map<String, ProgramFile> programFilesForProject) {
+        CoverageManager.programFilesForProject = programFilesForProject;
     }
 
     public static Map<String, List<ExecutedInstruction>> getExecutedInstructionOrderMap() {

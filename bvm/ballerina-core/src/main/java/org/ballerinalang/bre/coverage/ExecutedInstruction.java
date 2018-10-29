@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.bre.coverage;
 
+import org.ballerinalang.util.codegen.LineNumberInfo;
+
 public class ExecutedInstruction {
 
     private int ip;
@@ -27,11 +29,14 @@ public class ExecutedInstruction {
 
     private String functionName;
 
-    public ExecutedInstruction(int ip, String pkgPath, String fileName, String functionName) {
+    private LineNumberInfo lineNumberInfo;
+
+    public ExecutedInstruction(int ip, String pkgPath, String fileName, String functionName, LineNumberInfo lineNumberInfo) {
         this.ip = ip;
         this.pkgPath = pkgPath;
         this.fileName = fileName;
         this.functionName = functionName;
+        this.lineNumberInfo = lineNumberInfo;
     }
 
     public int getIp() {
@@ -64,5 +69,13 @@ public class ExecutedInstruction {
 
     public void setFunctionName(String functionName) {
         this.functionName = functionName;
+    }
+
+    public LineNumberInfo getLineNumberInfo() {
+        return lineNumberInfo;
+    }
+
+    public void setLineNumberInfo(LineNumberInfo lineNumberInfo) {
+        this.lineNumberInfo = lineNumberInfo;
     }
 }

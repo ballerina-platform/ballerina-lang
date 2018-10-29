@@ -19,7 +19,7 @@
 package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.testerina.coverage.CoverageDataFormatter;
-import org.ballerinalang.bre.coverage.CoverageManager;
+import org.ballerinalang.testerina.coverage.CoverageManager;
 import org.ballerinalang.testerina.coverage.LCovData;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -42,14 +42,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -212,6 +205,14 @@ public class BTestRunner {
      */
     private void execute(boolean buildWithTests, String sourceRoot) {
         Map<String, TestSuite> testSuites = registry.getTestSuites();
+        if(coverageFlag) {
+            CoverageManager coverageManager = CoverageManager.getInstance();
+            Map<String, ProgramFile> programFilesForProject = new HashMap<>();
+            for(ProgramFile programFile : registry.getProgramFiles()) {
+                programFilesForProject.put(programFile.getEntryPackage().getPkgPath(), programFile);
+            }
+            coverageManager.setProgramFilesForProject(programFilesForProject);
+        }
         outStream.println();
         outStream.println("Running tests");
         if (testSuites.isEmpty()) {
@@ -380,26 +381,27 @@ public class BTestRunner {
             // print package test results
             tReport.printTestSuiteSummary(packageName);
 
-            // Coverage report handling
-            if(coverageFlag) {
+        });
 
-                try {
+        // Coverage report handling
+        if(coverageFlag) {
 
-                    CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
-                    CoverageManager coverageManager = CoverageManager.getInstance();
-                    List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
-                            coverageManager.getExecutedInstructionOrderMap(), suite);
-                    coverageDataFormatter.writeFormattedCovDataToFile(packageLCovDataList, sourceRoot);
+            try {
 
-                } catch(Throwable e) {
-                    String errorMsg = String.format("\t[fail] [coverage report generation] :\n\t    " +
-                            "%s", Utils.formatError(e.getMessage()));
-                    errStream.println(errorMsg);
-                }
+                CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
+                CoverageManager coverageManager = CoverageManager.getInstance();
+                List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
+                        coverageManager.getExecutedInstructionOrderMap(), testSuites);
+                coverageDataFormatter.writeFormattedCovDataToFile(packageLCovDataList, sourceRoot);
 
+            } catch(Throwable e) {
+                String errorMsg = String.format("\t[fail] [coverage report generation] :\n\t    " +
+                        "%s", Utils.formatError(e.getMessage()));
+                errStream.println(errorMsg);
             }
 
-        });
+        }
+
     }
 
     private boolean isTestDependsOnFailedFunctions(List<String> failedOrSkippedTests, List<String> dependentTests) {
