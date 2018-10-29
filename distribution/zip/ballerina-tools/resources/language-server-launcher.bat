@@ -66,9 +66,18 @@ set BALLERINA_CLASSPATH=
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\tools\lang-server\lib\*"
 
+:loop
+if not "%~1" == "" (
+    if "%~1" == "--debug" (
+        set DEBUG=true
+        SHIFT
+    )
+    SHIFT
+    goto :loop
+    rem "Should check if any other arguements needs to be processed"
+)
 
-rem "Check if command line arg --debug is un-available for normal operations"
-if "%~1" == "" goto runServer
+if "%DEBUG%" == "" goto runServer
 goto commandDebug
 
 rem ----- commandDebug ---------------------------------------------------------
@@ -103,7 +112,6 @@ goto runServer
 rem ----------------- Execute The Requested Command ----------------------------
 
 :runServer
-
 set CMD=%*
 
 rem ---------- Add jars to classpath ----------------
