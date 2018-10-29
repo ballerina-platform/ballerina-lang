@@ -32,7 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
  *
  * Foo {a: b, c: d, !...} = {a: 5, b: "foo"};.
  *
- * @since 0.982.0
+ * @since 0.985.0
  */
 public class BLangRecordVariableDef extends BLangStatement implements VariableDefinitionNode {
 

@@ -575,7 +575,7 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
             checkExpr(recordRefField.variableReference, env);
-            BVarSymbol bVarSymbol = getVarSymbolFromVarRef(recordRefField.variableReference);
+            BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(recordRefField.variableReference);
             if (bVarSymbol == null) {
                 unresolvedReference = true;
                 continue;
@@ -588,7 +588,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefExpr.restParam != null) {
             BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
             checkExpr(restParam, env);
-            BVarSymbol bVarSymbol = getVarSymbolFromVarRef(restParam);
+            BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(restParam);
             unresolvedReference = (bVarSymbol == null);
         }
 
@@ -609,21 +609,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = bRecordType;
-    }
-
-    private BVarSymbol getVarSymbolFromVarRef(BLangExpression varRef) {
-        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return (BVarSymbol) ((BLangSimpleVarRef) varRef).symbol;
-        }
-        if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
-            return (BVarSymbol) ((BLangRecordVarRef) varRef).symbol;
-        }
-        if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
-            return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
-        }
-
-        dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
-        return null;
     }
 
     @Override
@@ -1462,6 +1447,21 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     // Private methods
+
+    private BVarSymbol getVarSymbolForRecordVariableReference(BLangExpression varRef) {
+        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangSimpleVarRef) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangRecordVarRef) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
+        }
+
+        dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
+        return null;
+    }
 
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
         SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);

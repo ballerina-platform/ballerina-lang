@@ -21,6 +21,8 @@ package org.wso2.ballerinalang.compiler.util;
 
 /**
  * Enum to hold the state of the rest binding pattern in a record variable.
+ *
+ * @since 0.985.0
  */
 public enum RestBindingPatternState {
     NO_BINDING_PATTERN,

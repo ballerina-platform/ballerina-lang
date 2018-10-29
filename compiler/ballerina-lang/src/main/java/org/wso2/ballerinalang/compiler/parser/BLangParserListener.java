@@ -51,6 +51,9 @@ import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
+import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.NO_BINDING_PATTERN;
+import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.OPEN_REST_BINDING_PATTERN;
 
 /**
  * @since 0.94
@@ -965,16 +968,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        RestBindingPatternState restBindingPattern;
-        if (ctx.restBindingPattern() != null) {
-            if (ctx.restBindingPattern().sealedLiteral() != null) {
-                restBindingPattern = RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
-            } else {
-                restBindingPattern = RestBindingPatternState.OPEN_REST_BINDING_PATTERN;
-            }
-        } else {
-            restBindingPattern = RestBindingPatternState.NO_BINDING_PATTERN;
-        }
+        RestBindingPatternState restBindingPattern = (ctx.restBindingPattern() == null) ?
+                NO_BINDING_PATTERN : ((ctx.restBindingPattern().sealedLiteral() != null) ?
+                CLOSED_REST_BINDING_PATTERN : OPEN_REST_BINDING_PATTERN);
+
         this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), restBindingPattern);
     }
 
@@ -993,17 +990,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        RestBindingPatternState restBindingPattern;
-        if (ctx.restRefBindingPattern() != null) {
-            if (ctx.restRefBindingPattern().sealedLiteral() != null) {
-                restBindingPattern = RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
-            } else {
-                restBindingPattern = RestBindingPatternState.OPEN_REST_BINDING_PATTERN;
-            }
-        } else {
-            restBindingPattern = RestBindingPatternState.NO_BINDING_PATTERN;
-        }
-        this.pkgBuilder.addRecordVariableReference(getCurrentPos(ctx), getWS(ctx), restBindingPattern);
+        RestBindingPatternState restRefBindingPattern = (ctx.restRefBindingPattern() == null) ?
+                NO_BINDING_PATTERN : ((ctx.restRefBindingPattern().sealedLiteral() != null) ?
+                CLOSED_REST_BINDING_PATTERN : OPEN_REST_BINDING_PATTERN);
+
+        this.pkgBuilder.addRecordVariableReference(getCurrentPos(ctx), getWS(ctx), restRefBindingPattern);
     }
 
     @Override
@@ -1012,9 +1003,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.Identifier() != null
-                && (ctx.parent instanceof BallerinaParser.TupleBindingPatternContext
-                || ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)) {
+        if ((ctx.Identifier() != null) && ((ctx.parent instanceof BallerinaParser.TupleBindingPatternContext)
+                || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext))) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
     }
@@ -1035,8 +1025,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String identifier = ctx.Identifier().getText();
-        this.pkgBuilder.addFieldRefBindingMemberVar(getCurrentPos(ctx), getWS(ctx), identifier,
+        this.pkgBuilder.addFieldRefBindingMemberVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 ctx.bindingRefPattern() != null);
     }
 
@@ -1058,8 +1047,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isDeclaredWithVar = ctx.VAR() != null;
-
         boolean exprAvailable = ctx.ASSIGN() != null;
+
         if (ctx.Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                     exprAvailable, isDeclaredWithVar);

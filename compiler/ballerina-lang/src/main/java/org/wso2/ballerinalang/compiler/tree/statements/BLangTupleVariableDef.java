@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 /**
  * (int, string) (i, s) = (5, "foo");.
  *
- * @since 0.982.0
+ * @since 0.985.0
  */
 public class BLangTupleVariableDef extends BLangStatement implements VariableDefinitionNode {
 
