@@ -58,8 +58,8 @@
         <typedHandler implementation="com.github.gtache.lsp.editor.listeners.LSPTypedHandler" id="LSPTypedHandler"/>
         <completion.contributor implementationClass="com.github.gtache.lsp.contributors.LSPCompletionContributor"
                                 id="LSPCompletionContributor" language="any"/>
-        <!--<inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"-->
-                                <!--id="LSPInspectionProvider"/>-->
+        <inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"
+                                id="LSPInspectionProvider"/>
         <fileDocumentSynchronizationVetoer
                 implementation="com.github.gtache.lsp.editor.listeners.LSPFileDocumentSynchronizationVetoer"
                 id="LSPFileDocumentSynchronizationVetoer"/>
@@ -107,9 +107,6 @@
 
         <codeInsight.parameterInfo language="Ballerina"
                                    implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>
-
-        <externalAnnotator language="Ballerina"
-                           implementationClass="io.ballerina.plugins.idea.BallerinaExternalAnnotator"/>
 
         <!--<spellchecker.support language="Ballerina"-->
         <!--implementationClass="org.ballerinalang.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>-->
