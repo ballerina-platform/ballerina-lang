@@ -44,8 +44,6 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
-    public boolean safeAssignment = false;
-    public boolean isField;
 
     public boolean isDeclaredWithVar = false;
 

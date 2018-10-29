@@ -47,10 +47,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
@@ -384,6 +387,24 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(recordNode, objectSymbol.scope, env);
         recordNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         analyzeNode(recordNode.initFunction, objectEnv);
+    }
+
+    @Override
+    public void visit(BLangTupleVariable bLangTupleVariable) {
+        if (bLangTupleVariable.expr != null) {
+            SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(bLangTupleVariable, env, bLangTupleVariable.symbol);
+            analyzeNode(bLangTupleVariable.expr, varInitEnv);
+            setTaintedStatus(bLangTupleVariable, this.taintedStatus);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        if (bLangRecordVariable.expr != null) {
+            SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(bLangRecordVariable, env, bLangRecordVariable.symbol);
+            analyzeNode(bLangRecordVariable.expr, varInitEnv);
+            setTaintedStatus(bLangRecordVariable, this.taintedStatus);
+        }
     }
 
     @Override
@@ -1009,7 +1030,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
+        TaintedStatus isTainted = TaintedStatus.UNTAINTED;
+        for (BLangExpression expression : bracedOrTupleExpr.expressions) {
+            expression.accept(this);
+            // Used to update the variable this literal is getting assigned to.
+            if (this.taintedStatus == TaintedStatus.TAINTED) {
+                isTainted = TaintedStatus.TAINTED;
+            }
+        }
+        this.taintedStatus = isTainted;
     }
 
     @Override
@@ -1382,12 +1411,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        // ignore
+        visit(bLangTupleVariableDef.var);
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        // ignore
+        visit(bLangRecordVariableDef.var);
     }
 
     /**
@@ -1443,9 +1472,24 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * @param varNode       Variable node to be updated.
      * @param taintedStatus Tainted status.
      */
-    private void setTaintedStatus(BLangSimpleVariable varNode, TaintedStatus taintedStatus) {
-        if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || !varNode.symbol.tainted)) {
-            setTaintedStatus(varNode.symbol, taintedStatus);
+    private void setTaintedStatus(BLangVariable varNode, TaintedStatus taintedStatus) {
+        if (varNode.getKind() == NodeKind.RECORD_VARIABLE) {
+            ((BLangRecordVariable) varNode).variableList
+                    .forEach(variable -> setTaintedStatus(variable.valueBindingPattern, taintedStatus));
+            return;
+        }
+
+        if (varNode.getKind() == NodeKind.TUPLE_VARIABLE) {
+            ((BLangTupleVariable) varNode).memberVariables
+                    .forEach(variable -> setTaintedStatus(variable, taintedStatus));
+            return;
+        }
+
+        if (varNode.getKind() == NodeKind.VARIABLE) {
+            BLangSimpleVariable simpleVarNode = (BLangSimpleVariable) varNode;
+            if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || !simpleVarNode.symbol.tainted)) {
+                setTaintedStatus(simpleVarNode.symbol, taintedStatus);
+            }
         }
     }
 

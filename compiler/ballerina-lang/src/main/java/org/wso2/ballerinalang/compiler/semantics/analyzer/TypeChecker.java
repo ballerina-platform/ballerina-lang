@@ -397,8 +397,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (matchedTypeList.isEmpty()) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+            recordLiteral.keyValuePairs
+                    .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, symTable.errType));
         } else if (matchedTypeList.size() > 1) {
             dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            recordLiteral.keyValuePairs
+                    .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, symTable.errType));
         } else {
             recordLiteral.keyValuePairs
                     .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
@@ -1822,6 +1826,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 resultType = valueExpr.type;
                 return;
+            case TypeTags.ERROR:
+                checkExpr(valueExpr, this.env, fieldType);
         }
 
         checkExpr(valueExpr, this.env, fieldType);
