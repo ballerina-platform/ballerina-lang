@@ -528,6 +528,15 @@ public class CommandUtil {
         return docAttachmentInfo;
     }
 
+    /**
+     * Apply a given single text edit.
+     *
+     * @param editText      Edit text to be inserted
+     * @param range         Line Range to be processed
+     * @param identifier    Document identifier
+     * @param client        Language Client
+     * @return {@link ApplyWorkspaceEditParams}     Workspace edit params
+     */
     public static ApplyWorkspaceEditParams applySingleTextEdit(String editText, Range range,
                                                                 VersionedTextDocumentIdentifier identifier,
                                                                 LanguageClient client) {
@@ -544,6 +553,13 @@ public class CommandUtil {
         return applyWorkspaceEditParams;
     }
 
+    /**
+     * Apply a workspace edit for the current instance.
+     *
+     * @param textDocumentEdits     List of document edits for current session
+     * @param client                Language Client
+     * @return {@link Object}       workspace edit parameters
+     */
     public static Object applyWorkspaceEdit(List<TextDocumentEdit> textDocumentEdits, LanguageClient client) {
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         workspaceEdit.setDocumentChanges(textDocumentEdits);
