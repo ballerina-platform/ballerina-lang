@@ -97,7 +97,7 @@ public class Start extends BlockingNativeCallableUnit {
             throw new BallerinaException("Provided address not supported");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            throw new BallerinaException("Unable to start the client socket");
+            throw new BallerinaException("Unable to start the client socket: " + e.getMessage());
         }
     }
 }
