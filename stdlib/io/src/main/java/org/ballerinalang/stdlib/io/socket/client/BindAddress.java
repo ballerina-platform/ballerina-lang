@@ -74,19 +74,19 @@ public class BindAddress extends BlockingNativeCallableUnit {
             }
         } catch (ConnectionPendingException e) {
             String message = "Socket initialization already in process. Unable to bind to the port.";
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, message);
             context.setReturnValues(errorStruct);
         } catch (AlreadyBoundException e) {
             String message = "Unable to bind to the port: " + port + ". Socket is already bound.";
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, message);
             context.setReturnValues(errorStruct);
         } catch (UnsupportedAddressTypeException e) {
             String message = "Socket address doesn't support for a TCP connection.";
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, message);
             context.setReturnValues(errorStruct);
         } catch (ClosedChannelException e) {
             String message = "Socket connection is already closed.";
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, message);
             context.setReturnValues(errorStruct);
         } catch (IOException e) {
             String message = "Error occurred while bind to the socket address: " + e.getMessage();
