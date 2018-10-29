@@ -26,8 +26,8 @@ import ballerina/log;
 @final string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
 //TODO: Fix persistence configs, H2?
-@final string DEFAULT_DB_DIRECTORY = "/tmp/weubsubdb";
-@final string DEFAULT_DB_NAME = "SUBSCRIPTIONS_DB";
+@final string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
+@final string DEFAULT_DB_NAME = "HUB_DB";
 @final string DEFAULT_DB_USERNAME = "sa";
 @final string DEFAULT_DB_PASSWORD = "";
 
