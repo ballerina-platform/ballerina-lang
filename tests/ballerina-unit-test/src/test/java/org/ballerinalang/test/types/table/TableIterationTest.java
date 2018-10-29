@@ -24,13 +24,15 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType;
+import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
+import static org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 
 /**
  * Class to test table iteration functionality.
@@ -40,13 +42,14 @@ public class TableIterationTest {
     private CompileResult result;
     private CompileResult resultNegative;
     private static final String DB_NAME = "TEST_DATA_TABLE__ITR_DB";
+    private TestDatabase testDatabase;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_iteration.bal");
         resultNegative = BCompileUtil.compile("test-src/types/table/table_iteration_negative.bal");
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/TableIterationTestData.sql");
+        testDatabase = new FileBasedTestDatabase(DBType.H2,
+                "datafiles/sql/TableIterationTestData.sql", DB_DIRECTORY, DB_NAME);
     }
 
     @Test(groups = "TableIterationTest", description = "Negative tests for select operation")
@@ -233,6 +236,8 @@ public class TableIterationTest {
 
     @AfterSuite
     public void cleanup() {
-        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
+        if (testDatabase != null) {
+            testDatabase.stop();
+        }
     }
 }
