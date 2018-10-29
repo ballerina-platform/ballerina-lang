@@ -88,7 +88,7 @@ public class AbstractObjectTest {
         Assert.assertEquals(result[1].stringValue(), "Employee Name");
     }
 
-    @Test
+    @Test(description = "Test abstract object as an object field")
     public void testAbstractObjectInObject() {
         BValue[] result = BRunUtil.invoke(abstractObjects, "testAbstractObjectInObject");
         Assert.assertEquals(result[0].stringValue(), "{city:\"Colombo\", address:{city:\"Colombo\"}}");
