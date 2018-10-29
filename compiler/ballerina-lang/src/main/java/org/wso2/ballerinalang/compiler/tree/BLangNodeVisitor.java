@@ -121,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -785,7 +786,11 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangMatchStmtStaticBindingPatternClause bLangMatchStmtLiteralBindingPatternClause) {
+    public void visit(BLangMatchStmtStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMatchStmtStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
         throw new AssertionError();
     }
 }

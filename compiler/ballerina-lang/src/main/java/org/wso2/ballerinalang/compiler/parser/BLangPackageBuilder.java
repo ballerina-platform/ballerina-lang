@@ -184,6 +184,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -2469,11 +2470,24 @@ public class BLangPackageBuilder {
 
     void addMatchStmtStaticBindingPattern(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangMatchStmtStaticBindingPatternClause patternClause =
-                (BLangMatchStmtStaticBindingPatternClause) TreeBuilder.createMatchStatementLiteralBindingPattern();
+                (BLangMatchStmtStaticBindingPatternClause) TreeBuilder.createMatchStatementStaticBindingPattern();
         patternClause.pos = pos;
         patternClause.addWS(ws);
 
         patternClause.literal = (BLangExpression) this.exprNodeStack.pop();
+        patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
+        patternClause.body.pos = pos;
+        this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
+    }
+
+    void addMatchStmtStructuredBindingPattern(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangMatchStmtStructuredBindingPatternClause patternClause =
+                (BLangMatchStmtStructuredBindingPatternClause)
+                        TreeBuilder.createMatchStatementStructuredBindingPattern();
+        patternClause.pos = pos;
+        patternClause.addWS(ws);
+
+        patternClause.bindingPatternVariable = this.varStack.pop();
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);

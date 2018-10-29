@@ -1453,6 +1453,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         if (ctx.simpleLiteral() != null && ctx.simpleLiteral().emptyTupleLiteral() == null) {
             this.pkgBuilder.addMatchStmtStaticBindingPattern(getCurrentPos(ctx), getWS(ctx));
+        } else if (ctx.bindingPattern() != null && ctx.bindingPattern().structuredBindingPattern() != null) {
+            this.pkgBuilder.addMatchStmtStructuredBindingPattern(getCurrentPos(ctx), getWS(ctx));
         } else {
             String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
             this.pkgBuilder.addMatchStmtSimpleBindingPattern(getCurrentPos(ctx), getWS(ctx), identifier);

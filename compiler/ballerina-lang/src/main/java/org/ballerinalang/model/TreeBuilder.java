@@ -114,6 +114,7 @@ import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementStaticBindingPatternNode;
+import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementStructuredBindingPatternNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementTypedBindingPatternNode;
 import org.ballerinalang.model.tree.statements.PanicNode;
 import org.ballerinalang.model.tree.statements.RecordDestructureNode;
@@ -243,6 +244,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -597,13 +599,18 @@ public class TreeBuilder {
         return new BLangMatchStmtTypedBindingPatternClause();
     }
 
-    public static MatchStatementStaticBindingPatternNode createMatchStatementLiteralBindingPattern() {
+    public static MatchStatementStaticBindingPatternNode createMatchStatementStaticBindingPattern() {
         return new BLangMatchStmtStaticBindingPatternClause();
+    }
+
+    public static MatchStatementStructuredBindingPatternNode createMatchStatementStructuredBindingPattern() {
+        return new BLangMatchStmtStructuredBindingPatternClause();
     }
 
     public static ServiceNode createServiceNode() {
         return new BLangService();
     }
+
 
     public static ResourceNode createResourceNode() {
         return new BLangResource();

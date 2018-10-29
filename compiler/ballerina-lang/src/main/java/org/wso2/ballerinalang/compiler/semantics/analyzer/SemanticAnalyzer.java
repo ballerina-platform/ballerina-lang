@@ -137,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -974,6 +975,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchStmtStaticBindingPatternClause patternClause) {
         typeChecker.checkExpr(patternClause.literal, this.env);
         analyzeStmt(patternClause.body, this.env);
+    }
+
+    public void visit(BLangMatchStmtStructuredBindingPatternClause patternClause) {
+        /*ignore*/
     }
 
     public void visit(BLangForeach foreach) {

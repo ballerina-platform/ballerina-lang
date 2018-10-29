@@ -615,6 +615,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMatch.BLangMatchStmtStructuredBindingPatternClause clause) {
+        /*ignore*/
+    }
+
+    @Override
     public void visit(BLangForeach foreach) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
         // Propagate the tainted status of collection to foreach variables.

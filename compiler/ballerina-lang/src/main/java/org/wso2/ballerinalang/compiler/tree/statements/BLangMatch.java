@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
@@ -132,7 +133,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtStaticBindingPatternClause} represents a static/constant pattern inside a type switch
+     * {@code BLangMatchStmtStaticBindingPatternClause} represents a static/constant pattern inside a match
      * statement.
      *
      * @since 0.985.0
@@ -165,6 +166,43 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         @Override
         public String toString() {
             return String.valueOf(literal) + " => " + String.valueOf(body);
+        }
+    }
+
+    /**
+     * {@code BLangMatchStmtStructuredBindingPatternClause} represents a structured pattern inside a match
+     * statement.
+     *
+     * @since 0.985.0
+     */
+    public static class BLangMatchStmtStructuredBindingPatternClause extends BLangMatchStmtBindingPatternClause
+            implements MatchStatementStructuredBindingPatternNode {
+
+        public BLangVariable bindingPatternVariable;
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE;
+        }
+
+        @Override
+        public BLangVariable getVariableNode() {
+            return bindingPatternVariable;
+        }
+
+        @Override
+        public BLangStatement getStatement() {
+            return body;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(bindingPatternVariable) + " => " + String.valueOf(body);
         }
     }
 }
