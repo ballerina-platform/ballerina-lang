@@ -409,7 +409,6 @@ public class CommandExecutor {
 
         return applySingleTextEdit(docAttachmentInfo.getDocAttachment(), range, textDocumentIdentifier,
                                    context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
-
     }
 
     /**
