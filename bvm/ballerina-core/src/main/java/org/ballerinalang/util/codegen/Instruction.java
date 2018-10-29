@@ -299,12 +299,14 @@ public class Instruction {
         public BType[] types;
         public int[] pkgRefs;
         public int[] varRegs;
+        public String[] fieldNames;
 
-        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs) {
+        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs, String[] fieldNames) {
             super(opcode);
             this.types = types;
             this.pkgRefs = pkgRefs;
             this.varRegs = varRegs;
+            this.fieldNames = fieldNames;
         }
 
         @Override
@@ -314,6 +316,7 @@ public class Instruction {
                 sj.add(types[i].toString());
                 sj.add(String.valueOf(pkgRefs[i]));
                 sj.add(String.valueOf(varRegs[i]));
+                sj.add(fieldNames[i]);
             }
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }

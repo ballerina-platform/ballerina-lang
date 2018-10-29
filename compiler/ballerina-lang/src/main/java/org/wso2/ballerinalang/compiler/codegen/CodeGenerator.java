@@ -2804,22 +2804,42 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private Operand[] getOperands(BLangLock lockNode) {
-        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 3) + 1];
+
+        int fieldVarCount =
+                (int) lockNode.lockVariables.stream().filter(var -> var.owner.type.tag == TypeTags.OBJECT).count();
+
+        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 4) + 1 + fieldVarCount];
         int i = 0;
         operands[i++] = new Operand(lockNode.lockVariables.size());
         for (BVarSymbol varSymbol : lockNode.lockVariables) {
-            BPackageSymbol pkgSymbol;
             BSymbol ownerSymbol = varSymbol.owner;
+            PackageID pkgId;
             if (ownerSymbol.tag == SymTag.SERVICE) {
-                pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
+                pkgId = ownerSymbol.owner.pkgID;
             } else {
-                pkgSymbol = (BPackageSymbol) ownerSymbol;
+                pkgId = ownerSymbol.pkgID;
             }
-            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
 
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-            operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgId);
+
+            if (ownerSymbol.type.tag == TypeTags.OBJECT) {
+                //isFiled var
+                operands[i++] = getOperand(1);
+                //add field name
+                int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
+                operands[i++] = getOperand(fieldNameCPEntry);
+
+                //use owners's type
+                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.owner.getType().getDesc());
+                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+                operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            } else {
+                operands[i++] = getOperand(0);
+                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
+                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+                operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+            }
+
             operands[i++] = getOperand(pkgRefCPIndex);
             operands[i++] = varSymbol.varIndex;
         }

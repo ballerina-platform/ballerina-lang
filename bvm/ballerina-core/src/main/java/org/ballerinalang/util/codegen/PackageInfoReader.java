@@ -1446,7 +1446,13 @@ public class PackageInfoReader {
                     BType[] varTypes = new BType[varCount];
                     int[] pkgRefs = new int[varCount];
                     int[] varRegs = new int[varCount];
+                    String[] fieldNames = new String[varCount];
                     for (int m = 0; m < varCount; m++) {
+                        boolean isFiled = (codeStream.readInt() == 1) ? true : false;
+                        if (isFiled) {
+                            int fieldNameIndex = codeStream.readInt();
+                            fieldNames[m] = ((UTF8CPEntry) packageInfo.getCPEntry(fieldNameIndex)).getValue();
+                        }
                         int varSigCPIndex = codeStream.readInt();
                         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
                         varTypes[m] = typeRefCPEntry.getType();
@@ -1457,7 +1463,7 @@ public class PackageInfoReader {
                         pkgRefs[m] = pkgRefCPEntry.getPackageInfo().pkgIndex;
                         varRegs[m] = codeStream.readInt();
                     }
-                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs));
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs, fieldNames));
                     break;
                 case COMPENSATE:
                     int nameIndex = codeStream.readInt();

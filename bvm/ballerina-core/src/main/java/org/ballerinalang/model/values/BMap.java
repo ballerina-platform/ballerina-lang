@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.VarLock;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
@@ -59,6 +60,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private final Lock writeLock = lock.writeLock();
     private BType type = BTypes.typeMap;
     private HashMap<String, Object> nativeData = new HashMap<>();
+    private HashMap<String, VarLock> lockMap = new HashMap<>();
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -414,6 +416,24 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      */
     public HashMap<String, Object> getNativeData() {
         return nativeData;
+    }
+
+    /**
+     * Returns a variable lock for the given field.
+     *
+     * @param fieldName field of the map that need to be locked
+     * @return VarLock for the given field
+     */
+    public VarLock getFieldLock(String fieldName) {
+        if (lockMap.get(fieldName) == null) {
+            synchronized (map.get(fieldName)) {
+                if (lockMap.get(fieldName) == null) {
+                    lockMap.put(fieldName, new VarLock());
+                }
+            }
+        }
+
+        return lockMap.get(fieldName);
     }
 
     private String getStringValue(V value) {
