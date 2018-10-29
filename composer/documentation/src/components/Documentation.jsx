@@ -4,10 +4,17 @@ import { Table } from 'semantic-ui-react';
 import './Documentation.css';
 
 const Documentation = ({ docDetails }) => {
-    const { title, description, parameters, returnParameter } = docDetails;
+    const { title, kind, description, parameters, returnParameter } = docDetails;
+
+    const icon = {
+        'Function': 'fw-function',
+    }[kind];
+
     return (
         <div className='documentation'>
-            <div className='title'><i className='fw fw-function fw-fw icon'></i>{title}()</div>
+            <div className='title'>
+                { icon && <i className='fw fw-function fw-fw icon'></i> } {title} { kind === 'Function' && '()' }
+            </div>
             <Description source={description} className='description' />
             {returnParameter && returnParameter.type !== 'nil' && (
                 <div className='return-details'>
