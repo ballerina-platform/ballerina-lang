@@ -18,15 +18,17 @@
  *
  */
 
-import { expect } from 'chai';
+
 import * as path from 'path';
 import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
 import { getBallerinaHome, getBBEPath } from "../test-util";
 import { Uri } from "vscode";
+import * as assert from 'assert';
+import { sync as globSync } from 'glob';
 
 
-suite("Language Server Tests", function () {
+suite('Rendering Tests', function () {
     this.timeout(10000);
     let langClient: ExtendedLangClient;
 
@@ -42,31 +44,21 @@ suite("Language Server Tests", function () {
         done();
     });
 
-
-    test("Test Language Server Start", function (done): void {
-        langClient.onReady().then(() => {
-            done();
-        }, () => {
-            done(new Error("Language Server start failed"));
-        }).catch((err) => {
-            done(new Error("Language Server start failed"));
-        });
-    });
-
-    test("Test getAST", function (done): void {
-        langClient.onReady().then(() => {
-            const filePath = path.join(getBBEPath(),'hello-world','hello_world.bal');
-            let uri = Uri.file(filePath.toString());
-            langClient.getAST(uri).then((response) => {
-                expect(response).to.contain.keys('ast','parseSuccess');
-                done();
-            }, (reason) => {
-                done(reason);
+    var bbeFiles = globSync(getBBEPath() + "/**/*.bal", {});
+    bbeFiles.forEach(function (file) {
+        test.skip('Running through ' + path.basename(file), function (done) {
+            langClient.onReady().then(() => {
+                langClient.getAST(Uri.file(file)).then((response) => {
+                    done();
+                }, (error) => {
+                    assert.fail();
+                    done();
+                });
             });
         });
     });
 
-    test("Test Language Server Stop", function (done): void {
+    suiteTeardown(function (done): void {
         langClient.stop().then(() => {
             done();
         }, () => {
@@ -74,4 +66,3 @@ suite("Language Server Tests", function () {
         });
     });
 });
-
