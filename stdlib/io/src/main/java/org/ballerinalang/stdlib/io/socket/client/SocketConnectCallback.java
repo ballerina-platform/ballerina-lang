@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.io.socket.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -94,7 +95,8 @@ public class SocketConnectCallback {
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(IOUtils.createError(context, msg));
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            context.setReturnValues(errorStruct);
             callback.notifySuccess();
         }
     }
