@@ -23,11 +23,9 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -76,7 +74,6 @@ public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemRes
         objectTypeSymbol.attachedFuncs.stream()
                 .filter(attachedFunc -> !attachedFunc.symbol.bodyExist)
                 .forEach(attachedFunc -> {
-                    CompletionItem completionItem = new CompletionItem();
                     String functionName = attachedFunc.funcName.getValue();
                     List<String> funcArguments = getFuncArguments(attachedFunc.symbol);
                     String label = functionName + "(" + String.join(", ", funcArguments) + ")";
@@ -86,14 +83,8 @@ public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemRes
                     }
                     String insertText = label + " {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                             + CommonUtil.LINE_SEPARATOR + "}";
-                    completionItem.setInsertText(insertText);
-                    completionItem.setLabel(label);
-                    completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-                    completionItem.setKind(CompletionItemKind.Function);
-                    completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
-                    completionItems.add(completionItem);
-        });
-        
+                    completionItems.add(BFunctionCompletionItemBuilder.build(attachedFunc.symbol, label, insertText));
+                });
         return completionItems;
     }
 

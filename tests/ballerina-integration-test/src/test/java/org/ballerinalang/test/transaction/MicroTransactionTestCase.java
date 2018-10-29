@@ -24,6 +24,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.SQLDBUtils;
+import org.ballerinalang.test.util.SQLDBUtils.DBType;
+import org.ballerinalang.test.util.SQLDBUtils.TestDatabase;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,7 +47,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @Test(groups = "transactions-test")
 public class MicroTransactionTestCase extends BaseTest {
     private static BServerInstance serverInstance;
-    private SQLDBUtils.SqlServer sqlServer;
+    private TestDatabase sqlServer;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
     private final int initiatorServicePort = 8888;
     private final int participant1ServicePort = 8889;
@@ -54,18 +56,13 @@ public class MicroTransactionTestCase extends BaseTest {
     @BeforeClass(groups = "transactions-test", alwaysRun = true)
     public void start() throws BallerinaTestException, IOException {
         int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort, participant2ServicePort};
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "transaction/data.sql");
+        sqlServer = new SQLDBUtils.FileBasedTestDatabase(DBType.H2, "transaction" + File.separator + "data.sql",
+                SQLDBUtils.DB_DIRECTORY, DB_NAME);
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "transaction").getAbsolutePath();
         String[] args = new String[]{"-e", "http.coordinator.host=127.0.0.1"};
 
         serverInstance = new BServerInstance(balServer);
-
-        copyFile(new File(System.getProperty("hsqldb.jar")),
-                new File(serverInstance.getServerHome() + File.separator + "bre" + File.separator + "lib" +
-                        File.separator + "hsqldb.jar"));
-
         serverInstance.startServer(basePath, "transactionservices", args, requiredPorts);
     }
 

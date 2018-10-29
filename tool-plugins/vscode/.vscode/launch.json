@@ -13,6 +13,7 @@
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
         "env": {
+            "LS_CUSTOM_CLASSPATH": "", 
             "LSDEBUG": "false",
             "COMPOSER_DEBUG": "false",
             "COMPOSER_DEV_HOST": "http://localhost:9000"
