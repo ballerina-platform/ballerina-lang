@@ -26,7 +26,7 @@ function testLargeFloatingPointNumber() returns (float, decimal) {
     return (f, d);
 }
 
-// Test that demonstrates how decimal type resolves the floating point precision error problem exists in the float type.
+// Test that demonstrates how decimal type resolves the floating point error problem exists in the float type.
 function testPrecisionCorrectness() returns (boolean, boolean) {
     float f1 = 0.1;
     float f2 = 0.2;

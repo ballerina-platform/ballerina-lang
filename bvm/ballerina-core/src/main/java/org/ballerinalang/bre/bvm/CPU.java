@@ -3205,6 +3205,7 @@ public class CPU {
             switch (rhsType.getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG:
                 case TypeTags.NULL_TAG:

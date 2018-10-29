@@ -32,3 +32,35 @@ function testDecimalMap() returns (map<decimal>, int, string[], decimal) {
     decimal element0 = dMap.element0;
     return (dMap, length, keys, element0);
 }
+
+// Test record with decimal fields
+function testDecimalRecord() returns (decimal, decimal) {
+    Animal a = {weight: 23.45, height: 120.43};
+    return (a.weight, a.height);
+}
+
+// Test object with decimal fields
+function testDecimalObject() returns (string, int, decimal, decimal) {
+    Student s = new(57.25, 168.67);
+    return (s.name, s.age, s.weight, s.height);
+}
+
+
+// Record with decimal fields
+type Animal record {
+    decimal weight;
+    decimal height;
+};
+
+// Object with decimal fields
+type Student object {
+    string name;
+    int age;
+    decimal weight = 65.65;
+    decimal height;
+
+    new(name = "Bob", age = 25, weight, height) {
+        weight = weight;
+        height = height;
+    }
+};

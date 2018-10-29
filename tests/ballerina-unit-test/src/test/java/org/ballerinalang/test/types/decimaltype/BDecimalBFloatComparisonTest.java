@@ -34,7 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
  * This class is used to test the behaviours of BDecimal and BFloat types by comparing them.
  * This class contains tests,
  * 1) demonstrating how very large numbers can be represented using BDecimal type.
- * 2) demonstrating how BDecimal type solves the floating point precision error problem that exists in the BFloat type.
+ * 2) demonstrating how BDecimal type solves the floating point error problem that exists in the BFloat type.
  */
 public class BDecimalBFloatComparisonTest {
     private CompileResult result;

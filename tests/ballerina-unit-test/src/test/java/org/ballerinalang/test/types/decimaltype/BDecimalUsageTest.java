@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -36,6 +37,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
  * This test class will test the below usages of decimal type.
  * 1) Decimal array
  * 2) Decimal map
+ * 3) Record with decimal type fields
+ * 4) Object with decimal type fields
  */
 public class BDecimalUsageTest {
     private CompileResult result;
@@ -90,5 +93,39 @@ public class BDecimalUsageTest {
 
         BDecimal element0 = (BDecimal) returns[3];
         Assert.assertEquals(element0.decimalValue(), new Decimal("12.45"), "Invalid value returned.");
+    }
+
+    @Test(description = "Test record with decimal fields")
+    public void testDecimalRecord() {
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalRecord", new BValue[]{});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BDecimal.class);
+        Assert.assertSame(returns[1].getClass(), BDecimal.class);
+
+        BDecimal weight = (BDecimal) returns[0];
+        BDecimal height = (BDecimal) returns[1];
+
+        Assert.assertEquals(weight.decimalValue(), new Decimal("23.45"), "Invalid decimal value returned.");
+        Assert.assertEquals(height.decimalValue(), new Decimal("120.43"), "Invalid decimal value returned.");
+    }
+
+    @Test(description = "Test object with decimal fields")
+    public void testDecimalObject() {
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalObject", new BValue[]{});
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[2].getClass(), BDecimal.class);
+        Assert.assertSame(returns[3].getClass(), BDecimal.class);
+
+        BString name = (BString) returns[0];
+        BInteger age = (BInteger) returns[1];
+        BDecimal weight = (BDecimal) returns[2];
+        BDecimal height = (BDecimal) returns[3];
+
+        Assert.assertEquals(name.stringValue(), "Bob", "Invalid string value returned.");
+        Assert.assertEquals(age.intValue(), 25, "Invalid integer value returned.");
+        Assert.assertEquals(weight.decimalValue(), new Decimal("57.25"), "Invalid decimal value returned.");
+        Assert.assertEquals(height.decimalValue(), new Decimal("168.67"), "Invalid decimal value returned.");
     }
 }
