@@ -49,3 +49,22 @@ code {
     font-family: monospace, monospace;
     font-size: 0.9em;
 }
+
+.ui.table tbody .stacked-content {
+    display: none !important;
+}
+
+@media only screen and (max-width: 767px) {
+    .ui.table thead {
+        display: none !important;
+    }
+    .ui.table tbody td .stacked-content {
+        display: inline-block !important;
+    }
+    .ui.table tbody td>.stacked-content+p {
+        display: inline-block;
+    }
+    .ui.table tbody td .stacked-content .label {
+        margin-right: 5px;
+    }
+}
