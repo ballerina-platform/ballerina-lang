@@ -110,3 +110,14 @@ function testInvalidTypes() {
 
     {name: fName, name: lName} = p; // multiple matching patterns
 }
+
+function testUnknownFields() {
+    Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}};
+    any name;
+    any married;
+    any age;
+    any format;
+    any unknown1;
+    any unknown2;
+    {name, married, age: {age, format, unknown1}, unknown2} = p; // unknown fields
+}

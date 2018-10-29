@@ -772,11 +772,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BRecordType rhsRecordType = (BRecordType) rhsType;
 
-        if (lhsVarRef.recordRefFields.size() > rhsRecordType.fields.size()) {
-            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF);
-            return;
-        }
-
         if (lhsVarRef.isClosed) {
             if (!rhsRecordType.sealed) {
                 dlog.error(pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, rhsType);
@@ -788,6 +783,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             }
         }
+
+        // check if all fields in record var ref are found in rhs record type
+        lhsVarRef.recordRefFields.forEach(lhsField -> {
+            if (rhsRecordType.fields.stream()
+                    .noneMatch(rhsField -> lhsField.variableName.value.equals(rhsField.name.toString()))) {
+                dlog.error(pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
+                        lhsField.variableName.value, rhsType);
+            }
+        });
 
         for (BField rhsField : rhsRecordType.fields) {
             List<BLangRecordVarRefKeyValue> expField = lhsVarRef.recordRefFields.stream()

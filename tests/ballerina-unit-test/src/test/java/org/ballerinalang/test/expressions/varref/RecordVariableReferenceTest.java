@@ -173,7 +173,7 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 15);
+        Assert.assertEquals(resultNegative.getErrorCount(), 17);
         final String undefinedSymbol = "undefined symbol ";
         final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
@@ -201,5 +201,9 @@ public class RecordVariableReferenceTest {
                 "incompatible types: expected 'Person', found 'Age'", 109, 19);
         BAssertUtil.validateError(resultNegative, ++i,
                 "multiple matching record references found for field 'name'", 111, 5);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 122, 5);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 122, 27);
     }
 }
