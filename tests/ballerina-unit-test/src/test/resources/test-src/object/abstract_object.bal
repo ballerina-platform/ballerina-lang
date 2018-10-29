@@ -34,8 +34,7 @@ public type Employee object {
     public string city;
     public Address address;
 
-    new(city, address) {
-    }
+    new(city, address) {}
 
     public function getCity() returns string {
         return city;
