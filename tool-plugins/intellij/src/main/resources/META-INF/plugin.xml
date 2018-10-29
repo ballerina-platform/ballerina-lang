@@ -39,13 +39,11 @@
 
         <!--LSP Plugin Extensions-->
         <applicationConfigurable instance="com.github.gtache.lsp.settings.MiscSettings" id="MiscSettings"
-                                 groupId="language" displayName="Language Server Protocol"/>
+                                 parentId="Ballerina" displayName="Language Server"/>
         <applicationConfigurable parentId="MiscSettings" id="ServerSettings" displayName="Server Definitions"
                                  instance="com.github.gtache.lsp.settings.ServersSettings"/>
         <applicationConfigurable parentId="MiscSettings" id="TimeoutSettings" displayName="Timeouts"
                                  instance="com.github.gtache.lsp.settings.TimeoutSettings"/>
-        <applicationConfigurable parentId="MiscSettings" id="CoursierSettings" displayName="Coursier"
-                                 instance="com.github.gtache.lsp.settings.CoursierSettings"/>
 
         <applicationService id="LSPState"
                             serviceInterface="com.github.gtache.lsp.settings.BallerinaLSPState"
