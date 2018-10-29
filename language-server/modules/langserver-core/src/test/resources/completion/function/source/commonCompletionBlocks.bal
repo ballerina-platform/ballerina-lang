@@ -9,7 +9,7 @@ endpoint jdbc:Client testDB {
     poolOptions: { maximumPoolSize: 5 }
 };
 
-function main(string... args) {
+public function main(string... args) {
     int a = 10;
     int b = 20;
     int checkValue = 20;
@@ -28,7 +28,7 @@ function main(string... args) {
     while(a > 5) {
         
         io:println(a);
-        a--;
+        a -= 1;
     }
 
 
