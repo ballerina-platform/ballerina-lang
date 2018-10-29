@@ -1224,7 +1224,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
 
-        if (safeNavigate(iExpr)) {
+        if (!iExpr.builtinMethodInvocation && safeNavigate(iExpr)) {
             result = rewriteExpr(rewriteSafeNavigationExpr(iExpr));
             return;
         }

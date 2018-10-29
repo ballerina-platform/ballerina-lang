@@ -1881,9 +1881,21 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        // TODO: 10/25/18 fail if the type would not be anydata
-        // TODO: 10/25/18 if the type is not a sub-type of anydata, set type|error as the result type
-        resultType = type;
+        if (type.tag != TypeTags.UNION && type.tag != TypeTags.NIL) {
+            if (types.isAnydata(type)) {
+                iExpr.type = type;
+                iExpr.originalType = iExpr.type;
+                resultType = types.checkType(iExpr, iExpr.type, expType);
+                return true;
+            } else if (isNonAnyDataFreezeAllowedType(type)) {
+                iExpr.type = new BUnionType(null, new HashSet<BType>() {{ add(type); add(symTable.errorType); }},
+                                            false);
+                iExpr.originalType = iExpr.type;
+                resultType = types.checkType(iExpr, iExpr.type, expType);
+                return true;
+            }
+        }
+        dlog.error(iExpr.pos, DiagnosticCode.FREEZE_NOT_ALLOWED_ON_VALUE_OF_TYPE, type);
         return true;
     }
 
@@ -1893,9 +1905,55 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        // TODO: 10/25/18 fail if the type would not be a structured basic type
-        resultType = symTable.booleanType;
+        if (!isIsFrozenAllowedType(type)) {
+            dlog.error(iExpr.pos, DiagnosticCode.IS_FROZEN_NOT_ALLOWED_ON_VALUE_OF_TYPE, type);
+            return false;
+        }
+
+        iExpr.type = symTable.booleanType;
+        resultType = types.checkType(iExpr, iExpr.type, expType);
         return true;
+    }
+
+    private boolean isNonAnyDataFreezeAllowedType(BType type) {
+        int typeTag = type.tag;
+        if (typeTag == TypeTags.ANY) {
+            return true;
+        }
+
+        if (types.isAnydata(type)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.MAP && isNonAnyDataFreezeAllowedType(((BMapType) type).constraint)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) type;
+            boolean freezeUnallowedTypeFound =
+                    recordType.fields.stream().anyMatch(field -> !(isNonAnyDataFreezeAllowedType(field.type)));
+
+            return !freezeUnallowedTypeFound && (recordType.sealed ||
+                                                         isNonAnyDataFreezeAllowedType(recordType.restFieldType));
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return unionType.memberTypes.stream().anyMatch(this::isNonAnyDataFreezeAllowedType);
+        }
+
+        if (type.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) type;
+            return !tupleType.getTupleTypes().stream().anyMatch(tupType -> !(isNonAnyDataFreezeAllowedType(tupType)));
+        }
+
+        return type.tag == TypeTags.ARRAY && isNonAnyDataFreezeAllowedType(((BArrayType) type).eType);
+    }
+
+    private boolean isIsFrozenAllowedType(BType type) {
+        return type.tag != TypeTags.UNION && type.tag != TypeTags.NIL && !types.isValueType(type) &&
+                (types.isAnydata(type) || isNonAnyDataFreezeAllowedType(type));
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {

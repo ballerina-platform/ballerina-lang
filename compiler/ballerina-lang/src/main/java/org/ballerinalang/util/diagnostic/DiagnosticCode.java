@@ -307,6 +307,9 @@ public enum DiagnosticCode {
     
     INCOMPATIBLE_TYPE_CHECK("incompatible.type.check"),
     UNNECESSARY_CONDITION("unnecessary.condition"),
+
+    FREEZE_NOT_ALLOWED_ON_VALUE_OF_TYPE("freeze.not.allowed.on.value.of.type"),
+    IS_FROZEN_NOT_ALLOWED_ON_VALUE_OF_TYPE("is.frozen.not.allowed.on.value.of.type"),
     ;
 
     private String value;

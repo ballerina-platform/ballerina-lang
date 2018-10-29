@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+@final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
+@final string FREEZE_SUCCESSFUL = "freeze successful";
+
 function testBooleanFreeze(boolean a) returns boolean {
     boolean b = a.freeze();
     //return a === b;
@@ -60,9 +63,9 @@ function testBasicTypesAsJson() returns boolean {
 
 function testIsFrozenOnStructuralTypes() returns (boolean, boolean) {
     Employee e = { name: "Em" };
-    map m = { one: "1", two: 2, three: (), rec: e };
+    map<string|int|()|Employee> m = { one: "1", two: 2, three: (), rec: e };
 
-    any[] a = [1, "hi", 2.0, false, m, (), e];
+    anydata[] a = [1, "hi", 2.0, false, m, (), e];
     (int, string, Employee) t = (1, "Em", e);
     
     json j = { name: "Em", dataType: "json" };
@@ -78,12 +81,13 @@ function testIsFrozenOnStructuralTypes() returns (boolean, boolean) {
     };
 
     byte byteVal = 255;
-    map m1 = { intVal: 1, byteVal: byteVal, floatVal: 200.1, stringVal: "Ballerina says freeze", booleanVal: false,
-                arrayVal: a, mapVal: m, tupleVal: t, jsonVal: j, xmlVal: x, tableVal: empTable };
+    map<anydata> m1 = { intVal: 1, byteVal: byteVal, floatVal: 200.1, stringVal: "Ballerina says freeze",
+        booleanVal: false, arrayVal: a, mapVal: m, tupleVal: t, jsonVal: j, xmlVal: x, tableVal: empTable };
+
     boolean isFrozenBeforeFreeze = m.isFrozen() || a.isFrozen() || m1.isFrozen() || e.isFrozen() || t.isFrozen() ||
                                     j.isFrozen() || x.isFrozen() || empTable.isFrozen();
 
-    map m2 = m1.freeze();
+    map<anydata> m2 = m1.freeze();
     boolean isFrozenAfterFreeze = m.isFrozen() && a.isFrozen() && m1.isFrozen() && e.isFrozen() && t.isFrozen() &&
                                     m2.isFrozen() && j.isFrozen() && x.isFrozen() && empTable.isFrozen();
     return (isFrozenBeforeFreeze, isFrozenAfterFreeze);
@@ -324,6 +328,105 @@ function testFrozenTableRemoval() {
     _ = empTable.remove(isIdTwo);
 }
 
+function testInvalidMapFreeze() returns string {
+    map<string|PersonObj> m1;
+    PersonObj p = new("John");
+
+    m1.one = "one";
+    m1.two = p;
+
+    map<string|PersonObj>|error res = m1.freeze();
+    if (res is error) {
+        return FREEZE_ERROR_OCCURRED + res.reason();
+    }
+    return FREEZE_SUCCESSFUL;
+}
+
+function testInvalidArrayFreeze() returns string {
+    (string|typedesc|float)[] a1;
+    typedesc p = int;
+
+    a1[0] = 2.0;
+    a1[1] = "hello world";
+    a1[2] = p;
+
+    (string|typedesc|float)[]|error res = a1.freeze();
+    if (res is error) {
+        return FREEZE_ERROR_OCCURRED + res.reason();
+    }
+    return FREEZE_SUCCESSFUL;
+}
+
+function testInvalidRecordFreeze() returns string {
+    PersonObj p = new("Anne");
+    PersonObj p1 = new("Harry");
+    PersonObj p2 = new("John");
+    FreezeAllowedDepartment fd = { head: p, e1: p1, e2: 10 };
+
+    FreezeAllowedDepartment|error res = fd.freeze();
+    if (res is error) {
+        return FREEZE_ERROR_OCCURRED + res.reason();
+    }
+    return FREEZE_SUCCESSFUL;
+}
+
+function testInvalidTupleFreeze() returns string {
+    PersonObj p = new("John");
+    (int, string|PersonObj|float, boolean) t1 = (1, p, true);
+
+    any|error res = t1.freeze();
+    if (res is error) {
+        return FREEZE_ERROR_OCCURRED + res.reason();
+    }
+    return FREEZE_SUCCESSFUL;
+}
+
+function testValidComplexMapFreeze() returns string {
+    map<string|PersonObj> m1;
+
+    m1.one = "one";
+    m1.two = "2";
+
+    map<string|PersonObj>|error res = m1.freeze();
+    if (res is error) {
+        return FREEZE_ERROR_OCCURRED + res.reason();
+    }
+    return FREEZE_SUCCESSFUL;
+}
+
+function testValidComplexArrayFreeze() returns string {
+    (string|PersonObj|float)[] a1;
+
+    a1[0] = 2.0;
+    a1[1] = "hello world";
+
+    (string|PersonObj|float)[]|error res = a1.freeze();
+    if (res is error) {
+        return FREEZE_ERROR_OCCURRED + res.reason();
+    }
+    return FREEZE_SUCCESSFUL;
+}
+
+function testValidComplexRecordFreeze() returns string {
+    FreezeAllowedDepartment fd = { head: "John", e1: 234, e2: 10 };
+
+    any|error res = fd.freeze();
+    if (res is error) {
+        return FREEZE_ERROR_OCCURRED + res.reason();
+    }
+    return FREEZE_SUCCESSFUL;
+}
+
+function testValidComplexTupleFreeze() returns string {
+    (int, string|PersonObj|float, boolean) t1 = (1, 3.0, true);
+
+    (int, string|PersonObj|float, boolean)|error res = t1.freeze();
+    if (res is error) {
+        return FREEZE_ERROR_OCCURRED + res.reason();
+    }
+    return FREEZE_SUCCESSFUL;
+}
+
 function isIdTwo(Employee e) returns boolean {
     return e.id == 2;
 }
@@ -331,16 +434,33 @@ function isIdTwo(Employee e) returns boolean {
 type Employee record {
     int id;
     string name;
+    !...
 };
 
 type DeptEmployee record {
     int id;
     string name;
     Dept dept;
+    !...
 };
 
 type Dept record {
     string code;
     string name;
+    !...
+};
 
+type PersonObj object {
+    string name;
+
+    new(name){}
+
+    function getName() returns string {
+        return self.name;
+    }
+};
+
+type FreezeAllowedDepartment record {
+    PersonObj|string head;
+    (PersonObj|int)...
 };

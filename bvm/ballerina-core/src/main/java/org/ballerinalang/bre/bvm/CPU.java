@@ -827,8 +827,7 @@ public class CPU {
                 try {
                     sf.refRegs[j] = (BRefType<?>) value.freeze();
                 } catch (BLangFreezeException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    handleError(ctx);
+                    sf.refRegs[j] = BLangVMErrors.createError(ctx, e.getMessage());
                 }
                 break;
             case InstructionCodes.IS_FROZEN:
