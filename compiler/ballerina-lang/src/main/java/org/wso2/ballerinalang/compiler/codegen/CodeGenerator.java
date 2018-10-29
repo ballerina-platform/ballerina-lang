@@ -412,11 +412,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
-        // Todo - Ignore?
-        // Visit constants first.
-        pkgNode.topLevelNodes.stream()
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
-                .forEach(constant -> genNode((BLangNode) constant, this.env));
+//        // Todo - Ignore?
+//        // Visit constants first.
+//        pkgNode.topLevelNodes.stream()
+//                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
+//                .forEach(constant -> genNode((BLangNode) constant, this.env));
 
         pkgNode.topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
@@ -901,6 +901,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex, except);
     }
 
+//    @Override
+//    public void visit(BLangConstant constant) {
+//        // Todo - Ignore?
+//        int i = 0;
+//
+//    }
+
     @Override
     public void visit(BLangPackageVarRef packageVarRef) {
         BPackageSymbol pkgSymbol;
@@ -924,8 +931,22 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangConstantRef packageVarRef) {
-        int i = 1;
+    public void visit(BLangConstantRef constantRef) {
+        BSymbol symbol = constantRef.symbol;
+        BSymbol ownerSymbol = symbol.owner;
+        BPackageSymbol pkgSymbol;
+        if (ownerSymbol.tag == SymTag.SERVICE) {
+            pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
+        } else {
+            pkgSymbol = (BPackageSymbol) ownerSymbol;
+        }
+
+        BConstantSymbol constantSymbol = (BConstantSymbol) constantRef.symbol;
+        Operand gvIndex = constantSymbol.varIndex;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+        int opcode = getOpcode(((BConstantSymbol) symbol).value.typeTag, InstructionCodes.IGLOAD);
+        constantRef.regIndex = calcAndGetExprRegIndex(constantRef);
+        emit(opcode, getOperand(pkgRefCPIndex), gvIndex, constantRef.regIndex);
     }
 
     @Override
@@ -1459,13 +1480,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         emit(InstructionCodes.COMPENSATE, operands);
         emit(InstructionCodes.LOOP_COMPENSATE, jumpAddr);
-    }
-
-    @Override
-    public void visit(BLangConstant constant) {
-        // Todo - Ignore?
-        int i = 0;
-
     }
 
     // private methods
