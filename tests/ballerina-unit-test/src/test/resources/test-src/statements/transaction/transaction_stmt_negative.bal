@@ -85,3 +85,26 @@ function testInvalidDoneWithinTransaction() {
     workerTest = workerTest + " beforeReturn";
     return;
 }
+
+function testReturnWithinMatchWithinTransaction() returns (string) {
+    int i = 0;
+    string|int unionVar = "test";
+    while (i < 5) {
+        i = i + 1;
+        transaction {
+            match (unionVar) {
+                string str => {
+                    if (i == 2) {
+                        return "ff";
+                    }
+                }
+                int i1 => {
+                    if (i == 2) {
+                        return "ff";
+                    }
+                }
+            }
+        }
+    }
+    return "done";
+}

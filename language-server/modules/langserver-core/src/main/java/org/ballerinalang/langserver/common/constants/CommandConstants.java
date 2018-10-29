@@ -15,20 +15,23 @@
  */
 package org.ballerinalang.langserver.common.constants;
 
+import java.util.regex.Pattern;
+
 /**
  * Constants related to {@link org.eclipse.lsp4j.Command}.
  * @since v0.964.0
  */
 public class CommandConstants {
-    public static final String UNDEFINED_PACKAGE = "undefined package";
+    public static final String UNDEFINED_MODULE = "undefined module";
     public static final String UNDEFINED_FUNCTION = "undefined function";
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
-
+    public static final String UNRESOLVED_MODULE = "cannot resolve module";
+    public static final Pattern UNRESOLVED_MODULE_PATTERN = Pattern.compile("cannot resolve module '(.*)'");
 
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
 
-    public static final String ARG_KEY_PKG_NAME = "package";
+    public static final String ARG_KEY_MODULE_NAME = "module";
 
     public static final String ARG_KEY_FUNC_NAME = "function.name";
 
@@ -48,7 +51,7 @@ public class CommandConstants {
 
 
     // Command Titles
-    public static final String IMPORT_PKG_TITLE = "Import Package ";
+    public static final String IMPORT_MODULE_TITLE = "Import Module ";
 
     public static final String CREATE_VARIABLE_TITLE = "Create Variable";
 
@@ -60,9 +63,10 @@ public class CommandConstants {
 
     public static final String CREATE_CONSTRUCTOR_TITLE = "Create Constructor";
 
+    public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
 
     // Commands List
-    public static final String CMD_IMPORT_PACKAGE = "IMPORT_PKG";
+    public static final String CMD_IMPORT_MODULE = "IMPORT_MODULE";
 
     public static final String CMD_CREATE_FUNCTION = "CREATE_FUNC";
 
@@ -73,4 +77,6 @@ public class CommandConstants {
     public static final String CMD_ADD_ALL_DOC = "ADD_ALL_DOC";
 
     public static final String CMD_CREATE_CONSTRUCTOR = "CREATE_CONSTRUCTOR";
+
+    public static final String CMD_PULL_MODULE = "PULL_MODULE";
 }

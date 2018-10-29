@@ -57,7 +57,7 @@ import java.util.Properties;
         orgName = Constants.ORG_NAME,
         packageName = Constants.PACKAGE_NAME,
         functionName = "execBallerinaDoc",
-        args = {@Argument(name = "packageList", type = TypeKind.ARRAY),
+        args = {@Argument(name = "moduleList", type = TypeKind.ARRAY),
                 @Argument(name = "sourceRoot", type = TypeKind.STRING),
                 @Argument(name = "outputPath", type = TypeKind.STRING),
                 @Argument(name = "templatesPath", type = TypeKind.STRING),
@@ -151,7 +151,7 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
     private static String buildCommand(Context context) {
         StringBuilder commandToPass = new StringBuilder(" ");
         
-        // Package list
+        // Module list
         BStringArray bPackageList = (BStringArray) context.getRefArgument(0);
         
         // Source root path
@@ -180,7 +180,7 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
             if (null == missingPackage) {
                 return getCommandAsString(context, commandToPass, bPackageList, packageList);
             } else {
-                String msg = "package does not exists to generate api docs: " + missingPackage;
+                String msg = "module does not exists to generate api docs: " + missingPackage;
                 log.error(msg);
                 context.setReturnValues(BLangVMErrors.createError(context, msg));
                 return null;
@@ -245,7 +245,7 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
             if (null == missingExcludePackage) {
                 commandToPass.append("--exclude ").append(bExclude.stringValue()).append(" ");
             } else {
-                String msg = "invalid exclude package found: " + missingExcludePackage;
+                String msg = "invalid exclude module found: " + missingExcludePackage;
                 log.error(msg);
                 context.setReturnValues(BLangVMErrors.createError(context, msg));
                 return null;

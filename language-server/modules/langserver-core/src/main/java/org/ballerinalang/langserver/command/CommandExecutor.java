@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.command;
 
 import com.google.gson.internal.LinkedTreeMap;
+import org.apache.commons.io.IOUtils;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -26,11 +27,14 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -40,11 +44,9 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -54,14 +56,19 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -73,6 +80,10 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
  */
 public class CommandExecutor {
     private static final Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
+
+    // A newCachedThreadPool with a limited max-threads
+    private static ExecutorService executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L,
+                                                                     TimeUnit.SECONDS, new SynchronousQueue<>());
 
     private static final String ARG_KEY = "argumentK";
 
@@ -92,7 +103,7 @@ public class CommandExecutor {
         Object result;
         try {
             switch (params.getCommand()) {
-                case CommandConstants.CMD_IMPORT_PACKAGE:
+                case CommandConstants.CMD_IMPORT_MODULE:
                     result = executeImportPackage(context);
                     break;
                 case CommandConstants.CMD_CREATE_FUNCTION:
@@ -109,6 +120,9 @@ public class CommandExecutor {
                     break;
                 case CommandConstants.CMD_CREATE_CONSTRUCTOR:
                     result = executeCreateObjectConstructor(context);
+                    break;
+                case CommandConstants.CMD_PULL_MODULE:
+                    result = executePullModule(context);
                     break;
                 default:
                     // Do Nothing
@@ -137,7 +151,7 @@ public class CommandExecutor {
                 documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
                 textDocumentIdentifier.setUri(documentUri);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_PKG_NAME)) {
+            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
                 context.put(ExecuteCommandKeys.PKG_NAME_KEY, (String) ((LinkedTreeMap) arg).get(ARG_VALUE));
             }
         }
@@ -152,25 +166,21 @@ public class CommandExecutor {
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                   LSCustomErrorStrategy.class,
-                                                                   false).getRight();
-            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
+            BLangPackage bLangPackage = lsCompiler
+                    .getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false)
+                    .getRight();
+            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+            BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
-            String currentFile = context.get(DocumentServiceKeys.FILE_NAME_KEY);
-            DiagnosticPos pos;
+            DiagnosticPos pos = null;
 
             // Filter the imports except the runtime import
-            List<BLangImportPackage> imports = bLangPackage.getImports().stream()
-                    .filter(bLangImportPackage -> bLangImportPackage.getPosition().src.cUnitName.equals(currentFile))
-                    .collect(Collectors.toList());
+            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
 
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
                 pos = lastImport.getPosition();
-            } else {
-                pos = null;
             }
 
             int endCol = pos == null ? -1 : pos.getEndColumn() - 1;
@@ -186,9 +196,9 @@ public class CommandExecutor {
                 remainingTextToReplace = fileContent;
             }
 
-            String editText = (pos != null ? "\r\n" : "") + "import " + pkgName + ";"
-                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
-                    + remainingTextToReplace;
+            String editText = (pos != null ? CommonUtil.LINE_SEPARATOR : "") + "import " + pkgName + ";"
+                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r")
+                    ? "" : CommonUtil.LINE_SEPARATOR) + remainingTextToReplace;
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
 
             return applySingleTextEdit(editText, range, textDocumentIdentifier,
@@ -312,8 +322,8 @@ public class CommandExecutor {
      * @param context Workspace service context
      */
     private static Object executeAddDocumentation(LSServiceOperationContext context) throws WorkspaceDocumentException {
-        String topLevelNodeType = "";
-        String documentUri = "";
+        String nodeType = "";
+        String documentUri;
         int line = 0;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
@@ -322,36 +332,31 @@ public class CommandExecutor {
                 textDocumentIdentifier.setUri(documentUri);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
             } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_NODE_TYPE)) {
-                topLevelNodeType = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
+                nodeType = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
             } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_NODE_LINE)) {
                 line = Integer.parseInt((String) ((LinkedTreeMap) arg).get(ARG_VALUE));
             }
         }
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                false, LSCustomErrorStrategy.class, false).getRight();
+        BLangPackage bLangPackage = lsCompiler
+                .getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false).getRight();
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
+
         CommandUtil.DocAttachmentInfo docAttachmentInfo =
-                getDocumentationEditForNodeByPosition(topLevelNodeType, bLangPackage, line);
+                getDocumentationEditForNodeByPosition(nodeType, srcOwnerPkg, line);
 
-        if (docAttachmentInfo != null) {
-            Path filePath = Paths.get(URI.create(documentUri));
-            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
-            String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY).getFileContent(compilationPath);
-            String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
-            int replaceEndCol = contentComponents[line].length();
-            String textBeforeNode = String.join(CommonUtil.LINE_SEPARATOR,
-                    Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line)));
-            String replaceText = String.join(CommonUtil.LINE_SEPARATOR,
-                    Arrays.asList(textBeforeNode, docAttachmentInfo.getDocAttachment(), contentComponents[line]));
-            Range range = new Range(new Position(0, 0), new Position(line, replaceEndCol));
-
-            return applySingleTextEdit(replaceText, range, textDocumentIdentifier,
-                    context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+        if (docAttachmentInfo == null) {
+            return new Object();
         }
 
-        return new Object();
+        Range range = new Range(docAttachmentInfo.getDocStartPos(), docAttachmentInfo.getDocStartPos());
+
+        return applySingleTextEdit(docAttachmentInfo.getDocAttachment(), range, textDocumentIdentifier,
+                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+        
     }
 
     /**
@@ -361,7 +366,7 @@ public class CommandExecutor {
      */
     private static Object executeAddAllDocumentation(LSServiceOperationContext context)
             throws WorkspaceDocumentException {
-        String documentUri = "";
+        String documentUri;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
@@ -376,24 +381,24 @@ public class CommandExecutor {
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
                 .getRight();
 
-        Path filePath = Paths.get(URI.create(documentUri));
-        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
-        String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY).getFileContent(compilationPath);
-        String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
+
         List<TextEdit> textEdits = new ArrayList<>();
-        String fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
-        bLangPackage.topLevelNodes.stream()
+        String fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
                 .forEach(topLevelNode -> {
                     CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
                     if (docAttachmentInfo != null) {
-                        textEdits.add(getTextEdit(docAttachmentInfo, contentComponents));
+                        textEdits.add(getTextEdit(docAttachmentInfo));
                     }
                     if (topLevelNode instanceof BLangService) {
                         ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
                             CommandUtil.DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
                             if (resourceInfo != null) {
-                                textEdits.add(getTextEdit(resourceInfo, contentComponents));
+                                textEdits.add(getTextEdit(resourceInfo));
                             }
                         });
                     }
@@ -430,14 +435,16 @@ public class CommandExecutor {
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 false, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
         int finalLine = line;
         
         /*
         In the ideal situation Command execution exception should never throw. If thrown, create constructor command
         has been executed over a non object type node.
          */
-        TopLevelNode objectNode = bLangPackage.topLevelNodes.stream()
+        TopLevelNode objectNode = CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(topLevelNode -> topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).symbol.kind.equals(SymbolKind.OBJECT)
                         && topLevelNode.getPosition().getStartLine() - 1 == finalLine)
@@ -456,20 +463,91 @@ public class CommandExecutor {
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
+    private static Object executePullModule(LSServiceOperationContext context) {
+        executor.submit(() -> {
+            // Derive package name and document uri
+            String moduleName = "";
+            String documentUri = "";
+            for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+                String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
+                String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+                if (argKey.equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
+                    moduleName = argVal;
+                } else if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
+                    documentUri = argVal;
+                }
+            }
+            // If no package, or no doc uri; then just skip
+            if (moduleName.isEmpty() || documentUri.isEmpty()) {
+                return;
+            }
+            // Execute `ballerina pull` command
+            String ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME).resolve("bin").resolve("ballerina").toString();
+            ProcessBuilder processBuilder = new ProcessBuilder(ballerinaHome, "pull", moduleName);
+            LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+            DiagnosticsHelper diagnosticsHelper = context.get(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY);
+            try {
+                notifyClient(client, MessageType.Info, "Pulling '" + moduleName + "' from the Ballerina Central...");
+                Process process = processBuilder.start();
+                InputStream inputStream = process.getInputStream();
+                // Consume and skip input-stream
+                int data = inputStream.read();
+                while (data != -1) {
+                    data = inputStream.read();
+                }
+                // Check error stream for errors
+                InputStream errorStream = process.getErrorStream();
+                String error = IOUtils.toString(errorStream, StandardCharsets.UTF_8);
+
+                if (error == null || error.isEmpty()) {
+                    notifyClient(client, MessageType.Info, "Pulling success for the '" + moduleName + "' module!");
+                    clearDiagnostics(client, lsCompiler, diagnosticsHelper, documentUri);
+                } else {
+                    notifyClient(client, MessageType.Error,
+                                 "Pulling failed for the '" + moduleName + "' module!\n" + error);
+                }
+            } catch (IOException e) {
+                notifyClient(client, MessageType.Error, "Pulling failed for the '" + moduleName + "' module!");
+            }
+        });
+
+        return new Object();
+    }
+
+    /**
+     * Sends a message to the language server client.
+     *
+     * @param client      Language Server client
+     * @param messageType message type
+     * @param message     message
+     */
+    private static void notifyClient(LanguageClient client, MessageType messageType, String message) {
+        client.showMessage(new MessageParams(messageType, message));
+    }
+
+    /**
+     * Clears diagnostics of the client by sending an text edit event.
+     *
+     * @param client Language Server client
+     * @param diagnosticsHelper diagnostics helper
+     */
+    private static void clearDiagnostics(LanguageClient client, LSCompiler lsCompiler,
+                                         DiagnosticsHelper diagnosticsHelper, String documentUri) {
+        Path filePath = Paths.get(URI.create(documentUri));
+        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+        diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, filePath, compilationPath);
+    }
+
     /**
      * Get TextEdit from doc attachment info.
      *
      * @param attachmentInfo    Doc attachment info
-     * @param contentComponents file content component
      * @return {@link TextEdit}     Text edit for attachment info
      */
-    private static TextEdit getTextEdit(CommandUtil.DocAttachmentInfo attachmentInfo, String[] contentComponents) {
-        int replaceFrom = attachmentInfo.getReplaceStartFrom();
-        int replaceEndCol = contentComponents[attachmentInfo.getReplaceStartFrom()].length();
-        Range range = new Range(new Position(replaceFrom, 0), new Position(replaceFrom, replaceEndCol));
-        String replaceText = attachmentInfo.getDocAttachment()
-                + System.lineSeparator() + contentComponents[replaceFrom];
-        return new TextEdit(range, replaceText);
+    private static TextEdit getTextEdit(CommandUtil.DocAttachmentInfo attachmentInfo) {
+        Range range = new Range(attachmentInfo.getDocStartPos(), attachmentInfo.getDocStartPos());
+        return new TextEdit(range, attachmentInfo.getDocAttachment());
     }
 
     /**
@@ -513,43 +591,32 @@ public class CommandExecutor {
      */
     private static CommandUtil.DocAttachmentInfo getDocumentationEditForNode(Node node) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
-        int replaceFrom;
         switch (node.getKind()) {
             case FUNCTION:
                 if (((BLangFunction) node).markdownDocumentationAttachment == null) {
-                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangFunction) node).getPosition()).getStartLine();
-                    docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node, replaceFrom);
+                    docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node);
                 }
                 break;
             case TYPE_DEFINITION:
                 if (((BLangTypeDefinition) node).markdownDocumentationAttachment == null
                         && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
                         || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
-                    replaceFrom = CommonUtil
-                            .toZeroBasedPosition(((BLangTypeDefinition) node).getPosition()).getStartLine();
-                    docAttachmentInfo = CommandUtil
-                            .getRecordOrObjectDocumentation((BLangTypeDefinition) node, replaceFrom);
+                    docAttachmentInfo = CommandUtil.getRecordOrObjectDocumentation((BLangTypeDefinition) node);
                 }
                 break;
             case ENDPOINT:
-                // TODO: Here we need to check for the doc attachments of the endpoint.
-                replaceFrom = CommonUtil.toZeroBasedPosition(((BLangEndpoint) node).getPosition()).getStartLine();
-                docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node, replaceFrom);
+                docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node);
                 break;
             case RESOURCE:
                 if (((BLangResource) node).markdownDocumentationAttachment == null) {
                     BLangResource bLangResource = (BLangResource) node;
-                    replaceFrom =
-                            getReplaceFromForServiceOrResource(bLangResource, bLangResource.getAnnotationAttachments());
-                    docAttachmentInfo = CommandUtil.getResourceNodeDocumentation(bLangResource, replaceFrom);
+                    docAttachmentInfo = CommandUtil.getResourceNodeDocumentation(bLangResource);
                 }
                 break;
             case SERVICE:
                 if (((BLangService) node).markdownDocumentationAttachment == null) {
                     BLangService bLangService = (BLangService) node;
-                    replaceFrom = getReplaceFromForServiceOrResource(bLangService,
-                            bLangService.getAnnotationAttachments());
-                    docAttachmentInfo = CommandUtil.getServiceNodeDocumentation(bLangService, replaceFrom);
+                    docAttachmentInfo = CommandUtil.getServiceNodeDocumentation(bLangService);
                 }
                 break;
             default:
@@ -557,16 +624,6 @@ public class CommandExecutor {
         }
 
         return docAttachmentInfo;
-    }
-
-    private static int getReplaceFromForServiceOrResource(BLangNode bLangNode,
-                                                          List<BLangAnnotationAttachment> annotationAttachments) {
-        if (!annotationAttachments.isEmpty()) {
-            return CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(annotationAttachments)
-                    .getPosition()).getEndLine() + 1;
-        }
-
-        return CommonUtil.toZeroBasedPosition(bLangNode.getPosition()).getStartLine();
     }
 
     private static ApplyWorkspaceEditParams applySingleTextEdit(String editText, Range range,

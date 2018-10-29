@@ -61,15 +61,17 @@ public class ResponseWriter {
         if (HeaderUtil.isMultipart(contentType)) {
             boundaryString = HttpUtil.addBoundaryIfNotExist(responseMessage, contentType);
         }
-
         HttpMessageDataStreamer outboundMsgDataStreamer = getResponseDataStreamer(responseMessage);
+        BMap<String, BValue> entityStruct = extractEntity(outboundResponse);
+        if (entityStruct == null) {
+            responseMessage.setPassthrough(true);
+        }
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
         HttpConnectorListener outboundResStatusConnectorListener =
                 new ResponseWriter.HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
 
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        BMap<String, BValue> entityStruct = extractEntity(outboundResponse);
         if (entityStruct != null) {
             if (boundaryString != null) {
                 serializeMultiparts(boundaryString, entityStruct, messageOutputStream);

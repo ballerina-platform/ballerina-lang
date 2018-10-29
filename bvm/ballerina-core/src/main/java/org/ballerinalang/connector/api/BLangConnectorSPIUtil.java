@@ -94,7 +94,7 @@ public final class BLangConnectorSPIUtil {
                                                      Object... values) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
-            throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
+            throw new BallerinaConnectorException("module - " + pkgPath + " does not exist");
         }
         StructureTypeInfo structureInfo = packageInfo.getStructInfo(structName);
         return BLangVMStructs.createBStruct(structureInfo, values);
@@ -121,7 +121,7 @@ public final class BLangConnectorSPIUtil {
                                                     BValue... values) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
-            throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
+            throw new BallerinaConnectorException("module - " + pkgPath + " does not exist");
         }
         StructureTypeInfo typeInfo = packageInfo.getStructInfo(objectName);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.OBJECT_TYPE_TAG) {
@@ -157,7 +157,7 @@ public final class BLangConnectorSPIUtil {
         String pkgID = getPackageID(pkgName, version);
         final PackageInfo packageInfo = programFile.getPackageInfo(pkgID);
         if (packageInfo == null) {
-            throw new BallerinaConnectorException("Incorrect package name");
+            throw new BallerinaConnectorException("Incorrect module name");
         }
         final PackageVarInfo packageVarInfo = packageInfo.getPackageVarInfo(endpointName);
         if (packageVarInfo == null) {

@@ -25,7 +25,7 @@ import java.util.Locale;
  * @since 0.973.1
  */
 public enum LockFileHeader {
-    PROJECT, PACKAGE, IMPORTS;
+    PROJECT, MODULE, IMPORTS;
 
     /**
      * Check if the section header matches the toml header.

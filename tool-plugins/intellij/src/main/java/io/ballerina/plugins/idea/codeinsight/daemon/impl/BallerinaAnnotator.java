@@ -90,6 +90,8 @@ public class BallerinaAnnotator implements Annotator {
                 annotateText(element, holder);
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_TEXT) {
                 annotateText(element, holder);
+            } else if (elementType == BallerinaTypes.SYMBOLIC_STRING_LITERAL) {
+                annotateText(element, holder);
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START
                     || elementType == BallerinaTypes.XML_TEMPLATE_TEXT
                     || elementType == BallerinaTypes.XML_TAG_EXPRESSION_START

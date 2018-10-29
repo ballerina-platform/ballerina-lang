@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type RoomTempInfo record {
     int deviceID;
@@ -48,7 +47,9 @@ function testPatternQuery () {
         followed by regulatorStream where e1.roomNo == roomNo as e3 within 2 seconds
         select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
         => (TempDiffInfo[] emp) {
-                tempDiffStream.publish(emp);
+            foreach e in emp {
+                tempDiffStream.publish(e);
+            }
         }
     }
 }
@@ -86,7 +87,7 @@ function runPatternQuery1() returns (TempDiffInfo[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof tempDiffInfoArray) > 0 || count == 10) {
             break;
         }
@@ -123,7 +124,9 @@ function testPatternQueryWithOr() {
         || regulatorStateChangeStream where e1.roomNo == roomNo && userAction == "off" as e3
         select e1.roomNo as roomNo, e2 == null ? "none" : "stop" as userAction having userAction != "none"
         => (RoomKeyAction[] keyAction) {
-            regulatorActionStream.publish(keyAction);
+            foreach e in keyAction {
+                regulatorActionStream.publish(e);
+            }
         }
     }
 }
@@ -151,7 +154,7 @@ function runPatternQuery2() returns (RoomKeyAction[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof roomActions) > 0 || count == 10) {
             break;
         }
@@ -182,7 +185,9 @@ function testPatternQueryWithAnd() {
         select e1.roomNo as roomNo, e2 != null ? "RoomClosedWithRegulatorOff" : "other" as userAction having userAction
         != "other"
         => (RoomKeyAction[] keyAction) {
-            regulatorActionStream2.publish(keyAction);
+            foreach e in keyAction {
+                regulatorActionStream2.publish(e);
+            }
         }
     }
 }
@@ -206,7 +211,7 @@ function runPatternQuery3() returns (RoomKeyAction[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof roomActions2) > 0 || count == 10) {
             break;
         }
@@ -237,7 +242,9 @@ function testPatternQueryWithNot() {
         select e1.roomNo as roomNo, e2 != null ? "RoomNotClosedWithRegulatorNotOff" : "other" as userAction
         having userAction != "other"
         => (RoomKeyAction[] keyAction) {
-            regulatorActionStream3.publish(keyAction);
+            foreach e in keyAction {
+                regulatorActionStream3.publish(e);
+            }
         }
     }
 }
@@ -261,7 +268,7 @@ function runPatternQuery4() returns (RoomKeyAction[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof roomActions3) > 0 || count == 10) {
             break;
         }
@@ -291,7 +298,9 @@ function testPatternQueryWithFor() {
         followed by !roomKeyStream4 where e1.roomNo == roomNo && userAction == "removed" for 2 seconds
         select e1.roomNo as roomNo, "CloseRoomAfter2Sec" as userAction
         => (RoomKeyAction[] keyAction) {
-            regulatorActionStream4.publish(keyAction);
+            foreach e in keyAction {
+                regulatorActionStream4.publish(e);
+            }
         }
     }
 }
@@ -312,7 +321,7 @@ function runPatternQuery5() returns (RoomKeyAction[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof roomActions3) > 0 || count == 10) {
             break;
         }
@@ -344,7 +353,9 @@ function testPatternQuery6 () {
         followed by regulatorStream6 where e1.roomNo == roomNo as e3 within 2 seconds
         select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
         => (TempDiffInfo[] emp) {
-            tempDiffStream6.publish(emp);
+            foreach e in emp {
+                tempDiffStream6.publish(e);
+            }
         }
     }
 }
@@ -382,7 +393,7 @@ function runPatternQuery6() returns (TempDiffInfo[]) {
     int count = 0;
     while(true) {
         runtime:sleep(500);
-        count++;
+        count += 1;
         if((lengthof tempDiffInfoArray6) > 0 || count == 10) {
             break;
         }

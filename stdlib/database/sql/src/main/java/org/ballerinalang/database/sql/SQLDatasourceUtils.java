@@ -854,25 +854,17 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This will close the database connection.
-     *
-     * @param conn SQL connection
-     * @param isInTransaction Whether a transaction is in progress or not
-     */
-    public static void cleanupResources(Connection conn, boolean isInTransaction) {
-        cleanupResources(null, conn, isInTransaction);
-    }
-
-    /**
      * This will close database connection, statement and result sets.
      *
      * @param resultSets   SQL result sets
      * @param stmt SQL statement
      * @param conn SQL connection
-     * @param isInTransaction Whether a transaction is in progress or not
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
      */
     public static void cleanupResources(List<ResultSet> resultSets, Statement stmt, Connection conn,
-            boolean isInTransaction) {
+            boolean connectionClosable) {
         try {
             if (resultSets != null) {
                 for (ResultSet rs : resultSets) {
@@ -881,7 +873,7 @@ public class SQLDatasourceUtils {
                     }
                 }
             }
-            cleanupResources(stmt, conn, isInTransaction);
+            cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
             throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
@@ -893,14 +885,16 @@ public class SQLDatasourceUtils {
      * @param rs   SQL resultset
      * @param stmt SQL statement
      * @param conn SQL connection
-     * @param isInTransaction Whether a transaction is in progress or not
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
      */
-    public static void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean isInTransaction) {
+    public static void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean connectionClosable) {
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
             }
-            cleanupResources(stmt, conn, isInTransaction);
+            cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
             throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
@@ -911,14 +905,16 @@ public class SQLDatasourceUtils {
      *
      * @param stmt SQL statement
      * @param conn SQL connection
-     * @param isInTransaction Whether a transaction is in progress or not
+     * @param connectionClosable Whether the connection is closable or not. If the connection is not closable this
+     * method will not release the connection. Therefore to avoid connection leaks it should have been taken care
+     * of externally.
      */
-    public static void cleanupResources(Statement stmt, Connection conn, boolean isInTransaction) {
+    public static void cleanupResources(Statement stmt, Connection conn, boolean connectionClosable) {
         try {
             if (stmt != null && !stmt.isClosed()) {
                 stmt.close();
             }
-            if (conn != null && !conn.isClosed() && !isInTransaction) {
+            if (conn != null && !conn.isClosed() && connectionClosable) {
                 conn.close();
             }
         } catch (SQLException e) {
@@ -1574,10 +1570,23 @@ public class SQLDatasourceUtils {
         return columnDefs;
     }
 
-    public static Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
+    public static Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isSelectQuery)
             throws SQLException {
         Connection conn;
-        if (!isInTransaction) {
+        boolean isInTransaction = context.isInTransaction();
+        // Here when isSelectQuery condition is true i.e. in case of a select operation, we allow
+        // it to use a normal database connection. This is because,
+        // 1. In mysql (and possibly some other databases) another operation cannot be performed over a connection
+        // which has an open result set on top of it
+        // 2. But inside a transaction we use the same connection to perform all the db operation, so unless the
+        // result set is fully iterated, it won't be possible to perform rest of the operations inside the transaction
+        // 3. Therefore, we allow select operations to be performed on separate db connections inside transactions
+        // (XA or general transactions)
+        // 4. However for call operations, despite of the fact that they could output resultsets
+        // (as OUT params or return values) we do not use a separate connection, because,
+        // call operations can contain UPDATE actions as well inside the procedure which may require to happen in the
+        // same scope as any other individual UPDATE actions
+        if (!isInTransaction || isSelectQuery) {
             conn = datasource.getSQLConnection();
             return conn;
         } else {

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type StatusCount record {
     string status;
@@ -43,8 +42,10 @@ function testAggregationQuery() {
         select status, count(status) as totalCount
         group by status
         having totalCount > 1
-        => (StatusCount[] emp) {
-            filteredStatusCountStream.publish(emp);
+        => (StatusCount[] status) {
+            foreach s in status {
+                filteredStatusCountStream.publish(s);
+            }
         }
     }
 }

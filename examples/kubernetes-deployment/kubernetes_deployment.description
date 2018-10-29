@@ -1,0 +1,8 @@
+//Ballerina supports generating kubernetes artifacts based on annotations.
+//A single Ballerina module is mapped to a single Kubernetes deployment.
+//Minikube or Docker for Mac/Windows should be configured and
+//Kubernetes should be [enabled](https://github.com/ballerinax/kubernetes/tree/master/samples#prerequisites)
+//to run the example.
+//This example deploys https service which retrieve values from config file, to Kubernetes.
+//Refer [Kubernetes samples](https://github.com/ballerinax/kubernetes/tree/master/samples) for more advanced use-cases.
+

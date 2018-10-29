@@ -35,15 +35,18 @@ public class CompletionTestUtil {
 
         // TODO: Need to add kind and sort text as well
         // Here we replace the Windows specific \r\n to \n for evaluation only
+        String additionalTextEdits = "";
+        if (completionItem.getAdditionalTextEdits() != null && !completionItem.getAdditionalTextEdits().isEmpty()) {
+            additionalTextEdits = "," + GSON.toJson(completionItem.getAdditionalTextEdits());
+        }
         return ("{" +
                 completionItem.getInsertText() + "," +
                 completionItem.getDetail() + "," +
-                completionItem.getDocumentation() + "," +
-                completionItem.getLabel() +
+                completionItem.getLabel() + additionalTextEdits +
                 "}").replace("\r\n", "\n");
     }
 
-    private static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {
+    public static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {
         List<String> evalList = new ArrayList<>();
         completionItems.forEach(completionItem -> evalList.add(getCompletionItemPropertyString(completionItem)));
         return evalList;

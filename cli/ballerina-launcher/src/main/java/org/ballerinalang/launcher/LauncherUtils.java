@@ -97,27 +97,31 @@ public class LauncherUtils {
 
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
-        } else if (Files.isRegularFile(fullPath) &&
-                srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
+        } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
             if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                throw createLauncherException("did you mean to run the package ? If so, either run from the project " +
+                throw createLauncherException("did you mean to run the module ? If so, either run from the project " +
                                               "folder or use --sourceroot to specify the project path and run the " +
-                                              "package");
+                                              "module");
             }
-            // If we are trying to run a bal file inside a package from inside a project directory an error is thrown.
-            // To differentiate between top level bals and bals inside packages we need to check if the parent of the
-            // sourcePath given is null. If it is null then its a top level bal else its a bal inside a package
+            if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
+                                                      BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
+                                                      "'ballerina run' command.");
+            }
+            // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
+            // To differentiate between top level bals and bals inside modules we need to check if the parent of the
+            // sourcePath given is null. If it is null then its a top level bal else its a bal inside a module
             if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                     sourcePath.getParent() != null) {
-                throw createLauncherException("you are trying to run a ballerina file inside a package within a " +
-                                                      "project. Try running 'ballerina run <package-name>'");
+                throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
+                                                      "project. Try running 'ballerina run <module-name>'");
             }
             programFile = compile(sourceRootPath, sourcePath, offline);
         } else {
-            throw createLauncherException("only packages, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
+            throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
                                                   + " files can be used with the 'ballerina run' command.");
         }
 
@@ -137,7 +141,7 @@ public class LauncherUtils {
 
         if (runServicesOnly) {
             if (args.length > 0) {
-                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+                throw LauncherUtils.createUsageExceptionWithHelp("arguments not allowed for services");
             }
             runServices(programFile);
         } else {
@@ -309,7 +313,7 @@ public class LauncherUtils {
 
     /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
-     * ({@link CompiledBinaryFile.ProgramFile}).
+     * ({@link org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile}).
      * 
      * @param programFile Compiled program
      * @return Executable program

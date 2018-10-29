@@ -15,17 +15,19 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/h2;
 import ballerina/sql;
-import ballerina/jdbc;
 
 endpoint http:Listener testEp {
     port:9090
 };
 
-endpoint jdbc:Client testDB {
-    url: "jdbc:hsqldb:hsql://localhost:9001/TEST_DB",
+endpoint h2:Client testDB {
+    path: "./target/tempdb/",
+    name: "TEST_DB",
     username: "SA",
-    poolOptions: {maximumPoolSize:10}
+    password: "",
+    poolOptions: { maximumPoolSize: 10 }
 };
 
 @http:ServiceConfig {

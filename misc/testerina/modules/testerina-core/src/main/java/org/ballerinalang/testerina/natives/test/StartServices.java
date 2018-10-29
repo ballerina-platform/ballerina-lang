@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -41,38 +41,38 @@ import java.util.ServiceLoader;
  * @since 0.94.1
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServices", args = {@Argument
-        (name = "packageName", type = TypeKind.STRING)}, returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        (name = "moduleName", type = TypeKind.STRING)}, returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Starts all " +
-        "the" + " services defined in the package specified in the 'packageName' argument")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of the "
-        + "package")})
+        "the" + " services defined in the module specified in the 'moduleName' argument")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "moduleName", value = "Name of the "
+        + "module")})
 public class StartServices extends BlockingNativeCallableUnit {
 
     /**
-     * Starts all the services defined in the package specified in the 'packageName' argument.
+     * Starts all the services defined in the module specified in the 'moduleName' argument.
      */
     @Override
     public void execute(Context ctx) {
-        String packageName = ctx.getStringArgument(0);
+        String moduleName = ctx.getStringArgument(0);
 
-        packageName = Utils.getFullPackageName(packageName);
+        moduleName = TesterinaUtils.getFullModuleName(moduleName);
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
-            // Get the service package
+            // Get the service module
             PackageInfo servicesPackage = programFile.getEntryPackage();
-            if (servicesPackage == null || !servicesPackage.getPkgPath().equals(packageName)) {
+            if (servicesPackage == null || !servicesPackage.getPkgPath().equals(moduleName)) {
                 continue;
             }
 
             ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
             listeners.forEach(listener -> listener.beforeRunProgram(true));
 
-            Utils.startService(programFile);
+            TesterinaUtils.startService(programFile);
             ctx.setReturnValues(new BBoolean(true));
             return;
         }
 
-        // package could not be found
+        // module could not be found
         ctx.setReturnValues(new BBoolean(false));
     }
 

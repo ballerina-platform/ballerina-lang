@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jdbc;
+import ballerina/h2;
 import ballerina/time;
 
 type NonNillableInt record {
@@ -137,84 +137,85 @@ type ResultMapNillableTypeNonNillableElements record {
     string[]? STRING_ARRAY;
 };
 
-function testAssignNilToNonNillableInt(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "int_type", NonNillableInt);
+function testAssignNilToNonNillableInt() {
+    testAssignNilToNonNillableField("int_type", NonNillableInt);
 }
 
-function testAssignNilToNonNillableLong(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "long_type", NonNillableLong);
+function testAssignNilToNonNillableLong() {
+    testAssignNilToNonNillableField("long_type", NonNillableLong);
 }
 
-function testAssignNilToNonNillableFloat(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "float_type", NonNillableFloat);
+function testAssignNilToNonNillableFloat() {
+    testAssignNilToNonNillableField("float_type", NonNillableFloat);
 }
 
-function testAssignNilToNonNillableDouble(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "double_type", NonNillableDouble);
+function testAssignNilToNonNillableDouble() {
+    testAssignNilToNonNillableField("double_type", NonNillableDouble);
 }
 
-function testAssignNilToNonNillableBoolean(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "boolean_type", NonNillableBoolean);
+function testAssignNilToNonNillableBoolean() {
+    testAssignNilToNonNillableField("boolean_type", NonNillableBoolean);
 }
 
-function testAssignNilToNonNillableString(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "string_type", NonNillableString);
+function testAssignNilToNonNillableString() {
+    testAssignNilToNonNillableField("string_type", NonNillableString);
 }
 
-function testAssignNilToNonNillableNumeric(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "numeric_type", NonNillableNumeric);
+function testAssignNilToNonNillableNumeric() {
+    testAssignNilToNonNillableField("numeric_type", NonNillableNumeric);
 }
 
-function testAssignNilToNonNillableTinyInt(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "tinyint_type", NonNillableTinyInt);
+function testAssignNilToNonNillableTinyInt() {
+    testAssignNilToNonNillableField("tinyint_type", NonNillableTinyInt);
 }
 
-function testAssignNilToNonNillableSmallint(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "smallint_type", NonNillableSmallInt);
+function testAssignNilToNonNillableSmallint() {
+    testAssignNilToNonNillableField("smallint_type", NonNillableSmallInt);
 }
 
-function testAssignNilToNonNillableDecimal(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "decimal_type", NonNillableDecimal);
+function testAssignNilToNonNillableDecimal() {
+    testAssignNilToNonNillableField("decimal_type", NonNillableDecimal);
 }
 
-function testAssignNilToNonNillableReal(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "real_type", NonNillableReal);
+function testAssignNilToNonNillableReal() {
+    testAssignNilToNonNillableField("real_type", NonNillableReal);
 }
 
-function testAssignNilToNonNillableClob(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "clob_type", NonNillableClob);
+function testAssignNilToNonNillableClob() {
+    testAssignNilToNonNillableField("clob_type", NonNillableClob);
 }
 
-function testAssignNilToNonNillableBlob(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "blob_type", NonNillableBlob);
+function testAssignNilToNonNillableBlob() {
+    testAssignNilToNonNillableField("blob_type", NonNillableBlob);
 }
 
-function testAssignNilToNonNillableBinary(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "binary_type", NonNillableBinary);
+function testAssignNilToNonNillableBinary() {
+    testAssignNilToNonNillableField("binary_type", NonNillableBinary);
 }
 
-function testAssignNilToNonNillableDate(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "date_type", NonNillableDate);
+function testAssignNilToNonNillableDate() {
+    testAssignNilToNonNillableField("date_type", NonNillableDate);
 }
 
-function testAssignNilToNonNillableTime(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "time_type", NonNillableTime);
+function testAssignNilToNonNillableTime() {
+    testAssignNilToNonNillableField("time_type", NonNillableTime);
 }
 
-function testAssignNilToNonNillableDateTime(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "datetime_type", NonNillableDateTime);
+function testAssignNilToNonNillableDateTime() {
+    testAssignNilToNonNillableField("datetime_type", NonNillableDateTime);
 }
 
-function testAssignNilToNonNillableTimeStamp(string jdbcUrl, string userName, string password) {
-    testAssignNilToNonNillableField(jdbcUrl, userName, password, "timestamp_type", NonNillableTimeStamp);
+function testAssignNilToNonNillableTimeStamp() {
+    testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp);
 }
 
-function testAssignNilToNonNillableField(string jdbcUrl, string userName, string password, string field, typedesc
+function testAssignNilToNonNillableField(string field, typedesc
     recordType) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -240,113 +241,112 @@ function testAssignNilToNonNillableField(string jdbcUrl, string userName, string
     }
 }
 
-function testAssignToInvalidUnionInt(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "int_type");
+function testAssignToInvalidUnionInt() {
+    testAssignToInvalidUnionField("int_type");
 }
 
-function testAssignToInvalidUnionLong(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "long_type");
+function testAssignToInvalidUnionLong() {
+    testAssignToInvalidUnionField("long_type");
 }
 
-function testAssignToInvalidUnionFloat(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "float_type");
+function testAssignToInvalidUnionFloat() {
+    testAssignToInvalidUnionField("float_type");
 }
 
-function testAssignToInvalidUnionDouble(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "double_type");
+function testAssignToInvalidUnionDouble() {
+    testAssignToInvalidUnionField("double_type");
 }
 
-function testAssignToInvalidUnionBoolean(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "boolean_type");
+function testAssignToInvalidUnionBoolean() {
+    testAssignToInvalidUnionField("boolean_type");
 }
 
-function testAssignToInvalidUnionString(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "string_type");
+function testAssignToInvalidUnionString() {
+    testAssignToInvalidUnionField("string_type");
 }
 
-function testAssignToInvalidUnionNumeric(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "numeric_type");
+function testAssignToInvalidUnionNumeric() {
+    testAssignToInvalidUnionField("numeric_type");
 }
 
-function testAssignToInvalidUnionTinyInt(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "tinyint_type");
+function testAssignToInvalidUnionTinyInt() {
+    testAssignToInvalidUnionField("tinyint_type");
 }
 
-function testAssignToInvalidUnionSmallint(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "smallint_type");
+function testAssignToInvalidUnionSmallint() {
+    testAssignToInvalidUnionField("smallint_type");
 }
 
-function testAssignToInvalidUnionDecimal(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "decimal_type");
+function testAssignToInvalidUnionDecimal() {
+    testAssignToInvalidUnionField("decimal_type");
 }
 
-function testAssignToInvalidUnionReal(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "real_type");
+function testAssignToInvalidUnionReal() {
+    testAssignToInvalidUnionField("real_type");
 }
 
-function testAssignToInvalidUnionClob(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "clob_type");
+function testAssignToInvalidUnionClob() {
+    testAssignToInvalidUnionField("clob_type");
 }
 
-function testAssignToInvalidUnionBlob(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "blob_type");
+function testAssignToInvalidUnionBlob() {
+    testAssignToInvalidUnionField("blob_type");
 }
 
-function testAssignToInvalidUnionBinary(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "binary_type");
+function testAssignToInvalidUnionBinary() {
+    testAssignToInvalidUnionField("binary_type");
 }
 
-function testAssignToInvalidUnionDate(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "date_type");
+function testAssignToInvalidUnionDate() {
+    testAssignToInvalidUnionField("date_type");
 }
 
-function testAssignToInvalidUnionTime(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "time_type");
+function testAssignToInvalidUnionTime() {
+    testAssignToInvalidUnionField("time_type");
 }
 
-function testAssignToInvalidUnionDateTime(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "datetime_type");
+function testAssignToInvalidUnionDateTime() {
+    testAssignToInvalidUnionField("datetime_type");
 }
 
-function testAssignToInvalidUnionTimeStamp(string jdbcUrl, string userName, string password) {
-    testAssignToInvalidUnionField(jdbcUrl, userName, password, "timestamp_type");
+function testAssignToInvalidUnionTimeStamp() {
+    testAssignToInvalidUnionField("timestamp_type");
 }
 
-function testAssignNullArrayToNonNillableWithNonNillableElements(string jdbcUrl, string userName, string password) {
-    testAssignArrayToInvalidField(jdbcUrl, userName, password, ResultMap, 3);
+function testAssignNullArrayToNonNillableWithNonNillableElements() {
+    testAssignArrayToInvalidField(ResultMap, 3);
 }
 
-function testAssignNullArrayToNonNillableTypeWithNillableElements(string jdbcUrl, string userName, string password) {
-    testAssignArrayToInvalidField(jdbcUrl, userName, password, ResultMapNonNillableTypeNillableElements, 3);
+function testAssignNullArrayToNonNillableTypeWithNillableElements() {
+    testAssignArrayToInvalidField(ResultMapNonNillableTypeNillableElements, 3);
 }
 
-function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements(string jdbcUrl, string userName, string
-    password) {
-    testAssignArrayToInvalidField(jdbcUrl, userName, password, ResultMap, 2);
+function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() {
+    testAssignArrayToInvalidField(ResultMap, 2);
 }
 
-function testAssignNullElementArrayToNillableTypeWithNonNillableElements(string jdbcUrl, string userName, string
-    password) {
-    testAssignArrayToInvalidField(jdbcUrl, userName, password, ResultMapNillableTypeNonNillableElements, 2);
+function testAssignNullElementArrayToNillableTypeWithNonNillableElements() {
+    testAssignArrayToInvalidField(ResultMapNillableTypeNonNillableElements, 2);
 }
 
-function testAssignInvalidUnionArray(string jdbcUrl, string userName, string password) {
-    testInvalidUnionForArrays(jdbcUrl, userName, password, InvalidUnionArray);
+function testAssignInvalidUnionArray() {
+    testInvalidUnionForArrays(InvalidUnionArray);
 }
 
-function testAssignInvalidUnionArrayElement(string jdbcUrl, string userName, string password) {
-    testInvalidUnionForArrays(jdbcUrl, userName, password, InvalidUnionArrayElement);
+function testAssignInvalidUnionArrayElement() {
+    testInvalidUnionForArrays(InvalidUnionArrayElement);
 }
 
-function testAssignInvalidUnionArray2(string jdbcUrl, string userName, string password) {
-    testInvalidUnionForArrays(jdbcUrl, userName, password, InvalidUnionArray2);
+function testAssignInvalidUnionArray2() {
+    testInvalidUnionForArrays(InvalidUnionArray2);
 }
 
-function testAssignToInvalidUnionField(string jdbcUrl, string userName, string password, string field) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+function testAssignToInvalidUnionField(string field) {
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -372,11 +372,12 @@ function testAssignToInvalidUnionField(string jdbcUrl, string userName, string p
     }
 }
 
-function testAssignArrayToInvalidField(string jdbcUrl, string userName, string password, typedesc invalidType, int id) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+function testAssignArrayToInvalidField(typedesc invalidType, int id) {
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -392,11 +393,12 @@ function testAssignArrayToInvalidField(string jdbcUrl, string userName, string p
     }
 }
 
-function testInvalidUnionForArrays(string jdbcUrl, string userName, string password, typedesc invalidUnion) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
+function testInvalidUnionForArrays(typedesc invalidUnion) {
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 

@@ -2,5 +2,6 @@ out
 node_modules
 .vscode-test/
 *.vsix
-resources/diagram
+resources/composer
 !.vscode
+coverage

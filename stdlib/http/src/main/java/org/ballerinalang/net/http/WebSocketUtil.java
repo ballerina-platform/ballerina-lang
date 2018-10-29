@@ -189,6 +189,11 @@ public class WebSocketUtil {
 
     }
 
+    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) {
+        connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
+                                                  new BBoolean(connectionInfo.getWebSocketConnection().isOpen()));
+    }
+
     private WebSocketUtil() {
     }
 }

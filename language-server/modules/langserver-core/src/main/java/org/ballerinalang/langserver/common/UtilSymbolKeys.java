@@ -39,7 +39,9 @@ public class UtilSymbolKeys {
 
     public static final String SEMI_COLON_SYMBOL_KEY = ";";
 
-    public static final String ACTION_INVOCATION_SYMBOL_KEY = "->";
+    public static final String RIGHT_ARROW_SYMBOL_KEY = "->";
+
+    public static final String LEFT_ARROW_SYMBOL_KEY = "<-";
 
     public static final String BANG_SYMBOL_KEY = "!";
 
@@ -80,4 +82,8 @@ public class UtilSymbolKeys {
     public static final String SLASH_KEYWORD_KEY = "/";
 
     public static final String EP_OBJECT_IDENTIFIER = "getCallerActions";
+    
+    public static final String BALLERINA_KW = "ballerina";
+    
+    public static final String BUILTIN_KW = "builtin";
 }

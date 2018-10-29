@@ -255,6 +255,7 @@ public class WebSocketDispatcher {
 
     static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
                                      WebSocketCloseMessage closeMessage) {
+        WebSocketUtil.setListenerOpenField(connectionInfo);
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
@@ -301,6 +302,7 @@ public class WebSocketDispatcher {
     }
 
     static void dispatchError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
+        WebSocketUtil.setListenerOpenField(connectionInfo);
         WebSocketService webSocketService = connectionInfo.getService();
         Resource onErrorResource = webSocketService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_ERROR);
         if (isUnexpectedError(throwable)) {

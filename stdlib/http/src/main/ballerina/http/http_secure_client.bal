@@ -12,7 +12,7 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License.package http;
+// under the License.
 
 
 import ballerina/io;
@@ -27,6 +27,15 @@ public type AuthScheme "Basic"|"OAuth2"|"JWT";
 @final public AuthScheme BASIC_AUTH = "Basic";
 @final public AuthScheme OAUTH2 = "OAuth2";
 @final public AuthScheme JWT_AUTH = "JWT";
+
+# Specifies how the authentication credentials should be sent when using the refresh token to refresh the access token
+public type CredentialBearer "AUTH_HEADER_BEARER"|"POST_BODY_BEARER";
+
+# Indicates that the authentication credentials should be sent via the Authentication Header
+@final public CredentialBearer AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
+
+# Indicates that the authentication credentials should be sent via the body of the POST request
+@final public CredentialBearer POST_BODY_BEARER = "POST_BODY_BEARER";
 
 # Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
 # configured in the HTTP client endpoint to secure the HTTP requests.
@@ -50,9 +59,9 @@ public type HttpSecureClient object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -70,9 +79,9 @@ public type HttpSecureClient object {
     #
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -90,9 +99,9 @@ public type HttpSecureClient object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function put(string path,  Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function put(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -111,9 +120,9 @@ public type HttpSecureClient object {
     # + httpVerb - HTTP verb value
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                              message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -131,9 +140,9 @@ public type HttpSecureClient object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function patch(string path,  Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function patch(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -151,9 +160,9 @@ public type HttpSecureClient object {
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -171,9 +180,9 @@ public type HttpSecureClient object {
     #
     # + path - Request path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -191,9 +200,9 @@ public type HttpSecureClient object {
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -229,9 +238,9 @@ public type HttpSecureClient object {
     # + httpVerb - The HTTP verb value
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ByteChannel` or `mime:Entity[]`
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns (HttpFuture|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -361,6 +370,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
+    string[] scopes = config.auth.scopes but { () => [] };
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
         error err;
@@ -370,14 +380,22 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     }
 
     CallerActions refreshTokenClient = createSimpleHttpClient(refreshUrl, {});
-
-    string clientIdSecret = clientId + ":" + clientSecret;
-    string base64ClientIdSecret = check clientIdSecret.base64Encode();
-
     Request refreshTokenRequest = new;
-    refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
-    refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
-        contentType = mime:APPLICATION_FORM_URLENCODED);
+    string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
+    string scopeString = EMPTY_STRING;
+    foreach requestScope in scopes {
+        scopeString = scopeString + WHITE_SPACE + requestScope;
+    }
+    if (scopeString != EMPTY_STRING) {
+        textPayload = textPayload + "&scope=" + scopeString.trim();
+    }
+    if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
+        string clientIdSecret = clientId + ":" + clientSecret;
+        refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
+    } else {
+        textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+    }
+    refreshTokenRequest.setTextPayload(textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
     Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, refreshTokenRequest);
 
     json generatedToken = check refreshTokenResponse.getJsonPayload();

@@ -86,4 +86,9 @@ public class BLangScope extends BLangStatement implements ScopeNode {
     public void setCompensationFunction(BLangLambdaFunction compensationFunction) {
         this.compensationFunction = compensationFunction;
     }
+
+    @Override
+    public String toString() {
+        return "scope " + this.name + " {" + this.scopeBody.toString() + "}";
+    }
 }

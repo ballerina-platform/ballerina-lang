@@ -1,0 +1,7 @@
+// Any `public` function can be an entry point to a Ballerina program. The function to be considered as the entry point
+// could be specified with the ballerina `run` command. If a function is not specified with the ballerina `run` command,
+// the `main` function is considered to be the entry point.
+// Entry point functions can be data-binding, and can have zero or more parameters of any supported type, including any
+// number of required/defaultable parameters and/or a single rest parameter.
+// To print the return value of an entry point function to the standard out stream, set the `--printreturn` option
+// with the `run` command.
