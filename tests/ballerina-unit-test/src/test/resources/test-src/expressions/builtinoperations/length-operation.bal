@@ -191,7 +191,7 @@ function lengthOfTuple() returns (int) {
 
 function lengthOfTable() returns (int) {
     table<Employee> tbEmployee = table {
-        { primarykey id, name, salary },
+        { key id, name, salary },
         [ { 1, "Mary",  300.5 },
         { 2, "John",  200.5 },
         { 3, "Jim", 330.5 }
@@ -203,7 +203,7 @@ function lengthOfTable() returns (int) {
 
 function lengthOfEmptyTable() returns (int) {
     table<Employee> tbEmployee = table {
-        { primarykey id, name, salary }
+        { key id, name, salary }
     };
     int lengthVal = tbEmployee.length();
     return lengthVal;

@@ -1824,7 +1824,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (iExpr.argExprs.size() > 0) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
         }
-        resultType = this.symTable.getTypeFromTag(TypeTags.BOOLEAN);
+        resultType = symTable.booleanType;
     }
 
     private void checkBuiltinLengthInvocationExpr(BLangInvocation iExpr) {
@@ -1832,7 +1832,7 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, "length");
             return;
         }
-        iExpr.type = this.symTable.getTypeFromTag(TypeTags.INT);
+        iExpr.type = symTable.intType;
         resultType = types.checkType(iExpr, iExpr.type, expType);
     }
 
