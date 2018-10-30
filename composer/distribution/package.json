@@ -2,7 +2,7 @@
   "name": "@ballerina/distribution",
   "version": "0.983.1-SNAPSHOT",
   "description": "",
-  "main": "index.js",
+  "main": "build/composer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\"",
     "test-coverage": "npm run test -- --coverage",
