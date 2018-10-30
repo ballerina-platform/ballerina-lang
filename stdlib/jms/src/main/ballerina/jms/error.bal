@@ -14,25 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Defines the possible values for the destination type in JMS `Destination`.
+@final public string JMS_ERROR_CODE = "{ballerina/jms}JMSError";
+
+# JMS error record
 #
-# `queue`: Destination type queue
-# `topic`: Destination type topic
-public type DestinationType "queue"|"topic";
-
-# Constant for jms destination type queue
-@final public DestinationType QUEUE = "queue";
-
-# Constant for jms destination type topic
-@final public DestinationType TOPIC = "topic";
-
-# Destination object
-#
-# + destinationName - name of the destination
-# + destinationType - type of the destination, either queue or topic
-public type Destination object {
-    public string destinationName;
-    public string destinationType;
-
-    public new(destinationName, destinationType) {}
+# + message - Error message
+type JMSError record {
+    string message;
+    !...
 };
