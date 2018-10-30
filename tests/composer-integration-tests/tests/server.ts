@@ -1,19 +1,44 @@
 import { createConnection, ConnectionErrorHandler, ConnectionCloseHandler, IConnection } from 'monaco-languageclient/lib/connection';
 import { createMessageConnection, StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc';
 import { ChildProcess, spawn } from 'child_process';
+import { sync as globSync } from 'glob';
+import { moveSync }from 'fs-extra';
+
 import * as path from 'path';
 import { InitializeResult } from 'vscode-languageserver-protocol';
 
-const LS_CLASSPATH = path.join(__dirname, '..', '..', 'target', 'lib', '*');
+const extractPath = path.join(__dirname, '..', 'target', 
+            'extracted-distributions');
+
+export const balToolsPath = path.join(extractPath, 'ballerina-tools');
+
+const LS_DEBUG = process.env.LS_DEBUG === "true";
+const LS_CUSTOM_CLASSPATH = process.env.LS_CUSTOM_CLASSPATH;
+
+globSync(path.join(extractPath, `ballerina-tools-*`)).forEach((folder) => {
+    if (folder.includes('ballerina-tools')) {
+        moveSync(folder, balToolsPath);
+    }
+});
 
 function createServer() : ChildProcess {
-    return spawn('java', 
-        [
-           '-cp',
-           LS_CLASSPATH,
-           'org.ballerinalang.langserver.launchers.stdio.Main'
-        ]
-    );
+    let cmd;
+    const cwd = path.join(balToolsPath, 'lib', 'tools', 'lang-server', 'launcher');
+    const args: Array<string> = [];
+    if (process.platform === 'win32') {
+        cmd = path.join(cwd, 'language-server-launcher.bat');
+    } else {
+        cmd = 'sh';
+        args.push(path.join(cwd, 'language-server-launcher.sh'));
+    }
+
+    if (LS_DEBUG) {
+        args.push('--debug');
+    }
+    if (LS_CUSTOM_CLASSPATH) {
+        args.push('--classpath', LS_CUSTOM_CLASSPATH);
+    }
+    return spawn(cmd, args, { cwd });
 }
 
 function createLSConnection() : LangServerProcessConnection {
@@ -41,11 +66,27 @@ export interface LangServerProcessConnection {
     childProcess: ChildProcess;
     lsConnection: IConnection;
 }
+export interface GetASTParams {
+    documentIdentifier: {
+        uri: string;
+    };
+}
+
+export interface BallerinaAST {
+    kind: string;
+    topLevelNodes: any[];
+}
+
+export interface GetASTResponse {
+    ast: BallerinaAST;
+    parseSuccess: boolean;
+}
 
 export interface MinimalLangClient {
     lsConnection: IConnection;
     initializedResult: InitializeResult;
     kill: () => void;
+    getAST: (params: GetASTParams) => Thenable<GetASTResponse>;
 }
 
 export function startBallerinaLangServer(): Thenable<MinimalLangClient | undefined> {
@@ -70,6 +111,9 @@ export function startBallerinaLangServer(): Thenable<MinimalLangClient | undefin
             kill: () => {
                 lsConnection.shutdown();
                 childProcess.kill();
+            },
+            getAST: (params: GetASTParams) => {
+                return lsConnection.sendRequest<GetASTResponse>("ballerinaDocument/ast", params);
             }
         }
         return langClient;
