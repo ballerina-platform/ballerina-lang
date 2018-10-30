@@ -8,12 +8,13 @@ const Documentation = ({ docDetails }) => {
 
     const icon = {
         'Function': 'fw-function',
+        'TypeDefinition': 'fw-struct'
     }[kind];
 
     return (
         <div className='documentation'>
             <div className='title'>
-                { icon && <i className='fw fw-function fw-fw icon'></i> } {title} { kind === 'Function' && '()' }
+                { icon && (<i className={`fw fw-fw icon ${icon}`}></i>) }{title}{ kind === 'Function' && '()' }
             </div>
             <Description source={description} className='description' />
             {returnParameter && returnParameter.type !== 'nil' && (
