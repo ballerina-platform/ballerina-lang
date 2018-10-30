@@ -90,7 +90,7 @@ public class OutboundMsgHolder {
      *
      * @param pushPromise push promise message
      */
-    void addPromise(Http2PushPromise pushPromise) {
+    public void addPromise(Http2PushPromise pushPromise) {
         promises.add(pushPromise);
         responseFuture.notifyPromiseAvailability();
         responseFuture.notifyPushPromise();
@@ -102,7 +102,7 @@ public class OutboundMsgHolder {
      * @param streamId     id of the stream in which the push response received
      * @param pushResponse push response message
      */
-    void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
+    public void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
         pushResponsesMap.put(streamId, pushResponse);
         responseFuture.notifyPushResponse(streamId, pushResponse);
     }
