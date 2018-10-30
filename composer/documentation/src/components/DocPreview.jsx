@@ -60,7 +60,7 @@ export default class DocPreview extends React.Component {
             parameters[field.name.value] = {
                 name: field.name.value,
                 type: field.typeNode.typeKind,
-                defaultValue: field.initialExpression.value,
+                defaultValue: field.initialExpression ? field.initialExpression.value: "",
             };
         });
         return parameters;

@@ -172,7 +172,7 @@
             },
             {
                 "command": "ballerina.showDocs",
-                "title": "Open Doc Prview",
+                "title": "Open Doc Preview",
                 "category": "Ballerina"
             }
         ],
