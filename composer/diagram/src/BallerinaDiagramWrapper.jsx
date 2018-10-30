@@ -24,7 +24,7 @@ import { Dimmer, Loader } from 'semantic-ui-react';
 import DesignView from 'plugins/ballerina/views/design-view';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
-import '@ballerina/theme/default-theme/index.js/';
+import '@ballerina/theme/default-theme/index';
 import './scss/themes/default.scss';
 import '@ballerina/theme/font-ballerina';
 

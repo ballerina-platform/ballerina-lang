@@ -3,7 +3,8 @@ import { sync as globSync } from 'glob';
 import { startBallerinaLangServer, MinimalLangClient, balToolsPath, BallerinaAST } from './server';
 import URI from 'vscode-uri';
 import * as React from 'react';
-import { BallerinaDiagramWrapper } from '@ballerina/distribution';
+import { BallerinaDiagramWrapper } from '@ballerina/diagram';
+import SizingUtil from '@ballerina/diagram/lib/plugins/ballerina/diagram/views/default/sizing-util';
 import { create } from 'react-test-renderer';
 
 let langClient : MinimalLangClient;
@@ -43,6 +44,17 @@ function testDiagramRendering(ast: BallerinaAST,  uri: string) {
     function getEndpoints() {
     }
 
+    var getTextWidth = jest.fn();
+    getTextWidth.mockReturnValue(100);
+    jest
+        .spyOn(SizingUtil.prototype, 'getTextWidth')
+        .mockImplementation(getTextWidth);
+
+    var consoleLog = jest.fn();
+    jest
+        .spyOn(console, 'log')
+        .mockImplementation(consoleLog);
+
     const component = create(
         <BallerinaDiagramWrapper 
             docUri={uri}
@@ -55,8 +67,8 @@ function testDiagramRendering(ast: BallerinaAST,  uri: string) {
             goToSource={goToSource}
         />
     );
-    let tree = component.toJSON();
-    console.log(tree);
+    component.toJSON();
+    expect(getTextWidth).toHaveBeenCalled();
 }
 
 var bbeFiles = globSync(path.join(bbeDir, '**', 'hello_world_client.bal'), {});

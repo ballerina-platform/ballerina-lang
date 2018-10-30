@@ -1,6 +1,5 @@
 
-declare module '@ballerina/distribution' {
-    
+declare module '@ballerina/diagram' {
     export interface BallerinaDiagramWrapperProps {
         getAST: (uri: string) => Thenable<any>;
         onChange: (t: any) => any;
@@ -18,3 +17,8 @@ declare module '@ballerina/distribution' {
     }
 }
 
+declare module '@ballerina/diagram/lib/plugins/ballerina/diagram/views/default/sizing-util' {
+    export default class SizingUtil {
+        getTextWidth: (arg1: any, arg2: any) => any;
+    }
+}

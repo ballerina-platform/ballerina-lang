@@ -71,14 +71,48 @@ function requireAll(requireContext) {
     return comp;
 }
 
+let requireContext = require.context;
+
+// This condition actually should detect if it's an Node environment
+if (typeof requireContext === 'undefined') {
+    const fs = require('fs');
+    const path = require('path');
+    requireContext = (base = '.', scanSubDirectories = false, regularExpression = /\.js$/) => {
+        const files = {};
+        function readDirectory(directory) {
+            fs.readdirSync(directory).forEach((file) => {
+                const fullPath = path.resolve(directory, file);
+                if (fs.statSync(fullPath).isDirectory()) {
+                    if (scanSubDirectories) {
+                        readDirectory(fullPath);
+                    }
+                    return;
+                }
+
+                if (!regularExpression.test(fullPath)) {
+                    return;
+                }
+                files[fullPath] = true;
+            });
+        }
+        readDirectory(path.resolve(__dirname, base));
+        function Module(file) {
+            return require(file);
+        }
+        Module.keys = () => Object.keys(files);
+
+        return Module;
+    };
+}
+
 function getComponentForNodeArray(nodeArray, mode = 'default') {
     // if undefined or null is passws return null.
     if (!nodeArray) {
         return null;
     }
     // lets load the view components diffrent modes.
-    components.default = requireAll(require.context('./views/default/components/nodes', true, /\.js$/));
-    components.action = requireAll(require.context('./views/action/components/', true, /\.js$/));
+    components.default = requireAll(requireContext('./views/default/components/nodes', true, /\.js$/));
+    components.action = requireAll(requireContext('./views/action/components/', true, /\.js$/));
 
 
     // make sure what is passed is an array.
@@ -159,7 +193,7 @@ function getInvocationArrowPositionUtil(mode) {
 
 function getOverlayComponent(nodeArray, mode = 'default') {
     // lets load the view components diffrent modes.
-    components.default = requireAll(require.context('./views/default/components/utils', true, /\.jsx$/));
+    components.default = requireAll(requireContext('./views/default/components/utils', true, /\.jsx$/));
 
     // make sure what is passed is an array.
     nodeArray = _.concat([], nodeArray);
