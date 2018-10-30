@@ -2959,9 +2959,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatement generateIfElseStmt(BLangMatch matchStmt, BLangSimpleVariable matchExprVar) {
         List<BLangMatchStmtBindingPatternClause> patterns = matchStmt.patternClauses;
-        if (patterns.size() == 1) {
-            return getMatchPatternBody(patterns.get(0), matchExprVar);
-        }
 
         BLangIf parentIfNode = generateIfElseStmt(patterns.get(0), matchExprVar);
         BLangIf currentIfNode = parentIfNode;
