@@ -76,7 +76,7 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     
     public String toActionString() {
         if (keyExpr != null) {
-            return this.expr + ", " + this.expr + " -> " + this.workerIdentifier;
+            return this.expr + " -> " + this.workerIdentifier + "," + this.keyExpr;
         }
         return this.expr + " -> " + this.workerIdentifier;
     }

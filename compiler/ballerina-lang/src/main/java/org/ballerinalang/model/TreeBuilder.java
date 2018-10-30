@@ -210,7 +210,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceiveExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -781,7 +781,7 @@ public class TreeBuilder {
         return new BLangWorkerFlushExpr();
     }
 
-    public static BLangWorkerSendExpr createWorkerSendExpressionNode() {
-        return new BLangWorkerSendExpr();
+    public static BLangWorkerSyncSendExpr createWorkerSendExpressionNode() {
+        return new BLangWorkerSyncSendExpr();
     }
 }

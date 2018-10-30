@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.tree.expressions.WorkerSendExpressionNode;
+import org.ballerinalang.model.tree.expressions.WorkerSendSyncExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
@@ -762,7 +762,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(WorkerSendExpressionNode workerSendExpressionNode) {
+    public void visit(WorkerSendSyncExpressionNode workerSendExpressionNode) {
         throw new AssertionError();
     }
 }

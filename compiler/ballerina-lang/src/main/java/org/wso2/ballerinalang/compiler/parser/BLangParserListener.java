@@ -1623,13 +1623,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitWorkerSendAsyncExpression(BallerinaParser.WorkerSendAsyncExpressionContext ctx) {
+    public void exitWorkerSendAsync(BallerinaParser.WorkerSendAsyncContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
-                .expression().size() > 1, true);
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
+                .expression().size() > 1);
     }
 
     @Override
@@ -1638,8 +1638,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
-                .expression().size() > 1, false);
+        this.pkgBuilder.addWorkerSendSyncExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
+                .expression().size() > 1);
     }
 
     @Override

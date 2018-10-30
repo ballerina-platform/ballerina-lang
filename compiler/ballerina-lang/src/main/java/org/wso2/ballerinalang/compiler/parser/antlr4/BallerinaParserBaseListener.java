@@ -1324,6 +1324,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterWorkerSendAsync(BallerinaParser.WorkerSendAsyncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWorkerSendAsync(BallerinaParser.WorkerSendAsyncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1811,18 +1823,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStringTemplateLiteralExpression(BallerinaParser.StringTemplateLiteralExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWorkerSendAsyncExpression(BallerinaParser.WorkerSendAsyncExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWorkerSendAsyncExpression(BallerinaParser.WorkerSendAsyncExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

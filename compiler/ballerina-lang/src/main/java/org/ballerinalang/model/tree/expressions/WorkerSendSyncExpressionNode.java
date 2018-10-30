@@ -20,11 +20,11 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * both synchronous(->>) and asynchronous(->) send expressions
+ * synchronous(->>) send expressions
  *
  * @since 0.94
  */
-public interface WorkerSendExpressionNode extends ExpressionNode {
+public interface WorkerSendSyncExpressionNode extends ExpressionNode {
     ExpressionNode getExpression();
 
     ExpressionNode getKeyExpression();
@@ -32,8 +32,6 @@ public interface WorkerSendExpressionNode extends ExpressionNode {
     IdentifierNode getWorkerName();
 
     void setWorkerName(IdentifierNode identifierNode);
-
-    boolean isAsync();
 
     boolean isForkJoinedSend();
 }
