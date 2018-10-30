@@ -75,11 +75,7 @@ import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.TransactionStatus;
-import org.ballerinalang.util.codegen.AttachedFunctionInfo;
-import org.ballerinalang.util.codegen.ErrorTableEntry;
-import org.ballerinalang.util.codegen.ForkjoinInfo;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.Instruction;
+import org.ballerinalang.util.codegen.*;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCHNReceive;
 import org.ballerinalang.util.codegen.Instruction.InstructionCHNSend;
@@ -88,13 +84,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
-import org.ballerinalang.util.codegen.InstructionCodes;
-import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.ObjectTypeInfo;
-import org.ballerinalang.util.codegen.StructFieldInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.codegen.TypeDefInfo;
-import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
@@ -157,7 +146,7 @@ public class CPU {
 
         if(instructionHandler == null) {
             //TODO: Add debugger enabled scenario to the if statement
-            if(Boolean.parseBoolean(System.getProperty("coverage.flag")) && ctx.programFile.isTestFile()) {
+            if((ctx.programFile.getFlags() & ProgramFile.TEST_COVERAGE_FLAG) == ProgramFile.TEST_COVERAGE_FLAG) {
                 ServiceLoader<InstructionHandler> loader = ServiceLoader.load(InstructionHandler.class);
                 Iterator<InstructionHandler> iter = loader.iterator();
                 while(iter.hasNext()){

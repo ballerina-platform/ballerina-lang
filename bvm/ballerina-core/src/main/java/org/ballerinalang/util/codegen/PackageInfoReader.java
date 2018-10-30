@@ -276,16 +276,13 @@ public class PackageInfoReader {
         programFile.setEntryPkgName(packageRefCPEntry.getPackageName());
 
         int flags = dataInStream.readByte();
+        programFile.setFlags(flags);
         if ((flags & ProgramFile.EP_MAIN_FLAG) == ProgramFile.EP_MAIN_FLAG) {
             programFile.setMainEPAvailable(true);
         }
 
         if ((flags & ProgramFile.EP_SERVICE_FLAG) == ProgramFile.EP_SERVICE_FLAG) {
             programFile.setServiceEPAvailable(true);
-        }
-
-        if ((flags & ProgramFile.TEST_FILE_FLAG) == ProgramFile.TEST_FILE_FLAG) {
-            programFile.setTestFile(true);
         }
     }
 

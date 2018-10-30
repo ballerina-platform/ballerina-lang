@@ -62,7 +62,6 @@ public class ProgramFileWriter {
         int flags = 0;
         flags = programFile.isMainEPAvailable() ? flags | ProgramFile.EP_MAIN_FLAG : flags;
         flags = programFile.isServiceEPAvailable() ? flags | ProgramFile.EP_SERVICE_FLAG : flags;
-        flags = programFile.isTestFile() ? flags | ProgramFile.TEST_FILE_FLAG : flags;
         dataOutStream.writeByte(flags);
     }
 

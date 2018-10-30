@@ -43,6 +43,9 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     // Entry point flags
     public static final int EP_MAIN_FLAG = 1;
     public static final int EP_SERVICE_FLAG = 2;
+    public static final int TEST_COVERAGE_FLAG = 4;
+
+    private int flags;
 
     private int magicValue = MAGIC_NUMBER;
     // TODO Finalize the version number;
@@ -86,6 +89,14 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public void setServiceEPAvailable(boolean servicesAvailable) {
         this.servicesAvailable = servicesAvailable;
+    }
+
+    public int getFlags() {
+        return flags;
+    }
+
+    public void setFlags(int flags) {
+        this.flags = flags;
     }
 
     // CP

@@ -177,6 +177,9 @@ public class BTestRunner {
             if (compileResult.getErrorCount() > 0) {
                 throw new BLangCompilerException("compilation contains errors");
             }
+
+            //TODO: set test coverage flag on programFile than from the suite in runtime since balx should be self-containing
+
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
             Debugger debugger = new Debugger(programFile);
@@ -239,6 +242,9 @@ public class BTestRunner {
             if (suite.getTests().size() == 0) {
                 outStream.println("\tNo tests found\n");
                 return;
+            } else if(coverageFlag) {
+                //TODO: Add test coverage flag when compile time, since suite is generated with source it cannot be done for now
+                suite.getProgramFile().setFlags(suite.getProgramFile().getFlags() | ProgramFile.TEST_COVERAGE_FLAG);
             }
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
@@ -449,7 +455,6 @@ public class BTestRunner {
     }
 
     public void setCoverageFlag(boolean coverageFlag) {
-        System.setProperty("coverage.flag", Boolean.toString(coverageFlag));
         this.coverageFlag = coverageFlag;
     }
 }
