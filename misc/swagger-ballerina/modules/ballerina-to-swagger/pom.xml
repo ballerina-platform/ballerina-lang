@@ -60,7 +60,7 @@
     </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>language-server-compiler</artifactId>
+            <artifactId>language-server-core</artifactId>
         </dependency>
         <dependency>
         <groupId>org.ballerinalang</groupId>

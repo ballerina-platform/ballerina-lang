@@ -98,8 +98,9 @@ public class SnippetBlock {
             case KEYWORD:
                 return CompletionItemKind.Keyword;
             case SNIPPET:
-            case STATEMENT:
                 return CompletionItemKind.Snippet;
+            case STATEMENT:
+                return CompletionItemKind.Unit;
             default:
                 return CompletionItemKind.Snippet;
         }

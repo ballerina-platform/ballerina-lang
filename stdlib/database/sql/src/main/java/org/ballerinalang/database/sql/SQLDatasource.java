@@ -203,11 +203,7 @@ public class SQLDatasource implements BValue {
             }
             hikariDataSource = new HikariDataSource(config);
         } catch (Throwable t) {
-            String message = "error in sql connector configuration:" + t.getMessage();
-            if (t.getCause() != null) {
-                message += ":" + t.getCause().getMessage();
-            }
-            throw new BallerinaException(message);
+            throw new BallerinaException("error in sql connector configuration:" + t.getMessage());
         }
     }
 

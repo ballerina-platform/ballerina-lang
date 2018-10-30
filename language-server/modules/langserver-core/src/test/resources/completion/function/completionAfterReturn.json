@@ -60,14 +60,12 @@
     },
     {
       "label":"ballerina/http",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"http"
     },
     {
       "label":"ballerina/transactions",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"transactions",
@@ -89,7 +87,6 @@
     },
     {
       "label":"ballerina/websub",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"websub",
@@ -111,7 +108,6 @@
     },
     {
       "label":"ballerina/grpc",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"grpc",
@@ -133,7 +129,6 @@
     },
     {
       "label":"ballerina/reflect",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"reflect",
@@ -155,7 +150,6 @@
     },
     {
       "label":"ballerina/log",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"log",
@@ -177,7 +171,6 @@
     },
     {
       "label":"ballerina/time",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"time",
@@ -199,7 +192,6 @@
     },
     {
       "label":"ballerina/runtime",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"runtime",
@@ -221,7 +213,6 @@
     },
     {
       "label":"ballerina/swagger",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"swagger",
@@ -243,7 +234,6 @@
     },
     {
       "label":"ballerina/file",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"file",
@@ -265,7 +255,6 @@
     },
     {
       "label":"ballerina/sql",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"sql",
@@ -287,7 +276,6 @@
     },
     {
       "label":"ballerina/internal",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"internal",
@@ -309,7 +297,6 @@
     },
     {
       "label":"ballerina/mysql",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mysql",
@@ -331,7 +318,6 @@
     },
     {
       "label":"ballerina/mb",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mb",
@@ -353,7 +339,6 @@
     },
     {
       "label":"ballerina/mime",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mime",
@@ -375,7 +360,6 @@
     },
     {
       "label":"ballerina/task",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"task",
@@ -397,7 +381,6 @@
     },
     {
       "label":"ballerina/crypto",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"crypto",
@@ -419,7 +402,6 @@
     },
     {
       "label":"ballerina/io",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"io",
@@ -441,7 +423,6 @@
     },
     {
       "label":"ballerina/cache",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"cache",
@@ -463,7 +444,6 @@
     },
     {
       "label":"ballerina/auth",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"auth",
@@ -485,7 +465,6 @@
     },
     {
       "label":"ballerina/jms",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"jms",
@@ -506,8 +485,28 @@
       ]
     },
     {
+      "label":"ballerina/jdbc",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"jdbc",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":22
+            },
+            "end":{
+              "line":0,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/jdbc;\n"
+        }
+      ]
+    },
+    {
       "label":"ballerina/system",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"system",
@@ -529,7 +528,6 @@
     },
     {
       "label":"ballerina/h2",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"h2",
@@ -551,14 +549,12 @@
     },
     {
       "label":"ballerina/builtin",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"builtin"
     },
     {
       "label":"ballerina/math",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"math",
@@ -580,7 +576,6 @@
     },
     {
       "label":"ballerina/config",
-      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"config",
@@ -602,7 +597,6 @@
     },
     {
       "label":"check",
-      "kind":"Keyword",
       "detail":"Keyword",
       "sortText":"210",
       "insertText":"check ",
@@ -610,7 +604,6 @@
     },
     {
       "label":"but",
-      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"but {\n\t${1}\n};",
@@ -618,7 +611,6 @@
     },
     {
       "label":"lengthof",
-      "kind":"Keyword",
       "detail":"Keyword",
       "sortText":"210",
       "insertText":"lengthof ",

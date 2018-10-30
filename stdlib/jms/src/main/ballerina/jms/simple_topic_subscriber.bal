@@ -33,21 +33,21 @@ public type SimpleTopicSubscriber object {
     public function init(SimpleTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory: config.initialContextFactory,
-                providerUrl: config.providerUrl,
-                connectionFactoryName: config.connectionFactoryName,
-                properties: config.properties
+                initialContextFactory:config.initialContextFactory,
+                providerUrl:config.providerUrl,
+                connectionFactoryName:config.connectionFactoryName,
+                properties:config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode: config.acknowledgementMode
+                acknowledgementMode:config.acknowledgementMode
             });
         self.session = newSession;
 
         TopicSubscriber topicSubscriber = new;
         TopicSubscriberEndpointConfiguration consumerConfig = {
-            session: newSession,
+            session:newSession,
             topicPattern: c.topicPattern,
             messageSelector: c.messageSelector
         };
@@ -64,9 +64,7 @@ public type SimpleTopicSubscriber object {
                 c.register(serviceType);
             }
             () => {
-                string errorMessage = "Topic Subscriber cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
+                error e = error("Topic Subscriber cannot be nil");
                 panic e;
             }
         }
@@ -84,9 +82,7 @@ public type SimpleTopicSubscriber object {
         match (subscriber) {
             TopicSubscriber c => return c.getCallerActions();
             () => {
-                string errorMessage = "Topic Subscriber cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
+                error e = error("Topic subscriber cannot be nil");
                 panic e;
             }
         }
@@ -105,9 +101,7 @@ public type SimpleTopicSubscriber object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
+                error e = error("Session cannot be nil");
                 panic e;
             }
         }
@@ -121,9 +115,7 @@ public type SimpleTopicSubscriber object {
         match (session) {
             Session s => return s.createMapMessage(message);
             () => {
-                string errorMessage = "Session cannot be nil";
-                map errorDetail = { message: errorMessage };
-                error e = error(JMS_ERROR_CODE, errorDetail);
+                error e = error("Session cannot be nil");
                 panic e;
             }
         }

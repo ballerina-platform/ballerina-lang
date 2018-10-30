@@ -53,7 +53,7 @@ public class PipeliningHandler {
                                                            HttpCarbonMessage responseMsg) {
         HttpResponseFuture responseFuture;
         try {
-            responseMsg.setPipeliningEnabled(requestMsg.isPipeliningEnabled());
+            responseMsg.setPipeliningNeeded(requestMsg.isPipeliningNeeded());
             if (pipeliningRequired(requestMsg)) {
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(requestMsg, responseMsg);
                 setPipeliningListener(responseMsg);
@@ -122,7 +122,7 @@ public class PipeliningHandler {
      */
     public static boolean pipeliningRequired(HttpCarbonMessage request) {
         String httpVersion = (String) request.getProperty(Constants.HTTP_VERSION);
-        return request.isPipeliningEnabled() && request.isKeepAlive() &&
+        return request.isPipeliningNeeded() && request.isKeepAlive() &&
                 Constants.HTTP_1_1_VERSION.equalsIgnoreCase(httpVersion);
     }
 

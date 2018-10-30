@@ -41,7 +41,7 @@ public class SQLConnectorInitTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/jdbc/sql_connector_init_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
+        SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
 
     @Test
@@ -107,8 +107,7 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    // Cannot be applied to H2 client
-    @Test(enabled = false)
+    @Test
     public void testPropertiesGetUsedOnlyIfDataSourceGiven() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testPropertiesGetUsedOnlyIfDataSourceGiven");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
@@ -116,8 +115,8 @@ public class SQLConnectorInitTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Failed to initialize pool: Database "
-                  + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*")
+          expectedExceptionsMessageRegExp = ".*error in sql connector configuration:Failed to initialize pool: "
+                  + "Database does not exists: ./target/tempdb/NON_EXISTING_DB.*")
     public void testConnectionFailure() {
         BRunUtil.invokeFunction(result, "testConnectionFailure");
     }

@@ -21,21 +21,21 @@ import ballerina/log;
 service<http:WebSocketService> onTextString bind { port: 9080 } {
 
     onText(endpoint caller, string data, boolean final) {
-        check caller->pushText(data);
+        _ = caller->pushText(data);
     }
 }
 
 service<http:WebSocketService> onTextJSON bind { port: 9081 } {
 
     onText(endpoint caller, json data) {
-        check caller->pushText(data);
+        _ = caller->pushText(data);
     }
 }
 
 service<http:WebSocketService> onTextXML bind { port: 9082 } {
 
     onText(endpoint caller, xml data) {
-        check caller->pushText(data);
+        _ = caller->pushText(data);
     }
 }
 
@@ -47,13 +47,13 @@ type Person record {
 service<http:WebSocketService> onTextRecord bind { port: 9083 } {
 
     onText(endpoint caller, Person data) {
-        check caller->pushText(check <json>data);
+        _ = caller->pushText(check <json>data);
     }
 }
 
 service<http:WebSocketService> onTextByteArray bind { port: 9084 } {
 
     onText(endpoint caller, byte[] data) {
-        check caller->pushText(data);
+        _ = caller->pushText(data);
     }
 }

@@ -81,14 +81,14 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
         trueItem.setLabel(ItemResolverConstants.TRUE_KEYWORD);
         trueItem.setInsertText(ItemResolverConstants.TRUE_KEYWORD);
         trueItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-        trueItem.setKind(CompletionItemKind.Value);
+        trueItem.setKind(CompletionItemKind.Keyword);
         completionItems.add(trueItem);
 
         CompletionItem falseItem = new CompletionItem();
         falseItem.setLabel(ItemResolverConstants.FALSE_KEYWORD);
         falseItem.setInsertText(ItemResolverConstants.FALSE_KEYWORD);
         falseItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-        trueItem.setKind(CompletionItemKind.Value);
+        trueItem.setKind(CompletionItemKind.Keyword);
         completionItems.add(falseItem);
     }
 }

@@ -22,14 +22,12 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +72,7 @@ public class Accept implements NativeCallableUnit {
             } catch (Throwable e) {
                 String msg = "Failed to open a client connection: " + e.getMessage();
                 log.error(msg, e);
-                BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
-                context.setReturnValues(errorStruct);
+                context.setReturnValues(IOUtils.createError(context, msg));
             }
         } else {
             if (log.isDebugEnabled()) {

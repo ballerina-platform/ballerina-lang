@@ -32,7 +32,7 @@ service<http:Service> UpgradeWithoutHandshake bind { port: 9079 } {
 service<http:WebSocketService> upgradeService {
 
     onOpen(endpoint caller) {
-        check caller->pushText("Handshake check");
+        _ = caller->pushText("Handshake check");
     }
 }
 

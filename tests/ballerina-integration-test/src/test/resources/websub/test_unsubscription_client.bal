@@ -40,8 +40,7 @@ public function main(string... args) {
                     + "] for Topic [" + subscriptionChangeResponse.topic + "]");
         }
         error e => {
-            string errCause = <string> e.detail().message;
-            io:println("Error occurred with Unsubscription Request: ", errCause);
+            io:println("Error occurred with Unsubscription Request: ", e);
         }
     }
 

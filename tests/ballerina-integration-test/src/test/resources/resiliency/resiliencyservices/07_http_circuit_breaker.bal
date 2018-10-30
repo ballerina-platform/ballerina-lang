@@ -65,8 +65,7 @@ service<http:Service> circuitbreaker00 bind circuitBreakerEP00 {
             error responseError => {
                 http:Response response = new;
                 response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                string errCause = <string> responseError.detail().message;
-                response.setPayload(errCause);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };

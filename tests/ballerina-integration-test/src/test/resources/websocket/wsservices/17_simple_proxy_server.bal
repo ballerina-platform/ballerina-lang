@@ -33,22 +33,30 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
         };
         wsEp.attributes[ASSOCIATED_CONNECTION5] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION5] = wsEp;
-        check wsClientEp->ready();
+        wsClientEp->ready() but {
+            error e => log:printError("Ready failed ", err = e)
+        };
     }
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        check clientEp->pushText(text);
+        clientEp->pushText(text) but {
+            error e => log:printError("server text error", err = e)
+        };
     }
 
     onBinary(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        check clientEp->pushBinary(data);
+        clientEp->pushBinary(data) but {
+            error e => log:printError("server binary error", err = e)
+        };
     }
 
     onClose(endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        check clientEp->close(statusCode = statusCode, reason = reason);
+        clientEp->close(statusCode = statusCode, reason = reason) but {
+            error e => log:printError("server closing error", err = e)
+        };
     }
 
 }
@@ -56,17 +64,23 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
 service<http:WebSocketClientService> clientCallbackService9 {
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        check serviceEp->pushText(text);
+        serviceEp->pushText(text) but {
+            error e => log:printError("client text error", err = e)
+        };
     }
 
     onBinary(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        check serviceEp->pushBinary(data);
+        serviceEp->pushBinary(data) but {
+            error e => log:printError("client binary error", err = e)
+        };
     }
 
     onClose(endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        check serviceEp->close(statusCode = statusCode, reason = reason);
+        serviceEp->close(statusCode = statusCode, reason = reason) but {
+            error e => log:printError("client closing error", err = e)
+        };
     }
 }
 

@@ -27,22 +27,28 @@ public type WebSocketConnector object {
     # + return  - `error` if an error occurs when sending
     public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
         string text;
-        if (data is byte) {
-            text = <string>(<int>data);
-        } else if (data is int) {
-            text = <string>data;
-        } else if (data is float) {
-            text = <string>data;
-        } else if (data is boolean) {
-            text = <string>data;
-        } else if (data is string) {
-            text = <string>data;
-        } else if (data is xml) {
-            text = <string>data;
-        } else if (data is byte[]) {
-            text = internal:byteArrayToString(data, "UTF-8");
-        } else if (data is json) {
-            text = data.toString();
+        match data {
+            byte byteContent => {
+                text = <string>(<int>byteContent);
+            }
+            int integerContent => {
+                text = <string>integerContent;
+            }
+            float floatContent => {
+                text = <string>floatContent;
+            }
+            byte[] byteArrayContent => {
+                text = internal:byteArrayToString(byteArrayContent, "UTF-8");
+            }
+            string textContent => {
+                text = textContent;
+            }
+            xml xmlContent => {
+                text = <string>xmlContent;
+            }
+            json jsonContent => {
+                text = jsonContent.toString();
+            }
         }
         return externPushText(text, final);
     }
@@ -79,15 +85,15 @@ public type WebSocketConnector object {
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
     public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns error? {
-        if (statusCode is int) {
-            if (statusCode <= 999 || statusCode >= 1004 && statusCode <= 1006 || statusCode >= 1012 &&
-                statusCode <= 2999 || statusCode > 4999) {
-                error err = error("Failed to execute close. Invalid status code: " + statusCode);
-                return err;
+        match statusCode {
+            int code => {
+                if (code <= 999 || code >= 1004 && code <= 1006 || code >= 1012 && code <= 2999 || code > 4999) {
+                    error err = error("Failed to execute close. Invalid status code: " + code);
+                    return err;
+                }
+                return externClose(code, reason ?: "", timeoutInSecs);
             }
-            return externClose(statusCode, reason ?: "", timeoutInSecs);
-        } else {
-            return externClose(-1, "", timeoutInSecs);
+            () => return externClose(-1, "", timeoutInSecs);
         }
     }
 

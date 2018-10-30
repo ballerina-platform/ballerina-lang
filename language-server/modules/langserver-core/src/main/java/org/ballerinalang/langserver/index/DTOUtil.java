@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.index;
 
 import com.google.gson.Gson;
-import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
+import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
 import org.ballerinalang.langserver.index.dataholder.BLangPackageContent;
 import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
@@ -85,7 +85,7 @@ public class DTOUtil {
                     default:
                         break;
                 }
-            } else if (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol)) {
+            } else if (symbol instanceof BTypeSymbol) {
                 otherTypes.add((BTypeSymbol) symbol);
             }
         });
@@ -117,7 +117,7 @@ public class DTOUtil {
      * @return {@link BFunctionSymbolDTO}     Generated DTO
      */
     public static BFunctionSymbolDTO getFunctionDTO(int pkgId, int objectId, BInvokableSymbol bInvokableSymbol) {
-        CompletionItem completionItem = BFunctionCompletionItemBuilder.build(bInvokableSymbol);
+        CompletionItem completionItem = BInvokableSymbolUtil.getFunctionCompletionItem(bInvokableSymbol);
         boolean isPrivate = !((bInvokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
         boolean isAttached = (bInvokableSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
         return new BFunctionSymbolDTO.BFunctionDTOBuilder()
@@ -142,7 +142,7 @@ public class DTOUtil {
         CompletionItem completionItem = null;
         boolean isPrivate = !((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
         if (type == ObjectType.OBJECT) {
-            completionItem = BTypeCompletionItemBuilder.build(symbol, symbol.getName().getValue());
+            completionItem = BPackageSymbolUtil.getBTypeCompletionItem(symbol.getName().getValue());
         }
         
         return new BObjectTypeSymbolDTO.BObjectTypeSymbolDTOBuilder()
@@ -162,7 +162,7 @@ public class DTOUtil {
      * @return {@link BRecordTypeSymbolDTO}     Generated DTO
      */
     public static BRecordTypeSymbolDTO getRecordTypeSymbolDTO(int pkgId, BRecordTypeSymbol symbol) {
-        CompletionItem completionItem = BTypeCompletionItemBuilder.build(symbol, symbol.getName().getValue());
+        CompletionItem completionItem = BPackageSymbolUtil.getBTypeCompletionItem(symbol.getName().getValue());
         boolean isPrivate = !((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
         
         return new BRecordTypeSymbolDTO.BRecordTypeSymbolDTOBuilder()
@@ -180,7 +180,7 @@ public class DTOUtil {
      * @return {@link BRecordTypeSymbolDTO}     Generated DTO
      */
     public static OtherTypeSymbolDTO getOtherTypeSymbolDTO(int pkgId, BTypeSymbol symbol) {
-        CompletionItem completionItem = BTypeCompletionItemBuilder.build(symbol, symbol.getName().getValue());
+        CompletionItem completionItem = BPackageSymbolUtil.getBTypeCompletionItem(symbol.getName().getValue());
         
         return new OtherTypeSymbolDTO.OtherTypeSymbolDTOBuilder()
                 .setPackageId(pkgId)

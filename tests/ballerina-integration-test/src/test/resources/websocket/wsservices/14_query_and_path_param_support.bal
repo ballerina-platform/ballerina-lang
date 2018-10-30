@@ -50,7 +50,9 @@ service<http:WebSocketService> simpleProxy6 {
             string query2 = <string>wsEp.attributes[QUERY2];
 
             string msg = string `path-params: {{path1}}, {{path2}}; query-params: {{query1}}, {{query2}}`;
-            check wsEp->pushText(msg);
+            wsEp->pushText(msg) but {
+                error e => log:printError("Error sending message. ", err = e)
+            };
         }
     }
 }

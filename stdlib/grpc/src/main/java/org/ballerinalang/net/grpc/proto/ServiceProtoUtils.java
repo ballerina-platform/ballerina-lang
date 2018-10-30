@@ -73,11 +73,9 @@ import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
-import static org.ballerinalang.net.grpc.GrpcConstants.BYTE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_FLOAT_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT64_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
@@ -474,10 +472,6 @@ public class ServiceProtoUtils {
                 message = WrapperMessage.newBuilder(WRAPPER_BOOL_MESSAGE).build();
                 break;
             }
-            case ARRAY: {
-                message = WrapperMessage.newBuilder(WRAPPER_BYTES_MESSAGE).build();
-                break;
-            }
             case OBJECT:
             case RECORD: {
                 if (messageType instanceof org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType) {
@@ -518,9 +512,7 @@ public class ServiceProtoUtils {
                     messageBuilder.addMessageDefinition(getStructMessage((BStructureType) elementType));
                 }
                 fieldType = elementType;
-                if (!fieldType.toString().equals(BYTE)) {
-                    fieldLabel = "repeated";
-                }
+                fieldLabel = "repeated";
             } else if (fieldType instanceof FiniteType) {
                 UserDefinedEnumMessage.Builder enumBuilder = UserDefinedEnumMessage
                         .newBuilder(fieldType.tsymbol.name.value);

@@ -133,11 +133,35 @@
                                                     </a>
                                                 </li>
                                             {{/exists}}
+                                            {{#exists constructs "type"}}
+                                                <li>
+                                                    <a href="#TypeDefinitions">
+                                                        <div class="construct-icon">
+                                                            <span class="fw-type"> </span>
+                                                        </div>
+                                                        <div class="construct-name">
+                                                            Type Definitions
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            {{/exists}}
+                                            {{#exists constructs "annotation"}}
+                                                <li>
+                                                    <a href="#Annotations">
+                                                        <div class="construct-icon">
+                                                            <span class="fw-annotation"> </span>
+                                                        </div>
+                                                        <div class="construct-name">
+                                                            Annotations
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            {{/exists}}
                                             {{#exists constructs "record"}}
                                                 <li>
                                                     <a href="#RecordsSummary">
                                                         <div class="construct-icon">
-                                                            <span class="fw-record"> </span>
+                                                            <span class="fw-struct"> </span>
                                                         </div>
                                                         <div class="construct-name">
                                                             Records
@@ -181,18 +205,6 @@
                                                     </a>
                                                 </li>
                                             {{/exists}}
-                                            {{#exists constructs "type"}}
-                                                <li>
-                                                    <a href="#TypeDefinitions">
-                                                        <div class="construct-icon">
-                                                            <span class="fw-type"> </span>
-                                                        </div>
-                                                        <div class="construct-name">
-                                                            Type Definitions
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            {{/exists}}
                                             {{#exists constructs "globalvar"}}
                                                 <li>
                                                     <a href="#GlobalVariables">
@@ -203,21 +215,8 @@
                                                             Global Variables
                                                         </div>
                                                     </a>
-                                            </li>
-                                            {{/exists}}
-                                            {{#exists constructs "annotation"}}
-                                                <li>
-                                                    <a href="#Annotations">
-                                                        <div class="construct-icon">
-                                                            <span class="fw-annotation"> </span>
-                                                        </div>
-                                                        <div class="construct-name">
-                                                            Annotations
-                                                        </div>
-                                                    </a>
                                                 </li>
                                             {{/exists}}
-
                                             {{#each constructs}}
                                                 {{#unless isGlobalVariable}} {{#unless isType}} {{#unless isAnnotation}}
                                                     <li>
@@ -226,7 +225,7 @@
                                                                 <span class="{{icon}}"> </span>
                                                             </div>
                                                             <div class="construct-name">
-                                                                {{name}}
+                                                                {{name}} {{#if isConnector}} ({{#each fields}}<a href="{{href}}">{{dataType}}</a> {{name}}{{#unless @last}} ,{{/unless}}{{/each}}) {{/if}}
                                                             </div>
                                                         </a>
                                                     </li>

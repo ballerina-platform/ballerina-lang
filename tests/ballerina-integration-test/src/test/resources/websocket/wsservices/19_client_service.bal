@@ -28,7 +28,7 @@ service<http:WebSocketService> clientFailure200 bind { port: 9200 } {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL200
         };
-        check wsEp->pushText("Client worked");
+        _ = wsEp->pushText("Client worked");
     }
 
     onText(endpoint caller, string text) {
@@ -36,7 +36,7 @@ service<http:WebSocketService> clientFailure200 bind { port: 9200 } {
             url: REMOTE_BACKEND_URL200,
             callbackService: ClientService200
         };
-        check caller->pushText("Client worked");
+        _ = caller->pushText("Client worked");
     }
 
     onBinary(endpoint caller, byte[] data) {
