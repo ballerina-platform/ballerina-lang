@@ -27,4 +27,14 @@ public type CallerAction object {
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
     public extern function close() returns error?;
+
+    # Shutdown the furhter read from socket.
+    #
+    # + return - an error if encounters an error while shutdown the read from socket or returns nil otherwise
+    public extern function shutdownRead() returns error?;
+
+    # Shutdown the furhter write from socket.
+    #
+    # + return - an error if encounters an error while shutdown the write from socket or returns nil otherwise
+    public extern function shutdownWrite() returns error?;
 };
