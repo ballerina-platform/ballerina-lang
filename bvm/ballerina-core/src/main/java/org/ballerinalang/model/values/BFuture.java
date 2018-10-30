@@ -18,7 +18,6 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.model.types.BType;
 
 /**
  * Ballerina base value for the "future" type.
@@ -46,9 +45,5 @@ public interface BFuture extends BRefType<WorkerResponseContext> {
      * @return true if its cancelled, or else, false
      */
     boolean isCancelled();
-
-    @Override
-    default void seal(BType type) {
-
-    }
+    
 }

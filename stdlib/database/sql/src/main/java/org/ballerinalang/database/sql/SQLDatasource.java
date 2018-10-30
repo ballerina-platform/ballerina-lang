@@ -421,11 +421,6 @@ public class SQLDatasource implements BValue {
     }
 
     @Override
-    public void seal(BType type) {
-
-    }
-
-    @Override
     public BValue copy() {
         return null;
     }

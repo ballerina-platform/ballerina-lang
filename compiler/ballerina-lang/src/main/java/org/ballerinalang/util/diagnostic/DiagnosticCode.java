@@ -307,8 +307,6 @@ public enum DiagnosticCode {
     
     INCOMPATIBLE_TYPE_CHECK("incompatible.type.check"),
     UNNECESSARY_CONDITION("unnecessary.condition"),
-
-    INCOMPATIBLE_SEAL_TYPE("incompatible.seal.type"),
     ;
 
     private String value;

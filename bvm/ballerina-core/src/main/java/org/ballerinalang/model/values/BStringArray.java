@@ -74,11 +74,6 @@ public class BStringArray extends BNewArray {
     }
 
     @Override
-    public void seal(BType type) {
-
-    }
-
-    @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
     }

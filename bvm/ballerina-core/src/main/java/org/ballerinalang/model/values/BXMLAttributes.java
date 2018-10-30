@@ -31,7 +31,7 @@ public final class BXMLAttributes implements BRefType {
 
     /**
      * Create attribute map with an XML.
-     *
+     * 
      * @param value XML associated with this attributes
      */
     public BXMLAttributes(BXML value) {
@@ -46,11 +46,6 @@ public final class BXMLAttributes implements BRefType {
     @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
-    }
-
-    @Override
-    public void seal(BType type) {
-
     }
 
     @Override

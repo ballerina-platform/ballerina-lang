@@ -50,11 +50,6 @@ public class BClosure implements BValue {
     }
 
     @Override
-    public void seal(BType type) {
-
-    }
-
-    @Override
     public BValue copy() {
         return new BClosure(value, type);
     }
