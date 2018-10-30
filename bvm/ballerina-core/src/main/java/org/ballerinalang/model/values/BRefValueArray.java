@@ -93,6 +93,17 @@ public class BRefValueArray extends BNewArray implements Serializable {
     }
 
     @Override
+    public void seal(BType type) {
+        BType arrayElementType = ((BArrayType) type).getElementType();
+        BRefType<?>[] arrayValues = this.getValues();
+        for (int i = 0; i < this.size(); i++) {
+            arrayValues[i].seal(arrayElementType);
+        }
+        this.arrayType = type;
+    }
+
+
+    @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
     }
@@ -134,7 +145,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
     public BRefType<?>[] getValues() {
         return values;
     }
-    
+
     @Override
     public String toString() {
         return stringValue();

@@ -172,7 +172,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-    
+
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
         if (typeChecker == null) {
@@ -436,7 +436,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // required fields missing.
         if (recordLiteral.type.tag == TypeTags.RECORD) {
             checkMissingRequiredFields((BRecordType) recordLiteral.type, recordLiteral.keyValuePairs,
-                                       recordLiteral.pos);
+                    recordLiteral.pos);
         }
     }
 
@@ -731,7 +731,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If this is on lhs, no need to do type checking further. And null/error
         // will not propagate from parent expressions
-        if (indexBasedAccessExpr.lhsVar) { 
+        if (indexBasedAccessExpr.lhsVar) {
             indexBasedAccessExpr.originalType = actualType;
             indexBasedAccessExpr.type = actualType;
             resultType = actualType;
@@ -1707,13 +1707,13 @@ public class TypeChecker extends BLangNodeVisitor {
             if (structType.tag == TypeTags.RECORD) {
                 if (funcSymbol == symTable.notFoundSymbol) {
                     dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, iExpr.name.value,
-                               structType.getKind().typeName(), structType.tsymbol);
+                            structType.getKind().typeName(), structType.tsymbol);
                     resultType = symTable.semanticError;
                     return;
                 }
                 if (funcSymbol.type.tag != TypeTags.INVOKABLE) {
                     dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_POINTER_INVOCATION, iExpr.name.value,
-                               structType);
+                            structType);
                     resultType = symTable.semanticError;
                     return;
                 }
@@ -2350,7 +2350,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 actualType = symTable.xmlType;
                 break;
-        case TypeTags.SEMANTIC_ERROR:
+            case TypeTags.SEMANTIC_ERROR:
                 // Do nothing
                 break;
             default:
@@ -2533,10 +2533,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     /**
      * Returns the type guards included in a given expression.
-     * 
+     *
      * @param expr Expression to get type guards
      * @return A map of type guards, with the original variable symbol as keys
-     *         and their guarded type.
+     * and their guarded type.
      */
     Map<BVarSymbol, BType> getTypeGuards(BLangExpression expr) {
         Map<BVarSymbol, BType> typeGuards = new HashMap<>();
@@ -2577,5 +2577,25 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
         return typeGuards;
+    }
+
+    /**
+     * Returns the eligibility to use 'seal' inbuilt function against the respective expression.
+     *
+     * @param iExpr expression that 'seal' function is used
+     * @return eligibility to use 'seal' funtion
+     */
+    private boolean canHaveSealInvocation(int iExpr) {
+        switch (iExpr) {
+            case TypeTags.ARRAY:
+                return true;
+            case TypeTags.MAP:
+                return true;
+            case TypeTags.RECORD:
+                return true;
+            case TypeTags.OBJECT:
+                return true;
+        }
+        return false;
     }
 }
