@@ -1,5 +1,7 @@
-# Start Ballerina message broker by executing either the 'broker' or the 'broker.bat' command.
-$ broker
+# Download Ballerina message broker from [here](https://github.com/ballerina-platform/ballerina-message-broker/releases/download/v0.970.5/message-broker-0.970.5.zip)
+# Extract the zip file and navigate to <BROKER_HOME>/bin
+# Start Ballerina message broker by executing either the `broker` or the `broker.bat` command.
+$ ./broker
 
 # At the command line, navigate to the directory that contains the
 # `transactional_queue_message_producer.bal` file and run the `ballerina run` command.
