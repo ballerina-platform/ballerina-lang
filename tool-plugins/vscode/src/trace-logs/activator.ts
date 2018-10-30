@@ -29,20 +29,20 @@ let traces: Array<object> = [];
 let status: StatusBarItem | undefined;
 
 function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
+
     if (traceLogsPanel) {
-        traceLogsPanel.reveal(undefined, true);
-    } else {
-        // Create and show a new webview
-        traceLogsPanel = window.createWebviewPanel(
-            'ballerinaNetworkLogs',
-            "Ballerina Network logs",
-            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: false,
-            }
-        );
+        traceLogsPanel.dispose();
     }
+    // Create and show a new webview
+    traceLogsPanel = window.createWebviewPanel(
+        'ballerinaNetworkLogs',
+        "Ballerina Network logs",
+        { viewColumn: ViewColumn.Two, preserveFocus: true } ,
+        {
+            enableScripts: true,
+            retainContextWhenHidden: false,
+        }
+    );
 
     const html = render(context, langClient);
     if (traceLogsPanel && html) {
@@ -106,6 +106,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
 
     traceLogsPanel.onDidDispose(() => {
         traceDetailsPanel!.dispose();
+        traceLogsPanel = undefined;
 	});
 }
 
@@ -118,41 +119,26 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     context.subscriptions.push(status);
     updateStatus();
 
-    const examplesListRenderer = commands.registerCommand('ballerina.showTraces', () => {
+    const traceRenderer = commands.registerCommand('ballerina.showTraces', () => {
         ballerinaExtInstance.onReady()
         .then(() => {
-            const { experimental } = langClient.initializeResult!.capabilities;
-            const serverProvidesExamples = experimental && experimental.examplesProvider;
-
-            if (!serverProvidesExamples) {
-                ballerinaExtInstance.showMessageServerMissingCapability();
-                return;
-            }
-
             showTraces(context, langClient);
+            langClient.onNotification('window/traceLogs', (trace: Object) => {
+                addNewTrace(trace);
+                updateStatus();
+                if (traceLogsPanel && traceLogsPanel.webview) {
+                    traceLogsPanel.webview.postMessage({
+                        command: 'updateTraces',
+                    });
+                }
+            });
         })
 		.catch((e) => {
-			if (!ballerinaExtInstance.isValidBallerinaHome()) {
-				ballerinaExtInstance.showMessageInvalidBallerinaHome();
-			} else {
-				ballerinaExtInstance.showPluginActivationError();
-			}
+            window.showErrorMessage('Could not start network logs feature',e.message);
 		});
     });
-
-    ballerinaExtInstance.onReady().then(()=>{
-        langClient.onNotification('window/traceLogs', (trace: Object) => {
-            addNewTrace(trace);
-            updateStatus();
-            if (traceLogsPanel && traceLogsPanel.webview) {
-                traceLogsPanel.webview.postMessage({
-                    command: 'updateTraces',
-                });
-            }
-        });
-    });
     
-    context.subscriptions.push(examplesListRenderer);
+    context.subscriptions.push(traceRenderer);
 }
 
 function addNewTrace(trace: any) {
