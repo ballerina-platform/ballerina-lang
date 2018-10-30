@@ -20,14 +20,23 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.983.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>0.982.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>composer-library</artifactId>
+    <artifactId>composer-integration-tests</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina - Composer Library</name>
+    <name>Ballerina - Composer Integration Tests</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-tools</artifactId>
+            <type>zip</type>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -41,15 +50,14 @@
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>compile</phase>
+                        <phase>test</phase>
                         <configuration>
-                            <skip>${skipClientSideBuild}</skip>
+                            <skip>${maven.test.skip}</skip>
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
-                                <argument>build</argument>
+                                <argument>test</argument>
                                 <argument>--</argument>
-                                <argument>--skipTest=${maven.test.skip}</argument>
                                 <argument>--projectVersion=${project.version}</argument>
                             </arguments>
                         </configuration>
@@ -72,9 +80,6 @@
                                 <condition property="npm.executable" value="npm.cmd" else="npm">
                                     <os family="windows" />
                                 </condition>
-                                <condition property="maven.test.skip" value="${maven.test.skip}" else="false">
-                                    <isset property="maven.test.skip" />
-                                </condition>
                             </target>
                             <exportAntProperties>true</exportAntProperties>
                         </configuration>
@@ -83,35 +88,25 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.2</version>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>library-dist</id>
-                        <phase>package</phase>
+                        <id>unpack-dependencies</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>attached</goal>
+                            <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <descriptors>
-                                <descriptor>${basedir}/assembly/distribution.xml</descriptor>
-                            </descriptors>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
+                            <includeArtifactIds>
+                                ballerina-tools
+                            </includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/extracted-distributions
+                            </outputDirectory>
+                            <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <antlr.maven.plugin.version>4.5.1</antlr.maven.plugin.version>
-        <maven.checkstyleplugin.excludes>**/parser/*,**/${native.constructs.provider.class}.java</maven.checkstyleplugin.excludes>
-        <!-- Maven plugins -->
-        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
-        <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
-        <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
-    </properties>
-
 </project>
