@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.WorkerSendExpressionNode;
+import org.ballerinalang.model.tree.expressions.WorkerSendSyncExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -28,15 +28,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * @since 0.983.0
  */
-public class BLangWorkerSendExpr extends BLangExpression implements WorkerSendExpressionNode {
+public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSendSyncExpressionNode {
 
-    public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
+    public BLangExpression expr;
+    public BLangExpression keyExpr;
     public boolean isForkJoinSend;
     public SymbolEnv env;
-    public BLangExpression keyExpr;
     public boolean isChannel = false;
-    public boolean async = false;
 
     @Override
     public NodeKind getKind() {
@@ -68,25 +67,16 @@ public class BLangWorkerSendExpr extends BLangExpression implements WorkerSendEx
         this.workerIdentifier = (BLangIdentifier) identifierNode;
     }
 
-    @Override
-    public boolean isAsync() {
-        return async;
-    }
-
     public String toActionString() {
         if (keyExpr != null) {
-            return this.expr + toArrowDirString() + this.workerIdentifier + "," +  this.keyExpr;
+            return this.expr + " ->> " + this.workerIdentifier + "," + this.keyExpr;
         }
-        return this.expr + toArrowDirString() + this.workerIdentifier;
-    }
-
-    public String toArrowDirString() {
-        return async ? " -> " : "->>";
+        return this.expr + " ->> " + this.workerIdentifier;
     }
 
     @Override
     public String toString() {
-        return "BLangWorkerSend: " + this.toActionString();
+        return "BLangWorkerSyncSend: " + this.toActionString();
     }
 
     @Override
