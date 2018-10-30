@@ -20,15 +20,13 @@ package org.ballerinalang.stdlib.socket.tcp;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
@@ -41,7 +39,6 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_ADDRESS;
 import static org.ballerinalang.stdlib.socket.SocketConstants.REMOTE_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Represents the util functions of Socket operations.
@@ -51,14 +48,12 @@ public class SocketUtils {
     /**
      * Returns the error struct for the corresponding message.
      *
-     * @param context context of the extern function.
-     * @param message error message.
-     * @return error message struct.
+     * @param context context of the extern function
+     * @param message error message
+     * @return error
      */
-    public static BMap<String, BValue> createError(Context context, String message) {
-        PackageInfo builtInPkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
-        StructureTypeInfo error = builtInPkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
-        return BLangVMStructs.createBStruct(error, message);
+    public static BError createError(Context context, String message) {
+        return BLangVMErrors.createError(context, false, message);
     }
 
     /**

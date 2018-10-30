@@ -138,7 +138,6 @@ public class SelectorManager {
                 }
             } catch (Throwable e) {
                 log.error("An error occurred in selector loop: " + e.getMessage(), e);
-                e.printStackTrace();
             }
         }
     }

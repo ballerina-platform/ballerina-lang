@@ -28,11 +28,11 @@ public class SocketConstants {
     public static final String SERVER_SOCKET_KEY = "ServerSocket";
     public static final String SOCKET_KEY = "Socket";
     public static final String SOCKET_PACKAGE = "ballerina/socket";
-    public static final String LISTENER_RESOURCE_ON_ACCEPT = "onAccept";
-    public static final String LISTENER_RESOURCE_ON_CONNECT = "onConnect";
-    public static final String LISTENER_RESOURCE_ON_READ_READY = "onReadReady";
-    public static final String LISTENER_RESOURCE_ON_ERROR = "onError";
-    public static final String LISTENER_RESOURCE_ON_CLOSE = "onClose";
+    public static final String RESOURCE_ON_ACCEPT = "onAccept";
+    public static final String RESOURCE_ON_CONNECT = "onConnect";
+    public static final String RESOURCE_ON_READ_READY = "onReadReady";
+    public static final String RESOURCE_ON_ERROR = "onError";
+    public static final String RESOURCE_ON_CLOSE = "onClose";
     public static final String CALLER_ACTION = "CallerAction";
     public static final String CONFIG_FIELD_INTERFACE = "interface";
     public static final String CONFIG_FIELD_HOST = "host";

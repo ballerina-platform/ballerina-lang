@@ -42,19 +42,21 @@ import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ACCEPT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CLOSE;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_ERROR;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_READ_READY;
+import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ACCEPT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CLOSE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CONNECT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ERROR;
+import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_READ_READY;
 import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 
 /**
- * Compiler plugin for validating Socket listener.
+ * Compiler plugin for validating Socket services.
  *
  * @since 0.983.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Listener")}
+        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Listener"),
+                 @SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Client")}
 )
 public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -99,16 +101,17 @@ public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
 
     public void validate(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
         switch (resource.getName().getValue()) {
-            case LISTENER_RESOURCE_ON_ACCEPT:
+            case RESOURCE_ON_CONNECT:
+            case RESOURCE_ON_ACCEPT:
                 validateOnAccept(serviceName, resource, diagnosticLog);
                 break;
-            case LISTENER_RESOURCE_ON_READ_READY:
+            case RESOURCE_ON_READ_READY:
                 validateOnReadReady(serviceName, resource, diagnosticLog);
                 break;
-            case LISTENER_RESOURCE_ON_CLOSE:
+            case RESOURCE_ON_CLOSE:
                 validateOnClose(serviceName, resource, diagnosticLog);
                 break;
-            case LISTENER_RESOURCE_ON_ERROR:
+            case RESOURCE_ON_ERROR:
                 validateOnError(serviceName, resource, diagnosticLog);
                 break;
             default:
@@ -155,7 +158,7 @@ public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
         if (ARRAY.equals(content.getKind()) && content instanceof BArrayType) {
             if (!"byte".equals(((BArrayType) content).eType.tsymbol.toString())) {
                 String msg = String
-                        .format("Invalid resource signature for %s in service %s. Third parameter should be a byte[]",
+                        .format("Invalid resource signature for %s in service %s. Second parameter should be a byte[]",
                                 resource.getName().getValue(), serviceName);
                 diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             }
@@ -183,7 +186,8 @@ public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
 
     private void validateEndpointCaller(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog,
             BStructureType event) {
-        if (!"ballerina/socket:Listener".equals(event.tsymbol.toString())) {
+        String eventType = event.tsymbol.toString();
+        if (!("ballerina/socket:Listener".equals(eventType) || "ballerina/socket:Client".equals(eventType))) {
             String msg = String.format("Invalid resource signature for %s in service %s. "
                     + "The parameter should be an 'endpoint'", resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);

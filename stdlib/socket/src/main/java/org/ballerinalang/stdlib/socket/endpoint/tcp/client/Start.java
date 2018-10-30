@@ -47,7 +47,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT_CONFIG;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_RESOURCE_ON_CONNECT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CONNECT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
@@ -84,7 +84,7 @@ public class Start extends BlockingNativeCallableUnit {
             if (socketService.getResources() != null) {
                 selectorManager.registerChannel(socketService, OP_READ);
                 selectorManager.start();
-                final Resource onConnect = socketService.getResources().get(LISTENER_RESOURCE_ON_CONNECT);
+                final Resource onConnect = socketService.getResources().get(RESOURCE_ON_CONNECT);
                 final BMap<String, BValue> callerAction = SocketUtils
                         .createCallerAction(context.getProgramFile(), channel);
                 Executor.submit(onConnect, new TCPSocketCallableUnitCallback(), null, null, callerAction);
