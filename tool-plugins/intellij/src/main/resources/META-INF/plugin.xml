@@ -170,6 +170,9 @@
         <editorNotificationProvider
                 implementation="io.ballerina.plugins.idea.inspections.WrongSdkConfigurationNotificationProvider"/>
 
+        <editorNotificationProvider
+                implementation="io.ballerina.plugins.idea.inspections.VersionMismatchNotificationProvider"/>
+
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="io.ballerina.plugins.idea.BallerinaModuleType"/>
         <moduleConfigurationEditorProvider
