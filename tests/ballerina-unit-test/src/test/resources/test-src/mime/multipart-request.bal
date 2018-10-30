@@ -20,23 +20,19 @@ service<http:Service> test bind mockEP {
     }
     multipart1 (endpoint caller, http:Request request) {
         http:Response response = new;
-        match request.getBodyParts() {
-            error err => {
-                setErrorResponse(response, err);
-            }
-            mime:Entity[] bodyParts => {
-                match bodyParts[0].getText() {
-                    error err => {
-                         setErrorResponse(response, err);
-                    }
-                    string textPayload => {
-                            mime:Entity entity = new;
-                            entity.setText(untaint textPayload);
-                            response.setEntity(entity);
-                    }
-                }
+        var bodyParts = request.getBodyParts();
+
+        if (bodyParts is mime:Entity[]) {
+            var result = bodyParts[0].getText();
+            if (result is string) {
+                mime:Entity entity = new;
+                entity.setText(untaint result);
+                response.setEntity(entity);
+            } else if (result is error) {
+                setErrorResponse(response, result);
             }
         }
+
         _ = caller -> respond(untaint response);
     }
 
@@ -46,17 +42,14 @@ service<http:Service> test bind mockEP {
     }
     multipart2 (endpoint caller, http:Request request) {
         http:Response response = new;
-        match request.getBodyParts() {
-            error err => {
-                setErrorResponse(response, err);
-            }
-            mime:Entity[] bodyParts => {
-                match bodyParts[0].getJson() {
-                    error err => {
-                        setErrorResponse(response, err);
-                    }
-                    json jsonContent => {response.setJsonPayload(untaint jsonContent);}
-                }
+        var bodyParts = request.getBodyParts();
+
+        if (bodyParts is mime:Entity[]) {
+            var result = bodyParts[0].getJson();
+            if (result is json) {
+                response.setJsonPayload(untaint result);
+            } else if (result is error) {
+                setErrorResponse(response, result);
             }
         }
         _ = caller -> respond(untaint response);
@@ -68,19 +61,16 @@ service<http:Service> test bind mockEP {
     }
     multipart3 (endpoint caller, http:Request request) {
         http:Response response = new;
-        match request.getBodyParts() {
-            error err => {
-                setErrorResponse(response, err);
+        var bodyParts = request.getBodyParts();
+
+        if (bodyParts is mime:Entity[]) {
+            var result = bodyParts[0].getXml();
+            if (result is xml) {
+                response.setXmlPayload(untaint result);
+            } else if (result is error) {
+                setErrorResponse(response, result);
             }
-            mime:Entity[] bodyParts => {
-               match bodyParts[0].getXml() {
-                    xml xmlContent => {response.setXmlPayload(untaint xmlContent);}
-                    error err => {
-                        setErrorResponse(response, err);
-                    }
-               }
-            }
-         }
+        }
          _ = caller -> respond(untaint response);
     }
 
@@ -90,17 +80,14 @@ service<http:Service> test bind mockEP {
     }
     multipart4 (endpoint caller, http:Request request) {
         http:Response response = new;
-        match request.getBodyParts() {
-            error err => {
-                setErrorResponse(response, err);
-            }
-            mime:Entity[] bodyParts => {
-            match bodyParts[0].getByteArray() {
-                  byte[] blobContent => {response.setBinaryPayload(untaint blobContent);}
-                  error err => {
-                        setErrorResponse(response, err);
-                  }
-                }
+        var bodyParts = request.getBodyParts();
+
+        if (bodyParts is mime:Entity[]) {
+            var result = bodyParts[0].getByteArray();
+            if (result is byte[]) {
+                response.setBinaryPayload(untaint result);
+            } else if (result is error) {
+                setErrorResponse(response, result);
             }
         }
         _ = caller -> respond(untaint response);
@@ -112,20 +99,33 @@ service<http:Service> test bind mockEP {
     }
     multipart5 (endpoint caller, http:Request request) {
         http:Response response = new;
-        match request.getBodyParts() {
-            error err => {
-                setErrorResponse(response, err);
+        //match request.getBodyParts() {
+        //    error err => {
+        //        setErrorResponse(response, err);
+        //    }
+        //    mime:Entity[] bodyParts => {
+        //        string content = "";
+        //        int i = 0;
+        //        while (i < lengthof bodyParts) {
+        //            mime:Entity part = bodyParts[i];
+        //            content = content + " -- " + handleContent(part);
+        //            i = i + 1;
+        //        }
+        //        response.setTextPayload(untaint content);
+        //    }
+        //}
+
+        var bodyParts = request.getBodyParts();
+
+        if (bodyParts is mime:Entity[]) {
+            string content = "";
+            int i = 0;
+            while (i < lengthof bodyParts) {
+                mime:Entity part = bodyParts[i];
+                content = content + " -- " + handleContent(part);
+                i = i + 1;
             }
-            mime:Entity[] bodyParts => {
-                string content = "";
-                int i = 0;
-                while (i < lengthof bodyParts) {
-                    mime:Entity part = bodyParts[i];
-                    content = content + " -- " + handleContent(part);
-                    i = i + 1;
-                }
-                response.setTextPayload(untaint content);
-            }
+            response.setTextPayload(untaint content);
         }
         _ = caller -> respond(untaint response);
     }
