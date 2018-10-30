@@ -79,7 +79,7 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
                 memberItem.setLabel(matchSnippet + entry.getKey());
                 memberItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
                 memberItem.setInsertText(entry.getValue());
-                memberItem.setKind(CompletionItemKind.Unit);
+                memberItem.setKind(CompletionItemKind.Snippet);
                 memberItem.setInsertTextFormat(InsertTextFormat.Snippet);
                 memberItem.setSortText(Priority.PRIORITY130.toString());
                 completionItems.add(memberItem);
@@ -89,7 +89,7 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
             allFillerItem.setInsertText(allFieldFiller);
             allFillerItem.setLabel(matchSnippet + bType.toString());
             allFillerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            allFillerItem.setKind(CompletionItemKind.Unit);
+            allFillerItem.setKind(CompletionItemKind.Snippet);
             allFillerItem.setInsertTextFormat(InsertTextFormat.Snippet);
             allFillerItem.setSortText(Priority.PRIORITY110.toString());
 
@@ -97,7 +97,7 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
             anyFillerItem.setInsertText(anyFieldFiller);
             anyFillerItem.setLabel(matchSnippet + UtilSymbolKeys.ANY_KEYWORD_KEY);
             anyFillerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            anyFillerItem.setKind(CompletionItemKind.Unit);
+            anyFillerItem.setKind(CompletionItemKind.Snippet);
             anyFillerItem.setInsertTextFormat(InsertTextFormat.Snippet);
             anyFillerItem.setSortText(Priority.PRIORITY120.toString());
             

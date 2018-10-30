@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -67,13 +68,13 @@ import javax.net.ssl.TrustManagerFactory;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io", functionName = "openSecureSocket",
-        args = { @Argument(name = "host", type = TypeKind.STRING),
-                 @Argument(name = "port", type = TypeKind.INT),
-                 @Argument(name = "option", type = TypeKind.RECORD, structType = "SocketProperties",
-                           structPackage = "ballerina/io") },
+        args = {@Argument(name = "host", type = TypeKind.STRING),
+                @Argument(name = "port", type = TypeKind.INT),
+                @Argument(name = "option", type = TypeKind.RECORD, structType = "SocketProperties",
+                        structPackage = "ballerina/io")},
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io") },
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true)
 public class OpenSecureSocket extends BlockingNativeCallableUnit {
 
@@ -138,7 +139,8 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(IOUtils.createError(context, msg));
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            context.setReturnValues(errorStruct);
         }
     }
 

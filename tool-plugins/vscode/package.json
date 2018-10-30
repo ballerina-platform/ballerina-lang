@@ -130,22 +130,22 @@
                     {
                         "type": "ballerina",
                         "request": "launch",
-                        "name": "Ballerina Debug",
+                        "name": "Ballerina",
                         "script": "${file}"
                     },
                     {
                         "type": "ballerina",
-                        "request": "attach",
-                        "name": "Ballerina Remote Debug",
-                        "host": "127.0.0.1",
-                        "port": 5000
+                        "request": "launch",
+                        "name": "Ballerina Test",
+                        "script": "${file}",
+                        "debugTests": true
                     },
                     {
                         "type": "ballerina",
-                        "request": "launch",
-                        "name": "Ballerina Debug Tests",
-                        "script": "${file}",
-                        "debugTests": true
+                        "request": "attach",
+                        "name": "Ballerina Remote",
+                        "host": "127.0.0.1",
+                        "port": 5000
                     }
                 ]
             }
@@ -203,7 +203,6 @@
         "lodash": "^4.17.11",
         "openport": "0.0.4",
         "ps-node": "^0.1.6",
-        "request-promise": "^4.2.2",
         "toml": "^2.3.3",
         "vscode": "^1.1.21",
         "vscode-debugadapter": "^1.31.0",
@@ -219,7 +218,9 @@
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
         "chai": "^4.2.0",
+        "cross-env": "^5.2.0",
         "decache": "^4.4.0",
+        "glob": "^7.1.3",
         "istanbul": "^0.4.5",
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.12.0",

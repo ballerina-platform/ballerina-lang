@@ -162,11 +162,11 @@ if [ "$JDK_18" = "" ]; then
     exit 1
 fi
 
+CLASSPATHS="$CLASSPATHS":"$CUSTOM_CLASSPATH"
+
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/bre/lib/*
 
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/lib/tools/lang-server/lib/*
-
-CLASSPATHS="$CLASSPATHS":"$CUSTOM_CLASSPATH"
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then

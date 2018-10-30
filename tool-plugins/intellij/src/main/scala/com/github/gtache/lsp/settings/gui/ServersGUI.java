@@ -10,7 +10,7 @@ import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandSe
 import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandServerDefinition$;
 import com.github.gtache.lsp.client.languageserver.serverdefinition.UserConfigurableServerDefinition;
 import com.github.gtache.lsp.client.languageserver.serverdefinition.UserConfigurableServerDefinition$;
-import com.github.gtache.lsp.settings.LSPState;
+import com.github.gtache.lsp.settings.BallerinaLSPState;
 import com.github.gtache.lsp.utils.Utils;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -58,7 +58,7 @@ public final class ServersGUI implements LSPGUI {
     private static final String PATH = "path";
     private static final Logger LOG = Logger.getInstance(ServersGUI.class);
     private static final String FILE_PATH_LABEL = "Path";
-    private final LSPState state = state();
+    private final BallerinaLSPState state = state();
     private final JPanel rootPanel;
     private final List<ServersGUIRow> rows = new ArrayList<>(5);
     private final Map<String, UserConfigurableServerDefinition> serverDefinitions = new LinkedHashMap<>(5);
@@ -126,7 +126,7 @@ public final class ServersGUI implements LSPGUI {
                 serverDefinitions.put(ext, serverDefinition);
             }
         }
-        LSPState.getInstance().setExtToServ(serverDefinitions);
+        BallerinaLSPState.getInstance().setExtToServ(serverDefinitions);
         PluginMain$.MODULE$.setExtToServerDefinition(serverDefinitions);
     }
 

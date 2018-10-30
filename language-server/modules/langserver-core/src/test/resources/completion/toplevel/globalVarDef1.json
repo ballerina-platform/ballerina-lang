@@ -492,28 +492,6 @@
       ]
     },
     {
-      "label":"ballerina/jdbc",
-      "kind":"Module",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"jdbc",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":1,
-              "character":22
-            },
-            "end":{
-              "line":1,
-              "character":22
-            }
-          },
-          "newText":"\nimport ballerina/jdbc;\n"
-        }
-      ]
-    },
-    {
       "label":"ballerina/system",
       "kind":"Module",
       "detail":"Package",
