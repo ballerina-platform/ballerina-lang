@@ -19,9 +19,9 @@
  */
 
 import {
-    workspace, window, commands, Uri,
+    workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext
+    Extension, ExtensionContext, IndentAction,
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
@@ -137,6 +137,18 @@ export class BallerinaExtension {
                 params.affectsConfiguration('ballerina.debugLog')) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
+        });
+
+        languages.setLanguageConfiguration('ballerina', {
+            onEnterRules: [
+                {
+                    beforeText: new RegExp('^\\s*#'),
+                    action: {
+                        appendText: '# ',
+                        indentAction: IndentAction.None,
+                    }
+                }
+            ]
         });
     }
 
