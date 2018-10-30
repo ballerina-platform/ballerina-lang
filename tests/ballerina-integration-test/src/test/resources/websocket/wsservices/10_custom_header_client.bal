@@ -36,24 +36,18 @@ service<http:WebSocketService> PingPongTestService1 bind { port: 9092 } {
         };
         wsEp.attributes[ASSOCIATED_CONNECTION2] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION2] = wsEp;
-        wsClientEp->ready() but {
-            error e => log:printError("Error starting client", err = e)
-        };
+        check wsClientEp->ready();
     }
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp;
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint1(wsEp);
-            clientEp->pushText(text + ":X-some-header") but {
-                error e => log:printError("Error sending request headers", err = e)
-            };
+            check clientEp->pushText(text + ":X-some-header");
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint1(wsEp);
-            clientEp->pushText(clientEp.response.getHeader("X-server-header")) but {
-                error e => log:printError("Error sending response headers", err = e)
-            };
+            check clientEp->pushText(clientEp.response.getHeader("X-server-header"));
         }
     }
 }
@@ -62,9 +56,7 @@ service<http:WebSocketClientService> clientCallbackService {
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener1(wsEp);
-        serverEp->pushText(text) but {
-            error e => log:printError("Error sending text to client", err = e)
-        };
+        check serverEp->pushText(text);
     }
 }
 

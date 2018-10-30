@@ -38,9 +38,7 @@ service<http:WebSocketService> simpleProxy3 {
 
     onText(endpoint wsEp, string text) {
         if (text == "custom-headers") {
-            wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]) but {
-                error e => log:printError("Error sending message", err = e)
-            };
+            check wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
         }
     }
 }
