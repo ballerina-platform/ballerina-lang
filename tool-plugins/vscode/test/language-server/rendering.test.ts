@@ -25,9 +25,7 @@ import { getServerOptions } from "../../src/server/server";
 import { getBallerinaHome, getBBEPath } from "../test-util";
 import { Uri } from "vscode";
 import * as assert from 'assert';
-import { expect} from 'chai';
 import { sync as globSync } from 'glob';
-import * as _ from 'lodash';
 import * as fs from 'fs';
 import { ASTUtil } from "ast-model";
 
