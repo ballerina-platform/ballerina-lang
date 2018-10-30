@@ -19,7 +19,9 @@ package org.ballerinalang.testerina.coverage;
 
 import org.ballerinalang.bre.coverage.ExecutedInstruction;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.LineNumberInfoHolder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +33,8 @@ public class CoverageManager {
     // for the project there can be multiple modules and each will have programFile
     private static Map<String, ProgramFile> programFilesForProject;
 
+    private static Map<String, LineNumberInfoHolder> lineNumberInfoHolderForProject = new HashMap<>();
+
     private static final CoverageManager coverageManger = new CoverageManager();
 
     private CoverageManager() {}
@@ -39,12 +43,18 @@ public class CoverageManager {
         return coverageManger;
     }
 
-    public static Map<String, ProgramFile> getProgramFilesForProject() {
-        return programFilesForProject;
-    }
-
     public static void setProgramFilesForProject(Map<String, ProgramFile> programFilesForProject) {
         CoverageManager.programFilesForProject = programFilesForProject;
+
+        programFilesForProject.forEach((pkgPath, prjctProgramFile) -> {
+            LineNumberInfoHolder lineNumberInfoHolder = new LineNumberInfoHolder();
+            lineNumberInfoHolder.processPkgInfo(prjctProgramFile.getPackageInfoEntries());
+            lineNumberInfoHolderForProject.put(pkgPath, lineNumberInfoHolder);
+        });
+    }
+
+    public static Map<String, LineNumberInfoHolder> getLineNumberInfoHolderForProject() {
+        return lineNumberInfoHolderForProject;
     }
 
     public static Map<String, List<ExecutedInstruction>> getExecutedInstructionOrderMap() {

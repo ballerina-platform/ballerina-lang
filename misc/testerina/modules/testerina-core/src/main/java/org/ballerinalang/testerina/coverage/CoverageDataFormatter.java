@@ -23,18 +23,28 @@ import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.debugger.LineNumberInfoHolder;
+import org.ballerinalang.util.debugger.PackageLineNumberInfo;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class CoverageDataFormatter {
 
+    private static PrintStream errStream = System.err;
+    private static PrintStream outStream = System.out;
+
+    private Map<String, LineNumberInfoHolder> lineNumberInfoHolderForProject;
+
     private String testName = null;
+
+    public CoverageDataFormatter() {
+        CoverageManager coverageManager = CoverageManager.getInstance();
+        lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
+    }
 
     public List<LCovData> getFormattedCoverageData(Map<String, List<ExecutedInstruction>> executedInstructionOrderMap,
                                                    Map<String, TestSuite> testSuiteForProject) {
@@ -43,8 +53,16 @@ public class CoverageDataFormatter {
 
         testSuiteForProject.forEach((testPkgPath, suite) -> {
 
-            PackageInfo entryPackageInfo = suite.getProgramFile().getEntryPackage();
-            String entryPkgPath = entryPackageInfo.pkgPath;
+            String entryPkgPath = suite.getProgramFile().getEntryPackage().pkgPath;
+            LineNumberInfoHolder lineNumberInfoHolderForPkg = lineNumberInfoHolderForProject.get(entryPkgPath);
+            PackageLineNumberInfo entryPkgLineNumberInfo = lineNumberInfoHolderForPkg.getPackageInfoMap().get(entryPkgPath);
+
+            Map<String, Integer> fileLineCoverage = new HashMap<>();
+            entryPkgLineNumberInfo.getLineNumbers().keySet().forEach(key -> {
+                String fileNameWithPkg = entryPkgPath + "/" + key.split(":")[0];
+                fileLineCoverage.put(fileNameWithPkg,
+                        fileLineCoverage.get(fileNameWithPkg) == null ? 1 : fileLineCoverage.get(fileNameWithPkg) + 1);
+            });
 
             executedInstructionOrderMap.forEach((packagePath, executedInstructionOrder) -> {
 
@@ -55,83 +73,99 @@ public class CoverageDataFormatter {
 
                         //TODO: init should be covered later. init has declarions and global configs for functions
                         //TODO: start should be covered later. start has declarions and global configs for services
-                        if(!(executedInstruction.getFunctionName().matches(".*\\.<init>") ||
-                                executedInstruction.getFunctionName().matches(".*\\.<start>") ||
-                                "ballerina/builtin".equals(executedInstruction.getPkgPath()) ||
+                        if(!("ballerina/builtin".equals(executedInstruction.getPkgPath()) ||
                                 "ballerina/runtime".equals(executedInstruction.getPkgPath()) ||
                                 "ballerina/reflect".equals(executedInstruction.getPkgPath()) ||
                                 "ballerina/test".equals(executedInstruction.getPkgPath()) ||
                                 "ballerina/io".equals(executedInstruction.getPkgPath()))) {
 
-                            // filter out the source code Ips
-                            if(skipTestFunctionIps(executedInstruction, suite)) {
-                                continue;
-                            }
+                            //TODO: https://github.com/ballerina-platform/ballerina-lang/issues/11050 fix and remove this condition
+                            if(!(".<init>".equals(executedInstruction.getFunctionName()) ||
+                                    ".<start>".equals(executedInstruction.getFunctionName()))) {
 
-                            boolean lCovDataFound = false;
-                            for(LCovData lCovData : packageCoverageList) {
+                                if(!((packagePath + ".<init>").equals(executedInstruction.getFunctionName()) ||
+                                        (packagePath + ".<start>").equals(executedInstruction.getFunctionName()))) {
 
-                                if(lCovData.getTestName().equals(testName)) {
-                                    lCovDataFound = true;
+                                    // filter out the source code Ips
+                                    if(skipTestFunctionIps(executedInstruction, suite)) {
+                                        continue;
+                                    }
 
-                                    boolean lCovSourceFileFound = false;
-                                    for(LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
+                                    boolean lCovDataFound = false;
+                                    for(LCovData lCovData : packageCoverageList) {
 
-                                        if(lCovSourceFile.getSourceFilePath().equals(packagePath + "/" + executedInstruction.getFileName())) {
-                                            lCovSourceFileFound = true;
+                                        if(lCovData.getTestName().equals(testName)) {
+                                            lCovDataFound = true;
 
-                                            boolean lineNumFound = false;
-                                            LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
-                                            for(LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
-                                                if(lineNumberInfo.getLineNumber() == lCovDA.getLineNumber()) {
-                                                    lineNumFound = true;
+                                            boolean lCovSourceFileFound = false;
+                                            for(LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
 
-                                                    lCovDA.setLineExecutionCount(lCovDA.getLineExecutionCount() + 1);
+                                                if(lCovSourceFile.getSourceFilePath().equals(packagePath + "/" + executedInstruction.getFileName())) {
+                                                    lCovSourceFileFound = true;
+
+                                                    boolean lineNumFound = false;
+                                                    LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
+                                                            .getLineNumberInfo(executedInstruction.getIp());
+                                                    for(LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
+                                                        if(lineNumberInfo.getLineNumber() == lCovDA.getLineNumber()) {
+                                                            lineNumFound = true;
+
+                                                            lCovDA.setLineExecutionCount(lCovDA.getLineExecutionCount() + 1);
+
+                                                            break;
+                                                        }
+                                                    }
+                                                    if(!lineNumFound) {
+                                                        LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+                                                        lCovSourceFile.getlCovDAList().add(lCovDA);
+
+                                                        lCovSourceFile.setNumOfLineExecuted(lCovSourceFile.getNumOfLineExecuted() + 1);
+                                                    }
 
                                                     break;
                                                 }
                                             }
-                                            if(!lineNumFound) {
+                                            if(!lCovSourceFileFound) {
+
+                                                LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
+                                                        .getLineNumberInfo(executedInstruction.getIp());
                                                 LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
+
+                                                LCovSourceFile lCovSourceFile = new LCovSourceFile(
+                                                        //TODO: package path should be package folder path
+                                                        packagePath + "/" + executedInstruction.getFileName(), 1,
+                                                        fileLineCoverage.get(packagePath + "/" + executedInstruction.getFileName()));
                                                 lCovSourceFile.getlCovDAList().add(lCovDA);
+
+                                                lCovData.getlCovSourceFileList().add(lCovSourceFile);
+
                                             }
 
                                             break;
                                         }
-                                    }
-                                    if(!lCovSourceFileFound) {
 
-                                        LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
+
+                                    }
+                                    if(!lCovDataFound) {
+
+                                        LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
+                                                .getLineNumberInfo(executedInstruction.getIp());
                                         LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
 
                                         LCovSourceFile lCovSourceFile = new LCovSourceFile(
                                                 //TODO: package path should be package folder path
-                                                packagePath + "/" + executedInstruction.getFileName(), 1, 1);
+                                                packagePath + "/" + executedInstruction.getFileName(), 1,
+                                                fileLineCoverage.get(packagePath + "/" + executedInstruction.getFileName()));
                                         lCovSourceFile.getlCovDAList().add(lCovDA);
 
+                                        LCovData lCovData = new LCovData(testName);
                                         lCovData.getlCovSourceFileList().add(lCovSourceFile);
 
+                                        packageCoverageList.add(lCovData);
                                     }
 
-                                    break;
                                 }
 
-
-                            }
-                            if(!lCovDataFound) {
-
-                                LineNumberInfo lineNumberInfo = entryPackageInfo.getLineNumberInfo(executedInstruction.getIp());
-                                LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
-
-                                LCovSourceFile lCovSourceFile = new LCovSourceFile(
-                                        //TODO: package path should be package folder path
-                                        packagePath + "/" + executedInstruction.getFileName(), 1, 1);
-                                lCovSourceFile.getlCovDAList().add(lCovDA);
-
-                                LCovData lCovData = new LCovData(testName);
-                                lCovData.getlCovSourceFileList().add(lCovSourceFile);
-
-                                packageCoverageList.add(lCovData);
                             }
 
                         }
@@ -218,6 +252,8 @@ public class CoverageDataFormatter {
                 }
 
                 lcovOutputStrBuf.append("end_of_record").append("\n");
+                float fileCoveragePercentage = (((float) lCovSourceFile.getNumOfLineExecuted()) / ((float) lCovSourceFile.getNumOfInstrumentedLines())) * 100;
+                outStream.println("Coverage for " + lCovSourceFile.getSourceFilePath() + " is " + fileCoveragePercentage + "%");
             }
         }
 
@@ -236,7 +272,7 @@ public class CoverageDataFormatter {
 
             covReportFileBufWriter.write(lcovOutputStrBuf.toString());
 
-            System.out.println("Coverage report is written to " + covReportFilePath + "/" + covReportFileName);
+            outStream.println("Coverage report is written to " + covReportFilePath + "/" + covReportFileName);
 
         } catch (IOException e) {
 

@@ -41,19 +41,9 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
     Map<String, LineNumberInfoHolder> lineNumberInfoHolderForProject;
 
     public CoverageInstructionHandlerImpl() {
-        this.executedInstructionOrderMap = CoverageManager.getExecutedInstructionOrderMap();
-        this.lineNumberInfoHolderForProject = new HashMap<>();
-        initLineNumberInfoHolderForProject();
-    }
-
-    private void initLineNumberInfoHolderForProject() {
         CoverageManager coverageManager = CoverageManager.getInstance();
-        lineNumberInfoHolderForProject = new HashMap<>();
-        coverageManager.getProgramFilesForProject().forEach((pkgPath, prjctProgramFile) -> {
-            LineNumberInfoHolder lineNumberInfoHolder = new LineNumberInfoHolder();
-            lineNumberInfoHolder.processPkgInfo(prjctProgramFile.getPackageInfoEntries());
-            lineNumberInfoHolderForProject.put(pkgPath, lineNumberInfoHolder);
-        });
+        this.executedInstructionOrderMap = coverageManager.getExecutedInstructionOrderMap();
+        this.lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
     }
 
     public void handle(WorkerExecutionContext ctx, Instruction instruction) {
