@@ -694,15 +694,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordLiteral(BallerinaParser.RecordLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#waitForAllLiteral}.
+	 * Enter a parse tree produced by {@link BallerinaParser#waitForCollection}.
 	 * @param ctx the parse tree
 	 */
-	void enterWaitForAllLiteral(BallerinaParser.WaitForAllLiteralContext ctx);
+	void enterWaitForCollection(BallerinaParser.WaitForCollectionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#waitForAllLiteral}.
+	 * Exit a parse tree produced by {@link BallerinaParser#waitForCollection}.
 	 * @param ctx the parse tree
 	 */
-	void exitWaitForAllLiteral(BallerinaParser.WaitForAllLiteralContext ctx);
+	void exitWaitForCollection(BallerinaParser.WaitForCollectionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#recordKeyValue}.
 	 * @param ctx the parse tree
@@ -713,6 +713,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#waitKeyValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#waitKeyValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#recordKey}.
 	 * @param ctx the parse tree
