@@ -1786,14 +1786,14 @@ public class TypeChecker extends BLangNodeVisitor {
             case ISINFINITE:
             case ISFINITE:
                 if (type.tag == TypeTags.FLOAT) {
-                    handleBuiltInFunctions(iExpr, function);
+                    handleBuiltInFunctions(iExpr, symTable.booleanType);
                 } else {
                     dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
                     resultType = symTable.semanticError;
                 }
                 break;
             case LENGTH:
-                checkBuiltinLengthInvocationExpr(iExpr);
+                handleBuiltInFunctions(iExpr, symTable.intType);
                 break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
@@ -1820,20 +1820,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void handleBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function) {
+    private void handleBuiltInFunctions(BLangInvocation iExpr, BType actualType) {
         if (iExpr.argExprs.size() > 0) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name);
         }
-        resultType = symTable.booleanType;
-    }
-
-    private void checkBuiltinLengthInvocationExpr(BLangInvocation iExpr) {
-        if (iExpr.argExprs.size() > 0) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, "length");
-            return;
-        }
-        iExpr.type = symTable.intType;
-        resultType = types.checkType(iExpr, iExpr.type, expType);
+        resultType = types.checkType(iExpr, actualType, expType);
     }
 
     private boolean validBuiltinOpInvocation(BLangBuiltInMethod builtInFunction, int typeTag) {

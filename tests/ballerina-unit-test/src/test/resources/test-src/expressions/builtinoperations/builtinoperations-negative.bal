@@ -20,4 +20,7 @@ function testNegativeTests() {
     boolean isNaN = nanVal.isNaN();
     boolean isInf = infinityVal.isInfinite();
     boolean isFin = nanVal.isFinite();
+
+    string nan = nanVal.isNaN();
+    int [] arr = infinityVal.isInfinite();
 }
