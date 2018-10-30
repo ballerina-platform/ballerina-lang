@@ -117,14 +117,14 @@ function handleNestedParts(mime:Entity parentPart) {
 //vary based on your requirement.
 function handleContent(mime:Entity bodyPart) {
     mime:MediaType mediaType = check
-    mime:getMediaType(bodyPart.getContentType());
+                        mime:getMediaType(bodyPart.getContentType());
     string baseType = mediaType.getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         // Extract xml data from body part and print.
         var payload = bodyPart.getXml();
         match payload {
             error err =>
-            log:printError("Error in getting xml payload :" + err.message);
+                log:printError("Error in getting xml payload :" + err.message);
             xml xmlContent => log:printInfo(<string>xmlContent);
         }
     } else if (mime:APPLICATION_JSON == baseType) {
@@ -132,7 +132,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getJson();
         match payload {
             error err => log:printError("Error in getting json payload :"
-                    + err.message);
+                        + err.message);
             json jsonContent => log:printInfo(jsonContent.toString());
         }
     } else if (mime:TEXT_PLAIN == baseType) {
@@ -140,7 +140,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getText();
         match payload {
             error err => log:printError("Error in getting string payload :"
-                    + err.message);
+                        + err.message);
             string textContent => log:printInfo(textContent);
         }
     } else if (mime:APPLICATION_PDF == baseType) {
@@ -150,7 +150,7 @@ function handleContent(mime:Entity bodyPart) {
                     + err.message);
             io:ReadableByteChannel byteChannel => {
                 io:WritableByteChannel destinationChannel =
-                    getFileChannel("ReceivedFile.pdf");
+                    io:openWritableFile("ReceivedFile.pdf");
                 try {
                     copy(byteChannel, destinationChannel);
                     log:printInfo("File Received");
@@ -164,8 +164,8 @@ function handleContent(mime:Entity bodyPart) {
                             err = e) };
                     destinationChannel.close() but {
                         error e =>
-                        log:printError("Error closing destinationChannel",
-                            err = e)
+                            log:printError("Error closing destinationChannel",
+                                err = e)
                     };
                 }
             }
@@ -173,17 +173,9 @@ function handleContent(mime:Entity bodyPart) {
     }
 }
 
-// This function returns a writable byte channel from a given file location.
-function getFileChannel(string filePath)
-             returns (io:WritableByteChannel) {
-    // Here is how the writable byte channel is retrieved from the file.
-    io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
-    return byteChannel;
-}
-
 // This function reads a specified number of bytes from the given channel.
 function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes)
-             returns (byte[], int) {
+    returns (byte[], int) {
 
     // Here is how the bytes are read from the channel.
     var result = byteChannel.read(numberOfBytes);
@@ -199,7 +191,7 @@ function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes)
 
 // This function writes a byte content with the given offset to a channel.
 function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset = 0)
-             returns (int) {
+    returns (int) {
 
     // Here is how the bytes are written to the channel.
     var result = byteChannel.write(content, startOffset);
@@ -213,8 +205,8 @@ function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int star
     }
 }
 
-// This function copies content from the readable channel to a
-//writable channel.
+// This function copies content from the source channel to a
+//destination channel.
 function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) {
     // Specifies the number of bytes that should be read from a
     //single read operation.
@@ -239,3 +231,4 @@ function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) {
         throw err;
     }
 }
+
