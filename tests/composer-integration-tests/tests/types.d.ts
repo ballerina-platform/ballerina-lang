@@ -1,5 +1,5 @@
 
-declare module '@ballerina/diagram' {
+declare module '@ballerina/distribution' {
     
     export interface BallerinaDiagramWrapperProps {
         getAST: (uri: string) => Thenable<any>;

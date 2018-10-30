@@ -20,5 +20,8 @@
   },
   "include": [
     "tests"
+  ],
+  "exclude": [
+    "../../composer/diagram/lib/"
   ]
 }
