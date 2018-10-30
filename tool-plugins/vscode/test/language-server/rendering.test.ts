@@ -25,8 +25,11 @@ import { getServerOptions } from "../../src/server/server";
 import { getBallerinaHome, getBBEPath } from "../test-util";
 import { Uri } from "vscode";
 import * as assert from 'assert';
+import { expect} from 'chai';
 import { sync as globSync } from 'glob';
-
+import * as _ from 'lodash';
+import * as fs from 'fs';
+import { ASTUtil } from "ast-model";
 
 suite('Rendering Tests', function () {
     this.timeout(10000);
@@ -44,12 +47,20 @@ suite('Rendering Tests', function () {
         done();
     });
 
-    var bbeFiles = globSync(getBBEPath() + "/**/*.bal", {});
+    let bbeFiles = globSync(getBBEPath() + "/**/*.bal", {});
     bbeFiles.forEach(function (file) {
-        test.skip('Running through ' + path.basename(file), function (done) {
+        const content = fs.readFileSync(file).toString();
+        test('Running through ' + path.basename(file), function (done) {
+            const uri = Uri.file(file);
             langClient.onReady().then(() => {
-                langClient.getAST(Uri.file(file)).then((response) => {
-                    done();
+                langClient.getAST(uri).then((response) => {
+                    const source = ASTUtil.getSource(response.ast);
+                    try{
+                        assert.equal(content,source);
+                        done();
+                      }catch(e){
+                        return done(e);
+                      }
                 }, (error) => {
                     assert.fail();
                     done();
