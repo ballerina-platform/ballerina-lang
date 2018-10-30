@@ -66,7 +66,7 @@ service<http:Service> failoverDemoService05 bind failoverEP05 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                response.setPayload(responseError.message);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };

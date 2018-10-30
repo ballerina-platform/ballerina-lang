@@ -54,8 +54,8 @@ public type ReadableCSVChannel object {
                 return delimitedChannel.hasNext();
             }
             () =>{
-                error e = {message: "Channel not initialized"};
-                throw e;
+                error e = error("Channel not initialized");
+                panic e;
             }
         }
     }

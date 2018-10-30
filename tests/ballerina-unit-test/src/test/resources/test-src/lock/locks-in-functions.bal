@@ -91,7 +91,7 @@ function throwErrorInsideLock() returns (int, string) {
             int ddd;
             match <int>lockWithinLockString1 {
                 int a => ddd = a;
-                error err => throw err;
+                error err => panic err;
             }
         }
     }
@@ -115,7 +115,7 @@ function throwErrorInsideLockInsideTryFinally() returns (int, string) {
                 int ddd;
                 match <int>lockWithinLockString1 {
                     int a => ddd = a;
-                    error err => throw err;
+                    error err => panic err;
                 }
             }
         } catch (error e) {
@@ -149,7 +149,7 @@ function throwErrorInsideTryCatchFinallyInsideLock() returns (int, string) {
                 int ddd;
                 match <int>lockWithinLockString1 {
                     int a => ddd = a;
-                    error err => throw err;
+                    error err => panic err;
                 }
 
             } catch (error e) {
@@ -185,7 +185,7 @@ function throwErrorInsideTryFinallyInsideLock() returns (int, string) {
                 int ddd;
                 match <int>lockWithinLockString1 {
                     int a => ddd = a;
-                    error err => throw err;
+                    error err => panic err;
                 }
             } finally {
                 lock {
@@ -214,7 +214,7 @@ function throwErrorInsideLockInsideTryCatch() returns (int, string) {
                 int ddd;
                 match <int>lockWithinLockString1 {
                     int a => ddd = a;
-                    error err => throw err;
+                    error err => panic err;
                 }
             }
         } catch (error e) {
@@ -244,7 +244,7 @@ function throwErrorInsideTryCatchInsideLock() returns (int, string) {
                 int ddd;
                 match <int>lockWithinLockString1 {
                     int a => ddd = a;
-                    error err => throw err;
+                    error err => panic err;
                 }
 
             } catch (error e) {

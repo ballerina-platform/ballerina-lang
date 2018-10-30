@@ -177,7 +177,7 @@ function createTransactionContext(string coordinationType, int transactionBlockI
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
         log:printError(msg);
-        error err = {message:msg};
+        error err = error(msg);
         return err;
     } else {
         TwoPhaseCommitTransaction txn = new(system:uuid(), transactionBlockId, coordinationType = coordinationType);
@@ -212,16 +212,16 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
     LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE};
     match (initiatedTransactions[transactionId]) {
         () => {
-            error err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
+            error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
             return err;
         }
         TwoPhaseCommitTransaction initiatedTxn => {
             if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
-                error err = {message:"Already-Registered. TID:" + transactionId + ",participant ID:" + participantId};
+                error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
                 return err;
             } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
-                error err = {message:"Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
-                    participantId};
+                error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
+                    participantId);
                 return err;
             } else {
     
@@ -247,16 +247,16 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
 function removeParticipatedTransaction(string participatedTxnId) {
     boolean removed = participatedTransactions.remove(participatedTxnId);
     if (!removed) {
-        error err = {message:"Removing participated transaction: " + participatedTxnId + " failed"};
-        throw err;
+        error err = error("Removing participated transaction: " + participatedTxnId + " failed");
+        panic err;
     }
 }
 
 function removeInitiatedTransaction(string transactionId) {
     boolean removed = initiatedTransactions.remove(transactionId);
     if (!removed) {
-        error err = {message:"Removing initiated transaction: " + transactionId + " failed"};
-        throw err;
+        error err = error("Removing initiated transaction: " + transactionId + " failed");
+        panic err;
     }
 }
 
@@ -322,7 +322,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
     if (participatedTransactions.hasKey(participatedTxnId)) {
         string msg = "Already registered with initiator for transaction:" + participatedTxnId;
         log:printError(msg);
-        error err = {message:msg};
+        error err = error(msg);
         return err;
     }
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
@@ -332,7 +332,9 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
             log:printError(msg, err = e);
-            error err = {message:msg, cause:e};
+            // TODO : Fix me.
+            //map data = { cause: err };
+            error err = error(msg);
             return err;
         }
         RegistrationResponse regRes => {

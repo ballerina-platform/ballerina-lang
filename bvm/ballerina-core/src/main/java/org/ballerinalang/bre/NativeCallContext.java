@@ -19,7 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -110,13 +110,13 @@ public class NativeCallContext implements Context {
     }
 
     @Override
-    public BMap<?, ?> getError() {
+    public BError getError() {
         return this.parentCtx.getError();
     }
 
     @Override
-    public void setError(BMap<?, ?> error) {
-        this.parentCtx.setError((BMap<String, BValue>) error);
+    public void setError(BError error) {
+        this.parentCtx.setError(error);
     }
 
     @Override

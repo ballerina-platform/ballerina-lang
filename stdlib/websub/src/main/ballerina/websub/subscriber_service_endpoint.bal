@@ -159,7 +159,8 @@ function Listener::sendSubscriptionRequests() {
                         self.setTopic(webSubServiceName, retTopic);
                     }
                     error websubError => {
-                        log:printError("Error sending out subscription request on start up: " + websubError.message);
+                        string errCause = <string> websubError.detail().message;
+                        log:printError("Error sending out subscription request on start up: " + errCause);
                         continue;
                     }
                 }
@@ -243,7 +244,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
-    error websubError = {};
+    error websubError = error("Dummy");
     match (discoveryResponse) {
         http:Response response => {
             match (extractTopicAndHubUrls(response)) {
@@ -257,8 +258,10 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
             }
         }
         error connErr => {
-            websubError = {message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
-                + connErr.message, cause:connErr};
+            string errCause = <string> connErr.detail().message;
+            map errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
+                                    resourceUrl + "]: " + errCause };
+            websubError = error(WEBSUB_ERROR_CODE, errorDetail);
         }
     }
     return websubError;
@@ -291,7 +294,8 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
     match (<int>strLeaseSeconds) {
         int convIntLeaseSeconds => { leaseSeconds = convIntLeaseSeconds; }
         error convError => {
-            log:printError("Error retreiving specified lease seconds value: " + convError.message);
+            string errCause = <string> convError.detail().message;
+            log:printError("Error retreiving specified lease seconds value: " + errCause);
             return;
         }
     }
@@ -314,8 +318,8 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
                     "], for Topic[" + subscriptionChangeResponse.topic + "], with Callback [" + callback + "]");
         }
         error webSubError => {
-            log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " +
-                    webSubError.message);
+            string errCause = <string> webSubError.detail().message;
+            log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
         }
     }
 }

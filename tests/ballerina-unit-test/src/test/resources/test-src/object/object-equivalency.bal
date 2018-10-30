@@ -549,8 +549,8 @@ type Person object {
     new(name){}
 
     function getPerson() returns Person {
-        error err = {message: "Unsupported operation"};
-        throw err;
+        error err = error("Unsupported operation");
+        panic err;
     }
 };
 

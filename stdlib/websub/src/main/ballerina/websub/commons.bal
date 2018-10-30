@@ -73,6 +73,8 @@ import ballerina/reflect;
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
 @final string WEBSUB_MODULE_NAME = "ballerina/websub";
 
+# The constant used to represent error code of WebSub module.
+@final public string WEBSUB_ERROR_CODE = "{ballerina/websub}WebSubError";
 
 # The identifier to be used to identify the mode in which update content should be identified.
 public type RemotePublishMode "PUBLISH_MODE_DIRECT"|"PUBLISH_MODE_FETCH";
@@ -179,8 +181,9 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            error webSubError = {message: X_HUB_SIGNATURE + " header not present for subscription added" +
-                                            " specifying " + HUB_SECRET};
+            map errorDetail = { message : X_HUB_SIGNATURE + " header not present for subscription " +
+                                            "added specifying " + HUB_SECRET };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
         return;
@@ -196,8 +199,10 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     match (request.getPayloadAsString()) {
         string payloadAsString => { stringPayload = payloadAsString; }
         error entityError => {
-            error webSubError = {message:"Error extracting notification payload as string for signature validation: "
-                                            + entityError.message, cause: entityError};
+            string errCause = <string> entityError.detail().message;
+            map errorDetail = { message : "Error extracting notification payload as string " +
+                                            "for signature validation: " + errCause };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     }
@@ -222,12 +227,14 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     } else if (SHA256.equalsIgnoreCase(method)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
     } else {
-        error webSubError = {message:"Unsupported signature method: " + method};
+        map errorDetail = { message : "Unsupported signature method: " + method };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        error webSubError = {message:"Signature validation failed: Invalid Signature!"};
+        map errorDetail = { message : "Signature validation failed: Invalid Signature!" };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
     return;
@@ -358,7 +365,8 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
     }
 
     if (lengthof linkHeaders == 0) {
-        error websubError = { message: "Link header unavailable in discovery response" };
+        map errorDetail = { message : "Link header unavailable in discovery response" };
+        error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return websubError;
     }
 
@@ -383,7 +391,8 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
                 hubIndex += 1;
             } else if (linkConstituents[1].contains("rel=\"self\"")) {
                 if (topic != "") {
-                    error websubError = { message: "Link Header contains > 1 self URLs" };
+                    map errorDetail = { message : "Link Header contains > 1 self URLs" };
+                    error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
                     return websubError;
                 } else {
                     topic = url;
@@ -396,7 +405,8 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
         return (topic, hubs);
     }
 
-    error websubError = {message: "Hub and/or Topic URL(s) not identified in link header of discovery response"};
+    map errorDetail = { message : "Hub and/or Topic URL(s) not identified in link header of discovery response" };
+    error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     return websubError;
 }
 
@@ -545,7 +555,8 @@ function WebSubHub::stop() returns boolean {
 function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
-        error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
+        map errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
 
@@ -573,7 +584,8 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
 
 function WebSubHub::registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic registration not allowed/not required at the Hub" };
+        map errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
+        error e = error(WEBSUB_ERROR_CODE, errorDetail);
         return e;
     }
     return registerTopicAtHub(topic);
@@ -581,7 +593,8 @@ function WebSubHub::registerTopic(string topic) returns error? {
 
 function WebSubHub::unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        error e = { message: "Remote topic unregistration not allowed/not required at the Hub" };
+        map errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
+        error e = error(WEBSUB_ERROR_CODE, errorDetail);
         return e;
     }
     return unregisterTopicAtHub(topic);
@@ -667,4 +680,8 @@ public type SubscriberDetails record {
     int leaseSeconds;
     int createdAt;
     !...
+};
+
+type WebSubError record {
+    string message;
 };

@@ -1,9 +1,4 @@
-public type InvalidNameError record {
-    string message;
-    error? cause;
-    string companyName;
-    !...
-};
+public type InvalidNameError error<string, record { string companyName; }>
 
 function getQuote(string name) returns (float|InvalidNameError) {
 
@@ -13,7 +8,7 @@ function getQuote(string name) returns (float|InvalidNameError) {
         return 11.5;
     }
 
-    InvalidNameError err = { message: "invalid name", companyName : name };
+    InvalidNameerror err = error("invalid name", {companyName: name });
     return err;
 }
 
@@ -80,6 +75,6 @@ function checkAndThrow(){
 
     match p {
         float quoteValue => qVal = quoteValue;
-        InvalidNameError err => throw err;
+        InvalidNameError err => panic err;
     }
 }

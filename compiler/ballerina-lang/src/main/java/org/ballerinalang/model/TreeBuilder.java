@@ -59,6 +59,7 @@ import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.BracedOrTupleExpression;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
+import org.ballerinalang.model.tree.expressions.ErrorConstructorNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IntRangeExpression;
@@ -79,8 +80,10 @@ import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
+import org.ballerinalang.model.tree.expressions.TrapExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.expressions.TypeInitNode;
+import org.ballerinalang.model.tree.expressions.TypeTestExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
@@ -107,6 +110,7 @@ import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementPatternNode;
+import org.ballerinalang.model.tree.statements.PanicNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
 import org.ballerinalang.model.tree.statements.ScopeNode;
@@ -123,6 +127,7 @@ import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
+import org.ballerinalang.model.tree.types.ErrorTypeNode;
 import org.ballerinalang.model.tree.types.FiniteTypeNode;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.ObjectTypeNode;
@@ -176,6 +181,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -196,8 +202,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -225,6 +233,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -241,6 +250,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -313,6 +323,10 @@ public class TreeBuilder {
         return new BLangThrow();
     }
 
+    public static PanicNode createPanicNode() {
+        return new BLangPanic();
+    }
+
     public static TupleDestructureNode createTupleDestructureStatementNode() {
         return new BLangTupleDestructure();
     }
@@ -373,6 +387,10 @@ public class TreeBuilder {
         return new BLangBuiltInRefTypeNode();
     }
 
+    public static ErrorTypeNode createErrorTypeNode() {
+        return new BLangErrorType();
+    }
+
     public static ConstrainedTypeNode createConstrainedTypeNode() {
         return new BLangConstrainedType();
     }
@@ -413,6 +431,10 @@ public class TreeBuilder {
         return new BLangAwaitExpr();
     }
 
+    public static TrapExpressionNode createTrapExpressionNode() {
+        return new BLangTrapExpr();
+    }
+
     public static BinaryExpressionNode createBinaryExpressionNode() {
         return new BLangBinaryExpr();
     }
@@ -447,6 +469,10 @@ public class TreeBuilder {
 
     public static TypeInitNode createObjectInitNode() {
         return new BLangTypeInit();
+    }
+
+    public static ErrorConstructorNode createErrorConstructorNode() {
+        return new BLangErrorConstructorExpr();
     }
 
     public static ObjectTypeNode createObjectTypeNode() {
@@ -731,5 +757,9 @@ public class TreeBuilder {
 
     public static ScopeNode createScopeNode() {
         return new BLangScope();
+    }
+
+    public static TypeTestExpressionNode createTypeTestExpressionNode() {
+        return new BLangTypeTestExpr();
     }
 }

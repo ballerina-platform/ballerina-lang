@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -74,8 +75,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -103,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -119,6 +123,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -500,7 +505,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             boolean assignable = false;
             for (BLangMatchStmtPatternClause pattern : matchStmt.patternClauses) {
                 BType patternType = pattern.variable.type;
-                if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
+                if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
                     return;
                 }
 
@@ -732,9 +737,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangThrow throwNode) {
-        this.checkStatementExecutionValidity(throwNode);
+        /* ignore */
+    }
+
+    public void visit(BLangPanic panicNode) {
+        this.checkStatementExecutionValidity(panicNode);
         this.statementReturns = true;
-        analyzeExpr(throwNode.expr);
+        analyzeExpr(panicNode.expr);
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -767,27 +776,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
-        this.checkStatementExecutionValidity(tryNode);
-        analyzeNode(tryNode.tryBody, env);
-        boolean tryCatchReturns = this.statementReturns;
-        this.resetStatementReturns();
-        List<BType> caughtTypes = new ArrayList<>();
-        for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
-            if (caughtTypes.contains(bLangCatch.getParameter().type)) {
-                dlog.error(bLangCatch.getParameter().pos, DiagnosticCode.DUPLICATED_ERROR_CATCH,
-                        bLangCatch.getParameter().type);
-            }
-            caughtTypes.add(bLangCatch.getParameter().type);
-            analyzeNode(bLangCatch.body, env);
-            tryCatchReturns = tryCatchReturns && this.statementReturns;
-            this.resetStatementReturns();
-        }
-        if (tryNode.finallyBody != null) {
-            analyzeNode(tryNode.finallyBody, env);
-            this.statementReturns = tryCatchReturns || this.statementReturns;
-        } else {
-            this.statementReturns = tryCatchReturns;
-        }
+        /* ignore */
     }
 
     public void visit(BLangCatch catchNode) {
@@ -878,7 +867,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
 
-        if (indexAccessExpr.indexExpr.type.tag == TypeTags.ERROR) {
+        if (indexAccessExpr.indexExpr.type.tag == TypeTags.SEMANTIC_ERROR) {
             return;
         }
 
@@ -923,7 +912,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
-            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION) {
+            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
@@ -950,6 +939,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAwaitExpr awaitExpr) {
         analyzeExpr(awaitExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        analyzeExpr(trapExpr.expr);
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -1050,6 +1044,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangErrorType errorType) {
+        /* ignore */
+    }
+
     public void visit(BLangUserDefinedType userDefinedType) {
         analyseType(userDefinedType.type, userDefinedType.pos);
     }
@@ -1098,7 +1096,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             boolean assignable = false;
             for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
                 BType patternType = pattern.variable.type;
-                if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
+                if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
                     return;
                 }
 
@@ -1150,6 +1148,35 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         // TODO
+    }
+
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        // TODO: Fix me.
+    }
+    
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        analyzeNode(typeTestExpr.expr, env);
+        if (typeTestExpr.typeNode.type == symTable.semanticError) {
+            return;
+        }
+
+        // Check whether the condition is always true. If the variable type is assignable to target type,
+        // then type check will always evaluate to true. 
+        if (types.isAssignable(typeTestExpr.expr.type, typeTestExpr.typeNode.type)) {
+            dlog.error(typeTestExpr.pos, DiagnosticCode.UNNECESSARY_CONDITION);
+            return;
+        }
+
+        // Check whether the target type can ever be present as the type of the source.
+        // It'll be only possible iff, the target type has been assigned to the source
+        // variable at some point. To do that, a value of target type should be assignable 
+        // to the type of the source variable.
+        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type)) {
+            dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
+                    typeTestExpr.typeNode.type);
+        }
     }
 
     // private methods

@@ -28,25 +28,13 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
 import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
@@ -78,7 +66,6 @@ public class CompilerDriver {
     private final CodeGenerator codeGenerator;
     private final BIRGen birGenerator;
     private final CompilerPhase compilerPhase;
-    private final SymbolResolver symResolver;
     private final DataflowAnalyzer dataflowAnalyzer;
 
     public static CompilerDriver getInstance(CompilerContext context) {
@@ -107,7 +94,6 @@ public class CompilerDriver {
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
         this.compilerPhase = getCompilerPhase();
-        this.symResolver = SymbolResolver.getInstance(context);
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
     }
 
@@ -125,8 +111,6 @@ public class CompilerDriver {
             symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null, null);
         }
 
-        // Update the error symbol
-        updateErrorSymbol();
     }
 
     // Private methods
@@ -263,24 +247,4 @@ public class CompilerDriver {
                 pkgLoader.loadAndDefinePackage(SymbolTable.BUILTIN))))));
     }
 
-    private void updateErrorSymbol() {
-        BSymbol errorStructSymbol = symResolver
-                .lookupSymbol(symbolTable.pkgEnvMap.get(symbolTable.builtInPackageSymbol), Names.ERROR, SymTag.RECORD);
-        symbolTable.errStructType.fields = ((BStructureType) errorStructSymbol.type).fields;
-
-        // change type of the 'cause' field
-        BField cause = symbolTable.errStructType.fields.get(1);
-        BUnionType causeType = (BUnionType) cause.type;
-        Set<BType> memberTypes = new HashSet<BType>() {{
-            add(symbolTable.errStructType);
-            add(symbolTable.nilType);
-        }};
-        BType newCauseType = new BUnionType(causeType.tsymbol, memberTypes, true);
-        cause.type = newCauseType;
-        cause.symbol.type = newCauseType;
-
-        // change the type of the error symbol
-        errorStructSymbol.type = symbolTable.errStructType;
-        errorStructSymbol.type.tsymbol = (BTypeSymbol) errorStructSymbol;
-    }
 }

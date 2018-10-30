@@ -19,9 +19,9 @@
 package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -57,12 +57,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         final String path = serviceEndpointConfig.getStringField(DirectoryListenerConstants.ANNOTATION_PATH);
         final Path dirPath = Paths.get(path);
         if (Files.notExists(dirPath)) {
-            context.setReturnValues(BLangVMErrors.createError(context, "Folder does not exist: " + path));
-            return;
+            throw new BallerinaConnectorException("Folder does not exist: " + path);
         }
         if (!Files.isDirectory(dirPath)) {
-            context.setReturnValues(BLangVMErrors.createError(context, "Unable to find a directory : " + path));
-            return;
+            throw new BallerinaConnectorException("Unable to find a directory: " + path);
         }
         context.setReturnValues();
     }
