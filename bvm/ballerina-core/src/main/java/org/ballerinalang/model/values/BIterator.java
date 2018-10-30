@@ -55,11 +55,6 @@ public interface BIterator extends BRefType {
     }
 
     @Override
-    default void seal(BType type) {
-
-    }
-
-    @Override
     default BValue copy() {
         return null;
     }

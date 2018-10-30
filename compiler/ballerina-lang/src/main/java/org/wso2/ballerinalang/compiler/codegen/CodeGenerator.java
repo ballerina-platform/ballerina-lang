@@ -1248,9 +1248,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
         } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
             emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
-        } else if (iExpr.builtInMethod == BLangBuiltInMethod.SEAL) {
-            Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-            emit(InstructionCodes.SEAL, iExpr.expr.regIndex, typeCPIndex);
         }
     }
 
