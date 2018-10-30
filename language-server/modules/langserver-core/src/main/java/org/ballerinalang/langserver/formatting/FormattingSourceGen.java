@@ -66,7 +66,6 @@ public class FormattingSourceGen {
             }
         }
         modifyNode(json, parentKind);
-        json.add("parent", parent);
         return json;
     }
 
@@ -77,8 +76,6 @@ public class FormattingSourceGen {
      * @return {@link String} Generated source string.
      */
     public String getSourceOf(JsonObject node) {
-        String source = "";
-
         List<JsonObject> wsCollection = new ArrayList<>();
         List<JsonObject> mergedWS = new ArrayList<>();
         collectWSFromNode(node, wsCollection);
@@ -86,13 +83,13 @@ public class FormattingSourceGen {
         wsCollection.sort(Comparator.comparingInt(a -> a.get("i").getAsInt()));
 
         JsonObject prevWS = null;
-        for (int i = 0; i < wsCollection.size(); i++) {
+        for (JsonObject wsItem : wsCollection) {
             if (prevWS == null) {
-                prevWS = wsCollection.get(i);
+                prevWS = wsItem;
                 mergedWS.add(prevWS);
-            } else if (prevWS.get("i").getAsInt() != wsCollection.get(i).get("i").getAsInt()) {
-                mergedWS.add(wsCollection.get(i));
-                prevWS = wsCollection.get(i);
+            } else if (prevWS.get("i").getAsInt() != wsItem.get("i").getAsInt()) {
+                mergedWS.add(wsItem);
+                prevWS = wsItem;
             }
         }
 
