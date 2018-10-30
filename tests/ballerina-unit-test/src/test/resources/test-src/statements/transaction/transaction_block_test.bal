@@ -8,7 +8,41 @@ public type TrxError record {
     !...
 };
 
-function testTransactionStmtWithCommitedAndAbortedBlocks() returns (string) {
+function testTransactionStmtWithCommitedAndAbortedBlocks(int failureThreshold, boolean abort_) returns (string) {
+    string a = "";
+    a = (a + "start");
+    int count = 0;
+    try {
+        transaction with retries=2, onabort=onAbort, oncommit=onCommit {
+            a = a + " inTrx";
+            count = count + 1;
+            int i = 0;
+            if (count <= failureThreshold) {
+                // simulated transaction abort
+                error err = { message: "TransactionError" };
+                throw err;
+            }
+
+            if (abort_) {
+                abort;
+            }
+
+            a = a + " endTrx";
+        } onretry {
+            a = a + " retry";
+        } committed {
+            a = a + " committed";
+        } aborted {
+            a = a + " aborted";
+        }
+    } catch (error err) {
+        a = a + err.message;
+    }
+    a = (a + " end");
+    return a;
+}
+
+function testTransactionStmtWithCommitedAndAbortedBlocks_() returns (string) {
     string a = "";
     a = (a + "start");
     try {
