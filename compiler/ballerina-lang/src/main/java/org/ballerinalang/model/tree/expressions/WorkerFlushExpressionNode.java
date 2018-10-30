@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 /**
  * flush[a]
  *
- * @since 0.94
+ * @since 0.983
  */
 public interface WorkerFlushExpressionNode extends ExpressionNode {
     IdentifierNode getWorkerName();

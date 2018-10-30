@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AwaitExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.WaitKeyValueNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -72,7 +74,7 @@ public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNo
         }
 
         public String toString() {
-            return WAIT_KEYWORD + " " +  String.join("|", String.valueOf(exprList));
+            return WAIT_KEYWORD + " " + String.join("|", String.valueOf(exprList));
         }
     }
 
@@ -80,9 +82,9 @@ public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNo
      * @since 0.983.0
      */
     public static class BLangWaitForAll extends BLangAwaitExpr {
-        public List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = new ArrayList<>();
+        public List<BLangWaitKeyValue> keyValuePairs = new ArrayList<>();
 
-        public List<BLangRecordLiteral.BLangRecordKeyValue> getKeyValuePairs() {
+        public List<BLangWaitKeyValue> getKeyValuePairs() {
             return keyValuePairs;
         }
 
@@ -92,7 +94,38 @@ public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNo
         }
 
         public String toString() {
-            return WAIT_KEYWORD + " {" +  String.join(",", String.valueOf(keyValuePairs)) + "}";
+            return WAIT_KEYWORD + " {" + String.join(",", String.valueOf(keyValuePairs)) + "}";
+        }
+
+        /**
+         * This static inner class represents key/value pair of a wait collection.
+         *
+         * @since 0.983
+         */
+        public static class BLangWaitKeyValue extends BLangNode implements WaitKeyValueNode {
+
+            public BLangSimpleVarRef key;
+            public BLangExpression valueExpr;
+
+            @Override
+            public BLangSimpleVarRef getKey() {
+                return key;
+            }
+
+            @Override
+            public BLangExpression getValue() {
+                return valueExpr;
+            }
+
+            @Override
+            public NodeKind getKind() {
+                return NodeKind.WAIT_KEY_VALUE;
+            }
+
+            @Override
+            public void accept(BLangNodeVisitor visitor) {
+
+            }
         }
     }
 }

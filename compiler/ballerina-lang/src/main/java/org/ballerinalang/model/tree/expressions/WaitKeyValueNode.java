@@ -17,21 +17,15 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.IdentifierNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 /**
- * Worker synchronous send expression.
+ * Key-value pair for the wait collection.
  *
  * @since 0.983
  */
-public interface WorkerSendSyncExpressionNode extends ExpressionNode {
-    ExpressionNode getExpression();
-
-    ExpressionNode getKeyExpression();
-
-    IdentifierNode getWorkerName();
-
-    void setWorkerName(IdentifierNode identifierNode);
-
-    boolean isForkJoinedSend();
+public interface WaitKeyValueNode extends ExpressionNode {
+    BLangSimpleVarRef getKey();
+    
+    ExpressionNode getValue();
 }
