@@ -150,7 +150,8 @@ public class SourceGenTest {
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
             if (attrs.isSymbolicLink()
                     || dir.getFileName().toString().contains("negative")
-                    || dir.getFileName().toString().contains("invalid")) {
+                    || dir.getFileName().toString().contains("invalid")
+                    || dir.getFileName().toString().contains("tests")) {
                 return SKIP_SUBTREE;
             }
             return CONTINUE;

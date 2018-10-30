@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -67,7 +68,8 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
                 if (jsonModel.getAsJsonArray(SYNTAX_ERRORS) != null) {
                     return jsonModel;
                 }
-                return getJsonNodeForFragment(jsonModel, sourceFragment);
+                JsonObject jsonASTFragment = getJsonNodeForFragment(jsonModel, sourceFragment);
+                return FormattingSourceGen.build(jsonASTFragment, null, null);
             }
         } catch (JSONGenerationException | LSCompilerException e) {
             logger.error("Error while generating AST for fragment", e);

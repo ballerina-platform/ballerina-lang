@@ -106,9 +106,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             // generate source for the new ast.
             JsonObject ast = notification.getAst();
-            FormattingSourceGen sourceGen = new FormattingSourceGen();
-            sourceGen.build(ast, null, "CompilationUnit");
-            String textEditContent = sourceGen.getSourceOf(ast);
+            FormattingSourceGen.build(ast, null, "CompilationUnit");
+            String textEditContent = FormattingSourceGen.getSourceOf(ast);
 
             // create text edit
             TextEdit textEdit = new TextEdit(range, textEditContent);
@@ -150,7 +149,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
                     .findFirst()
                     .orElse(null);
-            return TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
+            JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
+            FormattingSourceGen.build(jsonAST.getAsJsonObject(), null, "CompilationUnit");
+            return jsonAST;
         }
         return null;
     }
