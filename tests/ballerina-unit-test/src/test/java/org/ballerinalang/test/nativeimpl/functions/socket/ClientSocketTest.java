@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.nativeimpl.functions.io.socket;
+package org.ballerinalang.test.nativeimpl.functions.socket;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;

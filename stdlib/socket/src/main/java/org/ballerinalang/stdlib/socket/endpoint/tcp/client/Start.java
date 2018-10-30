@@ -81,6 +81,7 @@ public class Start extends BlockingNativeCallableUnit {
             SocketService socketService = (SocketService) clientEndpoint.getNativeData(SOCKET_SERVICE);
             channel.connect(new InetSocketAddress(host.stringValue(), (int) port.intValue()));
             channel.finishConnect();
+            channel.configureBlocking(false);
             if (socketService.getResources() != null) {
                 selectorManager.registerChannel(socketService, OP_READ);
                 selectorManager.start();

@@ -77,8 +77,9 @@ class SelectorDispatcher {
     static void invokeReadReady(SocketService socketService, ByteBuffer buffer) {
         final Resource readReady = socketService.getResources().get(RESOURCE_ON_READ_READY);
         ProgramFile programFile = readReady.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> endpoint = SocketUtils.createCallerAction(programFile, (SocketChannel) socketService.getSocketChannel());
-        BValue[] params = { endpoint, new BByteArray(getByteArrayFromByteBuffer(buffer)) };
+        BMap<String, BValue> endpoint = SocketUtils
+                .createCallerAction(programFile, (SocketChannel) socketService.getSocketChannel());
+        BValue[] params = { endpoint, new BByteArray(SocketUtils.getByteArrayFromByteBuffer(buffer)) };
         try {
             Executor.submit(readReady, new TCPSocketCallableUnitCallback(), null, null, params);
         } catch (BallerinaConnectorException e) {
@@ -96,7 +97,8 @@ class SelectorDispatcher {
             socketService.getSocketChannel().close();
             final Resource close = socketService.getResources().get(RESOURCE_ON_CLOSE);
             ProgramFile programFile = close.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
-            BMap<String, BValue> endpoint = SocketUtils.createCallerAction(programFile, (SocketChannel) socketService.getSocketChannel());
+            BMap<String, BValue> endpoint = SocketUtils
+                    .createCallerAction(programFile, (SocketChannel) socketService.getSocketChannel());
             BValue[] params = { endpoint };
             Executor.submit(close, new TCPSocketCallableUnitCallback(), null, null, params);
         } catch (IOException e) {
@@ -138,13 +140,5 @@ class SelectorDispatcher {
 
     private static BError createError(String msg) {
         return SocketUtils.createError(null, msg);
-    }
-
-    private static byte[] getByteArrayFromByteBuffer(ByteBuffer content) {
-        int contentLength = content.position();
-        byte[] bytesArray = new byte[contentLength];
-        content.flip();
-        content.get(bytesArray, 0, contentLength);
-        return bytesArray;
     }
 }

@@ -86,7 +86,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                 }
             }
             SocketChannel socketChannel = SocketChannel.open();
-            socketChannel.configureBlocking(false);
+            socketChannel.configureBlocking(true);
             socketChannel.socket().setReuseAddress(true);
             clientEndpoint.addNativeData(SOCKET_KEY, socketChannel);
             clientEndpoint.addNativeData(IS_CLIENT, true);

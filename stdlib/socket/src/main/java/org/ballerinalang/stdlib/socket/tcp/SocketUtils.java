@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CALLER_ACTION;
@@ -78,5 +79,20 @@ public class SocketUtils {
         }
         endpoint.put("callerAction", callerEndpoint);
         return endpoint;
+    }
+
+    /**
+     * This will return a byte array that only contains the data from ByteBuffer.
+     * This will not copy any unused byte from ByteBuffer.
+     *
+     * @param content {@link ByteBuffer} with content
+     * @return a byte array
+     */
+    public static byte[] getByteArrayFromByteBuffer(ByteBuffer content) {
+        int contentLength = content.position();
+        byte[] bytesArray = new byte[contentLength];
+        content.flip();
+        content.get(bytesArray, 0, contentLength);
+        return bytesArray;
     }
 }

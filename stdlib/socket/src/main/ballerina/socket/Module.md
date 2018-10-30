@@ -1,4 +1,4 @@
-## Package overview
+## Module overview
 This package contains services that register listeners against a local folder and identify events that create, modify, and delete files.
 
 ## Samples
