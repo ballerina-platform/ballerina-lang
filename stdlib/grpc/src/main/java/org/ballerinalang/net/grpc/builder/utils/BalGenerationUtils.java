@@ -64,7 +64,7 @@ public class BalGenerationUtils {
                 return "string";
             }
             case "BytesValue": {
-                return "blob";
+                return "byte[]";
             }
             case "Empty": {
                 return null;
