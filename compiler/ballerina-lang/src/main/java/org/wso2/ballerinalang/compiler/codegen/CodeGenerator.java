@@ -2915,6 +2915,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         //end the transaction
         int transBlockEndAddr = nextIP();
         this.emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.SUCCESS.value()));
+        if (transactionNode.committedBody != null) {
+            this.genNode(transactionNode.committedBody, this.env);
+        }
 
         abortInstructions.pop();
         failInstructions.pop();
@@ -2930,16 +2933,22 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
+
+        // Error propagation to outer try-catch.
         retryEndWithThrowAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
-
         emit(InstructionCodes.THROW, getOperand(-1));
+
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
                 transBlockEndAddr, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
 
+        // Aborted block.
         transStmtAbortEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.ABORTED.value()));
+        if (transactionNode.abortedBody != null) {
+            this.genNode(transactionNode.abortedBody, this.env);
+        }
 
         int transactionEndIp = nextIP();
         transStmtEndAddr.value = transactionEndIp;

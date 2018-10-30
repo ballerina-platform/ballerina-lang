@@ -1830,6 +1830,54 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startCommittedBlock();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endCommittedBlock(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startAbortedBlock();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endAbortedBlock(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1881,7 +1929,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addCommittedBlock(getWS(ctx));
+        this.pkgBuilder.addCommittedFuncPointer(getWS(ctx));
     }
 
     /**
@@ -1892,7 +1940,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addAbortedBlock(getWS(ctx));
+        this.pkgBuilder.addAbortedFuncPointerBlock(getWS(ctx));
     }
 
     /**

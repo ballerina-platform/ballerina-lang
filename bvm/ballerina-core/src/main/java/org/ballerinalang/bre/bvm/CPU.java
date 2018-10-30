@@ -2587,6 +2587,7 @@ public class CPU {
             }
         }
 
+        // TODO: 10/30/18 remove
         //Register committed function handler if exists.
         if (committedFuncIndex != -1) {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[committedFuncIndex];
@@ -2594,6 +2595,7 @@ public class CPU {
             TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
         }
 
+        // TODO: 10/30/18 remove
         //Register aborted function handler if exists.
         if (abortedFuncIndex != -1) {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[abortedFuncIndex];

@@ -2111,6 +2111,30 @@ public class BLangPackageBuilder {
         transactionNode.setOnRetryBody(onretryBlock);
     }
 
+    public void startCommittedBlock() {
+        startBlock();
+    }
+
+    public void endCommittedBlock(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        committedBlock.pos = currentPos;
+        transactionNode.addWS(ws);
+        transactionNode.setCommittedBody(committedBlock);
+    }
+
+    public void startAbortedBlock() {
+        startBlock();
+    }
+
+    public void endAbortedBlock(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        abortedBlock.pos = currentPos;
+        transactionNode.addWS(ws);
+        transactionNode.setAbortedBody(abortedBlock);
+    }
+
     void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
@@ -2156,13 +2180,15 @@ public class BLangPackageBuilder {
         transaction.retryCount = (BLangExpression) exprNodeStack.pop();
     }
 
-    void addCommittedBlock(Set<Whitespace> ws) {
+    // todo: remove
+    void addCommittedFuncPointer(Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
         transaction.addWS(ws);
         transaction.onCommitFunction = (BLangExpression) exprNodeStack.pop();
     }
 
-    void addAbortedBlock(Set<Whitespace> ws) {
+    // todo: remove
+    void addAbortedFuncPointerBlock(Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
         transaction.addWS(ws);
         transaction.onAbortFunction = (BLangExpression) exprNodeStack.pop();

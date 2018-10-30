@@ -30,7 +30,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 public class BLangTransaction extends BLangStatement implements TransactionNode {
     public BLangBlockStmt transactionBody;
     public BLangBlockStmt onRetryBody;
+    public BLangBlockStmt committedBody;
+    public BLangBlockStmt abortedBody;
     public BLangExpression retryCount;
+    // TODO: 10/29/18 remove below 2 lines as they are replaced by aborted, committed blocks.
     public BLangExpression onCommitFunction;
     public BLangExpression onAbortFunction;
 
@@ -39,14 +42,10 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
 
     public BLangTransaction(BLangBlockStmt transactionBody,
                             BLangBlockStmt onRetryBody,
-                            BLangExpression retryCount,
-                            BLangExpression onCommitFunction,
-                            BLangExpression abortedFunction) {
+                            BLangExpression retryCount) {
         this.transactionBody = transactionBody;
         this.onRetryBody = onRetryBody;
         this.retryCount = retryCount;
-        this.onCommitFunction = onCommitFunction;
-        this.onAbortFunction = abortedFunction;
     }
 
     @Override
@@ -97,6 +96,16 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public void setOnAbortFunction(ExpressionNode abortedFunction) {
         this.onAbortFunction = (BLangExpression) abortedFunction;
+    }
+
+    @Override
+    public void setCommittedBody(BlockNode committedBlock) {
+        this.committedBody = (BLangBlockStmt) committedBlock;
+    }
+
+    @Override
+    public void setAbortedBody(BlockNode abortedBlock) {
+        this.abortedBody = (BLangBlockStmt) abortedBlock;
     }
 
     @Override

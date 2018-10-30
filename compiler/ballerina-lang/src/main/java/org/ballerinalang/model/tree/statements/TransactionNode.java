@@ -45,4 +45,7 @@ public interface TransactionNode extends StatementNode {
 
     void setOnAbortFunction(ExpressionNode onAbortFunction);
 
+    void setCommittedBody(BlockNode committedBlock);
+
+    void setAbortedBody(BlockNode abortedBlock);
 }

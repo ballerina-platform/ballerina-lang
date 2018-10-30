@@ -888,11 +888,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (transactionNode.onRetryBody != null) {
             analyzeStmt(transactionNode.onRetryBody, env);
         }
+
+        if (transactionNode.committedBody != null) {
+            analyzeStmt(transactionNode.committedBody, env);
+        }
+
+        if (transactionNode.abortedBody != null) {
+            analyzeStmt(transactionNode.abortedBody, env);
+        }
+
         if (transactionNode.retryCount != null) {
             typeChecker.checkExpr(transactionNode.retryCount, env, symTable.intType);
             checkRetryStmtValidity(transactionNode.retryCount);
         }
 
+        // TODO: 10/29/18 remove
         if (transactionNode.onCommitFunction != null) {
             typeChecker.checkExpr(transactionNode.onCommitFunction, env, symTable.noType);
             if (transactionNode.onCommitFunction.type.tag == TypeTags.INVOKABLE) {
@@ -902,6 +912,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             checkTransactionHandlerValidity(transactionNode.onCommitFunction);
         }
 
+        // TODO: 10/29/18 remove
         if (transactionNode.onAbortFunction != null) {
             typeChecker.checkExpr(transactionNode.onAbortFunction, env, symTable.noType);
             if (transactionNode.onAbortFunction.type.tag == TypeTags.INVOKABLE) {
