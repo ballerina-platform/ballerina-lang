@@ -34,7 +34,41 @@ function requireAll(requireContext) {
     return comp;
 }
 
-const treeNodes = requireAll(require.context('./tree/', true, /\.js$/));
+let requireContext = require.context;
+
+// This condition actually should detect if it's an Node environment
+if (typeof requireContext === 'undefined') {
+    const fs = require('fs');
+    const path = require('path');
+    requireContext = (base = '.', scanSubDirectories = false, regularExpression = /\.js$/) => {
+        const files = {};
+        function readDirectory(directory) {
+            fs.readdirSync(directory).forEach((file) => {
+                const fullPath = path.resolve(directory, file);
+                if (fs.statSync(fullPath).isDirectory()) {
+                    if (scanSubDirectories) {
+                        readDirectory(fullPath);
+                    }
+                    return;
+                }
+
+                if (!regularExpression.test(fullPath)) {
+                    return;
+                }
+                files[fullPath] = true;
+            });
+        }
+        readDirectory(path.resolve(__dirname, base));
+        function Module(file) {
+            return require(file);
+        }
+        Module.keys = () => Object.keys(files);
+
+        return Module;
+    };
+}
+
+const treeNodes = requireAll(requireContext('./tree/', true, /\.js$/));
 
 /**
  * A utill class to build the client side AST from serialized JSON.

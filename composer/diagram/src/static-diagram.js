@@ -24,7 +24,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 
 import Diagram from 'plugins/ballerina/diagram/diagram';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder';
-import '@ballerina/theme/default-theme/index.js/';
+import '@ballerina/theme/default-theme/index';
 import './scss/themes/default.scss';
 import '@ballerina/theme/font-ballerina';
 
