@@ -32,7 +32,6 @@ export class ASTUtil {
         let source = '';
         let ws = ASTUtil.extractWS(ast);
         ws = _.unionBy(ws, 'i');
-        ws = _.sortBy(ws, ['i']);
         ws.forEach(element => {
             source += element.ws + element.text;
         });
@@ -49,7 +48,11 @@ export class ASTUtil {
         // with the following loop we will recursivle dive in to the child nodes and extract ws.
         for (childName in json) {
             // if child name is position || whitespace skip convection.
-            if (childName !== 'position' && childName !== 'ws') {
+            if (
+                childName !== 'position' &&
+                childName !== 'ws' &&
+                childName !== 'parent'
+            ) {
                 const child = json[childName];
                 if (_.isPlainObject(child)) {
                     pot = pot.concat(ASTUtil.extractWS(child));
@@ -60,7 +63,38 @@ export class ASTUtil {
                 }
             }
         }
-
+        pot = _.sortBy(pot, ['i']);
         return pot;
+    }
+
+    public static reconcileWS(node: any, attachPoint: any[], tree: any): void {
+        // get ws of attach node
+        const attachWS = ASTUtil.extractWS(attachPoint[attachPoint.length - 1]);
+        const nodeWS = ASTUtil.extractWS(node);
+        const astWS = ASTUtil.extractWS(tree);
+        // find the last of attach node
+
+        const attachIndex = attachWS[attachWS.length - 1].i;
+        // get the ws of node ws
+
+        // tslint:disable-next-line:no-console
+        const nodeFirstIndex = nodeWS[0].i;
+        // get the diff from node to last
+        const diff = attachIndex + 1 - nodeFirstIndex;
+        // update node ws
+        nodeWS.forEach(ws => {
+            ws.i = ws.i + diff;
+        });
+        // get the new last of node ws
+        // tslint:disable-next-line:no-console
+        const lastIndex = nodeWS[nodeWS.length - 1].i;
+        // get the diff for tree
+        const treeDiff = lastIndex - attachIndex;
+        // update rest of the tree
+        astWS.forEach(ws => {
+            if (ws.i > attachIndex) {
+                ws.i = ws.i + treeDiff;
+            }
+        });
     }
 }

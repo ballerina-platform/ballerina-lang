@@ -427,14 +427,14 @@ class Node extends EventChannel {
      * @memberof Node
      */
     clearWS() {
-        this.accept({
+        /*this.accept({
             beginVisit: (node) => {
                 delete node.ws;
             },
             endVisit: (node) => {
                 // do nothing.
             },
-        });
+        });*/
     }
 
     /**
