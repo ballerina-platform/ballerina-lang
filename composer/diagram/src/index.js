@@ -18,8 +18,10 @@
 */
 import renderEditableDiagram from './editable-diagram';
 import renderStaticDiagram from './static-diagram';
+import BallerinaDiagramWrapper from './BallerinaDiagramWrapper';
 
 export {
     renderEditableDiagram,
     renderStaticDiagram,
-}
+    BallerinaDiagramWrapper,
+};
