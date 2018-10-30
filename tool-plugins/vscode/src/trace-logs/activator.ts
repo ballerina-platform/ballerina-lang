@@ -17,7 +17,7 @@
  *
  */
 
-import { commands, window, ViewColumn, ExtensionContext, WebviewPanel } from 'vscode';
+import { commands, window, ViewColumn, ExtensionContext, WebviewPanel, StatusBarAlignment, StatusBarItem } from 'vscode';
 import { render, renderDetailView } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
@@ -26,6 +26,7 @@ import { WebViewRPCHandler } from '../utils';
 let traceLogsPanel: WebviewPanel | undefined;
 let traceDetailsPanel: WebviewPanel | undefined;
 let traces: Array<object> = [];
+let status: StatusBarItem | undefined;
 
 function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
     if (traceLogsPanel) {
@@ -89,6 +90,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
             methodName: 'clearLogs',
             handler: () => {
                 traces = [];
+                updateStatus();
                 if (traceLogsPanel && traceLogsPanel.webview) {
                     traceLogsPanel.webview.postMessage({
                         command: 'updateTraces',
@@ -110,6 +112,11 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext> ballerinaExtInstance.context;
     let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+
+    status = window.createStatusBarItem(StatusBarAlignment.Left, 100);
+	status.command = 'ballerina.showTraces';
+    context.subscriptions.push(status);
+    updateStatus();
 
     const examplesListRenderer = commands.registerCommand('ballerina.showTraces', () => {
         ballerinaExtInstance.onReady()
@@ -135,7 +142,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     ballerinaExtInstance.onReady().then(()=>{
         langClient.onNotification('window/traceLogs', (trace: Object) => {
-            traces.push(trace);
+            addNewTrace(trace);
+            updateStatus();
             if (traceLogsPanel && traceLogsPanel.webview) {
                 traceLogsPanel.webview.postMessage({
                     command: 'updateTraces',
@@ -145,4 +153,57 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
     
     context.subscriptions.push(examplesListRenderer);
+}
+
+function addNewTrace(trace: any) {
+    traces.push(trace);
+    traces = filterEmptyLogs(mergeRelatedMessages(traces));
+}
+
+function updateStatus() {
+    if (!status) {
+        return;
+    }
+    if (traces.length > 0) {
+        status.text = '$(megaphone) ' + traces.length;
+        status.show();
+    } else {
+        status.hide();
+    }
+}
+
+function mergeRelatedMessages(traces: Array<any>) {
+    const newTraces = [];
+    if (traces.length < 2) {
+        return traces;
+    }
+    for (let index = 0; index < traces.length; index++) {
+        let record1 = traces[index];
+        let record2 = traces[index + 1];
+        if (record1.message.headerType.startsWith('DefaultHttpRequest')
+            && record2
+            && record1.thread === record2.thread
+            && (record2.message.headerType.startsWith('DefaultLastHttpContent')
+                || record2.message.headerType.startsWith('EmptyLastHttpContent'))) {
+
+            record1.message.payload = record2.message.payload;
+            newTraces.push(record1);
+        } else if (record1.message.headerType.startsWith('DefaultLastHttpContent') ||
+            record1.message.headerType.startsWith('EmptyLastHttpContent')) {
+            // do nothing
+        } else {
+            newTraces.push(record1);
+        }
+    }
+    return newTraces;
+}
+
+function filterEmptyLogs(traces: Array<any>) {
+    return traces.filter((trace: any) => {
+        if (trace.message.headers.trim() === "" && trace.message.payload.trim() === "") {
+            return false;
+        }
+        const direction = trace.message.direction || "";
+        return direction.length > 0;
+    });
 }
