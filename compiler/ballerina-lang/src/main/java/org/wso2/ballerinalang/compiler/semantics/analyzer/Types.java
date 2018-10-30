@@ -1538,7 +1538,7 @@ public class Types {
         return memberTypes;
     }
 
-    private boolean tupleIntersectionExists(BTupleType lhsType, BTupleType rhsType, boolean isValueDeepEquality) {
+    private boolean tupleIntersectionExists(BTupleType lhsType, BTupleType rhsType) {
         if (lhsType.getTupleTypes().size() != rhsType.getTupleTypes().size()) {
             return false;
         }
@@ -1548,8 +1548,7 @@ public class Types {
 
         for (int i = 0; i < lhsType.getTupleTypes().size(); i++) {
             if (!intersectionExists(expandAndGetMemberTypesRecursive(lhsMemberTypes.get(i)),
-                                    expandAndGetMemberTypesRecursive(rhsMemberTypes.get(i)),
-                                    isValueDeepEquality)) {
+                                    expandAndGetMemberTypesRecursive(rhsMemberTypes.get(i)), true)) {
                 return false;
             }
         }
@@ -1594,7 +1593,7 @@ public class Types {
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.TUPLE &&
                                     tupleIntersectionExists((BTupleType) lhsMemberType,
-                                                            (BTupleType) rhsMemberType, true))) {
+                                                            (BTupleType) rhsMemberType))) {
                         return true;
                     }
                     break;

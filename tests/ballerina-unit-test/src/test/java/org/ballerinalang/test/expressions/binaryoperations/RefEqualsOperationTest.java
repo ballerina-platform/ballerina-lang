@@ -36,7 +36,7 @@ import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 /**
  * Class to test functionality of "===".
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class RefEqualsOperationTest {
 

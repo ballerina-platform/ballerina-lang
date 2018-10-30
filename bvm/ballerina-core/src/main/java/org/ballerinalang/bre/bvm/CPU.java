@@ -4038,12 +4038,7 @@ public class CPU {
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
-                BRefType lhsRef = (BRefType) lhsValue;
-                BRefType rhsRef = (BRefType) rhsValue;
-                if (null == lhsRef.value() && null == rhsRef.value()) {
-                    return true;
-                }
-                return lhsRef.value().equals(rhsRef.value());
+                return lhsValue.equals(rhsValue);
             case TypeTags.XML_TAG:
                 return XMLUtils.isEqual((BXML) lhsValue, (BXML) rhsValue);
             case TypeTags.TABLE_TAG:
@@ -4051,18 +4046,7 @@ public class CPU {
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                BNewArray lhsArray = (BNewArray) lhsValue;
-                BNewArray rhsArray = (BNewArray) rhsValue;
-                if (lhsArray.size() != rhsArray.size()) {
-                    return false;
-                }
-
-                for (int i = 0; i < lhsArray.size(); i++) {
-                    if (!isEqual(lhsArray.getBValue(i), rhsArray.getBValue(i))) {
-                        return false;
-                    }
-                }
-                return true;
+                return isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -4072,20 +4056,37 @@ public class CPU {
     }
 
     /**
+     * Deep equality check for an array/tuple.
+     *
+     * @param lhsList   The array/tuple on the left hand side
+     * @param rhsList   The array/tuple on the right hand side
+     * @return True if the array/tuple values are equal, else false.
+     */
+    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList) {
+        if (lhsList.size() != rhsList.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsList.size(); i++) {
+            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Deep equality check for a map.
      *
      * @param lhsMap    Map on the left hand side
      * @param rhsMap    Map on the right hand side
      * @return True if the map values are equal, else false.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
-        // Check if size is same.
         if (lhsMap.size() != rhsMap.size()) {
             return false;
         }
 
-        // Check if key set is equal.
         if (!lhsMap.getMap().keySet().containsAll(rhsMap.getMap().keySet())) {
             return false;
         }
@@ -4097,25 +4098,6 @@ public class CPU {
                 return false;
             }
         }
-        return true;
-    }
-
-    /**
-     * Check if two records are deeply equal.
-     *
-     * @param lhsStruct     The left hand side record value
-     * @param rhsStruct     The right hand side record value
-     * @param recordType    The record type
-     * @return True if equal, else false
-     */
-    private static boolean isEqual(BMap<String, BValue> lhsStruct, BMap<String, BValue> rhsStruct,
-                                   BStructureType recordType) {
-        for (BField field: recordType.getFields()) {
-            if (!isEqual(lhsStruct.get(field.fieldName), rhsStruct.get(field.fieldName))) {
-                return false;
-            }
-        }
-
         return true;
     }
 
