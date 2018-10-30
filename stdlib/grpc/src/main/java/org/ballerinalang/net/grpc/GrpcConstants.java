@@ -128,7 +128,8 @@ public class GrpcConstants {
     public static final String FLOAT = "float";
     public static final String DOUBLE = "double";
     public static final String BOOLEAN = "boolean";
-    
+    public static final String BYTE = "byte";
+
     //stub template builder constants
     public static final String EMPTY_DATATYPE_NAME = "Empty";
 
