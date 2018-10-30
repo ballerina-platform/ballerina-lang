@@ -42,6 +42,9 @@ public class ServicesRegistry {
 
     /**
      * Returns the service definitions in this registry.
+     *
+     * @return Service definitions
+     *
      */
     public List<ServerServiceDefinition> getServices() {
         return services;

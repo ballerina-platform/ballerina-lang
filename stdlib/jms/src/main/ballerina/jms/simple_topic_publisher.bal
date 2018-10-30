@@ -67,12 +67,14 @@ public type SimpleTopicPublisher object {
     }
 
     # Get simple topic pubilsher actions
+    #
+    # + return - Topic publisher actions
     public function getCallerActions() returns TopicPublisherActions {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
             () => {
-                error e = {message:"Topic publisher cannot be nil"};
-                throw e;
+                error e = error("Topic publisher cannot be nil");
+                panic e;
             }
         }
     }
@@ -85,24 +87,26 @@ public type SimpleTopicPublisher object {
     # Create JMS text message
     #
     # + message - A message body to create a text message
+    # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                error e = error("Session cannot be nil");
+                panic e;
             }
         }
     }
     # Create JMS map message
     #
     # + message - A message body to create a map message
+    # + return - a message or nil if the session is nil
     public function createMapMessage(map message) returns Message|error {
         match (session) {
             Session s => return s.createMapMessage(message);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                error e = error("Session cannot be nil");
+                panic e;
             }
         }
     }
@@ -123,4 +127,5 @@ public type SimpleTopicPublisherEndpointConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map properties;
     string topicPattern;
+    !...
 };

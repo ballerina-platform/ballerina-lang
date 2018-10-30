@@ -64,6 +64,9 @@ public class WebServer {
 
     /**
      * Creates a new WebServer.
+     *
+     * @param host hostname.
+     * @param port port number.
      */
     public WebServer(String host, int port) {
         this.routeTable = new RouteTable();

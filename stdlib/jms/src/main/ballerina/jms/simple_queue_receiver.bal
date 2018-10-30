@@ -66,8 +66,8 @@ public type SimpleQueueReceiver object {
                 c.register(serviceType);
             }
             () => {
-                error e = {message:"Queue receiver cannot be nil"};
-                throw e;
+                error e = error("Queue receiver cannot be nil");
+                panic e;
             }
         }
     }
@@ -84,8 +84,8 @@ public type SimpleQueueReceiver object {
         match (queueReceiver) {
             QueueReceiver c => return c.getCallerActions();
             () => {
-                error e = {message:"Queue receiver cannot be nil"};
-                throw e;
+                error e = error("Queue receiver cannot be nil");
+                panic e;
             }
         }
     }
@@ -98,12 +98,13 @@ public type SimpleQueueReceiver object {
     # Creates a JMS message which holds text content
     #
     # + content - the text content used to initialize this message
+    # + return - the created message, or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(content);
             () => {
-                error e = {message:"Session cannot be null"};
-                throw e;
+                error e = error("Session cannot be null");
+                panic e;
             }
         }
     }
@@ -127,4 +128,5 @@ public type SimpleQueueReceiverEndpointConfiguration record {
     string messageSelector;
     map properties;
     string queueName;
+    !...
 };

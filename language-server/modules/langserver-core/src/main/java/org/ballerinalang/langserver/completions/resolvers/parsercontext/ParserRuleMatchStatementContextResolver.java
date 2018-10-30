@@ -63,13 +63,13 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                 .map(Token::getText)
                 .collect(Collectors.toList());
         List<SymbolInfo> symbolInfoList = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        if (isInvocationOrFieldAccess(ctx)) {
+        if (isInvocationOrInteractionOrFieldAccess(ctx)) {
             String delimiter = "";
             String variableName = "";
             for (int i = 0; i < poppedTokens.size(); i++) {
                 if (poppedTokens.get(i).equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                         || poppedTokens.get(i).equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                        || poppedTokens.get(i).equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)) {
+                        || poppedTokens.get(i).equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)) {
                     delimiter = poppedTokens.get(i);
                     variableName = poppedTokens.get(i - 1);
                     break;
@@ -158,7 +158,7 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         completionItem.setLabel(varSymbol.getName().getValue());
         completionItem.setInsertText(varSymbol.getName().getValue());
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
-        completionItem.setKind(CompletionItemKind.Unit);
+        completionItem.setKind(CompletionItemKind.Variable);
 
         return completionItem;
     }

@@ -1,0 +1,15 @@
+{
+  "position": {
+    "line": 12,
+    "character": 10
+  },
+  "source": "function/source/objectAttachFunctionImpl2.bal",
+  "items": [
+    {
+      "label":"Person",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"Person::"
+    }
+  ]
+}

@@ -2,12 +2,12 @@
 import expressions.typecast.foo.bar;
 
 public type Person record {
-    string name,
-    int age,
-    Person? parent,
-    json info,
-    map address,
-    int[] marks,
+    string name;
+    int age;
+    Person? parent;
+    json info;
+    map address;
+    int[] marks;
 };
 
 function testCastToStructInDifferentPkg() returns (bar:Student|error) {

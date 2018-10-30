@@ -29,7 +29,7 @@ public type Client object {
 
     private http:Client httpClientEndpoint;
 
-    # Called when the endpoint is being initialized during package initialization.
+    # Called when the endpoint is being initialized during module initialization.
     #
     # + c - The configuration for the endpoint
     public function init(HubClientEndpointConfig c) {
@@ -62,8 +62,9 @@ public type Client object {
 # + auth - Authentication mechanism for the underlying HTTP Client
 # + followRedirects - HTTP redirect related configuration
 public type HubClientEndpointConfig record {
-    string url,
-    http:SecureSocket? clientSecureSocket,
-    http:AuthConfig? auth,
-    http:FollowRedirects? followRedirects,
+    string url;
+    http:SecureSocket? clientSecureSocket;
+    http:AuthConfig? auth;
+    http:FollowRedirects? followRedirects;
+    !...
 };

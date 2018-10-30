@@ -99,15 +99,15 @@ service<http:Service> sample1 bind echoEP {
 }
 
 type Person record {
-    int age,
-    string name,
-    Address address,
+    int age;
+    string name;
+    Address address;
 };
 
 type Address record {
-    int no,
-    string line1,
-    string line2,
+    int no;
+    string line1;
+    string line2;
 };
 
 string finalText1 = "";
@@ -195,8 +195,8 @@ service<http:Service> sample3 bind echoEP {
             io:println("************** waiting inside first request");
             runtime:sleep(100);
             message = "sample Response";
-            error err = {message:"error occurred"};
-            throw err;
+            error err = error("error occurred");
+            panic err;
         }
         //http:Response res = new;
         //_ = conn -> respond(res);

@@ -75,6 +75,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
 
+        mnemonics[InstructionCodes.ERROR] = "error";
+        mnemonics[InstructionCodes.PANIC] = "panic";
+        mnemonics[InstructionCodes.REASON] = "reason";
+        mnemonics[InstructionCodes.DETAIL] = "detail";
+
         mnemonics[InstructionCodes.MAPLOAD] = "mapload";
         mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";
@@ -144,11 +149,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.VCALL] = "vcall";
-        mnemonics[InstructionCodes.THROW] = "throw";
-        mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
         mnemonics[InstructionCodes.FPLOAD] = "fp_load";
         mnemonics[InstructionCodes.VFPLOAD] = "vfp_load";
+        mnemonics[InstructionCodes.PANIC] = "panic";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
@@ -220,6 +224,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";
         mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
+        mnemonics[InstructionCodes.ERROR] = "error";
 
         mnemonics[InstructionCodes.NEW_INT_RANGE] = "new_int_range";
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
@@ -252,6 +257,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.XML2S] = "xml2s";
         mnemonics[InstructionCodes.LOCK] = "lock";
         mnemonics[InstructionCodes.UNLOCK] = "unlock";
+
+        mnemonics[InstructionCodes.SCOPE_END] = "scope_end";
+        mnemonics[InstructionCodes.COMPENSATE] = "compensate";
+        mnemonics[InstructionCodes.LOOP_COMPENSATE] = "loop_compensate";
+
+        mnemonics[InstructionCodes.TYPE_TEST] = "type_test";
     }
 
     public static String getMnem(int opcode) {

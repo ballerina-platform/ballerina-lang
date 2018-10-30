@@ -80,7 +80,7 @@ public final class ServerServiceDefinition {
      *
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
      */
     public static final class Builder {
 
@@ -99,6 +99,7 @@ public final class ServerServiceDefinition {
          *
          * @param method  the {@link MethodDescriptor} of this method.
          * @param handler handler for incoming calls
+         * @throws GrpcServerException fail when adding method
          */
         public void addMethod(
                 MethodDescriptor method, ServerCallHandler handler) throws

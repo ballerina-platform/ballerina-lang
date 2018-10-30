@@ -4,12 +4,12 @@ type Person record {
     int a;
     string fname = "John";
     string lname;
-    Info|error info1;
+    Info|error|() info1;
     Info|() info2;
 };
 
 type Info record {
-    Address|error address1;
+    Address|error|() address1;
     Address|() address2;
 };
 
@@ -38,7 +38,7 @@ function testNotNilPath () returns any {
 }
 
 function testErrorInMiddle () returns any {
-    error e = {message:"custom error"};
+    error e = error("custom error");
     Info inf = {address1 : e};
     Person prsn = {info1 : inf};
     Person|error p = prsn;
@@ -47,7 +47,7 @@ function testErrorInMiddle () returns any {
 }
 
 function testErrorInFirstVar () returns any {
-    error e = {message:"custom error"};
+    error e = error("custom error");
     Person|error p = e;
     string|error|() x = p!info1!address1!city;
     return x;

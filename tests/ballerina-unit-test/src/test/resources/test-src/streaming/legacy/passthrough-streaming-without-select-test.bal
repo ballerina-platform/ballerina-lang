@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Employee record {
     string name;
@@ -40,7 +39,9 @@ function testPassthroughQuery() {
     forever {
         from teacherStream6
         => (Employee[] emp) {
-            employeeStream3.publish(emp);
+            foreach e in emp {
+                employeeStream3.publish(e);
+            }
         }
     }
 }

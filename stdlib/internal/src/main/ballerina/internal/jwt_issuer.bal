@@ -17,11 +17,16 @@
 import ballerina/io;
 
 # Represents JWT issuer configurations.
+# + keyAlias - Key alias used for signing
+# + keyPassword - Key password used for signing
+# + keyStoreFilePath - Key store file path
+# + keyStorePassword - Key store password
 public type JWTIssuerConfig record {
-    string keyAlias,
-    string keyPassword,
-    string keyStoreFilePath,
-    string keyStorePassword,
+    string keyAlias;
+    string keyPassword;
+    string keyStoreFilePath;
+    string keyStorePassword;
+    !...
 };
 
 # Issue a JWT token.
@@ -60,7 +65,7 @@ function createHeader(JwtHeader header) returns (string) {
 function createPayload(JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
-        error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
+        error err = error("Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty.");
         return err;
     }
     payloadJson[SUB] = payload.sub;

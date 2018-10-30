@@ -64,8 +64,8 @@ public type SimpleTopicSubscriber object {
                 c.register(serviceType);
             }
             () => {
-                error e = {message:"Topic Subscriber cannot be nil"};
-                throw e;
+                error e = error("Topic Subscriber cannot be nil");
+                panic e;
             }
         }
     }
@@ -76,12 +76,14 @@ public type SimpleTopicSubscriber object {
     }
 
     # Get simple topic subscriber actions
+    #
+    # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
         match (subscriber) {
             TopicSubscriber c => return c.getCallerActions();
             () => {
-                error e = {message:"Topic subscriber cannot be nil"};
-                throw e;
+                error e = error("Topic subscriber cannot be nil");
+                panic e;
             }
         }
     }
@@ -94,12 +96,13 @@ public type SimpleTopicSubscriber object {
     # Create JMS text message
     #
     # + message - A message body to create a text message
+    # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                error e = error("Session cannot be nil");
+                panic e;
             }
         }
     }
@@ -107,12 +110,13 @@ public type SimpleTopicSubscriber object {
     # Create JMS map message
     #
     # + message - A message body to create a map message
+    # + return - a message or nil if the session is nil.
     public function createMapMessage(map message) returns Message|error {
         match (session) {
             Session s => return s.createMapMessage(message);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                error e = error("Session cannot be nil");
+                panic e;
             }
         }
     }
@@ -135,4 +139,5 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string messageSelector;
     map properties;
     string topicPattern;
+    !...
 };

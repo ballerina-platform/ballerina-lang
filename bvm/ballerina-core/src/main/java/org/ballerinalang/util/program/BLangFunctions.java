@@ -38,7 +38,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
@@ -61,6 +61,7 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -128,6 +129,39 @@ public class BLangFunctions {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             invokePackageInitFunction(info.getInitFunctionInfo());
         }
+    }
+
+    /**
+     * This will order the package imports and invoke each package test init function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestInitFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestInitFunctionInfo() != null)
+              .forEach(packageInfo -> invokePackageInitFunction(packageInfo.getTestInitFunctionInfo()));
+    }
+
+    /**
+     * This will order the package imports and invoke each package start function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestStartFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStartFunctionInfo() != null)
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStartFunctionInfo()));
+    }
+
+    /**
+     * This will order the package imports and invoke each package stop function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestStopFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStopFunctionInfo() != null)
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStopFunctionInfo()));
     }
 
     /**
@@ -326,7 +360,7 @@ public class BLangFunctions {
             // An error in the context at this point means an unhandled runtime error has propagated
             // all the way up to the entry point. Hence throw a {@link BLangRuntimeException} and
             // terminate the execution.
-            BMap<String, BValue> error = parentCtx.getError();
+            BError error = parentCtx.getError();
             if (error != null) {
                 handleError(parentCtx);
             }
@@ -443,7 +477,7 @@ public class BLangFunctions {
         WorkerData workerLocal = BLangVMUtils
                 .createWorkerDataForLocal(workerInfo, parentCtx, argRegs, callableUnitInfo.getParamTypes());
         if (initWorkerLocalData != null) {
-            BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
+            BLangVMUtils.mergeInitWorkerData(initWorkerLocalData, workerLocal, initWorkerCAI);
         }
         WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
@@ -469,7 +503,7 @@ public class BLangFunctions {
     }
     
     private static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
-        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(initFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -482,7 +516,7 @@ public class BLangFunctions {
     }
 
     private static void invokeVMUtilFunction(FunctionInfo utilFuncInfo, WorkerExecutionContext context) {
-        invokeCallable(utilFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(utilFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -496,7 +530,7 @@ public class BLangFunctions {
 
     public static void invokeServiceInitFunction(FunctionInfo initFuncInfo) {
         WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
-        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(initFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -641,7 +675,7 @@ public class BLangFunctions {
         }
 
         @Override
-        public void notifyFailure(BMap<String, BValue> error) {
+        public void notifyFailure(BError error) {
             this.check.release();
         }
         

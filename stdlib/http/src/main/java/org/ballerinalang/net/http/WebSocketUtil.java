@@ -31,6 +31,7 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -136,7 +137,7 @@ public class WebSocketUtil {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
                         .booleanValue();
                 if (!isReady) {
@@ -187,6 +188,11 @@ public class WebSocketUtil {
     static void closeDuringUnexpectedCondition(WebSocketConnection webSocketConnection) {
         webSocketConnection.terminateConnection(1011, "Unexpected condition");
 
+    }
+
+    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) {
+        connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
+                                                  new BBoolean(connectionInfo.getWebSocketConnection().isOpen()));
     }
 
     private WebSocketUtil() {

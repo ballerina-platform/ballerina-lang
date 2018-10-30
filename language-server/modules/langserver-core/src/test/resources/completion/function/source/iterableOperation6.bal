@@ -1,12 +1,12 @@
 type Employee record {
-    int id,
-    string name,
-    float salary,
+    int id;
+    string name;
+    float salary;
 };
 
 type EmployeeSalary record {
-    int id,
-    float salary,
+    int id;
+    float salary;
 };
 
 function main(string... args) {

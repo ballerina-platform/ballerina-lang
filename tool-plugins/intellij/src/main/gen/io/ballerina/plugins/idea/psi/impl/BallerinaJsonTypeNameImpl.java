@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaJsonTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaJsonTypeName {
 
-  public BallerinaJsonTypeNameImpl(ASTNode node) {
+  public BallerinaJsonTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

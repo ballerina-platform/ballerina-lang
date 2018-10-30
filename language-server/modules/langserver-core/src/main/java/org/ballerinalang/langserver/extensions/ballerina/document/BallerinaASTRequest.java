@@ -19,6 +19,8 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 /**
  * Represents a request for a Ballerina AST.
+ *
+ * @since 0.981.2
  */
 public class BallerinaASTRequest {
 

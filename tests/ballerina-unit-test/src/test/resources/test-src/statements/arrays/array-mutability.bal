@@ -16,29 +16,29 @@
 
 // Super Type
 type Person record {
-    string name,
+    string name;
     !...
 };
 
 // Assignable to Person type
 type Employee record {
-    string name,
-    boolean intern,
+    string name;
+    boolean intern;
     !...
 };
 
 // Assignable to Employee type and Person Type
 type Intern record {
-    string name,
-    boolean intern,
-    int salary,
+    string name;
+    boolean intern;
+    int salary;
     !...
 };
 
 // Assignable to Person type
 type Student record {
-    string name,
-    int studentId,
+    string name;
+    int studentId;
     !...
 };
 

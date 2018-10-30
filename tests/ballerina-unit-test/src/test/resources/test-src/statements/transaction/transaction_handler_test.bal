@@ -1,10 +1,6 @@
 import ballerina/transactions;
 
-public type TrxError record {
-    string message;
-    error? cause;
-    string data;
-};
+public type TrxError error<string, record {string data;}>;
 
 string a = "";
 string id1WithinTx = "";
@@ -158,8 +154,8 @@ function testTransactionThrowWithAllHandlers() returns (string) {
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
-                TrxError err = { message: " trxErr", data: "test" };
-                throw err;
+                Trxerror err = error(" trxErr", { data: "test" });
+                panic err;
             }
             a = a + " endTrx";
         } onretry {
@@ -180,8 +176,8 @@ function testTransactionCommitAfterFailureWithAllHandlers() returns (string) {
         transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction {
             a = a + " inTrx";
             if (i < 2) {
-                TrxError err = { message: " trxErr", data: "test" };
-                throw err;
+                Trxerror err = error(" trxErr", { data: "test"} );
+                panic err;
             }
             a = a + " endTrx";
         } onretry {
@@ -226,8 +222,8 @@ function testMultipleTransactionsFailedWithAllHandlers() returns (string) {
         transaction with retries = 0, oncommit = commitFunction, onabort = abortFunction {
             a = a + " inFirstTrx";
             if (i == 0) {
-                TrxError err = { message: " trxErr", data: "test" };
-                throw err;
+                Trxerror err = error(" trxErr", { data: "test"} );
+                panic err;
             }
             a = a + " endFirstTrx";
         } onretry {
@@ -286,8 +282,8 @@ function testMultipleTransactionsFailedWithAllHandlersWithID() returns (string, 
             id1WithinTx = transactions:getCurrentTransactionId();
             a = a + " inFirstTrx";
             if (i == 0) {
-                TrxError err = { message: " trxErr", data: "test" };
-                throw err;
+                Trxerror err = error(" trxErr", { data: "test" });
+                panic err;
             }
             a = a + " endFirstTrx";
         } onretry {

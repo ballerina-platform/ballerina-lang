@@ -17,25 +17,30 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -64,7 +69,8 @@ public abstract class AbstractItemResolver {
                 completionItems.add(this.populateBallerinaFunctionCompletionItem(symbolInfo));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
                 completionItems.add(this.populateVariableDefCompletionItem(symbolInfo));
-            } else if (bSymbol instanceof BTypeSymbol) {
+            } else if (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol)) {
+                // Here skip all the package symbols since the package is added separately
                 completionItems.add(BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
             }
         });
@@ -86,24 +92,6 @@ public abstract class AbstractItemResolver {
         }
         
         return completionItems;
-    }
-
-    /**
-     * Populate the Ballerina Function Completion Item.
-     * @param symbolInfo - symbol information
-     * @return completion item
-     */
-    private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
-        if (symbolInfo.isIterableOperation()) {
-            return BInvokableSymbolUtil.getFunctionCompletionItem(
-                    symbolInfo.getIterableOperationSignature().getInsertText(),
-                    symbolInfo.getIterableOperationSignature().getLabel());
-        }
-        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-        if (!(bSymbol instanceof BInvokableSymbol)) {
-            return null;
-        }
-        return BInvokableSymbolUtil.getFunctionCompletionItem((BInvokableSymbol) bSymbol);
     }
 
     /**
@@ -130,15 +118,18 @@ public abstract class AbstractItemResolver {
      * @param context               Completion operation context
      * @return {@link Boolean}      Whether invocation or Field Access
      */
-    protected boolean isInvocationOrFieldAccess(LSServiceOperationContext context) {
+    protected boolean isInvocationOrInteractionOrFieldAccess(LSServiceOperationContext context) {
         List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 2)
                 .stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         return poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                || poppedTokens.contains(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)
-                || poppedTokens.contains(UtilSymbolKeys.BANG_SYMBOL_KEY);
+                || poppedTokens.contains(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
+                || poppedTokens.contains(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
+                || poppedTokens.contains(UtilSymbolKeys.BANG_SYMBOL_KEY)
+                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
     }
 
     /**
@@ -178,12 +169,14 @@ public abstract class AbstractItemResolver {
      * Get variable definition context related completion items. This will extract the completion items analyzing the
      * variable definition context properties.
      * 
-     * @param completionContext     Completion context
-     * @return {@link List}         List of resolved completion items
+     * @param context           Completion context
+     * @return {@link List}     List of resolved completion items
      */
-    protected List<CompletionItem> getVarDefCompletionItems(LSServiceOperationContext completionContext) {
+    protected List<CompletionItem> getVarDefCompletionItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
+                .getCompletionItem().getSnippetSupport();
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
         filteredList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
@@ -196,30 +189,24 @@ public abstract class AbstractItemResolver {
                     && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
         });
         completionItems.addAll(getCompletionItemList(filteredList));
-
+        // Add the packages completion items.
+        completionItems.addAll(getPackagesCompletionItems(context));
         // Add the check keyword
-        CompletionItem checkKeyword = new CompletionItem();
-        checkKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
-        checkKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
-        checkKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(checkKeyword);
 
         // Add But keyword item
-        CompletionItem butKeyword = new CompletionItem();
-        butKeyword.setInsertText(Snippet.BUT.toString());
-        butKeyword.setLabel(ItemResolverConstants.BUT);
-        butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
-        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(butKeyword);
 
         // Add lengthof keyword item
-        CompletionItem lengthofKeyword = new CompletionItem();
-        lengthofKeyword.setInsertText(Snippet.LENGTHOF.toString());
-        lengthofKeyword.setLabel(ItemResolverConstants.LENGTHOF);
-        lengthofKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-
-        completionItems.add(checkKeyword);
-        completionItems.add(butKeyword);
+        CompletionItem lengthofKeyword = Snippet.KW_LENGTHOF.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(lengthofKeyword);
-        
+
+        // Add the trap expression keyword
+        CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(trapExpression);
+
         return completionItems;
     }
 
@@ -236,5 +223,70 @@ public abstract class AbstractItemResolver {
         } else {
             return this.getCompletionItemList(either.getRight());
         }
+    }
+
+    /**
+     * Get the completion item for a package import.
+     * If the package is already imported, additional text edit for the import statement will not be added.
+     * 
+     * @param ctx               LS Operation context
+     * @return {@link List}     List of packages completion items
+     */
+    protected List<CompletionItem> getPackagesCompletionItems(LSServiceOperationContext ctx) {
+        // First we include the packages from the imported list.
+        List<String> populatedList = new ArrayList<>();
+        BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(pkg, ctx).stream()
+                .map(bLangImportPackage -> {
+                    String orgName = bLangImportPackage.orgName.toString();
+                    String pkgName = String.join(".", bLangImportPackage.pkgNameComps.stream()
+                            .map(id -> id.value)
+                            .collect(Collectors.toList()));
+                    CompletionItem item = new CompletionItem();
+                    item.setLabel(orgName + "/" + pkgName);
+                    item.setInsertText(CommonUtil.getLastItem(bLangImportPackage.getPackageName()).value);
+                    item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                    item.setKind(CompletionItemKind.Module);
+                    populatedList.add(orgName + "/" + pkgName);
+                    return item;
+                }).collect(Collectors.toList());
+        List<BallerinaPackage> packages = LSPackageLoader.getSdkPackages();
+        packages.addAll(LSPackageLoader.getHomeRepoPackages());
+        
+        packages.forEach(ballerinaPackage -> {
+            String name = ballerinaPackage.getPackageName();
+            String orgName = ballerinaPackage.getOrgName();
+            if (!populatedList.contains(orgName + "/" + name)) {
+                CompletionItem item = new CompletionItem();
+                item.setLabel(ballerinaPackage.getFullPackageNameAlias());
+                item.setInsertText(name);
+                item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                item.setKind(CompletionItemKind.Module);
+                item.setAdditionalTextEdits(CommonUtil.getAutoImportTextEdits(ctx, orgName, name));
+                completionItems.add(item);
+            }
+        });
+        
+        return completionItems;
+    } 
+
+    // Private Methods
+
+    /**
+     * Populate the Ballerina Function Completion Item.
+     * @param symbolInfo - symbol information
+     * @return completion item
+     */
+    private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
+        if (symbolInfo.isIterableOperation()) {
+            return BInvokableSymbolUtil.getFunctionCompletionItem(
+                    symbolInfo.getIterableOperationSignature().getInsertText(),
+                    symbolInfo.getIterableOperationSignature().getLabel());
+        }
+        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+        if (!(bSymbol instanceof BInvokableSymbol)) {
+            return null;
+        }
+        return BInvokableSymbolUtil.getFunctionCompletionItem((BInvokableSymbol) bSymbol);
     }
 }

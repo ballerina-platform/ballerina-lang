@@ -80,13 +80,13 @@ public class RuntimeTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
         Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", packageName:\"ballerina" +
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", moduleName:\"ballerina" +
                 "/runtime\", fileName:\"<native>\", lineNumber:0}");
-        Assert.assertEquals(returns[1].stringValue(), "{callableName:\"level2Function\", packageName:\".\", " +
+        Assert.assertEquals(returns[1].stringValue(), "{callableName:\"level2Function\", moduleName:\".\", " +
                 "fileName:\"runtime-error.bal\", lineNumber:12}");
-        Assert.assertEquals(returns[2].stringValue(), "{callableName:\"level1Function\", packageName:\".\", " +
+        Assert.assertEquals(returns[2].stringValue(), "{callableName:\"level1Function\", moduleName:\".\", " +
                 "fileName:\"runtime-error.bal\", lineNumber:8}");
-        Assert.assertEquals(returns[3].stringValue(), "{callableName:\"testGetCallStack\", packageName:\".\", " +
+        Assert.assertEquals(returns[3].stringValue(), "{callableName:\"testGetCallStack\", moduleName:\".\", " +
                 "fileName:\"runtime-error.bal\", lineNumber:4}");
     }
 
@@ -94,7 +94,7 @@ public class RuntimeTest {
     public void testErrorStackFrame() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStackFrame");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"testErrorStackFrame\", packageName:\".\","
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"testErrorStackFrame\", moduleName:\".\","
                 + " fileName:\"runtime-error.bal\", lineNumber:17}");
     }
 }

@@ -1,14 +1,18 @@
 package org.ballerinalang.langserver.common.utils;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -17,7 +21,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -47,6 +50,7 @@ public class FilterUtils {
                                                                      List<SymbolInfo> symbolInfos) {
         ArrayList<SymbolInfo> resultList = new ArrayList<>();
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         SymbolInfo variable = getVariableByName(variableName, symbolInfos);
 
         if (variable == null) {
@@ -57,9 +61,17 @@ public class FilterUtils {
         BSymbol bVarSymbol = variable.getScopeEntry().symbol;
 
         if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol
-                && delimiter.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)
+                && delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
                 && ((BEndpointVarSymbol) bVarSymbol).getClientFunction.type instanceof BInvokableType) {
+            // Handling action invocations ep -> ...
             resultList.addAll(getEndpointActions((BEndpointVarSymbol) variable.getScopeEntry().symbol));
+        } else if (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
+                || delimiter.equals(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
+                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext) {
+            // Handling worker-interactions eg. msg -> ... || msg <- ...
+            List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            filteredList.removeIf(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol);
+            resultList.addAll(filteredList);
         } else if (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.BANG_SYMBOL_KEY)) {
             String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
@@ -105,12 +117,14 @@ public class FilterUtils {
                     // Get the struct fields
                     Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
                     fields.forEach((fieldName, fieldScopeEntry) -> {
-                        resultList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                        if (!fieldScopeEntry.symbol.getName().getValue().endsWith(".new")) {
+                            resultList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                        }
                     });
                 }
             });
 
-            CommonUtil.populateIterableOperations(variable, resultList);
+            CommonUtil.populateIterableOperations(variable, resultList, context);
         } else if (delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
             SymbolInfo packageSymbol = symbolInfos.stream().filter(item -> {
                 Scope.ScopeEntry scopeEntry = item.getScopeEntry();
@@ -164,10 +178,12 @@ public class FilterUtils {
             return returnMap;
         }
         symbolInfos.forEach(symbolInfo -> {
-            if ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
+            if (!CommonUtil.isInvalidSymbol(symbolInfo.getScopeEntry().symbol) 
+                    && (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
                     && symbolInfo.getScopeEntry().symbol.getType() != null 
                     && symbolInfo.getScopeEntry().symbol.getType().toString().equals(modifiedBType.toString())) 
-                    || symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
+                    || (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
+                    && CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol))) {
                 returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
             }
         });
@@ -182,7 +198,7 @@ public class FilterUtils {
      * @param symbols list of symbol info
      * @return {@link SymbolInfo}   Symbol Info extracted
      */
-    private static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
+    public static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
         return symbols.stream()
                 .filter(symbolInfo -> symbolInfo.getSymbolName().equals(name))
                 .findFirst()
@@ -194,10 +210,8 @@ public class FilterUtils {
             return  ((BArrayType) bType).eType.tsymbol.pkgID;
         } else if (bType instanceof BUnionType) {
             List<BType> memberTypeList = new ArrayList<>(((BUnionType) bType).getMemberTypes());
-            memberTypeList.removeIf(type -> (type instanceof BRecordType
-                    && ((BRecordType) type).tsymbol.getName().getValue().equals("error"))
-                    || type instanceof BNilType);
-            
+            memberTypeList.removeIf(type -> type.tsymbol instanceof BErrorTypeSymbol || type instanceof BNilType);
+
             if (memberTypeList.size() == 1) {
                 return memberTypeList.get(0).tsymbol.pkgID;
             }
@@ -208,9 +222,7 @@ public class FilterUtils {
     
     private static BType getBTypeForUnionType(BUnionType bType) {
         List<BType> memberTypeList = new ArrayList<>(bType.getMemberTypes());
-        memberTypeList.removeIf(type -> (type instanceof BRecordType
-                && ((BRecordType) type).tsymbol.getName().getValue().equals("error"))
-                || type instanceof BNilType);
+        memberTypeList.removeIf(type -> type.tsymbol instanceof BErrorTypeSymbol || type instanceof BNilType);
 
         if (memberTypeList.size() == 1) {
             return memberTypeList.get(0);

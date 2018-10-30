@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.net.grpc.config;
 
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+
 /**
  * Service configuration of gRPC Service.
  *
@@ -25,16 +27,20 @@ package org.ballerinalang.net.grpc.config;
 public class ServiceConfiguration {
 
     private String rpcEndpoint;
+    private BType requestType;
+    private BType responseType;
     private boolean clientStreaming;
     private boolean serverStreaming;
 
-    public ServiceConfiguration(String rpcEndpoint, boolean clientStreaming, boolean serverStreaming) {
+    public ServiceConfiguration(String rpcEndpoint, BType requestType, BType responseType, boolean clientStreaming,
+                                boolean serverStreaming) {
         this.rpcEndpoint = rpcEndpoint;
+        this.requestType = requestType;
+        this.responseType = responseType;
         this.clientStreaming = clientStreaming;
         this.serverStreaming = serverStreaming;
-
     }
-    
+
     public String getRpcEndpoint() {
         return rpcEndpoint;
     }
@@ -45,5 +51,13 @@ public class ServiceConfiguration {
     
     public boolean isServerStreaming() {
         return serverStreaming;
+    }
+
+    public BType getRequestType() {
+        return requestType;
+    }
+
+    public BType getResponseType() {
+        return responseType;
     }
 }

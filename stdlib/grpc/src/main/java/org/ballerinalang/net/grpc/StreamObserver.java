@@ -21,7 +21,7 @@ package org.ballerinalang.net.grpc;
  * Receives notifications from an observable stream of messages.
  * <p>
  * Referenced from grpc-java implementation.
- * <p>
+ *
  * <p>It is used by both the client stubs and service implementations for sending or receiving
  * stream messages. It is used for all {@link MethodDescriptor.MethodType}.
  *
@@ -31,10 +31,10 @@ public interface StreamObserver {
 
     /**
      * Receives a value from the stream.
-     * <p>
-     * <p>For unary, called only one time in both client and server side.<p>
-     * <p>For server streaming, called only one time in server side and multiple times in client side.<p>
-     * <p>For client streaming, called only one time in client side and multiple times in server side.<p>
+     *
+     * <p>For unary, called only one time in both client and server side.
+     * <p>For server streaming, called only one time in server side and multiple times in client side.
+     * <p>For client streaming, called only one time in client side and multiple times in server side.
      * <p>For bidirectional streaming, called multiple times in both client and server side.
      *
      * @param value Request/Response value.
@@ -43,7 +43,7 @@ public interface StreamObserver {
 
     /**
      * Receives a terminating error from the stream.
-     * <p>
+     *
      * <p>Called when there is an error processing. once called, connection is closed.
      *
      * @param t the error occurred on the stream

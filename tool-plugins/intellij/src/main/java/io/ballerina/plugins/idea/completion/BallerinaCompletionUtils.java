@@ -38,6 +38,7 @@ import io.ballerina.plugins.idea.completion.inserthandlers.ParenthesisWithSemico
 import io.ballerina.plugins.idea.completion.inserthandlers.SemiolonInsertHandler;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
+import io.ballerina.plugins.idea.psi.BallerinaChannelDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
@@ -90,6 +91,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder SERVICE;
     private static final LookupElementBuilder TYPE;
     private static final LookupElementBuilder XMLNS;
+    private static final LookupElement CHANNEL;
 
     // Simple types
     private static final LookupElementBuilder BLOB;
@@ -166,6 +168,7 @@ public class BallerinaCompletionUtils {
         SERVICE = createKeywordLookupElement("service");
         TYPE = createKeywordLookupElement("type");
         XMLNS = createKeywordLookupElement("xmlns");
+        CHANNEL = createLookupElement("channel");
 
         BLOB = createLookupElement("blob");
         BOOLEAN = createLookupElement("boolean");
@@ -424,6 +427,7 @@ public class BallerinaCompletionUtils {
         // Note - Other top level definitions are added as live templates.
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(CHANNEL, REFERENCE_TYPES_PRIORITY));
     }
 
     static void addExpressionKeywordsAsLookups(@NotNull CompletionResultSet resultSet) {
@@ -600,6 +604,16 @@ public class BallerinaCompletionUtils {
         } else {
             builder = builder.withTypeText(type);
         }
+
+        return PrioritizedLookupElement.withPriority(builder, GLOBAL_VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static LookupElement createChannelVariableLookupElement(@NotNull BallerinaChannelDefinition definition,
+            @Nullable String type) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier().getText(),
+                definition).withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY));
+        builder = builder.withTypeText("Variable");
 
         return PrioritizedLookupElement.withPriority(builder, GLOBAL_VARIABLE_PRIORITY);
     }

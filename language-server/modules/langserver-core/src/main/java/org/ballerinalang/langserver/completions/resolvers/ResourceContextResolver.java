@@ -21,10 +21,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,32 +33,24 @@ import java.util.List;
 public class ResourceContextResolver extends AbstractItemResolver {
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         List<CompletionItem> completionItems = new ArrayList<>();
 
         if (parserRuleContext == null) {
-            CompletionItem workerItem = new CompletionItem();
-            workerItem.setLabel(ItemResolverConstants.WORKER);
-            workerItem.setInsertText(Snippet.WORKER.toString());
-            workerItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            workerItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            
-            CompletionItem endpointItem = new CompletionItem();
-            endpointItem.setLabel(ItemResolverConstants.ENDPOINT);
-            endpointItem.setInsertText(Snippet.ENDPOINT.toString());
-            endpointItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            endpointItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-            
-            completionItems.add(workerItem);
-            completionItems.add(endpointItem);
-            
+            boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+                    .getSnippetSupport();
+            CompletionItem worker = Snippet.DEF_WORKER.get().build(new CompletionItem(), snippetCapability);
+            CompletionItem endpoint = Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), snippetCapability);
+            completionItems.add(worker);
+            completionItems.add(endpoint);
+
             return completionItems;
         }
         AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
 
         if (resolver != null) {
-            completionItems.addAll(resolver.resolveItems(completionContext));
+            completionItems.addAll(resolver.resolveItems(context));
         }
 
         return completionItems;

@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -67,13 +68,13 @@ import javax.net.ssl.TrustManagerFactory;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io", functionName = "openSecureSocket",
-        args = { @Argument(name = "host", type = TypeKind.STRING),
-                 @Argument(name = "port", type = TypeKind.INT),
-                 @Argument(name = "option", type = TypeKind.RECORD, structType = "SocketProperties",
-                           structPackage = "ballerina/io") },
+        args = {@Argument(name = "host", type = TypeKind.STRING),
+                @Argument(name = "port", type = TypeKind.INT),
+                @Argument(name = "option", type = TypeKind.RECORD, structType = "SocketProperties",
+                        structPackage = "ballerina/io")},
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io") },
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true)
 public class OpenSecureSocket extends BlockingNativeCallableUnit {
 
@@ -82,7 +83,10 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
     private static final String SEPARATOR = ",";
     private static final String SOCKET_PACKAGE = "ballerina/io";
     private static final String SOCKET_STRUCT_TYPE = "Socket";
-    private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
+    private static final String READABLE_BYTE_CHANNEL_STRUCT_TYPE = "ReadableByteChannel";
+    private static final String READABLE_CHANNEL = "readableChannel";
+    private static final String WRITABLE_BYTE_CHANNEL_STRUCT_TYPE = "WritableByteChannel";
+    private static final String WRITABLE_CHANNEL = "writableChannel";
 
     @Override
     public void execute(Context context) {
@@ -135,23 +139,21 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(IOUtils.createError(context, msg));
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            context.setReturnValues(errorStruct);
         }
     }
 
-    private BMap<String, BValue> createReturnStruct(Context context, SSLSocket sslSocket, ByteChannel channel)
-            throws IOException {
+    private BMap<String, BValue> createReturnStruct(Context context, SSLSocket sslSocket, ByteChannel channel) {
         PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SOCKET_PACKAGE);
-        // Create ByteChannel Struct
-        StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
-        Channel ballerinaSocketChannel = new SocketIOChannel(channel);
-        BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
-        channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 
         // Create Socket Struct
         StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
         BMap<String, BValue> socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
-        socketStruct.put(IOConstants.BYTE_CHANNEL_NAME, channelStruct);
+        socketStruct.put(READABLE_CHANNEL, getByteChannelStruct(channel, ioPackageInfo,
+                READABLE_BYTE_CHANNEL_STRUCT_TYPE));
+        socketStruct.put(WRITABLE_CHANNEL, getByteChannelStruct(channel, ioPackageInfo,
+                WRITABLE_BYTE_CHANNEL_STRUCT_TYPE));
         socketStruct.put(SocketConstants.REMOTE_PORT_FIELD, new BInteger(sslSocket.getPort()));
         socketStruct.put(SocketConstants.LOCAL_PORT_OPTION_FIELD, new BInteger(sslSocket.getLocalPort()));
         socketStruct.put(SocketConstants.REMOTE_ADDRESS_FIELD,
@@ -160,6 +162,15 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
                 new BString(sslSocket.getLocalAddress().getHostAddress()));
         socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
         return socketStruct;
+    }
+
+    private static BMap<String, BValue> getByteChannelStruct(ByteChannel byteChannel, PackageInfo ioPackageInfo,
+                                                             String channelType) {
+        StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(channelType);
+        Channel ballerinaSocketChannel = new SocketIOChannel(byteChannel);
+        BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
+        channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
+        return channelStruct;
     }
 
     private SSLContext getSslContext(BMap<String, BValue> options)

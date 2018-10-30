@@ -69,8 +69,8 @@ public type SimpleDurableTopicSubscriber object {
                 c.register(serviceType);
             }
             () => {
-                error e = {message:"Topic Subscriber cannot be nil"};
-                throw e;
+                error e = error("Topic Subscriber cannot be nil");
+                panic e;
             }
         }
     }
@@ -87,8 +87,8 @@ public type SimpleDurableTopicSubscriber object {
         match (consumerActions) {
             SimpleDurableTopicSubscriberActions c => return c;
             () => {
-                error e = {message:"Consumer actions cannot be nil"};
-                throw e;
+                error e = error("Consumer actions cannot be nil");
+                panic e;
             }
         }
     }
@@ -101,12 +101,13 @@ public type SimpleDurableTopicSubscriber object {
     # Creates a text message that can be sent through any JMS message producer to a queue or topic.
     #
     # + message - text content of the message
+    # + return - the created message, or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
+                error e = error("Session cannot be nil");
+                panic e;
             }
         }
     }
@@ -128,10 +129,11 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string identifier,
+    string identifier;
     map properties;
     string messageSelector;
     string topicPattern;
+    !...
 };
 
 
@@ -148,6 +150,7 @@ public type SimpleDurableTopicSubscriberActions object {
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
+    # + return - error upon failure to acknowledge the received message
     public function acknowledge(Message message) returns error? {
         return self.helper.acknowledge(message);
     }

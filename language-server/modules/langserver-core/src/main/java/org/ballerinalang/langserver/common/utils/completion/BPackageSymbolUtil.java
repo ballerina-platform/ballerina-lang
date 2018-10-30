@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.common.utils.completion;
 
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 
 /**
  * Utilities for BPackageSymbol items.
@@ -35,6 +36,7 @@ public class BPackageSymbolUtil {
         String[] delimiterSeparatedTokens = (name).split("\\.");
         completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         completionItem.setDetail(ItemResolverConstants.B_TYPE);
+        completionItem.setKind(CompletionItemKind.Reference);
 
         return completionItem;
     }

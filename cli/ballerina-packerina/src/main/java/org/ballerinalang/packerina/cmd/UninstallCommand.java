@@ -19,7 +19,7 @@ package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.UserRepositoryUtils;
+import org.ballerinalang.packerina.UninstallUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -32,7 +32,7 @@ import static org.ballerinalang.packerina.cmd.Constants.UNINSTALL_COMMAND;
  *
  * @since 0.90
  */
-@CommandLine.Command(name = UNINSTALL_COMMAND, description = "Uninstalls packages from the user repository")
+@CommandLine.Command(name = UNINSTALL_COMMAND, description = "Uninstalls modules from the user repository")
 public class UninstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
@@ -43,9 +43,6 @@ public class UninstallCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true)
-    private String debugPort;
-
     @Override
     public void execute() {
         if (helpFlag) {
@@ -55,14 +52,14 @@ public class UninstallCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageException("no package given");
+            throw LauncherUtils.createUsageExceptionWithHelp("no module given");
         }
 
         if (argList.size() > 1) {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
         String packageStr = argList.get(0);
-        UserRepositoryUtils.uninstallSourcePackage(packageStr);
+        UninstallUtils.uninstallPackage(packageStr);
     }
 
     @Override
@@ -72,12 +69,12 @@ public class UninstallCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("uninstall packages from the user repository \n");
+        out.append("uninstall modules from the user repository \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina uninstall <packagename> \n");
+        out.append("  ballerina uninstall <module-name> \n");
     }
 
     @Override

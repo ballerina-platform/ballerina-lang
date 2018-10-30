@@ -34,14 +34,14 @@ public class SQLTest {
     public void testSelectWithUntaintedQuery() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testSelectWithTaintedQueryNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-tainted-query-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 1);
+        Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'args'", 4, 40);
     }
 
@@ -50,14 +50,14 @@ public class SQLTest {
     public void testSelectWithUntaintedQueryProducingTaintedReturn() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testSelectWithUntaintedQueryProducingTaintedReturnNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 1);
+        Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'anyValue'", 28, 50);
     }
 }

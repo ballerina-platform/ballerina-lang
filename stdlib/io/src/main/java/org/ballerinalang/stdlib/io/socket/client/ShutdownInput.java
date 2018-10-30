@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.io.socket.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,6 +34,10 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NotYetConnectedException;
+
 /**
  * Extern function to ShutdownInput in a socket.
  *
@@ -42,7 +47,7 @@ import org.slf4j.LoggerFactory;
         orgName = "ballerina", packageName = "io",
         functionName = "shutdownInput",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-        returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "error")},
         isPublic = true
 )
 public class ShutdownInput extends BlockingNativeCallableUnit {
@@ -60,10 +65,19 @@ public class ShutdownInput extends BlockingNativeCallableUnit {
                 SocketIOChannel socketIOChannel = (SocketIOChannel) channel;
                 socketIOChannel.shutdownInput();
             }
-        } catch (Throwable e) {
+        } catch (NotYetConnectedException e) {
+            String message = "Socket is not connected.";
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            context.setReturnValues(errorStruct);
+        } catch (ClosedChannelException e) {
+            String message = "Socket connection already closed.";
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            context.setReturnValues(errorStruct);
+        } catch (IOException e) {
             String message = "Failed to shutdown input in socket:" + e.getMessage();
             log.error(message, e);
-            context.setReturnValues(IOUtils.createError(context, message));
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            context.setReturnValues(errorStruct);
         }
         context.setReturnValues();
     }

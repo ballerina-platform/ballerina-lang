@@ -5,6 +5,6 @@ function main(string... args) {
 }
 
 type foo record {
-    string a,
-    string b,
+    string a;
+    string b;
 };

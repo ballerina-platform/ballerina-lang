@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,13 +29,21 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.AlreadyConnectedException;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ConnectionPendingException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnresolvedAddressException;
+import java.nio.channels.UnsupportedAddressTypeException;
 
 /**
  * Extern function to open a Client socket connection.
@@ -45,7 +54,7 @@ import java.nio.channels.SocketChannel;
         orgName = "ballerina", packageName = "io",
         functionName = "connect",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket",
-                             structPackage = SocketConstants.SOCKET_PACKAGE),
+                structPackage = SocketConstants.SOCKET_PACKAGE),
         args = {@Argument(name = "host", type = TypeKind.STRING),
                 @Argument(name = "port", type = TypeKind.INT)
         },
@@ -74,12 +83,43 @@ public class Connect implements NativeCallableUnit {
                     new SocketConnectCallback(context, callback));
             SelectorManager.start();
             socketChannel.connect(new InetSocketAddress(host, port));
+        } catch (AlreadyConnectedException e) {
+            String msg = "Socket is already connected.";
+            sendError(msg, context, callback, e, false);
+        } catch (ConnectionPendingException e) {
+            String msg = "Socket connect attempt already in progress.";
+            sendError(msg, context, callback, e, false);
+        } catch (ClosedByInterruptException e) {
+            String msg = "Socket connect attempt interrupted.";
+            sendError(msg, context, callback, e, false);
+        } catch (ClosedChannelException e) {
+            String msg = "Socket connection already closed.";
+            sendError(msg, context, callback, e, false);
+        } catch (UnresolvedAddressException e) {
+            String msg = "unresolved socket address: " + host;
+            sendError(msg, context, callback, e, false);
+        } catch (UnsupportedAddressTypeException e) {
+            String msg = "Socket address doesn't support for a TCP connection.";
+            sendError(msg, context, callback, e, false);
+        } catch (SecurityException e) {
+            String msg = "Unknown error occurred.";
+            sendError(msg, context, callback, e, true);
+        } catch (IOException e) {
+            String msg = "Failed to open a connection to [" + host + ":" + port + "]";
+            sendError(msg, context, callback, e, true);
         } catch (Throwable e) {
-            String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
-            log.error(msg, e);
-            context.setReturnValues(IOUtils.createError(context, msg));
-            callback.notifySuccess();
+            String msg = "An error occurred";
+            sendError(msg, context, callback, e, true);
         }
+    }
+
+    private void sendError(String msg, Context context, CallableUnitCallback callback, Throwable e, boolean isLogging) {
+        if (isLogging) {
+            log.error(msg, e);
+        }
+        BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+        context.setReturnValues(errorStruct);
+        callback.notifySuccess();
     }
 
     @Override

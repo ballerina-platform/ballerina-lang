@@ -1,7 +1,7 @@
 type Person record {
     string name;
     int age;
-    string address,
+    string address;
     !...
 };
 
@@ -9,7 +9,7 @@ type Student record {
     string name;
     int age;
     string address;
-    string class,
+    string class;
     !...
 };
 
@@ -40,7 +40,7 @@ type Employee record {
     string first_name;
     string last_name;
     int age;
-    Address address,
+    Address address;
     !...
 };
 
@@ -48,13 +48,13 @@ type Address record {
     string number;
     string street;
     string city;
-    PhoneNumber phoneNumber,
+    PhoneNumber phoneNumber;
     !...
 };
 
 type PhoneNumber record {
     string areaCode;
-    string number,
+    string number;
     !...
 };
 

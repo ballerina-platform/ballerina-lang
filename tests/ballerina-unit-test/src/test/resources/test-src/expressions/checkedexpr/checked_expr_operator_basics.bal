@@ -4,7 +4,7 @@ function openFileSuccess(string path) returns (boolean | error) {
 }
 
 function openFileFailure(string path) returns (boolean | error) {
-    error  e = {message: "file not found error: " + path};
+    error  e = error("file not found error: " + path);
     return e;
 }
 
@@ -79,6 +79,7 @@ public type myerror record {
     string message;
     error? cause;
     int code;
+    !...
 };
 
 public type customError record {
@@ -86,10 +87,11 @@ public type customError record {
     error? cause;
     int code;
     string data;
+    !...
 };
 
 function getPerson() returns person | myerror {
-   //myerror e = {message:"ddd"};
+   //myerror e = error("ddd");
     //return e;
     person p = {name:"Diayasena"};
     return  p;
@@ -102,12 +104,12 @@ function testSafeAssignOpInAssignmentStatement7 () returns string {
 
 
 function readLineError() returns string | myerror {
-    myerror e = { message: "io error" };
+    myerror e = error("io error");
     return e;
 }
 
 function readLineCustomError() returns string | customError {
-    customError e = { message: "custom io error", data: "foo.txt"};
+    customerror e = error("custom io error", { data: "foo.txt"});
     return e;
 }
 
@@ -143,7 +145,7 @@ function testCheckExprInBinaryExpr6() returns string | customError {
     return str;
 }
 
-// This test case should throw an error since customError is not assignable to the myerror
+// This test case should panic an error since customError is not assignable to the myerror
 function testCheckExprInBinaryExpr7() returns string | customError {
     string str = "hello, " + check readLineError();
     return str;

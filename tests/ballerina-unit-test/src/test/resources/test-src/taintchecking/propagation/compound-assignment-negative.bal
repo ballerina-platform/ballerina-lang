@@ -10,7 +10,7 @@ public function main (string... args) {
 
     int x3;
     x3 = check <int>args[0];
-    x3++;
+    x3 += 1;
     secureFunction(x3,x3);
 }
 

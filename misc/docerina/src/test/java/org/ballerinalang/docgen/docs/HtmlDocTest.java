@@ -53,7 +53,7 @@ public class HtmlDocTest {
     public void setup() {
     }
 
-    @Test(description = "Multiple packages should be shown even when one page is generated")
+    @Test(description = "Multiple modules should be shown even when one page is generated")
     public void testMultiPackage() {
         List<Link> packages = new ArrayList<>();
         packages.add(new Link(new PackageName("a.b.c", ""), "", false));
@@ -69,14 +69,14 @@ public class HtmlDocTest {
     }
 
 
-    @Test(description = "Empty package should give an empty page")
+    @Test(description = "Empty module should give an empty page")
     public void testEmptyPackage() {
         BLangPackage bLangPackage = createPackage("");
         Page page = generatePage(bLangPackage);
         Assert.assertTrue(page.constructs.isEmpty());
     }
 
-    @Test(description = "Functions in a package should be shown in the constructs")
+    @Test(description = "Functions in a module should be shown in the constructs")
     public void testFunctions() {
         BLangPackage bLangPackage = createPackage("public function hello(string name) returns (string)" +
                 "{return \"a\";}");
@@ -107,10 +107,10 @@ public class HtmlDocTest {
                 ".html#int,builtin.html#error", "Invalid link to return type");
     }
 
-    @Test(description = "Connectors in a package should be shown in the constructs")
+    @Test(description = "Connectors in a module should be shown in the constructs")
     public void testConnectors() {
         String source = "# GitHub client connector\n" +
-                "public type TestConnector object {\n" +
+                "public type TestConnector abstract object {\n" +
                 "public string url;\n" +
                 "public string path;\n" +
                 "    # Test Connector action testAction.\n" +
@@ -149,7 +149,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
     }
 
-    @Test(description = "Connectors in a package should be shown in the constructs with new docerina syntax")
+    @Test(description = "Connectors in a module should be shown in the constructs with new docerina syntax")
     public void testConnectorsWithNewSyntax() {
         BLangPackage bLangPackage = createPackage(
                 "import ballerina/http;\n" +
@@ -162,7 +162,7 @@ public class HtmlDocTest {
                         "# + githubClientConfiguration - GitHub client configurations (Access token, Client " +
                         "endpoint configurations)\n" +
                         "# + githubConnector - GitHub connector object\n" +
-                        "public type Client object {\n" +
+                        "public type Client abstract object {\n" +
                         "        public GitHubClientConfig githubClientConfiguration = {};\n" +
                         "        public TestConnector githubConnector = new;\n" +
                         "\n" +
@@ -239,8 +239,8 @@ public class HtmlDocTest {
                 "# + name - name of the user\n" +
                 "# + age - age of the user\n" +
                 "public type User record {\n" +
-                "    string name,\n" +
-                "    int age,\n" +
+                "    string name;\n" +
+                "    int age;\n" +
                 "};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
@@ -262,10 +262,10 @@ public class HtmlDocTest {
         Assert.assertEquals(field.description, "<p>age of the user</p>\n");
     }
 
-    @Test(description = "Objects in a package should be shown in the constructs")
+    @Test(description = "Objects in a module should be shown in the constructs")
     public void testObjects() {
         String source = "# Object Test\n" +
-                "public type Test object {\n" +
+                "public type Test abstract object {\n" +
                 "    \n" +
                 "    public string url;\n" +
                 "    public string path;\n" +
@@ -308,7 +308,42 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
     }
 
-    @Test(description = "Objects in a package should be shown in the constructs with new docerina syntax")
+    @Test(description = "Test user defined types")
+    public void testUserDefinedTypes() {
+        BLangPackage bLangPackage = createPackage("# person description.\n" +
+                "#\n" +
+                "# + name - name of the person\n" +
+                "public type Person object {\n" +
+                "    public string name;\n" +
+                "};\n" +
+                "\n" +
+                "# user description.\n" +
+                "public type User Person;\n");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 2);
+
+        Documentable construct = page.constructs.get(0);
+        Assert.assertEquals(construct.getClass(), ObjectDoc.class, "Invalid documentable type");
+        ObjectDoc object = (ObjectDoc) construct;
+        Assert.assertEquals(object.name, "Person");
+        Assert.assertEquals(object.description, "<p>person description.</p>\n");
+        Assert.assertEquals(object.icon, "fw-struct");
+
+        List<Field> fields = object.fields;
+        Assert.assertEquals(fields.size(), 1);
+        Field field = fields.get(0);
+        Assert.assertEquals(field.name, "name");
+        Assert.assertEquals(field.description, "<p>name of the person</p>\n");
+
+        construct = page.constructs.get(1);
+        Assert.assertEquals(construct.getClass(), EnumDoc.class, "Invalid documentable type");
+        EnumDoc userDefinedType = (EnumDoc) construct;
+        Assert.assertEquals(userDefinedType.name, "User");
+        Assert.assertEquals(userDefinedType.description, "<p>user description.</p>\n");
+        Assert.assertEquals(userDefinedType.icon, "fw-type");
+    }
+
+    @Test(description = "Objects in a module should be shown in the constructs with new docerina syntax")
     public void testObjectsWithNewSyntax() {
         String code = "#Object Test\n#Description.\n" +
                 "# + url - endpoint url\n" +
@@ -337,15 +372,15 @@ public class HtmlDocTest {
                 " \n" +
                 "   # + return - is success?\n" +
                 "\n" +
-                "    public function test1(int x) returns boolean;\n" +
+                "    public function test1(int x) returns boolean { return true; } \n" +
                 "\n" +
                 "    # test1 function\n" +
                 "    # + return - returns the string or an error\n" +
                 "\n" +
                 " \n" +
-                "   public function test2() returns string|error;\n" +
+                "   public function test2() returns string|error { return \"hello\"; } \n" +
                 "\n" +
-                "    function test3();\n" +
+                "    function test3() {}\n" +
                 "};\n";
         BLangPackage bLangPackage = createPackage(code);
         Page page = generatePage(bLangPackage);
@@ -386,7 +421,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>returns the string or an error</p>\n");
     }
 
-    @Test(description = "Annotation in a package should be shown in the constructs")
+    @Test(description = "Annotation in a module should be shown in the constructs")
     public void testAnnotations() {
         BLangPackage bLangPackage = createPackage(" " +
                 "public annotation ParameterInfo;" +
@@ -397,7 +432,7 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(1).name, "ReturnInfo");
     }
 
-    @Test(description = "Annotation in a package should be shown in the constructs")
+    @Test(description = "Annotation in a module should be shown in the constructs")
     public void testGlobalVariables() {
         BLangPackage bLangPackage = createPackage("public int total = 98;" +
                 "public string content = \"Name\";");
@@ -407,7 +442,7 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(1).name, "content");
     }
 
-    @Test(description = "Structs in a package should be shown in the constructs")
+    @Test(description = "Structs in a module should be shown in the constructs")
     public void testStructs() {
         BLangPackage bLangPackage = createPackage("public type Message record {string message; error? cause;};");
         Page page = generatePage(bLangPackage);
@@ -415,7 +450,7 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(0).name, "Message");
     }
 
-    @Test(description = "One function with a struct bindings in a package should be grouped together shown in the " +
+    @Test(description = "One function with a struct bindings in a module should be grouped together shown in the " +
             "constructs", enabled = false)
     public void testFunctionsWithStructBindings() {
         BLangPackage bLangPackage = createPackage("public function <Message m>hello(){} " +
@@ -426,7 +461,7 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(0).children.get(0).name, "hello");
     }
 
-    @Test(description = "One function without a struct bindings in a package should not be grouped together with the" +
+    @Test(description = "One function without a struct bindings in a module should not be grouped together with the" +
             "structs shown in the constructs", enabled = false)
     public void testFunctionsWithoutStructBindings() {
         BLangPackage bLangPackage = createPackage("public function hello(){} " +
@@ -437,7 +472,7 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(1).name, "hello");
     }
 
-    @Test(description = "Functions with struct bindings in a package should be grouped together and functions" +
+    @Test(description = "Functions with struct bindings in a module should be grouped together and functions" +
             "without struct bindings should be isolated as shown in the constructs", enabled = false)
     public void testFunctionsWithWithoutStructBindings() {
         BLangPackage bLangPackage = createPackage("public function <Message m>hello(){} " +

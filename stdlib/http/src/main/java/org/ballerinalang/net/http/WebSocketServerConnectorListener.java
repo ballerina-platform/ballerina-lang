@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -66,7 +67,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         if (onUpgradeResource != null) {
             webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
-                    onUpgradeResource.getCorsHeaders());
+                                                                   onUpgradeResource.getCorsHeaders());
             Resource balResource = onUpgradeResource.getBalResource();
             BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                     .getHttpCarbonRequest(), httpEndpointConfig);
@@ -126,7 +127,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         }
 
         @Override
-        public void notifyFailure(BMap<String, BValue> error) {
+        public void notifyFailure(BError error) {
             ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             WebSocketOpenConnectionInfo connectionInfo =
                     connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
@@ -157,13 +158,19 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         WebSocketDispatcher.dispatchCloseMessage(
-                connectionManager.removeConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
+                connectionManager.getConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
+    }
+
+    @Override
+    public void onClose(WebSocketConnection webSocketConnection) {
+        WebSocketUtil.setListenerOpenField(
+                connectionManager.removeConnectionInfo(webSocketConnection.getChannelId()));
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(
-                connectionManager.removeConnectionInfo(webSocketConnection.getChannelId()), throwable);
+                connectionManager.getConnectionInfo(webSocketConnection.getChannelId()), throwable);
     }
 
     @Override

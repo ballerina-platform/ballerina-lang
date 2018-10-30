@@ -62,7 +62,6 @@ public enum TypeKind {
     MAP("map"),
     FUTURE("future"),
     PACKAGE("package"),
-    ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
     ENDPOINT("endpoint"),
@@ -74,13 +73,14 @@ public enum TypeKind {
     NIL("null"),
     NONE(""),
     OTHER("other"),
-    MESSAGE("message"),
+    ERROR("error"),
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
     OBJECT("object"),
     RECORD("record"),
     FINITE("finite"),
+    CHANNEL("channel")
     ;
 
     private String name;

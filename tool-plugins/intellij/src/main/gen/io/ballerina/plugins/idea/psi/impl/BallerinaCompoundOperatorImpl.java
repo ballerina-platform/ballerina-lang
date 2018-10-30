@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaCompoundOperatorImpl extends BallerinaCompositeElementImpl implements BallerinaCompoundOperator {
 
-  public BallerinaCompoundOperatorImpl(ASTNode node) {
+  public BallerinaCompoundOperatorImpl(@NotNull ASTNode node) {
     super(node);
   }
 
@@ -49,14 +49,50 @@ public class BallerinaCompoundOperatorImpl extends BallerinaCompositeElementImpl
 
   @Override
   @Nullable
+  public PsiElement getCompoundBitAnd() {
+    return findChildByType(COMPOUND_BIT_AND);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getCompoundBitOr() {
+    return findChildByType(COMPOUND_BIT_OR);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getCompoundBitXor() {
+    return findChildByType(COMPOUND_BIT_XOR);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getCompoundDiv() {
     return findChildByType(COMPOUND_DIV);
   }
 
   @Override
   @Nullable
+  public PsiElement getCompoundLeftShift() {
+    return findChildByType(COMPOUND_LEFT_SHIFT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getCompoundLogicalShift() {
+    return findChildByType(COMPOUND_LOGICAL_SHIFT);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getCompoundMul() {
     return findChildByType(COMPOUND_MUL);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getCompoundRightShift() {
+    return findChildByType(COMPOUND_RIGHT_SHIFT);
   }
 
   @Override

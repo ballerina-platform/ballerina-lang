@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -103,8 +104,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -157,35 +156,29 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        boolean isTestSrc = CommonUtil.isTestSource(this.lsContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
+        BLangPackage evalPkg = isTestSrc ? pkgNode.getTestablePkg() : pkgNode;
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(evalPkg.symbol);
         this.symbolEnv = pkgEnv;
 
-        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream()
-                .filter(filterNodeByCompilationUnit(lsContext.get(DocumentServiceKeys.FILE_NAME_KEY)))
-                .collect(Collectors.toList());
-
-        List<BLangImportPackage> imports = pkgNode.getImports().stream()
-                .filter(filterNodeByCompilationUnit(lsContext.get(DocumentServiceKeys.FILE_NAME_KEY)))
-                .collect(Collectors.toList());
+        List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, lsContext);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(evalPkg, lsContext);
         
         imports.forEach(bLangImportPackage -> {
-            if (!bLangImportPackage.getOrgName().getValue().equals("ballerina")
-                    && !bLangImportPackage.symbol.getName().getValue().equals("transaction")) {
-                cursorPositionResolver = TopLevelNodeScopeResolver.class;
-                this.blockOwnerStack.push(pkgNode);
-                acceptNode(bLangImportPackage, pkgEnv);
-            }
+            cursorPositionResolver = TopLevelNodeScopeResolver.class;
+            this.blockOwnerStack.push(evalPkg);
+            acceptNode(bLangImportPackage, pkgEnv);
         });
 
         topLevelNodes.forEach(topLevelNode -> {
             cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(pkgNode);
+            this.blockOwnerStack.push(evalPkg);
             acceptNode((BLangNode) topLevelNode, pkgEnv);
         });
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
         if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
-            this.lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, pkgNode);
+            this.lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, evalPkg);
             this.populateSymbols(this.resolveAllVisibleSymbols(this.getSymbolEnv()), this.getSymbolEnv());
             forceTerminateVisitor();
         }
@@ -211,7 +204,6 @@ public class TreeVisitor extends LSNodeVisitor {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver);
 
         funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, funcEnv));
-        funcNode.docAttachments.forEach(bLangDocumentation -> this.acceptNode(bLangDocumentation, funcEnv));
 
         if (terminateVisitor || cpr.isCursorBeforeNode(funcNode.getPosition(), funcNode, this, this.lsContext)
                 || isWithinParameterContext(functionName, UtilSymbolKeys.FUNCTION_KEYWORD_KEY, funcEnv)) {
@@ -627,6 +619,12 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangPanic panicNode) {
+        CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(panicNode.getPosition(), panicNode, this, this.lsContext);
+    }
+
+    @Override
     public void visit(BLangLock lockNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (cpr.isCursorBeforeNode(lockNode.getPosition(), lockNode, this, this.lsContext)) {
@@ -992,9 +990,5 @@ public class TreeVisitor extends LSNodeVisitor {
 
     private void populateSymbolEnvNode(BLangNode node) {
         lsContext.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, node);
-    }
-    
-    private Predicate<Node> filterNodeByCompilationUnit(String cUnit) {
-        return node -> node.getPosition().getSource().getCompilationUnitName().equals(cUnit);
     }
 }

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.util.debugger.dto;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BValue;
@@ -66,9 +67,17 @@ public class VariableDTO {
         value = getStringValue(bValue);
     }
 
+    public void setBValue(BValue bValue, BType bType) {
+        type = bType.toString();
+        value = getStringValue(bValue);
+    }
+
     private String getStringValue(BValue bValue) {
         String bValueString;
-        if (bValue instanceof BValueType || bValue instanceof BXML || bValue.getType().getTag() == TypeTags.JSON) {
+        if (bValue == null) {
+            bValueString = null;
+        } else if (bValue instanceof BValueType || bValue instanceof BXML ||
+                bValue.getType().getTag() == TypeTags.JSON) {
             bValueString = bValue.stringValue();
         } else if (bValue instanceof BNewArray) {
             BNewArray bArray = (BNewArray) bValue;

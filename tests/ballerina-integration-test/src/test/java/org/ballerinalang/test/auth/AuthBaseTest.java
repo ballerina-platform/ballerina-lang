@@ -20,7 +20,6 @@ package org.ballerinalang.test.auth;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
@@ -32,10 +31,13 @@ import java.io.File;
  */
 public class AuthBaseTest extends BaseTest {
     protected static BServerInstance serverInstance;
+    protected static EmbeddedDirectoryServer embeddedDirectoryServer;
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
-    public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094};
+    public void start() throws Exception {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097};
+        embeddedDirectoryServer = new EmbeddedDirectoryServer();
+        embeddedDirectoryServer.startLdapServer(9389);
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth").getAbsolutePath();
@@ -47,6 +49,7 @@ public class AuthBaseTest extends BaseTest {
 
     @AfterGroups(value = "auth-test", alwaysRun = true)
     public void cleanup() throws Exception {
+        embeddedDirectoryServer.stopLdapService();
         serverInstance.removeAllLeechers();
         serverInstance.shutdownServer();
     }

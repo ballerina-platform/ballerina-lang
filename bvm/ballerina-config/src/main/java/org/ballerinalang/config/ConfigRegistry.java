@@ -63,6 +63,7 @@ public class ConfigRegistry {
      * @param runtimeParams     The Ballerina runtime parameters (-B params)
      * @param configFilePath    The path to the user provided Ballerina config file
      * @param ballerinaConfPath Path to the default ballerina.conf file
+     * @throws IOException Thrown if there was an error while attempting to process the config file
      */
     public void initRegistry(Map<String, String> runtimeParams, String configFilePath, Path ballerinaConfPath)
             throws IOException {

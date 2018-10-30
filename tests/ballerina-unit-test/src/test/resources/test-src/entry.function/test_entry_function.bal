@@ -15,8 +15,8 @@
 // under the License.
 import ballerina/io;
 
-function main() {
-    // do nothing
+public function main() returns int {
+    return 0;
 }
 
 public function noParamEntry() returns int {

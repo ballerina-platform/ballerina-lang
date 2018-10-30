@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
@@ -26,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,6 @@ public class BSymbol implements Symbol {
     public BSymbol owner;
     public boolean tainted;
     public boolean closure;
-    public DocAttachment documentation;
     public MarkdownDocAttachment markdownDocumentation;
 
     /**
@@ -60,10 +59,6 @@ public class BSymbol implements Symbol {
         this.pkgID = pkgID;
         this.type = type;
         this.owner = owner;
-    }
-
-    public DocAttachment getDocAttachment() {
-        return documentation;
     }
 
     public MarkdownDocAttachment getMarkdownDocAttachment() {
@@ -87,7 +82,7 @@ public class BSymbol implements Symbol {
 
     @Override
     public Set<Flag> getFlags() {
-        return null;
+        return Flags.unMask(flags);
     }
 
     @Override

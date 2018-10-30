@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.util;
 
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.config.YAMLTransportConfigurationBuilder;
 
 /**
  * Transport configuration provider for HTTP Client and Server connectors.

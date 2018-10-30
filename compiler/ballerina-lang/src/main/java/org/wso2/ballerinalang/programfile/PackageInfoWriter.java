@@ -52,6 +52,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Serialize Ballerina {@code PackageInfo} structure to a byte stream.
@@ -252,28 +253,38 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(callableUnitInfo.attachedToTypeCPIndex);
         }
 
+        writeWorkerData(dataOutStream, callableUnitInfo);
+
+        writeAttributeInfoEntries(dataOutStream, callableUnitInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeWorkerData(DataOutputStream dataOutStream, CallableUnitInfo callableUnitInfo)
+            throws IOException {
         ByteArrayOutputStream workerDataBAOS = new ByteArrayOutputStream();
         DataOutputStream workerDataDOS = new DataOutputStream(workerDataBAOS);
 
-        WorkerDataChannelInfo[] workerDataChannelInfoEntries = callableUnitInfo.getWorkerDataChannelInfo();
-        workerDataDOS.writeShort(workerDataChannelInfoEntries.length);
-        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfoEntries) {
-            writeWorkerDataChannelInfo(workerDataDOS, dataChannelInfo);
-        }
-
         WorkerInfo defaultWorker = callableUnitInfo.defaultWorkerInfo;
-        WorkerInfo[] workerInfoEntries = callableUnitInfo.getWorkerInfoEntries();
-        workerDataDOS.writeShort(workerInfoEntries.length + 1);
-        writeWorkerInfo(workerDataDOS, defaultWorker);
-        for (WorkerInfo workerInfo : workerInfoEntries) {
-            writeWorkerInfo(workerDataDOS, workerInfo);
+        if (defaultWorker == null) {
+            // No default worker implies an abstract function. Then there's no worker data.
+            dataOutStream.writeInt(0);
+        } else {
+            WorkerDataChannelInfo[] workerDataChannelInfoEntries = callableUnitInfo.getWorkerDataChannelInfo();
+            workerDataDOS.writeShort(workerDataChannelInfoEntries.length);
+            for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfoEntries) {
+                writeWorkerDataChannelInfo(workerDataDOS, dataChannelInfo);
+            }
+
+            WorkerInfo[] workerInfoEntries = callableUnitInfo.getWorkerInfoEntries();
+            workerDataDOS.writeShort(workerInfoEntries.length + 1);
+            writeWorkerInfo(workerDataDOS, defaultWorker);
+            for (WorkerInfo workerInfo : workerInfoEntries) {
+                writeWorkerInfo(workerDataDOS, workerInfo);
+            }
+
+            byte[] workerData = workerDataBAOS.toByteArray();
+            dataOutStream.writeInt(workerData.length);
+            dataOutStream.write(workerData);
         }
-
-        byte[] workerData = workerDataBAOS.toByteArray();
-        dataOutStream.writeInt(workerData.length);
-        dataOutStream.write(workerData);
-
-        writeAttributeInfoEntries(dataOutStream, callableUnitInfo.getAttributeInfoEntries());
     }
 
     private static void writeWorkerDataChannelInfo(DataOutputStream dataOutStream,
@@ -331,12 +342,6 @@ public class PackageInfoWriter {
             writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
         }
 
-        // Write attached function info entries
-        dataOutStream.writeShort(objectInfo.attachedFuncInfoEntries.size());
-        for (AttachedFunctionInfo attachedFuncInfo : objectInfo.attachedFuncInfoEntries) {
-            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
-        }
-
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, objectInfo.getAttributeInfoEntries());
     }
@@ -353,12 +358,6 @@ public class PackageInfoWriter {
         dataOutStream.writeShort(recordInfo.fieldInfoEntries.size());
         for (StructFieldInfo structFieldInfoEntry : recordInfo.fieldInfoEntries) {
             writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
-        }
-
-        // Write attached function info entries TODO remove below segment once record init function removed
-        dataOutStream.writeShort(recordInfo.attachedFuncInfoEntries.size());
-        for (AttachedFunctionInfo attachedFuncInfo : recordInfo.attachedFuncInfoEntries) {
-            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
         }
 
         // Write attribute info
@@ -411,26 +410,7 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(paramNameCPIndex);
         }
 
-        ByteArrayOutputStream workerDataBAOS = new ByteArrayOutputStream();
-        DataOutputStream workerDataDOS = new DataOutputStream(workerDataBAOS);
-
-        WorkerDataChannelInfo[] workerDataChannelInfoEntries = resourceInfo.getWorkerDataChannelInfo();
-        workerDataDOS.writeShort(workerDataChannelInfoEntries.length);
-        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfoEntries) {
-            writeWorkerDataChannelInfo(workerDataDOS, dataChannelInfo);
-        }
-
-        WorkerInfo defaultWorker = resourceInfo.defaultWorkerInfo;
-        WorkerInfo[] workerInfoEntries = resourceInfo.getWorkerInfoEntries();
-        workerDataDOS.writeShort(workerInfoEntries.length + 1);
-        writeWorkerInfo(workerDataDOS, defaultWorker);
-        for (WorkerInfo workerInfo : workerInfoEntries) {
-            writeWorkerInfo(workerDataDOS, workerInfo);
-        }
-
-        byte[] workerData = workerDataBAOS.toByteArray();
-        dataOutStream.writeInt(workerData.length);
-        dataOutStream.write(workerData);
+        writeWorkerData(dataOutStream, resourceInfo);
 
         writeAttributeInfoEntries(dataOutStream, resourceInfo.getAttributeInfoEntries());
     }
@@ -524,8 +504,8 @@ public class PackageInfoWriter {
                     attrDataOutStream.writeInt(errorTableEntry.ipFrom);
                     attrDataOutStream.writeInt(errorTableEntry.ipTo);
                     attrDataOutStream.writeInt(errorTableEntry.ipTarget);
-                    attrDataOutStream.writeInt(errorTableEntry.priority);
-                    attrDataOutStream.writeInt(errorTableEntry.errorStructCPIndex);
+                    attrDataOutStream.writeInt(
+                            Optional.ofNullable(errorTableEntry.errorVarIndex).map(Operand::getValue).orElse(-1));
                 }
                 break;
 
@@ -619,13 +599,6 @@ public class PackageInfoWriter {
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
-    }
-
-    private static void writeAttachedFunctionInfo(DataOutputStream dataOutStream,
-                                                  AttachedFunctionInfo attachedFuncInfo) throws IOException {
-        dataOutStream.writeInt(attachedFuncInfo.nameCPIndex);
-        dataOutStream.writeInt(attachedFuncInfo.signatureCPIndex);
-        dataOutStream.writeInt(attachedFuncInfo.flags);
     }
 
     private static void writeLocalVariableInfo(DataOutputStream dataOutStream,

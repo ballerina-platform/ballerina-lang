@@ -1,11 +1,9 @@
-
-
 function readLineSuccess() returns string {
     return "Hello, World!!!";
 }
 
 function readLineError() returns error {
-    error e = {message:"io error"};
+    error e = error("io error");
     return e;
 }
 
@@ -17,21 +15,12 @@ function testCheckedExprSemanticErrors2() {
     string line = check readLineError();
 }
 
-public type myerror record {
-    string message;
-    error? cause;
-    int code;
-};
+public type myerror error<string, record { int code; }>;
 
-public type customError record {
-    string message;
-    error? cause;
-    int code;
-    string data;
-};
+public type customError error<string, record { int code; string data; }>;
 
 function readLine() returns myerror | customError {
-    myerror e = {message:"io error"};
+    myerror e = error("io error");
     return e;
 }
 
@@ -48,11 +37,10 @@ function testCheckedExprSemanticErrors4() {
 }
 
 function readLineProper() returns string | myerror | customError {
-    myerror e = {message:"io error"};
+    myerror e = error("io error");
     return e;
 }
 
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }
-

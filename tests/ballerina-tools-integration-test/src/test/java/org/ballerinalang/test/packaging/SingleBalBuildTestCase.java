@@ -45,17 +45,15 @@ public class SingleBalBuildTestCase extends BaseTest {
     public void setUp() throws BallerinaTestException, IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-single-bal-");
         envVariables = PackagingTestUtils.getEnvVariables();
-        Path tempPackage = tempProjectDirectory.resolve("sourcePkg");
-        Files.createDirectories(tempPackage);
+        Path tempModule = tempProjectDirectory.resolve("sourcePkg");
+        Files.createDirectories(tempModule);
 
         // Write bal file
-        balFilePath = tempPackage.resolve("main.bal");
+        balFilePath = tempModule.resolve("main.bal");
         Files.createFile(balFilePath);
         String mainFuncContent = "import ballerina/io;\n" +
                 "\n" +
-                "documentation {\n" +
-                "   Prints `Hello World`.\n" +
-                "}\n" +
+                "# Prints `Hello World`.\n" +
                 "public function main(string... args) {\n" +
                 "    io:println(\"Hello World!\");\n" +
                 "}\n";
@@ -84,7 +82,7 @@ public class SingleBalBuildTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(generatedBalx));
     }
 
-    @Test(description = "Test building a bal file to the output file givenby the user")
+    @Test(description = "Test building a bal file to the output file given by the user")
     public void testBuildingSourceToOutput() throws Exception {
         Path targetDirPath = tempProjectDirectory.resolve("target");
         Files.createDirectories(targetDirPath);

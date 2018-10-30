@@ -36,14 +36,8 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileTime;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -59,18 +53,12 @@ public class DirectoryListenerConnectorTest {
     @BeforeClass
     public void init() {
         try {
-            FileAttribute<Set<PosixFilePermission>> attr = getFileAttribute();
-            Path rootListenFolderPath = Files.createDirectory(Paths.get("target", "fs"), attr);
+            Path rootListenFolderPath = Files.createDirectory(Paths.get("target", "fs"));
             rootDirectory = rootListenFolderPath.toFile();
             rootDirectory.deleteOnExit();
         } catch (IOException e) {
             Assert.fail("Unable to create root folder to setup watch.", e);
         }
-    }
-
-    private FileAttribute<Set<PosixFilePermission>> getFileAttribute() {
-        Set<PosixFilePermission> perms = new HashSet<>(EnumSet.allOf(PosixFilePermission.class));
-        return PosixFilePermissions.asFileAttribute(perms);
     }
 
     @AfterClass
@@ -92,7 +80,7 @@ public class DirectoryListenerConnectorTest {
         CompileResult compileResult = BCompileUtil.compileAndSetup("test-src/file/file-system.bal");
         BServiceUtil.runService(compileResult);
         try {
-            final Path file = Files.createFile(Paths.get("target", "fs", "temp.txt"), getFileAttribute());
+            final Path file = Files.createFile(Paths.get("target", "fs", "temp.txt"));
             await().atMost(1, MINUTES).until(() -> {
                 BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
                 return ((BBoolean) result[0]).booleanValue();
@@ -134,7 +122,7 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+            String expectedErrorMsg = "Compilation Failed:\nERROR: .::"
                     + "file-system-negative-invalid-param-count.bal:25:5:: Invalid resource signature for onCreate in "
                     + "service fileSystem. The parameter should be a file:FileEvent\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource param.");
@@ -149,7 +137,7 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+            String expectedErrorMsg = "Compilation Failed:\nERROR: .::"
                     + "file-system-negative-invalid-param-type.bal:26:5:: Invalid resource signature for onCreate in "
                     + "service fileSystem. The parameter should be a file:FileEvent\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource type.");
@@ -164,7 +152,7 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+            String expectedErrorMsg = "Compilation Failed:\nERROR: .::"
                     + "file-system-negative-invalid-resource-name.bal:25:5:: Invalid resource name onCreate1 in "
                     + "service fileSystem\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource name.");
@@ -179,8 +167,8 @@ public class DirectoryListenerConnectorTest {
                     .compileAndSetup("test-src/file/file-system-negative-not-folder.bal");
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(146, 193);
-            String expectedErrorMsg = "unable to find a directory : target/fs/file.txt";
+            String actualMsg = e.getMessage().substring(114, 160);
+            String expectedErrorMsg = "unable to find a directory: target/fs/file.txt";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid folder.");
         }
     }
@@ -192,7 +180,7 @@ public class DirectoryListenerConnectorTest {
                     .compileAndSetup("test-src/file/file-system-negative-folder-exist.bal");
             BServiceUtil.runService(compileResult);
         } catch (BLangRuntimeException e) {
-            String actualMsg = e.getMessage().substring(148, 186);
+            String actualMsg = e.getMessage().substring(116, 154);
             String expectedErrorMsg = "folder does not exist: hello/ballerina";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for non-exist folder.");
         }
@@ -206,7 +194,7 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg = "Compilation Failed:\n" + "ERROR: ." + File.separator
+            String expectedErrorMsg = "Compilation Failed:\n" + "ERROR: .::"
                     + "file-system-negative-missing-variable.bal:19:1:: 'path' field empty.\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for empty path.");
         }

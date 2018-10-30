@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implements BallerinaStatement {
 
-  public BallerinaStatementImpl(ASTNode node) {
+  public BallerinaStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 
@@ -123,12 +123,6 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
   @Nullable
   public BallerinaNamespaceDeclarationStatement getNamespaceDeclarationStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaNamespaceDeclarationStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaPostIncrementStatement getPostIncrementStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaPostIncrementStatement.class);
   }
 
   @Override

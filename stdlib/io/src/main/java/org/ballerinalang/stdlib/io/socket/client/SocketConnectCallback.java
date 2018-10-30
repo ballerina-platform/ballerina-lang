@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.io.socket.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -46,7 +47,10 @@ import java.nio.channels.SocketChannel;
 public class SocketConnectCallback {
 
     private static final Logger log = LoggerFactory.getLogger(SocketConnectCallback.class);
-    private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
+    private static final String READABLE_BYTE_CHANNEL_STRUCT_TYPE = "ReadableByteChannel";
+    private static final String READABLE_CHANNEL = "readableChannel";
+    private static final String WRITABLE_BYTE_CHANNEL_STRUCT_TYPE = "WritableByteChannel";
+    private static final String WRITABLE_CHANNEL = "writableChannel";
 
     private Context context;
     private CallableUnitCallback callback;
@@ -73,14 +77,12 @@ public class SocketConnectCallback {
                 log.debug("KeepAlive: " + socket.getKeepAlive());
             }
             PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
-            // Create ByteChannel Struct
-            StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
-            Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, true);
-            BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo);
-            channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 
             // Create Socket Struct
-            socketStruct.put(IOConstants.BYTE_CHANNEL_NAME, channelStruct);
+            socketStruct.put(READABLE_CHANNEL, getByteChannelStruct(socketChannel, ioPackageInfo,
+                    READABLE_BYTE_CHANNEL_STRUCT_TYPE));
+            socketStruct.put(WRITABLE_CHANNEL, getByteChannelStruct(socketChannel, ioPackageInfo,
+                    WRITABLE_BYTE_CHANNEL_STRUCT_TYPE));
             socketStruct.put(SocketConstants.REMOTE_PORT_FIELD, new BInteger(socket.getPort()));
             socketStruct.put(SocketConstants.LOCAL_PORT_OPTION_FIELD, new BInteger(socket.getLocalPort()));
             socketStruct
@@ -93,8 +95,18 @@ public class SocketConnectCallback {
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(IOUtils.createError(context, msg));
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            context.setReturnValues(errorStruct);
             callback.notifySuccess();
         }
+    }
+
+    private static BMap<String, BValue> getByteChannelStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo,
+                                                             String channelType) {
+        StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(channelType);
+        Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, true);
+        BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo);
+        channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
+        return channelStruct;
     }
 }

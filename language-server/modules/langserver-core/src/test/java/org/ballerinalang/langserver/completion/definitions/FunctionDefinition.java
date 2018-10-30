@@ -45,7 +45,7 @@ public class FunctionDefinition extends CompletionTest {
                 {"variableBoundItemSuggestions2.json", "function"},
                 {"variableBoundItemSuggestions3.json", "function"},
                 {"variableBoundItemSuggestions4.json", "function"},
-                {"throwStatementErrorSuggestions.json", "function"},
+                {"panicStatementErrorSuggestions.json", "function"},
                 {"endpointAttributeSuggestion1.json", "function"},
                 {"recordVarDef1.json", "function"},
                 {"recordVarDef2.json", "function"},
@@ -75,9 +75,13 @@ public class FunctionDefinition extends CompletionTest {
                 {"completionBeforeWhile.json", "function"},
                 {"completionWithinWhile.json", "function"},
                 {"completionWithinWorkersInResource.json", "function"},
-                {"completionWithinCatch.json", "function"},
                 {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
+                {"objectAttachFunctionImpl1.json", "function"},
+                {"objectAttachFunctionImpl2.json", "function"},
+                {"objectAttachFunctionImpl3.json", "function"},
+                {"completionAfterReturn.json", "function"},
+                {"functionCompletionWithMissingImport.json", "function"},
         };
     }
 }

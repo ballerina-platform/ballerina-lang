@@ -19,17 +19,17 @@ import ballerina/sql;
 import ballerina/time;
 
 type ResultDatesWithNillableStringType record {
-    string? DATE_TYPE,
-    string? TIME_TYPE,
-    string? TIMESTAMP_TYPE,
-    string? DATETIME_TYPE,
+    string? DATE_TYPE;
+    string? TIME_TYPE;
+    string? TIMESTAMP_TYPE;
+    string? DATETIME_TYPE;
 };
 
 type ResultDatesWithTimeType record {
-    time:Time DATE_TYPE,
-    time:Time TIME_TYPE,
-    time:Time TIMESTAMP_TYPE,
-    time:Time DATETIME_TYPE,
+    time:Time DATE_TYPE;
+    time:Time TIME_TYPE;
+    time:Time TIMESTAMP_TYPE;
+    time:Time DATETIME_TYPE;
 };
 
 type ResultDatesWithNillableTimeType record {
@@ -40,41 +40,41 @@ type ResultDatesWithNillableTimeType record {
 };
 
 type ResultDatesWithIntType record {
-    int DATE_TYPE,
-    int TIME_TYPE,
-    int TIMESTAMP_TYPE,
-    int DATETIME_TYPE,
+    int DATE_TYPE;
+    int TIME_TYPE;
+    int TIMESTAMP_TYPE;
+    int DATETIME_TYPE;
 };
 
 type ResultDatesWithNillableIntType record {
-    int? DATE_TYPE,
-    int? TIME_TYPE,
-    int? TIMESTAMP_TYPE,
-    int? DATETIME_TYPE,
+    int? DATE_TYPE;
+    int? TIME_TYPE;
+    int? TIMESTAMP_TYPE;
+    int? DATETIME_TYPE;
 };
 
 type NillableDataTypes record {
-    int? int_type,
-    int? long_type,
-    float? float_type,
-    float? double_type,
-    boolean? boolean_type,
-    string? string_type,
-    float? numeric_type,
-    float? decimal_type,
-    float? real_type,
-    int? tinyint_type,
-    int? smallint_type,
-    string? clob_type,
-    byte[]? binary_type,
-    time:Time? date_type,
-    time:Time? time_type,
-    time:Time? datetime_type,
-    time:Time? timestamp_type,
+    int? int_type;
+    int? long_type;
+    float? float_type;
+    float? double_type;
+    boolean? boolean_type;
+    string? string_type;
+    float? numeric_type;
+    float? decimal_type;
+    float? real_type;
+    int? tinyint_type;
+    int? smallint_type;
+    string? clob_type;
+    byte[]? binary_type;
+    time:Time? date_type;
+    time:Time? time_type;
+    time:Time? datetime_type;
+    time:Time? timestamp_type;
 };
 
 type NillableBlob record {
-    byte[]? blob_type,
+    byte[]? blob_type;
 };
 
 type ResultMapNonNillableTypeNillableElements record {

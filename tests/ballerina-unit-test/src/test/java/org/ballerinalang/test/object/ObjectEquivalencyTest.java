@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for equivalency of user defined struct types with attached functions in ballerina.
+ * Test cases for equivalence of user defined struct types with attached functions in ballerina.
  */
 public class ObjectEquivalencyTest {
 
@@ -130,5 +130,26 @@ public class ObjectEquivalencyTest {
             expectedExceptionsMessageRegExp = ".*'eq:BarObj' cannot be cast to 'eq2:FooObj'.*")
     public void testObjectEqViewFromThirdPackageNegative() {
         BRunUtil.invoke(compileResult, "testObjectEqViewFromThirdPackage");
+    }
+
+    @Test
+    public void testObjectEqualityWithDefaultConstructor() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEqualityWithDefaultConstructor");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"\", id:\"\"}");
+        Assert.assertEquals(returns[1].stringValue(), "{name:\"\", id:\"\"}");
+    }
+
+    @Test
+    public void testObjectEqualityWithRecursiveTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEqualityWithRecursiveTypes");
+        Assert.assertEquals(returns[0].stringValue(), "{field:\"value A\"}");
+        Assert.assertEquals(returns[1].stringValue(), "{field:\"value B\"}");
+    }
+
+    @Test
+    public void testObjectMemberOrder() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectMemberOrder");
+        Assert.assertEquals(returns[0].stringValue(), "{age:45, name:\"Doe\", address:\"\"}");
+        Assert.assertEquals(returns[1].stringValue(), "{age:35, name:\"John\", address:\"\"}");
     }
 }

@@ -13,9 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 function testUnarySecuredBlocking() returns (string) {
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
@@ -34,7 +33,6 @@ function testUnarySecuredBlocking() returns (string) {
                 versions: ["TLSv1.2","TLSv1.1"]
             },
             ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
-            sslVerifyClient:"require",
             certValidation : {
                 enable: false
             },
@@ -52,8 +50,8 @@ function testUnarySecuredBlocking() returns (string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }

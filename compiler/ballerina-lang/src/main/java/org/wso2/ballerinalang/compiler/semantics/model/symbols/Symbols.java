@@ -40,8 +40,21 @@ import java.util.Set;
  */
 public class Symbols {
 
-    public static BPackageSymbol createPackageSymbol(PackageID packageID, SymbolTable symTable) {
+    public static BPackageSymbol createPackageSymbol(PackageID packageID,
+                                                     SymbolTable symTable) {
         BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol);
+        return createPackageSymbolScope(symTable, pkgSymbol);
+    }
+
+    public static BPackageSymbol createPackageSymbol(PackageID packageID,
+                                                     SymbolTable symTable,
+                                                     int flags) {
+        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol, flags);
+        return createPackageSymbolScope(symTable, pkgSymbol);
+    }
+
+    private static BPackageSymbol createPackageSymbolScope(SymbolTable symTable,
+                                                           BPackageSymbol pkgSymbol) {
         if (pkgSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
             pkgSymbol.scope = symTable.rootScope;
         } else {
@@ -70,13 +83,9 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BTypeSymbol createEnumSymbol(int flags,
-                                               Name name,
-                                               PackageID pkgID,
-                                               BType type,
-                                               BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.ENUM;
+    public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.ERROR;
         return typeSymbol;
     }
 
@@ -95,16 +104,6 @@ public class Symbols {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner);
         symbol.kind = SymbolKind.WORKER;
         return symbol;
-    }
-
-    public static BConnectorSymbol createConnectorSymbol(int flags,
-                                                         Name name,
-                                                         PackageID pkgID,
-                                                         BType type,
-                                                         BSymbol owner) {
-        BConnectorSymbol connectorSymbol = new BConnectorSymbol(flags, name, pkgID, type, owner);
-        connectorSymbol.kind = SymbolKind.CONNECTOR;
-        return connectorSymbol;
     }
 
     public static BServiceSymbol createServiceSymbol(int flags,

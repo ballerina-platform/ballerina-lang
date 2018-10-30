@@ -69,7 +69,7 @@ type InitiatorClient object {
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode != http:OK_200) {
-            error err = {message:"Registration for transaction: " + transactionId + " failed"};
+            error err = error("Registration for transaction: " + transactionId + " failed");
             return err;
         }
         json resPayload = check res.getJsonPayload();

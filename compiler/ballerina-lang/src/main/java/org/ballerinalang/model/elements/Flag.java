@@ -87,4 +87,16 @@ public enum Flag {
      * Temporary indicator for compensation variables.
      */
     COMPENSATE,
+    /**
+     * Indicates Flagged node is a abstract node.
+     */
+    ABSTRACT,
+    /**
+     * Indicates that the flagged node is an optional field.
+     */
+    OPTIONAL,
+    /**
+     * Indicates flagged node is a testable node.
+     */
+    TESTABLE
 }

@@ -108,9 +108,24 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
+    @Test
+    public void testUnconstraintTable() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnconstraintTable");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(returns[1].stringValue(), "[]");
+        Assert.assertEquals(returns[2].stringValue(), "<results></results>");
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[4]).intValue(), 0);
+        Assert.assertEquals(returns[5].stringValue(), "{}");
+        Assert.assertEquals(returns[6].stringValue(),
+                "{message:\"incompatible types: record of type:Person cannot be added to a table with no type\"}");
+        Assert.assertEquals(returns[7].stringValue(), "{message:\"incompatible types: function with record type:Person"
+                + " cannot be used to remove records from a table with no type\"}");
+    }
+
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 21, 11);
         BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 27, 24);
         BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 29, 10);
@@ -120,5 +135,6 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'Person', found 'int'", 45, 13);
         BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 57, 5);
         BAssertUtil.validateError(resultNegative, 8, "table cannot be created without a constraint", 69, 16);
+        BAssertUtil.validateError(resultNegative, 9, "unknown type 'Student'", 73, 5);
     }
 }

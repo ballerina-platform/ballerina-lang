@@ -16,13 +16,13 @@
  */
 package org.ballerinalang.persistence.serializable;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerState;
+import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.persistence.Deserializer;
+import org.ballerinalang.persistence.Serializer;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -43,15 +43,13 @@ import static org.ballerinalang.util.program.BLangVMUtils.SERVICE_INFO_KEY;
  */
 public class SerializableContext {
 
-    private String contextKey;
+    public String contextKey;
 
     public String parent;
 
-    private String respContextKey;
+    public String respContextKey;
 
     public WorkerState state = WorkerState.CREATED;
-
-    public HashMap<String, Object> globalProps = new HashMap<>();
 
     public HashMap<String, Object> localProps = new HashMap<>();
 
@@ -59,25 +57,25 @@ public class SerializableContext {
 
     public SerializableWorkerData workerLocal;
 
-    private SerializableWorkerData workerResult;
+    public SerializableWorkerData workerResult;
 
     public int[] retRegIndexes;
 
-    private boolean runInCaller;
+    public boolean runInCaller;
 
     public boolean interruptible;
 
-    private String enclosingServiceName;
+    public String enclosingServiceName;
 
-    private String callableUnitName;
+    public String callableUnitName;
 
-    private String callableUnitPkgPath;
+    public String callableUnitPkgPath;
 
     public String workerName;
 
     public static SerializableContext deserialize(String jsonString) {
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson(jsonString, SerializableContext.class);
+        JsonSerializer serializer = Serializer.getJsonSerializer();
+        return serializer.deserialize(jsonString, SerializableContext.class);
     }
 
     public SerializableContext(String contextKey, WorkerExecutionContext ctx, SerializableState state, int ip) {

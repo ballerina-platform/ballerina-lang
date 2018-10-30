@@ -1,11 +1,25 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -13,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 /**
  * Home repository util methods.
@@ -88,21 +103,6 @@ public class RepoUtils {
     }
 
     /**
-     * Read Settings.toml to populate the configurations.
-     *
-     * @return settings object
-     */
-    public static Settings readSettings() {
-        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME).
-                                    toString();
-        try {
-            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Settings();
-        }
-    }
-
-    /**
      * Get the terminal width.
      *
      * @return terminal width as a string
@@ -142,5 +142,28 @@ public class RepoUtils {
         } catch (Throwable ignore) {
         }
         return "unknown";
+    }
+
+
+    /**
+     * Validates the org-name and package name.
+     *
+     * @param orgName The org-name
+     * @return True if valid org-name or package name, else false.
+     */
+    public static boolean validateOrg(String orgName) {
+        String validRegex = "^[a-z0-9_]*$";
+        return Pattern.matches(validRegex, orgName);
+    }
+
+    /**
+     * Validates the org-name and package name.
+     *
+     * @param pkgName The org-name or package name.
+     * @return True if valid org-name or package name, else false.
+     */
+    public static boolean validatePkg(String pkgName) {
+        String validRegex = "^[a-zA-Z0-9_.]*$";
+        return Pattern.matches(validRegex, pkgName);
     }
 }

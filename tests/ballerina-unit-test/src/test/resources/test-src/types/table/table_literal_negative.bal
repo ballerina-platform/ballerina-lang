@@ -1,9 +1,9 @@
 type Person record {
-    int id,
-    int age,
-    float salary,
-    string name,
-    boolean married,
+    int id;
+    int age;
+    float salary;
+    string name;
+    boolean married;
 };
 
 function testTableRemoveInvalidFunctionPointer() returns (int, json) {
@@ -17,12 +17,12 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    int count = check dt.remove(isBellow35Invalid);
+    int count = check dt.remove(isBelow35Invalid);
     json j = check <json>dt;
 
     return (count, j);
 }
 
-function isBellow35Invalid(Person p) {
+function isBelow35Invalid(Person p) {
     p.age = 10;
 }

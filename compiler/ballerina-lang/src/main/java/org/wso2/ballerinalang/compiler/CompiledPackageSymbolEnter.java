@@ -22,12 +22,13 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -42,6 +43,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -139,9 +142,9 @@ public class CompiledPackageSymbolEnter {
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
-                                        PackageRepository packageRepository,
+                                        RepoHierarchy packageRepositoryHierarchy,
                                         byte[] packageBinaryContent) {
-        BPackageSymbol pkgSymbol = definePackage(packageId, packageRepository,
+        BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
                 new ByteArrayInputStream(packageBinaryContent));
 
         // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
@@ -155,24 +158,24 @@ public class CompiledPackageSymbolEnter {
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
-                                        PackageRepository packageRepository,
+                                        RepoHierarchy packageRepositoryHierarchy,
                                         InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
         try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             CompiledPackageSymbolEnv prevEnv = this.env;
             this.env = new CompiledPackageSymbolEnv();
             this.env.requestedPackageId = packageId;
-            this.env.loadedRepository = packageRepository;
+            this.env.repoHierarchy = packageRepositoryHierarchy;
             BPackageSymbol pkgSymbol = definePackage(dataInStream);
             this.env = prevEnv;
             return pkgSymbol;
         } catch (IOException e) {
             // TODO dlog.error();
-            throw new BLangCompilerException("io error: " + e.getMessage(), e);
+            throw new BLangCompilerException(e.getMessage(), e);
             //            return null;
         } catch (Throwable e) {
             // TODO format error
-            throw new BLangCompilerException("format error: " + e.getMessage(), e);
+            throw new BLangCompilerException(e.getMessage(), e);
             //            return null;
         }
     }
@@ -181,13 +184,13 @@ public class CompiledPackageSymbolEnter {
         int magicNumber = dataInStream.readInt();
         if (magicNumber != CompiledBinaryFile.PackageFile.MAGIC_VALUE) {
             // TODO dlog.error() with package name
-            throw new BLangCompilerException("ballerina: invalid magic number " + magicNumber);
+            throw new BLangCompilerException("invalid magic number " + magicNumber);
         }
 
         short version = dataInStream.readShort();
         if (version != CompiledBinaryFile.PackageFile.LANG_VERSION) {
             // TODO dlog.error() with package name
-            throw new BLangCompilerException("ballerina: unsupported program file version " + version);
+            throw new BLangCompilerException("unsupported program file version " + version);
         }
 
         // Read constant pool entries of the package info.
@@ -207,7 +210,6 @@ public class CompiledPackageSymbolEnter {
 
         PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
         this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable);
-        //        this.env.pkgSymbol.packageRepository = this.env.loadedRepository;
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
@@ -335,7 +337,7 @@ public class CompiledPackageSymbolEnter {
         String pkgVersion = getUTF8CPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
-                this.env.loadedRepository);
+                this.env.repoHierarchy);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -349,10 +351,8 @@ public class CompiledPackageSymbolEnter {
         int flags = dataInStream.readInt();
 
         BInvokableType funcType = createInvokableType(funcSig);
-
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
-                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-
+                this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (Symbols.isFlagOn(flags, Flags.ATTACHED)) {
@@ -361,18 +361,10 @@ public class CompiledPackageSymbolEnter {
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
             BType attachedType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
 
-            // Update the symbol by:
-            //     1) Appending the type name in front of the function name
-            //     2) Removing the first parameter from the param list
-            invokableSymbol = Symbols.createFunctionSymbol(flags,
-                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName)),
-                    this.env.pkgSymbol.pkgID, null, attachedType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-            List<BType> params = new ArrayList<>();
-            params.addAll(funcType.paramTypes);
-            // remove first parameter
-            params.remove(0);
-            funcType.paramTypes = params;
-
+            // Update the symbol
+            invokableSymbol.owner = attachedType.tsymbol;
+            invokableSymbol.name =
+                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 BAttachedFunction attachedFunc =
@@ -388,18 +380,16 @@ public class CompiledPackageSymbolEnter {
 
         // Read and ignore worker data
         int noOfWorkerDataBytes = dataInStream.readInt();
-        byte[] workerData = new byte[noOfWorkerDataBytes];
-        int bytesRead = dataInStream.read(workerData);
-        if (bytesRead != noOfWorkerDataBytes) {
-            // TODO throw an error
+        if (noOfWorkerDataBytes > 0) {
+            byte[] workerData = new byte[noOfWorkerDataBytes];
+            int bytesRead = dataInStream.read(workerData);
+            if (bytesRead != noOfWorkerDataBytes) {
+                // TODO throw an error
+            }
         }
 
         // Read attributes
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-
-        // TODO create function symbol and define..
-
-        invokableSymbol.type = funcType;
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, attrDataMap);
@@ -477,14 +467,9 @@ public class CompiledPackageSymbolEnter {
         BObjectType type = new BObjectType(symbol);
         symbol.type = type;
 
-
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
-
-        // Define Object attached functions
-        defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -510,11 +495,6 @@ public class CompiledPackageSymbolEnter {
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
-
-        // TODO remove once record init function is removed
-        // Define record attached functions
-        defineSymbols(dataInStream, rethrow(dataInputStream ->
-                defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -628,13 +608,6 @@ public class CompiledPackageSymbolEnter {
         setDocumentation(varSymbol, attrData);
 
         this.env.unresolvedTypes.add(unresolvedFieldType);
-    }
-
-    private void defineObjectAttachedFunction(DataInputStream dataInStream) throws IOException {
-        // Consider attached functions.. remove the first variable
-        getUTF8CPEntryValue(dataInStream);
-        getUTF8CPEntryValue(dataInStream);
-        dataInStream.readInt();
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
@@ -849,11 +822,12 @@ public class CompiledPackageSymbolEnter {
         invokableSymbol.taintTable = new HashMap<>();
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = taintTableDataInStream.readShort();
-            List<Boolean> retParamTaintedStatus = new ArrayList<>();
-            for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                retParamTaintedStatus.add(taintTableDataInStream.readBoolean());
+            Boolean returnTaintedStatus = taintTableDataInStream.readBoolean();
+            List<Boolean> parameterTaintedStatusList = new ArrayList<>();
+            for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
+                parameterTaintedStatusList.add(taintTableDataInStream.readBoolean());
             }
-            TaintRecord taintRecord = new TaintRecord(retParamTaintedStatus, null);
+            TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
             invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
     }
@@ -933,7 +907,7 @@ public class CompiledPackageSymbolEnter {
 
     private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
         if (orgName == null || orgName.isEmpty()) {
-            throw new BLangCompilerException("Invalid package name '" + pkgName + "' in compiled package file");
+            throw new BLangCompilerException("invalid module name '" + pkgName + "' in compiled package file");
         }
 
         return new PackageID(names.fromString(orgName),
@@ -957,9 +931,9 @@ public class CompiledPackageSymbolEnter {
 
         BSymbol symbol = lookupMemberSymbol(this.env.pkgSymbol.scope, pkgID.name, SymTag.PACKAGE);
         if (symbol == this.symTable.notFoundSymbol && pkgID.orgName.equals(Names.BUILTIN_ORG)) {
-            symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, env.loadedRepository);
+            symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, this.env.repoHierarchy);
             if (symbol == null) {
-                throw new BLangCompilerException("Unknown imported package: " + pkgID.name);
+                throw new BLangCompilerException("unknown imported module: " + pkgID.name);
             }
         }
 
@@ -989,7 +963,7 @@ public class CompiledPackageSymbolEnter {
     private BType lookupUserDefinedType(BPackageSymbol packageSymbol, String typeName) {
         BSymbol typeSymbol = lookupMemberSymbol(packageSymbol.scope, names.fromString(typeName), SymTag.TYPE);
         if (typeSymbol == this.symTable.notFoundSymbol) {
-            throw new BLangCompilerException("Unknown type name: " + typeName);
+            throw new BLangCompilerException("unknown type name: " + typeName);
         }
 
         return typeSymbol.type;
@@ -998,7 +972,7 @@ public class CompiledPackageSymbolEnter {
     private BType getBuiltinRefTypeFromName(String typeName) {
         BSymbol typeSymbol = lookupMemberSymbol(this.symTable.rootScope, names.fromString(typeName), SymTag.TYPE);
         if (typeSymbol == this.symTable.notFoundSymbol) {
-            throw new BLangCompilerException("Unknown type name: " + typeName);
+            throw new BLangCompilerException("unknown type name: " + typeName);
         }
 
         return typeSymbol.type;
@@ -1038,7 +1012,7 @@ public class CompiledPackageSymbolEnter {
      */
     private static class CompiledPackageSymbolEnv {
         PackageID requestedPackageId;
-        PackageRepository loadedRepository;
+        RepoHierarchy repoHierarchy;
         BPackageSymbol pkgSymbol;
         ConstantPoolEntry[] constantPool;
         List<UnresolvedType> unresolvedTypes;
@@ -1130,6 +1104,8 @@ public class CompiledPackageSymbolEnter {
                     return new BMapType(TypeTags.MAP, constraint, symTable.mapType.tsymbol);
                 case 'H':
                     return new BStreamType(TypeTags.STREAM, constraint, symTable.streamType.tsymbol);
+                case 'Q':
+                    return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
                 case 'G':
                 case 'T':
                 default:
@@ -1170,6 +1146,18 @@ public class CompiledPackageSymbolEnter {
             }
             //TODO need to consider a symbol for lambda functions for type definitions.
             return new BInvokableType(funcParams, retType, null);
+        }
+
+        @Override
+        public BType getErrorType(BType reasonType, BType detailsType) {
+            if (reasonType == symTable.stringType && detailsType == symTable.mapType) {
+                return symTable.errorType;
+            }
+            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+                    env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+            BErrorType errorType = new BErrorType(errorSymbol, reasonType, detailsType);
+            errorSymbol.type = errorType;
+            return errorType;
         }
     }
 }

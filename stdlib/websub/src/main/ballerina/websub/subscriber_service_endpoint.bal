@@ -35,12 +35,12 @@ public type Listener object {
         self.serviceEndpoint = httpEndpoint;
     }
 
-    # Gets called when the endpoint is being initialized during package initialization.
+    # Gets called when the endpoint is being initialized during module initialization.
     #
     # + c - The Subscriber Service Endpoint Configuration of the endpoint
     public function init(SubscriberServiceEndpointConfiguration c);
 
-    # Gets called whenever a service attaches itself to this endpoint and during package initialization.
+    # Gets called whenever a service attaches itself to this endpoint and during module initialization.
     #
     # + serviceType - The service attached
     public function register(typedesc serviceType);
@@ -159,7 +159,7 @@ function Listener::sendSubscriptionRequests() {
                         self.setTopic(webSubServiceName, retTopic);
                     }
                     error websubError => {
-                        log:printError("Error sending out subscription request on start up: " + websubError.message);
+                        log:printError("Error sending out subscription request on start up: " + websubError.reason());
                         continue;
                     }
                 }
@@ -180,15 +180,16 @@ public type SubscriberServiceEndpointConfiguration record {
     int port;
     http:ServiceSecureSocket? httpServiceSecureSocket;
     ExtensionConfig? extensionConfig;
+    !...
 };
 
 # The extension configuration to introduce custom subscriber services.
 #
-# topicIdentifier - The identifier based on which dispatching should happen for custom subscriber
-# topicHeader - The header to consider if required with dispatching for custom services
-# headerResourceMap - The mapping between header value and resource details
-# payloadKeyResourceMap - The mapping between value for a particular JSON payload key and resource details
-# headerAndPayloadKeyResourceMap - The mapping between values for the header and a particular JSON payload key and resource details
+# + topicIdentifier - The identifier based on which dispatching should happen for custom subscriber
+# + topicHeader - The header to consider if required with dispatching for custom services
+# + headerResourceMap - The mapping between header value and resource details
+# + payloadKeyResourceMap - The mapping between value for a particular JSON payload key and resource details
+# + headerAndPayloadKeyResourceMap - The mapping between values for the header and a particular JSON payload key and resource details
 public type ExtensionConfig record {
     TopicIdentifier topicIdentifier = TOPIC_ID_HEADER;
 
@@ -223,6 +224,7 @@ public type ExtensionConfig record {
     //    }
     //  };
     map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap;
+    !...
 };
 
 # The function called to discover hub and topic URLs defined by a resource URL.
@@ -241,55 +243,22 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
-    error websubError = {};
+    error websubError = error("Dummy");
     match (discoveryResponse) {
         http:Response response => {
-            int responseStatusCode = response.statusCode;
-            string[] linkHeaders;
-            if (response.hasHeader("Link")) {
-                linkHeaders = response.getHeaders("Link");
-            }
-
-            if (lengthof linkHeaders > 0) {
-                string hub;
-                string topic;
-                string[] linkHeaderConstituents = [];
-                if (lengthof linkHeaders == 1) {
-                    linkHeaderConstituents = linkHeaders[0].split(",");
-                } else {
-                    linkHeaderConstituents = linkHeaders;
+            match (extractTopicAndHubUrls(response)) {
+                (string, string[]) topicAndHubs => {
+                    string topic;
+                    string[] hubs;
+                    (topic, hubs) = topicAndHubs;
+                    return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
                 }
-
-                foreach link in linkHeaderConstituents {
-                    string[] linkConstituents = link.split(";");
-                    if (linkConstituents[1] != "") {
-                        string url = linkConstituents[0].trim();
-                        url = url.replace("<", "");
-                        url = url.replace(">", "");
-                        if (linkConstituents[1].contains("rel=\"hub\"") && hub == "") {
-                            hub = url;
-                        } else if (linkConstituents[1].contains("rel=\"self\"")) {
-                            if (topic != "") {
-                                websubError = {message:"Link Header contains >1 self URLs"};
-                            } else {
-                                topic = url;
-                            }
-                        }
-                    }
-                }
-                if (hub != "" && topic != "") {
-                    return (hub, topic);
-                } else {
-                    websubError = {message:"Hub and/or Topic URL(s) not identified in link header of resource "
-                        + "URL[" + resourceUrl + "]"};
-                }
-            } else {
-                websubError = {message:"Link header unavailable for resource URL[" + resourceUrl + "]"};
+                error e => return e;
             }
         }
         error connErr => {
-            websubError = {message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
-                + connErr.message, cause:connErr};
+            websubError = error("Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
+                + connErr.reason());
         }
     }
     return websubError;
@@ -322,7 +291,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
     match (<int>strLeaseSeconds) {
         int convIntLeaseSeconds => { leaseSeconds = convIntLeaseSeconds; }
         error convError => {
-            log:printError("Error retreiving specified lease seconds value: " + convError.message);
+            log:printError("Error retreiving specified lease seconds value: " + convError.reason());
             return;
         }
     }
@@ -346,7 +315,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
         }
         error webSubError => {
             log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " +
-                    webSubError.message);
+                    webSubError.reason());
         }
     }
 }

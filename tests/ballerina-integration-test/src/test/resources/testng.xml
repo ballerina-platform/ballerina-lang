@@ -24,7 +24,7 @@
     </listeners>
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
-   <!-- <test name="ballerina-http-tests" parallel="false">
+    <test name="ballerina-http-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -38,6 +38,7 @@
             <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCerts"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPVerbsPassthruTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
@@ -53,12 +54,20 @@
             <class name="org.ballerinalang.test.service.http.sample.TestReusabilityOfRequest"/>
             <class name="org.ballerinalang.test.service.http.sample.CompressionTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
         </classes>
     </test>
 
     <test name="ballerina-resiliency-tests" parallel="methods" thread-count="13">
         <classes>
             <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-channel-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.channel.ChannelsResourcesTest"/>
         </classes>
     </test>
 
@@ -84,6 +93,8 @@
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
+            <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
+            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
         </classes>
     </test>
 
@@ -116,7 +127,7 @@
             <class name="org.ballerinalang.test.securelistener.SecureListenerSpecificHandlerTest"/>
             <class name="org.ballerinalang.test.securelistener.TokenPropagationTest"/>
         </classes>
-    </test>-->
+    </test>
 
     <test name="ballerina-websocket-tests" parallel="false">
         <classes>
@@ -141,10 +152,11 @@
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
         </classes>
     </test>
 
-   <!-- <test name="ballerina-grpc-tests" parallel="false">
+    <test name="ballerina-grpc-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
@@ -152,6 +164,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.GrpcMutualSslWithCertsTest"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
@@ -159,9 +172,10 @@
             <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
         </classes>
     </test>
@@ -193,13 +207,15 @@
 
     <test name="ballerina-websub-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.websub.WebSubAutoIntentVerificationTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
+            <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
+                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
+                @BeforeClass in test classes which have @BeforeClass -->
+            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubCoreFunctionalityTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubSubscriptionChangeTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
         </classes>
     </test>
 
@@ -213,5 +229,5 @@
         <classes>
             <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
         </classes>
-    </test>-->
+    </test>
 </suite>
