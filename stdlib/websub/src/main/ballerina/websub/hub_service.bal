@@ -16,7 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/http;
-import ballerina/h2;
+import ballerina/jdbc;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/sql;
@@ -75,8 +75,7 @@ service<http:Service> hubService {
             match (validateSubscriptionChangeRequest(mode, topic, callback)) {
                 error err => {
                     response.statusCode = http:BAD_REQUEST_400;
-                    string errorMessage = <string> err.detail().message;
-                    response.setTextPayload(errorMessage);
+                    response.setTextPayload(err.reason());
                 }
                 () => {
                     validSubscriptionChangeRequest = true;
@@ -108,7 +107,7 @@ service<http:Service> hubService {
 
             match(registerTopicAtHub(topic)) {
                 error e => {
-                    string errorMessage = <string> e.detail().message;
+                    string errorMessage = e.reason();
                     response.statusCode = http:BAD_REQUEST_400;
                     response.setTextPayload(errorMessage);
                     log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
@@ -138,7 +137,7 @@ service<http:Service> hubService {
 
             match(unregisterTopicAtHub(topic)) {
                 error e => {
-                    string errorMessage = <string> e.detail().message;
+                    string errorMessage = e.reason();
                     response.statusCode = http:BAD_REQUEST_400;
                     response.setTextPayload(errorMessage);
                     log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
@@ -176,9 +175,8 @@ service<http:Service> hubService {
                                 stringPayload = fetchResp.getPayloadAsString() but { error => "" };
                             }
                             error err => {
-                                string errorCause = <string> err.detail().message;
                                 string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
-                                                        + errorCause;
+                                                        + err.reason();
                                 log:printError(errorMessage);
                                 response.setTextPayload(errorMessage);
                                 response.statusCode = http:BAD_REQUEST_400;
@@ -205,11 +203,10 @@ service<http:Service> hubService {
                             publishStatus = publishToInternalHub(topic, notification);
                         }
                         error err => {
-                            string errorCause = <string> err.detail().message;
-                            string errorMessage = "Error extracting payload: " + errorCause;
+                            string errorMessage = "Error extracting payload: " + err.reason();
                             log:printError(errorMessage);
                             response.statusCode = http:BAD_REQUEST_400;
-                            response.setTextPayload(errorMessage);
+                            response.setTextPayload(untaint errorMessage);
                             var responseError = client->respond(response);
                             match(responseError) {
                                 error e => log:printError("Error responding on payload extraction failure for"
@@ -222,8 +219,8 @@ service<http:Service> hubService {
 
                     match(publishStatus) {
                         error err => {
-                            string errorCause = <string> err.detail().message;
-                            string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
+                            string errorMessage = "Update notification failed for Topic [" + topic + "]: "
+                                                    + err.reason();
                             response.setTextPayload(errorMessage);
                             log:printError(errorMessage);
                         }
@@ -273,17 +270,16 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
-            error err = error(WEBSUB_ERROR_CODE, { message : "Malformed URL specified as callback" });
+            error err = error("Malformed URL specified as callback");
             return err;
         }
         if (hubTopicRegistrationRequired && !isTopicRegistered(topic)) {
-            error err = error(WEBSUB_ERROR_CODE, { message : "Subscription request denied for unregistered topic" });
+            error err = error("Subscription request denied for unregistered topic");
             return err;
         }
         return;
     }
-    map errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
-    error err = error(WEBSUB_ERROR_CODE, errorDetail);
+    error err = error("Topic/Callback cannot be null for subscription/unsubscription request");
     return err;
 }
 
@@ -338,10 +334,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                             subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
                             if (!isTopicRegistered(topic)) {
                                 match(registerTopicAtHub(topic)) {
-                                    error e => {
-                                        string errCause = <string> e.detail().message;
-                                        log:printError("Error registering topic for subscription: " + errCause);
-                                    }
+                                    error e => log:printError("Error registering topic for subscription: " + e.reason());
                                     () => {}
                                 }
                             }
@@ -358,16 +351,14 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     }
                 }
                 error payloadError => {
-                    string errCause = <string> payloadError.detail().message;
                     log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
-                            + "]: Error retrieving response payload: " + errCause);
+                            + "]: Error retrieving response payload: " + payloadError.reason());
                 }
             }
         }
         error httpConnectorError => {
-            string errCause = <string> httpConnectorError.detail().message;
             log:printInfo("Error sending intent verification request for callback URL: [" + callback
-                    + "]: " + errCause);
+                    + "]: " + httpConnectorError.reason());
         }
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
@@ -387,12 +378,11 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
 function changeTopicRegistrationInDatabase(string mode, string topic) {
-    endpoint h2:Client subscriptionDbEp {
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
+    endpoint jdbc:Client subscriptionDbEp {
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
@@ -400,19 +390,13 @@ function changeTopicRegistrationInDatabase(string mode, string topic) {
         var updateStatus = subscriptionDbEp->update("INSERT INTO topics (topic) VALUES (?)", para1);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
-            error err => {
-                string errCause = <string> err.detail().message;
-                log:printError("Error occurred updating registration data: " + errCause);
-            }
+            error err => log:printError("Error occurred updating registration data: " + err.reason());
         }
     } else {
         var updateStatus = subscriptionDbEp->update("DELETE FROM topics WHERE topic=?", para1);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
-            error err => {
-                string errCause = <string> err.detail().message;
-                log:printError("Error occurred updating unregistration data: " + errCause);
-            }
+            error err => log:printError("Error occurred updating unregistration data: " + err.reason());
         }
     }
     subscriptionDbEp.stop();
@@ -423,12 +407,11 @@ function changeTopicRegistrationInDatabase(string mode, string topic) {
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscriptionDetails) {
-    endpoint h2:Client subscriptionDbEp {
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
+    endpoint jdbc:Client subscriptionDbEp {
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
@@ -443,10 +426,7 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
             untaint para1, untaint para2, untaint para3, untaint para4, untaint para5);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
-            error err => {
-                string errCause = <string> err.detail().message;
-                log:printError("Error occurred updating subscription data: " + errCause);
-            }
+            error err => log:printError("Error occurred updating subscription data: " + err.reason());
         }
     } else {
         var updateStatus = subscriptionDbEp->update("DELETE FROM subscriptions WHERE topic=? AND callback=?",
@@ -454,10 +434,7 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
 
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
-            error err => {
-                string errCause = <string> err.detail().message;
-                log:printError("Error occurred updating unsubscription data: " + errCause);
-            }
+            error err => log:printError("Error occurred updating unsubscription data: " + err.reason());
         }
     }
     subscriptionDbEp.stop();
@@ -474,36 +451,31 @@ function setupOnStartup() {
 
 # Function to load topic registrations from the database.
 function addTopicRegistrationsOnStartup() {
-    endpoint h2:Client subscriptionDbEp {
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
+    endpoint jdbc:Client subscriptionDbEp {
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
     table dt;
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
-            string errCause = <string> sqlErr.detail().message;
-            log:printError("Error retreiving data from the database: " + errCause);
+            log:printError("Error retreiving data from the database: " + sqlErr.reason());
         }
     }
     while (dt.hasNext()) {
         match (<TopicRegistration>dt.getNext()) {
             TopicRegistration registrationDetails => {
                 match(registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true)) {
-                    error e => {
-                        string errCause = <string> e.detail().message;
-                        log:printError("Error registering topic details retrieved from the database: "+ errCause);
-                    }
+                    error e => log:printError("Error registering topic details retrieved from the database: "
+                                                + e.reason());
                     () => {}
                 }
             }
             error convError => {
-                string errCause = <string> convError.detail().message;
-                log:printError("Error retreiving topic registration details from the database: " + errCause);
+                log:printError("Error retreiving topic registration details from the database: " + convError.reason());
             }
         }
     }
@@ -512,12 +484,11 @@ function addTopicRegistrationsOnStartup() {
 
 # Function to add subscriptions to the broker on startup, if persistence is enabled.
 function addSubscriptionsOnStartup() {
-    endpoint h2:Client subscriptionDbEp {
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
+    endpoint jdbc:Client subscriptionDbEp {
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
 
     int time = time:currentTime().time;
@@ -529,8 +500,7 @@ function addSubscriptionsOnStartup() {
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
-            string errCause = <string> sqlErr.detail().message;
-            log:printError("Error retreiving data from the database: " + errCause);
+            log:printError("Error retreiving data from the database: " + sqlErr.reason());
         }
     }
     while (dt.hasNext()) {
@@ -539,8 +509,7 @@ function addSubscriptionsOnStartup() {
                 addSubscription(subscriptionDetails);
             }
             error convError => {
-                string errCause = <string> convError.detail().message;
-                log:printError("Error retreiving subscription details from the database: " + errCause);
+                log:printError("Error retreiving subscription details from the database: " + convError.reason());
             }
         }
     }
@@ -549,20 +518,18 @@ function addSubscriptionsOnStartup() {
 
 # Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
 function clearSubscriptionDataInDb() {
-    endpoint h2:Client subscriptionDbEp {
-        path: hubDatabaseDirectory,
-        name: hubDatabaseName,
-        username: hubDatabaseUsername,
-        password: hubDatabasePassword,
-        poolOptions: { maximumPoolSize:5 }
+    endpoint jdbc:Client subscriptionDbEp {
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
     };
 
     var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");
     match(dbResult) {
         int => {}
         error sqlErr => {
-            string errCause = <string> sqlErr.detail().message;
-            log:printError("Error deleting subscription data from the database: " + errCause);
+            log:printError("Error deleting subscription data from the database: " + sqlErr.reason());
         }
     }
 
@@ -570,8 +537,7 @@ function clearSubscriptionDataInDb() {
     match(dbResult) {
         int => {}
         error sqlErr => {
-            string errCause = <string> sqlErr.detail().message;
-            log:printError("Error deleting topic data from the database: " + errCause);
+            log:printError("Error deleting topic data from the database: " + sqlErr.reason());
         }
     }
 
@@ -657,9 +623,8 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                 }
             }
             error err => {
-                string errCause = <string> err.detail().message;
                 log:printError("Error delievering content to callback[" + callback + "] for topic["
-                                + subscriptionDetails.topic + "]: " + errCause);
+                                + subscriptionDetails.topic + "]: " + err.reason());
             }
         }
     }

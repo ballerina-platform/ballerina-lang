@@ -151,7 +151,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
 
-        listenerConfiguration.setPipeliningEnabled(true); //Pipelining is enabled all the time
+        listenerConfiguration.setPipeliningNeeded(true); //Pipelining is enabled all the time
         listenerConfiguration.setPipeliningLimit(endpointConfig.getIntField(
                 HttpConstants.PIPELINING_REQUEST_LIMIT));
 

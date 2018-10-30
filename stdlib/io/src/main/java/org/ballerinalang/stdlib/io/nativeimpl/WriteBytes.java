@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -53,7 +52,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.ERROR)},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class WriteBytes implements NativeCallableUnit {
@@ -85,7 +84,7 @@ public class WriteBytes implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         CallableUnitCallback callback = eventContext.getCallback();
         if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             Integer numberOfBytesWritten = result.getResponse();

@@ -21,12 +21,12 @@ import ballerina/http;
 }
 service<http:WebSocketService> onlyOnBinary bind { port: 9086 } {
     onBinary(endpoint caller, byte[] data){
-        check caller->pushBinary(data);
+        _ = caller->pushBinary(data);
     }
 }
 
 service<http:WebSocketService> onlyOnText bind { port: 9087 } {
     onText(endpoint caller, string data) {
-        check caller->pushText(data);
+        _ = caller->pushText(data);
     }
 }

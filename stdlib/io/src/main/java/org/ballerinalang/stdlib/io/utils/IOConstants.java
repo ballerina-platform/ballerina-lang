@@ -65,7 +65,7 @@ public class IOConstants {
     public static final String IO_EOF = "io.EOF";
 
     /**
-     * Represents the base number of proto-buf.
+     * Represents the base number of protobuf.
      */
     public static final int PROTO_BUF_BASE = 7;
 
@@ -78,9 +78,4 @@ public class IOConstants {
      * Minimum value which will represent var int.
      */
     public static final long VAR_INT_MIN = (0xFFFFFFFFFFFFFL * -1);
-
-    /**
-     * Specifies the error code for i/o.
-     */
-    public static final String IO_ERROR_CODE = "{ballerina/io}IOError";
 }

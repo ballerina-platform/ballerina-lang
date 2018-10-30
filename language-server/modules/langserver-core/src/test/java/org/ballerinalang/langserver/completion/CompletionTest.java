@@ -39,9 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion Test Interface.
@@ -73,17 +71,9 @@ public abstract class CompletionTest {
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
         List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
         List<CompletionItem> expectedList = getExpectedList(configJsonObject);
-
-        boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
-        if (!result) {
-            //TODO: Added to print the diff of both lists, proper fix needed
-            List<String> temp = CompletionTestUtil.getStringListForEvaluation(responseItemList);
-            List<String> missed = CompletionTestUtil.getStringListForEvaluation(expectedList).stream()
-                    .filter(s -> !new HashSet<>(temp).contains(s))
-                    .collect(Collectors.toList());
-            Assert.fail("Failed Test for: " + configJsonPath + "\nFollowing completions has failed:\n" +
-                                String.join("\n", missed));
-        }
+        
+        Assert.assertTrue(CompletionTestUtil.isSubList(expectedList, responseItemList), "Failed Test for: "
+                + configJsonPath);
     }
     
     String getResponse(JsonObject configJsonObject) throws IOException {

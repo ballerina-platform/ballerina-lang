@@ -74,11 +74,6 @@ public class BIntRange implements BRefType, BCollection {
         public boolean hasNext() {
             return collection.startValue <= currentValue && currentValue <= collection.endValue;
         }
-
-        @Override
-        public void seal(BType type) {
-
-        }
     }
 
     /* Default implementation */

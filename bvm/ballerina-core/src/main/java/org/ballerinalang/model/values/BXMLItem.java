@@ -33,7 +33,6 @@ import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
@@ -820,11 +819,6 @@ public final class BXMLItem extends BXML<OMNode> {
         @Override
         public boolean hasNext() {
             return cursor == 0;
-        }
-
-        @Override
-        public void seal(BType type) {
-
         }
     }
 }

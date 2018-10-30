@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.io.socket.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,7 +46,7 @@ import java.nio.channels.SocketChannel;
         orgName = "ballerina", packageName = "io",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "error")},
+        returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
@@ -77,8 +76,7 @@ public class Close extends BlockingNativeCallableUnit {
             }
         } catch (Throwable e) {
             String message = "Failed to close the socket connection.";
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
-            context.setReturnValues(errorStruct);
+            context.setReturnValues(IOUtils.createError(context, message));
         }
         context.setReturnValues();
     }

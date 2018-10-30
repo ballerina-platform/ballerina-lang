@@ -1,20 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
-import ballerina/h2;
+import ballerina/jdbc;
 
 type Person record {
     int id;
@@ -55,11 +39,9 @@ float salValue = -1.0;
 string nameValue = "";
 
 function testForEachInTableWithStmt() returns (int, int, float, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -81,11 +63,9 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
 }
 
 function testForEachInTableWithIndex() returns (string, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -102,11 +82,9 @@ function testForEachInTableWithIndex() returns (string, string) {
 }
 
 function testForEachInTable() returns (int, int, float, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -128,11 +106,9 @@ function testForEachInTable() returns (int, int, float, string) {
 }
 
 function testCountInTable() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -143,11 +119,9 @@ function testCountInTable() returns (int) {
 }
 
 function testFilterTable() returns (int, int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -161,11 +135,9 @@ function testFilterTable() returns (int, int, int) {
 }
 
 function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -181,11 +153,9 @@ function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
 }
 
 function testFilterTableWithCount() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -196,11 +166,9 @@ function testFilterTableWithCount() returns (int) {
 }
 
 function testMapTable() returns (string[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -211,11 +179,9 @@ function testMapTable() returns (string[]) {
 }
 
 function testMapWithFilterTable() returns (string[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -226,11 +192,9 @@ function testMapWithFilterTable() returns (string[]) {
 }
 
 function testFilterWithMapTable() returns (string[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -241,11 +205,9 @@ function testFilterWithMapTable() returns (string[]) {
 }
 
 function testFilterWithMapAndCountTable() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -256,11 +218,9 @@ function testFilterWithMapAndCountTable() returns (int) {
 }
 
 function testAverageWithTable() returns (float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -271,11 +231,9 @@ function testAverageWithTable() returns (float) {
 }
 
 function testMinWithTable() returns (float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -286,11 +244,9 @@ function testMinWithTable() returns (float) {
 }
 
 function testMaxWithTable() returns (float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -301,11 +257,9 @@ function testMaxWithTable() returns (float) {
 }
 
 function testSumWithTable() returns (float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -316,15 +270,13 @@ function testSumWithTable() returns (float) {
 }
 
 function testCloseConnectionPool() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table<Person> dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS",
+    table<Person> dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS",
         ResultCount);
     int count;
     while (dt.hasNext()) {

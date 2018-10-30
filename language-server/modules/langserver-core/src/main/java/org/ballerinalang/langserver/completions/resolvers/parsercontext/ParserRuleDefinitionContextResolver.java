@@ -21,12 +21,11 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,10 +48,12 @@ public class ParserRuleDefinitionContextResolver extends AbstractItemResolver {
         return context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
                 .map(symbolInfo -> {
-                    BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                    String symbolName = symbol.getName().getValue();
-                    CompletionItem completionItem = BTypeCompletionItemBuilder.build((BTypeSymbol) symbol, symbolName);
+                    String symbolName = symbolInfo.getScopeEntry().symbol.getName().getValue();
+                    CompletionItem completionItem = new CompletionItem();
+                    completionItem.setLabel(symbolName);
                     completionItem.setInsertText(symbolName + "::");
+                    completionItem.setDetail(ItemResolverConstants.B_TYPE);
+                    completionItem.setKind(CompletionItemKind.Reference);
                     return completionItem;
                 }).collect(Collectors.toList());
     }

@@ -32,7 +32,4 @@ public interface BallerinaDocumentService {
 
     @JsonRequest
     CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
-
-    @JsonRequest
-    CompletableFuture<BallerinaProject> project(BallerinaProjectParams params);
 }

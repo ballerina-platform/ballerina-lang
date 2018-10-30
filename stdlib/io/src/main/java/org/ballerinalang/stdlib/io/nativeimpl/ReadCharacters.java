@@ -21,7 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -50,7 +49,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
                 structPackage = "ballerina/io"),
         args = {@Argument(name = "numberOfChars", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING),
-                      @ReturnType(type = TypeKind.ERROR)},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class ReadCharacters implements NativeCallableUnit {
@@ -77,7 +76,7 @@ public class ReadCharacters implements NativeCallableUnit {
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             String readChars = result.getResponse();

@@ -26,7 +26,6 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -59,7 +58,7 @@ import java.util.Arrays;
         args = {@Argument(name = "nBytes", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.ERROR)},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class ReadBytes implements NativeCallableUnit {
@@ -90,7 +89,7 @@ public class ReadBytes implements NativeCallableUnit {
         CallableUnitCallback callback = eventContext.getCallback();
         byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
         if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             Integer numberOfBytes = result.getResponse();

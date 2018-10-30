@@ -24,15 +24,13 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.test.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType;
-import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
-import static org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
+import java.io.File;
 
 /**
  * Class to test table iteration functionality.
@@ -42,30 +40,29 @@ public class TableIterationTest {
     private CompileResult result;
     private CompileResult resultNegative;
     private static final String DB_NAME = "TEST_DATA_TABLE__ITR_DB";
-    private TestDatabase testDatabase;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_iteration.bal");
         resultNegative = BCompileUtil.compile("test-src/types/table/table_iteration_negative.bal");
-        testDatabase = new FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/TableIterationTestData.sql", DB_DIRECTORY, DB_NAME);
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
+        SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/TableIterationTestData.sql");
     }
 
     @Test(groups = "TableIterationTest", description = "Negative tests for select operation")
     public void testNegative() {
-        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 40, 30);
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 24, 30);
         BAssertUtil.validateError(resultNegative, 1,
-                                  "incompatible types: expected 'float', found 'int'", 45, 42);
+                                  "incompatible types: expected 'float', found 'int'", 29, 42);
         BAssertUtil.validateError(resultNegative, 2,
                                   "incompatible lambda function types: expected 'EmployeeIncompatible', found " +
-                                          "'Employee'", 71, 41);
+                                          "'Employee'", 55, 41);
         BAssertUtil.validateError(resultNegative, 3,
                                   "incompatible types: expected 'EmployeeSalary', found '" +
-                                          "(EmployeeSalaryIncompatible) collection'", 78, 41);
+                                          "(EmployeeSalaryIncompatible) collection'", 62, 41);
         BAssertUtil.validateError(resultNegative, 4,
                                   "incompatible lambda function types: expected 'EmployeeIncompatible', found " +
-                                          "'Employee'", 85, 41);
+                                          "'Employee'", 69, 41);
     }
 
     @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
@@ -236,8 +233,6 @@ public class TableIterationTest {
 
     @AfterSuite
     public void cleanup() {
-        if (testDatabase != null) {
-            testDatabase.stop();
-        }
+        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
     }
 }

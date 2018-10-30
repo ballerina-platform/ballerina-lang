@@ -1,21 +1,5 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 import ballerina/sql;
-import ballerina/h2;
+import ballerina/jdbc;
 import ballerina/io;
 import ballerina/time;
 
@@ -129,12 +113,11 @@ type TestTypeData record {
     string[] sA;
 };
 
-function testToJson() returns (json) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToJson(string jdbcUrl, string userName, string password) returns (json) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -150,12 +133,11 @@ function testToJson() returns (json) {
     }
 }
 
-function testToXml() returns (xml) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToXml(string jdbcUrl, string userName, string password) returns (xml) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -172,12 +154,11 @@ function testToXml() returns (xml) {
     }
 }
 
-function testToXmlMultipleConsume() returns (xml) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToXmlMultipleConsume(string jdbcUrl, string userName, string password) returns (xml) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -193,12 +174,11 @@ function testToXmlMultipleConsume() returns (xml) {
     }
 }
 
-function testToXmlWithAdd() returns (xml) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToXmlWithAdd(string jdbcUrl, string userName, string password) returns (xml) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 2 }
     };
 
@@ -218,12 +198,11 @@ function testToXmlWithAdd() returns (xml) {
     }
 }
 
-function testToJsonMultipleConsume() returns (json) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToJsonMultipleConsume(string jdbcUrl, string userName, string password) returns (json) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -240,12 +219,11 @@ function testToJsonMultipleConsume() returns (json) {
 }
 
 
-function toXmlComplex() returns (xml) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function toXmlComplex(string jdbcUrl, string userName, string password) returns (xml) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -263,12 +241,11 @@ function toXmlComplex() returns (xml) {
     }
 }
 
-function testToXmlComplexWithStructDef() returns (xml) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToXmlComplexWithStructDef(string jdbcUrl, string userName, string password) returns (xml) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -287,12 +264,11 @@ function testToXmlComplexWithStructDef() returns (xml) {
 }
 
 
-function testToJsonComplex() returns (json) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToJsonComplex(string jdbcUrl, string userName, string password) returns (json) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -310,12 +286,12 @@ function testToJsonComplex() returns (json) {
     }
 }
 
-function testToJsonComplexWithStructDef() returns (json) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+
+function testToJsonComplexWithStructDef(string jdbcUrl, string userName, string password) returns (json) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -333,12 +309,11 @@ function testToJsonComplexWithStructDef() returns (json) {
     }
 }
 
-function testJsonWithNull() returns (json) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testJsonWithNull(string jdbcUrl, string userName, string password) returns (json) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -355,12 +330,11 @@ function testJsonWithNull() returns (json) {
     }
 }
 
-function testXmlWithNull() returns (xml) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testXmlWithNull(string jdbcUrl, string userName, string password) returns (xml) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -377,12 +351,11 @@ function testXmlWithNull() returns (xml) {
     }
 }
 
-function testToXmlWithinTransaction() returns (string, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToXmlWithinTransaction(string jdbcUrl, string userName, string password) returns (string, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -401,12 +374,11 @@ function testToXmlWithinTransaction() returns (string, int) {
     }
 }
 
-function testToJsonWithinTransaction() returns (string, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToJsonWithinTransaction(string jdbcUrl, string userName, string password) returns (string, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -425,12 +397,11 @@ function testToJsonWithinTransaction() returns (string, int) {
     }
 }
 
-function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testGetPrimitiveTypes(string jdbcUrl, string userName, string password) returns (int, int, float, float, boolean, string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -457,25 +428,30 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
     return (i, l, f, d, b, s);
 }
 
-function testGetComplexTypes() returns (byte[], string, byte[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testGetComplexTypes(string jdbcUrl, string userName, string password) returns (byte[], string, byte[]) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
     byte[] blobData;
     string clob;
     byte[] binaryData;
-    (blobData, clob, binaryData) = retrieveComplexTypeValues(testDB);
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            (blobData, clob, binaryData) = retrieveComplexTypeValues(testDB);
+        }
+    } else {
+        (blobData, clob, binaryData) = retrieveComplexTypeValues(testDB);
+    }
     testDB.stop();
     return (blobData, clob, binaryData);
 }
 
-function retrieveComplexTypeValues(h2:Client db) returns (byte[], string, byte[]) {
-    endpoint h2:Client dbEp =  db;
+function retrieveComplexTypeValues(jdbc:Client db) returns (byte[], string, byte[]) {
+    endpoint jdbc:Client dbEp =  db;
     byte[] blobData;
     string clobData;
     byte[] binaryData;
@@ -490,13 +466,12 @@ function retrieveComplexTypeValues(h2:Client db) returns (byte[], string, byte[]
     return (blobData, clobData, binaryData);
 }
 
-function testArrayData() returns (int[], int[], float[], string[],
+function testArrayData(string jdbcUrl, string userName, string password) returns (int[], int[], float[], string[],
             boolean[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -521,13 +496,12 @@ function testArrayData() returns (int[], int[], float[], string[],
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
+function testArrayDataInsertAndPrint(string jdbcUrl, string userName, string password) returns (int, int, int, int, int,
             int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -574,13 +548,12 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
     return (updateRet, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
 }
 
-function testDateTime(int datein, int timein, int timestampin)
+function testDateTime(string jdbcUrl, string userName, string password, int datein, int timein, int timestampin)
              returns (string, string, string, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
     string date;
@@ -612,13 +585,12 @@ function testDateTime(int datein, int timein, int timestampin)
     return (date, time, timestamp, datetime);
 }
 
-function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
+function testDateTimeAsTimeStruct(string jdbcUrl, string userName, string password) returns (int, int, int, int, int,
             int, int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -668,13 +640,12 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
     datetimeInserted, datetimeRetrieved);
 }
 
-function testDateTimeInt(int datein, int timein, int timestampin)
+function testDateTimeInt(string jdbcUrl, string userName, string password, int datein, int timein, int timestampin)
 returns (int, int, int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -707,22 +678,28 @@ returns (int, int, int, int) {
     return (date, time, timestamp, datetime);
 }
 
-function testBlobData() returns (byte[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testBlobData(string jdbcUrl, string userName, string password) returns (byte[]) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    byte[] blobData = retrieveBlobValues(testDB);
+    byte[] blobData;
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            blobData = retrieveBlobValues(testDB);
+        }
+    } else {
+        blobData = retrieveBlobValues(testDB);
+    }
     testDB.stop();
     return blobData;
 }
 
-function retrieveBlobValues(h2:Client db) returns byte[] {
-    endpoint h2:Client dbEp = db;
+function retrieveBlobValues(jdbc:Client db) returns byte[] {
+    endpoint jdbc:Client dbEp = db;
     byte[] blobData;
     table dt = check dbEp->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
     while (dt.hasNext()) {
@@ -732,13 +709,12 @@ function retrieveBlobValues(h2:Client db) returns byte[] {
     return blobData;
 }
 
-function testColumnAlias() returns (int, int, float, float, boolean,
+function testColumnAlias(string jdbcUrl, string userName, string password) returns (int, int, float, float, boolean,
             string, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -768,23 +744,29 @@ function testColumnAlias() returns (int, int, float, float, boolean,
     return (i, l, f, d, b, s, i2);
 }
 
-function testBlobInsert() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testBlobInsert(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int insertCount = retrieveAndInsertBlobdata(testDB);
+    int insertCount;
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            insertCount = retrieveAndInsertBlobdata(testDB);
+        }
+    } else {
+       insertCount = retrieveAndInsertBlobdata(testDB);
+    }
 
     testDB.stop();
     return insertCount;
 }
 
-function retrieveAndInsertBlobdata(h2:Client db) returns int {
-    endpoint h2:Client dbEp = db;
+function retrieveAndInsertBlobdata(jdbc:Client db) returns int {
+    endpoint jdbc:Client dbEp = db;
     table dt = check dbEp->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
 
     byte[] blobData;
@@ -802,12 +784,11 @@ function retrieveAndInsertBlobdata(h2:Client db) returns int {
 }
 
 
-function testTableAutoClose() returns (int, json) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testTableAutoClose(string jdbcUrl, string userName, string password) returns (int, json) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -834,12 +815,11 @@ function testTableAutoClose() returns (int, json) {
     return (i, jsonData);
 }
 
-function testTableManualClose() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testTableManualClose(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -868,12 +848,11 @@ function testTableManualClose() returns (int) {
     return data;
 }
 
-function testCloseConnectionPool(string connectionCountQuery) returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testCloseConnectionPool(string jdbcUrl, string userName, string password, string connectionCountQuery) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -888,12 +867,11 @@ function testCloseConnectionPool(string connectionCountQuery) returns (int) {
     return count;
 }
 
-function testTablePrintAndPrintln() {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testTablePrintAndPrintln(string jdbcUrl, string userName, string password) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -905,12 +883,11 @@ function testTablePrintAndPrintln() {
     testDB.stop();
 }
 
-function testMultipleRows() returns (int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testMultipleRows(string jdbcUrl, string userName, string password) returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -931,13 +908,12 @@ function testMultipleRows() returns (int, int) {
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
-function testMultipleRowsWithoutLoop() returns (int, int, int, int,
+function testMultipleRowsWithoutLoop(string jdbcUrl, string userName, string password) returns (int, int, int, int,
             string, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1030,13 +1006,12 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
     return (i1, i2, i3, i4, s1, s2);
 }
 
-function testHasNextWithoutConsume() returns (boolean, boolean, boolean)
+function testHasNextWithoutConsume(string jdbcUrl, string userName, string password) returns (boolean, boolean, boolean)
 {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1059,12 +1034,11 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean)
     return (b1, b2, b3);
 }
 
-function testGetFloatTypes() returns (float, float, float, float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testGetFloatTypes(string jdbcUrl, string userName, string password) returns (float, float, float, float) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1087,13 +1061,12 @@ function testGetFloatTypes() returns (float, float, float, float) {
     return (f, d, num, dec);
 }
 
-function testSignedIntMaxMinValues() returns (int, int, int, string,
+function testSignedIntMaxMinValues(string jdbcUrl, string userName, string password) returns (int, int, int, string,
             string, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1157,13 +1130,12 @@ function testSignedIntMaxMinValues() returns (int, int, int, string,
     return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
 }
 
-function testComplexTypeInsertAndRetrieval() returns (int, int, string,
+function testComplexTypeInsertAndRetrieval(string jdbcUrl, string userName, string password) returns (int, int, string,
             string, string, byte[][]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1227,13 +1199,12 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string,
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected);
 }
 
-function testJsonXMLConversionwithDuplicateColumnNames() returns (json,
+function testJsonXMLConversionwithDuplicateColumnNames(string jdbcUrl, string userName, string password) returns (json,
             xml) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 2 }
     };
 
@@ -1256,13 +1227,12 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns (json,
     }
 }
 
-function testStructFieldNotMatchingColumnName() returns (int, int, int,
+function testStructFieldNotMatchingColumnName(string jdbcUrl, string userName, string password) returns (int, int, int,
             int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1292,13 +1262,12 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int,
     return (countAll, i1, i2, i3, i4);
 }
 
-function testGetPrimitiveTypesWithForEach() returns (int, int, float,
+function testGetPrimitiveTypesWithForEach(string jdbcUrl, string userName, string password) returns (int, int, float,
             float, boolean, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1323,12 +1292,11 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
     return (i, l, f, d, b, s);
 }
 
-function testMultipleRowsWithForEach() returns (int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testMultipleRowsWithForEach(string jdbcUrl, string userName, string password) returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1349,12 +1317,11 @@ function testMultipleRowsWithForEach() returns (int, int) {
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
-function testTableAddInvalid() returns string {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testTableAddInvalid(string jdbcUrl, string userName, string password) returns string {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1374,12 +1341,11 @@ function testTableAddInvalid() returns string {
     return s;
 }
 
-function testTableRemoveInvalid() returns string {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testTableRemoveInvalid(string jdbcUrl, string userName, string password) returns string {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1398,12 +1364,11 @@ function testTableRemoveInvalid() returns string {
     return s;
 }
 
-function tableGetNextInvalid() {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function tableGetNextInvalid(string jdbcUrl, string userName, string password) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1420,12 +1385,11 @@ function isDelete(ResultPrimitiveInt p) returns (boolean) {
     return p.INT_TYPE < 2000;
 }
 
-function testToJsonAndAccessFromMiddle() returns (json, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToJsonAndAccessFromMiddle(string jdbcUrl, string userName, string password) returns (json, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1441,12 +1405,11 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
     }
 }
 
-function testToJsonAndIterate() returns (json, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToJsonAndIterate(string jdbcUrl, string userName, string password) returns (json, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1467,12 +1430,11 @@ function testToJsonAndIterate() returns (json, int) {
     }
 }
 
-function testToJsonAndSetAsChildElement() returns json {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToJsonAndSetAsChildElement(string jdbcUrl, string userName, string password) returns json {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1487,12 +1449,11 @@ function testToJsonAndSetAsChildElement() returns json {
     }
 }
 
-function testToJsonAndLengthof() returns (int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testToJsonAndLengthof(string jdbcUrl, string userName, string password) returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 

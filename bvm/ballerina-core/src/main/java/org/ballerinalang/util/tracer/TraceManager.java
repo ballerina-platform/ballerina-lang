@@ -22,11 +22,11 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMapExtractAdapter;
-import io.opentracing.propagation.TextMapInjectAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_TRACE_CONTEXT;
 
 /**
  * {@link TraceManager} loads {@link TraceManager} implementation
@@ -55,7 +55,7 @@ public class TraceManager {
             if (parentBSpan != null) {
                 span = startSpan(resource, parentBSpan.getSpan(), activeBSpan.getTags(), service, false);
             } else {
-                span = startSpan(resource, extractSpanContext(activeBSpan.getProperties(), service),
+                span = startSpan(resource, extractSpanContext(activeBSpan.getProperty(KEY_TRACE_CONTEXT), service),
                         activeBSpan.getTags(), service, true);
             }
 
@@ -75,12 +75,15 @@ public class TraceManager {
         tags.forEach((key, value) -> bSpan.getSpan().setTag(key, String.valueOf(value)));
     }
 
-    public Map<String, String> extractTraceContext(Span span, String serviceName) {
+    public Map<String, String> extractTraceContext(Span span, String serviceName, String headerName) {
         Map<String, String> carrierMap = new HashMap<>();
         Tracer tracer = tracerStore.getTracer(serviceName);
         if (tracer != null && span != null) {
-            TextMapInjectAdapter requestInjector = new TextMapInjectAdapter(carrierMap);
+            Map<String, String> tracerSpecificCarrier = new HashMap<>();
+            RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
             tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+            String carrierString = requestInjector.getCarrierString();
+            carrierMap.put(headerName, carrierString);
         }
         return carrierMap;
     }
@@ -104,11 +107,11 @@ public class TraceManager {
         return spanBuilder.start();
     }
 
-    private Object extractSpanContext(Map<String, String> traceContext, String serviceName) {
+    private Object extractSpanContext(String contextString, String serviceName) {
         SpanContext spanContext = null;
         Tracer tracer = tracerStore.getTracer(serviceName);
         if (tracer != null) {
-            spanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(traceContext));
+            spanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(contextString));
         }
         return spanContext;
     }

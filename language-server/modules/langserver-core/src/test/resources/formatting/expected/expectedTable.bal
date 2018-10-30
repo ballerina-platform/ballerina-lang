@@ -28,19 +28,19 @@ function name1() {
     _ = dt1.add(p1);
 
     table<Person> dt4 = table {
-        {key id, key age, salary, name, married}
+        {primarykey id, primarykey age, salary, name, married}
     };
 
     table<Person> dt5 = table {
-        {key id, key age, salary, name, married},
+        {primarykey id, primarykey age, salary, name, married},
         [
             {1, 26, 3000.50, "marcus", false}
         ]
     };
 
     table<Person> dt5 = table {
-        {key id
-            , key age
+        {primarykey id
+            , primarykey age
             , salary
             , name
             , married
@@ -53,8 +53,8 @@ function name1() {
 
     table<Person> dt6 = table {
         {
-            key id,
-            key age,
+            primarykey id,
+            primarykey age,
             salary,
             name,
             married
@@ -62,35 +62,11 @@ function name1() {
     };
 
     table<Person> dt7 = table {
-        {key id, key age, salary, name, married},
+        {primarykey id, primarykey age, salary, name, married},
         [
             {1, 26, 3000.50, "marcus", false},
             {1, 26, 3000.50, "jui", false},
             {1, 26, 3000.50, "jui", false}
-        ]
-    };
-
-    Person p2 = {
-        id: 1,
-        age: 26,
-        salary: 3000.50,
-        name: "marcus",
-        married: false
-    };
-
-    Person p3 = {
-        id: 1,
-        age: 26,
-        salary: 3000.50,
-        name: "jui",
-        married: false
-    };
-
-    table<Person> dt8 = table {
-        {key id, key age, salary, name, married},
-        [
-            p2,
-            p3
         ]
     };
 }

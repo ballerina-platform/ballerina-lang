@@ -1,12 +1,12 @@
 import ballerina/io;
 import ballerina/http;
-import ballerina/h2;
+import ballerina/jdbc;
 
-endpoint h2:Client testDB {
-    path: "./local-transactions",
-    name: "Testdb",
+endpoint jdbc:Client testDB {
+    url: "jdbc:h2:file:./local-transactions/Testdb",
     username: "root",
-    password: "root"
+    password: "root",
+    poolOptions: { maximumPoolSize: 5 }
 };
 
 function main(string... args) {

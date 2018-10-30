@@ -39,7 +39,6 @@ public enum DiagnosticCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
-    TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
@@ -307,8 +306,6 @@ public enum DiagnosticCode {
     
     INCOMPATIBLE_TYPE_CHECK("incompatible.type.check"),
     UNNECESSARY_CONDITION("unnecessary.condition"),
-
-    INCOMPATIBLE_SEAL_TYPE("incompatible.seal.type"),
     ;
 
     private String value;

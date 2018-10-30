@@ -488,9 +488,6 @@ public class CPU {
                     case InstructionCodes.DETAIL:
                         handleErrorBuiltinMethods(opcode, operands, sf);
                         break;
-                    case InstructionCodes.SEAL:
-                        handleSealBuildInMethod(ctx, operands, sf);
-                        break;
                     case InstructionCodes.FPCALL:
                         i = operands[0];
                         if (sf.refRegs[i] == null) {
@@ -811,18 +808,6 @@ public class CPU {
                 sf.refRegs[j] = error.getDetails();
                 break;
         }
-    }
-
-    private static void handleSealBuildInMethod(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-
-        int i = operands[0];
-        int j = operands[1];
-
-        BRefType<?> sealValue = sf.refRegs[i];
-        BType sealType = ((TypeRefCPEntry) ctx.constPool[j]).getType();
-
-        //mutate reference variable
-        sealValue.seal(sealType);
     }
 
     /**

@@ -22,13 +22,13 @@ import { expect } from 'chai';
 import * as path from 'path';
 import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
-import { getBallerinaHome, getBBEPath } from "../test-util";
+import { getBallerinaHome } from "../test-util";
 import { Uri } from "vscode";
 
+let langClient: ExtendedLangClient;
 
 suite("Language Server Tests", function () {
     this.timeout(10000);
-    let langClient: ExtendedLangClient;
 
     suiteSetup((done: MochaDone): any => {
         langClient = new ExtendedLangClient(
@@ -55,7 +55,7 @@ suite("Language Server Tests", function () {
 
     test("Test getAST", function (done): void {
         langClient.onReady().then(() => {
-            const filePath = path.join(getBBEPath(),'hello-world','hello_world.bal');
+            const filePath = path.join(getBallerinaHome(),'examples','hello-world','hello_world.bal');
             let uri = Uri.file(filePath.toString());
             langClient.getAST(uri).then((response) => {
                 expect(response).to.contain.keys('ast','parseSuccess');
@@ -74,4 +74,3 @@ suite("Language Server Tests", function () {
         });
     });
 });
-

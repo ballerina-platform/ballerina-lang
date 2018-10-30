@@ -30,7 +30,10 @@ service<http:Service> simple bind ep1 {
         }
     }
     websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
-        check httpEp->cancelWebSocketUpgrade(404, "Cannot proceed");
+        httpEp->cancelWebSocketUpgrade(404, "Cannot proceed") but {
+            error e => log:printError("Error sending message", err = e)
+        };
+
     }
 }
 
@@ -49,7 +52,10 @@ service<http:Service> cannotcancel bind ep1 {
         }
     }
     websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
-        check httpEp->cancelWebSocketUpgrade(200, "Cannot proceed");
+        httpEp->cancelWebSocketUpgrade(200, "Cannot proceed") but {
+            error e => log:printError("Error sending message", err = e)
+        };
+
     }
 }
 

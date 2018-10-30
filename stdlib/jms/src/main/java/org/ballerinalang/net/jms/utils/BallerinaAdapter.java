@@ -23,11 +23,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +75,7 @@ public class BallerinaAdapter {
 
     private static BMap<String, BValue> createErrorRecord(Context context, String errorMsg, JMSException e) {
         BMap<String, BValue> errorStruct =
-                BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS, Constants.JMS_ERROR_RECORD);
+                BLangConnectorSPIUtil.createBStruct(context, BALLERINA_BUILTIN_PKG, STRUCT_GENERIC_ERROR);
         errorStruct.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(errorMsg + " " + e.getMessage()));
         return errorStruct;
     }
@@ -85,6 +83,6 @@ public class BallerinaAdapter {
     public static void returnError(String errorMessage, Context context, JMSException e) {
         LOGGER.error(errorMessage, e);
         BMap<String, BValue> errorRecord = createErrorRecord(context, errorMessage, e);
-        context.setReturnValues(BLangVMErrors.createError(context, true, BTypes.typeError, Constants.JMS_ERROR_CODE, errorRecord));
+        context.setReturnValues(errorRecord);
     }
 }

@@ -172,7 +172,7 @@
     {
       "label":"testDB",
       "kind":"Unit",
-      "detail":"ballerina/h2:Client",
+      "detail":"ballerina/jdbc:Client",
       "sortText":"110",
       "insertText":"testDB"
     },
@@ -373,11 +373,11 @@
       "insertText":"http"
     },
     {
-      "label":"ballerina/h2",
+      "label":"ballerina/jdbc",
       "kind":"Module",
       "detail":"Package",
       "sortText":"140",
-      "insertText":"h2"
+      "insertText":"jdbc"
     },
     {
       "label":"ballerina/transactions",
@@ -390,11 +390,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/transactions;\n"
@@ -412,11 +412,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/websub;\n"
@@ -434,11 +434,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/grpc;\n"
@@ -456,11 +456,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/reflect;\n"
@@ -478,11 +478,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/log;\n"
@@ -500,11 +500,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/time;\n"
@@ -522,11 +522,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/runtime;\n"
@@ -544,11 +544,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/swagger;\n"
@@ -566,11 +566,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/file;\n"
@@ -588,11 +588,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/sql;\n"
@@ -610,11 +610,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/internal;\n"
@@ -632,11 +632,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/mysql;\n"
@@ -654,11 +654,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/mb;\n"
@@ -676,11 +676,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/mime;\n"
@@ -698,11 +698,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/task;\n"
@@ -720,11 +720,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/crypto;\n"
@@ -742,11 +742,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/cache;\n"
@@ -764,11 +764,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/auth;\n"
@@ -786,11 +786,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/jms;\n"
@@ -808,14 +808,36 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/system;\n"
+        }
+      ]
+    },
+    {
+      "label":"ballerina/h2",
+      "kind":"Module",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"h2",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":2,
+              "character":22
+            },
+            "end":{
+              "line":2,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/h2;\n"
         }
       ]
     },
@@ -837,11 +859,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/math;\n"
@@ -859,11 +881,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/config;\n"

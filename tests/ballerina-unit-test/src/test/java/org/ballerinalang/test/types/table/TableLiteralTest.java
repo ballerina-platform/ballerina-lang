@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -53,11 +54,13 @@ public class TableLiteralTest {
     private static final String CARRIAGE_RETURN_CHAR = "\r";
     private static final String EMPTY_STRING = "";
     private CompileResult result;
+    private CompileResult resultNegative;
     private CompileResult resultHelper;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_literal.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_literal_negative.bal");
         resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
     }
 
@@ -364,5 +367,13 @@ public class TableLiteralTest {
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(description = "Test table remove with function pointer of invalid return type")
+    public void testTableReturnNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0,
+           "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
+           20, 33);
     }
 }

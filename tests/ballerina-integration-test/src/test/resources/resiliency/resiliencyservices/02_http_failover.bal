@@ -91,8 +91,7 @@ service<http:Service> failoverDemoService01 bind failoverEP01 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                string errorMgs = <string> responseError.detail().message;
-                response.setPayload(errorMgs);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -116,8 +115,7 @@ service<http:Service> failoverDemoService01 bind failoverEP01 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                string errorMgs = <string> responseError.detail().message;
-                response.setPayload(errorMgs);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -141,8 +139,7 @@ service<http:Service> failoverDemoService01 bind failoverEP01 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                string errorMgs = <string> responseError.detail().message;
-                response.setPayload(errorMgs);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -170,8 +167,7 @@ service<http:Service> failoverDemoService01 bind failoverEP01 {
                 // Create a new HTTP response by looking at the error message.
                 http:Response response = new;
                 response.statusCode = 500;
-                string errorMgs = <string> responseError.detail().message;
-                response.setPayload(errorMgs);
+                response.setPayload(responseError.reason());
                 caller->respond(response) but {
                     error e => log:printError("Error sending response", err = e)
                 };

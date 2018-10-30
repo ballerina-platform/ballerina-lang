@@ -1,5 +1,5 @@
 import ballerina/sql;
-import ballerina/h2;
+import ballerina/jdbc;
 import ballerina/time;
 import ballerina/io;
 import ballerina/internal;
@@ -71,12 +71,11 @@ type Employee record {
     string address;
 };
 
-function testInsertTableData() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testInsertTableData(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -86,12 +85,11 @@ function testInsertTableData() returns (int) {
     return insertCount;
 }
 
-function testCreateTable() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testCreateTable(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -100,12 +98,11 @@ function testCreateTable() returns (int) {
     return returnValue;
 }
 
-function testUpdateTableData() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testUpdateTableData(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -114,12 +111,11 @@ function testUpdateTableData() returns (int) {
     return updateCount;
 }
 
-function testGeneratedKeyOnInsert() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testGeneratedKeyOnInsert(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -144,12 +140,11 @@ function testGeneratedKeyOnInsert() returns (string) {
     return returnVal;
 }
 
-function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testGeneratedKeyOnInsertEmptyResults(string jdbcUrl, string userName, string password) returns (int|string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -175,12 +170,11 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
 }
 
 
-function testGeneratedKeyWithColumn() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testGeneratedKeyWithColumn(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -190,9 +184,13 @@ function testGeneratedKeyWithColumn() returns (string) {
     string returnVal;
 
     string queryString;
-    queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('Kathy',
+    if (jdbcUrl.contains("postgres")) {
+        queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+        ('Kathy', 'Williams', 4, 5000.75, 'USA') RETURNING CUSTOMERID";
+    } else {
+        queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('Kathy',
         'Williams', 4, 5000.75, 'USA')";
-
+    }
     var x = testDB->updateWithGeneratedKeys(queryString, keyColumns);
     match x {
         (int, string[]) y => {
@@ -210,12 +208,11 @@ function testGeneratedKeyWithColumn() returns (string) {
     return returnVal;
 }
 
-function testSelectData() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testSelectData(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -230,12 +227,11 @@ function testSelectData() returns (string) {
     return firstName;
 }
 
-function testSelectIntFloatData() returns (int, int, float, float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testSelectIntFloatData(string jdbcUrl, string userName, string password) returns (int, int, float, float) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -256,12 +252,11 @@ function testSelectIntFloatData() returns (int, int, float, float) {
     return (int_type, long_type, float_type, double_type);
 }
 
-function testCallProcedure() returns (string, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testCallProcedure(string jdbcUrl, string userName, string password) returns (string, string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 2 }
     };
 
@@ -282,12 +277,11 @@ function testCallProcedure() returns (string, string) {
     return (firstName, returnValue);
 }
 
-function testCallProcedureWithResultSet() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testCallProcedureWithResultSet(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -307,12 +301,11 @@ function testCallProcedureWithResultSet() returns (string) {
     return firstName;
 }
 
-function testCallFunctionWithReturningRefcursor() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testCallFunctionWithReturningRefcursor(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -332,13 +325,12 @@ function testCallFunctionWithReturningRefcursor() returns (string) {
     return firstName;
 }
 
-function testCallProcedureWithMultipleResultSets() returns (string,
+function testCallProcedureWithMultipleResultSets(string jdbcUrl, string userName, string password) returns (string,
             string, string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -368,12 +360,11 @@ function testCallProcedureWithMultipleResultSets() returns (string,
     return (firstName1, firstName2, lastName);
 }
 
-function testQueryParameters() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testQueryParameters(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -389,12 +380,11 @@ function testQueryParameters() returns (string) {
     return firstName;
 }
 
-function testQueryParameters2() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testQueryParameters2(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -412,12 +402,11 @@ function testQueryParameters2() returns (string) {
     return firstName;
 }
 
-function testInsertTableDataWithParameters() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testInsertTableDataWithParameters(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -434,12 +423,11 @@ function testInsertTableDataWithParameters() returns (int) {
     return insertCount;
 }
 
-function testInsertTableDataWithParameters2() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testInsertTableDataWithParameters2(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -450,12 +438,11 @@ function testInsertTableDataWithParameters2() returns (int) {
     return insertCount;
 }
 
-function testInsertTableDataWithParameters3() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testInsertTableDataWithParameters3(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -467,12 +454,11 @@ function testInsertTableDataWithParameters3() returns (int) {
     return insertCount;
 }
 
-function testArrayofQueryParameters() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testArrayofQueryParameters(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -497,12 +483,11 @@ function testArrayofQueryParameters() returns (string) {
     return firstName;
 }
 
-function testBoolArrayofQueryParameters() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBoolArrayofQueryParameters(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -528,12 +513,11 @@ function testBoolArrayofQueryParameters() returns (int) {
     return value;
 }
 
-function testBlobArrayQueryParameter() returns int {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBlobArrayQueryParameter(string jdbcUrl, string userName, string password) returns int {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -559,13 +543,12 @@ function testBlobArrayQueryParameter() returns int {
     return value;
 }
 
-function testArrayInParameters() returns (int, int[], int[], float[],
+function testArrayInParameters(string jdbcUrl, string userName, string password) returns (int, int[], int[], float[],
             string[], boolean[], float[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -610,13 +593,12 @@ function testArrayInParameters() returns (int, int[], int[], float[],
     return (insertCount, int_arr, long_arr, double_arr, string_arr, boolean_arr, float_arr);
 }
 
-function testOutParameters() returns (any, any, any, any, any, any, any,
+function testOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any, any,
             any, any, any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -635,6 +617,18 @@ function testOutParameters() returns (any, any, any, any, any, any, any,
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
 
+    if (jdbcUrl.contains("postgres")) {
+        // There is no CLOB type in postgres. Therefore have to use TEXT type instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
+    }
+
     _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
@@ -646,12 +640,11 @@ function testOutParameters() returns (any, any, any, any, any, any, any,
     paraBinary.value);
 }
 
-function testBlobOutInOutParameters() returns (any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBlobOutInOutParameters(string jdbcUrl, string userName, string password) returns (any, any) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -670,13 +663,12 @@ function testBlobOutInOutParameters() returns (any, any) {
     return (paraBlobOut.value, paraBlobInOut.value);
 }
 
-function testNullOutParameters() returns (any, any, any, any, any, any,
+function testNullOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any,
             any, any, any, any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -695,6 +687,18 @@ function testNullOutParameters() returns (any, any, any, any, any, any,
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
 
+    if (jdbcUrl.contains("postgres")) {
+        // There is no CLOB type in postgres. Therefore have to use TEXT type instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means testCallProceduredouble precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
+    }
+
     _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
@@ -704,12 +708,11 @@ function testNullOutParameters() returns (any, any, any, any, any, any,
     paraBinary.value);
 }
 
-function testNullOutInOutBlobParameters() returns (any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testNullOutInOutBlobParameters(string jdbcUrl, string userName, string password) returns (any, any) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -726,12 +729,11 @@ function testNullOutInOutBlobParameters() returns (any, any) {
     return (paraBlobOut.value, paraBlobInOut.value);
 }
 
-function testINParameters() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testINParameters(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -750,6 +752,11 @@ function testINParameters() returns (int) {
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: "very long text" };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu" };
 
+    if (jdbcUrl.contains("postgres")) {
+        // In postgres there is no Clob type. TEXT type can be used instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, value: "very long text" };
+    }
+
     int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -759,12 +766,11 @@ function testINParameters() returns (int) {
     return insertCount;
 }
 
-function testBlobInParameter() returns (int, byte[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBlobInParameter(string jdbcUrl, string userName, string password) returns (int, byte[]) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -774,26 +780,39 @@ function testBlobInParameter() returns (int, byte[]) {
     int insertCount;
     byte[] blobVal;
 
-    insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
-        paraID, paraBlob);
-    table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
+    if (jdbcUrl.contains("postgres")) {
+        // In postgresql large object operations should be done in transaction mode. This is enforced by the official
+        // driver. The reason is large objects could span cross multiple records.
+        transaction {
+            insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
+                paraID, paraBlob);
+            table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
 
-    while (dt.hasNext()) {
-        ResultBlob rs = check <ResultBlob>dt.getNext();
-        blobVal = rs.BLOB_TYPE;
+            while (dt.hasNext()) {
+                ResultBlob rs = check <ResultBlob>dt.getNext();
+                blobVal = rs.BLOB_TYPE;
+            }
+        }
+    } else {
+        insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
+            paraID, paraBlob);
+        table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
+
+        while (dt.hasNext()) {
+            ResultBlob rs = check <ResultBlob>dt.getNext();
+            blobVal = rs.BLOB_TYPE;
+        }
     }
-
     testDB.stop();
     return (insertCount, blobVal);
 }
 
-function testINParametersWithDirectValues() returns (int, int, float,
+function testINParametersWithDirectValues(string jdbcUrl, string userName, string password) returns (int, int, float,
         float, boolean, string, float, float, float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -828,13 +847,12 @@ function testINParametersWithDirectValues() returns (int, int, float,
     return (i, l, f, d, b, s, n, dec, real);
 }
 
-function testINParametersWithDirectVariables() returns (int, int, float,
+function testINParametersWithDirectVariables(string jdbcUrl, string userName, string password) returns (int, int, float,
         float, boolean, string, float, float, float) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -881,12 +899,11 @@ function testINParametersWithDirectVariables() returns (int, int, float,
     return (i, l, f, d, b, s, n, dec, real);
 }
 
-function testNullINParameterValues() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testNullINParameterValues(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -914,12 +931,11 @@ function testNullINParameterValues() returns (int) {
     return insertCount;
 }
 
-function testNullINParameterBlobValue() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testNullINParameterBlobValue(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -932,13 +948,12 @@ function testNullINParameterBlobValue() returns (int) {
     return insertCount;
 }
 
-function testINOutParameters() returns (any, any, any, any, any, any,
+function testINOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any,
             any, any, any, any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -959,6 +974,17 @@ function testINOutParameters() returns (any, any, any, any, any, any,
     :
     DIRECTION_INOUT };
 
+    if (jdbcUrl.contains("postgres")) {
+        paraClob = { sqlType: sql:TYPE_VARCHAR, value: "very long text", direction: sql:DIRECTION_INOUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, value: 123.34, direction: sql:DIRECTION_INOUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, value: 1, direction: sql:DIRECTION_INOUT };
+    }
+
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
@@ -968,13 +994,12 @@ function testINOutParameters() returns (any, any, any, any, any, any,
     paraBinary.value);
 }
 
-function testNullINOutParameters() returns (any, any, any, any, any, any
+function testNullINOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any
             , any, any, any, any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -993,6 +1018,17 @@ function testNullINOutParameters() returns (any, any, any, any, any, any
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_INOUT };
 
+    if (jdbcUrl.contains("postgres")) {
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_INOUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_INOUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_INOUT };
+    }
+
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
@@ -1002,12 +1038,11 @@ function testNullINOutParameters() returns (any, any, any, any, any, any
     paraBinary.value);
 }
 
-function testEmptySQLType() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testEmptySQLType(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1017,13 +1052,12 @@ function testEmptySQLType() returns (int) {
     return insertCount;
 }
 
-function testArrayOutParameters() returns (any, any, any, any, any, any)
+function testArrayOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any)
 {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1039,13 +1073,12 @@ function testArrayOutParameters() returns (any, any, any, any, any, any)
     return (para1.value, para2.value, para3.value, para4.value, para5.value, para6.value);
 }
 
-function testArrayInOutParameters() returns (any, any, any, any, any,
+function testArrayInOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any,
             any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1075,12 +1108,11 @@ function testArrayInOutParameters() returns (any, any, any, any, any,
     return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
 }
 
-function testBatchUpdate() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBatchUpdate(string jdbcUrl, string userName, string password) returns (int[]) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1108,12 +1140,11 @@ function testBatchUpdate() returns (int[]) {
 
 type myBatchType string|int|float;
 
-function testBatchUpdateWithValues() returns int[] {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBatchUpdateWithValues(string jdbcUrl, string userName, string password) returns int[] {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1129,12 +1160,11 @@ function testBatchUpdateWithValues() returns int[] {
     return updateCount;
 }
 
-function testBatchUpdateWithVariables() returns int[] {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBatchUpdateWithVariables(string jdbcUrl, string userName, string password) returns int[] {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1156,12 +1186,11 @@ function testBatchUpdateWithVariables() returns int[] {
     return updateCount;
 }
 
-function testBatchUpdateWithFailure() returns (int[], int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBatchUpdateWithFailure(string jdbcUrl, string userName, string password) returns (int[], int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1217,12 +1246,11 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     return (updateCount, count);
 }
 
-function testBatchUpdateWithNullParam() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testBatchUpdateWithNullParam(string jdbcUrl, string userName, string password) returns (int[]) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1233,12 +1261,11 @@ function testBatchUpdateWithNullParam() returns (int[]) {
     return updateCount;
 }
 
-function testDateTimeInParameters() returns (int[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testDateTimeInParameters(string jdbcUrl, string userName, string password) returns (int[]) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1280,12 +1307,11 @@ function testDateTimeInParameters() returns (int[]) {
     return returnValues;
 }
 
-function testDateTimeNullInValues() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testDateTimeNullInValues(string jdbcUrl, string userName, string password) returns (string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1312,12 +1338,11 @@ function testDateTimeNullInValues() returns (string) {
     return data;
 }
 
-function testDateTimeNullOutValues() returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testDateTimeNullOutValues(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1346,12 +1371,11 @@ function testDateTimeNullOutValues() returns (int) {
     return count;
 }
 
-function testDateTimeNullInOutValues() returns (any, any, any, any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testDateTimeNullInOutValues(string jdbcUrl, string userName, string password) returns (any, any, any, any) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1366,13 +1390,12 @@ function testDateTimeNullInOutValues() returns (any, any, any, any) {
     return (para2.value, para3.value, para4.value, para5.value);
 }
 
-function testDateTimeOutParams(int time, int date, int timestamp)
+function testDateTimeOutParams(int time, int date, int timestamp, string jdbcUrl, string userName, string password)
              returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1403,12 +1426,11 @@ function testDateTimeOutParams(int time, int date, int timestamp)
     return count;
 }
 
-function testStructOutParameters() returns (any) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testStructOutParameters(string jdbcUrl, string userName, string password) returns (any) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1418,13 +1440,12 @@ function testStructOutParameters() returns (any) {
     return para1.value;
 }
 
-function testComplexTypeRetrieval() returns (string, string, string,
+function testComplexTypeRetrieval(string jdbcUrl, string userName, string password) returns (string, string, string,
             string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1453,13 +1474,12 @@ function testComplexTypeRetrieval() returns (string, string, string,
     return (s1, s2, s3, s4);
 }
 
-function testSelectLoadToMemory() returns (CustomerFullName[],
+function testSelectLoadToMemory(string jdbcUrl, string userName, string password) returns (CustomerFullName[],
             CustomerFullName[], CustomerFullName[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1491,13 +1511,12 @@ function testSelectLoadToMemory() returns (CustomerFullName[],
     return (fullNameArray1, fullNameArray2, fullNameArray3);
 }
 
-function testLoadToMemorySelectAfterTableClose() returns (
-            CustomerFullName[], CustomerFullName[], error) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, string password) returns (
+            CustomerFullName[], CustomerFullName[], error?) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1532,13 +1551,12 @@ function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns Cu
     return fullNameArray;
 }
 
-function testCloseConnectionPool(string connectionCountQuery)
+function testCloseConnectionPool(string jdbcUrl, string userName, string password, string connectionCountQuery)
              returns (int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1553,23 +1571,21 @@ function testCloseConnectionPool(string connectionCountQuery)
     return count;
 }
 
-function testReInitEndpoint(string validationQuery)
+function testReInitEndpoint(string jdbcUrl, string userName, string password, string jdbcurl2, string validationQuery)
              returns int {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
     testDB.stop();
 
-    h2:ClientEndpointConfiguration config =  {
-        path: "./target/H2Client2/",
-        name: "TEST_SQL_CONNECTOR_H2_2",
-        username: "SA",
-        password: "",
+    jdbc:ClientEndpointConfiguration config = {
+        url: jdbcurl2,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 

@@ -28,7 +28,6 @@ import org.ballerinalang.model.types.BTypes;
 public final class BFloat extends BValueType implements BRefType<Double> {
 
     private double value;
-    private BType type = BTypes.typeFloat;
 
     public BFloat(double value) {
         this.value = value;
@@ -61,12 +60,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public BType getType() {
-        return type;
-    }
-
-    @Override
-    public void setType(BType type) {
-        this.type = type;
+        return BTypes.typeFloat;
     }
 
     @Override

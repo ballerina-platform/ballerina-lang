@@ -7,7 +7,7 @@
   "items": [
     {
       "label":"xmlns",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"xmlns \"${1}\" as ${2:ns};",
@@ -31,7 +31,7 @@
     },
     {
       "label":"foreach",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
@@ -39,7 +39,7 @@
     },
     {
       "label":"fork",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
@@ -47,7 +47,7 @@
     },
     {
       "label":"if",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"if (${1:true}) {\n\t${2}\n}",
@@ -55,7 +55,7 @@
     },
     {
       "label":"lock",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"lock {\n\t${1}\n}",
@@ -63,7 +63,7 @@
     },
     {
       "label":"match",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"match ",
@@ -71,7 +71,7 @@
     },
     {
       "label":"panic",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"panic ",
@@ -79,7 +79,7 @@
     },
     {
       "label":"return",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"return;",
@@ -87,7 +87,7 @@
     },
     {
       "label":"transaction",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
@@ -95,7 +95,7 @@
     },
     {
       "label":"while",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"while (${1:true}) {\n\t${2}\n}",
@@ -103,7 +103,7 @@
     },
     {
       "label":"wrply   Worker Reply Statement",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"${1:var1} \u003c- ${2:w1};",
@@ -111,7 +111,7 @@
     },
     {
       "label":"wtrg   Worker Trigger Statement",
-      "kind":"Snippet",
+      "kind":"Unit",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"${1:var1} -\u003e ${2:w1};",
@@ -119,14 +119,14 @@
     },
     {
       "label":"channel",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"channel"
     },
     {
       "label":"xml",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"xml"
@@ -135,30 +135,28 @@
       "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
       "sortText":"120",
       "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"TableConfig",
-      "kind":"Class",
+      "kind":"Reference",
       "detail":"BType",
-      "documentation":"TableConfig represents properties used during table initialization.\n",
       "sortText":"170",
       "insertText":"TableConfig"
     },
     {
       "label":"byte",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"byte"
     },
     {
       "label":"testDB",
-      "kind":"Variable",
-      "detail":"ballerina/h2:Client",
+      "kind":"Unit",
+      "detail":"ballerina/jdbc:Client",
       "sortText":"110",
       "insertText":"testDB"
     },
@@ -174,7 +172,6 @@
       "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
       "sortText":"120",
       "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
       "insertTextFormat":"Snippet"
@@ -183,28 +180,27 @@
       "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
       "kind":"Function",
       "detail":"Function",
-      "documentation":"Creates the forever runtime.\n",
       "sortText":"120",
       "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"stream",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"stream"
     },
     {
       "label":"map",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"map"
     },
     {
       "label":"table",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"table"
@@ -219,28 +215,28 @@
     },
     {
       "label":"a",
-      "kind":"Variable",
+      "kind":"Unit",
       "detail":"int",
       "sortText":"110",
       "insertText":"a"
     },
     {
       "label":"b",
-      "kind":"Variable",
+      "kind":"Unit",
       "detail":"int",
       "sortText":"110",
       "insertText":"b"
     },
     {
       "label":"future",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"future"
     },
     {
       "label":"typedesc",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"typedesc"
@@ -255,7 +251,7 @@
     },
     {
       "label":"float",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"float"
@@ -270,35 +266,35 @@
     },
     {
       "label":"null",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"null"
     },
     {
       "label":"string",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"string"
     },
     {
       "label":"error",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"error"
     },
     {
       "label":"json",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"json"
     },
     {
       "label":"checkValue",
-      "kind":"Variable",
+      "kind":"Unit",
       "detail":"int",
       "sortText":"110",
       "insertText":"checkValue"
@@ -313,35 +309,35 @@
     },
     {
       "label":"any",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"any"
     },
     {
       "label":"int",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"int"
     },
     {
       "label":"docData",
-      "kind":"Class",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"docData"
     },
     {
       "label":"args",
-      "kind":"Variable",
+      "kind":"Unit",
       "detail":"string[]",
       "sortText":"110",
       "insertText":"args"
     },
     {
       "label":"boolean",
-      "kind":"Keyword",
+      "kind":"Reference",
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"
@@ -361,11 +357,11 @@
       "insertText":"http"
     },
     {
-      "label":"ballerina/h2",
+      "label":"ballerina/jdbc",
       "kind":"Module",
       "detail":"Package",
       "sortText":"140",
-      "insertText":"h2"
+      "insertText":"jdbc"
     },
     {
       "label":"ballerina/transactions",
@@ -378,11 +374,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/transactions;\n"
@@ -400,11 +396,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/websub;\n"
@@ -422,11 +418,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/grpc;\n"
@@ -444,11 +440,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/reflect;\n"
@@ -466,11 +462,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/log;\n"
@@ -488,11 +484,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/time;\n"
@@ -510,11 +506,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/runtime;\n"
@@ -532,11 +528,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/swagger;\n"
@@ -554,11 +550,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/file;\n"
@@ -576,11 +572,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/sql;\n"
@@ -598,11 +594,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/internal;\n"
@@ -620,11 +616,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/mysql;\n"
@@ -642,11 +638,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/mb;\n"
@@ -664,11 +660,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/mime;\n"
@@ -686,11 +682,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/task;\n"
@@ -708,11 +704,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/crypto;\n"
@@ -730,11 +726,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/cache;\n"
@@ -752,11 +748,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/auth;\n"
@@ -774,11 +770,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/jms;\n"
@@ -796,14 +792,36 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/system;\n"
+        }
+      ]
+    },
+    {
+      "label":"ballerina/h2",
+      "kind":"Module",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"h2",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":2,
+              "character":22
+            },
+            "end":{
+              "line":2,
+              "character":22
+            }
+          },
+          "newText":"\nimport ballerina/h2;\n"
         }
       ]
     },
@@ -825,11 +843,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/math;\n"
@@ -847,11 +865,11 @@
           "range":{
             "start":{
               "line":2,
-              "character":20
+              "character":22
             },
             "end":{
               "line":2,
-              "character":20
+              "character":22
             }
           },
           "newText":"\nimport ballerina/config;\n"

@@ -39,8 +39,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This test case tests the scenario of streaming the data from a table converted to XML.
@@ -76,15 +74,6 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     public void testStreamingLargeXML() throws Exception {
         HttpResponse response = HttpClientRequest
                 .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getData"), 60000, responseBuilder);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200);
-        Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
-    }
-
-    @Test(description = "Tests the outbound throttling scenario with a slow client")
-    public void testStreamingLargeXMLWithSlowClient() throws Exception {
-        HttpResponse response = HttpClientRequest.doGet(
-                serverInstance.getServiceURLHttp(servicePort, "dataService/getData"), 60000, slowResponseBuilder);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
@@ -129,23 +118,4 @@ public class TableToXMLStreamingTestCase extends BaseTest {
         }
         return String.valueOf(count);
     });
-
-    /**
-     * This reads a buffered stream and returns the number of characters.
-     */
-    private static HttpClientRequest.CheckedFunction<BufferedReader, String> slowResponseBuilder =
-            ((bufferedReader) -> {
-                int count = 0;
-                while (bufferedReader.read() != -1) {
-                    if (count % 400000 == 0) {
-                        try {
-                            new CountDownLatch(1).await(100, TimeUnit.MILLISECONDS);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                    count++;
-                }
-                return String.valueOf(count);
-            });
 }

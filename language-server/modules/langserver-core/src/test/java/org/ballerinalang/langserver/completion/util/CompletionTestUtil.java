@@ -42,11 +42,12 @@ public class CompletionTestUtil {
         return ("{" +
                 completionItem.getInsertText() + "," +
                 completionItem.getDetail() + "," +
+                completionItem.getDocumentation() + "," +
                 completionItem.getLabel() + additionalTextEdits +
                 "}").replace("\r\n", "\n");
     }
 
-    public static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {
+    private static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {
         List<String> evalList = new ArrayList<>();
         completionItems.forEach(completionItem -> evalList.add(getCompletionItemPropertyString(completionItem)));
         return evalList;

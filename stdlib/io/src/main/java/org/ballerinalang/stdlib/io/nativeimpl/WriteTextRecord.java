@@ -21,7 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -50,7 +49,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
                 structType = "WritableTextRecordChannel",
                 structPackage = "ballerina/io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ERROR)},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class WriteTextRecord implements NativeCallableUnit {
@@ -77,7 +76,7 @@ public class WriteTextRecord implements NativeCallableUnit {
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         }
         callback.notifySuccess();

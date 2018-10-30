@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/h2;
+import ballerina/jdbc;
 import ballerina/sql;
 import ballerina/time;
 
@@ -101,13 +101,12 @@ type ResultMapNillableTypeNonNillableElements record {
     string[]? STRING_ARRAY;
 };
 
-function testMappingToNillableTypeFields() returns (int?, int?, float?,
+function testMappingToNillableTypeFields(string jdbcUrl, string userName, string password) returns (int?, int?, float?,
             float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -151,12 +150,11 @@ function testMappingToNillableTypeFields() returns (int?, int?, float?,
     numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type);
 }
 
-function testMappingToNillableTypeFieldsBlob() returns (byte[]?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testMappingToNillableTypeFieldsBlob(string jdbcUrl, string userName, string password) returns (byte[]?) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
     byte[]? blob_type;
@@ -172,13 +170,12 @@ function testMappingToNillableTypeFieldsBlob() returns (byte[]?) {
     return blob_type;
 }
 
-function testMappingDatesToNillableTimeType() returns (int, int, int,
+function testMappingDatesToNillableTimeType(string jdbcUrl, string userName, string password) returns (int, int, int,
             int, int, int, int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -228,13 +225,12 @@ function testMappingDatesToNillableTimeType() returns (int, int, int,
     datetimeInserted, datetimeRetrieved);
 }
 
-function testMappingDatesToNillableIntType(int datein, int timein,
+function testMappingDatesToNillableIntType(string jdbcUrl, string userName, string password, int datein, int timein,
                                            int timestampin) returns (int, int, int, int) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -267,14 +263,13 @@ function testMappingDatesToNillableIntType(int datein, int timein,
     return (date, time, timestamp, datetime);
 }
 
-function testMappingDatesToNillableStringType(int datein, int
+function testMappingDatesToNillableStringType(string jdbcUrl, string userName, string password, int datein, int
 timein, int timestampin) returns (string, string, string,
         string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
     string date;
@@ -306,14 +301,13 @@ timein, int timestampin) returns (string, string, string,
     return (date, time, timestamp, datetime);
 }
 
-function testMappingNullToNillableTypes() returns (int?, int?, float?,
+function testMappingNullToNillableTypes(string jdbcUrl, string userName, string password) returns (int?, int?, float?,
             float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, time:Time?, time:Time?
             , time:Time?, time:Time?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
     table<NillableDataTypes> dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -365,12 +359,11 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
     timestamp_type);
 }
 
-function testMappingNullToNillableTypesBlob() returns byte[]? {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+function testMappingNullToNillableTypesBlob(string jdbcUrl, string userName, string password) returns byte[]? {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
     table<NillableBlob> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where row_id=4",
@@ -386,13 +379,12 @@ function testMappingNullToNillableTypesBlob() returns byte[]? {
     return blob_type;
 }
 
-function testMapArrayToNonNillableTypeWithNillableElementType()
+function testMapArrayToNonNillableTypeWithNillableElementType(string jdbcUrl, string userName, string password)
              returns (int?[], int?[], float?[], string?[], boolean?[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -417,13 +409,12 @@ function testMapArrayToNonNillableTypeWithNillableElementType()
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testMapArrayToNillableTypeWithNillableElementType() returns (
+function testMapArrayToNillableTypeWithNillableElementType(string jdbcUrl, string userName, string password) returns (
             int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -448,13 +439,12 @@ function testMapArrayToNillableTypeWithNillableElementType() returns (
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testMapArrayToNillableTypeWithNonNillableElementType()
+function testMapArrayToNillableTypeWithNonNillableElementType(string jdbcUrl, string userName, string password)
              returns (int[]?, int[]?, float[]?, string[]?, boolean[]?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -479,13 +469,12 @@ function testMapArrayToNillableTypeWithNonNillableElementType()
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(
+function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(string jdbcUrl, string userName, string password
              ) returns (int?[], int?[], float?[], string?[], boolean?[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -510,13 +499,12 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testMapNillIncludedArrayNillableTypeWithNillableElementType()
+function testMapNillIncludedArrayNillableTypeWithNillableElementType(string jdbcUrl, string userName, string password)
              returns (int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -541,13 +529,12 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType()
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
+function testMapNilArrayToNillableTypeWithNonNillableElementTypes(string jdbcUrl, string userName, string password)
              returns (int[]?, int[]?, float[]?, string[]?, boolean[]?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -572,13 +559,12 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testMapNilArrayToNillableTypeWithNillableElementTypes()
+function testMapNilArrayToNillableTypeWithNillableElementTypes(string jdbcUrl, string userName, string password)
              returns (int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -603,13 +589,12 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes()
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testMapNillElementsOnlyArray()
+function testMapNillElementsOnlyArray(string jdbcUrl, string userName, string password)
              returns (int?[], int?[], float?[], string?[], boolean?[]) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 

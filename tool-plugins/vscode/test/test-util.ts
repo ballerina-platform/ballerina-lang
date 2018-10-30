@@ -23,7 +23,6 @@
 
 // Ballerina tools distribution will be copied to following location by maven
 import * as fs from 'fs';
-import * as path from 'path';
 
 const TEST_RESOURCES = __dirname + '/../../target/test/';
 const PLATFORM_PREFIX = /ballerina-tools-/;
@@ -44,8 +43,4 @@ export function getBallerinaHome(): string {
 
 export function getBallerinaVersion() {
     return findBallerinaDistribution().replace(PLATFORM_PREFIX, '').replace('\n','').trim();
-}
-
-export function getBBEPath(): any {
-    return path.join(getBallerinaHome(),'examples');
 }

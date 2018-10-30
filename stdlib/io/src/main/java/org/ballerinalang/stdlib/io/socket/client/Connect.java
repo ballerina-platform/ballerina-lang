@@ -21,7 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +52,7 @@ import java.nio.channels.UnsupportedAddressTypeException;
         orgName = "ballerina", packageName = "io",
         functionName = "connect",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket",
-                structPackage = SocketConstants.SOCKET_PACKAGE),
+                             structPackage = SocketConstants.SOCKET_PACKAGE),
         args = {@Argument(name = "host", type = TypeKind.STRING),
                 @Argument(name = "port", type = TypeKind.INT)
         },
@@ -117,8 +115,7 @@ public class Connect implements NativeCallableUnit {
         if (isLogging) {
             log.error(msg, e);
         }
-        BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
-        context.setReturnValues(errorStruct);
+        context.setReturnValues(IOUtils.createError(context, msg));
         callback.notifySuccess();
     }
 

@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -52,8 +51,7 @@ import org.slf4j.LoggerFactory;
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = "DelimitedRecordChannel",
                         structPackage = "ballerina/io"),
-                @ReturnType(type = TypeKind.ERROR)
-        },
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class CreateCsvChannel extends BlockingNativeCallableUnit {
@@ -105,8 +103,7 @@ public class CreateCsvChannel extends BlockingNativeCallableUnit {
             String message = "Error occurred while converting character channel to textRecord channel:" + e
                     .getMessage();
             log.error(message, e);
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, message);
-            context.setReturnValues(errorStruct);
+            context.setReturnValues(IOUtils.createError(context, message));
         }
     }
 

@@ -21,17 +21,17 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
+import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.completions.util.sorters.MatchContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -95,13 +95,10 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                     completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, ctx));
                 } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
                         && bSymbol instanceof BVarSymbol) {
-                    fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems, ctx);
-                    String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
-                    completionItems.add(BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol,
-                                                                             symbolInfo.getSymbolName(), typeName));
+                    this.fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems, ctx);
+                    completionItems.add(this.populateVariableDefCompletionItem(symbolInfo));
                 } else if (bSymbol instanceof BPackageSymbol) {
-                    completionItems.add(
-                            BTypeCompletionItemBuilder.build((BPackageSymbol) bSymbol, symbolInfo.getSymbolName()));
+                    completionItems.add(BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
                 }
             });
         }
@@ -128,12 +125,41 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         return fieldsSnippet.toString();
     }
 
-    private CompletionItem getVariableCompletionItem(BVarSymbol varSymbol, String matchFieldSnippet) {
-        CompletionItem completionItem = BVariableCompletionItemBuilder.build(varSymbol,
-                                                                           varSymbol.getName().getValue(),
-                                                                           varSymbol.type.toString());
-        completionItem.setInsertText(varSymbol.getName().getValue() + " " + matchFieldSnippet);
+    private CompletionItem getFunctionCompletionItem(BInvokableSymbol func, String matchFieldSnippet) {
+        CompletionItem completionItem = getFunctionCompletionItem(func);
+        completionItem.setInsertText(completionItem.getInsertText() + " " + matchFieldSnippet);
         completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
+        
+        return completionItem;
+    }
+
+    private CompletionItem getFunctionCompletionItem(BInvokableSymbol func) {
+        CompletionItem completionItem = new CompletionItem();
+        String functionSignature = this.getFunctionSignature(func);
+        completionItem.setLabel(functionSignature);
+        completionItem.setInsertText(completionItem.getLabel());
+        completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
+        completionItem.setKind(CompletionItemKind.Function);
+        
+        return completionItem;
+    }
+
+    private CompletionItem getVariableCompletionItem(BVarSymbol varSymbol, String matchFieldSnippet) {
+        CompletionItem completionItem = getVariableCompletionItem(varSymbol);
+        completionItem.setInsertText(completionItem.getInsertText() + " " + matchFieldSnippet);
+        completionItem.setInsertTextFormat(InsertTextFormat.Snippet);        
+        
+        return completionItem;
+    }
+
+    private CompletionItem getVariableCompletionItem(BVarSymbol varSymbol) {
+        String typeName = varSymbol.type.toString();
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(varSymbol.getName().getValue());
+        completionItem.setInsertText(varSymbol.getName().getValue());
+        completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
+        completionItem.setKind(CompletionItemKind.Variable);
+
         return completionItem;
     }
 
@@ -148,13 +174,10 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         
         return signature.toString();
     }
-
-    private CompletionItem fillInvokableSymbolMatchSnippet(BInvokableSymbol func, LSContext ctx) {
-        BType returnType = func.getType().getReturnType();
-        String functionSignature = getFunctionSignature(func);
-        String matchFieldSnippet = getMatchFieldsSnippet(returnType, ctx);
-        return BFunctionCompletionItemBuilder.build(func, functionSignature,
-                                                    functionSignature + " " + matchFieldSnippet);
+    
+    private CompletionItem fillInvokableSymbolMatchSnippet(BInvokableSymbol bInvokableSymbol, LSContext ctx) {
+        BType returnType = bInvokableSymbol.getType().getReturnType();
+        return getFunctionCompletionItem(bInvokableSymbol, this.getMatchFieldsSnippet(returnType, ctx));
     }
     
     private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems, LSContext ctx) {

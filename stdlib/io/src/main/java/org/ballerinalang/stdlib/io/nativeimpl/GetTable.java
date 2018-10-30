@@ -27,7 +27,6 @@ import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -53,6 +52,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * Extern function ballerina/io#loadToTable.
  *
@@ -65,7 +66,7 @@ import java.util.List;
         args = {@Argument(name = "structType", type = TypeKind.TYPEDESC)},
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.ERROR)},
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)},
         isPublic = true
 )
 public class GetTable implements NativeCallableUnit {
@@ -89,8 +90,7 @@ public class GetTable implements NativeCallableUnit {
         } catch (Exception e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, msg);
-            context.setReturnValues(errorStruct);
+            context.setReturnValues(IOUtils.createError(context, msg));
         }
     }
 
@@ -100,13 +100,13 @@ public class GetTable implements NativeCallableUnit {
     }
 
     private static EventResult response(EventResult<List, EventContext> result) {
-        BError errorStruct;
+        BMap<String, BValue> errorStruct;
         BTable table;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
         if (null != error) {
-            errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
+            errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             try {
@@ -114,7 +114,7 @@ public class GetTable implements NativeCallableUnit {
                 table = getbTable(context, records);
                 context.setReturnValues(table);
             } catch (Throwable e) {
-                errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+                errorStruct = IOUtils.createError(context, e.getMessage());
                 context.setReturnValues(errorStruct);
             }
         }
