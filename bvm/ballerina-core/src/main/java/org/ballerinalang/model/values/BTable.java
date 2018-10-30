@@ -137,6 +137,10 @@ public class BTable implements BRefType<Object>, BCollection {
         return BTypes.typeTable;
     }
 
+    @Override
+    public void seal(BType type) {
+
+    }
 
     public boolean hasNext() {
         if (tableClosed) {
@@ -150,7 +154,7 @@ public class BTable implements BRefType<Object>, BCollection {
             nextPrefetched = true;
         }
         if (!hasNextVal) {
-           reset();
+            reset();
         }
         return hasNextVal;
     }
@@ -197,7 +201,7 @@ public class BTable implements BRefType<Object>, BCollection {
     /**
      * Performs addition of a record to the database.
      *
-     * @param data The record to be inserted
+     * @param data    The record to be inserted
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
     public void performAddOperation(BMap<String, BValue> data, Context context) {
@@ -229,7 +233,7 @@ public class BTable implements BRefType<Object>, BCollection {
     /**
      * Performs Removal of records matching the condition defined by the provided lambda function.
      *
-     * @param context The context which represents the runtime state of the program that called "table.remove"
+     * @param context        The context which represents the runtime state of the program that called "table.remove"
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
@@ -247,7 +251,7 @@ public class BTable implements BRefType<Object>, BCollection {
             int deletedCount = 0;
             while (this.hasNext()) {
                 BMap<String, BValue> data = this.getNext();
-                BValue[] args = { data };
+                BValue[] args = {data};
                 BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
@@ -364,15 +368,20 @@ public class BTable implements BRefType<Object>, BCollection {
         @Override
         public BValue[] getNext(int arity) {
             if (arity == 1) {
-                return new BValue[] {table.getNext()};
+                return new BValue[]{table.getNext()};
             }
             int cursor = this.cursor++;
-            return new BValue[] {new BInteger(cursor), table.getNext()};
+            return new BValue[]{new BInteger(cursor), table.getNext()};
         }
 
         @Override
         public boolean hasNext() {
             return table.hasNext();
+        }
+
+        @Override
+        public void seal(BType type) {
+
         }
     }
 }

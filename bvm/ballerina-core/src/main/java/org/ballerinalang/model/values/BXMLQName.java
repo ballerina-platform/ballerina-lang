@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.BTypes;
 
 /**
  * Represents a XML qualified name in ballerina.
- * 
+ *
  * @since 0.89
  */
 public final class BXMLQName implements BRefType {
@@ -33,10 +33,10 @@ public final class BXMLQName implements BRefType {
 
     /**
      * Create attribute map with an XML.
-     * 
+     *
      * @param localName Local part of the qualified name
-     * @param uri Namespace URI
-     * @param prefix Namespace prefix
+     * @param uri       Namespace URI
+     * @param prefix    Namespace prefix
      */
     public BXMLQName(String localName, String uri, String prefix) {
         this.localName = localName;
@@ -52,6 +52,11 @@ public final class BXMLQName implements BRefType {
     @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
+    }
+
+    @Override
+    public void seal(BType type) {
+
     }
 
     @Override
@@ -71,7 +76,7 @@ public final class BXMLQName implements BRefType {
     public BValue copy() {
         return new BXMLQName(localName, uri, prefix);
     }
-    
+
 
     public String getLocalName() {
         return localName;

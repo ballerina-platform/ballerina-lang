@@ -75,6 +75,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
 
+        mnemonics[InstructionCodes.SEAL] = "seal";
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";
         mnemonics[InstructionCodes.REASON] = "reason";

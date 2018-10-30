@@ -95,6 +95,11 @@ public class BStream implements BRefType<Object> {
     }
 
     @Override
+    public void seal(BType type) {
+
+    }
+
+    @Override
     public BValue copy() {
         return null;
     }
@@ -133,7 +138,7 @@ public class BStream implements BRefType<Object> {
         int lastArrayIndex = parameters.length - 1;
         if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function"
-                                                 + " accepting:" + this.constraintType);
+                    + " accepting:" + this.constraintType);
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         brokerInstance.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
@@ -170,7 +175,7 @@ public class BStream implements BRefType<Object> {
                 argsList.addAll(closureArgs);
                 argsList.add(data);
                 BLangFunctions.invokeCallable(functionPointer.value(),
-                                              argsList.toArray(new BValue[argsList.size()]));
+                        argsList.toArray(new BValue[argsList.size()]));
             } catch (Exception e) {
                 throw new BallerinaException("Error delivering event to subscriber: ", e);
             }

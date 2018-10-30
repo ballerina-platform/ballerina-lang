@@ -48,6 +48,11 @@ public class BError implements BRefType {
     }
 
     @Override
+    public void seal(BType type) {
+
+    }
+
+    @Override
     public BValue copy() {
         // Error values are immutable and frozen, copy give same value.
         return this;

@@ -35,16 +35,18 @@ public interface BValue {
 
     BType getType();
 
+    void seal(BType type);
+
     /**
      * Deep copy {@link BValue}.
-     * 
+     *
      * @return A copy of this {@link BValue}
      */
     BValue copy();
 
     /**
      * Default serialize implementation for {@link BValue}.
-     * 
+     *
      * @param outputStream Represent the output stream that the data will be written to.
      */
     public default void serialize(OutputStream outputStream) {

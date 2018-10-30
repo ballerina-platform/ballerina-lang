@@ -17,6 +17,11 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
 /**
  * The {@code BValueType} represents a value type value in Ballerina.
  *
@@ -61,4 +66,16 @@ public abstract class BValueType implements BValue {
         return this.stringValue();
     }
 
+
+    public abstract void setType(BType type);
+
+    @Override
+    public void seal(BType type) {
+        if (type.getTag() == TypeTags.ANY_TAG) {
+            this.setType(BTypes.typeAny);
+        } else if (this.getType().getTag() != type.getTag()) {
+            throw new BallerinaException("Error in sealing the value type: " + this.getType() +
+                    " cannot sealed as " + type);
+        }
+    }
 }

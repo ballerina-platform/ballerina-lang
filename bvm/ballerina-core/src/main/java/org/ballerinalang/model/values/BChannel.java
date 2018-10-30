@@ -40,6 +40,11 @@ public class BChannel implements BRefType<Object> {
     }
 
     @Override
+    public void seal(BType type) {
+
+    }
+
+    @Override
     public BValue copy() {
         return null;
     }

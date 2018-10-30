@@ -1209,11 +1209,11 @@ public class PackageInfoReader {
                 case InstructionCodes.ARRAY2JSON:
                 case InstructionCodes.REASON:
                 case InstructionCodes.DETAIL:
+                case InstructionCodes.SEAL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
                     break;
-
                 case InstructionCodes.IALOAD:
                 case InstructionCodes.BIALOAD:
                 case InstructionCodes.FALOAD:
