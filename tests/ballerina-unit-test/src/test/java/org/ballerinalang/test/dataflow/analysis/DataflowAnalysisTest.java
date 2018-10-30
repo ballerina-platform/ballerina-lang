@@ -17,36 +17,48 @@
  */
 package org.ballerinalang.test.dataflow.analysis;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases related to dataflow analysis.
+ * Test cases related to data flow analysis.
  *
- * @since 0.982.0
+ * @since 0.985.0
  */
 public class DataflowAnalysisTest {
 
-    private CompileResult result;
-
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis.bal");
-    }
-
-    @Test(description = "Test basics of match statement")
-    public void testMatchStatementBasics1() {
-        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics1", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "boolean value received: true",
-                "Invalid boolean value returned.");
+    @Test
+    public void testUninitializedVariables() {
+        CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis.bal");
+        // Assert.assertEquals(result.getErrorCount(), 1);
+        System.out.println(result);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 50, 12);
+        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 67, 12);
+        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 80, 12);
+        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 95, 12);
+        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 110, 12);
+        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 206, 12);
+        BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 216, 13);
+        BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 219, 9);
+        BAssertUtil.validateError(result, i++, "variable 'e' may not have been initialized", 223, 15);
+        BAssertUtil.validateError(result, i++, "variable 'm' may not have been initialized", 235, 20);
+        BAssertUtil.validateError(result, i++, "variable 'm' may not have been initialized", 258, 9);
+        BAssertUtil.validateError(result, i++, "variable 'm' may not have been initialized", 259, 9);
+        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 259, 11);
+        BAssertUtil.validateError(result, i++, "variable 'm' may not have been initialized", 262, 9);
+        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 262, 18);
+        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 263, 21);
+        BAssertUtil.validateError(result, i++, "variable 'x' may not have been initialized", 267, 9);
+        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 267, 12);
+        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 283, 20);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 294, 12);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 298, 13);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 304, 13);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 309, 16);
+        BAssertUtil.validateError(result, i++, "variable 'd' may not have been initialized", 326, 16);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 315, 12);
     }
 }
-

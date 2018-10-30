@@ -3,7 +3,10 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -154,7 +157,7 @@ import java.util.Map;
 
 /**
  * 
- * Responsible for doing the dataflow analysis.
+ * Responsible for performing data flow analysis.
  * <p>
  * The following validations are done here:-
  * <ul>
@@ -166,27 +169,29 @@ import java.util.Map;
 public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private BLangDiagnosticLog dlog;
-    private Scope currentScope = null;
+    private DataFlowScope currentScope;
+    private SymbolEnv env;
+    private SymbolTable symTable;
     private static final int INITIAL_BRANCHES = 1;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
 
     public DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
+        this.symTable = SymbolTable.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
-        DataflowAnalyzer codeGenerator = context.get(DATAFLOW_ANALYZER_KEY);
-        if (codeGenerator == null) {
-            codeGenerator = new DataflowAnalyzer(context);
+        DataflowAnalyzer dataflowAnalyzer = context.get(DATAFLOW_ANALYZER_KEY);
+        if (dataflowAnalyzer == null) {
+            dataflowAnalyzer = new DataflowAnalyzer(context);
         }
-        return codeGenerator;
+        return dataflowAnalyzer;
     }
 
     private void startScope() {
-        // Start a new branch count for the new scope
-        this.currentScope = new Scope(this.currentScope);
+        this.currentScope = new DataFlowScope(this.currentScope, env.scope.owner);
     }
 
     private void startBranch() {
@@ -194,19 +199,28 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.currentScope.pathsCount++;
     }
 
+    private void startBranches(int branchCount) {
+        // Increment branch count
+        this.currentScope.pathsCount = branchCount;
+    }
+
     private void endScope() {
         this.currentScope = this.currentScope.parent;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        pkgNode.accept(this);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        analyzeNode(pkgNode, pkgEnv);
         return pkgNode;
     }
 
-    private void analyzeNode(BLangNode node) {
+    private void analyzeNode(BLangNode node, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
         if (node != null) {
             node.accept(this);
         }
+        this.env = prevEnv;
     }
 
     @Override
@@ -214,19 +228,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.DATAFLOW_ANALYZE)) {
             return;
         }
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
+
+        startScope();
+        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
+        endScope();
     }
 
     @Override
     public void visit(BLangFunction funcNode) {
-        analyzeNode(funcNode.body);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        analyzeNode(funcNode.body, funcEnv);
     }
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
         startScope();
-        blockNode.stmts.forEach(statement -> analyzeNode(statement));
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
+        blockNode.stmts.forEach(statement -> analyzeNode(statement, blockEnv));
         endScope();
     }
 
@@ -240,31 +259,45 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService service) {
-        service.resources.forEach(res -> analyzeNode(res));
+        service.resources.forEach(res -> analyzeNode(res, env));
     }
 
     @Override
     public void visit(BLangResource resource) {
-        analyzeNode(resource.body);
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resource, resource.symbol.scope, env);
+        analyzeNode(resource.body, resourceEnv);
     }
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
+        SymbolEnv tyeDefEnv = SymbolEnv.createTypeDefEnv(typeDefinition, typeDefinition.symbol.scope, env);
+        analyzeNode(typeDefinition.typeNode, tyeDefEnv);
     }
 
     @Override
     public void visit(BLangVariable variable) {
-        analyzeNode(variable.expr);
+        if (variable.expr != null) {
+            analyzeNode(variable.expr, env);
+            return;
+        }
+
+        // Handle package/object level variables
+        BSymbol owner = variable.symbol.owner;
+        if (owner.tag == SymTag.PACKAGE || owner.tag == SymTag.OBJECT) {
+            this.currentScope.addUninitializedVar(variable.symbol);
+            return;
+        }
     }
 
     @Override
     public void visit(BLangWorker worker) {
-        analyzeNode(worker.body);
+        SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(worker, this.env);
+        analyzeNode(worker.body, workerEnv);
     }
 
     @Override
     public void visit(BLangEndpoint endpoint) {
-        analyzeNode(endpoint.configurationExpr);
+        analyzeNode(endpoint.configurationExpr, env);
     }
 
     @Override
@@ -275,12 +308,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        analyzeNode(var);
+        analyzeNode(var, env);
     }
 
     @Override
     public void visit(BLangAssignment assignment) {
-        analyzeNode(assignment.expr);
+        analyzeNode(assignment.expr, env);
 
         if (assignment.varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
                 assignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
@@ -304,49 +337,53 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        analyzeNode(returnNode.expr);
+        analyzeNode(returnNode.expr, env);
+
+        // Having a return statement will complete that branch. Hence mark all vars
+        // as initialized for this branch.
+        this.currentScope.markAllAsInitilaized();
     }
 
     @Override
     public void visit(BLangThrow throwNode) {
-        analyzeNode(throwNode.expr);
+        analyzeNode(throwNode.expr, env);
     }
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmt) {
-        analyzeNode(xmlnsStmt.xmlnsDecl);
+        analyzeNode(xmlnsStmt.xmlnsDecl, env);
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        analyzeNode(ifNode.expr);
+        analyzeNode(ifNode.expr, env);
         startBranch();
-        analyzeNode(ifNode.body);
-        analyzeNode(ifNode.elseStmt);
+        analyzeNode(ifNode.body, env);
+        analyzeNode(ifNode.elseStmt, env);
     }
 
     @Override
     public void visit(BLangMatch match) {
-        analyzeNode(match.expr);
-        this.currentScope.pathsCount = match.patternClauses.size();
-        match.patternClauses.forEach(patternClause -> analyzeNode(patternClause));
+        analyzeNode(match.expr, env);
+        startBranches(match.patternClauses.size());
+        match.patternClauses.forEach(patternClause -> analyzeNode(patternClause, env));
     }
 
     @Override
     public void visit(BLangMatchStmtPatternClause patternClauseNode) {
-        analyzeNode(patternClauseNode.body);
+        analyzeNode(patternClauseNode.body, env);
     }
 
     @Override
     public void visit(BLangForeach foreach) {
-        analyzeNode(foreach.collection);
-        analyzeNode(foreach.body);
+        analyzeNode(foreach.collection, env);
+        analyzeNode(foreach.body, env);
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        analyzeNode(whileNode.expr);
-        analyzeNode(whileNode.body);
+        analyzeNode(whileNode.expr, env);
+        analyzeNode(whileNode.body, env);
     }
 
     @Override
@@ -403,6 +440,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
+        // TODO: differentiate 'is not initialized' vs 'may not initialized'
         if (!this.currentScope.isInitialized(varRefExpr.symbol)) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNITIALIZED_VARIABLE, varRefExpr.symbol.name);
         }
@@ -410,21 +448,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        analyzeNode(fieldAccessExpr.expr);
+        analyzeNode(fieldAccessExpr.expr, env);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        analyzeNode(indexAccessExpr.expr);
-        analyzeNode(indexAccessExpr.indexExpr);
+        analyzeNode(indexAccessExpr.expr, env);
+        analyzeNode(indexAccessExpr.indexExpr, env);
     }
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        analyzeNode(invocationExpr.expr);
-        invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr));
-        invocationExpr.namedArgs.forEach(expr -> analyzeNode(expr));
-        invocationExpr.restArgs.forEach(expr -> analyzeNode(expr));
+        analyzeNode(invocationExpr.expr, env);
+        invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
+        invocationExpr.namedArgs.forEach(expr -> analyzeNode(expr, env));
+        invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
@@ -441,8 +479,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        analyzeNode(binaryExpr.lhsExpr);
-        analyzeNode(binaryExpr.rhsExpr);
+        analyzeNode(binaryExpr.lhsExpr, env);
+        analyzeNode(binaryExpr.rhsExpr, env);
     }
 
     @Override
@@ -451,7 +489,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        bracedOrTupleExpr.expressions.forEach(expr -> analyzeNode(expr));
+        bracedOrTupleExpr.expressions.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
@@ -460,44 +498,44 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        analyzeNode(conversionExpr.expr);
+        analyzeNode(conversionExpr.expr, env);
     }
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-        analyzeNode(xmlAttribute.value);
+        analyzeNode(xmlAttribute.value, env);
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        xmlElementLiteral.children.forEach(expr -> analyzeNode(expr));
-        xmlElementLiteral.attributes.forEach(expr -> analyzeNode(expr));
-        xmlElementLiteral.inlineNamespaces.forEach(expr -> analyzeNode(expr));
+        xmlElementLiteral.children.forEach(expr -> analyzeNode(expr, env));
+        xmlElementLiteral.attributes.forEach(expr -> analyzeNode(expr, env));
+        xmlElementLiteral.inlineNamespaces.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.textFragments.forEach(expr -> analyzeNode(expr));
+        xmlTextLiteral.textFragments.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.textFragments.forEach(expr -> analyzeNode(expr));
+        xmlCommentLiteral.textFragments.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        xmlProcInsLiteral.dataFragments.forEach(expr -> analyzeNode(expr));
+        xmlProcInsLiteral.dataFragments.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.textFragments.forEach(expr -> analyzeNode(expr));
+        xmlQuotedString.textFragments.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.exprs.forEach(expr -> analyzeNode(expr));
+        stringTemplateLiteral.exprs.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
@@ -506,14 +544,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        analyzeNode(xmlAttributeAccessExpr.expr);
-        analyzeNode(xmlAttributeAccessExpr.indexExpr);
+        analyzeNode(xmlAttributeAccessExpr.expr, env);
+        analyzeNode(xmlAttributeAccessExpr.indexExpr, env);
     }
 
     @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
-        analyzeNode(intRangeExpression.startExpr);
-        analyzeNode(intRangeExpression.endExpr);
+        analyzeNode(intRangeExpression.startExpr, env);
+        analyzeNode(intRangeExpression.endExpr, env);
     }
 
     @Override
@@ -642,7 +680,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        analyzeNode(exprStmtNode.expr);
+        analyzeNode(exprStmtNode.expr, env);
     }
 
     @Override
@@ -805,6 +843,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        startScope();
+        objectTypeNode.fields.forEach(field -> analyzeNode(field, env));
+
+        // Visit the constructor with the same scope as the object
+        objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, env));
+//        objectTypeNode.initFunction.requiredParams.forEach(param -> this.currentScope.markAsInitilaized(param.symbol));
+
+        objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
+        endScope();
     }
 
     @Override
@@ -846,22 +893,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     /**
      * Represents a scope for data.
      * 
-     * @since 0.982.0
+     * @since 0.985.0
      */
-    private class Scope {
+    private class DataFlowScope {
 
-        private Scope parent;
+        private DataFlowScope parent;
         private int pathsCount = INITIAL_BRANCHES;
         private Map<BSymbol, VarInfo> unInitVars;
+        private BSymbol owner;
 
-        Scope(Scope parent) {
+        DataFlowScope(DataFlowScope parent, BSymbol owner) {
             this.parent = parent;
+            this.owner = owner;
             this.unInitVars = new HashMap<>();
             if (parent == null) {
                 return;
             }
 
-            // Take a copy of un-initialized variable symbols
+            // Take a snapshot of all uninitialized variable symbols
             parent.unInitVars.keySet().forEach(var -> this.unInitVars.put(var, new VarInfo()));
         }
 
@@ -869,23 +918,32 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.unInitVars.put(varSymbol, new VarInfo());
         }
 
+        /**
+         * Mark a given variable as initialized for the current scope.
+         * 
+         * @param varSymbol Symbol of the variable to be marked as initialized.
+         */
         void markAsInitilaized(BSymbol varSymbol) {
             this.unInitVars.remove(varSymbol);
 
-            if (this.parent == null) {
+            if (this.parent == null || this.parent.owner.tag == SymTag.PACKAGE ||
+                    this.parent.owner.tag == SymTag.OBJECT || this.parent.owner.tag == SymTag.SERVICE) {
                 return;
             }
 
-            // If all the branches of parents are covered, mark this variable as initialized for parent also
-            VarInfo parentScopeVarInfo = this.parent.unInitVars.get(varSymbol);
-            if (parentScopeVarInfo == null) {
-                return;
+            markAsInitializedForParent(varSymbol);
+        }
+
+        /**
+         * Mark all the variables visible as initialized for the current scope.
+         */
+        void markAllAsInitilaized() {
+            if (this.parent != null && this.parent.owner.tag != SymTag.PACKAGE &&
+                    this.parent.owner.tag != SymTag.OBJECT && this.parent.owner.tag != SymTag.SERVICE) {
+                this.unInitVars.keySet().forEach(symbol -> markAsInitializedForParent(symbol));
             }
 
-            parentScopeVarInfo.initCount++;
-            if (this.parent.pathsCount == parentScopeVarInfo.initCount) {
-                parent.markAsInitilaized(varSymbol);
-            }
+            this.unInitVars.clear();
         }
 
         boolean isInitialized(BSymbol varSymbol) {
@@ -895,12 +953,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             return unInitVars.get(varSymbol).initCount == pathsCount;
         }
+
+        private void markAsInitializedForParent(BSymbol varSymbol) {
+            VarInfo parentScopeVarInfo = this.parent.unInitVars.get(varSymbol);
+            if (parentScopeVarInfo == null) {
+                return;
+            }
+
+            // If all the branches of parents are covered, mark this variable as initialized for parent also
+            parentScopeVarInfo.initCount++;
+            if (this.parent.pathsCount == parentScopeVarInfo.initCount) {
+                parent.markAsInitilaized(varSymbol);
+            }
+        }
     }
 
     /**
      * Represents initialization info of a variable.
      * 
-     * @since 0.982.0
+     * @since 0.985.0
      */
     private class VarInfo {
 

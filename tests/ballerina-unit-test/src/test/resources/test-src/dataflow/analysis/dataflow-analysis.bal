@@ -1,4 +1,20 @@
-function testDataflow_1 () returns string {
+ // Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ //
+ // WSO2 Inc. licenses this file to you under the Apache License,
+ // Version 2.0 (the "License"); you may not use this file except
+ // in compliance with the License.
+ // You may obtain a copy of the License at
+ //
+ //   http://www.apache.org/licenses/LICENSE-2.0
+ //
+ // Unless required by applicable law or agreed to in writing,
+ // software distributed under the License is distributed on an
+ // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ // KIND, either express or implied.  See the License for the
+ // specific language governing permissions and limitations
+ // under the License.
+ 
+ function testDataflow_1() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -17,7 +33,7 @@ function testDataflow_1 () returns string {
     return msg;
 }
 
-function testDataflow_2 () returns string {
+function testDataflow_2() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -34,7 +50,7 @@ function testDataflow_2 () returns string {
     return msg;
 }
 
-function testDataflow_3 () returns string {
+function testDataflow_3() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -51,7 +67,7 @@ function testDataflow_3 () returns string {
     return msg;
 }
 
-function testDataflow_4 () returns string {
+function testDataflow_4() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -64,7 +80,7 @@ function testDataflow_4 () returns string {
     return msg;
 }
 
-function testDataflow_5 () returns string {
+function testDataflow_5() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -79,7 +95,7 @@ function testDataflow_5 () returns string {
     return msg;
 }
 
-function testDataflow_6 () returns string {
+function testDataflow_6() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -94,7 +110,7 @@ function testDataflow_6 () returns string {
     return msg;
 }
 
-function testDataflow_7 () returns string {
+function testDataflow_7() returns string {
     string msg;
     if (true) {
         msg = "1";
@@ -108,7 +124,7 @@ function testDataflow_7 () returns string {
     return msg;
 }
 
-function testDataflow_8 () returns string {
+function testDataflow_8() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -124,7 +140,7 @@ function testDataflow_8 () returns string {
     return msg;
 }
 
-function testDataflow_9 () returns string {
+function testDataflow_9() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -157,7 +173,7 @@ function testDataflow_9 () returns string {
     return msg;
 }
 
-function testDataflow_10 () returns string {
+function testDataflow_10() returns string {
     string msg;
     if (true) {
         if (true) {
@@ -200,7 +216,7 @@ function testUninitializedVarReferrencing() {
     int b = a;
 
     // increment uninitialized var
-    a++;
+    a = a + 1;
 
     // throw uninitialized var
     if (false) {
@@ -217,12 +233,12 @@ function testUninitializedVarReferrencing() {
 
     // uninitialized var foreach
     foreach val in m {
-        // m["msg"] = "hello";
+        m["msg"] = "hello";
     }
 
     // uninitialized var in while
     while (4 > a) {
-        a++;
+        a = a + 1;
     }
 
     // uninitialized var in conversion
@@ -250,11 +266,63 @@ function testUninitializedVarReferrencing() {
     xml x;
     _ = x@[s];
 
-    // uninitialized var in xml attribute access
-    int[] range = [a...a+5];
-    
+    // uninitialized var in range expression
+    int[] range = a...a+5;
 }
 
 function foo(int a, string str = "hello", string... args) {
-
+    // do nothing
 }
+
+function testDataflow_11() returns string {
+    if (true) {
+        string msg;
+        if (true) {
+            msg = "1";
+        } else {
+            return msg;
+        }
+        return msg;
+    } else {
+        return "n/a";
+    }
+}
+
+public int globalVar;
+
+function testGlobalVar() returns int {
+    return globalVar;
+}
+
+type Foo object {
+    int a = globalVar;
+    int b;
+    int c;
+    int d;
+
+    new (c) {
+        a = globalVar;
+        b = 6;
+    }
+
+    function getGlobalVar() returns int {
+        return globalVar;
+    }
+
+    function getA() returns int {
+        return a;
+    }
+
+    function getB() returns int {
+        d = 46;
+        return b;
+    }
+
+    function getC() returns int {
+        return c;
+    }
+
+    function getD() returns int {
+        return d;
+    }
+};
