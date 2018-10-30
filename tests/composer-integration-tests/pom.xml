@@ -57,8 +57,6 @@
                             <arguments>
                                 <argument>run</argument>
                                 <argument>test</argument>
-                                <argument>--</argument>
-                                <argument>--projectVersion=${project.version}</argument>
                             </arguments>
                         </configuration>
                     </execution>

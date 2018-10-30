@@ -8,6 +8,7 @@
     "inlineSources": false,
     "declaration": true,
     "stripInternal": true,
+    "jsx": "react",
     "lib": [
       "es2016",
       "dom"
