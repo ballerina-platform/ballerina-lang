@@ -73,7 +73,9 @@ public type SimpleTopicPublisher object {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Topic publisher cannot be nil" });
+                string errorMessage = "Topic publisher cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -92,7 +94,9 @@ public type SimpleTopicPublisher object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -105,7 +109,9 @@ public type SimpleTopicPublisher object {
         match (session) {
             Session s => return s.createMapMessage(message);
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }

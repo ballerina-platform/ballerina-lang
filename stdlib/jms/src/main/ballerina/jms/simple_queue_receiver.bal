@@ -66,7 +66,9 @@ public type SimpleQueueReceiver object {
                 c.register(serviceType);
             }
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Queue receiver cannot be nil" });
+                string errorMessage = "Queue receiver cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -84,7 +86,9 @@ public type SimpleQueueReceiver object {
         match (queueReceiver) {
             QueueReceiver c => return c.getCallerActions();
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Queue receiver cannot be nil" });
+                string errorMessage = "Queue receiver cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -103,7 +107,9 @@ public type SimpleQueueReceiver object {
         match (session) {
             Session s => return s.createTextMessage(content);
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }

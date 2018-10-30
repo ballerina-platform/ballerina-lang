@@ -87,7 +87,9 @@ public type SimpleDurableTopicSubscriber object {
         match (consumerActions) {
             SimpleDurableTopicSubscriberActions c => return c;
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Consumer actions cannot be nil" });
+                string errorMessage = "Consumer actions cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -106,7 +108,9 @@ public type SimpleDurableTopicSubscriber object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }

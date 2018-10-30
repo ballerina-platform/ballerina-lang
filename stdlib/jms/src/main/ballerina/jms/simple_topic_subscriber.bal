@@ -64,7 +64,9 @@ public type SimpleTopicSubscriber object {
                 c.register(serviceType);
             }
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Topic Subscriber cannot be nil" });
+                string errorMessage = "Topic Subscriber cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -82,7 +84,9 @@ public type SimpleTopicSubscriber object {
         match (subscriber) {
             TopicSubscriber c => return c.getCallerActions();
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Topic Subscriber cannot be nil" });
+                string errorMessage = "Topic Subscriber cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -101,7 +105,9 @@ public type SimpleTopicSubscriber object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -115,7 +121,9 @@ public type SimpleTopicSubscriber object {
         match (session) {
             Session s => return s.createMapMessage(message);
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }

@@ -14,6 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# JMS error code
+@final public string JMS_ERROR_CODE = "{ballerina/jms}JMSError";
+
+# JMS error record
+#
+# + message - Error message
 type JMSError record {
     string message;
 };

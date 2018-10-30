@@ -76,7 +76,9 @@ public type SimpleQueueSender object {
         match (sender) {
             QueueSender s => return s.getCallerActions();
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Queue sender cannot be nil" });
+                string errorMessage = "Queue sender cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -94,7 +96,9 @@ public type SimpleQueueSender object {
         match (session) {
             Session s => return s.createTextMessage(content);
             () => {
-                error e = error("{ballerina/jms}JMSError", { message: "Session cannot be nil" });
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
