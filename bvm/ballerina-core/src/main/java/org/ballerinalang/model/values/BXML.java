@@ -262,11 +262,6 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
         return BTypes.typeXML;
     }
 
-    @Override
-    public void seal(BType type) {
-
-    }
-
     // private methods
     
     protected static void handleXmlException(String message, Throwable t) {

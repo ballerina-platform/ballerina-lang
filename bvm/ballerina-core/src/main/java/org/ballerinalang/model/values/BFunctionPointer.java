@@ -80,11 +80,6 @@ public class BFunctionPointer implements BRefType<FunctionInfo> {
     }
 
     @Override
-    public void seal(BType type) {
-
-    }
-
-    @Override
     public BValue copy() {
         return new BFunctionPointer(functionInfo);
     }
