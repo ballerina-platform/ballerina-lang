@@ -635,6 +635,10 @@
             {
                 "name": "HTTP Streaming",
                 "url": "http-streaming"
+            },
+            {
+                "name": "HTTP Compression",
+                "url": "http-compression"
             }
         ]
     },
