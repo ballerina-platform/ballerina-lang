@@ -136,6 +136,7 @@ public enum DiagnosticCode {
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
+    INVALID_LITERAL_FOR_MATCH_PATTERN("invalid.literal.for.match.pattern"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
     INVALID_RECORD_LITERAL_KEY("invalid.record.literal.key"),

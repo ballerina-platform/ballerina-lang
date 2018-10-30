@@ -179,6 +179,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN;
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT;
 
 /**
@@ -973,6 +974,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatchStmtStaticBindingPatternClause patternClause) {
+
+        NodeKind literalNode = patternClause.literal.getKind();
+
+        if (!(NodeKind.LITERAL == literalNode || NodeKind.RECORD_LITERAL_EXPR == literalNode ||
+                NodeKind.BRACED_TUPLE_EXPR == literalNode)){
+            dlog.error(patternClause.pos, INVALID_LITERAL_FOR_MATCH_PATTERN);
+        }
+
         typeChecker.checkExpr(patternClause.literal, this.env);
         analyzeStmt(patternClause.body, this.env);
     }
