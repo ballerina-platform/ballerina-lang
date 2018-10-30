@@ -124,11 +124,8 @@ class Diagram extends React.Component {
         this.props.model.accept(this.positionCalc);
         others = getComponentForNodeArray(otherNodes, this.props.mode);
          */
-console.log(this.props.model.getTopLevelNodes())
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
-        console.log(tln)
         const children = getComponentForNodeArray(tln, this.props.mode);
-        console.log(children)
 
         // get container dimentions to fit svg when mode is fit-to-screen
         const { width, height } = this.props;
