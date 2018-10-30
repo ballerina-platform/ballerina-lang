@@ -96,7 +96,18 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
             border: none;
         }
         #trace-details {
-            color: #ffffffe6;
+            color: #ffffe6;
+        }
+        .ui.inverted.segment{
+            background: inherit!important;
+        }
+        code {
+            background: none!important;
+            padding: 0!important;
+            color: #d7ba7d!important;
+        }
+        pre {
+            margin: 0!important;
         }
         `;
     const script = `
