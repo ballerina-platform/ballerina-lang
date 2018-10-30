@@ -191,6 +191,6 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }
-    error e = { errorMessage: errorMessage };
-    throw e;
+    error e = error(websub:WEBSUB_ERROR_CODE, { message : errorMessage });
+    panic e;
 }

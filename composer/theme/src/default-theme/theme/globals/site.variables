@@ -15,10 +15,13 @@ html:focus, body:focus, input[readonly]:focus{
 --------------------*/
 
 @fontName          : 'Roboto';
-@fontSmoothing     : antialiased;
 
-@headerFont        : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
-@pageFont          : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+/*-------------------
+    Border Radius
+--------------------*/
+
+@relativeBorderRadius: 0;
+@absoluteBorderRadius: 0;
 
 /*-------------------
       Colors
@@ -65,7 +68,7 @@ html:focus, body:focus, input[readonly]:focus{
 @selectionInvertItemDivider     : @defaultColor;
 
 @background                     : #e7eaeb;
-@pageBackground                 : @off-white;
+@pageBackground                 : @white;
 
 
 
@@ -75,7 +78,7 @@ html:focus, body:focus, input[readonly]:focus{
 
 @selectionBorderRadius          : 0;
 @noBorderRadius                 : 0;
-@borderRadius           :0;
+@borderRadius                   : 0;
 
 
 @inputHeight                    : 40px;
