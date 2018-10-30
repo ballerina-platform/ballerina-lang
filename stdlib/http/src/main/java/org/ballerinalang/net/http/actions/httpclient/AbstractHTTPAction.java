@@ -459,12 +459,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         public void onError(Throwable throwable) {
             BError httpConnectorError;
             if (throwable instanceof EndpointTimeOutException) {
-                // TODO : Fix this.
-                //                httpConnectorError = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
-                //                        HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                //                        HttpConstants.HTTP_TIMEOUT_ERROR);
-                httpConnectorError = BLangVMErrors
-                        .createError(this.dataContext.context, HttpConstants.HTTP_TIMEOUT_ERROR);
+                httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             } else if (throwable instanceof IOException) {
                 this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
@@ -473,8 +468,6 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
                         .setIoException(new IOException(throwable.getMessage(), throwable));
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
-            ((BMap) httpConnectorError.details)
-                    .put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
             this.dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
