@@ -163,7 +163,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceiveExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSendExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -2636,14 +2636,13 @@ public class BLangPackageBuilder {
         addExpressionNode(workerFlushExpr);
     }
 
-    void addWorkerSendExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend,
-                           boolean hasKey, boolean async) {
-        BLangWorkerSendExpr workerSendExpr = TreeBuilder.createWorkerSendExpressionNode();
+    void addWorkerSendSyncExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend,
+                               boolean hasKey) {
+        BLangWorkerSyncSendExpr workerSendExpr = TreeBuilder.createWorkerSendExpressionNode();
         workerSendExpr.setWorkerName(this.createIdentifier(workerName));
         workerSendExpr.expr = (BLangExpression) exprNodeStack.pop();
         workerSendExpr.isForkJoinSend = isForkJoinSend;
         workerSendExpr.pos = pos;
-        workerSendExpr.async = async;
         workerSendExpr.addWS(ws);
         //added to use for channels as well
         if (hasKey) {
