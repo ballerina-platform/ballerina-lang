@@ -117,15 +117,11 @@ public class TextDocumentFormatUtil {
     }
 
     private static boolean isTestablePackage(BLangPackage bLangPackage, String currentlyOpenName) {
-        boolean isTestable = false;
-        if (bLangPackage.getTestablePkgs() != null
-                && bLangPackage.getTestablePkgs().size() > 0) {
-            BLangCompilationUnit compilationUnit = bLangPackage.getTestablePkg().getCompilationUnits().stream().
-                    filter(compUnit -> ("tests/" + currentlyOpenName).equals(compUnit.getName()))
-                    .findFirst().orElse(null);
-            isTestable = compilationUnit != null;
-        }
-        return isTestable;
+        return bLangPackage.getTestablePkgs() != null
+                && bLangPackage.getTestablePkgs().size() > 0
+                && bLangPackage.getTestablePkg().getCompilationUnits().stream().
+                filter(compUnit -> ("tests/" + currentlyOpenName).equals(compUnit.getName()))
+                .findFirst().orElse(null) != null;
     }
 
     /**
