@@ -110,7 +110,7 @@ export function startBallerinaLangServer(): Thenable<MinimalLangClient | undefin
             initializedResult,
             kill: () => {
                 lsConnection.shutdown();
-                childProcess.kill();
+                process.kill(childProcess.pid);
             },
             getAST: (params: GetASTParams) => {
                 return lsConnection.sendRequest<GetASTResponse>("ballerinaDocument/ast", params);
