@@ -229,6 +229,7 @@
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.36.2",
-        "vscode-debugadapter-testsupport": "^1.32.0"
+        "vscode-debugadapter-testsupport": "^1.32.0",
+        "ast-model": "file:../../composer/ast-model"
     }
 }
