@@ -76,9 +76,8 @@ public class SourceGenTest {
             LSCompiler lsCompiler = new LSCompiler(documentManager);
             JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
                     formatContext);
-            FormattingSourceGen sourceGen = new FormattingSourceGen();
-            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-            String actual = sourceGen.getSourceOf(ast.getAsJsonObject("model"));
+            FormattingSourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+            String actual = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
             TestUtil.closeDocument(serviceEndpoint, filePath);
             Assert.assertEquals(actual, expected, "Generated source didn't match the expected for file: " +
                     file.getName());
@@ -150,7 +149,8 @@ public class SourceGenTest {
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
             if (attrs.isSymbolicLink()
                     || dir.getFileName().toString().contains("negative")
-                    || dir.getFileName().toString().contains("invalid")) {
+                    || dir.getFileName().toString().contains("invalid")
+                    || dir.getFileName().toString().contains("tests")) {
                 return SKIP_SUBTREE;
             }
             return CONTINUE;

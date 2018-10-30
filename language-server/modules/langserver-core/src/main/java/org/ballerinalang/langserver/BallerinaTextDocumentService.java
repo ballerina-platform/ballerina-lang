@@ -434,11 +434,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
                 // Source generation for given ast.
                 JsonObject ast = TextDocumentFormatUtil.getAST(fileUri, lsCompiler, documentManager, formatContext);
-                FormattingSourceGen sourceGen = new FormattingSourceGen();
-                sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+
+                FormattingSourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
                 FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
                 formattingUtil.accept(ast.getAsJsonObject("model"));
-                textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"));
+                textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
                 textEdit = new TextEdit(range, textEditContent);
                 return Collections.singletonList(textEdit);
             } catch (Exception e) {
