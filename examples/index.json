@@ -452,10 +452,6 @@
             {
                 "name": "JDBC Client Call Procedures",
                 "url": "jdbc-client-call-procedures"
-            },
-            {
-                "name": "JDBC Client Proxy Tables",
-                "url": "jdbc-client-proxy-tables"
             }
         ]
     },
