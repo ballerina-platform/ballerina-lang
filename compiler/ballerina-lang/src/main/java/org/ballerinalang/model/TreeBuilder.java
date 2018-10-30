@@ -441,6 +441,11 @@ public class TreeBuilder {
     public static BLangAwaitExpr.BLangWaitForAll createWaitForAllExpressionNode() {
         return new BLangAwaitExpr.BLangWaitForAll();
     }
+
+    public static BLangAwaitExpr.BLangWaitForAll.BLangWaitKeyValue createWaitKeyValueNode() {
+        return new BLangAwaitExpr.BLangWaitForAll.BLangWaitKeyValue();
+    }
+
     public static TrapExpressionNode createTrapExpressionNode() {
         return new BLangTrapExpr();
     }

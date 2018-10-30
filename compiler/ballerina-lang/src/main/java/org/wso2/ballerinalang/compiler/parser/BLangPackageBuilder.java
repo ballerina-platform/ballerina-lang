@@ -257,7 +257,9 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> invocationWsStack = new Stack<>();
 
-    private Stack<List<BLangRecordKeyValue>> recordKeyValNodeListStack = new Stack<>();
+    private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
+
+    private Stack<BLangAwaitExpr.BLangWaitForAll> waitForAllStack = new Stack<>();
 
     private Stack<BLangTableLiteral> tableLiteralNodes = new Stack<>();
 
@@ -1025,35 +1027,38 @@ public class BLangPackageBuilder {
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
-        recordKeyValNodeListStack.peek().add(keyValue);
+        recordLiteralNodes.peek().keyValuePairs.add(keyValue);
+    }
+
+    void addKeyValueToWaitCollection(Set<Whitespace> ws, String identifier, boolean containsExpr) {
+        BLangAwaitExpr.BLangWaitForAll.BLangWaitKeyValue keyValue = TreeBuilder.createWaitKeyValueNode();
+        keyValue.addWS(ws);
+        // Add the key
+        BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        keyExpr.variableName = (BLangIdentifier) createIdentifier(identifier);
+        keyExpr.pkgAlias = (BLangIdentifier) createIdentifier(null);
+        keyValue.key = keyExpr;
+        // Add the value. If it is a Identifier:expr pair then add the value by popping the expr from the expression
+        // node stack else add the key as the value.
+        if (containsExpr) {
+            keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
+        } else {
+            keyValue.valueExpr = keyExpr;
+        }
+        waitForAllStack.peek().keyValuePairs.add(keyValue);
     }
 
     void addMapStructLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangRecordLiteral recordTypeLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        BLangRecordLiteral recordTypeLiteralNode = recordLiteralNodes.pop();
         recordTypeLiteralNode.pos = pos;
         recordTypeLiteralNode.addWS(ws);
-        recordTypeLiteralNode.keyValuePairs = recordKeyValNodeListStack.pop();
         addExpressionNode(recordTypeLiteralNode);
     }
 
-    void addMapStructLiteralForWait(DiagnosticPos pos, Set<Whitespace> ws, List<String> identifiers) {
-        BLangAwaitExpr.BLangWaitForAll waitForAllExpr = TreeBuilder.createWaitForAllExpressionNode();
+    void addCollectionToWait(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangAwaitExpr.BLangWaitForAll waitForAllExpr = waitForAllStack.pop();
         waitForAllExpr.pos = pos;
         waitForAllExpr.addWS(ws);
-        // Check for the identifiers and add them as record key-value pairs
-        for (String identifierName : identifiers) {
-            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
-            // Key
-            BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-            keyExpr.pos = pos;
-            keyExpr.variableName = (BLangIdentifier) createIdentifier(identifierName);
-            keyExpr.pkgAlias = (BLangIdentifier) createIdentifier(null);
-            keyValue.key = new BLangRecordKey(keyExpr);
-            // Value
-            keyValue.valueExpr = keyExpr;
-            this.recordKeyValNodeListStack.peek().add(keyValue);
-        }
-        waitForAllExpr.keyValuePairs = recordKeyValNodeListStack.pop();
         addExpressionNode(waitForAllExpr);
     }
 
@@ -1135,7 +1140,13 @@ public class BLangPackageBuilder {
     }
 
     void startMapStructLiteral() {
-        recordKeyValNodeListStack.push(new ArrayList<>());
+        BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        recordLiteralNodes.push(literalNode);
+    }
+
+    void startWaitCollection() {
+        BLangAwaitExpr.BLangWaitForAll bLangWaitForAll = TreeBuilder.createWaitForAllExpressionNode();
+        waitForAllStack.push(bLangWaitForAll);
     }
 
     void startExprNodeList() {

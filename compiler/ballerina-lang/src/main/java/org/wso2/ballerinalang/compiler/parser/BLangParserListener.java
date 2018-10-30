@@ -1661,28 +1661,31 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterWaitForAllLiteral(BallerinaParser.WaitForAllLiteralContext ctx) {
+    public void enterWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startMapStructLiteral();
+        this.pkgBuilder.startWaitCollection();
     }
 
     @Override
-    public void exitWaitForAllLiteral(BallerinaParser.WaitForAllLiteralContext ctx) {
+    public void exitWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        // add the identifier nodes as record key-value pairs
-        List <String> identifiers = new ArrayList<>();
-        for (TerminalNode terminalNode: ctx.Identifier()) {
-            identifiers.add(terminalNode.getText());
-        }
 
-        this.pkgBuilder.addMapStructLiteralForWait(getCurrentPos(ctx), getWS(ctx), identifiers);
+        this.pkgBuilder.addCollectionToWait(getCurrentPos(ctx), getWS(ctx));
     }
 
+    @Override
+    public void exitWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean containsExpr = ctx.expression() != null;
+        this.pkgBuilder.addKeyValueToWaitCollection(getWS(ctx), ctx.Identifier().getText(), containsExpr);
+    }
     /**
      * {@inheritDoc}
      */

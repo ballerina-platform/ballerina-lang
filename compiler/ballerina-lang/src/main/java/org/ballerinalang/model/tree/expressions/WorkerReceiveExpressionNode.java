@@ -20,9 +20,9 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * <- a
+ * Worker receive expression node.
  *
- * @since 0.94
+ * @since 0.983
  */
 public interface WorkerReceiveExpressionNode extends ExpressionNode {
     ExpressionNode getKeyExpression();
