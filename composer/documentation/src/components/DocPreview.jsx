@@ -44,13 +44,21 @@ export default class DocPreview extends React.Component {
                 description: mdDoc.returnParameterDocumentation,
             };
         }
+
+        let typeNodeKind;
+        if (node.typeNode) {
+            typeNodeKind = node.typeNode.kind;
+        }
+
         const documentationDetails = {
             kind: node.kind,
             title: node.name.value,
             description: mdDoc.documentation,
             parameters: processedParameters,
+            typeNodeKind,
             returnParameter
         };
+
         return documentationDetails;
     }
 
