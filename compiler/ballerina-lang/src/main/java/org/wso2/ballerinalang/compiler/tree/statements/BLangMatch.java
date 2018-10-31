@@ -69,6 +69,15 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     @Override
+    public List<BLangMatchStmtStaticBindingPatternClause> getStaticPatternClauses() {
+        return patternClauses
+                .stream()
+                .filter(pattern -> NodeKind.MATCH_STATIC_PATTERN_CLAUSE == (pattern.getKind()))
+                .map(BLangMatchStmtStaticBindingPatternClause.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }

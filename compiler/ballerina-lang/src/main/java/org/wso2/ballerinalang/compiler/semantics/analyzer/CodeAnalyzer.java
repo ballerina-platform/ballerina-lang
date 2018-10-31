@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -512,6 +513,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!matchStmt.getTypedPatternClauses().isEmpty()) {
             analyzeTypeMatchPatterns(matchStmt);
         }
+
+        if (!matchStmt.getStaticPatternClauses().isEmpty()) {
+            analyzeStaticMatchPatterns(matchStmt);
+        }
+    }
+
+    private void analyzeStaticMatchPatterns(BLangMatch matchStmt) {
+        matchStmt.getStaticPatternClauses()
+                .stream()
+                .filter(pattern -> matchStmt.exprTypes
+                        .stream()
+                        .noneMatch(exprType -> this.types.isAssignable(exprType, pattern.literal.type)))
+                .forEach(pattern -> dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN));
     }
 
     private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {

@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
@@ -3115,21 +3116,28 @@ public class Desugar extends BLangNodeVisitor {
                                                          BVarSymbol varSymbol, BType patternType) {
         DiagnosticPos pos = patternClause.pos;
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
+
             BLangMatchStmtStaticBindingPatternClause pattern = (BLangMatchStmtStaticBindingPatternClause) patternClause;
-            BLangIsAssignableExpr lhsExpr = createIsAssignableExpression(pos, varSymbol, patternType);
 
             BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
 
             BLangExpression conversionExpr = addConversionExprIfRequired(varRef, pattern.literal.type);
 
-            BLangBinaryExpr rhsExpr = ASTBuilderUtil.createBinaryExpr(pos, conversionExpr, pattern.literal,
+            BLangExpression binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, conversionExpr, pattern.literal,
                     symTable.booleanType, OperatorKind.EQUAL,
                     (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL, patternType,
                             pattern.literal.type));
 
-            return ASTBuilderUtil.createBinaryExpr(pos, lhsExpr, rhsExpr, symTable.booleanType,
-                    OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
-                            symTable.booleanType, symTable.booleanType));
+            if (!types.isValueType(varSymbol.type)) {
+                //todo should this be is-like check?
+                BLangIsAssignableExpr lhsExpr = createIsAssignableExpression(pos, varSymbol, patternType);
+
+                binaryExpr =  ASTBuilderUtil.createBinaryExpr(pos, lhsExpr, binaryExpr, symTable.booleanType,
+                        OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
+                                symTable.booleanType, symTable.booleanType));
+            }
+
+            return binaryExpr;
         }
 
         if (patternType == symTable.nilType) {
