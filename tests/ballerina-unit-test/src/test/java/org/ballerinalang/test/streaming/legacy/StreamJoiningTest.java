@@ -59,13 +59,13 @@ public class StreamJoiningTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
         BAssertUtil.validateError(resultNegative, 0,
                 "undefined stream name (or alias) 'stockStream' found in select clause",
-                51, 9);
+                50, 9);
         BAssertUtil.validateError(resultNegative, 1,
                 "undefined stream name (or alias) 'stockStream' found in select clause",
-                51, 9);
+                50, 9);
         BAssertUtil.validateError(resultNegative, 2,
                 "unreachable code",
-                57, 5);
+                58, 5);
     }
 
 

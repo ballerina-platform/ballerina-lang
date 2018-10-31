@@ -61,12 +61,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -696,8 +696,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangPostIncrement increment) {
-        this.acceptNode(increment.varRef);
+    public void visit(BLangCompoundAssignment compoundAssignNode) {
+        this.acceptNode(compoundAssignNode.varRef);
+        if (compoundAssignNode.expr != null) {
+            this.acceptNode(compoundAssignNode.expr);
+        }
     }
 
     /**

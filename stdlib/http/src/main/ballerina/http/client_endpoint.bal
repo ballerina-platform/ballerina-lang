@@ -104,11 +104,13 @@ extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) 
 # + interval - Retry interval in milliseconds
 # + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
+# + statusCodes - HTTP response status codes which are considered as failures
 public type RetryConfig record {
     int count;
     int interval;
     float backOffFactor;
     int maxWaitInterval;
+    int[] statusCodes;
     !...
 };
 
@@ -193,6 +195,8 @@ public type ConnectionThrottling record {
 # + tokenUrl - Token URL for OAuth2 authentication
 # + clientId - Clietnt ID for OAuth2 authentication
 # + clientSecret - Client secret for OAuth2 authentication
+# + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
+# + scopes - Scope of the access request
 public type AuthConfig record {
     AuthScheme scheme;
     string username;
@@ -205,6 +209,8 @@ public type AuthConfig record {
     string tokenUrl;
     string clientId;
     string clientSecret;
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    string[] scopes;
     !...
 };
 
@@ -310,7 +316,13 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
                                                                 noOfBuckets:numberOfBuckets,
                                                                 rollingWindow:cb.rollingWindow
                                                             };
-            CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
+            CircuitHealth circuitHealth = {
+                                            startTime:circuitStartTime,
+                                            lastRequestTime:circuitStartTime,
+                                            lastErrorTime:circuitStartTime,
+                                            lastForcedOpenTime:circuitStartTime,
+                                            totalBuckets: bucketArray
+                                          };
             return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
         }
         () => {
@@ -328,10 +340,20 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
     var retryConfigVal = configuration.retryConfig;
     match retryConfigVal {
         RetryConfig retryConfig => {
+            boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
+            RetryInferredConfig retryInferredConfig = {
+                count: retryConfig.count,
+                interval: retryConfig.interval,
+                backOffFactor: retryConfig.backOffFactor,
+                maxWaitInterval: retryConfig.maxWaitInterval,
+                statusCodes: statusCodes
+            };
             if (configuration.cache.enabled) {
-                return new RetryClient(url, configuration, retryConfig, createHttpCachingClient(url, configuration, configuration.cache));
+                return new RetryClient(url, configuration, retryInferredConfig,
+                    createHttpCachingClient(url, configuration, configuration.cache));
             } else{
-                return new RetryClient(url, configuration, retryConfig, createHttpSecureClient(url, configuration));
+                return new RetryClient(url, configuration, retryInferredConfig,
+                    createHttpSecureClient(url, configuration));
             }
         }
         () => {

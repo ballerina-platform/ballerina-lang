@@ -3,15 +3,15 @@ import ballerina/bir;
 
 public function main(string... args) {
     var (srcFilePath, destFilePath) = parseArgs(args);
-    genObjectFileFromChannel(openFileForReading(srcFilePath), destFilePath, true);
+    genObjectFileFromChannel(openReadableFile(srcFilePath), destFilePath, true);
 }
 
 function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR) {
-    io:ByteChannel byteChannel = io:createMemoryChannel(birBinary);
+    io:ReadableByteChannel byteChannel = io:createReadableChannel(birBinary);
     genObjectFileFromChannel(byteChannel, destFilePath, dumpLLVMIR);
 }
 
-function genObjectFileFromChannel(io:ByteChannel byteChannel, string destFilePath, boolean dumpLLVMIR) {
+function genObjectFileFromChannel(io:ReadableByteChannel byteChannel, string destFilePath, boolean dumpLLVMIR) {
     bir:ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
     bir:ConstPoolParser cpParser = new(reader);
@@ -54,8 +54,8 @@ function checkVersion(bir:ChannelReader reader) {
 }
 
 
-function openFileForReading(string filePath) returns io:ByteChannel {
-    io:ByteChannel byteChannel = io:openFile(filePath, io:READ);
+function openReadableFile(string filePath) returns io:ReadableByteChannel {
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     return byteChannel;
 }
 
@@ -71,7 +71,7 @@ function arrayEq(byte[] x, byte[] y) returns boolean {
         if (x[i] != y[i]){
             return false;
         }
-        i++;
+        i += 1;
     }
     return true;
 }

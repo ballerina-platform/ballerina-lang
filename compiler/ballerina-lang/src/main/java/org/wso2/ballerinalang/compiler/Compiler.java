@@ -77,6 +77,9 @@ public class Compiler {
     }
 
     public BLangPackage compile(String sourcePackage, boolean isBuild) {
+        if (!isBuild && !this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
+            throw new BLangCompilerException("no ballerina source files found in module " + sourcePackage);
+        }
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
         if (packageID == null) {
             throw ProjectDirs.getPackageNotFoundError(sourcePackage);
@@ -90,6 +93,9 @@ public class Compiler {
     }
 
     public BLangPackage build(String sourcePackage) {
+        if (!this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
+            throw new BLangCompilerException("no ballerina source files found in module " + sourcePackage);
+        }
         outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {

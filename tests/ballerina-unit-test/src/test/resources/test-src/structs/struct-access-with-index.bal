@@ -17,7 +17,7 @@ type Family record {
     string[] children;
 };
 
-function testCreateStruct () returns (string, map, int) {
+function testCreateStruct () returns (string?, map?, int?) {
     map address1;
     map address = {"country":"USA", "state":"CA"};
     Person emp = {name:"Jack", adrs:address, age:25};
@@ -37,7 +37,7 @@ function testStructOfStruct () returns (string) {
     return country;
 }
 
-function testReturnStructAttributes () returns (string) {
+function testReturnStructAttributes () returns string? {
     map address = {"country":"USA", "state":"CA"};
     string[] chldrn = [];
     Family fmly = {children:chldrn};
@@ -59,7 +59,7 @@ function testExpressionAsIndex () returns (string) {
     return family.children[a * b - 8];
 }
 
-function testStructExpressionAsIndex () returns (string) {
+function testStructExpressionAsIndex () returns string? {
     string country;
     Department dpt = {};
     Family fmly = {};
@@ -75,22 +75,22 @@ function testStructExpressionAsIndex () returns (string) {
     dpt["employees"][0]["family"]["children"][0] = "emily";
     dpt["employees"][0]["family"]["noOfChildren"] = 1;
 
-    return dpt["employees"][0]["family"]["children"][dpt["employees"][0]["family"]["noOfChildren"] - 1];
+    return dpt["employees"][0]["family"]["children"][(dpt["employees"][0]["family"]["noOfChildren"] ?: 1) - 1];
 }
 
-function testDefaultVal () returns (string, string, int) {
+function testDefaultVal () returns (string?, string?, int?) {
     Person p = {};
     return (p["name"], p["lname"], p["age"]);
 }
 
-function testNestedFieldDefaultVal () returns (string, string, int) {
+function testNestedFieldDefaultVal () returns (string?, string?, int?) {
     Department dpt = {};
     dpt["employees"] = [];
     dpt["employees"][0] = {lname:"Smith"};
     return (dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]);
 }
 
-function testGetNonInitAttribute () returns (string) {
+function testGetNonInitAttribute () returns string? {
     Person emp1 = {};
     Person emp2 = {};
     Person[] emps = [emp1, emp2];
@@ -98,12 +98,12 @@ function testGetNonInitAttribute () returns (string) {
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testGetNonInitArrayAttribute () returns (string) {
+function testGetNonInitArrayAttribute () returns string? {
     Department dpt = {dptName:"HR"};
     return dpt["employees"][0]["family"]["children"][0];
 }
 
-function testGetNonInitLastAttribute () returns (Person) {
+function testGetNonInitLastAttribute () returns Person? {
     Department dpt = {};
     return dpt["employees"][0];
 }

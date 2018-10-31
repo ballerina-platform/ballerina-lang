@@ -44,3 +44,13 @@ function mapInitWithIdentifiersTest() returns (map) {
 function getKey() returns (string) {
 	return "key2";
 }
+
+function testEmptyMap() returns (map) {
+    map emptyMap = {};
+    mapFunction({});
+    return emptyMap;
+}
+
+function mapFunction(map m) {
+
+}

@@ -1,15 +1,15 @@
 NAME
-    Ballerina install - Install package to home repository 
+    Ballerina install - Install module to home repository
 
 SYNOPSIS
-    ballerina install <package-name> [--no-build]
+    ballerina install <module-name> [--no-build]
 
 DESCRIPTION
-     Installs the given package from project repository to home 
+     Installs the given module from project repository to home
      repository. Project repository resides within the project home. 
      Home repository reside within the home folder (‘.ballerina’ 
      folder by default). By default, the sources will be built
-     before installing the package to the home repository.
+     before installing the module to the home repository.
 
 OPTIONS
      --no-build
@@ -17,16 +17,16 @@ OPTIONS
         built before installing to the home repository
 
 DEFAULT BEHAVIOR
-     Installs package from project repository to home repository. 
+     Installs module from project repository to home repository.
 
 EXAMPLES
-     Install math package after building it
+     Install math module after building it
      $ ballerina install math 
-     This will place the current version of the package (assume 0.0.1)
+     This will place the current version of the module (assume 0.0.1)
      on a Mac or Linux machine in 
      ~/.ballerina/repo/user_name/math/0.0.1/math.zip 
-     On a Windows machine the package will be placed in 
+     On a Windows machine the module will be placed in
      \User\user_name\.ballerina\repo\user_name\math\0.0.1\math.zip
 
-     Install math package without building it
+     Install math module without building it
      $ ballerina install math --no-build

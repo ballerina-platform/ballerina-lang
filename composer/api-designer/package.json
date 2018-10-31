@@ -1,0 +1,14 @@
+{
+  "name": "@ballerina/api-designer",
+  "version": "0.982.1-SNAPSHOT",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test-coverage": "npm run test -- --coverage",
+    "build": "echo \"Building api-designer module\"",
+    "watch": "echo \"Watching api-designer module\"",
+    "test": "echo \"Error: no test specified\""
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0"
+}

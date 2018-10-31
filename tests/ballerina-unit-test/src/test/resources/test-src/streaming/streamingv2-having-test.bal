@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Employee record {
     string name;
@@ -47,7 +45,14 @@ function startFilterQuery() returns (Employee[]) {
         inputStream.publish(e);
     }
 
-    runtime:sleep(1000);
+    int count = 0;
+    while(true) {
+        runtime:sleep(500);
+        count += 1;
+        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+            break;
+        }
+    }
     return globalEmployeeArray;
 }
 
@@ -58,7 +63,9 @@ function testFilterQuery() {
         select inputStream.name, inputStream.age
         having age > getMaxAge() && age > 25
         => (Employee[] emp) {
-            outputStream.publish(emp);
+            foreach e in emp {
+                outputStream.publish(e);
+            }
         }
     }
 }

@@ -21,9 +21,10 @@ package org.ballerinalang.packerina.cmd;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.packerina.init.InitHandler;
 import org.ballerinalang.packerina.init.models.FileType;
-import org.ballerinalang.packerina.init.models.PackageMdFile;
+import org.ballerinalang.packerina.init.models.ModuleMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -80,7 +81,7 @@ public class InitCommand implements BLauncherCmd {
             }
 
             List<SrcFile> sourceFiles = new ArrayList<>();
-            List<PackageMdFile> packageMdFiles = new ArrayList<>();
+            List<ModuleMdFile> moduleMdFiles = new ArrayList<>();
             if (interactiveFlag) {
 
                 // Check if Ballerina.toml file needs to be created.
@@ -92,11 +93,13 @@ public class InitCommand implements BLauncherCmd {
 
                     String defaultOrg = guessOrgName();
 
-                    // Get org name.
-                    out.print("Organization name: (" + defaultOrg + ") ");
-                    String orgName = scanner.nextLine().trim();
+                    String orgName;
+                    do {
+                        out.print("Organization name: (" + defaultOrg + ") ");
+                        orgName = scanner.nextLine().trim();
+                    } while (!validateOrgName(out, orgName));
+                    // Set org-name
                     manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
-
                     String version;
                     do {
                         out.print("Version: (" + DEFAULT_VERSION + ") ");
@@ -129,7 +132,7 @@ public class InitCommand implements BLauncherCmd {
                             || (srcInput.isEmpty() && firstPrompt)) {
                         String packageName;
                         do {
-                            out.print("Package for the service: (no package) ");
+                            out.print("Module for the service: (no module) ");
                             packageName = scanner.nextLine().trim();
                         } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
@@ -137,14 +140,14 @@ public class InitCommand implements BLauncherCmd {
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.SERVICE_TEST);
                         sourceFiles.add(srcTestFile);
                         if (!packageName.isEmpty()) {
-                            PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.SERVICE);
-                            packageMdFiles.add(packageMdFile);
+                            ModuleMdFile moduleMdFile = new ModuleMdFile(packageName, FileType.SERVICE);
+                            moduleMdFiles.add(moduleMdFile);
                         }
                         firstPrompt = false;
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
                         String packageName;
                         do {
-                            out.print("Package for the main: (no package) ");
+                            out.print("Module for the main: (no module) ");
                             packageName = scanner.nextLine().trim();
                         } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
@@ -152,8 +155,8 @@ public class InitCommand implements BLauncherCmd {
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.MAIN_TEST);
                         sourceFiles.add(srcTestFile);
                         if (!packageName.isEmpty()) {
-                            PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.MAIN);
-                            packageMdFiles.add(packageMdFile);
+                            ModuleMdFile moduleMdFile = new ModuleMdFile(packageName, FileType.MAIN);
+                            moduleMdFiles.add(moduleMdFile);
                         }
                         firstPrompt = false;
                     } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f") ||
@@ -176,7 +179,7 @@ public class InitCommand implements BLauncherCmd {
                 }
             }
 
-            InitHandler.initialize(projectPath, manifest, sourceFiles, packageMdFiles);
+            InitHandler.initialize(projectPath, manifest, sourceFiles, moduleMdFiles);
             out.println("Ballerina project initialized");
 
         } catch (IOException e) {
@@ -251,20 +254,34 @@ public class InitCommand implements BLauncherCmd {
     }
 
     /**
-     * Validates the package name.
+     * Validates the org-name.
      *
-     * @param pkgName The package name.
-     * @return True if valid package name, else false.
+     * @param orgName The org-name.
+     * @return True if valid org-name, else false.
+     */
+    private boolean validateOrgName(PrintStream out, String orgName) {
+        boolean matches = RepoUtils.validateOrg(orgName);
+        if (!matches) {
+            out.println("--Invalid organization name: \'" + orgName + "\'. Organization name can only contain " +
+                                "lowercase alphanumerics and underscores and the maximum length is 256 characters");
+        }
+        return matches;
+    }
+
+    /**
+     * Validates the module name.
+     *
+     * @param pkgName The module name.
+     * @return True if valid module name, else false.
      */
     private boolean validatePkgName(PrintStream out, String pkgName) {
         if (pkgName.isEmpty()) {
            return true;
         }
-        String validRegex = "^[a-zA-Z0-9_.]*$";
-        boolean matches = Pattern.matches(validRegex, pkgName);
+        boolean matches = RepoUtils.validatePkg(pkgName);
         if (!matches) {
-            out.println("--Invalid package name: \"" + pkgName + "\"." + " Package name can only contain " +
-                                "alphanumeric, underscore and DOT");
+            out.println("--Invalid module name: \'" + pkgName + "\'. Module name can only contain " +
+                                "alphanumerics, underscores and periods and the maximum length is 256 characters");
         }
         return matches;
     }

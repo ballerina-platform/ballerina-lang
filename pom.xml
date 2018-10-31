@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.981.2-SNAPSHOT</version>
+    <version>0.982.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -155,6 +155,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-auth</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-auth</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
@@ -261,27 +266,6 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-h2</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
-            <!-- ballerina-jdbc -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jdbc</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jdbc</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jdbc</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -864,17 +848,6 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-compiler</artifactId>
                 <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>composer-server-distribution</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-composer-web</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1541,11 +1514,19 @@
                 <artifactId>mysql</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
+
+            <!-- Embedded Apache DS dependencies -->
             <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-examples</artifactId>
-                <version>${ballerina.examples.version}</version>
-                <type>zip</type>
+                <groupId>org.apache.directory.server</groupId>
+                <artifactId>apacheds-all</artifactId>
+                <version>${apache.directory.server.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.directory.shared</groupId>
+                        <artifactId>shared-ldap</artifactId>
+                    </exclusion>
+                </exclusions>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1662,7 +1643,6 @@
                 <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
-                <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
@@ -1746,7 +1726,6 @@
                 <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
-                <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
@@ -1826,7 +1805,6 @@
                 <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
-                <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
@@ -2199,8 +2177,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.981.2-SNAPSHOT</ballerina.version>
-        <ballerina.examples.version>0.981.2-SNAPSHOT</ballerina.examples.version>
+        <ballerina.version>0.982.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -2223,7 +2200,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.234</transport.http.version>
+        <transport.http.version>6.0.243</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2355,6 +2332,7 @@
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <apache.directory.server.version>1.5.5</apache.directory.server.version>
     </properties>
 
 </project>

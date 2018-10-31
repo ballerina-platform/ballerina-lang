@@ -1,0 +1,6 @@
+// A fork-join statement splits the current execution to multiple workers, which do their work in parallel, and join the
+// executions together to process their results.
+// The `fork` block allows you to start any number of parallel workers at once.
+// In this example, you can make the `join` block wait for a specific number of workers to finish executing using the
+// `some (int)` condition.
+

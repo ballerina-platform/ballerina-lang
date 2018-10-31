@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
 
 type Employee record {
@@ -44,7 +43,9 @@ function testOutputRateLimitQuery() {
         select name, age, status
         output first every 3 seconds
         => (Employee[] emp) {
-            employeeStream8.publish(emp);
+            foreach e in emp {
+                employeeStream8.publish(e);
+            }
         }
     }
 }

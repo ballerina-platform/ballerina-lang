@@ -103,7 +103,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -143,6 +142,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -220,7 +220,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         parent = pkgNode;
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        analyzeTopLevelNodes(pkgNode, pkgEnv);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+    }
+
+    private void analyzeTopLevelNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         parent = null;
@@ -700,12 +705,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(compoundAssignment.expr);
     }
 
-    public void visit(BLangPostIncrement postIncrement) {
-        this.checkStatementExecutionValidity(postIncrement);
-        analyzeExpr(postIncrement.varRef);
-        analyzeExpr(postIncrement.increment);
-    }
-
     public void visit(BLangAssignment assignNode) {
         this.checkStatementExecutionValidity(assignNode);
         analyzeExpr(assignNode.varRef);
@@ -837,9 +836,30 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(kv -> {
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
+        keyValuePairs.forEach(kv -> {
             analyzeExpr(kv.valueExpr);
         });
+
+        Set<Object> names = new TreeSet<>((l, r) -> l.equals(r) ? 0 : 1);
+        for (BLangRecordLiteral.BLangRecordKeyValue recFieldDecl : keyValuePairs) {
+            BLangExpression key = recFieldDecl.getKey();
+            if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef keyRef = (BLangSimpleVarRef) key;
+                if (names.contains(keyRef.variableName.value)) {
+                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
+                }
+                names.add(keyRef.variableName.value);
+            } else if (key.getKind() == NodeKind.LITERAL) {
+                BLangLiteral keyLiteral = (BLangLiteral) key;
+                if (names.contains(keyLiteral.value)) {
+                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyLiteral);
+                }
+                names.add(keyLiteral.value);
+            }
+        }
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
@@ -858,12 +878,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
 
-        if (indexAccessExpr.indexExpr.type == null || indexAccessExpr.indexExpr.type.tag == TypeTags.ERROR) {
+        if (indexAccessExpr.indexExpr.type.tag == TypeTags.ERROR) {
             return;
         }
 
-        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY
-                && indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY &&
+                indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
             BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
             BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
             Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage

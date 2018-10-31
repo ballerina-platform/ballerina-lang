@@ -124,7 +124,7 @@ public class BTable implements BRefType<Object>, BCollection {
         StringBuilder sb = new StringBuilder();
         sb.append("data: ");
         StringJoiner sj = new StringJoiner(", ", "[", "]");
-        while (hasNext(false)) {
+        while (hasNext()) {
             BMap<?, ?> struct = getNext();
             sj.add(struct.stringValue());
         }
@@ -138,7 +138,7 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
 
-    public boolean hasNext(boolean isInTransaction) {
+    public boolean hasNext() {
         if (tableClosed) {
             throw new BallerinaException("Trying to perform hasNext operation over a closed table");
         }
@@ -150,7 +150,7 @@ public class BTable implements BRefType<Object>, BCollection {
             nextPrefetched = true;
         }
         if (!hasNextVal) {
-           reset(isInTransaction);
+           reset();
         }
         return hasNextVal;
     }
@@ -169,16 +169,16 @@ public class BTable implements BRefType<Object>, BCollection {
         }
     }
 
-    public void close(boolean isInTransaction) {
+    public void close() {
         if (iterator != null) {
-            iterator.close(isInTransaction);
+            iterator.close();
         }
         tableClosed = true;
     }
 
-    public void reset(boolean isInTransaction) {
+    public void reset() {
         if (iterator != null) {
-            iterator.reset(isInTransaction);
+            iterator.reset();
             iterator = null;
         }
         resetIterationHelperAttributes();
@@ -219,7 +219,7 @@ public class BTable implements BRefType<Object>, BCollection {
                     + " cannot be added to a table with type:" + this.constraintType.getName());
         }
         tableProvider.insertData(tableName, data);
-        reset(false);
+        reset();
     }
 
     public void addData(BMap<String, BValue> data) {
@@ -245,7 +245,7 @@ public class BTable implements BRefType<Object>, BCollection {
                         + this.constraintType.getName());
             }
             int deletedCount = 0;
-            while (this.hasNext(false)) {
+            while (this.hasNext()) {
                 BMap<String, BValue> data = this.getNext();
                 BValue[] args = { data };
                 BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value(), args);
@@ -255,7 +255,7 @@ public class BTable implements BRefType<Object>, BCollection {
                 }
             }
             context.setReturnValues(new BInteger(deletedCount));
-            reset(false);
+            reset();
         } catch (Throwable e) {
             context.setReturnValues(TableUtils.createTableOperationError(context, e));
         }
@@ -324,7 +324,7 @@ public class BTable implements BRefType<Object>, BCollection {
     @Override
     protected void finalize() {
         if (this.iterator != null) {
-            this.iterator.close(false);
+            this.iterator.close();
         }
         tableProvider.dropTable(this.tableName);
     }
@@ -334,6 +334,17 @@ public class BTable implements BRefType<Object>, BCollection {
         for (int i = 0; i < count; i++) {
             addData((BMap<String, BValue>) data.get(i));
         }
+    }
+
+    /**
+     * Returns a flag indicating whether this table is an in-memory one.
+     * TODO: This is a hack to get the table to JSON conversion works
+     * with in-memory tables. Fix this ASAP. Issue: #10615
+     *
+     * @return Flag indicating whether this table is an in-memory one.
+     */
+    public boolean isInMemoryTable() {
+        return true;
     }
 
     /**
@@ -361,7 +372,7 @@ public class BTable implements BRefType<Object>, BCollection {
 
         @Override
         public boolean hasNext() {
-            return table.hasNext(false);
+            return table.hasNext();
         }
     }
 }

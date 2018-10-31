@@ -28,12 +28,12 @@ public type APIListener object {
         secureListener = new;
     }
 
-    # Gets called when the endpoint is being initialize during package init time.
+    # Gets called when the endpoint is being initialize during module init time.
     #
     # + c - The `SecureEndpointConfiguration` of the endpoint
     public function init(SecureEndpointConfiguration c);
 
-    # Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
+    # Gets called every time a service attaches itself to this endpoint. Also happens at module initialization.
     #
     # + serviceType - The type of the service to be registered
     public function register(typedesc serviceType);
@@ -85,10 +85,10 @@ public type APIListenerActions object {
 
     # Sends the outbound response to the caller.
     #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public function respond(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
+    public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
         return httpCallerActions.respond(message);
     }
 

@@ -121,7 +121,7 @@ function appendAllTo(any[] toArr, any[] fromArr) {
     int i = lengthof toArr;
     foreach bI in fromArr{
         toArr[i] = bI;
-        i++;
+        i += 1;
     }
 }
 

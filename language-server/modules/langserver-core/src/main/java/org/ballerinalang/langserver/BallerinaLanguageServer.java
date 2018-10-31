@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
@@ -56,6 +57,7 @@ import java.util.concurrent.CompletableFuture;
  * Language server implementation for Ballerina.
  */
 public class BallerinaLanguageServer implements ExtendedLanguageServer, LanguageClientAware {
+    private LSIndexImpl lsIndex = null;
     private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
@@ -72,23 +74,26 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     }
 
     public BallerinaLanguageServer(WorkspaceDocumentManager documentManager) {
-        // TODO: Revisit the API for using the global completion context
+        this.lsIndex = initLSIndex();
+
         LSGlobalContext lsGlobalContext = new LSGlobalContext();
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
+        lsGlobalContext.put(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY, new DiagnosticsHelper());
+        lsGlobalContext.put(LSGlobalContextKeys.LS_INDEX_KEY, this.lsIndex);
+
         this.textService = new BallerinaTextDocumentService(lsGlobalContext);
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
-        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext); 
-        ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
-        ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
-        ballerinaTraceListener = new Listener(ballerinaTraceService);
-        ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
-        ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
-       
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
+        this.ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
+        this.ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
+        this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
+        this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
+        this.ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
+
         LSAnnotationCache.initiate();
-        initLSIndex();
     }
-    
+
     public LanguageClient getClient() {
         return this.client;
     }
@@ -97,12 +102,13 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final List<String> commandList = new ArrayList<>(Arrays.asList(
-                CommandConstants.CMD_IMPORT_PACKAGE,
+                CommandConstants.CMD_IMPORT_MODULE,
                 CommandConstants.CMD_ADD_DOCUMENTATION,
                 CommandConstants.CMD_ADD_ALL_DOC,
                 CommandConstants.CMD_CREATE_FUNCTION,
                 CommandConstants.CMD_CREATE_VARIABLE,
-                CommandConstants.CMD_CREATE_CONSTRUCTOR));
+                CommandConstants.CMD_CREATE_CONSTRUCTOR,
+                CommandConstants.CMD_PULL_MODULE));
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
@@ -142,7 +148,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     public CompletableFuture<Object> shutdown() {
         shutdown = 0;
         ballerinaTraceListener.stopListener();
-        LSIndexImpl.getInstance().closeConnection();
+        lsIndex.closeConnection();
         return CompletableFuture.supplyAsync(Object::new);
     }
 
@@ -187,10 +193,10 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
 
     // Private Methods
 
-    private void initLSIndex() {
-        String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/resources/composer/lang-server-index.sql")
-                .toString();
-        LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
+    private LSIndexImpl initLSIndex() {
+        String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/tools/lang-server/resources/" +
+                "lang-server-index.sql").toString();
+        return new LSIndexImpl(indexDumpPath);
     }
 
 }

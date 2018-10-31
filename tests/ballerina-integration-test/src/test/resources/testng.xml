@@ -93,6 +93,8 @@
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
+            <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
+            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
         </classes>
     </test>
 
@@ -150,6 +152,7 @@
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
         </classes>
     </test>
 
@@ -169,10 +172,11 @@
             <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ByteArrayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
         </classes>
     </test>
@@ -204,13 +208,15 @@
 
     <test name="ballerina-websub-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.websub.WebSubAutoIntentVerificationTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
+            <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
+                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
+                @BeforeClass in test classes which have @BeforeClass -->
+            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubCoreFunctionalityTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubSubscriptionChangeTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
         </classes>
     </test>
 

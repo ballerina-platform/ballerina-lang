@@ -46,7 +46,8 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "readInt32",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableDataChannel",
+                structPackage = "ballerina/io"),
         isPublic = true
 )
 public class ReadInt32 implements NativeCallableUnit {

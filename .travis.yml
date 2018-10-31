@@ -19,11 +19,19 @@ sudo: required
 services:
   - docker
 
+before_install:
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then
+      export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
+      sh -e /etc/init.d/xvfb start;
+      sleep 3;
+    fi
+
 install:
   - . $HOME/.nvm/nvm.sh
   - nvm install 8.9.0
   - nvm use 8.9.0
-  - mvn install -B -V -pl '!tool-plugins/vscode'
+  - npm install -g npm@'5.6.0'
+  - mvn install -B -V -Dvscode.test.skip=true
 
 script: echo "Done"
 

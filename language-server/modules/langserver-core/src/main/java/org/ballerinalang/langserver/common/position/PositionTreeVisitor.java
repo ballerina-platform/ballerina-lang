@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -108,7 +109,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public PositionTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        this.fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
+        this.fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         this.symTable = SymbolTable.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
         this.position.setLine(this.position.getLine() + 1);
         this.nodeStack = new Stack<>();
@@ -902,6 +903,17 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         acceptNode(scopeNode.compensationFunction);
+    }
+
+    @Override
+    public void visit(BLangCompoundAssignment assignment) {
+        setPreviousNode(assignment);
+
+        if (assignment.varRef != null) {
+            acceptNode(assignment.varRef);
+        }
+
+        acceptNode(assignment.expr);
     }
 
     /**

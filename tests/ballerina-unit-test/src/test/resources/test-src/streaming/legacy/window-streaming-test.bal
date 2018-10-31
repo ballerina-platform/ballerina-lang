@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type StatusCount record {
     string status;
@@ -43,7 +42,9 @@ function testWindowQuery() {
         select status, count(status) as totalCount
         group by status
         => (StatusCount[] emp) {
-            statusCountStream1.publish(emp);
+            foreach e in emp {
+                statusCountStream1.publish(e);
+            }
         }
     }
 }

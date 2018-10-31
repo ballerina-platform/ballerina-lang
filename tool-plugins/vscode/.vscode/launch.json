@@ -13,9 +13,10 @@
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
         "env": {
+            "LS_CUSTOM_CLASSPATH": "", 
             "LSDEBUG": "false",
-            "DIAGRAM_DEBUG": "false",
-            "DIAGRAM_DEV_HOST": "http://localhost:8081"
+            "COMPOSER_DEBUG": "false",
+            "COMPOSER_DEV_HOST": "http://localhost:9000"
         },
         "outFiles": [
             "${workspaceFolder}/out/**/*.js"
@@ -29,7 +30,7 @@
         "runtimeExecutable": "${execPath}",
         "env": {
             "LSDEBUG": "false",
-            "DIAGRAM_DEBUG": "false"
+            "COMPOSER_DEBUG": "false"
         },
         "args": [
             "--extensionDevelopmentPath=${workspaceFolder}",
@@ -45,9 +46,9 @@
         "request": "launch",
         "name": "Server",
         "cwd": "${workspaceFolder}",
-        "program": "${workspaceFolder}/src/debugger/index.ts",
+        "program": "${workspaceFolder}/src/debugger/start.ts",
         "args": [ "--server=4711" ],
-        "outFiles": [ "${workspaceFolder}/out/debugger/**/*.js" ]
+        "outFiles": [ "${workspaceFolder}/out/src/debugger/**/*.js" ],
     },
     ]
 }

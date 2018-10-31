@@ -23,6 +23,8 @@ import org.ballerinalang.model.util.serializer.BValueTree;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -35,7 +37,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 
 import static org.ballerinalang.model.util.serializer.JsonSerializerConst.VALUE_TAG;
 
@@ -138,5 +142,38 @@ public class SerializationBValueProviderTest {
         String serialize = serializer.serialize(new BString(null));
         BString deserialize = serializer.deserialize(serialize, BString.class);
         Assert.assertNull(deserialize.stringValue());
+    }
+
+    @Test(description = "test BFloat serialization")
+    public void testBFloatValueProvider() {
+        BFloat bFloat = new BFloat(1.023456789);
+        JsonSerializer serializer = new JsonSerializer();
+        String json = serializer.serialize(bFloat);
+        BFloat deserialize = serializer.deserialize(json, BFloat.class);
+        Assert.assertEquals(bFloat, deserialize);
+    }
+
+    @Test(description = "test HashSet serialization")
+    public void testHashSetValueProvider() {
+        HashSet<String> hashSet = new HashSet<>(Arrays.asList("abcdef1234", "ghijkl7890"));
+        JsonSerializer serializer = new JsonSerializer();
+        String json = serializer.serialize(hashSet);
+        HashSet deserialize = serializer.deserialize(json, HashSet.class);
+        Assert.assertEquals(deserialize, hashSet);
+    }
+
+    @Test(description = "test HashSet serialization")
+    public void testBIntArray() {
+        BIntArray bIntArray = new BIntArray(5);
+        bIntArray.add(0, 1);
+        bIntArray.add(1, 1);
+
+        JsonSerializer serializer = new JsonSerializer();
+        String json = serializer.serialize(bIntArray);
+        BIntArray deserializedArray = serializer.deserialize(json, BIntArray.class);
+
+        Assert.assertEquals(deserializedArray.get(0), 1);
+        Assert.assertEquals(deserializedArray.get(1), 1);
+        Assert.assertEquals(deserializedArray.size(), 5);
     }
 }
