@@ -655,8 +655,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
-        // Todo - Update condition? (might match to map, json literals)
-        // This error will be handled in the semantic analyzer.
+        // Note - This is checked and error is logged in semantic analyzer.
         if (expression.getKind() != NodeKind.LITERAL) {
             return;
         }
@@ -664,21 +663,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, null,
                 env.scope.owner);
-        constantSymbol.actualType = constant.type;
-
         constantSymbol.value = (BLangLiteral) constant.value;
-        //        constantSymbol.valueTypeTag = ((BLangLiteral) constant.value).typeTag;
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-
         // Note - constant.typeNode.type will be resolved in the semantic analyzer since we might not be able to
         // resolve the type properly at this point.
 
-        // Add it to the enclosing scope.
+        // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
             constantSymbol.type = symTable.errType;
         }
-        Scope enclScope = env.scope;
-        enclScope.define(constantSymbol.name, constantSymbol);
+        env.scope.define(constantSymbol.name, constantSymbol);
         constant.symbol = constantSymbol;
     }
 

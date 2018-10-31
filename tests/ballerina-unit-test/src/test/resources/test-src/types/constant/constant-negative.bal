@@ -42,3 +42,14 @@ const def = "def";
 function test() {
     string def = "def";
 }
+
+type ACTION "GET";
+
+type XYZ "XYZ";
+
+const XYZ xyz = "XYZ";
+
+function testInvalidTypes() returns ACTION {
+    ACTION action = xyz;
+    return action;
+}

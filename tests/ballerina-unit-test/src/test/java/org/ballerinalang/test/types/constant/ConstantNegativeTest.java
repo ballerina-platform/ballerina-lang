@@ -31,20 +31,21 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 12);
         String expectedErrMsg1 = "only simple literals can be assigned to a constant";
         String expectedErrMsg2 = "cannot assign a value to a constant";
         int index = 0;
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 2, 21);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 3, 29);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 6, 13);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 7, 21);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 13, 5);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 14, 5);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 19, 9);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 26, 21);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 28, 18);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 32, 1);
-        BAssertUtil.validateError(compileResult, index, "redeclared symbol 'def'", 37, 5);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 3, 21);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 4, 29);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 8, 13);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 9, 21);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 16, 5);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 17, 5);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 23, 9);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 30, 21);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 32, 18);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 37, 1);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", 43, 5);
+        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'GET', found 'XYZ'", 53, 21);
     }
 }

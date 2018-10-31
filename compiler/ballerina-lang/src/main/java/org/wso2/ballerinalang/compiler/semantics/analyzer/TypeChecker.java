@@ -556,32 +556,45 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
                 if ((expType.tag & TypeTags.FINITE) == TypeTags.FINITE) {
+                    // We need to check whether the value of the constant symbol can be assigned to the expected type.
+                    // Eg -
+                    //
+                    // type ACTION "GET";
+                    // const ACTION GET = "GET";
+                    //
+                    // type ABC "ABC";
+                    // const ABC abc = "ABC";
+                    //
+                    // function test() returns ACTION {
+                    //     ACTION action = abc; // Cannot assign.
+                    //     return action;
+                    // }
                     if (types.isAssignableToFiniteType(expType, ((BConstantSymbol) symbol).value)) {
-                        // If the actual type is not available, resultType should be the type of the value to avoid
-                        // accessing invalid registry locations. We need to set the implicit cast so it would get
-                        // added to the relevant registry.
+                        // Even if the value is assignable, the type node can be empty. So in such cases, we need to
+                        // set the implicit cast. Eg -
                         //
-                        // Eg - type Name "Ballerina";
-                        //      const name = "Ballerina";
-                        //      Name n = name;
+                        // const constActionWithoutType = "GET";
                         //
-                        // When we visit the `name` expression in the last line, we need to set the resultType as
-                        // `string` because the value is in the string registry. But it is assigned to a `n`
-                        // variable where it will read the value from ref registry here so it would get copied to the
-                        // ref registry properly.
-                        //
-                        // Eg - Name n = <Name>name;
-                        if (((BConstantSymbol) symbol).actualType == null) {
+                        // function test() returns ACTION {
+                        //    ACTION action = constActionWithoutType; // Need to set the implicit cast here.
+                        //    return action;
+                        // }
+                        if (((BConstantSymbol) symbol).actualType != null) {
+                            // Set the actual type as the result type.
+                            resultType = ((BConstantSymbol) symbol).actualType;
+                        } else {
+                            // Set the implicit cast.
                             types.setImplicitCastExpr(varRefExpr, ((BConstantSymbol) symbol).value.type, expType);
+                            // Then we need to set the result type as the type of the value so it would get stored in
+                            // the proper registry. The implicit cast will move it among registry if necessary.
                             resultType = ((BConstantSymbol) symbol).value.type;
-                            return;
                         }
-                        // Otherwise set the actual type as the result type.
-                        resultType = ((BConstantSymbol) symbol).actualType;
                         return;
+                    } else {
+                        // If we cannot assign the value of the symbol to the expected type, need to log an error.
+                        dlog.error(varRefExpr.pos, diagCode, expType, ((BConstantSymbol) symbol).actualType);
                     }
                 } else {
-                    // Todo - Need to be the original type
                     BType type = ((BConstantSymbol) symbol).actualType;
                     // If the type is null, this means that the constant was defined without a type node. In such
                     // cases, set the type of the value as the actual type.

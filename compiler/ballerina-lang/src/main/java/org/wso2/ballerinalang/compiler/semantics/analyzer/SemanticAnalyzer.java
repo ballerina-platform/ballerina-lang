@@ -1506,7 +1506,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-
         BLangExpression expression = (BLangExpression) constant.value;
         if (expression.getKind() != NodeKind.LITERAL) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
@@ -1514,47 +1513,46 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BLangLiteral value = (BLangLiteral) constant.value;
-        // Check the value to set the type to it.
 
         BLangType typeNode = constant.typeNode;
-        if (typeNode != null) {
-            // Resolve the type node and update the type of the type node.
-            typeNode.type = symResolver.resolveTypeNode(typeNode, env);
-
-            // Set the actual type. This is needed later.
-            constant.symbol.actualType = typeNode.type;
-
-            // Check type of the value.
-            BType type = typeChecker.checkExpr(value, env, typeNode.type);
-            if (type == symTable.errType) {
-                return;
-            }
-            // If the constant's type node's type is a finite type, we need to check whether the literal value is
-            // assignable to it.
-            //
-            // Eg - type ABC "Ballerina";
-            //      const ABC name = "Ballerina";
-            //
-            // Otherwise we directly check whether it can be assigned.
-            if (typeNode.type.tag == TypeTags.FINITE) {
-                // Need to check this separately. Otherwise the next else-if will be invoked.
-                if (!types.isAssignableToFiniteType(typeNode.type, value)) {
-                    dlog.error(constant.pos, DiagnosticCode.INCOMPATIBLE_TYPES, typeNode.type, value.type);
-                    return;
-                }
-            } else if (!types.isAssignable(value.type, typeNode.type)) {
-                dlog.error(constant.pos, DiagnosticCode.INCOMPATIBLE_TYPES, typeNode.type, value.type);
-                return;
-            }
-
-            // Todo - Revisit the logic
-            // Update the symbol's value type tag. This is done because we need to support decimal type.
-            constant.symbol.value.typeTag = typeNode.type.tag;
-        } else {
-            // Todo - What should be the expected type?
-            // We don't have any expected type in this case.
+        if (typeNode == null) {
+            // We don't have any expected type in this case since there isn't a type node.
             typeChecker.checkExpr(value, env);
+            return;
         }
+        // Resolve the type node and update the type of the type node.
+        typeNode.type = symResolver.resolveTypeNode(typeNode, env);
+
+        // Set the actual type. This is needed later.
+        constant.symbol.actualType = typeNode.type;
+
+        // Check type of the value. This is to identify invalid assignments to types.
+        // Eg - type ABC "Ballerina";
+        //      const ABC name = "Bal";
+        typeChecker.checkExpr(value, env, typeNode.type);
+        //            // If the constant's type node's type is a finite type, we need to check whether the literal
+        // value is
+        //            // assignable to it.
+        //            //
+        //            // Eg - type ABC "Ballerina";
+        //            //      const ABC name = "Ballerina";
+        //            //
+        //            // Otherwise we directly check whether it can be assigned.
+        //            if (typeNode.type.tag == TypeTags.FINITE) {
+        ////                // Need to check this separately. Otherwise the next else-if will be invoked.
+        ////                if (!types.isAssignableToFiniteType(typeNode.type, value)) {
+        ////                    dlog.error(constant.pos, DiagnosticCode.INCOMPATIBLE_TYPES, typeNode.type, value.type);
+        ////                    return;
+        ////                }
+        //            } else if (!types.isAssignable(value.type, typeNode.type)) {
+        //                dlog.error(constant.pos, DiagnosticCode.INCOMPATIBLE_TYPES, typeNode.type, value.type);
+        //                return;
+        //            }
+
+        // Todo - Revisit the logic
+        // Update the symbol's value type tag. This is done because we need to support decimal type.
+        //        constant.symbol.value.typeTag = typeNode.type.tag;
+
     }
 
     // Private methods
