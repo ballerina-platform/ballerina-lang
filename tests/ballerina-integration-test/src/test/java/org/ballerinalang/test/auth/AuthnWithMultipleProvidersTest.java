@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Test cases for service level authentication with multiple authentication providers chained together.
  *
- * @since 0.982.1
+ * @since 0.983.0
  */
 @Test(groups = "auth-test")
 public class AuthnWithMultipleProvidersTest extends AuthBaseTest {

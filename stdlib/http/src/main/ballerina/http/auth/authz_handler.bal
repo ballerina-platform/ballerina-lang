@@ -69,6 +69,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
     string authzCacheKey = runtime:getInvocationContext().userPrincipal.userId +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
     string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
+    //TODO: Make sure userPrincipal.scopes array is sorted to prevent cache-misses that could happen due to ordering
     if (lengthof authCtxtScopes > 0) {
         authzCacheKey += "-";
         foreach authCtxtScope in authCtxtScopes {
