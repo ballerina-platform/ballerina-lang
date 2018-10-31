@@ -475,12 +475,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
 
-        // Check whether this return statement is in resource
-        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
-            this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_STMT_NOT_VALID_IN_RESOURCE);
-            return;
-        }
-
         if (this.inForkJoin() && this.inWorker()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
             return;
