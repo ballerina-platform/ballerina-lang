@@ -441,6 +441,8 @@ public class Desugar extends BLangNodeVisitor {
         // Add object level variables to the init function.
         Map<BSymbol, BLangStatement> initFunctionStmts = objectTypeNode.initFunction.initFunctionStmts;
         objectTypeNode.fields.stream()
+                // skip if the field is already have an value set by the constructor.
+                .filter(field -> !initFunctionStmts.containsKey(field.symbol))
                 .map(field -> {
                     // If the rhs value is not given in-line inside the struct
                     // then get the default value literal for that particular struct.
@@ -451,9 +453,7 @@ public class Desugar extends BLangNodeVisitor {
                 })
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    if (!initFunctionStmts.containsKey(field.symbol)) {
-                        initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
-                    }
+                    initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
                 });
 
         // Adding init statements to the init function.
@@ -470,6 +470,10 @@ public class Desugar extends BLangNodeVisitor {
         int maskOptional = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
         // Add struct level variables to the init function.
         recordTypeNode.fields.stream()
+                // Only add a field if it is required. Checking if it's required is enough since non-defaultable
+                // required fields will have been caught in the type checking phase.
+                .filter(field -> !recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
+                            !Symbols.isFlagOn(field.symbol.flags, maskOptional))
                 .map(field -> {
                     // If the rhs value is not given in-line inside the struct
                     // then get the default value literal for that particular struct.
@@ -480,13 +484,8 @@ public class Desugar extends BLangNodeVisitor {
                 })
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    // Only add a field if it is required. Checking if it's required is enough since non-defaultable
-                    // required fields will have been caught in the type checking phase.
-                    if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
-                            !Symbols.isFlagOn(field.symbol.flags, maskOptional)) {
-                        recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
-                                                                          (BLangStatement) createAssignmentStmt(field));
-                    }
+                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
+                            createAssignmentStmt(field));
                 });
 
         //Adding init statements to the init function.

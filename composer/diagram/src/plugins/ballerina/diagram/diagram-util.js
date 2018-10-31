@@ -86,8 +86,6 @@ function getComponentForNodeArray(nodeArray, mode = 'default') {
 
     return nodeArray.filter((child) => {
         const compName = child.constructor.name;
-        console.log('____')
-        console.log(compName, components.default);
         if (components.default[compName]) {
             return true;
         }

@@ -1,4 +1,4 @@
-import ballerina/jdbc;
+import ballerina/h2;
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/sql;
@@ -8,9 +8,11 @@ type ResultCount record {
 };
 
 function testLocalTransacton() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -36,9 +38,11 @@ function testLocalTransacton() returns (int, int) {
 }
 
 function testTransactonRollback() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -67,9 +71,11 @@ function testTransactonRollback() returns (int, int) {
 }
 
 function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -95,9 +101,11 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
 }
 
 function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -125,9 +133,11 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
 }
 
 function testLocalTransactionStoredProcedure() returns (int, int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -152,9 +162,11 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
 }
 
 function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 3 }
     };
 
@@ -194,9 +206,11 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
 }
 
 function testLocalTransactionBatchUpdate() returns (int, int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -239,9 +253,11 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
 }
 
 function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -284,9 +300,11 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
 }
 
 function testTransactonAbort() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -318,9 +336,11 @@ function testTransactonAbort() returns (int, int) {
 }
 
 function testTransactonErrorThrow() returns (int, int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -354,9 +374,11 @@ function testTransactonErrorThrow() returns (int, int, int) {
 }
 
 function testTransactionErrorThrowAndCatch() returns (int, int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -390,9 +412,11 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
 }
 
 function testTransactonCommitted() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -418,9 +442,11 @@ function testTransactonCommitted() returns (int, int) {
 }
 
 function testTwoTransactons() returns (int, int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -456,9 +482,11 @@ function testTwoTransactons() returns (int, int, int) {
 }
 
 function testTransactonWithoutHandlers() returns (int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -482,9 +510,11 @@ function testTransactonWithoutHandlers() returns (int) {
 }
 
 function testLocalTransactionFailed() returns (string, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -517,9 +547,11 @@ function testLocalTransactionFailed() returns (string, int) {
 }
 
 function testLocalTransactonSuccessWithFailed() returns (string, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -557,15 +589,19 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
 }
 
 function testLocalTransactonFailedWithNextupdate() returns (int) {
-    endpoint jdbc:Client  testDB1 {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB1 {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    endpoint jdbc:Client  testDB2 {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB2 {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -594,9 +630,11 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
 }
 
 function testNestedTwoLevelTransactonSuccess() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -624,9 +662,11 @@ function testNestedTwoLevelTransactonSuccess() returns (int, int) {
 }
 
 function testNestedThreeLevelTransactonSuccess() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -658,9 +698,11 @@ function testNestedThreeLevelTransactonSuccess() returns (int, int) {
 }
 
 function testNestedThreeLevelTransactonFailed() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -696,9 +738,11 @@ function testNestedThreeLevelTransactonFailed() returns (int, int) {
 }
 
 function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, int, string) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -750,9 +794,11 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
 }
 
 function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 5 }
     };
 
@@ -783,10 +829,12 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
 }
 
 function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        poolOptions: { maximumPoolSize: 1 }
+        password: "",
+        poolOptions: { maximumPoolSize: 5 }
     };
 
     _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -818,14 +866,16 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
 }
 
 function testCloseConnectionPool() returns (int) {
-    endpoint jdbc:Client  testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+    endpoint h2:Client testDB {
+        path: "./target/tempdb/",
+        name: "TEST_SQL_CONNECTOR_TR",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
     int count;
-    table dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
+    table dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
