@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -39,7 +42,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -336,21 +338,69 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     @Override
     public void seal(BType type) {
-        for (Object mapEntry : (this).values()) {
-            if (type.getTag() == TypeTags.MAP_TAG) {
-                ((BValue) mapEntry).seal(((BMapType) type).getConstrainedType());
-            } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG || type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                List<String> fieldNameList = new ArrayList<>();
 
-                for (BField field : ((BStructureType) type).getFields()) {
-                    fieldNameList.add(field.fieldName);
+        if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
+            this.seal(((BJSONType) type).getConstrainedType());
+        } else if (type.getTag() == TypeTags.MAP_TAG) {
+            for (Object mapEntry : (this).values()) {
+                ((BValue) mapEntry).seal(((BMapType) type).getConstrainedType());
+            }
+        } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            Map<String, BType> fieldMap = new HashMap<>();
+            BType restFieldType = ((BRecordType) type).restFieldType;
+
+            for (BField field : ((BStructureType) type).getFields()) {
+                fieldMap.put(field.getFieldName(), field.fieldType);
+            }
+
+
+            for (Map.Entry valueEntry : this.getMap().entrySet()) {
+                String fieldName = valueEntry.getKey().toString();
+
+                if (fieldMap.containsKey(fieldName)) {
+                    if (!CPU.isAssignable(((BValue) valueEntry.getValue()).getType(), fieldMap.get(fieldName),
+                            new ArrayList<>())) {
+                        throw new BallerinaException("Seal failed due to invalid value assignment. Type " +
+                                fieldMap.get(fieldName) + " cannot assigned to type " +
+                                ((BValue) valueEntry.getValue()).getType());
+                    }
+
+                } else {
+                    if (!((BRecordType) type).sealed) {
+                        if (restFieldType.getTag() == TypeTags.ANY_TAG) {
+                            ((BValueType) valueEntry.getValue()).setType(BTypes.typeAny);
+                        } else if (((BValue) valueEntry.getValue()).getType().getTag() != restFieldType.getTag()) {
+                            throw new BallerinaException("Seal failed due to closed record type. Field " +
+                                    fieldName + " does not belongs to the rest field type " + restFieldType);
+                        }
+                    } else {
+                        throw new BallerinaException("Seal failed due to closed record type. Field " +
+                                fieldName + " does not exist in Record type " + type.getName());
+                    }
                 }
 
-                for (Map.Entry valueEntry : this.getMap().entrySet()) {
-                    String fieldName = valueEntry.getKey().toString();
-                    if (!fieldNameList.contains(fieldName)) {
-                        ((BValueType) valueEntry.getValue()).setType(BTypes.typeAny);
+            }
+
+        } else if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            Map<String, BType> fieldMap = new HashMap<>();
+
+            for (BField field : ((BStructureType) type).getFields()) {
+                fieldMap.put(field.getFieldName(), field.fieldType);
+            }
+
+            for (Map.Entry valueEntry : this.getMap().entrySet()) {
+                String fieldName = valueEntry.getKey().toString();
+
+                if (fieldMap.containsKey(fieldName)) {
+                    if (!CPU.isAssignable(((BValue) valueEntry.getValue()).getType(), fieldMap.get(fieldName),
+                            new ArrayList<>())) {
+                        throw new BallerinaException("Seal failed due to invalid value assignment. Type " +
+                                fieldMap.get(fieldName) + " cannot assigned to type " +
+                                ((BValue) valueEntry.getValue()).getType());
                     }
+
+                } else {
+                    ((BValueType) valueEntry.getValue()).setType(BTypes.typeAny);
                 }
             }
         }

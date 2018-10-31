@@ -3331,7 +3331,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean safeNavigate(BLangAccessExpression accessExpr) {
-        if (accessExpr.lhsVar || accessExpr.expr == null) {
+        if (accessExpr.lhsVar || accessExpr.expr == null || ((BLangInvocation) accessExpr).builtinMethodInvocation) {
             return false;
         }
 

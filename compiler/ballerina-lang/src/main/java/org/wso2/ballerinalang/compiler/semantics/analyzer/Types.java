@@ -240,6 +240,16 @@ public class Types {
         return isAssignable(source, target, new ArrayList<>());
     }
 
+    boolean isSealable(BType source, BType target) {
+        if (target.tag == TypeTags.JSON) {
+            if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
         if (isSameType(source, target)) {
             return true;
@@ -1391,7 +1401,7 @@ public class Types {
      * i.e: A variable of the given type can be initialized without a rhs expression.
      * eg: foo x;
      *
-     * @param pos position of the variable.
+     * @param pos  position of the variable.
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */
@@ -1845,7 +1855,7 @@ public class Types {
 
     /**
      * Type vector of size two, to hold the source and the target types.
-     * 
+     *
      * @since 0.982.0
      */
     private static class TypePair {

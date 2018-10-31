@@ -1,5 +1,13 @@
 import ballerina/io;
 
+type Student record {
+    string name;
+    string status;
+    string batch;
+    string school;
+    !...
+};
+
 type Employee record {
     string name;
     string status;
@@ -167,7 +175,8 @@ function sealAnyToRecordArray() returns Teacher[] {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     any[] teacherArray = [p1, p2];
-    teacherArray.seal(Teacher[]);
+    teacherArray.seal
+    (Teacher[]);
 
     return teacherArray;
 }
@@ -178,7 +187,8 @@ function sealAnyToSimilarOpenRecordArray() returns Employee[] {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     any[] teacherArray = [p1, p2];
-    teacherArray.seal(Employee[]);
+    teacherArray.seal
+    (Employee[]);
 
     return teacherArray;
 }
@@ -189,8 +199,82 @@ function sealRecordToSimilarOpenRecordArray() returns Employee[] {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     Teacher[] teacherArray = [p1, p2];
-    teacherArray.seal(Employee[]);
+    teacherArray.seal
+    (Employee[]);
 
     return teacherArray;
+}
+
+function sealJSONToAny() returns any {
+
+    json jsonValue = 3;
+    jsonValue.seal(any);
+
+    return jsonValue;
+}
+
+
+function sealAnyToJSON() returns json {
+
+    any anyValue = 3;
+    anyValue.seal(json);
+
+    return anyValue;
+}
+
+function sealJSONToAnyV2() returns any {
+
+    json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
+    jsonValue.seal(any);
+
+    return jsonValue;
+}
+
+function sealJSONToRecord() returns Employee {
+
+    json employee = { name: "John", status: "single", batch: "LK2014" };
+    employee.seal(Employee);
+
+    return employee;
+}
+
+function sealJSONToRecordV2() returns Employee {
+
+    json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    employee.seal(Employee);
+
+    return employee;
+}
+
+function sealRecordToJSON() returns json {
+
+    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    employee.seal(json);
+
+    return employee;
+}
+
+function sealConstraintJSONToAny() returns any {
+
+    json<Student> student = { name: "Jon" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    student.seal(any);
+
+    return student;
+}
+
+function sealConstraintJSONToConstraintJSON() returns json<Person> {
+
+    json<Student> student = { name: "Jon" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    student.seal(json<Person>);
+
+    return student;
 }
 

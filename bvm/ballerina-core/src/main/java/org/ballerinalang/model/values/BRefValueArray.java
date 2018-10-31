@@ -94,10 +94,12 @@ public class BRefValueArray extends BNewArray implements Serializable {
 
     @Override
     public void seal(BType type) {
-        BType arrayElementType = ((BArrayType) type).getElementType();
-        BRefType<?>[] arrayValues = this.getValues();
-        for (int i = 0; i < this.size(); i++) {
-            arrayValues[i].seal(arrayElementType);
+        if(type.getTag() != TypeTags.ANY_TAG) {
+            BType arrayElementType = ((BArrayType) type).getElementType();
+            BRefType<?>[] arrayValues = this.getValues();
+            for (int i = 0; i < this.size(); i++) {
+                arrayValues[i].seal(arrayElementType);
+            }
         }
         this.arrayType = type;
     }
