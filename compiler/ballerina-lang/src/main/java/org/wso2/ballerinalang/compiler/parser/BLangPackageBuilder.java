@@ -1188,17 +1188,15 @@ public class BLangPackageBuilder {
     void addKeyValueToWaitCollection(Set<Whitespace> ws, String identifier, boolean containsExpr) {
         BLangAwaitExpr.BLangWaitForAll.BLangWaitKeyValue keyValue = TreeBuilder.createWaitKeyValueNode();
         keyValue.addWS(ws);
-        // Add the key
-        BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        keyExpr.variableName = (BLangIdentifier) createIdentifier(identifier);
-        keyExpr.pkgAlias = (BLangIdentifier) createIdentifier(null);
-        keyValue.key = keyExpr;
+        // Add the key as an identifier
+        BLangIdentifier key = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        key.setLiteral(false);
+        key.setValue(identifier);
+        keyValue.key = key;
         // Add the value. If it is a Identifier:expr pair then add the value by popping the expr from the expression
-        // node stack else add the key as the value.
+        // stack else the value is not assigned.
         if (containsExpr) {
             keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
-        } else {
-            keyValue.valueExpr = keyExpr;
         }
         waitForAllStack.peek().keyValuePairs.add(keyValue);
     }

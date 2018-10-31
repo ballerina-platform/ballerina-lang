@@ -614,7 +614,7 @@ flushWorker
 
 waitExpression
     :   WAIT waitForCollection             #waitForAll
-    |   WAIT expression (PIPE expression)+ #waitForAny
+    |   WAIT expression (PIPE expression)* #waitForAny
     |   WAIT expression                    #waitForOne
     ;
 
