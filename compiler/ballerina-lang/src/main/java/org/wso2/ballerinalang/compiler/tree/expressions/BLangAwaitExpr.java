@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AwaitExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.WaitKeyValueNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -104,11 +105,11 @@ public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNo
          */
         public static class BLangWaitKeyValue extends BLangNode implements WaitKeyValueNode {
 
-            public BLangSimpleVarRef key;
+            public BLangIdentifier key;
             public BLangExpression valueExpr;
 
             @Override
-            public BLangSimpleVarRef getKey() {
+            public BLangIdentifier getKey() {
                 return key;
             }
 
