@@ -1467,17 +1467,20 @@ public class TypeChecker extends BLangNodeVisitor {
         Optional.ofNullable(errorConstructorExpr.detailsExpr).ifPresent(expr -> {
             if (isExpectedErrorType) {
                 checkExpr(expr, env, expectedResultType.detailType);
-            }
-            // Give correct error message.
-            BType givenType = checkExpr(expr, env, symTable.noType);
-            if (givenType.tag != TypeTags.MAP && givenType.tag != TypeTags.RECORD) {
-                dlog.error(expr.pos, DiagnosticCode.REQUIRE_ERROR_MAPPING_VALUE);
+            } else {
+                // Give correct error message.
+                BType givenType = checkExpr(expr, env, symTable.noType);
+                if (givenType.tag != TypeTags.MAP && givenType.tag != TypeTags.RECORD) {
+                    dlog.error(expr.pos, DiagnosticCode.REQUIRE_ERROR_MAPPING_VALUE);
+                } else {
+                    // TODO : improve this for union types.
+                    dlog.error(errorConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType,
+                            expType);
+                }
             }
         });
 
         if (!isExpectedErrorType) {
-            // TODO : improve this for union types.
-            dlog.error(errorConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, expType);
             resultType = symTable.semanticError;
             return;
         }
@@ -1557,6 +1560,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;
         }

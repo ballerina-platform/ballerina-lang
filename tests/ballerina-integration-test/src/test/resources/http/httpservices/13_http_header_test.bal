@@ -26,7 +26,9 @@ service<http:Service> headerService bind headerServiceEP {
             http:Response clientResponse => {
                 _ = conn -> respond(clientResponse);
             }
-            any|() => {}
+            error err => {
+                _ = conn -> respond(err.reason());
+            }
         }
     }
 
@@ -51,7 +53,9 @@ service<http:Service> headerService bind headerServiceEP {
                 res.setJsonPayload(untaint payload);
                 _ = conn -> respond(res);
             }
-            any|() => {}
+            error err => {
+                _ = conn -> respond(err.reason());
+            }
         }
     }
 }
