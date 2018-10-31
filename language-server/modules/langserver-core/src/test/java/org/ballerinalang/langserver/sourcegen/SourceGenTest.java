@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,7 +71,7 @@ public class SourceGenTest {
 
             WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
             byte[] encoded1 = Files.readAllBytes(filePath);
-            String expected = new String(encoded1);
+            String expected = new String(encoded1, StandardCharsets.UTF_8);
             TestUtil.openDocument(serviceEndpoint, filePath);
             LSCompiler lsCompiler = new LSCompiler(documentManager);
             JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
@@ -111,10 +112,9 @@ public class SourceGenTest {
      */
     static class FileVisitor extends SimpleFileVisitor<Path> {
         private List<File> files;
-        private String[] ignoredFiles = {"table_queries.bal", "table.bal", "csv_io.bal",
-                "channels_correlation.bal", "channels_workers.bal", "grpc_bidirectional_streaming_client.bal",
-                "symbolic_string_literal.bal", "table_literal_syntax.bal", "compensate-stmt.bal",
-                "function-with-two-rest-params.bal", "redundant-compression-config.bal",
+        private String[] ignoredFiles = {"grpc_bidirectional_streaming_client.bal", "compensate-stmt.bal",
+                "function-with-two-rest-params.bal", "redundant-compression-config.bal", "symbolic-string-test.bal",
+                "identifier-literal-success.bal", "entity-body-with-charset-test.bal",
                 "taintchecking/annotations/lambda.bal", "high_loc.bal", "test_objects.bal",
                 "lang/annotations/variable-as-attribute-value.bal", "lang/annotations/constant-as-attribute-value.bal",
                 "lang/annotations/multityped-attribute-array.bal", "lang/annotations/default-values.bal",
