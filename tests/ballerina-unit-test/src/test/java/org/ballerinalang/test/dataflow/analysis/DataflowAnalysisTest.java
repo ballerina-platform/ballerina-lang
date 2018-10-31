@@ -20,6 +20,7 @@ package org.ballerinalang.test.dataflow.analysis;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -32,8 +33,8 @@ public class DataflowAnalysisTest {
     @Test
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
-        // Assert.assertEquals(result.getErrorCount(), 1);
         System.out.println(result);
+        Assert.assertEquals(result.getErrorCount(), 41);
         int i = 0;
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 53, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 70, 12);
@@ -41,33 +42,40 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 98, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 113, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 209, 12);
-        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 216, 21);
-        BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 219, 13);
-        BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 222, 9);
-        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 226, 24);
-        BAssertUtil.validateError(result, i++, "variable 'm' may not have been initialized", 238, 20);
-        BAssertUtil.validateError(result, i++, "variable 'm' may not have been initialized", 261, 9);
-        BAssertUtil.validateError(result, i++, "variable 'm' may not have been initialized", 262, 9);
-        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 262, 11);
-        BAssertUtil.validateError(result, i++, "variable 'm' may not have been initialized", 265, 9);
-        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 265, 18);
-        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 266, 21);
-        BAssertUtil.validateError(result, i++, "variable 'x' may not have been initialized", 270, 9);
-        BAssertUtil.validateError(result, i++, "variable 's' may not have been initialized", 270, 12);
-        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 290, 20);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 216, 21);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 219, 13);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 222, 9);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 226, 24);
+        BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 238, 20);
+        BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 261, 9);
+        BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 262, 9);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 262, 11);
+        BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 265, 9);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 265, 18);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 266, 18);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 266, 21);
+        BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 270, 9);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 270, 12);
+        BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 290, 20);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 292, 16);
-        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 305, 12);
-        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 309, 13);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 305, 12);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 309, 13);
         BAssertUtil.validateError(result, i++, "undefined field 'f' in object 'Foo'", 315, 18);
-        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 316, 13);
-        BAssertUtil.validateError(result, i++, "variable 'globalVar' may not have been initialized", 321, 16);
-        BAssertUtil.validateError(result, i++, "variable 'd' may not have been initialized", 338, 16);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 316, 13);
+        BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 321, 16);
+        BAssertUtil.validateError(result, i++, "variable 'd' is not initialized", 338, 16);
         BAssertUtil.validateError(result, i++, "variable 'val' may not have been initialized", 381, 12);
         BAssertUtil.validateError(result, i++, "variable 'val' may not have been initialized", 417, 12);
         BAssertUtil.validateError(result, i++, "variable 'val' may not have been initialized", 465, 12);
-        BAssertUtil.validateError(result, i++, "variable 'x' may not have been initialized", 478, 20);
-        BAssertUtil.validateError(result, i++, "variable 'x' may not have been initialized", 484, 20);
-        BAssertUtil.validateError(result, i++, "variable 'x' may not have been initialized", 493, 20);
-        BAssertUtil.validateError(result, i++, "variable 'x' may not have been initialized", 499, 20)
+        BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 478, 20);
+        BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 484, 20);
+        BAssertUtil.validateError(result, i++, "variable 'yyy' is not initialized", 493, 20);
+        BAssertUtil.validateError(result, i++, "variable 'yyy' is not initialized", 499, 20);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 506, 5);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 525, 13);
+        BAssertUtil.validateError(result, i++, "variable 'b' may not have been initialized", 525, 16);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 506, 5);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 506, 5);
+        BAssertUtil.validateError(result, i++, "variable 'publicGlobalVar_1' is not initialized", 558, 1);
     }
 }

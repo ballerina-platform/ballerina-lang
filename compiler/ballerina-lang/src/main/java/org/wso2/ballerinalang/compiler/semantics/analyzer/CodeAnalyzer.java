@@ -685,6 +685,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 varNode.parent != null && NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
         }
+
+        if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
+            this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+        }
     }
 
     public void visit(BLangIdentifier identifierNode) {

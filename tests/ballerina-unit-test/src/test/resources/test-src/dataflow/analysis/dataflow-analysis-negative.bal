@@ -487,16 +487,73 @@ service<http:Service> echo bind echoEP {
     }
 }
 
-string x;
+string yyy;
 function testWorkers() returns string {
     worker w1 {
-        io:println(x);
-        x = "w1";
-        return x;
+        io:println(yyy);
+        yyy = "w1";
+        return yyy;
     }
 
     worker w2 {
-        io:println(x);
-        x = "w2";
+        io:println(yyy);
+        yyy = "w2";
     }
 }
+
+function testCounpundAssignment() {
+    int a;
+    a += 2;
+}
+
+
+function testUninitVsPartiallyInit() returns (string, string) {
+    string a;
+    string b;
+    if (true) {
+        if (true) {
+            // do nothing
+        } else if (true) {
+            b = "something";            
+        } else {
+            // do nothing
+        }
+    } else {
+        // do nothing
+    }
+
+    return (a, b);
+}
+
+type A object {
+    public int a;
+    private int b;
+    int c;
+
+    new () {
+        a = 1;
+        b = 2;
+        c = 3;
+    }
+};
+
+type B object {
+    public int a;
+    private int b;
+    int c;
+
+    new (a, b, c) {
+    }
+};
+
+type C object {
+    public int a;
+    private int b;
+    int c;
+
+    new () {
+    }
+};
+
+public int publicGlobalVar_1;
+int publicGlobalVar_2;
