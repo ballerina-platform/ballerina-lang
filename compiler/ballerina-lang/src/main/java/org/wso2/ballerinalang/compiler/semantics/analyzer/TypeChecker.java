@@ -567,7 +567,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         //
                         // When we visit the `name` expression in the last line, we need to set the resultType as
                         // `string` because the value is in the string registry. But it is assigned to a `n`
-                        // variable where it will read the value from ref regist here so it would get copied to the
+                        // variable where it will read the value from ref registry here so it would get copied to the
                         // ref registry properly.
                         //
                         // Eg - Name n = <Name>name;

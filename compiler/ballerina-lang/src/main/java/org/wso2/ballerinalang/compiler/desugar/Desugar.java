@@ -1131,7 +1131,18 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
-                genVarRefExpr = new BLangConstantRef((BConstantSymbol) varRefExpr.symbol);
+                //                genVarRefExpr = new BLangConstantRef((BConstantSymbol) varRefExpr.symbol);
+
+                BLangLiteral value = ((BConstantSymbol) varRefExpr.symbol).value;
+
+                if (value.impConversionExpr == null) {
+                    result = addConversionExprIfRequired(value, varRefExpr.type, types, symTable, symResolver);
+                } else {
+
+                    result = rewriteExpr(value);
+//                    result = value;
+                }
+                return;
             } else {
 
                 // Package variable | service variable
@@ -1632,6 +1643,11 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangPackageVarRef packageVarRef) {
         result = packageVarRef;
     }
+
+    //    @Override
+    //    public void visit(BLangConstantRef constant) {
+    //        result = ((BConstantSymbol) constant.symbol).value;
+    //    }
 
     @Override
     public void visit(BLangFunctionVarRef functionVarRef) {
