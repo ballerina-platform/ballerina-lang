@@ -111,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstantRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -1134,13 +1133,14 @@ public class Desugar extends BLangNodeVisitor {
                 //                genVarRefExpr = new BLangConstantRef((BConstantSymbol) varRefExpr.symbol);
 
                 BLangLiteral value = ((BConstantSymbol) varRefExpr.symbol).value;
-
-                if (value.impConversionExpr == null) {
-                    result = addConversionExprIfRequired(value, varRefExpr.type, types, symTable, symResolver);
+                // We need to get a copy of the literal value and set it as the result. Otherwise there will be
+                // issues because registry allocation will be only done one time.
+                BLangLiteral literal = ASTBuilderUtil.createLiteral(value.pos, value.type, value.value);
+                if (literal.impConversionExpr == null) {
+                    result = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type, types, symTable,
+                            symResolver));
                 } else {
-
-                    result = rewriteExpr(value);
-//                    result = value;
+                    result = rewriteExpr(literal);
                 }
                 return;
             } else {
