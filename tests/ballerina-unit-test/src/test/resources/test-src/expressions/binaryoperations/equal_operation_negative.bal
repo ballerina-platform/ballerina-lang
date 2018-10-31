@@ -59,7 +59,11 @@ function checkEqualityOfTuplesOfDifferentTypes() returns boolean {
 function checkEqualityOfRecordsOfIncompatibleTypes() returns boolean {
     Employee e = { name: "Maryam" };
     Person p = { name: "Maryam" };
-    return e == p && !(e != p);
+    boolean b = e == p && !(e != p);
+
+    EmployeeWithOptionalId e1 = { name: "Maryam" };
+    PersonWithOptionalId p1 = { name: "Maryam" };
+    return b && e1 == p1 && !(e1 != p1);
 }
 
 function checkEqualityWithJsonForIncompatibleType() returns boolean {
@@ -67,11 +71,20 @@ function checkEqualityWithJsonForIncompatibleType() returns boolean {
     json j = "Hi 1";
     boolean bool1 = t == j && t != j;
 
-    Employee|(string, int) e = ("Hi", 1);
+    (string, int)[] e = [("Hi", 1)];
     j = "Hi 1";
     boolean bool2 = e == j && e != j;
 
     return bool1 && bool2;
+}
+
+function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
+    json<EmployeeWithOptionalId> a = { name: "Em" };
+    map<boolean> b;
+    boolean equals = a == b && !(b != a);
+
+    ClosedDept c = { code: "FN101" };
+    return equals && b == c && !(c != b) && c == a && !(a != c);
 }
 
 type Employee record {
@@ -81,5 +94,22 @@ type Employee record {
 
 type Person record {
     string name;
-    int area;
+    string id;
+};
+
+type ClosedDept record {
+    string code;
+    !...
+};
+
+type EmployeeWithOptionalId record {
+    string name;
+    float id?;
+    !...
+};
+
+type PersonWithOptionalId record {
+    string name;
+    string id?;
+    !...
 };

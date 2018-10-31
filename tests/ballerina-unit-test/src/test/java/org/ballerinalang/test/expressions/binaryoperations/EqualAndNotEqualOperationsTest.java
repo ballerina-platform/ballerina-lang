@@ -184,6 +184,40 @@ public class EqualAndNotEqualOperationsTest {
                 "equal");
     }
 
+    @Test
+    public void testOpenRecordWithOptionalFieldsEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testOpenRecordWithOptionalFieldsEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as equal");
+    }
+
+    @Test
+    public void testOpenRecordWithOptionalFieldsEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testOpenRecordWithOptionalFieldsEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as not " +
+                "equal");
+    }
+
+    @Test
+    public void testClosedRecordWithOptionalFieldsEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedRecordWithOptionalFieldsEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as equal");
+    }
+
+    @Test
+    public void testClosedRecordWithOptionalFieldsEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedRecordWithOptionalFieldsEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected open records to be identified as not " +
+                "equal");
+    }
+
     @Test(description = "Test equals/unequals operation with two equal closed records")
     public void testClosedRecordsEqualityPositive() {
         BValue[] returns = BRunUtil.invoke(result, "checkClosedRecordEqualityPositive", new BValue[0]);
@@ -738,9 +772,27 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected XMLs to be identified as unequal.");
     }
 
+    @Test
+    public void testJsonRecordMapEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonRecordMapEqualityPositive");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected JSON/record/map values to be identified " +
+                "as equal.");
+    }
+
+    @Test
+    public void testJsonRecordMapEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonRecordMapEqualityNegative");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected JSON/record/map values to be identified" +
+                " as unequal.");
+    }
+
     @Test(description = "Test equal and not equal with errors")
     public void testEqualAndNotEqualNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 20);
+        Assert.assertEquals(resultNegative.getErrorCount(), 28);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '!=' not defined for 'int' and 'string'", 20, 24);
         validateError(resultNegative, 2, "operator '==' not defined for 'int[2]' and 'string[2]'", 26, 21);
@@ -761,14 +813,26 @@ public class EqualAndNotEqualOperationsTest {
                       54, 21);
         validateError(resultNegative, 13, "operator '!=' not defined for '(float|int,int)' and '(boolean,int)'",
                       54, 33);
-        validateError(resultNegative, 14, "operator '==' not defined for 'Employee' and 'Person'", 62, 12);
-        validateError(resultNegative, 15, "operator '!=' not defined for 'Employee' and 'Person'", 62, 24);
-        validateError(resultNegative, 16, "operator '==' not defined for '(string,int)' and 'json'", 68, 21);
-        validateError(resultNegative, 17, "operator '!=' not defined for '(string,int)' and 'json'", 68, 31);
-        validateError(resultNegative, 18, "operator '==' not defined for 'Employee|(string,int)' and 'json'", 72,
-                      21);
-        validateError(resultNegative, 19, "operator '!=' not defined for 'Employee|(string,int)' and 'json'", 72,
-                      31);
+        validateError(resultNegative, 14, "operator '==' not defined for 'Employee' and 'Person'", 62, 17);
+        validateError(resultNegative, 15, "operator '!=' not defined for 'Employee' and 'Person'", 62, 29);
+        validateError(resultNegative, 16, "operator '==' not defined for 'EmployeeWithOptionalId' and " +
+                "'PersonWithOptionalId'", 66, 17);
+        validateError(resultNegative, 17, "operator '!=' not defined for 'EmployeeWithOptionalId' and " +
+                "'PersonWithOptionalId'", 66, 31);
+        validateError(resultNegative, 18, "operator '==' not defined for '(string,int)' and 'json'", 72, 21);
+        validateError(resultNegative, 19, "operator '!=' not defined for '(string,int)' and 'json'", 72, 31);
+        validateError(resultNegative, 20, "operator '==' not defined for '(string,int)[]' and 'json'", 76, 21);
+        validateError(resultNegative, 21, "operator '!=' not defined for '(string,int)[]' and 'json'", 76, 31);
+        validateError(resultNegative, 22, "operator '==' not defined for 'json<EmployeeWithOptionalId>' and " +
+                "'map<boolean>'", 84, 22);
+        validateError(resultNegative, 23, "operator '!=' not defined for 'map<boolean>' and " +
+                "'json<EmployeeWithOptionalId>'", 84, 34);
+        validateError(resultNegative, 24, "operator '==' not defined for 'map<boolean>' and 'ClosedDept'", 87, 22);
+        validateError(resultNegative, 25, "operator '!=' not defined for 'ClosedDept' and 'map<boolean>'", 87, 34);
+        validateError(resultNegative, 26, "operator '==' not defined for 'ClosedDept' and " +
+                "'json<EmployeeWithOptionalId>'", 87, 45);
+        validateError(resultNegative, 27, "operator '!=' not defined for 'json<EmployeeWithOptionalId>' and " +
+                "'ClosedDept'", 87, 57);
     }
 
     @DataProvider(name = "equalIntValues")

@@ -74,32 +74,6 @@ function checkRefEqualityWithJsonForIncompatibleType() returns boolean {
     return bool1 && bool2;
 }
 
-function checkRefEqualityWithJsonForPrimitiveTypes() returns boolean {
-    int i = 1;
-    json j = i;
-    boolean bool1 = i === j;
-
-    string s = "hi";
-    string s1 = s;
-    j = s;
-    bool1 = s === j;
-
-    float f = 1.0;
-    j = f;
-    bool1 = f === j;
-
-    boolean b = true;
-    boolean b1 = b;
-    j = b;
-    bool1 = b === j;
-
-    () n = ();
-    j = n;
-    bool1 = n === j;
-
-    return bool1;
-}
-
 function checkRefEqualityOfObjectsOfIncompatibleTypes() returns boolean {
     Abc a = new("abc", 12);
     Def d = new("abc", 12);

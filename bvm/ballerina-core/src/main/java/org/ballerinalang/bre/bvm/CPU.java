@@ -4028,6 +4028,10 @@ public class CPU {
             return bInteger.intValue() == bByte.intValue();
         }
 
+        if (isMappingType(lhsValTypeTag) && isMappingType(rhsValTypeTag)) {
+            return isEqual((BMap) lhsValue, (BMap) rhsValue);
+        }
+
         if (lhsValTypeTag != rhsValTypeTag) {
             return false;
         }
@@ -4053,6 +4057,12 @@ public class CPU {
                 return isEqual((BMap) lhsValue, (BMap) rhsValue);
         }
         return false;
+    }
+
+    private static boolean isMappingType(int lhsValTypeTag) {
+        return lhsValTypeTag == TypeTags.MAP_TAG ||
+                     lhsValTypeTag == TypeTags.RECORD_TYPE_TAG ||
+                     lhsValTypeTag == TypeTags.JSON_TAG;
     }
 
     /**

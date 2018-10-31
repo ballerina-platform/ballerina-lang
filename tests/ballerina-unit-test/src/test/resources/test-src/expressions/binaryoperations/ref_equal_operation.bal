@@ -275,32 +275,9 @@ function testIntByteRefEqualityPositive() returns boolean {
 }
 
 function testIntByteEqualityNegative() returns boolean {
-    int[] a;
-    byte[] b;
-
-    boolean equals = a === b;
-
-    int[] c = [2, 1];
-    byte[] d = [2, 1];
-
-    equals = equals || (c === d);
-
-    byte[][] e = [[23, 45], [123, 43, 68]];
-    (int|float)[][] f = [[23, 45], [123, 43, 68]];
-
-    equals = equals || (e === f);
-
-    map<(byte, boolean)> g;
-    map<(int, boolean)> h;
-
-    g.one = (10, true);
-    g.two = (1, false);
-    h.one = (10, true);
-    h.two = (1, false);
-
-    equals = equals || (g === h);
-
-    return equals && (g == h) && !(g != h);
+    byte a = 5;
+    int b = 50;
+    return a === b;
 }
 
 function testXmlRefEqualityPositive() returns boolean {

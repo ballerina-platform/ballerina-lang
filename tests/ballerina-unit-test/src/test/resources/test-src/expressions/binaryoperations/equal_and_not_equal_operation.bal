@@ -15,7 +15,7 @@
 // under the License.
 
 type OpenEmployee record {
-    string name;
+    string|json name;
     int id;
 };
 
@@ -26,6 +26,33 @@ type OpenPerson record {
 type ClosedEmployee record {
     string name;
     int id;
+    !...
+};
+
+type OpenEmployeeTwo record {
+    string name;
+    int...
+};
+
+type OpenRecordWithOptionalFieldOne record {
+    string name;
+    int one?;
+};
+
+type OpenRecordWithOptionalFieldTwo record {
+    string name;
+    int two?;
+};
+
+type ClosedRecordWithOptionalFieldOne record {
+    string name;
+    int one?;
+    !...
+};
+
+type ClosedRecordWithOptionalFieldTwo record {
+    string name;
+    int two?;
     !...
 };
 
@@ -109,6 +136,48 @@ function checkOpenRecordEqualityNegative() returns boolean {
     return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || isEqual(e5, e6) || (e7 == e8) || !(e7 != e8);
 }
 
+function testOpenRecordWithOptionalFieldsEqualityPositive() returns boolean {
+    OpenRecordWithOptionalFieldOne e1 = { name: "Em", one: 4000, two: 3000 };
+    OpenRecordWithOptionalFieldOne e2 = e1;
+
+    OpenRecordWithOptionalFieldOne e3 = { name: "Em" };
+    OpenRecordWithOptionalFieldTwo e4 = { name: "Em" };
+
+    OpenRecordWithOptionalFieldOne e5 = { name: "Em", one: 4000, two: 3000 };
+    OpenRecordWithOptionalFieldTwo e6 = { name: "Em", two: 3000, one: 4000 };
+
+    return (e1 == e2) && !(e1 != e2) && isEqual(e3, e4) && (e5 == e6) && !(e5 != e6);
+}
+
+function testOpenRecordWithOptionalFieldsEqualityNegative() returns boolean {
+    OpenRecordWithOptionalFieldOne e1 = { name: "Em" };
+    OpenRecordWithOptionalFieldTwo e2 = { name: "Zee" };
+
+    OpenRecordWithOptionalFieldOne e3 = { name: "Em", one: 4000 };
+    OpenRecordWithOptionalFieldTwo e4 = { name: "Em", two: 4000 };
+
+    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4);
+}
+
+function testClosedRecordWithOptionalFieldsEqualityPositive() returns boolean {
+    ClosedRecordWithOptionalFieldOne e1 = { name: "Em", one: 4000 };
+    ClosedRecordWithOptionalFieldOne e2 = e1;
+
+    ClosedRecordWithOptionalFieldOne e3 = { name: "Em" };
+    ClosedRecordWithOptionalFieldTwo e4 = { name: "Em" };
+
+    return (e1 == e2) && !(e1 != e2) && isEqual(e3, e4);
+}
+
+function testClosedRecordWithOptionalFieldsEqualityNegative() returns boolean {
+    ClosedRecordWithOptionalFieldOne e1 = { name: "Em" };
+    ClosedRecordWithOptionalFieldTwo e2 = { name: "Zee" };
+
+    ClosedRecordWithOptionalFieldOne e3 = { name: "Em", one: 4000 };
+    ClosedRecordWithOptionalFieldTwo e4 = { name: "Em", two: 4000 };
+
+    return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4);
+}
 
 function checkClosedRecordEqualityPositive() returns boolean {
     ClosedEmployee e1 = { name: "Em", id: 4000 };
@@ -891,6 +960,30 @@ public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
     xml x2 = xml `<name>Book Two</name>`;
     xml x3 = x2.select("name");
     return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
+}
+
+public function testJsonRecordMapEqualityPositive() returns boolean {
+    OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
+
+    json<ClosedEmployee> j = { name: "Maryam", id: 1000 };
+    json j2 = j;
+
+    map<string|int> m = { name: "Maryam", id: 1000 };
+    map m2 = m;
+
+    return e == m && !(m != e) && e == m2 && !(m2 != e) && e == j && !(j != e) && e == j2 && !(j2 != e);
+}
+
+public function testJsonRecordMapEqualityNegative() returns boolean {
+    OpenEmployeeTwo e = { name: "Zee", id: 1000 };
+
+    json<ClosedEmployee> j = { name: "Maryam", id: 122 };
+    json j2 = j;
+
+    map<string|int> m = { name: "Maryam" };
+    map m2 = m;
+
+    return e == m || !(m != e) || e == m2 || !(m2 != e) || e == j || !(j != e) || e == j2 || !(j2 != e);
 }
 
 function isEqual(any a, any b) returns boolean {

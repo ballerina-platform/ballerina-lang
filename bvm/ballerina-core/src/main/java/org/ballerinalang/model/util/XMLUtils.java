@@ -405,26 +405,9 @@ public class XMLUtils {
 
         try {
             if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlTwoNodeType == XMLNodeType.SEQUENCE) {
-                BXMLSequence xmlSequenceOne = (BXMLSequence) xmlOne;
-                BXMLSequence xmlSequenceTwo = (BXMLSequence) xmlTwo;
-
-                if (xmlSequenceOne.length() != xmlSequenceTwo.length()) {
-                    return false;
-                }
-
-                for (int i = 0; i < xmlSequenceOne.length(); i++) {
-                    if (!isEqual((BXML<?>) xmlSequenceOne.value().get(i), (BXML<?>) xmlSequenceTwo.value().get(i))) {
-                        return false;
-                    }
-                }
-                return true;
+                return isXmlSequenceEqual((BXMLSequence) xmlOne, (BXMLSequence) xmlTwo);
             } else if (xmlOneNodeType != XMLNodeType.SEQUENCE && xmlTwoNodeType != XMLNodeType.SEQUENCE) {
-                switch ((xmlOne).getNodeType()) {
-                    case ELEMENT:
-                        return Arrays.equals(canonicalize((BXMLItem) xmlOne), canonicalize((BXMLItem) xmlTwo));
-                    default:
-                        return xmlOne.stringValue().equals(xmlTwo.stringValue());
-                }
+                return isXmlItemEqual((BXMLItem) xmlOne, (BXMLItem) xmlTwo);
             } else {
                 if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlOne.isSingleton().booleanValue()) {
                     return Arrays.equals(canonicalize((BXMLItem) ((BXMLSequence) xmlOne).getItem(0)),
@@ -440,6 +423,28 @@ public class XMLUtils {
             // ignore and return false
         }
         return false;
+    }
+
+    private static boolean isXmlSequenceEqual(BXMLSequence xmlSequenceOne, BXMLSequence xmlSequenceTwo) {
+        if (xmlSequenceOne.length() != xmlSequenceTwo.length()) {
+            return false;
+        }
+
+        for (int i = 0; i < xmlSequenceOne.length(); i++) {
+            if (!isEqual((BXML<?>) xmlSequenceOne.value().get(i), (BXML<?>) xmlSequenceTwo.value().get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isXmlItemEqual(BXMLItem xmlItemOne, BXMLItem xmlItemTwo) throws CanonicalizationException {
+        switch (xmlItemOne.getNodeType()) {
+            case ELEMENT:
+                return Arrays.equals(canonicalize(xmlItemOne), canonicalize(xmlItemTwo));
+            default:
+                return xmlItemOne.stringValue().equals(xmlItemTwo.stringValue());
+        }
     }
 
     private static byte[] canonicalize(BXMLItem bxmlItem) throws CanonicalizationException {

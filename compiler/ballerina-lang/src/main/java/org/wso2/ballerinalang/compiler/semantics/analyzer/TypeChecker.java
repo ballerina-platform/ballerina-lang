@@ -906,12 +906,22 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
                                                  BLangBinaryExpr binaryExpr) {
-        if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL && opKind != OperatorKind.REF_EQUAL) {
-            return symTable.notFoundSymbol;
+        boolean validEqualityIntersectionExists;
+        switch (opKind) {
+            case EQUAL:
+            case NOT_EQUAL:
+                validEqualityIntersectionExists = types.validEqualityIntersectionExists(lhsType, rhsType);
+                break;
+            case REF_EQUAL:
+                validEqualityIntersectionExists =
+                        types.isAssignable(lhsType, rhsType) || types.isAssignable(rhsType, lhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
         }
-        boolean isValueDeepEquality = opKind != OperatorKind.REF_EQUAL;
 
-        if (types.validEqualityIntersectionExists(lhsType, rhsType, isValueDeepEquality)) {
+
+        if (validEqualityIntersectionExists) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
                     (types.isValueType(lhsType) && types.isValueType(rhsType))) {
                 return symResolver.createEqualityOperator(opKind, lhsType, rhsType);
