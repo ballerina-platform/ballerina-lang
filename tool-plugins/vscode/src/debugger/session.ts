@@ -46,6 +46,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     private _projectConfig: ProjectConfig | undefined;
     private _debugServer: ChildProcess | undefined;
     private _debugPort: string | undefined;
+    private _debugTests: boolean = false;
+    private _noDebug: boolean | undefined;
 
     constructor(){
         super('ballerina-debug.txt');
@@ -176,10 +178,11 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             this.terminate("Couldn't start the debug server. Please set ballerina.home.");
             return;
         }
-
+        this._noDebug = args.noDebug;
         const openFile = args.script;
         const scriptArguments = args.scriptArguments;
         const commandOptions = args.commandOptions;
+        this._debugTests = args.debugTests;
         let cwd : string | undefined = path.dirname(openFile);
         let debugTarget = path.basename(openFile);
         this._sourceRoot = cwd;
@@ -220,7 +223,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             }
             this._debugPort = port.toString();
 
-            let executableArgs: Array<string> = ["run"];
+            let executableArgs: Array<string> = [this._debugTests ? "test" : "run"];
             executableArgs.push('--debug');
             executableArgs.push(<string>this._debugPort);
 
@@ -281,7 +284,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             this._dirPaths.set(args.source.name, path.dirname(args.source.path));
             this._debugManager.removeAllBreakpoints(fileName);
             const bps: Array<any> = [];
-            if (args.breakpoints) {
+            if (!this._noDebug && args.breakpoints) {
                 args.breakpoints.forEach((bp, i) => {
                     this._debugManager.addBreakPoint(bp.line, fileName, pkg);
                     bps.push({id: i, line: bp.line, verified: true});
@@ -408,7 +411,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             };
             lookup(
                 {
-                    arguments: ['org.ballerinalang.launcher.Main', 'run', '--debug', this._debugPort, this._debugTarget],
+                    arguments: ['org.ballerinalang.launcher.Main', this._debugTests ? 'test' : 'run',
+                        '--debug', this._debugPort, this._debugTarget],
                 }, 
                 callBack
             );

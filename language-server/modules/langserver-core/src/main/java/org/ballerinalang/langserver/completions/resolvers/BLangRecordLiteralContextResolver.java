@@ -18,17 +18,24 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Completion Item Resolver for BLangRecordLiteral.
@@ -44,10 +51,34 @@ public class BLangRecordLiteralContextResolver extends AbstractItemResolver {
             return completionItems;
         }
 
-        List<BField> fields = ((BStructureType) recordType).getFields();
+        List<BField> fields = this.getFieldList((BLangRecordLiteral) bLangNode, completionContext);
         completionItems.addAll(CommonUtil.getStructFieldCompletionItems(fields));
         completionItems.add(CommonUtil.getFillAllStructFieldsItem(fields));
 
         return completionItems;
+    }
+
+    private List<BField> getFieldList(BLangRecordLiteral recordLiteral, LSContext context) {
+        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        List<BField> filteredFields = new ArrayList<>();
+        int line = cursor.getLine();
+        List<BLangExpression> values = recordLiteral.keyValuePairs.stream()
+                .map(BLangRecordLiteral.BLangRecordKeyValue::getValue)
+                .collect(Collectors.toList());
+
+        for (BLangExpression value : values) {
+            DiagnosticPos diagnosticPos = CommonUtil.toZeroBasedPosition(value.getPosition());
+            int exprSLine = diagnosticPos.getStartLine();
+            int exprELine = diagnosticPos.getEndLine();
+            if (exprSLine < line && exprELine > line) {
+                filteredFields.addAll(this.getFieldList((BLangRecordLiteral) value, context));
+                break;
+            }
+        }
+        if (filteredFields.isEmpty()) {
+            filteredFields.addAll(((BStructureType) recordLiteral.type).getFields());
+        }
+
+        return filteredFields;
     }
 }
