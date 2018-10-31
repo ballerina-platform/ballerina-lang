@@ -36,7 +36,7 @@ import java.util.Map;
  */
 @Test(groups = "auth-test")
 public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
-    private final int servicePort = 9096;
+    private final int servicePort = 9098;
 
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccess() throws Exception {
@@ -49,25 +49,15 @@ public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
-    @Test(description = "Authn success and authz failure test case")
-    public void testAuthzFailure() throws Exception {
+    @Test(description = "Authn failure test case")
+    public void testAuthnFailure() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo7/test7"),
-                headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
-    }
-
-    @Test(description = "Authn and authz failure test case")
-    public void testAuthFailure() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
+        headers.put("Authorization", "Basic aW52YWxpZFVzZXI6YWJj");
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo7/test7"),
                 headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
+
 }
