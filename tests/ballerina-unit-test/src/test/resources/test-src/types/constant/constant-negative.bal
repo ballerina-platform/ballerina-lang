@@ -43,6 +43,7 @@ function test() {
     string def = "def";
 }
 
+// Incompatible types.
 type ACTION "GET";
 
 type XYZ "XYZ";
@@ -52,4 +53,9 @@ const XYZ xyz = "XYZ";
 function testInvalidTypes() returns ACTION {
     ACTION action = xyz;
     return action;
+}
+
+// Built-in function invocation.
+function testInvalidInvocation() {
+    string lowercase = xyz.toLower();
 }

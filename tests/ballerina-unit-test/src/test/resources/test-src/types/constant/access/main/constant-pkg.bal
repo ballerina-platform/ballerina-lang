@@ -33,3 +33,7 @@ function floatIntConversion() returns (float, float, float){
 function accessPublicConstantFromOtherPackage() returns string {
     return variable:name;
 }
+
+function accessPublicConstantTypeFromOtherPackage() returns variable:AB {
+    return variable:A;
+}

@@ -932,21 +932,21 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstantRef constantRef) {
-        BSymbol symbol = constantRef.symbol;
-        BSymbol ownerSymbol = symbol.owner;
-        BPackageSymbol pkgSymbol;
-        if (ownerSymbol.tag == SymTag.SERVICE) {
-            pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
-        } else {
-            pkgSymbol = (BPackageSymbol) ownerSymbol;
-        }
-
-        BConstantSymbol constantSymbol = (BConstantSymbol) constantRef.symbol;
-        Operand gvIndex = constantSymbol.varIndex;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
-        int opcode = getOpcode(((BConstantSymbol) symbol).value.typeTag, InstructionCodes.IGLOAD);
-        constantRef.regIndex = calcAndGetExprRegIndex(constantRef);
-        emit(opcode, getOperand(pkgRefCPIndex), gvIndex, constantRef.regIndex);
+//        BSymbol symbol = constantRef.symbol;
+//        BSymbol ownerSymbol = symbol.owner;
+//        BPackageSymbol pkgSymbol;
+//        if (ownerSymbol.tag == SymTag.SERVICE) {
+//            pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
+//        } else {
+//            pkgSymbol = (BPackageSymbol) ownerSymbol;
+//        }
+//
+//        BConstantSymbol constantSymbol = (BConstantSymbol) constantRef.symbol;
+//        Operand gvIndex = constantSymbol.varIndex;
+//        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+//        int opcode = getOpcode(((BConstantSymbol) symbol).value.typeTag, InstructionCodes.IGLOAD);
+//        constantRef.regIndex = calcAndGetExprRegIndex(constantRef);
+//        emit(opcode, getOperand(pkgRefCPIndex), gvIndex, constantRef.regIndex);
     }
 
     @Override
@@ -2047,14 +2047,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void createConstantInfo(BLangConstant constant) {
         BConstantSymbol constantSymbol = constant.symbol;
-        int valueTypeTag = constantSymbol.value.typeTag;
-        constantSymbol.varIndex = getPVIndex(valueTypeTag);
+//        int valueTypeTag = constantSymbol.value.typeTag;
+//        constantSymbol.varIndex = getPVIndex(valueTypeTag);
 
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
-        int valueTypeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.value.type.getDesc());
+        int typeCPIndex;
+        if (constantSymbol.type == null) {
+            typeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.value.type.getDesc());
+        } else {
+            typeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
+        }
 
-        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, valueTypeCPIndex, valueTypeTag,
-                constantSymbol.flags, constantSymbol.varIndex.value);
+
+        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, typeCPIndex, /*valueTypeTag,*/
+                constantSymbol.flags/*, constantSymbol.varIndex.value*/);
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
         DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(constantSymbol.value);

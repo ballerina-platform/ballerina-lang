@@ -34,21 +34,21 @@ public class ConstantInfo implements AttributeInfoPool {
     private int nameCPIndex;
     private String name;
 
-    private int valueTypeCPIndex;
-    private int valueTypeTag;
+//    private int typeCPIndex;
+//    private int valueTypeTag;
 
-    private int globalMemIndex;
+//    private int globalMemIndex;
     private BType valueType;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, String name, int valueTypeCPIndex, int valueTypeTag, int globalMemIndex,
+    public ConstantInfo(int nameCPIndex, String name ,/*int typeCPIndex*/ /*int valueTypeTag, int globalMemIndex,*/
                         BType valueType) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
-        this.valueTypeCPIndex = valueTypeCPIndex;
-        this.valueTypeTag = valueTypeTag;
-        this.globalMemIndex = globalMemIndex;
+//        this.typeCPIndex = typeCPIndex;
+//        this.valueTypeTag = valueTypeTag;
+//        this.globalMemIndex = globalMemIndex;
         this.valueType = valueType;
     }
 
@@ -60,17 +60,17 @@ public class ConstantInfo implements AttributeInfoPool {
         return name;
     }
 
-    public int getValueTypeCPIndex() {
-        return valueTypeCPIndex;
-    }
+//    public int getTypeCPIndex() {
+//        return typeCPIndex;
+//    }
 
     public BType getValueType() {
         return valueType;
     }
 
-    public int getValueTypeTag() {
-        return valueTypeTag;
-    }
+//    public int getValueTypeTag() {
+//        return valueTypeTag;
+//    }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
         return attributeInfoMap.get(attributeKind);
@@ -80,9 +80,9 @@ public class ConstantInfo implements AttributeInfoPool {
         attributeInfoMap.put(attributeKind, attributeInfo);
     }
 
-    public int getGlobalMemIndex() {
-        return globalMemIndex;
-    }
+//    public int getGlobalMemIndex() {
+//        return globalMemIndex;
+//    }
 
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);

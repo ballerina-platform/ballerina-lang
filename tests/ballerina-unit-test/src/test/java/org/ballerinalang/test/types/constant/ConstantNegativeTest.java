@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 13);
         String expectedErrMsg1 = "only simple literals can be assigned to a constant";
         String expectedErrMsg2 = "cannot assign a value to a constant";
         int index = 0;
@@ -46,6 +46,7 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 32, 18);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 37, 1);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", 43, 5);
-        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'GET', found 'XYZ'", 53, 21);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'", 54, 21);
+        BAssertUtil.validateError(compileResult, index, "function invocation on type 'XYZ' is not supported", 60, 24);
     }
 }

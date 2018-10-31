@@ -55,6 +55,13 @@ public class ConstantAccessTest {
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
+    @Test(description = "Test accessing public constant type from other packages")
+    public void accessPublicConstantTypeFromOtherPackage() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "accessPublicConstantTypeFromOtherPackage");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "A");
+    }
+
     @Test(description = "Test assigning constant from other package to global variable")
     public void testAssigningConstFromOtherPkgToGlobalVar() {
         BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "assignConstFromOtherPkgToGlobalVar");
