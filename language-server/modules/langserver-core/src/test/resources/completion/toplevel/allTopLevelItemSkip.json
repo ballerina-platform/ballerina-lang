@@ -133,7 +133,7 @@
     },
     {
       "label":"testBraced",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"testBraced"
@@ -162,7 +162,7 @@
     },
     {
       "label":"intResult",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"intResult"
@@ -200,7 +200,7 @@
     },
     {
       "label":"num1",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"num1"
@@ -228,7 +228,7 @@
     },
     {
       "label":"testBinary",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"testBinary"
@@ -249,7 +249,7 @@
     },
     {
       "label":"listener",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"ballerina/http:Listener",
       "sortText":"110",
       "insertText":"listener"
@@ -291,7 +291,7 @@
     },
     {
       "label":"fieldWithinFunction",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"fieldWithinFunction"
@@ -783,28 +783,6 @@
             }
           },
           "newText":"\nimport ballerina/jms;\n"
-        }
-      ]
-    },
-    {
-      "label":"ballerina/jdbc",
-      "kind":"Module",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"jdbc",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":0,
-              "character":22
-            },
-            "end":{
-              "line":0,
-              "character":22
-            }
-          },
-          "newText":"\nimport ballerina/jdbc;\n"
         }
       ]
     },
