@@ -1,0 +1,48 @@
+{
+  "name": "@ballerina/diagram",
+  "version": "0.982.1-SNAPSHOT",
+  "description": "Provides a set of react components to draw Ballerina Diagrams.",
+  "keywords": ["ballerina", "ballerina-lang", "composer"],
+  "repository": "ballerina-platform/ballerina-lang",
+  "main": "lib/index.js",
+  "scripts": {
+    "test-coverage": "npm run test -- --coverage",
+    "test": "echo \"Error: no test specified\"",
+    "build": "babel src -d lib --copy-files",
+    "watch": "babel src -d lib --copy-files --watch"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "react-dom": "^16.2.0",
+    "react": "^16.2.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "eslint": "^5.7.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  },
+  "dependencies": {
+    "@ballerina/theme": "file:../theme",
+    "axios": "^0.16.2",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "jquery": "^3.3.1",
+    "jsplumb": "2.3.5",
+    "log4javascript": "^1.4.15",
+    "react-autosuggest": "^9.0.1",
+    "react-custom-scrollbars": "^4.1.2",
+    "react-dnd": "^2.5.3",
+    "react-dnd-html5-backend": "^2.5.3",
+    "react-transition-group": "^1.1.2",
+    "semantic-ui-react": "^0.81.3",
+    "uuid": "^3.1.0"
+  }
+}

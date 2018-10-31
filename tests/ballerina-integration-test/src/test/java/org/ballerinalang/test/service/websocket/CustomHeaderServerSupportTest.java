@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.service.websocket;
 
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -34,15 +33,15 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests receiving and sending of custom headers by Ballerina WebSocket server.
  */
-public class CustomHeaderServerSupportTest extends WebSocketIntegrationTest {
+@Test(groups = "websocket-test")
+public class CustomHeaderServerSupportTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/simple/custom/header/server";
+    private static final String URL = "ws://localhost:9093/simple3/custom/header/server";
     private static final String RECEIVED_TEXT = "some-header-value";
 
     @BeforeClass(description = "Initializes the Ballerina server with the custom_header_server.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
-        super.initBallerinaServer("custom_header_server.bal");
+    public void setup() throws InterruptedException, URISyntaxException {
         Map<String, String> map = new HashMap<>();
         map.put("X-some-header", "some-header-value");
         client = new WebSocketTestClient(URL, map);
@@ -64,8 +63,7 @@ public class CustomHeaderServerSupportTest extends WebSocketIntegrationTest {
     }
 
     @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
-        stopBallerinaServerInstance();
     }
 }

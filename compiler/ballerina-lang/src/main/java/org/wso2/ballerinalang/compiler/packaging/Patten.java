@@ -63,7 +63,7 @@ public class Patten {
         Stream<T> aggregate = Stream.of(converter.start());
         for (Part part : parts) {
             if (part == LATEST_VERSION_DIR) {
-                aggregate = aggregate.flatMap(t -> converter.latest(t, packageID));
+                aggregate = aggregate.flatMap(t -> converter.getLatestVersion(t, packageID));
             } else if (part == WILDCARD_SOURCE) {
                 aggregate = aggregate.flatMap(converter::expandBal);
             } else if (part == WILDCARD_SOURCE_WITH_TEST) {

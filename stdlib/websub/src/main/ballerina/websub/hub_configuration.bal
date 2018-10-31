@@ -21,25 +21,28 @@ import ballerina/log;
 @final string BASE_PATH = "/websub";
 @final string HUB_PATH = "/hub";
 
-@final int DEFAULT_PORT = 9292;
+@final string DEFAULT_HOST = "0.0.0.0";
 @final int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
 @final string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
 //TODO: Fix persistence configs, H2?
-@final string DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/subscriptionsdb";
-@final string DEFAULT_DB_USERNAME = "ballerina";
-@final string DEFAULT_DB_PASSWORD = "ballerina";
+@final string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
+@final string DEFAULT_DB_NAME = "HUB_DB";
+@final string DEFAULT_DB_USERNAME = "sa";
+@final string DEFAULT_DB_PASSWORD = "";
 
+@readonly string hubHost;
 @readonly int hubPort;
 @readonly int hubLeaseSeconds;
 @readonly string hubSignatureMethod;
 @readonly boolean hubRemotePublishingEnabled;
-@readonly string hubRemotePublishingMode;
+@readonly RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
 @readonly boolean hubTopicRegistrationRequired;
 @readonly string hubPublicUrl;
 
 @final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
-@final string hubDatabaseUrl = config:getAsString("b7a.websub.hub.db.url", default = DEFAULT_DB_URL);
+@final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
+@final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
 @final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
 @final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
@@ -48,26 +51,25 @@ import ballerina/log;
 @readonly http:ServiceSecureSocket? hubServiceSecureSocket = ();
 @readonly http:SecureSocket? hubClientSecureSocket = ();
 
-documentation {
-    Function to bind and start the Ballerina WebSub Hub service.
-}
+# Function to bind and start the Ballerina WebSub Hub service.
+#
+# + return - The `http:Listener` to which the service is bound
 function startHubService() returns http:Listener {
     http:Listener hubServiceEP = new;
     hubServiceEP.init({
-            port:hubPort,
-            secureSocket:hubServiceSecureSocket
+            host: hubHost,
+            port: hubPort,
+            secureSocket: hubServiceSecureSocket
     });
     hubServiceEP.register(hubService);
     hubServiceEP.start();
     return hubServiceEP;
 }
 
-documentation {
-    Function to retrieve the URL for the Ballerina WebSub Hub, to which potential subscribers need to send
-    subscription/unsubscription requests.
-
-    R{{}} The WebSub Hub's URL
-}
+# Function to retrieve the URL for the Ballerina WebSub Hub, to which potential subscribers need to send
+# subscription/unsubscription requests.
+#
+# + return - The WebSub Hub's URL
 function getHubUrl() returns string {
     match (hubServiceSecureSocket) {
         http:ServiceSecureSocket => { return "https://localhost:" + hubPort + BASE_PATH + HUB_PATH; }
@@ -75,20 +77,16 @@ function getHubUrl() returns string {
     }
 }
 
-documentation {
-    Function to retrieve if persistence is enabled for the Hub.
-
-    R{{}} True if persistence is enabled, false if not
-}
+# Function to retrieve if persistence is enabled for the Hub.
+#
+# + return - True if persistence is enabled, false if not
 function isHubPersistenceEnabled() returns boolean {
     return hubPersistenceEnabled;
 }
 
-documentation {
-    Function to retrieve if topics need to be registered at the Hub prior to publishing/subscribing.
-
-    R{{}} True if persistence is enabled, false if not
-}
+# Function to retrieve if topics need to be registered at the Hub prior to publishing/subscribing.
+#
+# + return - True if persistence is enabled, false if not
 function isHubTopicRegistrationRequired() returns boolean {
     return hubTopicRegistrationRequired;
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -31,8 +32,8 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * {@code GetPromisedResponse} action can be used to get a push response message associated with a
@@ -81,14 +82,14 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         }
 
         @Override
-        public void onPushResponse(int promisedId, HTTPCarbonMessage httpCarbonMessage) {
+        public void onPushResponse(int promisedId, HttpCarbonMessage httpCarbonMessage) {
             dataContext.notifyInboundResponseStatus(
                     HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }
 
         @Override
         public void onError(Throwable throwable) {
-            BMap<String, BValue> httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
+            BError httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

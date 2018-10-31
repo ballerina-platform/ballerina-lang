@@ -20,13 +20,14 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ public class ServiceSkeletonTest {
 
     @BeforeClass
     public void setup() {
-        sourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        sourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
         System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
         System.setProperty("java.util.logging.config.file", "logging.properties");
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRoot);
@@ -65,7 +67,7 @@ public class ServiceSkeletonTest {
 
     @AfterTest
     public void cleanUpTestEnv() {
-        Utils.cleanUpDir(Paths.get(System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT), TesterinaConstants
-            .TESTERINA_TEMP_DIR));
+        TesterinaUtils.cleanUpDir(Paths.get(System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT),
+                                            TesterinaConstants.TESTERINA_TEMP_DIR));
     }
 }

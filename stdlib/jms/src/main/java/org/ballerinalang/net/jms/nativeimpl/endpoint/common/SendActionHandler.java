@@ -58,6 +58,8 @@ public class SendActionHandler {
                                                            Constants.JMS_MESSAGE_OBJECT,
                                                            Message.class,
                                                            context);
+
+
         try {
             sessionConnector.handleTransactionBlock(context);
             messageProducer.send(message);

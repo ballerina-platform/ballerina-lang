@@ -18,8 +18,7 @@
 package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
@@ -71,7 +70,7 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
     }
     
     @Override
-    public void notifyFailure(BMap<String, BValue> error) {
+    public void notifyFailure(BError error) {
         // request sender becomes null when calling callback service resource in client side. in that case we don't
         // need to handle error.
         if (requestSender != null) {

@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandler;
 
 /**
@@ -43,7 +43,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
         },
         isPublic = true
 )
-public class RegisterMessageListener extends AbstractBlockinAction {
+public class RegisterMessageListener extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {

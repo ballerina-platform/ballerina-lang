@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Locale;
 
 /**
- * Native function ballerina.model.strings:toUpper.
+ * Extern function ballerina.model.strings:toUpper.
  *
  * @since 0.8.0
  */

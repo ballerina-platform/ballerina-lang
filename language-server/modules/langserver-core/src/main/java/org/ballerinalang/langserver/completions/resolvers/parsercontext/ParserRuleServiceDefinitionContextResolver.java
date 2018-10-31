@@ -134,7 +134,7 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
                             .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol
                                     && symbolInfo.getScopeEntry().symbol.type == listenerType)
                             .collect(Collectors.toList());
-                    this.populateCompletionItemList(endpointSymbols, completionItems);
+                    completionItems.addAll(this.getCompletionItemList(endpointSymbols));
                 }
             } else {
                 // suggest all the visible, defined endpoints
@@ -142,14 +142,12 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
                         .stream()
                         .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol)
                         .collect(Collectors.toList());
-                this.populateCompletionItemList(endpointSymbols, completionItems);
+                completionItems.addAll(this.getCompletionItemList(endpointSymbols));
             }
         } else {
+            boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
             // Fill the bind keyword completion item
-            CompletionItem bindItem = new CompletionItem();
-            bindItem.setLabel(ItemResolverConstants.BIND);
-            bindItem.setInsertText(Snippet.BIND.toString());
-            bindItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+            CompletionItem bindItem = Snippet.KW_BIND.get().build(new CompletionItem(), isSnippet);
             completionItems.add(bindItem);
         }
         
@@ -207,7 +205,7 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
     private static List<CompletionItem> getFieldCompletionItems(BRecordType recordType, Stack<String> fieldStack) {
         List<CompletionItem> completionItems = new ArrayList<>();
         if (fieldStack.isEmpty()) {
-            completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(recordType.fields));
+            completionItems.addAll(CommonUtil.getStructFieldCompletionItems(recordType.fields));
             completionItems.add(CommonUtil.getFillAllStructFieldsItem(recordType.fields));
             return completionItems;
         } else {

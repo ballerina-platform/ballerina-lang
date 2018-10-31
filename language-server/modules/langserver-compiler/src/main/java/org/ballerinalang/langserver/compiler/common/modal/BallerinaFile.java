@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class which contains Ballerina model and Diagnostic information.
@@ -31,15 +32,16 @@ public class BallerinaFile {
     private List<Diagnostic> diagnostics = null;
     private boolean isBallerinaProject = false;
 
-    public List<Diagnostic> getDiagnostics() {
-        if (diagnostics != null) {
-            diagnostics.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()));
-        }
+    public Optional<List<Diagnostic>> getDiagnostics() {
+        Optional<List<Diagnostic>> diagnostics = Optional.ofNullable(this.diagnostics);
+        diagnostics.ifPresent(
+                diag -> diag.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()))
+        );
         return diagnostics;
     }
 
-    public BLangPackage getBLangPackage() {
-        return bLangPackage;
+    public Optional<BLangPackage> getBLangPackage() {
+        return Optional.ofNullable(bLangPackage);
     }
 
     public void setBLangPackage(BLangPackage bLangPackage) {

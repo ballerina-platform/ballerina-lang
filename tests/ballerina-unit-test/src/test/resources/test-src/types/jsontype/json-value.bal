@@ -314,11 +314,11 @@ function testJsonArrayToJsonCasting () returns (json) {
     return j2;
 }
 
-function testJsonToJsonArrayCasting () returns (json[], json[][]) {
+function testJsonToJsonArrayCasting () returns (any, any) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
-    var j2 =check <json[]>j1;
-    var j3 =check <json[][]>j1;
+    json[] j2 =check <json[]>j1;
+    json[][] j3 =check <json[][]>j1;
 
     return (j2, j3);
 }
@@ -349,4 +349,61 @@ function testJsonIntToFloat () returns (float) {
     float jFloat;
     jFloat = check <float>j.score;
     return jFloat;
+}
+
+function testNullJsonToInt() returns (int) {
+    json j = null;
+    return check <int>j;
+}
+
+function testNullJsonToFloat() returns (float) {
+    json j = null;
+    return check <float>j;
+}
+function testNullJsonToString() returns (string) {
+    json j = null;
+    return check <string>j;
+}
+
+function testNullJsonToBoolean() returns (boolean) {
+    json j = null;
+    return check <boolean>j;
+}
+
+function testNullJsonToMap() returns (map) {
+    json j = null;
+    return check <map>j;
+}
+
+function testNullJsonToArray() returns (int[]) {
+    json j = null;
+    return check <int[]>j;
+}
+
+function testIntArrayToJsonAssignment() returns (json, json) {
+    int[] a = [1, 5, 9];
+    json j = a;
+    j[3] = 4;
+    return (j, j[1]);
+}
+
+function testFloatArrayToJsonAssignment() returns (json, json) {
+    float[] f = [1.3, 5.4, 9.4];
+    json j = f;
+    j[3] = 4.5;
+    return (j, j[1]);
+}
+
+function testStringArrayToJsonAssignment() returns (json, json) {
+    string[] s = ["apple", "orange"];
+    json j = s;
+    j[2] = "grape";
+    return (j, j[1]);
+}
+
+function testBooleanArrayToJsonAssignment() returns (json, json) {
+    boolean[] b = [true, true, false];
+    json j = b;
+    j[3] = true;
+    return (j, j[1]);
 }

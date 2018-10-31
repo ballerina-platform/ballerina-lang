@@ -21,12 +21,12 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
  *
  * @since 0.963.0
  */
-public class MultipartDataSource extends BallerinaMessageDataSource {
+public class MultipartDataSource implements BValue {
     private static final Logger log = LoggerFactory.getLogger(MultipartDataSource.class);
 
     private BMap<String, BValue> parentEntity;
@@ -71,7 +71,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
     }
 
     @Override
-    public void serializeData(OutputStream outputStream) {
+    public void serialize(OutputStream outputStream) {
         this.outputStream = outputStream;
         serializeBodyPart(outputStream, boundaryString, parentEntity);
     }
@@ -203,11 +203,26 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
      * @throws IOException When an error occurs while writing body content
      */
     private void writeBodyContent(OutputStream outputStream, BMap<String, BValue> bodyPart) throws IOException {
-        MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(bodyPart);
+        BValue messageDataSource = EntityBodyHandler.getMessageDataSource(bodyPart);
         if (messageDataSource != null) {
-            messageDataSource.serializeData(outputStream);
+            messageDataSource.serialize(outputStream);
         } else {
             EntityBodyHandler.writeByteChannelToOutputStream(bodyPart, outputStream);
         }
+    }
+
+    @Override
+    public String stringValue() {
+        return null;
+    }
+
+    @Override
+    public BType getType() {
+        return null;
+    }
+
+    @Override
+    public BValue copy() {
+        return null;
     }
 }

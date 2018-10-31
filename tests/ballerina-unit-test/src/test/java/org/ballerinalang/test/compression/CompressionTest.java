@@ -202,8 +202,8 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
-                "Error occurred when compressing  (No such file or directory)");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .startsWith("Error occurred when compressing"), true);
     }
 
     @Test(description = "test zipping/compressing a file without destination directory path")

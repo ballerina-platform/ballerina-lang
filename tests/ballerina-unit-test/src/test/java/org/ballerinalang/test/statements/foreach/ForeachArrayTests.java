@@ -41,7 +41,7 @@ public class ForeachArrayTests {
     private double[] fValues = {1.123, -3.35244, 5.23, -30.45, 4.32, 11.56, 25.967, 10.345};
     private String[] sValues = {"foo", "bar", "bax", "baz"};
     private boolean[] bValues = {true, false, false, false, true, false};
-    private String[] jValues = {"{\"name\":\"bob\",\"age\":10}", "{\"name\":\"tom\",\"age\":16}"};
+    private String[] jValues = {"{\"name\":\"bob\", \"age\":10}", "{\"name\":\"tom\", \"age\":16}"};
     private String[] tValues = {"name=bob,age=10", "name=tom,age=16"};
 
     @BeforeClass

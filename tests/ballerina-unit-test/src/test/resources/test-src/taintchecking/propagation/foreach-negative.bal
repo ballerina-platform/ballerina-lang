@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string[] fruits = ["apple", args[0], "cherry"];
 
     foreach v in fruits {

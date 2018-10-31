@@ -16,25 +16,25 @@
 
 import ballerina/io;
 
-documentation {
-    Represents JWT issuer configurations.
-}
+# Represents JWT issuer configurations.
+# + keyAlias - Key alias used for signing
+# + keyPassword - Key password used for signing
+# + keyStoreFilePath - Key store file path
+# + keyStorePassword - Key store password
 public type JWTIssuerConfig record {
-    string keyAlias,
-    string keyPassword,
-    string keyStoreFilePath,
-    string keyStorePassword,
+    string keyAlias;
+    string keyPassword;
+    string keyStoreFilePath;
+    string keyStorePassword;
+    !...
 };
 
-documentation {
-    Issue a JWT token.
-
-    P{{header}} JwtHeader object
-    P{{payload}} JwtPayload object
-    P{{config}} JWTIssuerConfig object
-    R{{}} JWT token string
-    R{{}} If token validation fails
-}
+# Issue a JWT token.
+#
+# + header - JwtHeader object
+# + payload - JwtPayload object
+# + config - JWTIssuerConfig object
+# + return - JWT token string or an error if token validation fails
 public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig config) returns (string|error) {
     string jwtHeader = createHeader(header);
     string jwtPayload = "";
@@ -65,7 +65,7 @@ function createHeader(JwtHeader header) returns (string) {
 function createPayload(JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
-        error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
+        error err = error("Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty.");
         return err;
     }
     payloadJson[SUB] = payload.sub;

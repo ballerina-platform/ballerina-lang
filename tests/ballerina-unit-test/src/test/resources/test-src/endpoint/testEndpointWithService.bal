@@ -48,7 +48,7 @@ type DummyClient object {
     }
 };
 
-type DummyServiceType object {
+type DummyServiceType abstract object {
     function getEndpoint () returns (DummyEndpoint);
 };
 

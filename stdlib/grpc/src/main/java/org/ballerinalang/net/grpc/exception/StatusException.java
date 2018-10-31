@@ -23,7 +23,7 @@ import org.ballerinalang.net.grpc.Status;
  * Propagating Status information via exceptions.
  * <p>
  * Referenced from grpc-java implementation.
- * <p>
+ *
  */
 public class StatusException extends Exception {
 
@@ -31,6 +31,7 @@ public class StatusException extends Exception {
 
     /**
      * Constructs an exception with both a status and trailers.
+     * @param status exception status
      */
     public StatusException(Status status) {
         super(Status.formatThrowableMessage(status), status.getCause());
@@ -39,6 +40,8 @@ public class StatusException extends Exception {
 
     /**
      * Returns the status code as a {@link Status} object.
+     *
+     * @return status object
      */
     public final Status getStatus() {
         return status;

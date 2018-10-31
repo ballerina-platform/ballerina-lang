@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 
 /**
- * Native function ballerina.system:getCurrentDirectory.
+ * Extern function ballerina.system:getCurrentDirectory.
  *
  * @since 0.94.1
  */

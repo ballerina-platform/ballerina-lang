@@ -95,6 +95,12 @@ public class TypedescTests {
         Assert.assertEquals(returns[1].stringValue(), "int|string");
     }
 
+    @Test(description = "Test tuples with expressions")
+    public void testTuplesWithExpressions() {
+        BValue[] returns = BRunUtil.invoke(result, "testTuplesWithExpressions");
+        Assert.assertEquals(returns[0].stringValue(), "(string,int,string[],string,int)");
+    }
+
     @Test(description = "Test Record types")
     public void testRecordTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordTypes");
@@ -102,5 +108,11 @@ public class TypedescTests {
         Assert.assertEquals(returns[0].stringValue(), "RecordA");
         Assert.assertTrue(returns[1] instanceof BTypeDescValue);
         Assert.assertTrue(((BTypeDescValue) returns[1]).value().getTag() == TypeTags.RECORD_TYPE_TAG);
+    }
+
+    @Test(description = "Test any to typedesc cast")
+    public void testAnyToTypedescCast() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyToTypedesc");
+        Assert.assertEquals(returns[0].stringValue(), "int");
     }
 }

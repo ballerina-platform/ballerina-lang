@@ -21,7 +21,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
@@ -54,7 +54,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpMessage) {
+    public void onMessage(HttpCarbonMessage httpMessage) {
         InboundMessage inboundMessage = new InboundMessage(httpMessage);
         if (isValid(inboundMessage)) {
             stateListener.inboundHeadersReceived(inboundMessage.getHeaders());

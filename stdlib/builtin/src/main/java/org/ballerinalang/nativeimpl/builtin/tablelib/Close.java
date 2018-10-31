@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function to clear connection resources in the table.
+ * Extern function to clear connection resources in the table.
  *
  * @since 0.8.0
  */
@@ -39,7 +39,7 @@ public class Close extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         BTable table = (BTable) ctx.getRefArgument(0);
-        table.close(ctx.isInTransaction());
+        table.close();
         ctx.setReturnValues();
     }
 }

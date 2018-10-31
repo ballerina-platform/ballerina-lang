@@ -19,8 +19,8 @@
 package org.ballerinalang.test.security;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -36,17 +36,24 @@ import java.util.Map;
 /**
  * Testing actual runtime behaviour of the XML parser from security point of view.
  */
-public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
+public class HTTPResponseXMLSecurityTestCase extends BaseTest {
+    private static BServerInstance serverInstance;
 
-    private ServerInstance ballerinaServer;
-
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
+        int[] requiredPorts = new int[]{9090};
+
         String balFilePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "xmlSecurity" + File.separator +
                 "xml-parsing-service.bal").getAbsolutePath();
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServer(balFilePath);
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(balFilePath, requiredPorts);
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.shutdownServer();
     }
 
     @Test(description = "Test the service for XML External Entity Injection attack")
@@ -94,10 +101,5 @@ public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
             response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
         }
         return response;
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
     }
 }

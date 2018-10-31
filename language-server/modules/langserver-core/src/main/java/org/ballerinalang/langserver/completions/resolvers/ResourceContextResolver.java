@@ -21,7 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -33,16 +33,24 @@ import java.util.List;
 public class ResourceContextResolver extends AbstractItemResolver {
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-        AbstractItemResolver itemResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
-        
-        if (itemResolver != null) {
-            completionItems.addAll(itemResolver.resolveItems(completionContext));
-        } else if (this.isAnnotationStart(completionContext)) {
-            completionItems.addAll(CompletionItemResolver.getResolverByClass(AnnotationAttachment.class)
-                    .resolveItems(completionContext));
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        List<CompletionItem> completionItems = new ArrayList<>();
+
+        if (parserRuleContext == null) {
+            boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+                    .getSnippetSupport();
+            CompletionItem worker = Snippet.DEF_WORKER.get().build(new CompletionItem(), snippetCapability);
+            CompletionItem endpoint = Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), snippetCapability);
+            completionItems.add(worker);
+            completionItems.add(endpoint);
+
+            return completionItems;
+        }
+        AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+
+        if (resolver != null) {
+            completionItems.addAll(resolver.resolveItems(context));
         }
 
         return completionItems;

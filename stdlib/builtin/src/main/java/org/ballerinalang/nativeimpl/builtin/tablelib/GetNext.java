@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to get the current row of a table as a struct.
+ * Extern function to get the current row of a table as a struct.
  *
  * @since 0.88
  */

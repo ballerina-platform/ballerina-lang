@@ -17,27 +17,29 @@
 import ballerina/log;
 import ballerina/time;
 
-documentation {
-    Represents JWT validator configurations.
-}
+# Represents JWT validator configurations.
+# + issuer - Expected issuer
+# + audience - Expected audience
+# + clockSkew - Clock skew in seconds
+# + certificateAlias - Certificate alias used for validation
+# + trustStoreFilePath - Trust store file path
+# + trustStorePassword - Trust store password
 public type JWTValidatorConfig record {
-    string issuer,
-    string audience,
-    int clockSkew,
-    string certificateAlias,
-    string trustStoreFilePath,
-    string trustStorePassword,
+    string issuer;
+    string audience;
+    int clockSkew;
+    string certificateAlias;
+    string trustStoreFilePath;
+    string trustStorePassword;
+    !...
 };
 
-documentation {
-    Validity given JWT token.
-
-    P{{jwtToken}} JWT token that need to validate
-    P{{config}} JWTValidatorConfig object
-    R{{}} If JWT token is valied true , else false
-    R{{}} If JWT token is valied return the JWT payload
-    R{{}} If token validation fails
-}
+# Validity given JWT token.
+#
+# + jwtToken - JWT token that need to validate
+# + config - JWTValidatorConfig object
+# + return - If JWT token is valied return the JWT payload.
+#            An error if token validation fails.
 public function validate(string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {
@@ -60,7 +62,7 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
             if (isValid){
                 return payload;
             } else {
-                error err = {message:"Invalid JWT token"};
+                error err = error("Invalid JWT token");
                 return err;
             }
         }
@@ -71,7 +73,7 @@ function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
     if (lengthof jwtComponents != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
-        error err = {message:"Invalid JWT token"};
+        error err = error("Invalid JWT token");
         return err;
     }
     return jwtComponents;
@@ -175,29 +177,28 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
 function validateJWT(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload, JWTValidatorConfig
 config) returns (boolean|error) {
     if (!validateMandatoryFields(jwtPayload)) {
-        error err = {message:
-        "Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
+        error err = error("Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token.");
         return err;
     }
     if (!validateSignature(encodedJWTComponents, jwtHeader, config)) {
-        error err = {message:"Invalid signature"};
+        error err = error("Invalid signature");
         return err;
     }
     if (!validateIssuer(jwtPayload, config)) {
-        error err = {message:"JWT contained invalid issuer name : " + jwtPayload.iss};
+        error err = error("JWT contained invalid issuer name : " + jwtPayload.iss);
         return err;
     }
     if (!validateAudience(jwtPayload, config)) {
         //TODO need to set expected audience or available audience list
-        error err = {message:"Invalid audience"};
+        error err = error("Invalid audience");
         return err;
     }
     if (!validateExpirationTime(jwtPayload, config)) {
-        error err = {message:"JWT token is expired"};
+        error err = error("JWT token is expired");
         return err;
     }
     if (!validateNotBeforeTime(jwtPayload)) {
-        error err = {message:"JWT token is used before Not_Before_Time"};
+        error err = error("JWT token is used before Not_Before_Time");
         return err;
     }
     //TODO : Need to validate jwt id (jti) and custom claims.

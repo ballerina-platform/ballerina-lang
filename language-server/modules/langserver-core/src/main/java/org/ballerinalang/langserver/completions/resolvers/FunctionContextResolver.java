@@ -21,8 +21,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +32,26 @@ import java.util.List;
  */
 public class FunctionContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-        AbstractItemResolver contextResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
-        if (contextResolver != null) {
-            return contextResolver.resolveItems(completionContext);
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
+        if (parserRuleContext == null) {
+            List<CompletionItem> completionItems = new ArrayList<>();
+
+            CompletionItem workerItem = Snippet.DEF_WORKER.get().build(new CompletionItem(), isSnippet);
+            completionItems.add(workerItem);
+
+            CompletionItem endpointItem = Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), isSnippet);
+            completionItems.add(endpointItem);
+
+            return completionItems;
         }
-        return null;
+        AbstractItemResolver contextResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+
+        if (contextResolver == null) {
+            return new ArrayList<>();
+        }
+        
+        return contextResolver.resolveItems(context);
     }
 }

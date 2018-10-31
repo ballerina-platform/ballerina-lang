@@ -29,8 +29,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.runtime.message.BlobDataSource;
-
 
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
@@ -53,7 +51,7 @@ public class SetByteArray extends BlockingNativeCallableUnit {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
         byte[] payload = ((BByteArray) context.getRefArgument(SECOND_PARAMETER_INDEX)).getBytes();
         String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-        EntityBodyHandler.addMessageDataSource(entityStruct, new BlobDataSource(payload));
+        EntityBodyHandler.addMessageDataSource(entityStruct, new BByteArray(payload));
         MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
     }

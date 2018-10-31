@@ -22,8 +22,6 @@ import java.io.InputStream;
 /**
  * An observer of Stream events. It is guaranteed to only have one concurrent callback at a
  * time.
- * <p>
- * <p>
  * Referenced from grpc-java implementation.
  * <p>
  *

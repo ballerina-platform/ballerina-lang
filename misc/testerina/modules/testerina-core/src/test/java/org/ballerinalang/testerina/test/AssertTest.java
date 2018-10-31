@@ -18,10 +18,10 @@
 package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.test.utils.BTestUtils;
@@ -49,7 +49,7 @@ public class AssertTest {
 
     @Test
     public void testAssertJsonEquals() {
-        BValue[] args = {new BJSON("{\"a\":\"b\"}"), new BJSON("{\"a\":\"b\"}")};
+        BValue[] args = { JsonParser.parse("{\"a\":\"b\"}"), JsonParser.parse("{\"a\":\"b\"}") };
         BTestUtils.invoke(compileResult, "testAssertJsonEquals", args);
     }
 
@@ -204,7 +204,7 @@ public class AssertTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*expected '\\{\\}' but found '\\{\"a\":\"b\"\\}'.*")
     public void testAssertJsonEquals1() {
-        BValue[] args = {new BJSON("{\"a\":\"b\"}"), new BJSON("{}")};
+        BValue[] args = { JsonParser.parse("{\"a\":\"b\"}"), JsonParser.parse("{}") };
         BTestUtils.invoke(compileResult, "testAssertJsonEquals", args);
     }
 

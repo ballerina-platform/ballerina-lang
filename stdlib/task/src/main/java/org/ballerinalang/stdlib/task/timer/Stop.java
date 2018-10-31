@@ -33,7 +33,7 @@ import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_IS_RUNNING_FIELD
 import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
- * Native function ballerina/task:Timer.stop.
+ * Extern function ballerina/task:Timer.stop.
  */
 @BallerinaFunction(
         orgName = "ballerina",

@@ -16,5 +16,7 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-
+	<Match>
+		<Bug pattern="BC_UNCONFIRMED_CAST" />
+	</Match>
 </FindBugsFilter>

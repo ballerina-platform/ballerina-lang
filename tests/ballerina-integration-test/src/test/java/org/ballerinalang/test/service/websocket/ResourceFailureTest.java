@@ -19,12 +19,9 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -36,17 +33,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether resource failure causes a close frame to be sent.
  */
-public class ResourceFailureTest extends WebSocketIntegrationTest {
+@Test(groups = "websocket-test")
+public class ResourceFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/simple?q1=name";
+    private static final String URL = "ws://localhost:9097/simple7?q1=name";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
     private CountDownLatch countDownLatch;
-
-    @BeforeClass(description = "Initializes the Ballerina server with the resource_failure.bal file")
-    public void setup() throws BallerinaTestException {
-        initBallerinaServer("resource_failure.bal");
-    }
 
     @BeforeMethod(description = "Creates a new client and performs handshake")
     public void clientSetup() throws URISyntaxException, InterruptedException {
@@ -74,21 +67,16 @@ public class ResourceFailureTest extends WebSocketIntegrationTest {
         assertCloseFrame();
     }
 
-    @Test(description = "Tests failure of onClose resource")
+    @Test(description = "Tests failure of onIdleTimeout resource")
     public void testOnIdleTimeoutResource() throws InterruptedException {
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         assertCloseFrame();
     }
 
-    @Test(description = "Tests failure of onText resource")
+    @Test(description = "Tests failure of onClose resource")
     public void testOnCloseResource() throws InterruptedException {
         client.shutDown();
         assertCloseFrame();
-    }
-
-    @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException {
-        stopBallerinaServerInstance();
     }
 
     @AfterMethod(description = "Shuts down the client")

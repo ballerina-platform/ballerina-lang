@@ -33,7 +33,7 @@ public class PattenTest {
             }
 
             @Override
-            public Stream<I> latest(I i, PackageID packageID) {
+            public Stream<I> getLatestVersion(I i, PackageID packageID) {
                 return expand.apply(i);
             }
 

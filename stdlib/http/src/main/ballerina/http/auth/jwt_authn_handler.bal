@@ -18,12 +18,10 @@
 import ballerina/log;
 import ballerina/auth;
 
-documentation {
-    Representation of JWT Auth handler for HTTP traffic
-
-    F{{name}} Name of the auth handler
-    F{{jwtAuthenticator}} `JWTAuthenticator` instance
-}
+# Representation of JWT Auth handler for HTTP traffic
+#
+# + name - Name of the auth handler
+# + jwtAuthenticator - `JWTAuthenticator` instance
 public type HttpJwtAuthnHandler object {
 
     public string name;
@@ -33,30 +31,27 @@ public type HttpJwtAuthnHandler object {
         name = "jwt";
     }
 
-    documentation {
-        Checks if the request can be authenticated with JWT
-
-        P{{req}} `Request` instance
-        R{{}} true if can be authenticated, else false
-    }
+    # Checks if the request can be authenticated with JWT
+    #
+    # + req - `Request` instance
+    # + return - true if can be authenticated, else false
     public function canHandle (Request req) returns (boolean);
 
-    documentation {
-        Authenticates the incoming request using JWT authentication
-
-        P{{req}} `Request` instance
-        R{{}} true if authenticated successfully, else false
-    }
+    # Authenticates the incoming request using JWT authentication
+    #
+    # + req - `Request` instance
+    # + return - true if authenticated successfully, else false
     public function handle (Request req) returns (boolean);
 };
 
 function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     string authHeader;
-    try {
-        authHeader = req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
-        return false;
+    match trap req.getHeader(AUTH_HEADER) {
+        string s => authHeader = s;
+        error e => {
+            log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.reason());
+            return false;
+        }
     }
     if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
@@ -84,12 +79,10 @@ function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
     }
 }
 
-documentation {
-        Extracts the JWT from the incoming request
-
-        P{{req}} `Request` instance
-        R{{}} Extracted JWT string
-    }
+# Extracts the JWT from the incoming request
+#
+# + req - `Request` instance
+# + return - Extracted JWT string
 function extractJWTToken (Request req) returns (string) {
     string authHeader = req.getHeader(AUTH_HEADER);
     string[] authHeaderComponents = authHeader.split(" ");

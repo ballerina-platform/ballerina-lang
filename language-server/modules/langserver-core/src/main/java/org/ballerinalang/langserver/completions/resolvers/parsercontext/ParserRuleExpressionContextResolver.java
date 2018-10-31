@@ -34,16 +34,15 @@ import java.util.List;
  */
 public class ParserRuleExpressionContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ParserRuleContext contextParent = completionContext
-                .get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getParent();
-        // TODO: Specially add the check in case of binary expressions
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        ParserRuleContext contextParent = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getParent();
         if (contextParent instanceof BallerinaParser.BinaryEqualExpressionContext) {
             contextParent = contextParent.getParent();
         }
         if (contextParent != null) {
-            return CompletionItemResolver.getResolverByClass(contextParent.getClass()).resolveItems(completionContext);
+            return CompletionItemResolver.getResolverByClass(contextParent.getClass()).resolveItems(context);
         }
+
         return new ArrayList<>();
     }
 }

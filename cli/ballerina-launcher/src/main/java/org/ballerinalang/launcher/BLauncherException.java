@@ -32,7 +32,7 @@ public class BLauncherException extends RuntimeException {
         detailedMessages.add(message);
     }
 
-    List<String> getMessages() {
+    public List<String> getMessages() {
         return detailedMessages;
     }
 }

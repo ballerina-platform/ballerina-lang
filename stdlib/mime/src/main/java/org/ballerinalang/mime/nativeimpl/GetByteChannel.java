@@ -32,9 +32,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
-import static org.ballerinalang.mime.util.MimeConstants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 
 /**
  * Get the entity body as a byte channel.
@@ -55,16 +55,16 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
         BMap<String, BValue> byteChannelStruct;
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
+            byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO,
+                    READABLE_BYTE_CHANNEL_STRUCT);
             Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
             if (byteChannel != null) {
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
                 context.setReturnValues(byteChannelStruct);
             } else {
                 if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
-                    context.setReturnValues(MimeUtil.createError(context,
-                            "Byte channel is not available but payload can be obtain either as xml, " +
-                                    "json, string or byte[] type"));
+                    context.setReturnValues(MimeUtil.createError(context, "Byte channel is not available but " +
+                            "payload can be obtain either as xml, json, string or byte[] type"));
                 } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null && EntityBodyHandler.
                         getBodyPartArray(entityStruct).size() != 0) {
                     context.setReturnValues(MimeUtil.createError(context,

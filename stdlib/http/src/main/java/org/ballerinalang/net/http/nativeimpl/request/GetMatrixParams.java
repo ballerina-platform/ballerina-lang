@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.uri.URIUtil;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Get the Query params from HTTP message and return a map.
@@ -50,7 +50,7 @@ public class GetMatrixParams extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
         String path = context.getStringArgument(0);
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
+        HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
         context.setReturnValues(URIUtil.getMatrixParamsMap(path, httpCarbonMessage));
     }
 }

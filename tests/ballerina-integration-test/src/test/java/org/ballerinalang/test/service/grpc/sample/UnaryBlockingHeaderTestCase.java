@@ -22,11 +22,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -35,25 +32,21 @@ import java.nio.file.Paths;
 
 /**
  * Test class for headers for gRPC unary service with blocking and non-blocking client.
- *
  */
+@Test(groups = "grpc-test")
 public class UnaryBlockingHeaderTestCase {
 
-    private ServerInstance ballerinaServer;
+    private CompileResult result;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "unary_service3.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
         TestUtils.prepareBalo(this);
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_client_with_headers.bal");
+        result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test
     public void testBlockingBallerinaClient() {
-
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
         final String serverMsg = "Hello WSO2";
 
@@ -65,20 +58,12 @@ public class UnaryBlockingHeaderTestCase {
 
     @Test
     public void testBlockingHeaderClient() {
-
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
-        final String serverMsg = "Header: 1234567890";
+        final String serverMsg = "Header: 2233445677";
 
         BValue[] responses = BRunUtil.invoke(result, "testBlockingHeader", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
-    }
-
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
     }
 }

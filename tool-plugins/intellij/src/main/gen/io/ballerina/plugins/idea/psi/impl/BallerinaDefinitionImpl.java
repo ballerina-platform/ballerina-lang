@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaDefinition {
 
-  public BallerinaDefinitionImpl(ASTNode node) {
+  public BallerinaDefinitionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
@@ -61,8 +61,8 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
 
   @Override
   @Nullable
-  public BallerinaGlobalVariableDefinition getGlobalVariableDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalVariableDefinition.class);
+  public BallerinaGlobalVariable getGlobalVariable() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalVariable.class);
   }
 
   @Override

@@ -38,7 +38,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#hasNextTextRecord.
+ * Extern function ballerina/io#hasNextTextRecord.
  *
  * @since 0.961.0
  */
@@ -46,7 +46,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         orgName = "ballerina", packageName = "io",
         functionName = "hasNext",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "DelimitedTextRecordChannel",
+                structType = "ReadableTextRecordChannel",
                 structPackage = "ballerina/io"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true

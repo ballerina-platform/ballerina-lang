@@ -21,33 +21,30 @@ package org.ballerinalang.stdlib.log;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.observability.ObservabilityUtils;
 
 /**
- * Native function ballerina.log:printError.
+ * Extern function ballerina.log:printError.
  *
  * @since 0.95.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "log",
         functionName = "printError",
-        args = {@Argument(name = "msg", type = TypeKind.STRING), @Argument(name = "err", type = TypeKind.RECORD)},
+        args = {@Argument(name = "msg", type = TypeKind.ANY),
+                @Argument(name = "err", type = TypeKind.RECORD)
+        },
         isPublic = true
 )
 public class LogError extends AbstractLogFunction {
 
     public void execute(Context ctx) {
-        String pkg = getPackagePath(ctx);
-        String logMessage = getLogMessage(ctx, 0);
-        if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
-            BMap<String, BValue> err = (BMap<String, BValue>) ctx.getNullableRefArgument(0);
-            getLogger(pkg).error(logMessage + (err == null ? "" : " : " + err.stringValue()));
-        }
-        ObservabilityUtils.logMessageToActiveSpan(ctx, BLogLevel.ERROR.name(), logMessage, true);
-        ctx.setReturnValues();
+        logMessage(ctx, BLogLevel.ERROR, (pkg, message) -> {
+            BError err = (BError) ctx.getNullableRefArgument(1);
+            String errorMsg = (err == null) ? "" : " : " + err.stringValue();
+            getLogger(pkg).error(message + errorMsg);
+        });
     }
 }

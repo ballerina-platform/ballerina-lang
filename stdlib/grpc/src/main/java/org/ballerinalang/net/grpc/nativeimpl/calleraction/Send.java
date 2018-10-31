@@ -47,7 +47,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDE
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Native function to respond the caller.
+ * Extern function to respond the caller.
  *
  * @since 0.96.1
  */
@@ -81,7 +81,7 @@ public class Send extends BlockingNativeCallableUnit {
                 .RESPONSE_MESSAGE_DEFINITION);
         
         if (responseObserver == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
                             "connector. Response sender does not exist"))));
         } else {
@@ -101,7 +101,7 @@ public class Send extends BlockingNativeCallableUnit {
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);
-                context.setError(MessageUtils.getConnectorError(context, e));
+                context.setError(MessageUtils.getConnectorError(e));
             }
         }
     }

@@ -83,7 +83,7 @@ public class BaloCreator {
      * @param orgName   organization name.
      * @param pkgName   package name.
      */
-    public static void cleaPackageFromRepository(String orgName, String pkgName) {
+    public static void clearPackageFromRepository(String orgName, String pkgName) {
         BFileUtil.delete(Paths.get(TARGET, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, pkgName));
     }
 }

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaTableLiteral {
 
-  public BallerinaTableLiteralImpl(ASTNode node) {
+  public BallerinaTableLiteralImpl(@NotNull ASTNode node) {
     super(node);
   }
 

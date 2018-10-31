@@ -39,7 +39,7 @@ function testAsyncNonNativeBasic5() returns float {
 }
 
 function testAsyncNonNativeBasic6() returns boolean {
-  future<float> f1 = start addSlower(5, 5);
+  future<float> f1 = start addSlower(5.0, 5.0);
   boolean a = f1.isDone();
   float v1 = await f1;
   boolean b = f1.isDone();

@@ -41,7 +41,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Native function to inform the caller, server finished sending messages.
+ * Extern function to inform the caller, server finished sending messages.
  *
  * @since 1.0.0
  */
@@ -67,7 +67,7 @@ public class Complete extends BlockingNativeCallableUnit {
                 .RESPONSE_MESSAGE_DEFINITION);
 
         if (responseObserver == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
                             "connector. response sender does not exist"))));
         } else {
@@ -77,7 +77,7 @@ public class Complete extends BlockingNativeCallableUnit {
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending complete message to caller.", e);
-                context.setError(MessageUtils.getConnectorError(context, e));
+                context.setError(MessageUtils.getConnectorError(e));
             }
         }
     }

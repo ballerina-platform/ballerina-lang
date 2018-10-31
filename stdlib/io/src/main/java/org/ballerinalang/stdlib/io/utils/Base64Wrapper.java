@@ -50,4 +50,9 @@ public class Base64Wrapper extends Channel {
     public boolean isSelectable() {
         return false;
     }
+
+    @Override
+    public boolean remaining() {
+        return false;
+    }
 }

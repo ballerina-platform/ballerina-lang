@@ -22,7 +22,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -185,16 +184,6 @@ public class ValueTypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "true-append-true";
         Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testIntArrayToLongArray() {
-        BValue[] returns = BRunUtil.invoke(result, "intarrtofloatarr", new BValue[]{});
-        Assert.assertTrue(returns[0] instanceof BFloatArray);
-        BFloatArray result = (BFloatArray) returns[0];
-        Assert.assertEquals(result.get(0), 999.0, DELTA);
-        Assert.assertEquals(result.get(1), 95.0, DELTA);
-        Assert.assertEquals(result.get(2), 889.0, DELTA);
     }
 
     @Test

@@ -39,6 +39,7 @@ public class ClientContextHolder {
      * @param service   {@code ServiceNode} for a valid ballerina source file
      * @param endpoints list of endpoints to be used as service endpoints for generated client
      * @return A parsable data model for provided ballerina {@code service}
+     * @throws CodeGeneratorException when there are generation exceptions
      */
     public static ClientContextHolder buildContext(ServiceNode service, List<EndpointNode> endpoints)
             throws CodeGeneratorException {

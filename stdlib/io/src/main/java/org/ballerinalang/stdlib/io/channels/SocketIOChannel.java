@@ -68,6 +68,11 @@ public class SocketIOChannel extends Channel {
         return selectable;
     }
 
+    @Override
+    public boolean remaining() {
+        return false;
+    }
+
     /**
      * Shutdown the connection for reading.
      *

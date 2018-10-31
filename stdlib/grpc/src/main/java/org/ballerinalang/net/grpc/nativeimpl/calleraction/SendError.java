@@ -44,7 +44,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Native function to send server error the caller.
+ * Extern function to send server error the caller.
  *
  * @since 1.0.0
  */
@@ -78,7 +78,7 @@ public class SendError extends BlockingNativeCallableUnit {
 
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         if (responseObserver == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
                             "error. Response observer not found."))));
         } else {
@@ -96,7 +96,7 @@ public class SendError extends BlockingNativeCallableUnit {
                 responseObserver.onError(errorMessage);
             } catch (Exception e) {
                 LOG.error("Error while sending error to caller.", e);
-                context.setError(MessageUtils.getConnectorError(context, e));
+                context.setError(MessageUtils.getConnectorError(e));
             }
         }
     }

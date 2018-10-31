@@ -35,7 +35,7 @@ import java.io.IOException;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
 
 /**
- * Native function to create a byte array to use as the content when a ByteChannel is specified to indicate the
+ * Extern function to create a byte array to use as the content when a ByteChannel is specified to indicate the
  * content to be sent as the WebSub notification.
  *
  * @since 0.973.0

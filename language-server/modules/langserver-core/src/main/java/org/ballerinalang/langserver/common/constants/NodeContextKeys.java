@@ -47,6 +47,8 @@ public class NodeContextKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<String> VAR_NAME_OF_NODE_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<List<Location>> REFERENCE_NODES_KEY
+    public static final LSContext.Key<List<Location>> REFERENCE_RESULTS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<PackageID>> REFERENCE_PKG_IDS_KEY
             = new LSContext.Key<>();
 }

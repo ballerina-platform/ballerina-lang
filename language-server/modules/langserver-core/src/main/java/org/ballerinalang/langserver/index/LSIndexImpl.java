@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.index;
 
+import org.ballerinalang.langserver.index.dao.DAOFactory;
 import org.h2.tools.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,52 +32,23 @@ import java.sql.SQLException;
  */
 public class LSIndexImpl implements LSIndex {
 
-    private static final LSIndexImpl instance = new LSIndexImpl();
+    private static final String DRIVER = "org.h2.Driver";
 
     private static final Logger logger = LoggerFactory.getLogger(LSIndexImpl.class);
  
-    private LSIndexQueryProcessor queryProcessor = null;
- 
     private Connection connection;
- 
-    private LSIndexImpl() {}
+    
+    private DAOFactory daoFactory;
 
-    public static LSIndexImpl getInstance() {
-        return instance;
-    }
-
-    /**
-     * Init the Lang server Index with the index DB connection.
-     * 
-     * @param connection    Connection to the index db
-     */
-    public void init(Connection connection) {
-        if (connection == null) {
-            // Only at the build time
-            initDefaultConnection();
-        } else {
-            this.queryProcessor = new LSIndexQueryProcessor(connection);
-        }
-    }
-
-    /**
-     * Load the index from a dump index database.
-     *
-     * @return {@link Boolean}  Whether the index loading is successful or not
-     */
-    @Override
-    public boolean initFromIndexDump(String indexDumpPath) {
-        String connectionURL
-                = "jdbc:h2:mem:test\\;INIT=RUNSCRIPT FROM '" + indexDumpPath.replace("\\", "\\\\") + "'";
+    public LSIndexImpl(String indexPath) {
+        String connectionURL = "jdbc:h2:mem:test\\;INIT=RUNSCRIPT FROM '" + indexPath.replace("\\", "\\\\") + "'";
         try {
-            this.connection = getNewConnection(connectionURL);
-            this.setQueryProcessor(this.connection);
-            return true;
+            Class.forName(DRIVER);
+            this.connection = DriverManager.getConnection(connectionURL);
+            this.daoFactory = new DAOFactory(this.connection);
         } catch (ClassNotFoundException | SQLException e) {
             logger.error("Error in Creating new Index DB Connection.");
         }
-        
-        return false;
     }
 
     /**
@@ -126,31 +98,26 @@ public class LSIndexImpl implements LSIndex {
     }
 
     /**
-     * Get the Query Processor Instance.
-     * @return {@link LSIndexQueryProcessor}    Index Query Processor Instance
+     * Close the Language Server Index Connection.
+     *
+     * @return Whether the operation is success or not
      */
-    public LSIndexQueryProcessor getQueryProcessor() {
-        return queryProcessor;
+    @Override
+    public boolean closeConnection() {
+        try {
+            this.connection.close();
+        } catch (SQLException e) {
+            logger.error("Failed to close the Index DB connection");
+        }
+        return true;
     }
 
     /**
-     * Create the connection to the index database.
+     * Get the DAO Factory instance.
+     * 
+     * @return {@link DAOFactory}   DAOFactory instance
      */
-    private void initDefaultConnection() {
-        try {
-            this.connection = getNewConnection(Constants.DEFAULT_CONNECTION_URL);
-            this.setQueryProcessor(this.connection);
-        } catch (ClassNotFoundException | SQLException e) {
-            logger.error("Error in Creating new Index DB Connection.");
-        }
-    }
-
-    private static Connection getNewConnection(String connectionURL) throws ClassNotFoundException, SQLException {
-        Class.forName(Constants.DRIVER);
-        return DriverManager.getConnection(connectionURL);
-    }
-
-    private void setQueryProcessor(Connection connection) {
-        this.queryProcessor = new LSIndexQueryProcessor(connection);
+    public DAOFactory getDaoFactory() {
+        return daoFactory;
     }
 }

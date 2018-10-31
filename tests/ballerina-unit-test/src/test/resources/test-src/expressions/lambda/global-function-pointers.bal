@@ -1,10 +1,10 @@
 function (string a, int b) returns (string) glf1 = foo;
 
-function (string a, boolean b) returns (string) glf2 = (string a, boolean b) => (string) {
+function (string a, boolean b) returns (string) glf2 = function (string a, boolean b) returns (string) {
                                                                return a + b;
                                                            };
 
-function (string, int) returns (string) glf3 = (string a, int b) => (string) {
+function (string, int) returns (string) glf3 = function (string a, int b) returns (string) {
     return "llll";
 };
 

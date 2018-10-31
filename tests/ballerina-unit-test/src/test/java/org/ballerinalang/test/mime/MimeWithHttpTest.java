@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayOutputStream;
@@ -71,7 +71,7 @@ public class MimeWithHttpTest {
             characterChannel.close();
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
                     responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
+            HttpCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
             Assert.assertNotNull(response, "Response message not found");
 
             InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();

@@ -29,7 +29,7 @@ import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.Snapshot;
 
 /**
- * This is the getSnapshot native function implementation of the Gauge object.
+ * This is the getSnapshot extern function implementation of the Gauge object.
  *
  * @since 0.980.0
  */

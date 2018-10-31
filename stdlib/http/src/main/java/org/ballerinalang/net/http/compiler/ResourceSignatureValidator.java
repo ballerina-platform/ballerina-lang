@@ -44,11 +44,6 @@ public class ResourceSignatureValidator {
 
         if (!isValidResourceParam(signatureParams.get(1), HTTP_REQUEST_TYPE)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "second parameter should be of type " + HTTP_REQUEST_TYPE);
-            return;
-        }
-
-        if (nParams == COMPULSORY_PARAM_COUNT) {
-            return;
         }
     }
 
@@ -64,7 +59,8 @@ public class ResourceSignatureValidator {
         List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();
         int count = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
-            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_RESOURCE_CONFIG)) {
+            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_RESOURCE_CONFIG) &&
+                    annotation.getExpression() != null) {
                 annVals = ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
                 count++;
             }
@@ -86,7 +82,7 @@ public class ResourceSignatureValidator {
                                                "An upgradeService need to be specified for the WebSocket upgrade " +
                                                        "resource");
                         }
-                    } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.size() == 0) {
+                    } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.isEmpty()) {
                         dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
                                            "An upgradeService need to be specified for the WebSocket upgrade " +
                                                    "resource");
@@ -94,6 +90,9 @@ public class ResourceSignatureValidator {
                 }
             }
         }
+    }
+
+    private ResourceSignatureValidator() {
     }
 }
 

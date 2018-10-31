@@ -28,8 +28,11 @@ public class BClosure implements BValue {
 
     private BValue value;
 
-    public BClosure(BValue value) {
+    private BType type;
+
+    public BClosure(BValue value, BType type) {
         this.value = value;
+        this.type = type;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class BClosure implements BValue {
 
     @Override
     public BType getType() {
-        return value.getType();
+        return type;
     }
 
     public BValue value() {
@@ -48,7 +51,7 @@ public class BClosure implements BValue {
 
     @Override
     public BValue copy() {
-        return new BClosure(value);
+        return new BClosure(value, type);
     }
 
     @Override

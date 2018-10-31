@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -36,7 +37,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina/io#readXml.
+ * Extern function ballerina/io#readXml.
  *
  * @since 0.971.0
  */
@@ -44,7 +45,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         orgName = "ballerina",
         packageName = "io",
         functionName = "readXml",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableCharacterChannel",
+                structPackage = "ballerina/io"),
         isPublic = true
 )
 public class ReadXml implements NativeCallableUnit {
@@ -57,7 +59,7 @@ public class ReadXml implements NativeCallableUnit {
         try {
             xml = XMLUtils.parse(reader);
         } catch (BallerinaException e) {
-            BMap<String, BValue> errorStruct = IOUtils.createError(context, e.getMessage());
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
             context.setReturnValues(errorStruct);
             callback.notifySuccess();
             return;

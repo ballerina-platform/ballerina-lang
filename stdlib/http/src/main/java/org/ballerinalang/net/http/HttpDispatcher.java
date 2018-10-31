@@ -28,19 +28,14 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.runtime.message.BlobDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -66,9 +61,7 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTI
  */
 public class HttpDispatcher {
 
-    private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
-
-    protected static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
+    public static HttpService findService(HTTPServicesRegistry servicesRegistry, HttpCarbonMessage inboundReqMsg) {
         try {
             Map<String, HttpService> servicesOnInterface;
             List<String> sortedServiceURIs;
@@ -103,12 +96,12 @@ public class HttpDispatcher {
             HttpService service = servicesOnInterface.get(basePath);
             setInboundReqProperties(inboundReqMsg, validatedUri, basePath);
             return service;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
     }
 
-    private static void setInboundReqProperties(HTTPCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
+    private static void setInboundReqProperties(HttpCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
         String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
         inboundReqMsg.setProperty(HttpConstants.BASE_PATH, basePath);
         inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
@@ -117,7 +110,7 @@ public class HttpDispatcher {
         inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
     }
 
-    private static URI getValidatedURI(String uriStr) {
+    public static URI getValidatedURI(String uriStr) {
         URI requestUri;
         try {
             requestUri = URI.create(uriStr);
@@ -127,25 +120,14 @@ public class HttpDispatcher {
         return requestUri;
     }
 
-    private static String getInterface(HTTPCarbonMessage inboundRequest) {
-        String interfaceId = (String) inboundRequest.getProperty(HttpConstants.LISTENER_INTERFACE_ID);
-        if (interfaceId == null) {
-            if (breLog.isDebugEnabled()) {
-                breLog.debug("Interface id not found on the message, hence using the default interface");
-            }
-            interfaceId = HttpConstants.DEFAULT_INTERFACE;
-        }
-
-        return interfaceId;
-    }
-
     /**
      * This method finds the matching resource for the incoming request.
      *
+     * @param servicesRegistry HTTP service registry
      * @param inboundMessage incoming message.
      * @return matching resource.
      */
-    public static HttpResource findResource(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundMessage) {
+    public static HttpResource findResource(HTTPServicesRegistry servicesRegistry, HttpCarbonMessage inboundMessage) {
         String protocol = (String) inboundMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
@@ -161,12 +143,12 @@ public class HttpDispatcher {
 
             // Find the Resource
             return HttpResourceDispatcher.findResource(service, inboundMessage);
-        } catch (Throwable throwable) {
-            throw new BallerinaConnectorException(throwable.getMessage());
+        } catch (Exception e) {
+            throw new BallerinaConnectorException(e.getMessage());
         }
     }
 
-    public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage,
+    public static BValue[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   Struct endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
         ProgramFile programFile =
@@ -234,11 +216,11 @@ public class HttpDispatcher {
         try {
             switch (entityBodyType.getTag()) {
                 case TypeTags.STRING_TAG:
-                    StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
+                    BString stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, stringDataSource);
-                    return stringDataSource != null ? new BString(stringDataSource.getMessageAsString()) : null;
+                    return stringDataSource;
                 case TypeTags.JSON_TAG:
-                    BJSON bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+                    BValue bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
                     return bjson;
                 case TypeTags.XML_TAG:
@@ -247,23 +229,21 @@ public class HttpDispatcher {
                     return bxml;
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
+                        BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
-                        return new BByteArray(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
+                        return blobDataSource;
+                    } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+                        bjson = getBJsonValue(inRequestEntity);
+                        return getRecordArray(entityBodyType, bjson);
                     } else {
                         throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
                                 ((BArrayType) entityBodyType).getElementType().getName());
                     }
-                case TypeTags.OBJECT_TYPE_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
-                    bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
-                    EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
-                    try {
-                        return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
-                    } catch (NullPointerException ex) {
-                        throw new BallerinaConnectorException("cannot convert payload to struct type: " +
-                                entityBodyType.getName());
-                    }
+                    bjson = getBJsonValue(inRequestEntity);
+                    return getRecord(entityBodyType, bjson);
+                default:
+                        //Do nothing
             }
         } catch (Exception ex) {
             throw new BallerinaConnectorException("Error in reading payload : " + ex.getMessage());
@@ -271,8 +251,54 @@ public class HttpDispatcher {
         return null;
     }
 
-    public static boolean shouldDiffer(HttpResource httpResource) {
-        return ((httpResource != null && httpResource.getSignatureParams().getEntityBody() != null));
+    /**
+     * Convert a json to the relevant record type.
+     *
+     * @param entityBodyType Represents entity body type
+     * @param bjson          Represents the json value that needs to be converted
+     * @return the relevant ballerina record or object
+     */
+    private static BValue getRecord(BType entityBodyType, BValue bjson) {
+        try {
+            return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
+        } catch (NullPointerException ex) {
+            throw new BallerinaConnectorException("cannot convert payload to record type: " +
+                    entityBodyType.getName());
+        }
     }
 
+    /**
+     * Convert a json array to the relevant record array.
+     *
+     * @param entityBodyType Represents entity body type
+     * @param bjson          Represents the json array that needs to be converted
+     * @return the relevant ballerina record or object array
+     */
+    private static BValue getRecordArray(BType entityBodyType, BValue bjson) {
+        try {
+            return JSONUtils.convertJSONToBArray(bjson, (BArrayType) entityBodyType);
+        } catch (NullPointerException ex) {
+            throw new BallerinaConnectorException("cannot convert payload to an array of type: " +
+                    entityBodyType.getName());
+        }
+    }
+
+    /**
+     * Given an inbound request entity construct the ballerina json.
+     *
+     * @param inRequestEntity Represents inbound request entity
+     * @return a ballerina json value
+     */
+    private static BValue getBJsonValue(BMap<String, BValue> inRequestEntity) {
+        BValue bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+        EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
+        return bjson;
+    }
+
+    public static boolean shouldDiffer(HttpResource httpResource) {
+        return (httpResource != null && httpResource.getSignatureParams().getEntityBody() != null);
+    }
+
+    private HttpDispatcher() {
+    }
 }

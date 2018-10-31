@@ -51,12 +51,12 @@ function createBoolDefaultSealedArray() returns (boolean[], int) {
 // Float Arrays
 
 function createFloatSealedArray() returns int {
-    float[5] sealedArray = [0.0, 15.2, 1100, -25.8, -10];
+    float[5] sealedArray = [0.0, 15.2, 1100.0, -25.8, -10.0];
     return lengthof sealedArray;
 }
 
 function createFloatSealedArrayWithLabel() returns int {
-    float[!...] sealedArray = [0.0, 15.2, 1100, -25.8, -10];
+    float[!...] sealedArray = [0.0, 15.2, 1100.0, -25.8, -10.0];
     return lengthof sealedArray;
 }
 

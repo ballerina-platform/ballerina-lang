@@ -17,14 +17,12 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -35,6 +33,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,8 +53,11 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
+
 /**
- * This class provides util methods when pushing Ballerina packages to central and home repository.
+ * This class provides util methods when pushing Ballerina modules to central and home repository.
  *
  * @since 0.95.2
  */
@@ -66,50 +68,77 @@ public class PushUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    private static PrintStream outStream = System.err;
+    private static PrintStream outStream = System.out;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
+    private static Settings settings;
 
     /**
-     * Push/Uploads packages to the central repository.
+     * Push/Uploads modules to the central repository.
      *
-     * @param packageName   path of the package folder to be pushed
-     * @param sourceRoot    path to the directory containing source files and packages
-     * @param installToRepo if it should be pushed to central or home
+     * @param packageName   path of the module folder to be pushed
+     * @param sourceRoot    path to the directory containing source files and modules
+     * @param installToRepo repo the module should be pushed to central or the home repository
+     * @param noBuild       do not build sources before pushing
      */
-    public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo, boolean noBuild) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        Manifest manifest = readManifestConfigurations(prjDirPath);
+        // Check if the Ballerina.toml exists
+        if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
+            throw createLauncherException("Couldn't locate Ballerina.toml in the project directory. Run " +
+                                                     "'ballerina init' to create the Ballerina.toml file " +
+                                                     "automatically and re-run the 'ballerina push' command");
+        }
+        Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
         if (manifest.getName().isEmpty()) {
-            throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
+            throw createLauncherException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
         }
 
         if (manifest.getVersion().isEmpty()) {
-            throw new BLangCompilerException("A package version is required when pushing. This is not specified " +
+            throw createLauncherException("A module version is required when pushing. This is not specified " +
                                                      "in Ballerina.toml inside the project");
         }
 
         String orgName = manifest.getName();
+        // Validate the org-name
+        if (!RepoUtils.validateOrg(orgName)) {
+            throw createLauncherException("invalid organization name provided \'" + orgName + "\'. Only " +
+                                          "lowercase alphanumerics and underscores are allowed in an organization " +
+                                          "name and the maximum length is 256 characters");
+        }
+        // Validate the module-name
+        if (!RepoUtils.validatePkg(packageName)) {
+            throw createLauncherException("invalid module name provided \'" + packageName + "\'. Only " +
+                                          "alphanumerics, underscores and periods are allowed in a module name and " +
+                                          "the maximum length is 256 characters");
+        }
         String version = manifest.getVersion();
         String ballerinaVersion = RepoUtils.getBallerinaVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
-        // Get package path from project directory path
+        // Get module path from project directory path
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
-        if (Files.notExists(pkgPathFromPrjtDir)) {
-            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, true);
-        }
 
+        // Always build if the flag is not given
+        if (!noBuild) {
+            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false);
+        } else if (Files.notExists(pkgPathFromPrjtDir)) {
+            // If --no-build is given, first check if the module artifact exists. If it does not exist prompt the user
+            // to run "ballerina push" without the --no-build flag
+            throw createLauncherException("Couldn't locate the module artifact to be pushed. Run 'ballerina " +
+                                                     "push' without the --no-build flag");
+        }
+        
         if (installToRepo == null) {
             // Get access token
             String accessToken = checkAccessToken();
 
-            // Read the Package.md file content from the artifact
-            String mdFileContent = getPackageMDFileContent(pkgPathFromPrjtDir.toString(), packageName);
+            // Read the Module.md file content from the artifact
+            String mdFileContent = getModuleMDFileContent(pkgPathFromPrjtDir.toString(), packageName);
             if (mdFileContent == null) {
-                throw new BLangCompilerException("Cannot find Package.md file in the artifact");
+                throw createLauncherException("Cannot find Module.md file in the artifact");
             }
 
             String description = readSummary(mdFileContent);
@@ -120,19 +149,19 @@ public class PushUtils {
             String keywords = String.join(",", manifest.getKeywords());
             String license = manifest.getLicense();
 
-            // Push package to central
+            // Push module to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
-            Proxy proxy = RepoUtils.readSettings().getProxy();
+            Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
-            executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
-                             description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                             resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
-                             proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
+            executor.executeFunction("packaging_push/packaging_push.balx", MAIN_FUNCTION_NAME, accessToken,
+                    mdFileContent, description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
+                    resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
+                    proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
 
         } else {
             if (!installToRepo.equals("home")) {
-                throw new BLangCompilerException("Unknown repository provided to push the package");
+                throw createLauncherException("Unknown repository provided to push the module");
             }
             installToHomeRepo(packageID, pkgPathFromPrjtDir);
         }
@@ -154,11 +183,11 @@ public class PushUtils {
 
                 BrowserLauncher.startInDefaultBrowser(BALLERINA_CENTRAL_CLI_TOKEN);
             } catch (IOException e) {
-                throw new BLangCompilerException("Access token is missing in " + SETTINGS_TOML_FILE_PATH.toString() +
+                throw createLauncherException("Access token is missing in " + SETTINGS_TOML_FILE_PATH.toString() +
                                                  "\nAuto update failed. Please visit https://central.ballerina.io");
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.execute("packaging_token_updater/packaging_token_updater.balx", false);
+            executor.executeFunction("packaging_token_updater/packaging_token_updater.balx", MAIN_FUNCTION_NAME);
 
             boolean waitForToken = true;
             while (waitForToken) {
@@ -167,7 +196,7 @@ public class PushUtils {
                 if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
                     accessToken = getAccessTokenOfCLI();
                     if (accessToken.isEmpty()) {
-                        throw new BLangCompilerException("Access token is missing in " +
+                        throw createLauncherException("Access token is missing in " +
                                                                  SETTINGS_TOML_FILE_PATH.toString() + "\nPlease " +
                                                                  "visit https://central.ballerina.io");
                     } else {
@@ -186,7 +215,7 @@ public class PushUtils {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException ex) {
-            throw new BLangCompilerException("Error occurred when getting the access token");
+            throw createLauncherException("Error occurred while retrieving the access token");
         }
     }
 
@@ -203,16 +232,16 @@ public class PushUtils {
         try {
             return Files.getLastModifiedTime(path).toMillis();
         } catch (IOException ex) {
-            throw new BLangCompilerException("Error occurred when reading file for token " +
+            throw createLauncherException("Error occurred when reading file for token " +
                                              SETTINGS_TOML_FILE_PATH.toString());
         }
     }
 
     /**
-     * Install the package artifact to the home repository.
+     * Install the module artifact to the home repository.
      *
-     * @param packageID          packageID of the package
-     * @param pkgPathFromPrjtDir package path from the project directory
+     * @param packageID          packageID of the module
+     * @param pkgPathFromPrjtDir module path from the project directory
      */
     private static void installToHomeRepo(PackageID packageID, Path pkgPathFromPrjtDir) {
         Path targetDirectoryPath = Paths.get(BALLERINA_HOME_PATH.toString(),
@@ -222,7 +251,7 @@ public class PushUtils {
                                              packageID.version.getValue(),
                                              packageID.name.getValue() + ".zip");
         if (Files.exists(targetDirectoryPath)) {
-            throw new BLangCompilerException("Ballerina package exists in the home repository");
+            throw createLauncherException("Ballerina module exists in the home repository");
         } else {
             try {
                 Files.createDirectories(targetDirectoryPath);
@@ -230,44 +259,29 @@ public class PushUtils {
                 outStream.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
                                           packageID.version.getValue() + " [project repo -> home repo]");
             } catch (IOException e) {
-                throw new BLangCompilerException("Error occurred when creating directories in the home repository");
+                throw createLauncherException("Error occurred when creating directories in the home repository");
             }
         }
     }
 
     /**
-     * Get URI of the package from the remote repo.
+     * Get URI of the module from the remote repo.
      *
      * @param packageID packageID object
-     * @return full URI path of the package relative to the remote repo
+     * @return full URI path of the module relative to the remote repo
      */
     private static String resolvePkgPathInRemoteRepo(PackageID packageID) {
         Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Patten patten = remoteRepo.calculate(packageID);
         if (patten == Patten.NULL) {
-            throw new BLangCompilerException("Couldn't find package " + packageID.toString());
+            throw createLauncherException("Couldn't find module " + packageID.toString());
         }
         Converter<URI> converter = remoteRepo.getConverterInstance();
         List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
         if (uris.isEmpty()) {
-            throw new BLangCompilerException("Couldn't find package " + packageID.toString());
+            throw createLauncherException("Couldn't find module " + packageID.toString());
         }
         return uris.get(0).toString();
-    }
-
-    /**
-     * Read the manifest.
-     *
-     * @param prjDirPath project directory path
-     * @return manifest configuration object
-     */
-    private static Manifest readManifestConfigurations(Path prjDirPath) {
-        String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Manifest();
-        }
     }
 
     /**
@@ -276,7 +290,7 @@ public class PushUtils {
      * @return access token for generated for the CLI
      */
     private static String getAccessTokenOfCLI() {
-        Settings settings = RepoUtils.readSettings();
+        settings = TomlParserUtils.readSettings();
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }
@@ -284,12 +298,12 @@ public class PushUtils {
     }
 
     /**
-     * Reads the content of Package.md inside the archived balo.
+     * Reads the content of Module.md inside the archived balo.
      *
-     * @param archivedFilePath balo file path of the package
-     * @return content of Package.md as a string
+     * @param archivedFilePath balo file path of the module
+     * @return content of Module.md as a string
      */
-    private static String getPackageMDFileContent(String archivedFilePath, String packageName) {
+    private static String getModuleMDFileContent(String archivedFilePath, String packageName) {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(archivedFilePath);
@@ -297,7 +311,7 @@ public class PushUtils {
 
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if (entry.getName().equalsIgnoreCase(packageName + "/" + "Package.md")) {
+                if (entry.getName().equalsIgnoreCase(packageName + "/" + "Module.md")) {
                     InputStream stream = zipFile.getInputStream(entry);
                     Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
                     return scanner.hasNext() ? scanner.next() : "";
@@ -316,14 +330,14 @@ public class PushUtils {
     }
 
     /**
-     * Read summary of the package from Package.md file.
+     * Read summary of the module from Module.md file.
      *
-     * @param mdFileContent full content of Package.md
-     * @return summary of the package
+     * @param mdFileContent full content of Module.md
+     * @return summary of the module
      */
     private static String readSummary(String mdFileContent) {
         if (mdFileContent.isEmpty()) {
-            throw new BLangCompilerException("Package.md in the artifact is empty");
+            throw createLauncherException("Module.md in the artifact is empty");
         }
 
         Optional<String> result = Arrays.stream(mdFileContent.split("\n"))
@@ -331,23 +345,24 @@ public class PushUtils {
                                         .findFirst();
 
         if (!result.isPresent()) {
-            throw new BLangCompilerException("Cannot find package summary");
+            throw createLauncherException("Cannot find module summary");
         }
 
         String firstLine = result.get();
         if (firstLine.length() > 50) {
-            throw new BLangCompilerException("Summary of the package exceeds 50 characters");
+            throw createLauncherException("Summary of the module exceeds 50 characters");
         }
         return firstLine;
     }
 
     /**
-     * Push all packages to central.
+     * Push all modules to central.
      *
      * @param sourceRoot source root or project root
-     * @param home       if it should be pushed to central or home
+     * @param installToRepo repo the module should be pushed to central or the home repository
+     * @param noBuild    do not build sources before pushing
      */
-    public static void pushAllPackages(String sourceRoot, String home) {
+    public static void pushAllPackages(String sourceRoot, String installToRepo, boolean noBuild) {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         try {
             List<String> fileList = Files.list(sourceRootPath)
@@ -356,17 +371,17 @@ public class PushUtils {
                                          .filter(dirName -> !isSpecialDirectory(dirName))
                                          .map(Path::toString).collect(Collectors.toList());
             if (fileList.size() == 0) {
-                throw new BLangCompilerException("no packages found to push in " + sourceRootPath.toString());
+                throw createLauncherException("no modules found to push in " + sourceRootPath.toString());
             }
-            fileList.forEach(path -> pushPackages(path, sourceRoot, home));
+            fileList.forEach(path -> pushPackages(path, sourceRoot, installToRepo, noBuild));
         } catch (IOException ex) {
-            throw new BLangCompilerException("error occurred when pushing packages from " + sourceRootPath.toString(),
-                                             ex);
+            throw createLauncherException("error occurred while pushing modules from " + sourceRootPath.toString()
+                                                     + " " + ex.getMessage());
         }
     }
 
     /**
-     * Checks if the directory is a special directory that is not a package.
+     * Checks if the directory is a special directory that is not a module.
      *
      * @param dirName directory name
      * @return if the directory is a special directory or not

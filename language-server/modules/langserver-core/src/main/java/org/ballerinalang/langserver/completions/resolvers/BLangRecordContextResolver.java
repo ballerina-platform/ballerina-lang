@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Item Resolver for the BLangStruct node context.
+ * Item Resolver for the BLangRecord node context.
  */
 public class BLangRecordContextResolver extends AbstractItemResolver {
     @Override
@@ -43,13 +43,14 @@ public class BLangRecordContextResolver extends AbstractItemResolver {
                 .collect(Collectors.toList());
         if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
+            // This parser rule context is used to select the proper sorter.
             completionContext.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
                     new BallerinaParser.VariableDefinitionStatementContext(null, -1));
             return CompletionItemResolver
                     .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class)
                     .resolveItems(completionContext);
         }
-        this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+        completionItems.addAll(this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         return completionItems;
     }
 }

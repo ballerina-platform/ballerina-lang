@@ -20,8 +20,10 @@ package org.ballerinalang.test.services.dispatching;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -29,7 +31,7 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
@@ -50,51 +52,51 @@ public class UriMatrixParametersMatchTest {
     public void testMatrixParamsAndQueryParamsMatching() {
         String path = "/hello/t1/john;age=10;color=white/bar/1991;month=may;day=12/foo;a=5;b=10?x=10&y=5";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("pathParams").asText(), "john, 1991");
-        Assert.assertEquals(bJson.value().get("personMatrix").asText(), "age=10;color=white");
-        Assert.assertEquals(bJson.value().get("yearMatrix").asText(), "month=may;day=12");
-        Assert.assertEquals(bJson.value().get("fooMatrix").asText(), "a=5;b=10");
-        Assert.assertEquals(bJson.value().get("queryParams").asText(), "x=10&y=5");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("pathParams").stringValue(), "john, 1991");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("personMatrix").stringValue(), "age=10;color=white");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("yearMatrix").stringValue(), "month=may;day=12");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("fooMatrix").stringValue(), "a=5;b=10");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("queryParams").stringValue(), "x=10&y=5");
     }
 
     @Test
     public void testEncodedPathDispatching() {
         String path = "/hello/t2/john;age=2;color=white/foo%3Ba%3D5%3Bb%3D10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("person").asText(), "john");
-        Assert.assertEquals(bJson.value().get("personParamSize").asText(), "2");
-        Assert.assertEquals(bJson.value().get("fooParamSize").asText(), "0");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("person").stringValue(), "john");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("personParamSize").stringValue(), "2");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("fooParamSize").stringValue(), "0");
     }
 
     @Test
     public void testEncodedPathParamDispatching() {
         String path = "/hello/t2/john%3Bage%3D2%3Bcolor%3Dwhite/foo%3Ba%3D5%3Bb%3D10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("person").asText(), "john;age=2;color=white");
-        Assert.assertEquals(bJson.value().get("personParamSize").asText(), "0");
-        Assert.assertEquals(bJson.value().get("fooParamSize").asText(), "0");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("person").stringValue(), "john;age=2;color=white");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("personParamSize").stringValue(), "0");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("fooParamSize").stringValue(), "0");
     }
 
     @Test
     public void testNonEncodedUrlDispatching() {
         String path = "/hello/t2/john;age=2;color=white/foo;a=5;b=10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
@@ -111,7 +113,7 @@ public class UriMatrixParametersMatchTest {
     public void testErrorReportInURI() {
         String path = "/hello/t2/john;age;color=white/foo;a=5;b=10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(

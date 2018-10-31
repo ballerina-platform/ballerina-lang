@@ -30,7 +30,7 @@ import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function invalidate session.
+ * Extern function invalidate session.
  *
  * @since 0.89
  */

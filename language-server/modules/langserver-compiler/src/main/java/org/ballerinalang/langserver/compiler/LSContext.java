@@ -40,7 +40,7 @@ public interface LSContext {
     <V> V get(Key<V> key);
 
     /**
-     * @param <K>
+     * @param <K> Property Key
      * @since 0.95.5
      */
     class Key<K> {

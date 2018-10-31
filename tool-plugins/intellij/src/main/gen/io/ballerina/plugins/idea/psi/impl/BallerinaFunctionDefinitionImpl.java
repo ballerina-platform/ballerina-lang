@@ -30,11 +30,11 @@ import com.intellij.psi.stubs.IStubElementType;
 
 public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<BallerinaFunctionDefinitionStub> implements BallerinaFunctionDefinition {
 
-  public BallerinaFunctionDefinitionImpl(BallerinaFunctionDefinitionStub stub, IStubElementType type) {
+  public BallerinaFunctionDefinitionImpl(@NotNull BallerinaFunctionDefinitionStub stub, @NotNull IStubElementType type) {
     super(stub, type);
   }
 
-  public BallerinaFunctionDefinitionImpl(ASTNode node) {
+  public BallerinaFunctionDefinitionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
@@ -84,15 +84,15 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
   }
 
   @Override
-  @NotNull
-  public PsiElement getFunction() {
-    return notNullChild(findChildByType(FUNCTION));
+  @Nullable
+  public PsiElement getExtern() {
+    return findChildByType(EXTERN);
   }
 
   @Override
-  @Nullable
-  public PsiElement getNative() {
-    return findChildByType(NATIVE);
+  @NotNull
+  public PsiElement getFunction() {
+    return notNullChild(findChildByType(FUNCTION));
   }
 
   @Override

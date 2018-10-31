@@ -20,8 +20,11 @@ package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
@@ -36,8 +39,6 @@ import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.stdlib.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -54,23 +55,53 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-
 /**
  * Represents the util functions of IO operations.
  */
 public class IOUtils {
+
+    /**
+     * IO package name.
+     */
+    private static final String PROTOCOL_PACKAGE_IO = "ballerina/io";
+    /**
+     * IO error struct name.
+     */
+    private static final String IO_ERROR = "IOError";
+    /**
+     * message which will be propagated.
+     */
+    private static final String MESSAGE = "message";
+/*
     /**
      * Returns the error struct for the corresponding message.
      *
-     * @param context context of the native function.
+     * @param context context of the extern function.
      * @param message error message.
      * @return error message struct.
-     */
+     *//*
+
     public static BMap<String, BValue> createError(Context context, String message) {
         PackageInfo ioPkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo error = ioPkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(error, message);
+    }
+*/
+
+    /**
+     * Creates an error message.
+     *
+     * @param context context which is invoked.
+     * @param errCode the error code.
+     * @param errMsg  the cause for the error.
+     * @return an error which will be propagated to ballerina user.
+     */
+    public static BError createError(Context context, String errCode, String errMsg) {
+        BMap<String, BValue> ioErrorRecord = BLangConnectorSPIUtil.createBStruct(context,
+                PROTOCOL_PACKAGE_IO,
+                IO_ERROR);
+        ioErrorRecord.put(MESSAGE, new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, errCode, ioErrorRecord);
     }
 
     /**
@@ -78,7 +109,7 @@ public class IOUtils {
      *
      * @param channel the channel the bytes should be written.
      * @param content content which should be written.
-     * @param context context of the native function call.
+     * @param context context of the extern function call.
      * @param offset  the start index of the bytes which should be written.
      * @return the number of bytes written to the channel.
      * @throws ExecutionException   errors which occur during execution.
@@ -103,7 +134,7 @@ public class IOUtils {
      * @param channel channel which should be used to write bytes.
      * @param content content which should be written.
      * @param offset  offset which should be set when writing bytes.
-     * @param context context obtained from the native function call.
+     * @param context context obtained from the extern function call.
      * @return the number of bytes written.
      * @throws InterruptedException if the thread is interrupted
      * @throws ExecutionException   error while execution.
@@ -181,8 +212,9 @@ public class IOUtils {
      * Asynchronously reads bytes from the channel.
      *
      * @param content the initialized array which should be filled with the content.
-     * @param context context of the native function call.
+     * @param context context of the extern function call.
      * @param channel the channel the content should be read into.
+     * @return the number of bytes read.
      * @throws InterruptedException during interrupt error.
      * @throws ExecutionException   errors which occurs while execution.
      */
@@ -206,7 +238,7 @@ public class IOUtils {
      *
      * @param channel channel the bytes should be read from.
      * @param content byte [] which will hold the content which is read.
-     * @param context context obtained from the native function.
+     * @param context context obtained from the extern function.
      * @return the number of bytes read.
      * @throws InterruptedException errors which occur if the thread is interrupted.
      * @throws ExecutionException   errors which occur during execution.

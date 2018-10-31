@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerConnectorListener;
 import org.ballerinalang.net.grpc.ServerConnectorPortBindingListener;
 import org.ballerinalang.net.grpc.ServicesBuilderUtils;
@@ -42,7 +41,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
- * Native function to register service to service endpoint.
+ * Extern function to register service to service endpoint.
  *
  * @since 1.0.0
  */
@@ -64,9 +63,7 @@ public class Register extends AbstractGrpcNativeFunction {
         ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(serviceEndpoint);
         try {
             if (servicesRegistryBuilder == null) {
-                context.setReturnValues(MessageUtils.getConnectorError(context, new BallerinaConnectorException
-                        ("Error when initializing service register builder.")));
-                return;
+                throw  new BallerinaConnectorException("Error when initializing service register builder.");
             }
 
             servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service));

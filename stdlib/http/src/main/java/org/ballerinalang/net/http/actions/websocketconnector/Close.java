@@ -21,7 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -30,6 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.util.concurrent.CountDownLatch;
@@ -40,9 +40,9 @@ import java.util.concurrent.TimeUnit;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "close",
+        functionName = "externClose",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = "ballerina/http"),
+                             structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.OBJECT),
                 @Argument(name = "statusCode", type = TypeKind.INT),
@@ -65,7 +65,7 @@ public class Close implements NativeCallableUnit {
                 initiateConnectionClosure(context, statusCode, reason, connectionInfo, countDownLatch);
         waitForTimeout(context, timeoutInSecs, countDownLatch);
         closeFuture.channel().close().addListener(future -> {
-            connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD, new BBoolean(false));
+            WebSocketUtil.setListenerOpenField(connectionInfo);
             callback.notifySuccess();
         });
 
@@ -74,12 +74,17 @@ public class Close implements NativeCallableUnit {
     private ChannelFuture initiateConnectionClosure(Context context, int statusCode, String reason,
                                                     WebSocketOpenConnectionInfo connectionInfo, CountDownLatch latch) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-        return webSocketConnection.initiateConnectionClosure(statusCode, reason).addListener(future -> {
+        ChannelFuture closeFuture;
+        if (statusCode < 0) {
+            closeFuture = webSocketConnection.initiateConnectionClosure();
+        } else {
+            closeFuture = webSocketConnection.initiateConnectionClosure(statusCode, reason);
+        }
+        return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 context.setReturnValues(HttpUtil.getError(context, cause));
             } else {
-                connectionInfo.setCloseStatusCode(statusCode);
                 context.setReturnValues();
             }
             latch.countDown();
@@ -101,6 +106,7 @@ public class Close implements NativeCallableUnit {
             }
         } catch (InterruptedException err) {
             context.setReturnValues(HttpUtil.getError(context, "Connection interrupted while closing the connection"));
+            Thread.currentThread().interrupt();
         }
     }
 

@@ -41,7 +41,7 @@ public class MockSocketServer {
 
     public static final int SERVER_PORT = 47826;
     static final String SERVER_HOST = "localhost";
-    private static final String POISON_PILL = "Bye";
+    public static final String POISON_PILL = "Bye";
 
     public static void main(String[] args) throws IOException {
         Selector selector = Selector.open();
@@ -52,32 +52,38 @@ public class MockSocketServer {
         ByteBuffer buffer = ByteBuffer.allocate(256);
 
         while (true) {
-            selector.select();
-            Set<SelectionKey> selectedKeys = selector.selectedKeys();
-            Iterator<SelectionKey> iter = selectedKeys.iterator();
-            while (iter.hasNext()) {
-                SelectionKey key = iter.next();
-                if (key.isAcceptable()) {
-                    register(selector, serverSocket);
+            try {
+                selector.select();
+                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                Iterator<SelectionKey> iter = selectedKeys.iterator();
+                while (iter.hasNext()) {
+                    SelectionKey key = iter.next();
+                    if (key.isAcceptable()) {
+                        register(selector, serverSocket);
+                    }
+                    if (key.isReadable()) {
+                        answerWithEcho(buffer, key);
+                    }
+                    iter.remove();
                 }
-                if (key.isReadable()) {
-                    answerWithEcho(buffer, key);
-                }
-                iter.remove();
+            } catch (Throwable e) {
+                log.error("Error in MockSocketServer loop: " + e.getMessage());
             }
         }
     }
 
     private static void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
-        client.read(buffer);
+        final int read = client.read(buffer);
+        if (read == -1) {
+            client.close();
+        }
         byte[] readBytes = buffer.array();
         String deserializeContent = new String(readBytes).trim();
         if (POISON_PILL.equals(deserializeContent)) {
             client.close();
             log.info("Not accepting client messages anymore");
         }
-
         buffer.flip();
         client.write(buffer);
         buffer.clear();

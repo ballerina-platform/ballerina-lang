@@ -28,16 +28,17 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
-import javax.jms.Topic;
 
 /**
  * Create JMS topic subscriber for a topic subscriber endpoint.
@@ -51,11 +52,12 @@ import javax.jms.Topic;
         functionName = "createSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicSubscriber", structPackage = "ballerina/jms"),
         args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
-                 @Argument(name = "messageSelector", type = TypeKind.STRING)
+                @Argument(name = "messageSelector", type = TypeKind.STRING),
+                @Argument(name = "destination", type = TypeKind.OBJECT)
         },
         isPublic = true
 )
-public class CreateSubscriber extends AbstractBlockinAction {
+public class CreateSubscriber extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
@@ -68,10 +70,18 @@ public class CreateSubscriber extends AbstractBlockinAction {
                                                            Session.class,
                                                            context);
         Struct topicSubscriberConfigBRecord = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONFIG);
-        String topicPattern = topicSubscriberConfigBRecord.getStringField(Constants.TOPIC_PATTERN);
+        String topicPattern = JMSUtils.getTopicPattern(topicSubscriberConfigBRecord);
+
+        BMap<String, BValue> destinationBObject = (BMap<String, BValue>) context.getNullableRefArgument(2);
+        Destination destinationObject = JMSUtils.getDestination(context, destinationBObject);
+
+        if (JMSUtils.isNullOrEmptyAfterTrim(topicPattern) && destinationObject == null) {
+            throw new BallerinaException("Topic pattern and destination cannot be null at the same time", context);
+        }
 
         try {
-            Topic topic = JMSUtils.getTopic(session, topicPattern);
+            Destination topic = destinationObject != null ? destinationObject :
+                    JMSUtils.getTopic(session, topicPattern);
             MessageConsumer consumer = session.createConsumer(topic, messageSelector);
             Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);

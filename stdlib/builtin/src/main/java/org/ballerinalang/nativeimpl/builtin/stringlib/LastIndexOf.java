@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:lastIndexOf.
+ * Extern function ballerina.model.strings:lastIndexOf.
  *
  * @since 0.8.0
  */

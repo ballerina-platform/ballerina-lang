@@ -36,7 +36,7 @@ public interface BallerinaFieldDefinition extends BallerinaCompositeElement {
   PsiElement getAssign();
 
   @Nullable
-  PsiElement getComma();
+  PsiElement getQuestionMark();
 
   @Nullable
   PsiElement getSemicolon();

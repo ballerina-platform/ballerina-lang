@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
@@ -56,7 +55,7 @@ public class SetByteChannel extends BlockingNativeCallableUnit {
         String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
         entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
                 (IOConstants.BYTE_CHANNEL_NAME));
-        MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+        BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
         if (dataSource != null) { //Clear message data source when the user set a byte channel to entity
             entityStruct.addNativeData(MESSAGE_DATA_SOURCE, null);
         }

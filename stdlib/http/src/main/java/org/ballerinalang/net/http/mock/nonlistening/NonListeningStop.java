@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -37,9 +36,4 @@ import org.ballerinalang.natives.annotations.Receiver;
         isPublic = true
 )
 public class NonListeningStop extends org.ballerinalang.net.http.serviceendpoint.Stop {
-
-    @Override
-    public void execute(Context context) {
-        super.execute(context);
-    }
 }

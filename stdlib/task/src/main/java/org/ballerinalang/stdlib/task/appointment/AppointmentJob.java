@@ -19,10 +19,8 @@
 package org.ballerinalang.stdlib.task.appointment;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.stdlib.task.TaskExecutor;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -39,16 +37,13 @@ public class AppointmentJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
-        NativeCallableUnit fn =
-                (NativeCallableUnit) jobDataMap.get(AppointmentConstants.BALLERINA_FUNCTION);
         Context balParentContext =
                 (Context) jobDataMap.get(AppointmentConstants.BALLERINA_PARENT_CONTEXT);
-        FunctionRefCPEntry onTriggerFunction =
-                (FunctionRefCPEntry) jobDataMap.get(AppointmentConstants.BALLERINA_ON_TRIGGER_FUNCTION);
-        FunctionRefCPEntry onErrorFunction =
-                (FunctionRefCPEntry) jobDataMap.get(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION);
+        FunctionInfo onTriggerFunction =
+                (FunctionInfo) jobDataMap.get(AppointmentConstants.BALLERINA_ON_TRIGGER_FUNCTION);
+        FunctionInfo onErrorFunction =
+                (FunctionInfo) jobDataMap.get(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION);
 
-        ProgramFile programFile = balParentContext.getProgramFile();
-        TaskExecutor.execute(fn, balParentContext, onTriggerFunction, onErrorFunction, programFile);
+        TaskExecutor.execute(balParentContext, onTriggerFunction, onErrorFunction);
     }
 }

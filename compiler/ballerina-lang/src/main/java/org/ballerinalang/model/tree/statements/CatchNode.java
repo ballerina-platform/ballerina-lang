@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.VariableNode;
 
 /**
  * @since 0.94
+ *
+ * @deprecated since 0.983.0, use trap instead.
  */
 public interface CatchNode extends Node {
     VariableNode getParameter();

@@ -37,7 +37,8 @@ public class CodeGeneratorTest {
 
     @BeforeClass()
     public void setup() {
-        String resourcePath = CodeGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String resourcePath = new File(CodeGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation()
+                .getPath()).getAbsolutePath();
         projectPath = Paths.get(resourcePath);
     }
 

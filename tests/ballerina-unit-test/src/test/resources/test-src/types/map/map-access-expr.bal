@@ -119,7 +119,7 @@ function processConcurrent(map<int> intMap, int n) {
          intMap[k] = i;
          i = intMap[k] ?: 0;  
          _ = intMap.remove(k);
-         i++;
+         i += 1;
       }
     }
     worker w2 {
@@ -134,7 +134,58 @@ function processConcurrent(map<int> intMap, int n) {
          intMap[k] = i;
          i = intMap[k] ?: 0;
          _ = intMap.remove(k);
-         i++;
+         i += 1;
       }
+    }
+}
+
+function testConcurrentMapGetKeys() returns error? {
+    map<int> intMap;
+    int n = 100000;
+    return processConcurrentKeys(intMap, n);
+}
+
+function processConcurrentKeys(map<int> intMap, int n) returns error? {
+    worker w1 {
+        int i = 0;
+        int j;
+        string k;
+        while (i < n) {
+            intMap["X"] = 100;
+            j = intMap.X;
+            k = <string> i;
+            intMap[k] = i;
+            i = intMap[k] ?: 0;  
+            _ = intMap.remove(k);
+            i += 1;
+        }
+    }
+    worker w2 {
+        int i = n;
+        int j;
+        string k;
+        int n2 = n * 2;
+        while (i < n2) {
+            intMap["X"] = 200;
+            j = intMap.X;
+            k = <string> i;
+            intMap[k] = i;
+            i = intMap[k] ?: 0;
+            _ = intMap.remove(k);
+            i += 1;
+        }
+    }
+    worker w3 {
+        try { 
+            int i = 0;
+            int length;
+            while (i < n) {
+                length = lengthof intMap.keys();
+                i += 1;
+            }
+        } catch (error e) {
+            return e;
+        }
+        return ();
     }
 }

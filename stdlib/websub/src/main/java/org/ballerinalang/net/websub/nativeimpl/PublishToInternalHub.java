@@ -31,7 +31,7 @@ import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to publish against a topic in the default Ballerina Hub's underlying broker.
+ * Extern function to publish against a topic in the default Ballerina Hub's underlying broker.
  *
  * @since 0.965.0
  */

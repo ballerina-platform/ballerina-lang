@@ -14,25 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Format which will be used to represent the CSV.
-
-    DEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field
-    separator and record separator.
-
-    CSV - Field separator would be "," and the record separator would be new line.
-
-    TDF - Field separator will be tab and record separator will be new line.
-}
+# Format which will be used to represent the CSV.
+#
+# DEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field
+#           separator and record separator.
+#
+# CSV - Field separator would be "," and the record separator would be new line.
+#
+# TDF - Field separator will be tab and record separator will be new line.
 public type Format "default"|"csv"|"tdf";
 @final public Format DEFAULT = "default";
 @final public Format CSV = "csv";
 @final public Format TDF = "tdf";
 
-documentation {
-    Field separators which are supported by DelimitedTextRecordChannel.
-}
+# Field separators which are supported by DelimitedTextRecordChannel.
 public type Separator ","|"\t"|":";
 @final public Separator COMMA = ",";
 @final public Separator TAB = "\t";
 @final public Separator COLON = ":";
+
+# Represents encoding used for protobuf
+@final string PROTOBUF_STRING_ENCODING = "UTF-8";
+
+# Wire types which will be used for protobuf channel
+public type WireType "VARINT"|"BIT64"|"LD"|"BIT32";

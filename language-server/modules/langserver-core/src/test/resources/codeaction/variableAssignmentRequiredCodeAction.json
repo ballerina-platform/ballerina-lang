@@ -1,0 +1,26 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 4
+    },
+    "end": {
+      "line": 3,
+      "character": 4
+    }
+  },
+  "expected": {
+    "title": "Create Variable",
+    "command": "CREATE_VAR",
+    "arguments": [
+      {
+        "argumentK": "function.location",
+        "argumentV": "4,4"
+      },
+      {
+        "argumentK": "function.returns",
+        "argumentV": "int"
+      }
+    ]
+  }
+}

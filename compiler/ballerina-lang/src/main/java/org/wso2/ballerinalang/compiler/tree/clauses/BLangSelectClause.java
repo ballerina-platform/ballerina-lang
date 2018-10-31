@@ -35,18 +35,18 @@ import java.util.List;
  */
 public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
-    private List<? extends SelectExpressionNode> selectExpressions;
+    private List<SelectExpressionNode> selectExpressions;
     private boolean isSelectAll;
     private GroupByNode groupBy;
     private HavingNode having;
 
     @Override
-    public void setSelectExpressions(List<? extends SelectExpressionNode> selectExpressions) {
+    public void setSelectExpressions(List<SelectExpressionNode> selectExpressions) {
         this.selectExpressions = selectExpressions;
     }
 
     @Override
-    public List<? extends SelectExpressionNode> getSelectExpressions() {
+    public List<SelectExpressionNode> getSelectExpressions() {
         return this.selectExpressions;
     }
 

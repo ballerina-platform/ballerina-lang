@@ -20,7 +20,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -36,9 +36,9 @@ import static org.ballerinalang.net.grpc.GrpcConstants.TO_HEADER;
  */
 public class InboundMessage {
 
-    private final HTTPCarbonMessage httpCarbonMessage;
+    private final HttpCarbonMessage httpCarbonMessage;
 
-    InboundMessage(HTTPCarbonMessage httpCarbonMessage) {
+    InboundMessage(HttpCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
     }
 
@@ -109,15 +109,15 @@ public class InboundMessage {
      */
     public String getHttpMethod() {
         return (String) httpCarbonMessage
-                .getProperty(org.wso2.transport.http.netty.common.Constants.HTTP_METHOD);
+                .getProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD);
     }
 
     /**
-     * Get underlying HTTPCarbonMessage.
+     * Get underlying HttpCarbonMessage.
      *
-     * @return HTTPCarbonMessage instance of the InboundMessage
+     * @return HttpCarbonMessage instance of the InboundMessage
      */
-    HTTPCarbonMessage getHttpCarbonMessage() {
+    HttpCarbonMessage getHttpCarbonMessage() {
         return httpCarbonMessage;
     }
 
@@ -128,7 +128,7 @@ public class InboundMessage {
      * @return true if no errors found, else otherwise
      * @throws ServerConnectorException server connector exception.
      */
-    public boolean respond(HTTPCarbonMessage carbonMessage) throws ServerConnectorException {
+    public boolean respond(HttpCarbonMessage carbonMessage) throws ServerConnectorException {
         HttpResponseFuture statusFuture = httpCarbonMessage.respond(carbonMessage);
         return statusFuture.getStatus().getCause() == null;
     }
@@ -151,7 +151,7 @@ public class InboundMessage {
      *
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
      */
     public abstract static class InboundStateListener implements MessageDeframer.Listener {
 
@@ -166,6 +166,8 @@ public class InboundMessage {
 
         /**
          * Override this method to provide a stream listener.
+         *
+         * @return stream listener
          */
         protected abstract StreamListener listener();
 

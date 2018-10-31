@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.services.basics;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -95,5 +96,13 @@ public class SignatureTest {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/mismatched-body-param.bal").getPath()).getAbsolutePath());
         BServiceUtil.runService(compileResult);
+    }
+
+    @Test
+    public void testDuplicateResources() {
+        CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader()
+                .getResource("test-src/services/resources/duplicate_resource_test.bal").getPath()).getAbsolutePath());
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        BAssertUtil.validateError(compileResult, 0, "redeclared symbol 'employee'", 8, 5);
     }
 }

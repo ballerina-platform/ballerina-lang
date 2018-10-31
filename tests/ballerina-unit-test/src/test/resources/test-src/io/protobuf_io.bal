@@ -8,8 +8,8 @@ public type Person record {
 Person p = {name:"Ballerina",age:34};
 
 function writeProtoDataToFile(string path) {
-    io:ByteChannel channel = io:openFile(path,io:WRITE);
-    io:ProtoChannel pch = new io:ProtoChannel(channel);
+    io:WritableByteChannel channel = io:openWritableFile(path);
+    io:WritableProtoChannel pch = new io:WritableProtoChannel(channel);
 
     var tagLdResponse = pch.writeTag(1,"LD");
     var strResponse = pch.writeString(p.name);
@@ -21,8 +21,8 @@ function writeProtoDataToFile(string path) {
 }
 
 function readProtoDataFile(string path) returns boolean|error {
-    io:ByteChannel channel = io:openFile(path,io:READ);
-    io:ProtoChannel pch = new io:ProtoChannel(channel);
+    io:ReadableByteChannel channel = io:openReadableFile(path);
+    io:ReadableProtoChannel pch = new io:ReadableProtoChannel(channel);
     int fieldNumber =check pch.readTag();
     match pch.readString(){
         string personName =>{

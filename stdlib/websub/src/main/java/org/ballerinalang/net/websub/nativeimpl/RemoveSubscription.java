@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to remove a subscription from the default Ballerina Hub's underlying broker.
+ * Extern function to remove a subscription from the default Ballerina Hub's underlying broker.
  *
  * @since 0.965.0
  */

@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -46,7 +46,7 @@ public class RecordScopeResolver extends CursorPositionResolver {
      */
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSServiceOperationContext completionContext) {
+                                      LSContext completionContext) {
         Node recordNode = treeVisitor.getBlockOwnerStack().peek();
         if (!recordNode.getKind().equals(NodeKind.RECORD_TYPE)) {
             return false;
@@ -68,7 +68,7 @@ public class RecordScopeResolver extends CursorPositionResolver {
                         || (line == ownerEndLine && col < ownerEndCol)));
         
         if (isCursorBefore) {
-            treeVisitor.setTerminateVisitor(true);
+            treeVisitor.forceTerminateVisitor();
             SymbolEnv recordEnv = createRecordEnv((BLangRecordTypeNode) recordNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(recordEnv), recordEnv);
         }

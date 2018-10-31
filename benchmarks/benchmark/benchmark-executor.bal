@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/time;
 
-function main(string... args) {
+public function main(string... args) {
 
     if (lengthof args < 3) {
         io:println("ERROR: Please specify the number of warm-up iterations and benchmark iterations.");

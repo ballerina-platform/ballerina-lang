@@ -20,8 +20,8 @@ package org.ballerinalang.net.grpc.proto;
 import org.ballerinalang.net.grpc.proto.definition.File;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Data Holder to store service definitions generated at compile time.
@@ -32,7 +32,7 @@ import java.util.Map;
 public class FileDefinitionHolder {
 
     private static final FileDefinitionHolder dataHolder = new FileDefinitionHolder();
-    private Map<String, File> serviceDefinitionMap = new HashMap<>();
+    private Map<String, File> serviceDefinitionMap = new ConcurrentHashMap<>();
 
     private FileDefinitionHolder() {
 

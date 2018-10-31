@@ -17,10 +17,14 @@
 
 import ballerina/cache;
 
-documentation {
-    Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
-    HTTP caching in the HTTP client endpoint.
-}
+# Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
+# HTTP caching in the HTTP client endpoint.
+#
+# + cache - The underlying cache used for storing HTTP responses
+# + policy - Gives the user some control over the caching behaviour. By default, this is set to
+#            `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
+#            header and either the `etag` or `last-modified` header are present.
+# + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
 public type HttpCache object {
 
     public cache:Cache cache;
@@ -71,18 +75,14 @@ public type HttpCache object {
     function get (string key) returns Response {
         match <Response[]>cache.get(key) {
             Response[] cacheEntry => return cacheEntry[lengthof cacheEntry - 1];
-            error err => throw err;
+            error err => panic err;
         }
     }
 
     function getAll (string key) returns Response[]|() {
-        try {
-            match <Response[]>cache.get(key) {
-                Response[] cacheEntry => return cacheEntry;
-                error err => return ();
-            }
-        } catch (error e) {
-            return ();
+        match trap <Response[]>cache.get(key) {
+            Response[] cacheEntry => return cacheEntry;
+            error err => return ();
         }
     }
 
@@ -152,15 +152,19 @@ function isCacheableStatusCode (int statusCode) returns boolean {
 }
 
 function addEntry (cache:Cache cache, string key, Response inboundResponse) {
-    try {
-        var existingResponses = cache.get(key);
-        match <Response[]>existingResponses {
-            Response[] cachedRespArray => cachedRespArray[lengthof cachedRespArray] = inboundResponse;
-            error err => throw err;
+    // TODO : Fix this logic.
+    var existingResponses = trap cache.get(key);
+    match existingResponses {
+        Response[] cachedRespArray => cachedRespArray[lengthof cachedRespArray] = inboundResponse;
+        error err => {
+            Response[] cachedResponses = [inboundResponse];
+            cache.put(key, cachedResponses);
+            //panic err;
         }
-    } catch (error e) {
-        Response[] cachedResponses = [inboundResponse];
-        cache.put(key, cachedResponses);
+        any => {
+            error e = error("unexpected error");
+            panic e;
+        }
     }
 }
 

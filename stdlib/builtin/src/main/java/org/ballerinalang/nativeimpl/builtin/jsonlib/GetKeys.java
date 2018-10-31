@@ -22,17 +22,15 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
+ * Extern function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
  * If the JSON is not an object type element, then this method will return an empty array.
  * 
  * @since 0.90
@@ -46,21 +44,16 @@ import org.slf4j.LoggerFactory;
 )
 public class GetKeys extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(GetKeys.class);
-
     @Override
     public void execute(Context ctx) {
         BStringArray keys = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) ctx.getNullableRefArgument(0);
+            BValue json = ctx.getNullableRefArgument(0);
             if (json == null) {
                 keys = new BStringArray();
             } else {
                 keys = JSONUtils.getKeys(json);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("keys: " + keys);
             }
         } catch (Throwable e) {
             ErrorHandler.handleJsonException("get keys from json", e);

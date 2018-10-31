@@ -39,7 +39,7 @@ function openFile(function (string) returns(File | error) fp) returns (string) {
 }
 
 function openFileFailure(string path) returns (File | error) {
-    error e = {message: "file not found: " + path};
+    error e = error("file not found: " + path);
     return e;
 }
 
@@ -157,18 +157,18 @@ function testMatchStatementBasics14(json a) returns (string | int | boolean) {
 
 type Human record {
     string name;
-    function (int, string) returns string | () foo;
+    function (int, string) returns string | () foo?;
 };
 
 type Man record {
     string name;
-    function (int, string) returns string | () foo;
+    function (int, string) returns string | () foo?;
     int age;
 };
 
 function testMatchStatementBasics16() returns (string | int | boolean) {
 
-     Human m = {name:"Piyal"};
+    Human m = {name:"Piyal"};
 
     match m {
         Man r => return r.name;

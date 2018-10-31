@@ -51,4 +51,8 @@ public class MockByteChannel extends Channel {
     public boolean isSelectable() {
         return false;
     }
+
+    public boolean remaining() {
+        return false;
+    }
 }

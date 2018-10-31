@@ -25,5 +25,9 @@ public interface LiteralNode extends ExpressionNode {
     Object getValue();
     
     void setValue(Object value);
+
+    String getOriginalValue();
+
+    void setOriginalValue(String originalValue);
     
 }

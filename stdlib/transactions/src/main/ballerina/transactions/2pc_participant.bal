@@ -16,37 +16,31 @@
 
 import ballerina/log;
 
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-}
+# This represents the protocol associated with the coordination type.
+#
+# + name - protocol name
 type Protocol record {
     @readonly string name;
 };
 
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-}
+# This represents the protocol associated with the coordination type.
+#
+# + name - protocol name
 type LocalProtocol record {
     @readonly string name;
 };
 
-documentation {
-    This represents the protocol associated with the coordination type.
+# This represents the protocol associated with the coordination type.
 
-    F{{name}} - protocol name
-    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
-                the `protocolFn` will be called
-}
+# + name - protocol name
+# + url - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
+#         the `protocolFn` will be called
 public type RemoteProtocol record {
     @readonly string name;
     @readonly string url;
 };
 
-type Participant object {
+type Participant abstract object {
 
     string participantId;
 
@@ -133,8 +127,8 @@ type RemoteParticipant object {
                 }
             }
         }
-        error err = {message:"Remote participant:" + self.participantId + " replied with invalid outcome"};
-        throw err;
+        error err = error("Remote participant:" + self.participantId + " replied with invalid outcome");
+        panic err;
     }
 
     function notifyMe(string protocolUrl, string action) returns NotifyResult|error {
@@ -158,8 +152,8 @@ type RemoteParticipant object {
                 }
             }
         }
-        error err = {message:"Unknown status on notify remote participant"};
-        throw err;
+        error err = error("Unknown status on notify remote participant");
+        panic err;
     }
 };
 
@@ -184,7 +178,7 @@ type LocalParticipant object {
     function prepareMe(string transactionId, int transactionBlockId) returns PrepareResult|error {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (!participatedTransactions.hasKey(participatedTxnId)) {
-            error err = {message:TRANSACTION_UNKNOWN};
+            error err = error(TRANSACTION_UNKNOWN);
             return err;
         }
         if (participatedTxn.state == TXN_STATE_ABORTED) {
@@ -242,11 +236,11 @@ type LocalParticipant object {
                 if (successful) {
                     return NOTIFY_RESULT_COMMITTED;
                 } else {
-                    error err = {message:NOTIFY_RESULT_FAILED_EOT_STR};
+                    error err = error(NOTIFY_RESULT_FAILED_EOT_STR);
                     return err;
                 }
             } else {
-                error err = {message:NOTIFY_RESULT_NOT_PREPARED_STR};
+                error err = error(NOTIFY_RESULT_NOT_PREPARED_STR);
                 return err;
             }
         } else if (action == COMMAND_ABORT) {
@@ -255,12 +249,12 @@ type LocalParticipant object {
             if (successful) {
                 return NOTIFY_RESULT_ABORTED;
             } else {
-                error err = {message:NOTIFY_RESULT_FAILED_EOT_STR};
+                error err = error(NOTIFY_RESULT_FAILED_EOT_STR);
                 return err;
             }
         } else {
-            error err = {message:"Invalid protocol action:" + action};
-            throw err;
+            error err = error("Invalid protocol action:" + action);
+            panic err;
         }
     }
 };

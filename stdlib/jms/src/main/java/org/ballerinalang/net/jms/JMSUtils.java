@@ -19,6 +19,7 @@
 
 package org.ballerinalang.net.jms;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
@@ -26,6 +27,7 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import java.util.Objects;
 import java.util.Properties;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
@@ -296,4 +299,45 @@ public class JMSUtils {
         return session.createTopic(topicPattern);
     }
 
+    /**
+     * Extract JMS Destination from the Destination struct.
+     *
+     * @param context ballerina context.
+     * @param destinationBObject Destination struct.
+     * @return JMS Destination object or null.
+     */
+    public static Destination getDestination(Context context, BMap<String, BValue> destinationBObject) {
+        Destination destination = null;
+        Object destinationObject = destinationBObject != null ?
+                destinationBObject.getNativeData(Constants.JMS_DESTINATION_OBJECT) : null;
+        if (destinationObject != null) {
+            destination = BallerinaAdapter.getNativeObject(destinationBObject,
+                                                           Constants.JMS_DESTINATION_OBJECT,
+                                                           Destination.class,
+                                                           context);
+        }
+        return destination;
+    }
+
+    /**
+     * Extract queue name from the config struct.
+     *
+     * @param configBRecord config struct.
+     * @return queue name or null.
+     */
+    public static String getQueueName(Struct configBRecord) {
+        Value queueNameValue = configBRecord.getRefField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
+        return queueNameValue != null ? queueNameValue.getStringValue() : null;
+    }
+
+    /**
+     * Extract topic name from the config struct.
+     *
+     * @param topicConfig config struct.
+     * @return queue name or null.
+     */
+    public static String getTopicPattern(Struct topicConfig) {
+        Value topicPatternValue = topicConfig.getRefField(Constants.TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN);
+        return topicPatternValue != null ? topicPatternValue.getStringValue() : null;
+    }
 }

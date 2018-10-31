@@ -45,7 +45,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -367,8 +367,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         
         String localName, uri;
-        Set<String> attributeQNames = attributes.keySet();
-        for (String qname : attributeQNames) {
+        for (String qname : attributes.keys()) {
             if (qname.startsWith("{") && qname.indexOf('}') > 0) {
                 localName = qname.substring(qname.indexOf('}') + 1, qname.length());
                 uri = qname.substring(1, qname.indexOf('}'));
@@ -584,16 +583,14 @@ public final class BXMLItem extends BXML<OMNode> {
 
         return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
     }
-    
-    // Methods from Datasource impl
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void serializeData(OutputStream outputStream) {
+    public void serialize(OutputStream outputStream) {
         try {
-            this.omNode.serialize(outputStream);
+            this.omNode.serializeAndConsume(outputStream);
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
@@ -667,48 +664,6 @@ public final class BXMLItem extends BXML<OMNode> {
         return new BXMLItem(clonedNode);
     }
     
-    // private methods
-    
-    private void setXMLNodeType() {
-        switch (omNode.getType()) {
-            case OMNode.ELEMENT_NODE:
-                nodeType = XMLNodeType.ELEMENT;
-                break;
-            case OMNode.TEXT_NODE:
-                nodeType = XMLNodeType.TEXT;
-                break;
-            case OMNode.COMMENT_NODE:
-                nodeType = XMLNodeType.COMMENT;
-                break;
-            case OMNode.PI_NODE:
-                nodeType = XMLNodeType.PI;
-                break;
-            default:
-                nodeType = XMLNodeType.SEQUENCE;
-                break;
-        }
-    }
-    
-    private String getTextValue(OMNode node) {
-        switch (node.getType()) {
-            case OMNode.ELEMENT_NODE:
-                StringBuilder sb = new StringBuilder();
-                Iterator<OMNode> children = ((OMElement) node).getChildren();
-                while (children.hasNext()) {
-                    sb.append(getTextValue(children.next()));
-                }
-                return sb.toString();
-            case OMNode.TEXT_NODE:
-                return ((OMText) node).getText();
-            case OMNode.COMMENT_NODE:
-                return STRING_NULL_VALUE;
-            case OMNode.PI_NODE:
-                return STRING_NULL_VALUE;
-            default:
-                return STRING_NULL_VALUE;
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -755,6 +710,80 @@ public final class BXMLItem extends BXML<OMNode> {
         omElement.removeAttribute(attribute);
     }
 
+    @Override
+    public BIterator newIterator() {
+        return new BXMLItemIterator(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeChildren(String qname) {
+        switch (nodeType) {
+            case ELEMENT:
+                /*
+                 * Here we are not using "((OMElement) omNode).getChildrenWithName(qname))" method, since as per the
+                 * documentation of AxiomContainer.getChildrenWithName, if the namespace part of the qname is empty, it
+                 * will look for the elements which matches only the local part and returns. i.e: It will not match the
+                 * namespace. This is not the behavior we want. Hence we are explicitly creating an iterator which
+                 * will return elements that will match both namespace and the localName, regardless whether they are
+                 * empty or not.
+                 */
+                Iterator<OMNode> childrenItr =
+                        new OMChildrenQNameIterator(((OMElement) omNode).getFirstOMChild(), getQname(qname));
+                while (childrenItr.hasNext()) {
+                    childrenItr.next();
+                    childrenItr.remove();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    // private methods
+
+    private void setXMLNodeType() {
+        switch (omNode.getType()) {
+            case OMNode.ELEMENT_NODE:
+                nodeType = XMLNodeType.ELEMENT;
+                break;
+            case OMNode.TEXT_NODE:
+                nodeType = XMLNodeType.TEXT;
+                break;
+            case OMNode.COMMENT_NODE:
+                nodeType = XMLNodeType.COMMENT;
+                break;
+            case OMNode.PI_NODE:
+                nodeType = XMLNodeType.PI;
+                break;
+            default:
+                nodeType = XMLNodeType.SEQUENCE;
+                break;
+        }
+    }
+    
+    private String getTextValue(OMNode node) {
+        switch (node.getType()) {
+            case OMNode.ELEMENT_NODE:
+                StringBuilder sb = new StringBuilder();
+                Iterator<OMNode> children = ((OMElement) node).getChildren();
+                while (children.hasNext()) {
+                    sb.append(getTextValue(children.next()));
+                }
+                return sb.toString();
+            case OMNode.TEXT_NODE:
+                return ((OMText) node).getText();
+            case OMNode.COMMENT_NODE:
+                return STRING_NULL_VALUE;
+            case OMNode.PI_NODE:
+                return STRING_NULL_VALUE;
+            default:
+                return STRING_NULL_VALUE;
+        }
+    }
+
     private QName getQName(String localName, String namespaceUri, String prefix) {
         QName qname;
         if (prefix != null) {
@@ -763,11 +792,6 @@ public final class BXMLItem extends BXML<OMNode> {
             qname = new QName(namespaceUri, localName);
         }
         return qname;
-    }
-
-    @Override
-    public BIterator newIterator() {
-        return new BXMLItemIterator(this);
     }
 
     /**

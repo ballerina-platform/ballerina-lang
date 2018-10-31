@@ -97,4 +97,9 @@ public class WriteBytesEvent implements Event {
     public Channel getChannel() {
         return byteChannel;
     }
+
+    @Override
+    public boolean remaining() {
+        return byteChannel.remaining();
+    }
 }

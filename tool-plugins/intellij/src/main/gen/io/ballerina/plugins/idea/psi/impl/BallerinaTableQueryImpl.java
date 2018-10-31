@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTableQueryImpl extends BallerinaCompositeElementImpl implements BallerinaTableQuery {
 
-  public BallerinaTableQueryImpl(ASTNode node) {
+  public BallerinaTableQueryImpl(@NotNull ASTNode node) {
     super(node);
   }
 

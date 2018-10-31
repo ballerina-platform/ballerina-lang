@@ -31,16 +31,16 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 import java.util.List;
 
@@ -50,52 +50,46 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 /**
  * Utility class for websockets.
  */
-public abstract class WebSocketUtil {
+public class WebSocketUtil {
 
     public static ProgramFile getProgramFile(Resource resource) {
         return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
     }
 
-    static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+    static Annotation getServiceConfigAnnotation(Service service) {
         List<Annotation> annotationList = service
-                .getAnnotationList(pkgPath, WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
+                .getAnnotationList(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                   WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
 
         if (annotationList == null) {
             return null;
         }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "Multiple service configuration annotations found in service: " + service.getName());
-        }
-
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
     public static void handleHandshake(WebSocketService wsService, WebSocketConnectionManager connectionManager,
-                                       HttpHeaders headers, WebSocketInitMessage initMessage, Context context,
+                                       HttpHeaders headers, WebSocketHandshaker webSocketHandshaker, Context context,
                                        CallableUnitCallback callback) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         int maxFrameSize = wsService.getMaxFrameSize();
-        ServerHandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers,
-                                                             maxFrameSize);
+        ServerHandshakeFuture future = webSocketHandshaker.handshake(subProtocols, true, idleTimeoutInSeconds * 1000,
+                                                                     headers, maxFrameSize);
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                // TODO: Need to create new struct
                 BMap<String, BValue> webSocketEndpoint = BLangConnectorSPIUtil.createObject(
-                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
-                                .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
+                        wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
+                        WebSocketConstants.WEBSOCKET_ENDPOINT);
                 BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
-                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
-                                .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+                        wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
+                        WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 webSocketEndpoint.put(WebSocketConstants.LISTENER_CONNECTOR_FIELD, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
                 WebSocketOpenConnectionInfo connectionInfo =
-                        new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint);
-                connectionManager.addConnection(webSocketConnection.getId(), connectionInfo);
+                        new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint, context);
+                connectionManager.addConnection(webSocketConnection.getChannelId(), connectionInfo);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                                  connectionInfo);
                 if (context != null && callback != null) {
@@ -113,14 +107,12 @@ public abstract class WebSocketUtil {
 
             @Override
             public void onError(Throwable throwable) {
-                if (context != null) {
-                    context.setReturnValues();
+                if (context != null && callback != null) {
+                    callback.notifyFailure(HttpUtil.getError(
+                            context, "Unable to complete handshake:" + throwable.getMessage()));
+                } else {
+                    throw new BallerinaConnectorException("Unable to complete handshake", throwable);
                 }
-                if (callback != null) {
-                    callback.notifyFailure(
-                            HttpUtil.getError(context, "Unable to complete handshake:" + throwable.getMessage()));
-                }
-                throw new BallerinaConnectorException("Unable to complete handshake", throwable);
             }
         });
     }
@@ -145,7 +137,7 @@ public abstract class WebSocketUtil {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
                         .booleanValue();
                 if (!isReady) {
@@ -155,19 +147,18 @@ public abstract class WebSocketUtil {
                 closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
-        //TODO handle BallerinaConnectorException
         Executor.submit(onOpenResource, onOpenCallableUnitCallback, null, null, bValues);
     }
 
     public static void populateEndpoint(WebSocketConnection webSocketConnection,
                                         BMap<String, BValue> webSocketEndpoint) {
-        webSocketEndpoint.put(WebSocketConstants.LISTENER_ID_FIELD, new BString(webSocketConnection.getId()));
+        webSocketEndpoint.put(WebSocketConstants.LISTENER_ID_FIELD, new BString(webSocketConnection.getChannelId()));
         webSocketEndpoint.put(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD,
-                new BString(webSocketConnection.getNegotiatedSubProtocol()));
+                              new BString(webSocketConnection.getNegotiatedSubProtocol()));
         webSocketEndpoint.put(WebSocketConstants.LISTENER_IS_SECURE_FIELD,
-                new BBoolean(webSocketConnection.isSecure()));
+                              new BBoolean(webSocketConnection.isSecure()));
         webSocketEndpoint.put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
-                new BBoolean(webSocketConnection.isOpen()));
+                              new BBoolean(webSocketConnection.isOpen()));
     }
 
     public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,
@@ -183,23 +174,6 @@ public abstract class WebSocketUtil {
         });
     }
 
-    /**
-     * Refactor the given URI.
-     *
-     * @param uri URI to refactor.
-     * @return refactored URI.
-     */
-    public static String refactorUri(String uri) {
-        if (!uri.startsWith("/")) {
-            uri = "/".concat(uri);
-        }
-
-        if (uri.endsWith("/")) {
-            uri = uri.substring(0, uri.length() - 1);
-        }
-        return uri;
-    }
-
     public static void readFirstFrame(WebSocketConnection webSocketConnection,
                                       BMap<String, BValue> webSocketConnector) {
         webSocketConnection.readNextFrame();
@@ -208,10 +182,19 @@ public abstract class WebSocketUtil {
 
     /**
      * Closes the connection with the unexpected failure status code.
+     *
      * @param webSocketConnection the websocket connection to be closed.
      */
     static void closeDuringUnexpectedCondition(WebSocketConnection webSocketConnection) {
         webSocketConnection.terminateConnection(1011, "Unexpected condition");
 
+    }
+
+    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) {
+        connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
+                                                  new BBoolean(connectionInfo.getWebSocketConnection().isOpen()));
+    }
+
+    private WebSocketUtil() {
     }
 }

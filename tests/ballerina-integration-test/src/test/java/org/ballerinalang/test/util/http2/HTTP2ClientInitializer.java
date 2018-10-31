@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.util.http2;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -47,6 +47,7 @@ import static io.netty.handler.logging.LogLevel.INFO;
  * Configures the client pipeline to support HTTP/2 frames.
  */
 public class HTTP2ClientInitializer extends ChannelInitializer<SocketChannel> {
+
     private static final Http2FrameLogger logger = new Http2FrameLogger(INFO, HTTP2ClientInitializer.class);
 
     private final SslContext sslCtx;
@@ -56,14 +57,13 @@ public class HTTP2ClientInitializer extends ChannelInitializer<SocketChannel> {
     private HTTP2SettingsHandler settingsHandler;
     private static final Logger log = LoggerFactory.getLogger(HTTP2ClientInitializer.class);
 
-
-    public HTTP2ClientInitializer(SslContext sslCtx, int maxContentLength) {
+    HTTP2ClientInitializer(SslContext sslCtx, int maxContentLength) {
         this.sslCtx = sslCtx;
         this.maxContentLength = maxContentLength;
     }
 
     @Override
-    public void initChannel(SocketChannel ch) throws Exception {
+    public void initChannel(SocketChannel ch) {
         final Http2Connection connection = new DefaultHttp2Connection(false);
         connectionHandler = new HttpToHttp2ConnectionHandlerBuilder()
                 .frameListener(new DelegatingDecompressorFrameListener(
@@ -84,15 +84,15 @@ public class HTTP2ClientInitializer extends ChannelInitializer<SocketChannel> {
         }
     }
 
-    public HTTP2ResponseHandler responseHandler() {
+    HTTP2ResponseHandler responseHandler() {
         return responseHandler;
     }
 
-    public HTTP2SettingsHandler settingsHandler() {
+    HTTP2SettingsHandler settingsHandler() {
         return settingsHandler;
     }
 
-    protected void configureEndOfPipeline(ChannelPipeline pipeline) {
+    private void configureEndOfPipeline(ChannelPipeline pipeline) {
         pipeline.addLast(settingsHandler, responseHandler);
     }
 
@@ -138,7 +138,7 @@ public class HTTP2ClientInitializer extends ChannelInitializer<SocketChannel> {
      */
     private final class UpgradeRequestHandler extends ChannelInboundHandlerAdapter {
         @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        public void channelActive(ChannelHandlerContext ctx) {
             DefaultFullHttpRequest upgradeRequest =
                     new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
             ctx.writeAndFlush(upgradeRequest);
@@ -157,7 +157,7 @@ public class HTTP2ClientInitializer extends ChannelInitializer<SocketChannel> {
      */
     private static class UserEventLogger extends ChannelInboundHandlerAdapter {
         @Override
-        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
             log.info("User Event Triggered: " + evt);
             ctx.fireUserEventTriggered(evt);
         }

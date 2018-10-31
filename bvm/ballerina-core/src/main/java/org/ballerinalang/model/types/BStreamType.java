@@ -32,11 +32,13 @@ public class BStreamType extends BType {
     /**
      * Creates a {@code BStreamType} which represents the stream type.
      *
-     * @param typeName  string name of the type
-     * @param pkgPath   package path
+     * @param typeName   string name of the type
+     * @param constraint the type by which this stream is constrained
+     * @param pkgPath    package path
      */
-    BStreamType(String typeName, String pkgPath) {
+    BStreamType(String typeName, BType constraint, String pkgPath) {
         super(typeName, pkgPath, BStream.class);
+        this.constraint = constraint;
     }
 
     public BStreamType(BType constraint) {
@@ -56,11 +58,6 @@ public class BStreamType extends BType {
     @Override
     public <V extends BValue> V getEmptyValue() {
         return null; //TODO:check - return (V) new BStream();
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_STREAM, constraint.getSig());
     }
 
     @Override

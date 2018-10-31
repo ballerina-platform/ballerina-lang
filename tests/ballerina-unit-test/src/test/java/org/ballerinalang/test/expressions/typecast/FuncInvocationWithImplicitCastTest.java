@@ -53,17 +53,4 @@ public class FuncInvocationWithImplicitCastTest {
         String expected = "7.modified";
         Assert.assertEquals(actual, expected);
     }
-
-    @Test(description = "Test Function invocation with implicit cast, multiple params")
-    public void testFunctionInvocationWithImplicitCastMultiParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testImplicitCastInvocationWithMultipleParams", new BValue[]{});
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-
-        String actual = returns[0].stringValue();
-        String expected = "82";
-        Assert.assertEquals(actual, expected);
-
-    }
 }

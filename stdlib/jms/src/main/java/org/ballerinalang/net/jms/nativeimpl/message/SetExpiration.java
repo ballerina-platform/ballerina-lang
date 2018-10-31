@@ -26,7 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -48,7 +48,7 @@ import javax.jms.Message;
         },
         isPublic = true
 )
-public class SetExpiration extends AbstractBlockinAction {
+public class SetExpiration extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {

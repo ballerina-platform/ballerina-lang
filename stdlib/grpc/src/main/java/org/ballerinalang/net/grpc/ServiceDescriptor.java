@@ -43,6 +43,8 @@ public final class ServiceDescriptor {
      *
      * @param name    The name of the service
      * @param methods The methods that are part of the service
+     *
+     * @throws GrpcServerException method name validation failure
      */
     private ServiceDescriptor(String name, Collection<MethodDescriptor> methods) throws GrpcServerException {
         this.name = name;
@@ -102,7 +104,7 @@ public final class ServiceDescriptor {
      * A builder for a {@link ServiceDescriptor}.
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
      */
     public static final class Builder {
         private String name;
@@ -130,6 +132,7 @@ public final class ServiceDescriptor {
          * Constructs a new {@link ServiceDescriptor}.
          *
          * @return a new instance.
+         * @throws GrpcServerException fail when initializing
          */
         public ServiceDescriptor build() throws GrpcServerException {
             return new ServiceDescriptor(name, methods);

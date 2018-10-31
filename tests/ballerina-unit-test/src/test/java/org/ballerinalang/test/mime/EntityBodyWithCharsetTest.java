@@ -22,7 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -32,7 +32,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.Header;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.ArrayList;
@@ -233,9 +233,9 @@ public class EntityBodyWithCharsetTest {
         List<Header> headers = new ArrayList<>();
         headers.add(new Header("content-type", "application/json"));
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", headers, "{\"test\":\"菜鸟驿站\"}");
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(response).getInputStream()).stringValue(),
+        Assert.assertEquals(JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream()).stringValue(),
                 "{\"test\":\"菜鸟驿站\"}");
     }
 }

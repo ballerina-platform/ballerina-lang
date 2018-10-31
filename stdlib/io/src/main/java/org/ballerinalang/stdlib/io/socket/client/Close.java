@@ -21,13 +21,14 @@ package org.ballerinalang.stdlib.io.socket.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.socket.server.SelectorManager;
+import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 /**
- * Native function to close a Client socket.
+ * Extern function to close a Client socket.
  *
  * @since 0.963.0
  */
@@ -46,7 +47,7 @@ import java.nio.channels.SocketChannel;
         orgName = "ballerina", packageName = "io",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-        returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "error")},
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
@@ -68,12 +69,16 @@ public class Close extends BlockingNativeCallableUnit {
                     selectionKey.cancel();
                 }
             }
-            byteChannel.close();
-            channel.close();
+            if (byteChannel != null) {
+                byteChannel.close();
+            }
+            if (channel != null) {
+                channel.close();
+            }
         } catch (Throwable e) {
-            String message = "Failed to close the socket:" + e.getMessage();
-            log.error(message, e);
-            context.setReturnValues(IOUtils.createError(context, message));
+            String message = "Failed to close the socket connection.";
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
+            context.setReturnValues(errorStruct);
         }
         context.setReturnValues();
     }

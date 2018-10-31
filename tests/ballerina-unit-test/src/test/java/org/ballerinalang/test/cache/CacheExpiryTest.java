@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 import java.util.Arrays;
 
 import static org.awaitility.Awaitility.await;
@@ -36,6 +37,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Tests for cache expiry.
  */
 public class CacheExpiryTest {
+
     private CompileResult compileResult;
     private static final Log log = LogFactory.getLog(CacheExpiryTest.class);
 

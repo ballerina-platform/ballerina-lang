@@ -19,16 +19,25 @@ package org.ballerinalang.langserver.index.dto;
 
 /**
  * DTO for BLangResource.
+ * 
+ * @since 0.983.0
  */
-public class BLangResourceDTO {
+public final class BLangResourceDTO {
+    
+    private int id;
     
     private int serviceId;
     
     private String name;
 
-    public BLangResourceDTO(int serviceId, String name) {
+    private BLangResourceDTO(int id, int serviceId, String name) {
+        this.id = id;
         this.serviceId = serviceId;
         this.name = name;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public int getServiceId() {
@@ -37,5 +46,36 @@ public class BLangResourceDTO {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * Builder for BLangResourceDTO.
+     */
+    public static class BLangResourceDTOBuilder {
+
+        private int id;
+
+        private int serviceId;
+
+        private String name = "";
+
+        public BLangResourceDTOBuilder setId(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public BLangResourceDTOBuilder setServiceId(int serviceId) {
+            this.serviceId = serviceId;
+            return this;
+        }
+
+        public BLangResourceDTOBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+        
+        public BLangResourceDTO build() {
+            return new BLangResourceDTO(this.id, this.serviceId, this.name);
+        }
     }
 }
