@@ -118,7 +118,7 @@ function testConstWithoutTypeInCondition() returns boolean {
 const boolean booleanWithType = true;
 
 function testConstWithTypeInCondition() returns boolean {
-    if (booleanWithoutType) {
+    if (booleanWithType) {
         return true;
     }
     return false;
