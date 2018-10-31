@@ -14,12 +14,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -54,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -68,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -94,8 +99,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -125,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -141,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -150,10 +159,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 
@@ -168,18 +178,21 @@ import java.util.Map;
  */
 public class DataflowAnalyzer extends BLangNodeVisitor {
 
-    private BLangDiagnosticLog dlog;
-    private DataFlowScope currentScope;
     private SymbolEnv env;
     private SymbolTable symTable;
-    private static final int INITIAL_BRANCHES = 1;
+    private SymbolResolver symResolver;
+    private BLangDiagnosticLog dlog;
+    private Names names;
+    private Set<BSymbol> uninitializedVars;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
 
     public DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.names = Names.getInstance(context);
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -190,37 +203,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return dataflowAnalyzer;
     }
 
-    private void startScope() {
-        this.currentScope = new DataFlowScope(this.currentScope, env.scope.owner);
-    }
-
-    private void startBranch() {
-        // Increment branch count
-        this.currentScope.pathsCount++;
-    }
-
-    private void startBranches(int branchCount) {
-        // Increment branch count
-        this.currentScope.pathsCount = branchCount;
-    }
-
-    private void endScope() {
-        this.currentScope = this.currentScope.parent;
-    }
-
+    /**
+     * Perform data-flow analysis on a package.
+     * 
+     * @param pkgNode Package to perform data-flow analysis.
+     * @return Data-flow analyzed package
+     */
     public BLangPackage analyze(BLangPackage pkgNode) {
+        uninitializedVars = new HashSet<>();
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
         return pkgNode;
-    }
-
-    private void analyzeNode(BLangNode node, SymbolEnv env) {
-        SymbolEnv prevEnv = this.env;
-        this.env = env;
-        if (node != null) {
-            node.accept(this);
-        }
-        this.env = prevEnv;
     }
 
     @Override
@@ -229,24 +222,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        startScope();
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
-        endScope();
     }
 
     @Override
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        analyzeNode(funcNode.body, funcEnv);
+        analyzeBlock(funcNode.body, funcEnv);
+        funcNode.workers.forEach(worker -> analyzeBlock(worker, funcEnv));
     }
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        startScope();
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
         blockNode.stmts.forEach(statement -> analyzeNode(statement, blockEnv));
-        endScope();
     }
 
     @Override
@@ -259,13 +249,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService service) {
-        service.resources.forEach(res -> analyzeNode(res, env));
+        service.vars.forEach(var -> analyzeNode(var, env));
+        service.resources.forEach(res -> analyzeBlock(res, env));
     }
 
     @Override
     public void visit(BLangResource resource) {
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resource, resource.symbol.scope, env);
-        analyzeNode(resource.body, resourceEnv);
+        analyzeBlock(resource.body, resourceEnv);
+        resource.workers.forEach(worker -> analyzeBlock(worker, resourceEnv));
     }
 
     @Override
@@ -278,13 +270,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVariable variable) {
         if (variable.expr != null) {
             analyzeNode(variable.expr, env);
+            uninitializedVars.remove(variable.symbol);
             return;
         }
 
         // Handle package/object level variables
         BSymbol owner = variable.symbol.owner;
         if (owner.tag == SymTag.PACKAGE || owner.tag == SymTag.OBJECT) {
-            this.currentScope.addUninitializedVar(variable.symbol);
+            uninitializedVars.add(variable.symbol);
             return;
         }
     }
@@ -292,7 +285,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker worker) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(worker, this.env);
-        analyzeNode(worker.body, workerEnv);
+        analyzeBlock(worker.body, workerEnv);
     }
 
     @Override
@@ -304,7 +297,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVariableDef varDefNode) {
         BLangVariable var = varDefNode.var;
         if (var.expr == null) {
-            this.currentScope.addUninitializedVar(var.symbol);
+            uninitializedVars.add(var.symbol);
             return;
         }
 
@@ -323,7 +316,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         BLangVariableReference varRefExpr = (BLangVariableReference) assignment.varRef;
-        this.currentScope.markAsInitilaized(varRefExpr.symbol);
+        uninitializedVars.remove(varRefExpr.symbol);
     }
 
     @Override
@@ -338,10 +331,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         analyzeNode(returnNode.expr, env);
-
-        // Having a return statement will complete that branch. Hence mark all vars
-        // as initialized for this branch.
-        this.currentScope.markAllAsInitilaized();
     }
 
     @Override
@@ -357,16 +346,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         analyzeNode(ifNode.expr, env);
-        startBranch();
-        analyzeNode(ifNode.body, env);
-        analyzeNode(ifNode.elseStmt, env);
+        Set<BSymbol> unInitVarsInIf = analyzeBlock(ifNode.body, env);
+        Set<BSymbol> unInitVarsInElse = analyzeBlock(ifNode.elseStmt, env);
+
+        // Get the union of the two uninitialized variables sets.
+        unInitVarsInIf.addAll(unInitVarsInElse);
+        this.uninitializedVars = unInitVarsInIf;
     }
 
     @Override
     public void visit(BLangMatch match) {
         analyzeNode(match.expr, env);
-        startBranches(match.patternClauses.size());
-        match.patternClauses.forEach(patternClause -> analyzeNode(patternClause, env));
+        Set<BSymbol> uninitVars = new HashSet<>();
+        match.patternClauses.forEach(patternClause -> uninitVars.addAll(analyzeBlock(patternClause, env)));
+        this.uninitializedVars = uninitVars;
     }
 
     @Override
@@ -400,6 +393,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
+        analyzeNode(stmt.expr, env);
     }
 
     @Override
@@ -416,10 +410,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        analyzeNode(workerSendNode.expr, env);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        analyzeNode(workerReceiveNode.expr, env);
     }
 
     @Override
@@ -432,16 +428,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
+        arrayLiteral.exprs.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
+        recordLiteral.keyValuePairs.forEach(keyValPar -> analyzeNode(keyValPar.valueExpr, env));
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        // TODO: differentiate 'is not initialized' vs 'may not initialized'
-        if (!this.currentScope.isInitialized(varRefExpr.symbol)) {
+        // TODO: differentiate 'is not initialized' vs 'may not be initialized'
+        if (uninitializedVars.contains(varRefExpr.symbol)) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNITIALIZED_VARIABLE, varRefExpr.symbol.name);
         }
     }
@@ -801,8 +799,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        // TODO Auto-generated method stub
-        super.visit(streamingQueryStatement);
     }
 
     @Override
@@ -843,15 +839,28 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        startScope();
+        // TODO: make initializing of public/package fields mandatory?
         objectTypeNode.fields.forEach(field -> analyzeNode(field, env));
 
         // Visit the constructor with the same scope as the object
-        objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, env));
-//        objectTypeNode.initFunction.requiredParams.forEach(param -> this.currentScope.markAsInitilaized(param.symbol));
+        if (objectTypeNode.initFunction != null) {
+            objectTypeNode.initFunction.requiredParams.forEach(param -> {
+                analyzeParam(objectTypeNode, param);
+            });
+
+            objectTypeNode.initFunction.defaultableParams.forEach(param -> {
+                analyzeParam(objectTypeNode, param.var);
+            });
+
+            if (objectTypeNode.initFunction.restParam != null) {
+                analyzeParam(objectTypeNode, objectTypeNode.initFunction.restParam);
+            }
+
+            // Body should be visited after the params
+            objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, env));
+        }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
-        endScope();
     }
 
     @Override
@@ -890,97 +899,92 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangScope scopeNode) {
     }
 
-    /**
-     * Represents a scope for data.
-     * 
-     * @since 0.985.0
-     */
-    private class DataFlowScope {
+    @Override
+    public void visit(BLangTestablePackage testablePkgNode) {
+    }
 
-        private DataFlowScope parent;
-        private int pathsCount = INITIAL_BRANCHES;
-        private Map<BSymbol, VarInfo> unInitVars;
-        private BSymbol owner;
+    @Override
+    public void visit(BLangImportPackage importPkgNode) {
+    }
 
-        DataFlowScope(DataFlowScope parent, BSymbol owner) {
-            this.parent = parent;
-            this.owner = owner;
-            this.unInitVars = new HashMap<>();
-            if (parent == null) {
-                return;
-            }
+    @Override
+    public void visit(BLangIdentifier identifierNode) {
+    }
 
-            // Take a snapshot of all uninitialized variable symbols
-            parent.unInitVars.keySet().forEach(var -> this.unInitVars.put(var, new VarInfo()));
-        }
+    @Override
+    public void visit(BLangPanic panicNode) {
+        analyzeNode(panicNode.expr, env);
+    }
 
-        void addUninitializedVar(BSymbol varSymbol) {
-            this.unInitVars.put(varSymbol, new VarInfo());
-        }
+    @Override
+    public void visit(BLangBuiltInMethodInvocation builtInMethodInvocation) {
+    }
 
-        /**
-         * Mark a given variable as initialized for the current scope.
-         * 
-         * @param varSymbol Symbol of the variable to be marked as initialized.
-         */
-        void markAsInitilaized(BSymbol varSymbol) {
-            this.unInitVars.remove(varSymbol);
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+    }
 
-            if (this.parent == null || this.parent.owner.tag == SymTag.PACKAGE ||
-                    this.parent.owner.tag == SymTag.OBJECT || this.parent.owner.tag == SymTag.SERVICE) {
-                return;
-            }
+    @Override
+    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        analyzeNode(errorConstructorExpr.detailsExpr, env);
+        analyzeNode(errorConstructorExpr.reasonExpr, env);
+    }
 
-            markAsInitializedForParent(varSymbol);
-        }
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+    }
 
-        /**
-         * Mark all the variables visible as initialized for the current scope.
-         */
-        void markAllAsInitilaized() {
-            if (this.parent != null && this.parent.owner.tag != SymTag.PACKAGE &&
-                    this.parent.owner.tag != SymTag.OBJECT && this.parent.owner.tag != SymTag.SERVICE) {
-                this.unInitVars.keySet().forEach(symbol -> markAsInitializedForParent(symbol));
-            }
-
-            this.unInitVars.clear();
-        }
-
-        boolean isInitialized(BSymbol varSymbol) {
-            if (!this.unInitVars.containsKey(varSymbol)) {
-                return true;
-            }
-
-            return unInitVars.get(varSymbol).initCount == pathsCount;
-        }
-
-        private void markAsInitializedForParent(BSymbol varSymbol) {
-            VarInfo parentScopeVarInfo = this.parent.unInitVars.get(varSymbol);
-            if (parentScopeVarInfo == null) {
-                return;
-            }
-
-            // If all the branches of parents are covered, mark this variable as initialized for parent also
-            parentScopeVarInfo.initCount++;
-            if (this.parent.pathsCount == parentScopeVarInfo.initCount) {
-                parent.markAsInitilaized(varSymbol);
-            }
-        }
+    @Override
+    public void visit(BLangErrorType errorType) {
     }
 
     /**
-     * Represents initialization info of a variable.
+     * Analyze a block and returns the set of uninitialized variables for that block.
+     * This method will not update the current uninitialized variables set.
      * 
-     * @since 0.985.0
+     * @param node Branch node to be analyzed
+     * @param env Symbol environment
+     * @return Set of uninitialized variables for that branch.
      */
-    private class VarInfo {
+    private Set<BSymbol> analyzeBlock(BLangNode node, SymbolEnv env) {
+        Set<BSymbol> prevUninitializedVars = uninitializedVars;
 
-        int initCount = 0;
+        // Get a snapshot of the current uninitialized vars before visiting the node.
+        // This is done so that the original set of uninitialized vars will not be
+        // updated/marked as initialized.
+        uninitializedVars = copyUninitializedVars();
 
-        @Override
-        public String toString() {
-            return "initCount: " + initCount;
-        }
+        analyzeNode(node, env);
+        Set<BSymbol> uninitVarsOfBranch = uninitializedVars;
+
+        // Restore the original set of uninitialized vars
+        uninitializedVars = prevUninitializedVars;
+
+        return uninitVarsOfBranch;
     }
 
+    private Set<BSymbol> copyUninitializedVars() {
+        Set<BSymbol> copy = new HashSet<>();
+        copy.addAll(uninitializedVars);
+        return copy;
+    }
+
+    private void analyzeNode(BLangNode node, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+        if (node != null) {
+            node.accept(this);
+        }
+        this.env = prevEnv;
+    }
+
+    private void analyzeParam(BLangObjectTypeNode objectTypeNode, BLangVariable param) {
+        if (param.type == symTable.noType || param.type == symTable.semanticError) {
+            return;
+        }
+
+        BSymbol fieldSymbol = this.symResolver.resolveObjectField(param.pos, env, names.fromIdNode(param.name),
+                objectTypeNode.type.tsymbol);
+        uninitializedVars.remove(fieldSymbol);
+    }
 }

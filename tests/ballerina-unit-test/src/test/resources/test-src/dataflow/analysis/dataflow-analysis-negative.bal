@@ -14,6 +14,9 @@
  // specific language governing permissions and limitations
  // under the License.
  
+ import ballerina/http;
+ import ballerina/io;
+ 
  function testDataflow_1() returns string {
     string msg;
     if (true) {
@@ -209,8 +212,8 @@ function testDataflow_10() returns string {
 function testUninitializedVarReferrencing() {
     map m;
     int a;
-    error e;
     string s;
+    error e = error(s);
 
     // assigning uninitialized var
     int b = a;
@@ -218,9 +221,9 @@ function testUninitializedVarReferrencing() {
     // increment uninitialized var
     a = a + 1;
 
-    // throw uninitialized var
+    // panic uninitialized var
     if (false) {
-        throw e;
+        panic getError(s);
     }
 
     // uninitialized var in:
@@ -274,6 +277,10 @@ function foo(int a, string str = "hello", string... args) {
     // do nothing
 }
 
+function getError(string msg) returns error {
+    return error(msg);
+}
+
 function testDataflow_11() returns string {
     if (true) {
         string msg;
@@ -290,6 +297,10 @@ function testDataflow_11() returns string {
 
 public int globalVar;
 
+function updateGlobalVar() {
+    globalVar = 4;
+}
+
 function testGlobalVar() returns int {
     return globalVar;
 }
@@ -299,10 +310,11 @@ type Foo object {
     int b;
     int c;
     int d;
+    int e;
 
-    new (c) {
+    new (c, e=4, f, int x) {
         a = globalVar;
-        b = 6;
+        b = e;
     }
 
     function getGlobalVar() returns int {
@@ -326,3 +338,165 @@ type Foo object {
         return d;
     }
 };
+
+function testIfFollowedByIf() returns int {
+    int x;
+    if (true) {
+    } else if (true) {
+    } else {
+    }
+
+    if (true) {
+        x = 1;
+    } else if (true) {
+        x = 2;
+    } else {
+        x = 3;
+    }
+
+    return x;
+}
+
+function testMatch_1() returns string {
+    any x = 6;
+    string val;
+    match x {
+        int => val = "int";
+        string => val = "string";
+        any => val = "any";
+    }
+
+    return val;
+}
+
+function testMatch_2() returns string {
+    any x = 6;
+    string val;
+    match x {
+        int => val = "int";
+        string => {}
+        any => val = "any";
+    }
+
+    return val;
+}
+
+function testMatch_3() returns string {
+    any x = 6;
+    string val;
+    match x {
+        int => val = "int";
+        string => val = "string";
+        any a => {
+            match a {
+                int => val = "int";
+                string => { val = "string";}
+                any => val = "any";
+            }
+        }
+    }
+
+    return val;
+}
+
+function testMatch_4() returns string {
+    any x = 6;
+    string val;
+    match x {
+        int => val = "int";
+        string => val = "string";
+        any a => {
+            match a {
+                int => val = "int";
+                string => {}
+                any => val = "any";
+            }
+        }
+    }
+
+    return val;
+}
+
+function testMatch_5() returns string {
+    any x = 6;
+    string val;
+    match x {
+        int => val = "int";
+        string => val = "string";
+        any a => {
+            match a {
+                int => val = "int";
+                string => {
+                    if (true) {
+                        val = "true string";
+                    } else {
+                        val = "false string";
+                    }
+                }
+                any => val = "any";
+            }
+        }
+    }
+
+    return val;
+}
+
+function testMatch_6() returns string {
+    any x = 6;
+    string val;
+    match x {
+        int => val = "int";
+        string => val = "string";
+        any a => {
+            match a {
+                int => val = "int";
+                string => {
+                    if (true) {
+                        val = "true string";
+                    } else {
+
+                    }
+                }
+                any => val = "any";
+            }
+        }
+    }
+
+    return val;
+}
+
+endpoint http:NonListener echoEP {
+    port:9090
+};
+
+service<http:Service> echo bind echoEP {
+
+    string x;
+    string y = "sample value";
+
+    echo_1(endpoint conn, http:Request req) {
+        string a = x;
+        a = y;
+        x = "init within echo_1";
+    }
+
+    echo_2(endpoint conn, http:Request req) {
+        string a = x;
+        a = y;
+        x = "init within echo_2";
+    }
+}
+
+string x;
+function testWorkers() returns string {
+    worker w1 {
+        io:println(x);
+        x = "w1";
+        return x;
+    }
+
+    worker w2 {
+        io:println(x);
+        x = "w2";
+    }
+}
