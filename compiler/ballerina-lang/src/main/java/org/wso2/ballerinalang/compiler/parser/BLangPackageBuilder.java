@@ -279,8 +279,6 @@ public class BLangPackageBuilder {
 
     private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
 
-    private Stack<BLangAwaitExpr.BLangWaitForAll> waitForAllStack = new Stack<>();
-
     private Stack<BLangTableLiteral> tableLiteralNodes = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
@@ -1185,34 +1183,11 @@ public class BLangPackageBuilder {
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
     }
 
-    void addKeyValueToWaitCollection(Set<Whitespace> ws, String identifier, boolean containsExpr) {
-        BLangAwaitExpr.BLangWaitForAll.BLangWaitKeyValue keyValue = TreeBuilder.createWaitKeyValueNode();
-        keyValue.addWS(ws);
-        // Add the key as an identifier
-        BLangIdentifier key = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        key.setLiteral(false);
-        key.setValue(identifier);
-        keyValue.key = key;
-        // Add the value. If it is a Identifier:expr pair then add the value by popping the expr from the expression
-        // stack else the value is not assigned.
-        if (containsExpr) {
-            keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
-        }
-        waitForAllStack.peek().keyValuePairs.add(keyValue);
-    }
-
     void addMapStructLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangRecordLiteral recordTypeLiteralNode = recordLiteralNodes.pop();
         recordTypeLiteralNode.pos = pos;
         recordTypeLiteralNode.addWS(ws);
         addExpressionNode(recordTypeLiteralNode);
-    }
-
-    void addCollectionToWait(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangAwaitExpr.BLangWaitForAll waitForAllExpr = waitForAllStack.pop();
-        waitForAllExpr.pos = pos;
-        waitForAllExpr.addWS(ws);
-        addExpressionNode(waitForAllExpr);
     }
 
     void startTableLiteral() {
@@ -1295,11 +1270,6 @@ public class BLangPackageBuilder {
     void startMapStructLiteral() {
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         recordLiteralNodes.push(literalNode);
-    }
-
-    void startWaitCollection() {
-        BLangAwaitExpr.BLangWaitForAll bLangWaitForAll = TreeBuilder.createWaitForAllExpressionNode();
-        waitForAllStack.push(bLangWaitForAll);
     }
 
     void startExprNodeList() {
@@ -1502,24 +1472,6 @@ public class BLangPackageBuilder {
     void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangAwaitExpr awaitExpr = TreeBuilder.createWaitExpressionNode();
         awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
-        awaitExpr.pos = pos;
-        awaitExpr.addWS(ws);
-        addExpressionNode(awaitExpr);
-    }
-
-    void createWaitExprForAny(DiagnosticPos pos, Set<Whitespace> ws, int noOfExprs) {
-        BLangAwaitExpr.BLangWaitForAny awaitExpr = TreeBuilder.createWaitForAnyExpressionNode();
-        // Wait for any
-        for (int i = 0; i < noOfExprs; i++) {
-            awaitExpr.exprList.add(0, (BLangExpression) exprNodeStack.pop());
-        }
-        awaitExpr.pos = pos;
-        awaitExpr.addWS(ws);
-        addExpressionNode(awaitExpr);
-    }
-
-    void createWaitExprForAll(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangAwaitExpr.BLangWaitForAll awaitExpr = TreeBuilder.createWaitForAllExpressionNode();
         awaitExpr.pos = pos;
         awaitExpr.addWS(ws);
         addExpressionNode(awaitExpr);
