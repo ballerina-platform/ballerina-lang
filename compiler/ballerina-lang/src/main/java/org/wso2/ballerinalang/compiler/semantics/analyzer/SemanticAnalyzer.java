@@ -563,6 +563,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
             if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
                 dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+            } else if ((simpleVarRef.symbol.flags & Flags.CONSTANT) == Flags.CONSTANT) {
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
             } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
                 dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
             }
@@ -1064,8 +1066,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier), SymTag
-                .VARIABLE);
+        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier),
+                SymTag.VARIABLE);
 
         if (workerReceiveNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
             visitChannelReceive(workerReceiveNode, symbol);
@@ -1079,6 +1081,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         String workerName = workerReceiveNode.workerIdentifier.getValue();
         if (!this.workerExists(this.env, workerName)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        }
+
+        if (workerReceiveNode.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return;
+        }
+        BLangSimpleVarRef expr = (BLangSimpleVarRef) workerReceiveNode.expr;
+        if (expr.symbol == null) {
+            return;
+        }
+        if ((expr.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+            dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL);
+        } else if ((expr.symbol.flags & Flags.CONSTANT) == Flags.CONSTANT) {
+            dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
         }
     }
 
@@ -1491,6 +1506,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+
+        BLangExpression expression = (BLangExpression) constant.value;
+        if (expression.getKind() != NodeKind.LITERAL) {
+            dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
+            return;
+        }
+
         BLangLiteral value = (BLangLiteral) constant.value;
         // Check the value to set the type to it.
 

@@ -654,6 +654,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        BLangExpression expression = (BLangExpression) constant.value;
+        // Todo - Update condition? (might match to map, json literals)
+        // This error will be handled in the semantic analyzer.
+        if (expression.getKind() != NodeKind.LITERAL) {
+            return;
+        }
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, null,
