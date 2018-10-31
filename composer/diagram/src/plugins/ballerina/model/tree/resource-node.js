@@ -270,8 +270,11 @@ class ResourceNode extends AbstractResourceNode {
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             TreeUtil.generateWorkerName(this, node);
+
+            ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot());
             this.addWorkers(node, index);
         } else if (TreeUtil.isEndpoint(node)) {
+            ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.ws[4].i);
             this.addEndpointNodes(node);
         }
     }

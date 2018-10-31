@@ -165,7 +165,7 @@ class RightCtrl extends React.Component {
                     const fragment = FragmentUtils.createTopLevelNodeFragment(importNodeCode);
                     FragmentUtils.parseFragment(fragment)
                         .then((newImportNode) => {
-                            this.context.astRoot.addImport(TreeBuilder.build(newImportNode));
+                            // this.context.astRoot.addImport(TreeBuilder.build(newImportNode));
                         });
                 }
             } catch (err) {

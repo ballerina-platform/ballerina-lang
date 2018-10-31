@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import AbstractFunctionNode from './abstract-tree/function-node';
 import TreeUtil from './../tree-util';
+import { ASTUtil } from "ast-model";
 
 class FunctionNode extends AbstractFunctionNode {
      /**
@@ -51,12 +52,20 @@ class FunctionNode extends AbstractFunctionNode {
                         .filter((statement) => { return !TreeUtil.isEndpointTypeVariableDef(statement); });
                 this.getBody().setStatements(connectors, true);
                 defaultWorker.getBody().setStatements(statements);
+
+                // If endpoints are defined should be last of endpoint
+                ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot(), this.ws[4].i);
                 this.addWorkers(defaultWorker, -1, true);
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             TreeUtil.generateWorkerName(this, node);
+
+            // This will add to end of worker array
+            ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot());
             this.addWorkers(node, index);
         } else if (TreeUtil.isEndpoint(node)) {
+
+            ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.ws[4].i);
             this.addEndpointNodes(node);
         }
     }

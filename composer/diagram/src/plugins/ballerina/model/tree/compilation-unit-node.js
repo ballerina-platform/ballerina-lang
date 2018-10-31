@@ -94,11 +94,11 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
         if(insertBefore !== undefined){
             const wsList = ASTUtil.extractWS(insertBefore);
             if(wsList.length > 0){
-                startIndex = wsList[0].i;;
+                startIndex = wsList[0].i;
             }
         }
         
-        ASTUtil.reconcileWS(importNode, this.getTopLevelNodes(), this.getRoot(), startIndex);
+        ASTUtil.reconcileWS(importNode, this.getTopLevelNodes(), this, startIndex);
         this.addTopLevelNodes(importNode, targetIndex, silent);
     }
 
