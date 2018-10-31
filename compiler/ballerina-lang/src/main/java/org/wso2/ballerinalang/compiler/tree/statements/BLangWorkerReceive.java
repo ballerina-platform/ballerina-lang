@@ -74,6 +74,6 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
 
     @Override
     public String toString() {
-        return "BLangWorkerReceiveExpr: " + this.toActionString();
+        return "BLangWorkerReceive: " + this.toActionString();
     }
 }
