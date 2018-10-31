@@ -1,0 +1,132 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Parsing and Rendering BBE: hello_world_client.bal 1`] = `
+<div
+  className="ui active transition visible inverted dimmer"
+  onClick={[Function]}
+>
+  <div
+    className="content"
+  >
+    <div
+      className="ui large loader"
+    />
+  </div>
+</div>
+`;
+
+exports[`Parsing and Rendering BBE: hello_world_client.bal 2`] = `
+<div
+  className="ballerina-editor design-view-container"
+>
+  <div
+    className="design-view-container "
+    style={
+      Object {
+        "display": "block",
+      }
+    }
+  >
+    <div
+      className="outerCanvasDiv"
+    >
+      <div />
+      <div
+        onMouseDown={[Function]}
+        onMouseUp={[Function]}
+        style={
+          Object {
+            "height": 1000,
+            "overflow": "hidden",
+            "position": "relative",
+            "width": 1000,
+          }
+        }
+      >
+        <div
+          style={
+            Object {
+              "WebkitOverflowScrolling": "touch",
+              "bottom": 0,
+              "left": 0,
+              "marginBottom": 0,
+              "marginRight": 0,
+              "overflow": "scroll",
+              "position": "absolute",
+              "right": 0,
+              "top": 0,
+            }
+          }
+        >
+          <div
+            className="canvas-container"
+          >
+            <div
+              className="canvas-top-controls-container"
+            />
+            <div
+              className="html-overlay"
+            />
+            <div
+              className="graphical-editor"
+            />
+            <div
+              className="diagram root grabbable"
+            >
+              <div
+                className="design-view-error"
+              >
+                <p>
+                  Oops. Something went wrong.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          className="scrollbar scrollbar-track-horizontal"
+          style={
+            Object {
+              "display": "none",
+              "height": 6,
+              "position": "absolute",
+            }
+          }
+        >
+          <div
+            className="scrollbar-thumb-horizontal"
+            style={
+              Object {
+                "display": "block",
+                "height": "100%",
+                "position": "relative",
+              }
+            }
+          />
+        </div>
+        <div
+          className="scrollbar scrollbar-track-vertical"
+          style={
+            Object {
+              "display": "none",
+              "position": "absolute",
+              "width": 6,
+            }
+          }
+        >
+          <div
+            className="scrollbar-thumb-vertical"
+            style={
+              Object {
+                "display": "block",
+                "position": "relative",
+                "width": "100%",
+              }
+            }
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
