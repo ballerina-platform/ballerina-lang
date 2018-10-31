@@ -928,6 +928,12 @@ public class TypeChecker extends BLangNodeVisitor {
             } else {
                 types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
                 types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
+
+                // if one is a value type, consider === the same as ==
+                if (opKind == OperatorKind.REF_EQUAL) {
+                    return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType, symTable.anyType);
+                }
+
                 return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
             }
         }

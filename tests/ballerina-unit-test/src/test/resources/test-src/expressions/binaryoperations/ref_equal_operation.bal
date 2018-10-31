@@ -320,6 +320,35 @@ function testObjectRefEqualityNegative() returns boolean {
     return refEquals || isRefEqual(abcThree, abcOne);
 }
 
+function testValueTypeAndRefTypeEqualityPositive() returns boolean {
+    int i = 5;
+    json j = 5;
+
+    boolean refEquals = i === j;
+
+    int|boolean|OpenEmployee a = true;
+    boolean b = true;
+    refEquals = refEquals && a === b;
+
+    any c = "hello world"; // TODO: change to anydata
+    string s = "hello world";
+    return refEquals && c === s;
+}
+
+function testValueTypeAndRefTypeEqualityNegative() returns boolean {
+    int i = 5;
+    json j = 15;
+
+    boolean refEquals = i === j;
+
+    int|string|OpenEmployee a = "hello world";
+    string s = "hello";
+    refEquals = refEquals || a === s;
+
+    any b = true; // TODO: change to anydata
+    return refEquals || b === j || b === i || a === b;
+}
+
 function isRefEqual(any a, any b) returns boolean {
     return a === b;
 }
