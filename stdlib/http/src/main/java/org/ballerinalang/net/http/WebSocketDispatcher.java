@@ -21,8 +21,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
@@ -31,6 +31,7 @@ import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
@@ -46,10 +47,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -315,9 +313,7 @@ public class WebSocketDispatcher {
         }
         BValue[] bValues = new BValue[onErrorResource.getParamDetails().size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        Context context = connectionInfo.getContext();
-        bValues[1] = context != null ? getError(context.getProgramFile(), throwable) : getError(
-                webSocketService.getServiceInfo().getPackageInfo().getProgramFile(), throwable);
+        bValues[1] = getError(connectionInfo, throwable);
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -332,16 +328,24 @@ public class WebSocketDispatcher {
         Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
     }
 
-    private static BMap<String, BValue> getError(ProgramFile programFile, Throwable throwable) {
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
-        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+    private static BError getError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
         String errMsg;
         if (isUnexpectedError(throwable)) {
             errMsg = "Unexpected internal error. Please check internal-log for more details!";
         } else {
             errMsg = throwable.getMessage();
         }
-        return BLangVMStructs.createBStruct(errorStructInfo, errMsg);
+        Context context = connectionInfo.getContext();
+        if (context != null) {
+            return HttpUtil.getError(context, errMsg);
+        } else {
+            ProgramFile programFile = connectionInfo.getService().getServiceInfo().getPackageInfo().getProgramFile();
+            BMap<String, BValue> httpErrorRecord = BLangConnectorSPIUtil.createBStruct(
+                    programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.HTTP_ERROR_RECORD);
+            httpErrorRecord.put(HttpConstants.HTTP_ERROR_MESSAGE, new BString(errMsg));
+            return new BError(BTypes.typeError, errMsg, httpErrorRecord);
+
+        }
     }
 
     private static boolean isUnexpectedError(Throwable throwable) {

@@ -172,6 +172,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ByteArrayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>

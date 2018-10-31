@@ -1,13 +1,13 @@
 package com.github.gtache.lsp.settings.gui
 
-import com.github.gtache.lsp.settings.LSPState
+import com.github.gtache.lsp.settings.BallerinaLSPState
 import javax.swing.JPanel
 
 trait LSPGUI {
 
   import LSPGUI.lspState
 
-  def state: LSPState = lspState
+  def state: BallerinaLSPState = lspState
 
   def isModified: Boolean
 
@@ -20,5 +20,5 @@ trait LSPGUI {
 }
 
 object LSPGUI {
-  val lspState: LSPState = LSPState.getInstance()
+  val lspState: BallerinaLSPState = BallerinaLSPState.getInstance()
 }

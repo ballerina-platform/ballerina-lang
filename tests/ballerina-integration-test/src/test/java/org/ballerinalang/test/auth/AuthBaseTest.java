@@ -35,7 +35,7 @@ public class AuthBaseTest extends BaseTest {
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097};
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
         embeddedDirectoryServer.startLdapServer(9389);
 

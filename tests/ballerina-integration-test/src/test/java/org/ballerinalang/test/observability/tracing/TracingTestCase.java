@@ -97,7 +97,7 @@ public class TracingTestCase extends BaseTest {
 
         Assert.assertEquals(mockSpans.size(), 5, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
-                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 2, "Mismatch in number of root spans.");
+                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1, "Mismatch in number of root spans.");
     }
 
     @Test
@@ -116,7 +116,7 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans
                 .stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0)
-                .count(), 5, "Mismatch in number of root spans.");
+                .count(), 3, "Mismatch in number of root spans.");
     }
 
     @Test
@@ -134,7 +134,7 @@ public class TracingTestCase extends BaseTest {
         Assert.assertEquals(mockSpans.size(), 23, "Mismatch in number of spans reported.");
 
         Assert.assertEquals(mockSpans.stream()
-                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 9, "Mismatch in number of root spans.");
+                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 6, "Mismatch in number of root spans.");
 
         Optional<BMockSpan> uSpanTwo = mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getOperationName().equals("uSpanFour")).findFirst();

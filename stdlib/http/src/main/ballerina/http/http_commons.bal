@@ -20,6 +20,9 @@
 # Represents https protocol scheme
 @final string HTTPS_SCHEME = "https://";
 
+# Constant for the http error code
+@final public string HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
+
 # Constant for the default listener endpoint timeout
 @final int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 

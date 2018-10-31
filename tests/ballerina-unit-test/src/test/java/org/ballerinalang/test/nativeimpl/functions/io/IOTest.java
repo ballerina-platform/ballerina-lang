@@ -153,7 +153,6 @@ public class IOTest {
         Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeReadableChannel");
-
     }
 
     @Test(description = "Test 'readCharacters' function in ballerina/io package")
