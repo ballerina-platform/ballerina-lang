@@ -68,11 +68,12 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
     // since different resources can have different scopes
     string authzCacheKey = runtime:getInvocationContext().userPrincipal.userId +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
-    if (lengthof scopes > 0) {
+    string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
+    if (lengthof authCtxtScopes > 0) {
         authzCacheKey += "-";
     }
-    foreach scope in scopes {
-        authzCacheKey += scope + ",";
+    foreach authCtxtScope in authCtxtScopes {
+        authzCacheKey += authCtxtScope + ",";
     }
 
     match self.authorizeFromCache(authzCacheKey) {
@@ -82,7 +83,6 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
         () => {
             // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
             // match against those.
-            string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
             if (lengthof authCtxtScopes > 0) {
                 boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
                 // cache authz result
