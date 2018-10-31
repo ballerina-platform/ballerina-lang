@@ -64,10 +64,17 @@ public type HttpAuthzHandler object {
 
 function HttpAuthzHandler::handle (string username, string serviceName, string resourceName, string method,
                                                                                     string[] scopes) returns (boolean) {
-    // first, check in the cache. cache key is <username>-<resource>-<http method>,
+    // first, check in the cache. cache key is <username>-<resource>-<http method>-<scopes-separated-by-colon>,
     // since different resources can have different scopes
-    string authzCacheKey = runtime:getInvocationContext().userPrincipal.username +
+    string authzCacheKey = runtime:getInvocationContext().userPrincipal.userId +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
+    if (lengthof scopes > 0) {
+        authzCacheKey += "-";
+    }
+    foreach scope in scopes {
+        authzCacheKey += scope + ",";
+    }
+
     match self.authorizeFromCache(authzCacheKey) {
         boolean isAuthorized => {
             return isAuthorized;
