@@ -22,7 +22,6 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.program.BLangVMUtils;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -83,8 +82,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     }
 
     protected WorkerExecutionContext propagateErrorToTarget() {
-        BError error = BLangVMErrors
-                .createCallFailedException(this.targetCtx, new ArrayList<>(this.getWorkerErrors().values()));
+        BError error = BLangVMErrors.handleError(this.targetCtx, this.getWorkerErrors());
         WorkerExecutionContext ctx = this.onFinalizedError(this.targetCtx, error);
         this.doFailCallbackNotify(error);
         return ctx;
