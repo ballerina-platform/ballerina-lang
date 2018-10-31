@@ -14,86 +14,40 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents encoding used for protobuf
-}
-@final string PROTOBUF_STRING_ENCODING = "UTF-8";
+#WritableProtoChannel represents capabilities to encode bytes based on protobuf specification.
+public type WritableProtoChannel object {
 
-public type WireType "VARINT"|"BIT64"|"LD"|"BIT32";
+    private WritableDataChannel? dc;
 
-documentation {
-    ProtoChannel represents capabilities to encode/decode bytes based on protobuf specification.
-}
-public type ProtoChannel object {
-    private DataChannel? dc;
-
-    public new(ByteChannel byteChannel) {
-        dc = new DataChannel(byteChannel, bOrder = BIG_ENDIAN);
-    }
-
-    public function readBool() returns boolean|error? {
-        return dc.readBool();
+    public new(WritableByteChannel byteChannel) {
+        dc = new WritableDataChannel(byteChannel, bOrder = BIG_ENDIAN);
     }
 
     public function writeBool(boolean value) returns error? {
         return dc.writeBool(value);
     }
 
-    public function readDouble() returns float|error? {
-        return dc.readFloat64();
-    }
-
     public function writeDouble(float value) returns error? {
         return dc.writeFloat64(value);
-    }
-
-    public function readFixed32() returns int|error? {
-        return dc.readInt32();
     }
 
     public function writeFixed32(int value) returns error? {
         return dc.writeInt32(value);
     }
 
-    public function readFixed64() returns int|error? {
-        return dc.readInt64();
-    }
-
     public function writeFixed64(int value) returns error? {
         return dc.writeInt64(value);
-    }
-
-    public function readFloat() returns float|error? {
-        return dc.readFloat32();
     }
 
     public function writeFloat(float value) returns error? {
         return dc.writeFloat32(value);
     }
 
-    public function readInt() returns int|error? {
-        return dc.readVarInt();
-    }
-
     public function writeInt(int value) returns error? {
         return dc.writeVarInt(value);
     }
 
-    public function readString() returns string|error? {
-        match dc.readVarInt() {
-            int length => {
-                return dc.readString(length, PROTOBUF_STRING_ENCODING);
-            }
-            error e => {
-                return e;
-            }
-            () => {
-                return {message:"error occurred while reading string"};
-            }
-        }
-    }
-
-    public function writeString(string value) returns error?|() {
+    public function writeString(string value) returns error? {
         byte[] bytes = value.toByteArray(PROTOBUF_STRING_ENCODING);
         int length = lengthof bytes;
         var lengthWriteResult = dc.writeVarInt(length);
@@ -108,20 +62,6 @@ public type ProtoChannel object {
                 }
             }
             error e => {return e;}
-        }
-    }
-
-    public function readTag() returns int|error {
-        match dc.readVarInt() {
-            int value => {
-                return value >> 3;
-            }
-            error e => {
-                return e;
-            }
-            () => {
-                return {message:"error occurred while reading string"};
-            }
         }
     }
 

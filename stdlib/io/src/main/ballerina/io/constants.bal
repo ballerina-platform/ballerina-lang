@@ -32,3 +32,9 @@ public type Separator ","|"\t"|":";
 @final public Separator COMMA = ",";
 @final public Separator TAB = "\t";
 @final public Separator COLON = ":";
+
+# Represents encoding used for protobuf
+@final string PROTOBUF_STRING_ENCODING = "UTF-8";
+
+# Wire types which will be used for protobuf channel
+public type WireType "VARINT"|"BIT64"|"LD"|"BIT32";
