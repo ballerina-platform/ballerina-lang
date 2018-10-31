@@ -90,6 +90,18 @@ function testConstWithoutTypeAssignmentToType() returns ACTION {
     return action;
 }
 
+function testConstAndTypeComparison() returns boolean {
+    return "GET" == GET;
+}
+
+function testTypeConstAsParam() returns boolean {
+    return typeConstAsParam(GET);
+}
+
+function typeConstAsParam(ACTION a) returns boolean {
+    return "GET" == a;
+}
+
 // -----------------------------------------------------------
 
 function testEqualityWithConstWithoutType() returns boolean {

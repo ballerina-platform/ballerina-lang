@@ -125,6 +125,20 @@ public class ConstantTest {
     }
 
     @Test
+    public void testConstAndTypeComparison() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstAndTypeComparison");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeConstAsParam() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTypeConstAsParam");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testEqualityWithConstWithoutType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEqualityWithConstWithoutType");
         Assert.assertNotNull(returns[0]);
