@@ -698,7 +698,7 @@ public class CommonUtil {
      * @return {@link Boolean}  Whether a test source or not
      */
     public static boolean isTestSource(String relativeFilePath) {
-        return relativeFilePath.split(FILE_SEPARATOR)[0].equals("tests");
+        return relativeFilePath.startsWith("tests" + FILE_SEPARATOR);
     }
 
     /**
