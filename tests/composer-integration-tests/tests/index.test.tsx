@@ -5,6 +5,8 @@ import URI from 'vscode-uri';
 import * as React from 'react';
 import { BallerinaDiagramWrapper } from '@ballerina/diagram';
 import SizingUtil from '@ballerina/diagram/lib/plugins/ballerina/diagram/views/default/sizing-util';
+import EditableText from '@ballerina/diagram/lib/plugins/ballerina/diagram/views/default/components/decorators/editable-text';
+import DiagramMenu from '@ballerina/diagram/lib/plugins/ballerina/views/diagram-menu';
 import { create } from 'react-test-renderer';
 
 let langClient : MinimalLangClient;
@@ -32,28 +34,35 @@ test('Lang-server is started properly', () => {
 });
 
 function testDiagramRendering(ast: BallerinaAST,  uri: string) {
-    function getAST(url: string) {
-        return Promise.resolve({ ast });
-    }
-    function parseFragment(fragment: any) {
-    }
-    function goToSource(pos: any) {
-    }
-    function onChange(ast: any) {
-    }
-    function getEndpoints() {
-    }
+    const parseFragment = jest.fn();
+    const goToSource = jest.fn();
+    const onChange = jest.fn();
+    const getEndpoints = jest.fn();
 
-    var getTextWidth = jest.fn();
+    const getAST = jest.fn();
+    getAST.mockResolvedValue({ ast });
+
+    const getTextWidth = jest.fn();
     getTextWidth.mockReturnValue(100);
     jest
         .spyOn(SizingUtil.prototype, 'getTextWidth')
         .mockImplementation(getTextWidth);
 
-    var consoleLog = jest.fn();
+    const consoleLog = jest.fn();
     jest
         .spyOn(console, 'log')
         .mockImplementation(consoleLog);
+    
+    const renderEditableTextBox = jest.fn();
+    jest
+        .spyOn(EditableText.prototype, 'renderTextBox')
+        .mockImplementation(renderEditableTextBox);
+        
+    const renderDiagramMenu = jest.fn();
+    renderDiagramMenu.mockReturnValue(<div />);
+    jest
+        .spyOn(DiagramMenu.prototype, 'render')
+        .mockImplementation(renderDiagramMenu);
 
     const component = create(
         <BallerinaDiagramWrapper 
@@ -67,8 +76,13 @@ function testDiagramRendering(ast: BallerinaAST,  uri: string) {
             goToSource={goToSource}
         />
     );
-    component.toJSON();
-    expect(getTextWidth).toHaveBeenCalled();
+    let tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
+    expect(getAST).toHaveBeenCalled();
+    console.warn(component.root.instance.state);
+    component.root.instance.setState({ currentAST: ast});
+    tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
 }
 
 var bbeFiles = globSync(path.join(bbeDir, '**', 'hello_world_client.bal'), {});

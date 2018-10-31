@@ -22,3 +22,15 @@ declare module '@ballerina/diagram/lib/plugins/ballerina/diagram/views/default/s
         getTextWidth: (arg1: any, arg2: any) => any;
     }
 }
+
+declare module '@ballerina/diagram/lib/plugins/ballerina/diagram/views/default/components/decorators/editable-text' {
+    export default class EditableText {
+        renderTextBox: () => void;
+    }
+}
+
+declare module '@ballerina/diagram/lib/plugins/ballerina/views/diagram-menu' {
+    export default class DiagramMenu {
+        render: () => any;
+    }
+}
