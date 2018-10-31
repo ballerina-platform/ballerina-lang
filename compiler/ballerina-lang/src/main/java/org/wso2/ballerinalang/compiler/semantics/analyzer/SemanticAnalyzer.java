@@ -1086,10 +1086,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
-            return;
-        }
-
         this.typeChecker.checkExpr(returnNode.expr, this.env,
                 this.env.enclInvokable.returnTypeNode.type);
     }

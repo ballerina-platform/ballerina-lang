@@ -53,7 +53,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS returnParameter? callableUnitBody
     ;
 
 resourceParameterList

@@ -282,8 +282,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean markdownDocExists = ctx.documentationString() != null;
         boolean isDeprecated = ctx.deprecatedAttachment() != null;
         boolean hasParameters = ctx.resourceParameterList() != null;
+        boolean hasRetParameter = ctx.returnParameter() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), markdownDocExists,
-                isDeprecated, hasParameters);
+                isDeprecated, hasParameters, hasRetParameter);
     }
 
     @Override
