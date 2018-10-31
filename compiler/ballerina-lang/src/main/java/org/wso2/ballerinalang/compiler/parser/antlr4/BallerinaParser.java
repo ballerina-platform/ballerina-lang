@@ -5683,7 +5683,7 @@ public class BallerinaParser extends Parser {
 			match(LEFT_BRACE);
 			setState(1181);
 			_la = _input.LA(1);
-			if (_la==PRIMARYKEY || _la==Identifier) {
+			if (_la==Identifier) {
 				{
 				setState(1173);
 				tableColumn();
@@ -5722,8 +5722,10 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class TableColumnContext extends ParserRuleContext {
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public TerminalNode PRIMARYKEY() { return getToken(BallerinaParser.PRIMARYKEY, 0); }
+		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
+		public TerminalNode Identifier(int i) {
+			return getToken(BallerinaParser.Identifier, i);
+		}
 		public TableColumnContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5741,19 +5743,19 @@ public class BallerinaParser extends Parser {
 	public final TableColumnContext tableColumn() throws RecognitionException {
 		TableColumnContext _localctx = new TableColumnContext(_ctx, getState());
 		enterRule(_localctx, 126, RULE_tableColumn);
-		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1186);
-			_la = _input.LA(1);
-			if (_la==PRIMARYKEY) {
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,120,_ctx) ) {
+			case 1:
 				{
 				setState(1185);
-				match(PRIMARYKEY);
+				match(Identifier);
 				}
+				break;
 			}
-
 			setState(1188);
 			match(Identifier);
 			}
@@ -17998,13 +18000,13 @@ public class BallerinaParser extends Parser {
 		"\u0499\7\u0085\2\2\u0499\u049b\5\u0080A\2\u049a\u0498\3\2\2\2\u049b\u049e"+
 		"\3\2\2\2\u049c\u049a\3\2\2\2\u049c\u049d\3\2\2\2\u049d\u04a0\3\2\2\2\u049e"+
 		"\u049c\3\2\2\2\u049f\u0497\3\2\2\2\u049f\u04a0\3\2\2\2\u04a0\u04a1\3\2"+
-		"\2\2\u04a1\u04a2\7\u0087\2\2\u04a2\177\3\2\2\2\u04a3\u04a5\7\177\2\2\u04a4"+
-		"\u04a3\3\2\2\2\u04a4\u04a5\3\2\2\2\u04a5\u04a6\3\2\2\2\u04a6\u04a7\7\u00be"+
-		"\2\2\u04a7\u0081\3\2\2\2\u04a8\u04aa\7\u008a\2\2\u04a9\u04ab\5\u0084C"+
-		"\2\u04aa\u04a9\3\2\2\2\u04aa\u04ab\3\2\2\2\u04ab\u04ac\3\2\2\2\u04ac\u04ad"+
-		"\7\u008b\2\2\u04ad\u0083\3\2\2\2\u04ae\u04b3\5\u0086D\2\u04af\u04b0\7"+
-		"\u0085\2\2\u04b0\u04b2\5\u0086D\2\u04b1\u04af\3\2\2\2\u04b2\u04b5\3\2"+
-		"\2\2\u04b3\u04b1\3\2\2\2\u04b3\u04b4\3\2\2\2\u04b4\u04b8\3\2\2\2\u04b5"+
+		"\2\2\u04a1\u04a2\7\u0087\2\2\u04a2\177\3\2\2\2\u04a3\u04a5\7\u00be\2\2"+
+		"\u04a4\u04a3\3\2\2\2\u04a4\u04a5\3\2\2\2\u04a5\u04a6\3\2\2\2\u04a6\u04a7"+
+		"\7\u00be\2\2\u04a7\u0081\3\2\2\2\u04a8\u04aa\7\u008a\2\2\u04a9\u04ab\5"+
+		"\u0084C\2\u04aa\u04a9\3\2\2\2\u04aa\u04ab\3\2\2\2\u04ab\u04ac\3\2\2\2"+
+		"\u04ac\u04ad\7\u008b\2\2\u04ad\u0083\3\2\2\2\u04ae\u04b3\5\u0086D\2\u04af"+
+		"\u04b0\7\u0085\2\2\u04b0\u04b2\5\u0086D\2\u04b1\u04af\3\2\2\2\u04b2\u04b5"+
+		"\3\2\2\2\u04b3\u04b1\3\2\2\2\u04b3\u04b4\3\2\2\2\u04b4\u04b8\3\2\2\2\u04b5"+
 		"\u04b3\3\2\2\2\u04b6\u04b8\5\u00e0q\2\u04b7\u04ae\3\2\2\2\u04b7\u04b6"+
 		"\3\2\2\2\u04b8\u0085\3\2\2\2\u04b9\u04ba\7\u0086\2\2\u04ba\u04bb\5\u00e0"+
 		"q\2\u04bb\u04bc\7\u0087\2\2\u04bc\u0087\3\2\2\2\u04bd\u04bf\7\u008a\2"+

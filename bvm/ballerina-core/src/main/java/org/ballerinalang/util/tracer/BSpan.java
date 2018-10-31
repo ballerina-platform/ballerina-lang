@@ -150,8 +150,8 @@ public class BSpan {
         this.span = span;
     }
 
-    public Map<String, String> getTraceContext(String headerName) {
-        return manager.extractTraceContext(span, connectorName, headerName);
+    public Map<String, String> getTraceContext() {
+        return manager.extractTraceContext(span, connectorName);
     }
 
     private BSpan getParentBSpan() {

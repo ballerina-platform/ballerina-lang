@@ -338,6 +338,20 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
                 new HTTPClientConnectorListener(dataContext);
         final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
         final OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) dataContext.context.
+                getNullableRefArgument(HttpConstants.REQUEST_STRUCT_INDEX));
+        BMap<String, BValue> entityStruct = null;
+        if (requestStruct != null) {
+            entityStruct = extractEntity(requestStruct);
+            if (entityStruct == null) {
+                //This is reached when it is a passthrough scenario(the body has not been built) or when the
+                // entity body is empty/null. It is not possible to differentiate the two scenarios in Ballerina,
+                // hence the value for passthrough is set to be true for both cases because transport side will
+                // interpret this value only when there is an unbuilt body in carbon message.
+                outboundRequestMsg.setPassthrough(true);
+            }
+        }
+
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         if (async) {
             future.setResponseHandleListener(httpClientConnectorLister);
@@ -345,16 +359,11 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             future.setHttpConnectorListener(httpClientConnectorLister);
         }
         try {
-            BMap<String, BValue> requestStruct = ((BMap<String, BValue>) dataContext.context.
-                    getNullableRefArgument(HttpConstants.REQUEST_STRUCT_INDEX));
-            if (requestStruct != null) {
-                BMap<String, BValue> entityStruct = extractEntity(requestStruct);
-                if (entityStruct != null) {
-                    if (boundaryString != null) {
-                        serializeMultiparts(entityStruct, messageOutputStream, boundaryString);
-                    } else {
-                        serializeDataSource(entityStruct, messageOutputStream);
-                    }
+            if (entityStruct != null) {
+                if (boundaryString != null) {
+                    serializeMultiparts(entityStruct, messageOutputStream, boundaryString);
+                } else {
+                    serializeDataSource(entityStruct, messageOutputStream);
                 }
             }
         } catch (IOException | EncoderException serializerException) {
@@ -459,12 +468,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         public void onError(Throwable throwable) {
             BError httpConnectorError;
             if (throwable instanceof EndpointTimeOutException) {
-                // TODO : Fix this.
-                //                httpConnectorError = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
-                //                        HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                //                        HttpConstants.HTTP_TIMEOUT_ERROR);
-                httpConnectorError = BLangVMErrors
-                        .createError(this.dataContext.context, HttpConstants.HTTP_TIMEOUT_ERROR);
+                httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             } else if (throwable instanceof IOException) {
                 this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
@@ -473,8 +477,6 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
                         .setIoException(new IOException(throwable.getMessage(), throwable));
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
-            ((BMap) httpConnectorError.details)
-                    .put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
             this.dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

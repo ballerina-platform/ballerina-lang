@@ -109,7 +109,6 @@
                 <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.ballerinalang:ballerina-internal:jar</include>
                 <include>org.ballerinalang:ballerina-io:jar</include>
-                <include>org.ballerinalang:ballerina-jdbc:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
