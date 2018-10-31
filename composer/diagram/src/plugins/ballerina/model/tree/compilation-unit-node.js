@@ -88,6 +88,17 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
         } else if (pkgDeclIndex !== -1) {
             targetIndex = pkgDeclIndex + 1;
         }
+
+        let startIndex = 0;
+        let insertBefore = this.topLevelNodes[targetIndex];
+        if(insertBefore !== undefined){
+            const wsList = ASTUtil.extractWS(insertBefore);
+            if(wsList.length > 0){
+                startIndex = wsList[0].i;;
+            }
+        }
+        
+        ASTUtil.reconcileWS(importNode, this.getTopLevelNodes(), this.getRoot(), startIndex);
         this.addTopLevelNodes(importNode, targetIndex, silent);
     }
 
@@ -150,7 +161,6 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
                 const silent = (i !== (array.length - 1));
                 TreeUtils.generateDefaultName(this, element);
                 if (TreeUtils.isImport(element)) {
-                    ASTUtil.reconcileWS(element, this.getTopLevelNodes(), this.getRoot());
                     this.addImport(element, silent);
                 } else {
                     ASTUtil.reconcileWS(element, this.getTopLevelNodes(), this.getRoot());

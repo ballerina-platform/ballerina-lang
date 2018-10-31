@@ -102,20 +102,34 @@ export class ASTUtil {
         return pot;
     }
 
-    public static reconcileWS(node: any, attachPoint: any[], tree: any): void {
+    public static reconcileWS(
+        node: any,
+        attachPoint: any[],
+        tree: any,
+        startIndex = -1
+    ): void {
         // get ws of attach node
-        const attachWS = ASTUtil.extractWS(attachPoint[attachPoint.length - 1]);
+        let attachWS: any[] = [];
+        if (attachPoint.length > 0) {
+            attachWS = ASTUtil.extractWS(attachPoint[attachPoint.length - 1]);
+        }
         const nodeWS = ASTUtil.extractWS(node);
         const astWS = ASTUtil.extractWS(tree);
         // find the last of attach node
 
-        const attachIndex = attachWS[attachWS.length - 1].i;
-        // get the ws of node ws
+        if (startIndex === -1) {
+            // tslint:disable-next-line:prefer-conditional-expression
+            if (attachPoint.length > 0) {
+                startIndex = attachWS[attachWS.length - 1].i;
+            } else {
+                startIndex = 0;
+            }
+        }
 
         // tslint:disable-next-line:no-console
         const nodeFirstIndex = nodeWS[0].i;
         // get the diff from node to last
-        const diff = attachIndex + 1 - nodeFirstIndex;
+        const diff = startIndex + 1 - nodeFirstIndex;
         // update node ws
         nodeWS.forEach(ws => {
             ws.i = ws.i + diff;
@@ -124,10 +138,10 @@ export class ASTUtil {
         // tslint:disable-next-line:no-console
         const lastIndex = nodeWS[nodeWS.length - 1].i;
         // get the diff for tree
-        const treeDiff = lastIndex - attachIndex;
+        const treeDiff = lastIndex - startIndex;
         // update rest of the tree
         astWS.forEach(ws => {
-            if (ws.i > attachIndex) {
+            if (ws.i > startIndex) {
                 ws.i = ws.i + treeDiff;
             }
         });
