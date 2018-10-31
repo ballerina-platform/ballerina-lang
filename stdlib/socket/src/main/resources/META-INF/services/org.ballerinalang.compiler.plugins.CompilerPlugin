@@ -16,4 +16,4 @@
 # under the License.
 #
 
-org.ballerinalang.stdlib.socket.compiler.SocketListenerCompilerPlugin
+org.ballerinalang.stdlib.socket.compiler.SocketCompilerPlugin

@@ -69,10 +69,10 @@ public class Start extends BlockingNativeCallableUnit {
             BMap<String, BValue> config = (BMap<String, BValue>) listenerEndpoint.getNativeData(LISTENER_CONFIG);
             BInteger port = (BInteger) config.get(SocketConstants.CONFIG_FIELD_PORT);
             BString networkInterface = (BString) config.get(SocketConstants.CONFIG_FIELD_INTERFACE);
-            if (networkInterface != null) {
-                channel.bind(new InetSocketAddress(networkInterface.stringValue(), (int) port.intValue()));
-            } else {
+            if (networkInterface == null) {
                 channel.bind(new InetSocketAddress((int) port.intValue()));
+            } else {
+                channel.bind(new InetSocketAddress(networkInterface.stringValue(), (int) port.intValue()));
             }
             final SelectorManager selectorManager = SelectorManager.getInstance();
             selectorManager.start();

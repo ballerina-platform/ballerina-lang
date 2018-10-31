@@ -51,7 +51,7 @@ public class ClientSocketTest {
 
     @BeforeClass
     public void setup() {
-        socketClient = BCompileUtil.compileAndSetup("test-src/io/client_socket_io.bal");
+        socketClient = BCompileUtil.compileAndSetup("test-src/socket/client_socket_io.bal");
         boolean connectionStatus;
         int numberOfRetryAttempts = 20;
         try {

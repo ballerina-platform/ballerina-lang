@@ -82,7 +82,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             if (clientServiceType != null) {
                 service = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), clientServiceType);
                 if (!"ballerina/socket:Client".equals(service.getEndpointName())) {
-                    throw new BallerinaConnectorException("The callback service should be of type ");
+                    throw new BallerinaConnectorException(
+                            "The callback service should be of type socket:ClientService service");
                 }
             }
             SocketChannel socketChannel = SocketChannel.open();

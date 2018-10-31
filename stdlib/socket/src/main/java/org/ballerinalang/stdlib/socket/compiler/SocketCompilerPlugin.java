@@ -58,7 +58,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
         value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Listener"),
                  @SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Client")}
 )
-public class SocketListenerCompilerPlugin extends AbstractCompilerPlugin {
+public class SocketCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog diagnosticLog = null;
 
