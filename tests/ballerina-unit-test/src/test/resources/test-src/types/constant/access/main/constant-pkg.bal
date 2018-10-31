@@ -1,4 +1,3 @@
-
 import variable;
 
 @final int constNegativeInt = -342;
@@ -31,3 +30,6 @@ function floatIntConversion() returns (float, float, float){
     return (a, f[5], 10.0);
 }
 
+function accessPublicConstantFromOtherPackage() returns string {
+    return variable:name;
+}
