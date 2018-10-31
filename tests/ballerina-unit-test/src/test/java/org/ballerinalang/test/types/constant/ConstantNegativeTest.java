@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        Assert.assertEquals(compileResult.getErrorCount(), 9);
         String expectedErrMsg1 = "only simple literals can be assigned to a constant";
         String expectedErrMsg2 = "cannot assign a value to a constant";
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg1, 2, 21);
@@ -41,5 +41,7 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, 4, expectedErrMsg2, 13, 5);
         BAssertUtil.validateError(compileResult, 5, expectedErrMsg2, 14, 5);
         BAssertUtil.validateError(compileResult, 6, expectedErrMsg2, 19, 9);
+        BAssertUtil.validateError(compileResult, 7, "incompatible types: expected 'string', found 'int'", 26, 21);
+        BAssertUtil.validateError(compileResult, 8, expectedErrMsg1, 28, 18);
     }
 }

@@ -1525,8 +1525,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             constant.symbol.actualType = typeNode.type;
 
             // Check type of the value.
-            typeChecker.checkExpr(value, env, typeNode.type);
-
+            BType type = typeChecker.checkExpr(value, env, typeNode.type);
+            if (type == symTable.errType) {
+                return;
+            }
             // If the constant's type node's type is a finite type, we need to check whether the literal value is
             // assignable to it.
             //

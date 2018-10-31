@@ -22,3 +22,7 @@ function testWorkerInteractions() {
         30 -> w1;
     }
 }
+
+const string sVar = 10;
+
+const string m = { name: "Ballerina" };
