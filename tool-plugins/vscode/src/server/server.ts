@@ -20,24 +20,33 @@
 import * as path from 'path';
 import { log } from '../utils/logger';
 import { ServerOptions } from 'vscode-languageclient';
-import { exec } from 'child_process';
 
 export function getServerOptions(ballerinaHome: string) : ServerOptions {
     log(`Using Ballerina installtion at ${ballerinaHome}`);
-    let cmd: string = process.platform === 'win32' 
-                            ? 'language-server-launcher.bat'
-                            : 'sh language-server-launcher.sh';
+
+    let cmd;
     const cwd = path.join(ballerinaHome, 'lib', 'tools', 'lang-server', 'launcher');
+    let args = [];
+    if (process.platform === 'win32') {
+        cmd = path.join(cwd, 'language-server-launcher.bat');
+    } else {
+        cmd = 'sh';
+        args.push(path.join(cwd, 'language-server-launcher.sh'));
+    }
+
     if (process.env.LSDEBUG === "true") {
-        cmd += ' --debug';
         log('Language Server is staring in debug mode');
+        args.push('--debug');
     }
-    if (process.env.LS_CUSTOM_CLASSPATH !== '') {
-        cmd += ' --classpath ' + process.env.LS_CUSTOM_CLASSPATH;
+    if (process.env.LS_CUSTOM_CLASSPATH) {
+        args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);
     }
-    return (() => {
-        return Promise.resolve(exec(cmd, {
-            cwd
-        }));
-    });
+
+    return {
+        command: cmd,
+        args,
+        options: {
+            cwd,
+        },
+    }; 
 }

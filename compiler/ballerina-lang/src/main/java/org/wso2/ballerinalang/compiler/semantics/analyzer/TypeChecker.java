@@ -171,7 +171,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
-
+    
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
         if (typeChecker == null) {
@@ -1544,6 +1544,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;
         }
@@ -2417,7 +2418,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     /**
      * Returns the type guards included in a given expression.
-     *
+     * 
      * @param expr Expression to get type guards
      * @return A map of type guards, with the original variable symbol as keys
      *         and their guarded type.

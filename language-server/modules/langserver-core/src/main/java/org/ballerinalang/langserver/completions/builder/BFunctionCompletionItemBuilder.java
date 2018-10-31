@@ -1,22 +1,24 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
-package org.ballerinalang.langserver.common.utils.completion;
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package org.ballerinalang.langserver.completions.builder;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -39,45 +41,64 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.List;
 
 /**
- * Utilities for BInvokableSymbol.
+ * This class is being used to build function type completion item.
+ *
+ * @since 0.983.0
  */
-public class BInvokableSymbolUtil {
-
-    /**
-     * Get the Function Completion Item for the given BInvokableSymbol.
-     * @param bInvokableSymbol          BInvokableSymbol to process
-     * @return {@link CompletionItem}   Generated Completion Item
-     */
-    public static CompletionItem getFunctionCompletionItem(BInvokableSymbol bInvokableSymbol) {
-        FunctionSignature functionSignature = getFunctionSignature(bInvokableSymbol);
-        return getFunctionCompletionItem(functionSignature.insertText, functionSignature.getLabel());
+public final class BFunctionCompletionItemBuilder {
+    private BFunctionCompletionItemBuilder() {
     }
 
     /**
-     * Get Function Completion Item from insert text and label.
-     * @param insertText                Insert Text
-     * @param label                     Label
-     * @return {@link CompletionItem}   Generated Completion Item
+     * Creates and returns a completion item.
+     *
+     * @param bSymbol    BSymbol or null
+     * @param label      label
+     * @param insertText insert text
+     * @return {@link CompletionItem}
      */
-    public static CompletionItem getFunctionCompletionItem(String insertText, String label) {
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        completionItem.setLabel(label);
-        completionItem.setInsertText(insertText);
-        completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setKind(CompletionItemKind.Function);
-
-        return completionItem;
+    public static CompletionItem build(BInvokableSymbol bSymbol, String label, String insertText) {
+        CompletionItem item = new CompletionItem();
+        item.setLabel(label);
+        item.setInsertText(insertText);
+        setMeta(item, bSymbol);
+        return item;
     }
-    
-    // Private Methods
+
+    /**
+     * Creates and returns a completion item.
+     *
+     * @param bSymbol BSymbol
+     * @return {@link CompletionItem}
+     */
+    public static CompletionItem build(BInvokableSymbol bSymbol) {
+        CompletionItem item = new CompletionItem();
+        setMeta(item, bSymbol);
+        if (bSymbol != null) {
+            // Override function signature
+            Pair<String, String> functionSignature = getFunctionSignature(bSymbol);
+            item.setInsertText(functionSignature.getLeft());
+            item.setLabel(functionSignature.getRight());
+        }
+        return item;
+    }
+
+    private static void setMeta(CompletionItem item, BInvokableSymbol bSymbol) {
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+        item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
+        item.setKind(CompletionItemKind.Function);
+        if (bSymbol != null && bSymbol.markdownDocumentation != null) {
+            item.setDocumentation(bSymbol.markdownDocumentation.description);
+        }
+    }
 
     /**
      * Get the function signature.
+     *
      * @param bInvokableSymbol - ballerina function instance
-     * @return {@link String}
+     * @return {@link Pair} of insert text(left-side) and signature label(right-side)
      */
-    private static FunctionSignature getFunctionSignature(BInvokableSymbol bInvokableSymbol) {
+    private static Pair<String, String> getFunctionSignature(BInvokableSymbol bInvokableSymbol) {
         String[] funcNameComponents = bInvokableSymbol.getName().getValue().split("\\.");
         String functionName = funcNameComponents[funcNameComponents.length - 1];
 
@@ -141,7 +162,8 @@ public class BInvokableSymbolUtil {
             signature.append(initString).append(returnType.toString());
             signature.append(endString);
         }
-        return new FunctionSignature(insertText.toString(), signature.toString());
+
+        return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
 
     private static String getParameterSignature(BVarSymbol bVarSymbol, boolean isDefault) {
@@ -196,42 +218,12 @@ public class BInvokableSymbolUtil {
                 typeName = CommonUtil.getLastItem(nameComps).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
                         + tSymbol.getName().getValue();
             }
-            
+
             if ((paramType instanceof BArrayType)) {
                 typeName += "[]";
             }
         }
 
         return typeName;
-    }
-
-    /**
-     * Inner static class for the Function Signature. This holds both the insert text and the label for the FUnction.
-     * Signature Completion Item
-     */
-    private static class FunctionSignature {
-        private String insertText;
-        private String label;
-
-        FunctionSignature(String insertText, String label) {
-            this.insertText = insertText;
-            this.label = label;
-        }
-
-        String getInsertText() {
-            return insertText;
-        }
-
-        public void setInsertText(String insertText) {
-            this.insertText = insertText;
-        }
-
-        String getLabel() {
-            return label;
-        }
-
-        public void setLabel(String label) {
-            this.label = label;
-        }
     }
 }

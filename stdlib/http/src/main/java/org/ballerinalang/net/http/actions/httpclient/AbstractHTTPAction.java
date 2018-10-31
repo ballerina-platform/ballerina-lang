@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
@@ -35,7 +34,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
@@ -468,12 +466,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         public void onError(Throwable throwable) {
             BError httpConnectorError;
             if (throwable instanceof EndpointTimeOutException) {
-                // TODO : Fix this.
-                //                httpConnectorError = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
-                //                        HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                //                        HttpConstants.HTTP_TIMEOUT_ERROR);
-                httpConnectorError = BLangVMErrors
-                        .createError(this.dataContext.context, HttpConstants.HTTP_TIMEOUT_ERROR);
+                httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             } else if (throwable instanceof IOException) {
                 this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
@@ -482,8 +475,6 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
                         .setIoException(new IOException(throwable.getMessage(), throwable));
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
-            ((BMap) httpConnectorError.details)
-                    .put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
             this.dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
