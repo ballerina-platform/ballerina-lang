@@ -64,4 +64,9 @@ public class BCursorTable extends BTable {
     public boolean isInMemoryTable() {
         return false;
     }
+
+    @Override
+    public BValue copy() {
+        throw new BallerinaException("A table returned from a database can not be cloned");
+    }
 }

@@ -536,7 +536,11 @@ public class CPU {
                         sf.refRegs[j] = fPointer;
                         findAndAddAdditionalVarRegIndexes(ctx, operands, fPointer);
                         break;
-    
+
+                    case InstructionCodes.CLONE:
+                        createClone(ctx, operands, sf);
+                        break;
+
                     case InstructionCodes.I2ANY:
                     case InstructionCodes.BI2ANY:
                     case InstructionCodes.F2ANY:
@@ -784,6 +788,36 @@ public class CPU {
                 ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                 handleError(ctx);
             }
+        }
+    }
+
+    private static void createClone(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        TypeRefCPEntry typeEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+
+        switch (typeEntry.getType().getTag()) {
+            //TODO: Decimal type to be added
+            case TypeTags.INT_TAG:
+                sf.longRegs[j] = sf.longRegs[i];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.intRegs[j] = sf.intRegs[i];
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.doubleRegs[j] = sf.doubleRegs[i];
+                break;
+            case TypeTags.STRING_TAG:
+                sf.stringRegs[j] = sf.stringRegs[i];
+                break;
+            case TypeTags.XML_TAG:
+            case TypeTags.MAP_TAG:
+            case TypeTags.ARRAY_TAG:
+            case TypeTags.TABLE_TAG:
+            case TypeTags.JSON_TAG:
+                sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy();
+                break;
         }
     }
 

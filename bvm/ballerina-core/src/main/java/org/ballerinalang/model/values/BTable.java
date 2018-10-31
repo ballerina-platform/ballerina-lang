@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -299,7 +300,20 @@ public class BTable implements BRefType<Object>, BCollection {
 
     @Override
     public BValue copy() {
-        return null;
+        if (tableClosed) {
+            throw new BallerinaException("Trying to invoke clone built-in method over a closed table");
+        }
+        TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
+        BRefValueArray data = new BRefValueArray();
+        int cursor = 0;
+        try {
+            while (cloneIterator.next()) {
+                data.add(cursor++, cloneIterator.generateNext());
+            }
+            return new BTable(new BTableType(constraintType), this.indices, this.primaryKeys, data);
+        } finally {
+            cloneIterator.close();
+        }
     }
 
     @Override

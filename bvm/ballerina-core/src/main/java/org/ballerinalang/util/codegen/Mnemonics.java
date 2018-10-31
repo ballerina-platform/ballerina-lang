@@ -80,6 +80,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.REASON] = "reason";
         mnemonics[InstructionCodes.DETAIL] = "detail";
 
+        mnemonics[InstructionCodes.CLONE] = "clone";
+
         mnemonics[InstructionCodes.MAPLOAD] = "mapload";
         mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";

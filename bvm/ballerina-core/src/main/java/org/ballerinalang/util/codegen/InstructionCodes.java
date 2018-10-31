@@ -158,6 +158,8 @@ public interface InstructionCodes {
     int FPLOAD = 123;
     int VFPLOAD = 124;
 
+    int CLONE = 125;
+
     int SEQ_NULL = 128;
     int SNE_NULL = 129;
 

@@ -306,6 +306,8 @@ public enum DiagnosticCode {
     
     INCOMPATIBLE_TYPE_CHECK("incompatible.type.check"),
     UNNECESSARY_CONDITION("unnecessary.condition"),
+
+    INVALID_USAGE_OF_CLONE("clone.invocation.invalid"),
     ;
 
     private String value;

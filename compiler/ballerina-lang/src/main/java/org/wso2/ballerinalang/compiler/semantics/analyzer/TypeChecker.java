@@ -1772,6 +1772,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     resultType = symTable.semanticError;
                 }
                 break;
+            case CLONE:
+                if (iExpr.argExprs.size() > 0) {
+                    dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+                }
+                validateAnyDataType(iExpr.expr.type, iExpr.expr.pos);
+                break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
                 return;
@@ -1780,6 +1786,30 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.builtInMethod = function;
         if (resultType != null && resultType != symTable.semanticError) {
             types.setImplicitCastExpr(iExpr, resultType, expType);
+        }
+    }
+
+    private void validateAnyDataType(BType type, DiagnosticPos pos) {
+        switch (type.tag) {
+            //TODO: Decimal to be added
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.XML:
+            case TypeTags.TABLE:
+            case TypeTags.JSON:
+                break;
+            case TypeTags.ARRAY:
+                BArrayType arrType = (BArrayType) type;
+                validateAnyDataType(arrType.eType, pos);
+                break;
+            case TypeTags.MAP:
+                BMapType mapType = (BMapType) type;
+                validateAnyDataType(mapType.constraint, pos);
+                break;
+            default:
+                dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_CLONE, type);
         }
     }
 
