@@ -37,6 +37,11 @@ module.exports = {
           test: /\.tsx?$/,
           use: 'ts-loader',
           exclude: /(node_modules|diagram)/
+        },
+        {
+          test: /\.js$/,
+          use: ["source-map-loader"],
+          enforce: "pre"
         }
       ]
     },
@@ -47,12 +52,14 @@ module.exports = {
       contentBase: path.join(__dirname, 'build'),
       port: 9000
     },
+    devtool: 'source-map',
     optimization: {
       minimizer: [
         new UglifyJsPlugin({
           uglifyOptions: {
             keep_fnames: true,
-          }
+          },
+          sourceMap: true
         })
       ]
     }
