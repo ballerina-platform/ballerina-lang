@@ -774,7 +774,7 @@ public class TreeBuilder {
         return new BLangWorkerFlushExpr();
     }
 
-    public static BLangWorkerSyncSendExpr createWorkerSendExpressionNode() {
+    public static BLangWorkerSyncSendExpr createWorkerSendSyncExprNode() {
         return new BLangWorkerSyncSendExpr();
     }
 }

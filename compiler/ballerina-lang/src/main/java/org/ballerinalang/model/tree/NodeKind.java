@@ -91,7 +91,6 @@ public enum NodeKind {
     TYPE_TEST_EXPR,
     DOCUMENTATION_DESCRIPTION,
     DOCUMENTATION_PARAMETER,
-    WAIT_KEY_VALUE,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,

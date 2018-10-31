@@ -2012,13 +2012,25 @@ public class BLangPackageBuilder {
     void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isVarDeclaration) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         ExpressionNode lExprNode = exprNodeStack.pop();
-        BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentNode.setExpression(rExprNode);
-        assignmentNode.setDeclaredWithVar(isVarDeclaration);
-        assignmentNode.pos = pos;
-        assignmentNode.addWS(ws);
-        assignmentNode.varRef = ((BLangVariableReference) lExprNode);
-        addStmtToCurrentBlock(assignmentNode);
+        if (rExprNode.getKind() == NodeKind.WORKER_RECEIVE) {
+            BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
+            workerReceiveNode.setWorkerName(((BLangWorkerReceiveExpr) rExprNode).getWorkerName());
+            workerReceiveNode.expr = (BLangExpression) lExprNode;
+            workerReceiveNode.keyExpr = ((BLangWorkerReceiveExpr) rExprNode).keyExpr;
+            workerReceiveNode.isChannel = ((BLangWorkerReceiveExpr) rExprNode).isChannel;
+            workerReceiveNode.env = ((BLangWorkerReceiveExpr) rExprNode).env;
+            workerReceiveNode.pos = pos;
+            workerReceiveNode.addWS(ws);
+            addStmtToCurrentBlock(workerReceiveNode);
+        } else {
+            BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
+            assignmentNode.setExpression(rExprNode);
+            assignmentNode.setDeclaredWithVar(isVarDeclaration);
+            assignmentNode.pos = pos;
+            assignmentNode.addWS(ws);
+            assignmentNode.varRef = ((BLangVariableReference) lExprNode);
+            addStmtToCurrentBlock(assignmentNode);
+        }
     }
 
     void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws,
@@ -2326,21 +2338,6 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(workerSendNode);
     }
 
-    void addWorkerReceiveStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
-        BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
-        workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
-        workerReceiveNode.pos = pos;
-        workerReceiveNode.addWS(ws);
-        //if there are two expressions, this is a channel receive and the top expression is the key
-        if (hasKey) {
-            workerReceiveNode.keyExpr = workerReceiveNode.expr;
-            workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
-            workerReceiveNode.isChannel = true;
-        }
-        addStmtToCurrentBlock(workerReceiveNode);
-    }
-
     void addWorkerReceiveExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
         BLangWorkerReceiveExpr workerReceiveExpr = TreeBuilder.createWorkerReceiveExpressionNode();
         workerReceiveExpr.setWorkerName(this.createIdentifier(workerName));
@@ -2364,7 +2361,7 @@ public class BLangPackageBuilder {
 
     void addWorkerSendSyncExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend,
                                boolean hasKey) {
-        BLangWorkerSyncSendExpr workerSendExpr = TreeBuilder.createWorkerSendExpressionNode();
+        BLangWorkerSyncSendExpr workerSendExpr = TreeBuilder.createWorkerSendSyncExprNode();
         workerSendExpr.setWorkerName(this.createIdentifier(workerName));
         workerSendExpr.expr = (BLangExpression) exprNodeStack.pop();
         workerSendExpr.isForkJoinSend = isForkJoinSend;
