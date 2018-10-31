@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
  * Key-value pair for the wait collection.
@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
  * @since 0.983
  */
 public interface WaitKeyValueNode extends ExpressionNode {
-    BLangSimpleVarRef getKey();
+    BLangIdentifier getKey();
     
     ExpressionNode getValue();
 }
