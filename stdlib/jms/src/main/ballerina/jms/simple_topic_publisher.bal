@@ -33,21 +33,21 @@ public type SimpleTopicPublisher object {
     public function init(SimpleTopicPublisherEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: config.initialContextFactory,
+                providerUrl: config.providerUrl,
+                connectionFactoryName: config.connectionFactoryName,
+                properties: config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: config.acknowledgementMode
             });
         self.session = newSession;
 
         TopicPublisher topicPublisher = new;
         TopicPublisherEndpointConfiguration publisherConfig = {
-            session:newSession,
+            session: newSession,
             topicPattern: c.topicPattern
         };
         topicPublisher.init(publisherConfig);
@@ -73,7 +73,9 @@ public type SimpleTopicPublisher object {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
             () => {
-                error e = error("Topic publisher cannot be nil");
+                string errorMessage = "Topic publisher cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -92,7 +94,9 @@ public type SimpleTopicPublisher object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = error("Session cannot be nil");
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
@@ -105,7 +109,9 @@ public type SimpleTopicPublisher object {
         match (session) {
             Session s => return s.createMapMessage(message);
             () => {
-                error e = error("Session cannot be nil");
+                string errorMessage = "Session cannot be nil";
+                map errorDetail = { message: errorMessage };
+                error e = error(JMS_ERROR_CODE, errorDetail);
                 panic e;
             }
         }
