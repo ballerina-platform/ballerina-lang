@@ -52,7 +52,7 @@ suite('Rendering Tests', function () {
             const uri = Uri.file(file);
             langClient.onReady().then(() => {
                 langClient.getAST(uri).then((response) => {
-                    const source = ASTUtil.getSource(response.ast);
+                    const source = ASTUtil.getSourceForTesting(response.ast);
                     try{
                         assert.equal(content,source);
                         done();

@@ -38,7 +38,42 @@ export class ASTUtil {
         return source;
     }
 
-    public static extractWS(json: any): any[] {
+    public static extractWS(node: any): any[] {
+        let pot: any[] = [];
+
+        node.accept({
+            beginVisit: (item: any) => {
+                if (item.ws !== undefined) {
+                    pot = pot.concat(item.ws);
+                }
+            },
+            endVisit: (item: any) => {
+                // do nothing
+            },
+        });
+
+        pot = _.sortBy(pot, ['i']);
+        return pot;
+    }
+
+    /**
+     * Will convert json model in to source for testing
+     *
+     * @static
+     * @param {Object} json AST
+     * @returns {String} source
+     */
+    public static getSourceForTesting(ast: any): string {
+        let source = '';
+        let ws = ASTUtil.extractWSLoop(ast);
+        ws = _.unionBy(ws, 'i');
+        ws.forEach(element => {
+            source += element.ws + element.text;
+        });
+        return source;
+    }
+
+    public static extractWSLoop(json: any): any[] {
         let childName;
         let pot: any[] = [];
 
@@ -55,10 +90,10 @@ export class ASTUtil {
             ) {
                 const child = json[childName];
                 if (_.isPlainObject(child)) {
-                    pot = pot.concat(ASTUtil.extractWS(child));
+                    pot = pot.concat(ASTUtil.extractWSLoop(child));
                 } else if (child instanceof Array) {
                     for (const item of child) {
-                        pot = pot.concat(ASTUtil.extractWS(item));
+                        pot = pot.concat(ASTUtil.extractWSLoop(item));
                     }
                 }
             }
