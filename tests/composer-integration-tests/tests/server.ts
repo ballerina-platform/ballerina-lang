@@ -2,7 +2,8 @@ import { createConnection, ConnectionErrorHandler, ConnectionCloseHandler, IConn
 import { createMessageConnection, StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc';
 import { ChildProcess, spawn } from 'child_process';
 import { sync as globSync } from 'glob';
-import { moveSync }from 'fs-extra';
+import { moveSync } from 'fs-extra';
+import * as treeKill from 'tree-kill';
 
 import * as path from 'path';
 import { InitializeResult } from 'vscode-languageserver-protocol';
@@ -110,7 +111,7 @@ export function startBallerinaLangServer(): Thenable<MinimalLangClient | undefin
             initializedResult,
             kill: () => {
                 lsConnection.shutdown();
-                process.kill(childProcess.pid);
+                treeKill(childProcess.pid);
             },
             getAST: (params: GetASTParams) => {
                 return lsConnection.sendRequest<GetASTResponse>("ballerinaDocument/ast", params);
