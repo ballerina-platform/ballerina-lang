@@ -1651,41 +1651,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
-    @Override
-    public void exitWaitForAny(BallerinaParser.WaitForAnyContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.createWaitExprForAny(getCurrentPos(ctx), getWS(ctx), ctx.expression().size());
-    }
-
-    @Override
-    public void enterWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startWaitCollection();
-    }
-
-    @Override
-    public void exitWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addCollectionToWait(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        boolean containsExpr = ctx.expression() != null;
-        this.pkgBuilder.addKeyValueToWaitCollection(getWS(ctx), ctx.Identifier().getText(), containsExpr);
-    }
     /**
      * {@inheritDoc}
      */

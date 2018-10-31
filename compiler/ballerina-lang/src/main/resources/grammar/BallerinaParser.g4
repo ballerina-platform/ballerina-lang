@@ -320,17 +320,8 @@ recordLiteral
     :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
     ;
 
-waitForCollection
-    :   LEFT_BRACE waitKeyValue (COMMA waitKeyValue)* RIGHT_BRACE
-    ;
-
 recordKeyValue
     :   recordKey COLON expression
-    ;
-
-waitKeyValue
-    :   Identifier
-    |   Identifier COLON expression
     ;
 
 recordKey
@@ -536,9 +527,7 @@ flushWorker
     ;
 
 waitExpression
-    :   WAIT waitForCollection             #waitForAll
-    |   WAIT expression (PIPE expression)* #waitForAny
-    |   WAIT expression                    #waitForOne
+    :   WAIT expression                    #waitForOne
     ;
 
 variableReference
