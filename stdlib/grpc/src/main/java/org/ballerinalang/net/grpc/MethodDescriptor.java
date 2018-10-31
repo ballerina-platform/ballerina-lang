@@ -35,7 +35,7 @@ public final class MethodDescriptor {
     private final String fullMethodName;
     private final Marshaller requestMarshaller;
     private final Marshaller responseMarshaller;
-    private final com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor;
+    final com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor;
 
     /**
      * The call type of a method.

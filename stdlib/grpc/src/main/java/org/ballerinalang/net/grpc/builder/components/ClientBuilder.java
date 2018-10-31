@@ -51,10 +51,10 @@ public class ClientBuilder {
     }
     
     public void addStruct(String structId, String[] attributesNameArr, String[] attributesTypeArr,
-                          String[] attributesLabelArr) {
-        Struct structObj = new Struct(structId);
+                          String[] attributesLabelArr, String[] attributesTagArr, String[] attributesMethodArr) {
+        Struct structObj = new Struct(structId, attributesNameArr.length);
         for (int i = 0; i < attributesNameArr.length; i++) {
-            structObj.addAttribute(attributesNameArr[i], attributesTypeArr[i], attributesLabelArr[i]);
+            structObj.addAttribute(attributesNameArr[i], attributesTypeArr[i], attributesLabelArr[i], attributesTagArr[i], attributesMethodArr[i]);
         }
         structs.add(structObj);
     }

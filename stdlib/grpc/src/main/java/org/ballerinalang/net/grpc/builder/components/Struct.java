@@ -25,14 +25,16 @@ import java.util.List;
  */
 public class Struct {
     private String structId;
+    private int size;
     private List<Attribute> attribute = new ArrayList<>();
     
-    public Struct(String structId) {
+    public Struct(String structId, int size) {
         this.structId = structId;
+        this.size = size;
     }
     
-    public void addAttribute(String name, String type , String label) {
-        attribute.add(new Attribute(name, type, label));
+    public void addAttribute(String name, String type , String label, String tag, String method) {
+        attribute.add(new Attribute(name, type, label, tag, method));
     }
     
     public String getStructId() {
@@ -41,6 +43,14 @@ public class Struct {
     
     public void setStructId(String structId) {
         this.structId = structId;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int getSize() {
+        return size;
     }
     
     public List<Attribute> getAttributesList() {

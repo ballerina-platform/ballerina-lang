@@ -32,6 +32,7 @@ import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -71,7 +72,8 @@ public class Register extends AbstractGrpcNativeFunction {
 
             servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service));
             if (!isConnectorStarted(serviceEndpoint)) {
-                startServerConnector(serviceEndpoint, servicesRegistryBuilder.build());
+                ProgramFile programFile = context.getProgramFile();
+                startServerConnector(serviceEndpoint, servicesRegistryBuilder.build(), programFile);
             }
 
             context.setReturnValues();
@@ -80,10 +82,11 @@ public class Register extends AbstractGrpcNativeFunction {
         }
     }
 
-    private void startServerConnector(Struct serviceEndpoint, ServicesRegistry servicesRegistry) {
+    private void startServerConnector(Struct serviceEndpoint, ServicesRegistry servicesRegistry,
+            ProgramFile programFile) {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry));
+        serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry, programFile));
 
         serverConnectorFuture.setPortBindingEventListener(new ServerConnectorPortBindingListener());
         try {

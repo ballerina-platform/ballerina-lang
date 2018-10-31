@@ -22,6 +22,7 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
@@ -29,6 +30,7 @@ import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.Map;
 
@@ -69,6 +71,11 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                         (onMessage, value, responseObserver));
             }
 
+            @Override public void onNext(ProgramFile value, BValue responseValue) {
+                // Do nothing for now
+                // TODO: need to remove this
+            }
+
             @Override
             public void onError(Message error) {
                 Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
@@ -106,6 +113,10 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         @Override
         public void onMessage(Message request) {
             requestObserver.onNext(request);
+        }
+
+        @Override public void onMessage(BValue message) {
+            // do nothing.
         }
 
         @Override

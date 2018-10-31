@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +44,11 @@ public class ServerConnectorListener implements HttpConnectorListener {
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorListener.class);
 
     private final ServicesRegistry servicesRegistry;
+    private ProgramFile programFile;
 
-    public ServerConnectorListener(ServicesRegistry servicesRegistry) {
-
+    public ServerConnectorListener(ServicesRegistry servicesRegistry, ProgramFile programFile) {
         this.servicesRegistry = servicesRegistry;
+        this.programFile = programFile;
     }
 
     @Override
@@ -121,7 +123,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
         // Create service call instance for the inboundMessage.
         ServerCall call = new ServerCall(inboundMessage, outboundMessage, methodDefinition
                 .getMethodDescriptor(), DecompressorRegistry.getDefaultInstance(), CompressorRegistry
-                .getDefaultInstance());
+                .getDefaultInstance(), programFile);
         return call.newServerStreamListener(methodDefinition.getServerCallHandler().startCall(call));
     }
 

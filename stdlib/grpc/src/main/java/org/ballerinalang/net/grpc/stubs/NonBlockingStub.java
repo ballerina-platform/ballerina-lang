@@ -19,12 +19,14 @@ package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 
 /**
@@ -160,6 +162,13 @@ public class NonBlockingStub extends AbstractStub {
         @Override
         public void onNext(Message value) {
             call.sendMessage(value);
+        }
+
+        @Override
+        public void onNext(ProgramFile value, BValue responseValue) {
+            // Do nothing for now
+            // TODO: need to remove this
+
         }
 
         @Override

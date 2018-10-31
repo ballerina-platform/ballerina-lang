@@ -113,6 +113,18 @@ public abstract class ServerCallHandler {
         }
 
         @Override
+        public void onNext(ProgramFile programFile, BValue responseValue) {
+            if (cancelled) {
+                throw Status.Code.CANCELLED.toStatus().withDescription("call already cancelled").asRuntimeException();
+            }
+            if (!sentHeaders) {
+//                call.sendHeaders(response.getHeaders());
+                sentHeaders = true;
+            }
+            call.sendMessage(programFile, responseValue);
+        }
+
+        @Override
         public void onError(Message error) {
             if (!sentHeaders) {
                 call.sendHeaders(error.getHeaders());
@@ -219,9 +231,9 @@ public abstract class ServerCallHandler {
         Executor.submit(resource, callback, null, null, signatureParams);
     }
 
-    void onMessageInvoke(Resource resource, Message request, StreamObserver responseObserver) {
+    void onMessageInvoke(Resource resource, BValue request, StreamObserver responseObserver) {
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource, callback, null, null, computeMessageParams(resource, request, responseObserver));
+        Executor.submit(resource, callback, null, null, computeSignatureParams(resource, request, responseObserver));
     }
 
     BValue[] computeMessageParams(Resource resource, Message request, StreamObserver responseObserver) {
@@ -233,6 +245,25 @@ public abstract class ServerCallHandler {
             headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
         }
         BValue requestParam = getRequestParameter(resource, request, (headerStruct != null));
+        if (requestParam != null) {
+            signatureParams[1] = requestParam;
+        }
+        if (headerStruct != null) {
+            signatureParams[signatureParams.length - 1] = headerStruct;
+        }
+        return signatureParams;
+    }
+
+    BValue[] computeSignatureParams(Resource resource, BValue request, StreamObserver responseObserver) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        BValue[] signatureParams = new BValue[paramDetails.size()];
+        signatureParams[0] = getConnectionParameter(resource, responseObserver);
+        BMap<String, BValue> headerStruct = getHeaderStruct(resource);
+        if (headerStruct != null) {
+            System.out.println("Inside header struct");
+//            headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
+        }
+        BValue requestParam = request;
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }
@@ -260,6 +291,8 @@ public abstract class ServerCallHandler {
          * @param message a received request message.
          */
         void onMessage(Message message);
+
+        void onMessage(BValue message);
 
         /**
          * The client completed all message sending. However, the call may still be cancelled.

@@ -24,11 +24,19 @@ public class Attribute {
     private String name;
     private String type;
     private String label;
+    private String tag;
+    private String method;
     
-    public Attribute(String name, String type, String label) {
+    public Attribute(String name, String type, String label, String tag, String method) {
         this.name = name;
         this.type = type;
         this.label = label;
+        this.tag = tag;
+        this.method = method;
+    }
+
+    public String getTag() {
+        return tag;
     }
   
     public String getName() {
@@ -50,7 +58,11 @@ public class Attribute {
     public String getLabel() {
         return label;
     }
-    
+
+    public String getMethod() {
+        return method;
+    }
+
     public void setLabel(String label) {
         this.label = label;
     }

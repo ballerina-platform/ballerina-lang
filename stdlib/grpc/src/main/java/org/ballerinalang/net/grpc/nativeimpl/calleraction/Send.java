@@ -33,6 +33,7 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +80,7 @@ public class Send extends BlockingNativeCallableUnit {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(clientEndpoint);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
+        ProgramFile programFile = context.getProgramFile();
         
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
@@ -97,7 +99,8 @@ public class Send extends BlockingNativeCallableUnit {
                     if (headers != null) {
                         responseMessage.setHeaders(headers);
                     }
-                    responseObserver.onNext(responseMessage);
+                    responseObserver.onNext(programFile, responseValue);
+//                    responseObserver.onNext(responseMessage);
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);

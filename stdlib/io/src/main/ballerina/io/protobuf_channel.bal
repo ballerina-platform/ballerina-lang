@@ -99,15 +99,24 @@ public type ProtoChannel object {
         var lengthWriteResult = dc.writeVarInt(length);
         match lengthWriteResult {
             () => {
+                println("inside lengthWriteResult 1 match - - success");
                 var contentWriteResult = dc.writeString(value, PROTOBUF_STRING_ENCODING);
                 match lengthWriteResult {
                     () => {
+                        println("inside lengthWriteResult 2 match - success");
                         return ();
                     }
-                    error e => {return e;}
+                    error e => {
+                        println("inside lengthWriteResult 2 match - error");
+                        println(e);
+                        return e;
+                    }
                 }
             }
-            error e => {return e;}
+            error e => {
+                println("inside lengthWriteResult 1 match - error");
+                println(e);
+                return e;}
         }
     }
 

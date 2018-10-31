@@ -21,6 +21,7 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.Status;
@@ -53,7 +54,8 @@ public class UnaryServerCallHandler extends ServerCallHandler {
         private final ServerCall call;
         private final ServerCallStreamObserver responseObserver;
         private boolean canInvoke = true;
-        private Message request;
+//        private Message request;
+        private BValue request;
 
         UnaryServerCallListener(ServerCallStreamObserver responseObserver, ServerCall call) {
             this.call = call;
@@ -61,7 +63,12 @@ public class UnaryServerCallHandler extends ServerCallHandler {
         }
 
         @Override
-        public void onMessage(Message request) {
+        public void onMessage(Message message) {
+            //Do nothing.
+        }
+
+        @Override
+        public void onMessage(BValue request) {
             if (this.request != null) {
                 call.close(Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_REQUESTS),
                         new DefaultHttpHeaders());
@@ -94,7 +101,7 @@ public class UnaryServerCallHandler extends ServerCallHandler {
             // Additional logic when closing the stream at server side.
         }
 
-        public void invoke(Message request, ServerCallStreamObserver responseObserver) {
+        public void invoke(BValue request, ServerCallStreamObserver responseObserver) {
             onMessageInvoke(resource, request, responseObserver);
         }
     }

@@ -19,18 +19,32 @@ package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.ProtoByteChannel;
+import org.ballerinalang.stdlib.io.utils.ProtoWrapper;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 
 /**
  * Encapsulates a single call received from a remote client.
@@ -62,18 +76,20 @@ public final class ServerCall {
     private boolean messageSent;
     private Compressor compressor;
     private final String messageAcceptEncoding;
+    private ProgramFile programFile;
 
     private DecompressorRegistry decompressorRegistry;
     private CompressorRegistry compressorRegistry;
 
-    ServerCall(InboundMessage inboundMessage, OutboundMessage outboundMessage, MethodDescriptor
-            method, DecompressorRegistry decompressorRegistry, CompressorRegistry compressorRegistry) {
+    ServerCall(InboundMessage inboundMessage, OutboundMessage outboundMessage, MethodDescriptor method,
+            DecompressorRegistry decompressorRegistry, CompressorRegistry compressorRegistry, ProgramFile programFile) {
         this.inboundMessage = inboundMessage;
         this.outboundMessage = outboundMessage;
         this.method = method;
         this.decompressorRegistry = decompressorRegistry;
         this.compressorRegistry = compressorRegistry;
         this.messageAcceptEncoding = inboundMessage.getHeader(MESSAGE_ACCEPT_ENCODING);
+        this.programFile = programFile;
     }
 
     public void sendHeaders(HttpHeaders headers) {
@@ -136,6 +152,34 @@ public final class ServerCall {
         messageSent = true;
         try {
             InputStream resp = method.streamResponse(message);
+            outboundMessage.sendMessage(resp);
+        } catch (Exception e) {
+            close(Status.fromThrowable(e), new DefaultHttpHeaders());
+        }
+    }
+
+    public void sendMessage(ProgramFile message, BValue responseValue) {
+//        if (!sendHeadersCalled) {
+//            throw new IllegalStateException("sendHeaders has not been called");
+//        }
+        if (closeCalled) {
+            throw new IllegalStateException("call is closed");
+        }
+        if (method.getType().serverSendsOneMessage() && messageSent) {
+            outboundMessage.complete(Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_RESPONSES), new
+                    DefaultHttpHeaders());
+            return;
+        }
+        messageSent = true;
+        try {
+            BValue[] protoChannel = BLangFunctions.invokeCallable(programFile.getEntryPackage().getFunctionInfo("testFunction"),
+                    new BValue[] { responseValue });
+            String fileName = "/home/bhashinee/Ballerina/test.txt";
+            byte[] bFile = Files.readAllBytes(new File(fileName).toPath());
+            InputStream resp = new ByteArrayInputStream(bFile);
+//            InputStream resp = new FileInputStream(fileName);
+//            InputStream resp = message;
+//            InputStream resp = method.streamResponse(message);
             outboundMessage.sendMessage(resp);
         } catch (Exception e) {
             close(Status.fromThrowable(e), new DefaultHttpHeaders());
@@ -207,9 +251,28 @@ public final class ServerCall {
                 return;
             }
             try {
-                Message request = call.method.parseRequest(message);
-                request.setHeaders(call.inboundMessage.getHeaders());
-                listener.onMessage(request);
+                ProtoByteChannel byteChannel = new ProtoByteChannel(message);
+                ProtoWrapper protoByteChannel = new ProtoWrapper(byteChannel);
+
+                BMap<String, BValue> byteChannelObject = BLangConnectorSPIUtil
+                        .createObject(call.programFile, IOConstants.IO_PACKAGE, "ByteChannel");
+                byteChannelObject.addNativeData(IOConstants.BYTE_CHANNEL_NAME, protoByteChannel);
+                BMap<String, BValue> protoChannel = BLangConnectorSPIUtil
+                        .createObject(call.programFile, "ballerina/io", "ProtoChannel", byteChannelObject);
+//                BMap<String, BValue> messageObject = BLangConnectorSPIUtil
+                //                        .createObject(call.programFile, call.programFile.getEntryPackage().getPkgPath(), "orderInfo",
+                //                                protoChannel);
+                BValue[] record = BLangFunctions.invokeCallable(call.programFile.getEntryPackage().getFunctionInfo(
+                        "parse" + this.call.method.schemaDescriptor.getInputType().getFullName().split("\\.")[1]),
+                        new BValue[] { protoChannel });
+
+//                BValue[] record = BLangFunctions.invokeCallable(call.programFile.getEntryPackage()
+//                                .getFunctionInfo(this.call.method.getFullMethodName().split("/")[1]),
+//                        new BValue[] { protoChannel });
+
+//                BMap<String, BValue> requestRecord = (BMap<String, BValue>) record[0];
+//                requestRecord.addNativeData(MESSAGE_HEADERS, call.inboundMessage.getHeaders());
+                listener.onMessage(record[0]);
             } catch (Exception ex) {
                 MessageUtils.closeQuietly(message);
                 throw new ServerRuntimeException(ex);

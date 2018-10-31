@@ -31,6 +31,7 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,12 @@ public class DefaultStreamObserver implements StreamObserver {
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(resource, callback, null, null, signatureParams);
     }
-    
+
+    @Override
+    public void onNext(ProgramFile value, BValue responseValue) {
+        // Do nothing for now.
+    }
+
     @Override
     public void onError(Message error) {
         Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);

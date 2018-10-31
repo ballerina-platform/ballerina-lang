@@ -118,22 +118,26 @@ public class BallerinaFileBuilder {
             }
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
                 String[] attributesNameArr = new String[descriptorProto.getFieldCount()];
+                String[] attributesTagArr = new String[descriptorProto.getFieldCount()];
                 String[] attributesTypeArr = new String[descriptorProto.getFieldCount()];
                 String[] attributesLabelArr = new String[descriptorProto.getFieldCount()];
+                String[] attributesMethodArr = new String[descriptorProto.getFieldCount()];
                 int j = 0;
                 for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : descriptorProto
                         .getFieldList()) {
                     attributesNameArr[j] = fieldDescriptorProto.getName();
+                    attributesTagArr[j] = String.valueOf(fieldDescriptorProto.getNumber());
                     attributesLabelArr[j] = fieldDescriptorProto.getLabel() != null ? getLabelName
                             (fieldDescriptorProto.getLabel().getNumber()) : null;
                     attributesTypeArr[j] = !fieldDescriptorProto.getTypeName().equals("") ? fieldDescriptorProto
                             .getTypeName().split(PACKAGE_SEPARATOR_REGEX)[fieldDescriptorProto.getTypeName()
                             .split(PACKAGE_SEPARATOR_REGEX).length - 1] : getTypeName(fieldDescriptorProto.getType()
                             .getNumber());
+                    attributesMethodArr[j] = generateMethodNames(fieldDescriptorProto.getType());
                     j++;
                 }
                 clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr,
-                        attributesLabelArr);
+                        attributesLabelArr, attributesTagArr, attributesMethodArr);
             }
             for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
                 String[] attributesNameArr = new String[descriptorProto.getValueCount()];
@@ -162,7 +166,8 @@ public class BallerinaFileBuilder {
                 resMessageName = getMappingBalType(typeOut);
                 if ((EMPTY_DATA_TYPE.equals(reqMessageName) || EMPTY_DATA_TYPE.equals(resMessageName))
                         && !(clientStubBal.isStructContains(EMPTY_DATA_TYPE))) {
-                    clientStubBal.addStruct(EMPTY_DATA_TYPE, new String[0], new String[0], new String[0]);
+                    clientStubBal.addStruct(EMPTY_DATA_TYPE, new String[0], new String[0], new String[0], new String[0],
+                            new String[0]);
                 }
                 ActionBuilder.build(methodName, reqMessageName, resMessageName
                         , methodID, methodType, clientStubBal);
@@ -182,7 +187,29 @@ public class BallerinaFileBuilder {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
     }
-    
+
+    private String generateMethodNames(DescriptorProtos.FieldDescriptorProto.Type type) {
+        switch (type) {
+            case TYPE_STRING:
+                return "readString()";
+            case TYPE_INT64:
+            case TYPE_INT32:
+                return "readInt()";
+            case TYPE_FIXED32:
+                return "readFixed32()";
+            case TYPE_FIXED64:
+                return "readFixed64()";
+            case TYPE_BOOL:
+                return "readBool()";
+            case TYPE_DOUBLE:
+                return "readDouble()";
+            case TYPE_FLOAT:
+                return "readFloat()";
+            default:
+                throw new BalGenerationException("Error defining the type of the attribute.");
+        }
+    }
+
     private String generateClientStubFile(String outputDir, String fileName) throws IOException {
         if (outputDir != null) {
             Files.createDirectories(Paths.get(outputDir));

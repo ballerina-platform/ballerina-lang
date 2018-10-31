@@ -86,3 +86,45 @@ map descriptorMap =
     "{{descriptorKey}}":"{{descriptorData}}"{{eoe}}
   {{/descriptors}}
 };
+
+{{#stubObject}}
+{{#structs}}
+    public function parse{{structId}}(io:ProtoChannel byteChannel) returns ({{structId}}) {
+    boolean finished = false;
+    {{structId}} infoRecord;
+    int endValue = {{size}};
+    foreach i in 1 ... endValue {
+        var tag = byteChannel.readTag();
+        match tag {
+            int fieldTag => {
+                if (fieldTag < 0) {
+                    finished = true;
+                    break;
+                }
+            {{#attribute}}
+                if (fieldTag == {{tag}}) {
+                    var fieldValue = byteChannel.{{method}};
+                    match fieldValue {
+                        {{type}} value => {
+                        infoRecord.{{name}} = value;
+                        io:println(value);
+                    }
+                    error err => {
+                        io:println(err);
+                    }
+                    () => {
+                        io:println("*******Nil*****");
+                    }
+                }
+            }
+        {{/attribute}}
+        }
+            error err => {
+                io:println(err);
+            }
+        }
+    }
+    return infoRecord;
+}
+{{/structs}}
+{{/stubObject}}
