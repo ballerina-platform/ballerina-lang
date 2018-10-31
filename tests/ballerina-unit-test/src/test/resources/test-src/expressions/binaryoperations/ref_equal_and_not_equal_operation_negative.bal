@@ -17,17 +17,17 @@
 function checkRefEqualityOfTwoTypes() returns boolean {
     int a;
     string b;
-    return a === b;
+    return a === b && !(a !== b);
 }
 
 function checkRefEqualityOfArraysOfDifferentTypes() returns boolean {
     int[2] a;
     string[2] b;
-    boolean bool1 = a === b;
+    boolean bool1 = a === b && !(a !== b);
 
     (float|int)[] c;
     (boolean|xml)[] d;
-    boolean bool2 = c === d;
+    boolean bool2 = c === d && !(c !== d);
 
     return bool1 && bool2;
 }
@@ -35,11 +35,11 @@ function checkRefEqualityOfArraysOfDifferentTypes() returns boolean {
 function checkRefEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
     map<int> a;
     map<float> b;
-    boolean bool1 = a === b;
+    boolean bool1 = a === b && !(a !== b);
 
     map<string|int> c;
     map<float> d;
-    boolean bool2 = c === d;
+    boolean bool2 = c === d && !(c !== d);
 
     return bool1 && bool2;
 }
@@ -47,11 +47,11 @@ function checkRefEqualityOfMapsOfIncompatibleConstraintTypes() returns boolean {
 function checkRefEqualityOfTuplesOfDifferentTypes() returns boolean {
     (string, int) a;
     (boolean, float) b;
-    boolean bool1 = a === b;
+    boolean bool1 = a === b && !(a !== b);
 
     (float|int, int) c;
     (boolean, int) d;
-    boolean bool2 = c === d;
+    boolean bool2 = c === d && !(d !== c);
 
     return bool1 && bool2;
 }
@@ -59,17 +59,17 @@ function checkRefEqualityOfTuplesOfDifferentTypes() returns boolean {
 function checkRefEqualityOfRecordsOfIncompatibleTypes() returns boolean {
     Employee e = { name: "Maryam" };
     Person p = { name: "Maryam" };
-    return e === p;
+    return e === p && !(p !== e);
 }
 
 function checkRefEqualityWithJsonForIncompatibleType() returns boolean {
     (string, int) t = ("Hi", 1);
     json j = "Hi 1";
-    boolean bool1 = t === j;
+    boolean bool1 = t === j && !(j !== t);
 
     Employee|(string, int) e = ("Hi", 1);
     j = "Hi 1";
-    boolean bool2 = e === j;
+    boolean bool2 = e === j && !(e !== j);
 
     return bool1 && bool2;
 }
@@ -77,7 +77,7 @@ function checkRefEqualityWithJsonForIncompatibleType() returns boolean {
 function checkRefEqualityOfObjectsOfIncompatibleTypes() returns boolean {
     Abc a = new("abc", 12);
     Def d = new("abc", 12);
-    return a === d;
+    return a === d && !(d !== a);
 }
 
 type Employee record {

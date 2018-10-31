@@ -127,6 +127,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SNE] = "sne";
         mnemonics[InstructionCodes.BNE] = "bne";
         mnemonics[InstructionCodes.RNE] = "rne";
+        mnemonics[InstructionCodes.REF_NEQ] = "ref_neq";
         mnemonics[InstructionCodes.TNE] = "tne";
 
         mnemonics[InstructionCodes.IGT] = "igt";

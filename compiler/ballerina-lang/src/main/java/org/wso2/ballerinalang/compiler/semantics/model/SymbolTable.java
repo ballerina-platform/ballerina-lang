@@ -286,7 +286,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, anyType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, nilType, booleanType, InstructionCodes.RNE);
 
-        // Binary reference equality operator ===
+        // Binary reference equality operators ===, !==
         defineBinaryOperator(OperatorKind.REF_EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
         defineBinaryOperator(OperatorKind.REF_EQUAL, byteType, byteType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.REF_EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
@@ -294,6 +294,13 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.REF_EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
         defineBinaryOperator(OperatorKind.REF_EQUAL, intType, byteType, booleanType, InstructionCodes.IEQ);
         defineBinaryOperator(OperatorKind.REF_EQUAL, byteType, intType, booleanType, InstructionCodes.IEQ);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, byteType, byteType, booleanType, InstructionCodes.BNE);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, intType, byteType, booleanType, InstructionCodes.INE);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, byteType, intType, booleanType, InstructionCodes.INE);
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);

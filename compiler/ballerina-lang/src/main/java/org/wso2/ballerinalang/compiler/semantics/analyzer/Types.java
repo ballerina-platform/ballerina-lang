@@ -1448,6 +1448,10 @@ public class Types {
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
         // TODO: 10/19/18 if ==/!= return false if at least one is not anydata
 
+        if (isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType)) {
+            return true;
+        }
+
         Set<BType> lhsTypes = new HashSet<>();
         Set<BType> rhsTypes = new HashSet<>();
 

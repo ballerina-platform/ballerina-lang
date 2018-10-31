@@ -913,6 +913,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 validEqualityIntersectionExists = types.validEqualityIntersectionExists(lhsType, rhsType);
                 break;
             case REF_EQUAL:
+            case REF_NOT_EQUAL:
                 validEqualityIntersectionExists =
                         types.isAssignable(lhsType, rhsType) || types.isAssignable(rhsType, lhsType);
                 break;
@@ -929,12 +930,18 @@ public class TypeChecker extends BLangNodeVisitor {
                 types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
                 types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
 
-                // if one is a value type, consider === the same as ==
-                if (opKind == OperatorKind.REF_EQUAL) {
-                    return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType, symTable.anyType);
+                switch (opKind) {
+                    case REF_EQUAL:
+                        // if one is a value type, consider === the same as ==
+                        return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
+                                                                  symTable.anyType);
+                    case REF_NOT_EQUAL:
+                        // if one is a value type, consider !== the same as !=
+                        return symResolver.createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
+                                                                  symTable.anyType);
+                    default:
+                        return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
                 }
-
-                return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
             }
         }
         return symTable.notFoundSymbol;

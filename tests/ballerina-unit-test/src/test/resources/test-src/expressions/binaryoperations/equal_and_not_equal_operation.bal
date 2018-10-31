@@ -987,5 +987,5 @@ public function testJsonRecordMapEqualityNegative() returns boolean {
 }
 
 function isEqual(any a, any b) returns boolean {
-    return a == b && !(a != b);
+    return a == b && !(b != a);
 }

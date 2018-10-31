@@ -130,7 +130,8 @@ public interface InstructionCodes {
     int FNE = 100;
     int SNE = 101;
     int BNE = 102;
-    int RNE = 104;
+    int RNE = 103;
+    int REF_NEQ = 104;
 
     int IGT = 105;
     int FGT = 106;

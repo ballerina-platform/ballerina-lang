@@ -54,7 +54,8 @@ public class EqualAndNotEqualOperationsTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/binaryoperations/equal_and_not_equal_operation.bal");
-        resultNegative = BCompileUtil.compile("test-src/expressions/binaryoperations/equal_operation_negative.bal");
+        resultNegative = BCompileUtil.compile
+                ("test-src/expressions/binaryoperations/equal_and_not_equal_operation_negative.bal");
     }
 
     @Test(description = "Test equals/unequals operation with two equal booleans", dataProvider = "equalBooleanValues")

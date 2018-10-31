@@ -354,6 +354,7 @@ public class CPU {
                     case InstructionCodes.SNE:
                     case InstructionCodes.BNE:
                     case InstructionCodes.RNE:
+                    case InstructionCodes.REF_NEQ:
                     case InstructionCodes.TNE:
                     case InstructionCodes.IAND:
                     case InstructionCodes.BIAND:
@@ -1766,6 +1767,12 @@ public class CPU {
                 } else {
                     sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j])) ? 1 : 0;
                 }
+                break;
+            case InstructionCodes.REF_NEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.TNE:
                 i = operands[0];

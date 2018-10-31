@@ -1252,6 +1252,7 @@ public class PackageInfoReader {
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
                 case InstructionCodes.RNE:
+                case InstructionCodes.REF_NEQ:
                 case InstructionCodes.IGT:
                 case InstructionCodes.FGT:
                 case InstructionCodes.IGE:

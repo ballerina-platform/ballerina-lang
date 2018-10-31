@@ -317,6 +317,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         int opcode;
         if (opKind == OperatorKind.REF_EQUAL) {
             opcode = InstructionCodes.REF_EQ;
+        } else if (opKind == OperatorKind.REF_NOT_EQUAL) {
+            opcode = InstructionCodes.REF_NEQ;
         } else if (opKind == OperatorKind.EQUAL) {
             opcode = InstructionCodes.REQ;
         } else {
