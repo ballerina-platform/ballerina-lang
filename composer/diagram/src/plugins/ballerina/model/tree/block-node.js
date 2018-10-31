@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import AbstractBlockNode from './abstract-tree/block-node';
 import TreeUtil from './../tree-util';
-
+import { ASTUtil } from "ast-model";
 class BlockNode extends AbstractBlockNode {
 
     /**
@@ -58,11 +58,14 @@ class BlockNode extends AbstractBlockNode {
             variables.forEach((variable, i) => {
                 variable.getVariableName().setValue(TreeUtil.generateVariableName(this, 'var', i));
             });
+            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot());
             this.addStatements(node, index);
         } else if (TreeUtil.isVariableDef(node)) {
             node.getVariable().getName().setValue(TreeUtil.generateVariableName(this, 'var'));
+            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot());
             this.addStatements(node, index);
         } else {
+            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot());
             this.addStatements(node, index);
         }
     }
