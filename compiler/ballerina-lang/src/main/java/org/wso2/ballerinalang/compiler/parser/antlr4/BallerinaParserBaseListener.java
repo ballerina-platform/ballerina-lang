@@ -820,18 +820,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -839,18 +827,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1571,30 +1547,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFlushWorker(BallerinaParser.FlushWorkerContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWaitForAll(BallerinaParser.WaitForAllContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWaitForAll(BallerinaParser.WaitForAllContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWaitForAny(BallerinaParser.WaitForAnyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWaitForAny(BallerinaParser.WaitForAnyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
