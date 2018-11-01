@@ -18,7 +18,6 @@ import ballerina/http;
 import ballerina/io;
 
 service<http:WebSocketService> pushTextFailure bind { port: 9089 } {
-    byte[] content;
     onOpen(endpoint caller) {
         _ = caller->close(timeoutInSecs =0);
         var err = caller->pushText("hey");
