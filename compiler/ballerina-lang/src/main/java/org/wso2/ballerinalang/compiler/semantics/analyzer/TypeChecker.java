@@ -875,6 +875,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(trapExpr, actualType, expType);
+        if (resultType != null && resultType != symTable.semanticError) {
+            types.setImplicitCastExpr(trapExpr.expr, trapExpr.expr.type, resultType);
+        }
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
