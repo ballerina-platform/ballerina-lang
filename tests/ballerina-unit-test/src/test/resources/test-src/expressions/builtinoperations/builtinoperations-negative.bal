@@ -22,5 +22,5 @@ function testNegativeTests() {
     boolean isFin = nanVal.isFinite();
 
     string nan = nanVal.isNaN();
-    int [] arr = infinityVal.isInfinite();
+    boolean [] arr = infinityVal.isInfinite();
 }

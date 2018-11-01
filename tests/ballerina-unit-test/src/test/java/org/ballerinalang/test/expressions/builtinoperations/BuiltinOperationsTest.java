@@ -84,10 +84,10 @@ public class BuiltinOperationsTest {
     @Test(description = "Test negative tests")
     public void testNegativeTests() {
         Assert.assertEquals(resNegative.getErrorCount(), 5);
-        BAssertUtil.validateError(resNegative, 0, "built-in method 'isNaN' not supported here", 20, 21);
-        BAssertUtil.validateError(resNegative, 1, "built-in method 'isInfinite' not supported here", 21, 21);
-        BAssertUtil.validateError(resNegative, 2, "built-in method 'isFinite' not supported here", 22, 21);
-        BAssertUtil.validateError(resNegative, 3, "built-in method 'isNaN' not supported here", 24, 18);
-        BAssertUtil.validateError(resNegative, 4, "built-in method 'isInfinite' not supported here", 25, 18);
+        BAssertUtil.validateError(resNegative, 0, "undefined function 'int.isNaN'", 20, 21);
+        BAssertUtil.validateError(resNegative, 1, "undefined function 'int.isInfinite'", 21, 21);
+        BAssertUtil.validateError(resNegative, 2, "undefined function 'int.isFinite'", 22, 21);
+        BAssertUtil.validateError(resNegative, 3, "undefined function 'int.isNaN'", 24, 18);
+        BAssertUtil.validateError(resNegative, 4, "undefined function 'int.isInfinite'", 25, 22);
     }
 }

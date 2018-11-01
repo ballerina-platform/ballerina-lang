@@ -695,10 +695,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
         if (BLangBuiltInMethod.UNDEFINED != builtInFunction) {
-            // The builtin 'length' method should be handled in a special way since a user also can define a method with
-            // the name as 'length'. So this method will check if the builtin function name is 'length' and if its
-            // 'length' it will check if this builtin method can be applied to the types given. If the 'length' cannot
-            // be applied to the types given it will simply disregard the method as a builtin method.
             if (validBuiltinOpInvocation(builtInFunction, exprType.tag)) {
                 checkBuiltinFunctionInvocation(iExpr, builtInFunction, exprType);
                 return;
@@ -1785,12 +1781,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case ISNAN:
             case ISINFINITE:
             case ISFINITE:
-                if (type.tag == TypeTags.FLOAT) {
-                    handleBuiltInFunctions(iExpr, symTable.booleanType);
-                } else {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
-                    resultType = symTable.semanticError;
-                }
+                handleBuiltInFunctions(iExpr, symTable.booleanType);
                 break;
             case LENGTH:
                 handleBuiltInFunctions(iExpr, symTable.intType);
@@ -1828,20 +1819,30 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean validBuiltinOpInvocation(BLangBuiltInMethod builtInFunction, int typeTag) {
-        if (BLangBuiltInMethod.LENGTH == builtInFunction) {
-            switch (typeTag) {
-                case TypeTags.ARRAY:
-                case TypeTags.JSON:
-                case TypeTags.MAP:
-                case TypeTags.RECORD:
-                case TypeTags.TABLE:
-                case TypeTags.TUPLE:
-                case TypeTags.XML:
-                    return true;
-            }
-            return false;
+        switch (builtInFunction) {
+            case LENGTH:
+                return isValidTypeForLength(typeTag);
+            case ISNAN:
+            case ISINFINITE:
+            case ISFINITE:
+                return typeTag == TypeTags.FLOAT;
+            default:
+                return true;
         }
-        return true;
+    }
+
+    private boolean isValidTypeForLength(int typeTag) {
+        switch (typeTag) {
+            case TypeTags.ARRAY:
+            case TypeTags.JSON:
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+            case TypeTags.TABLE:
+            case TypeTags.TUPLE:
+            case TypeTags.XML:
+                return true;
+        }
+        return false;
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
