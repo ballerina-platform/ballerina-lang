@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -29,15 +30,16 @@ import org.testng.annotations.Test;
 /**
  * Test cases to verify the behaviour of the static/constant value patterns with match statement in Ballerina.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class MatchStatementStaticPatternsTest {
 
-    private CompileResult result;
+    private CompileResult result, resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/static-match-patterns.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/static_match_patterns_negative.bal");
     }
 
     @Test(description = "Test basics of static pattern match statement 1")
@@ -79,6 +81,68 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "'true'");
     }
 
+    @Test(description = "Test negative static match patterns")
+    public void testStaticMatchStmtNegative() {
 
+        Assert.assertEquals(resultNegative.getErrorCount(), 50);
+        int i = -1;
+        String patternNotMatched = "pattern will not be matched";
+
+        // simpleTypes
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 21, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 22, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 24, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 25, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 26, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 31, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 32, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 34, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 35, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 36, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 41, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 42, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 43, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 44, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 45, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 51, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 52, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 53, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 54, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 56, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 62, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 63, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 65, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 66, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 67, 9);
+
+        // recordTypes
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 109, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 111, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 113, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 114, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 115, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 116, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 124, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 130, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 132, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 141, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 150, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 157, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 159, 9);
+
+        // tupleTypes
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 168, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 169, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 170, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 171, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 172, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 174, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 175, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 190, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 196, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 203, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 206, 9);
+
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 222, 9);
+    }
 }
-
