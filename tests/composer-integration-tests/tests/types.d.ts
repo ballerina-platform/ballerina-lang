@@ -14,6 +14,7 @@ declare module '@ballerina/diagram' {
     export function renderEditableDiagram(target: HTMLElement | null,
         docUri: string, width: number, height: number, getAST: Function) : void;
     export class BallerinaDiagramWrapper extends React.Component<BallerinaDiagramWrapperProps> {
+        updateAST: (ast: any) => void;
     }
 }
 
