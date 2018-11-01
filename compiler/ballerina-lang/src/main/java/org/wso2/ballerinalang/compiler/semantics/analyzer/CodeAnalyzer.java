@@ -530,8 +530,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (matchStmt.exprTypes.isEmpty()) {
             return;
         }
-
-        // Loop through the static patterns
+        List<BLangExpression> matchedRecordPatterns = new ArrayList<>();
+        List<BLangExpression> matchedTuplePatterns = new ArrayList<>();
         for (BLangMatchStmtStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
             List<BType> matchedExpTypes = matchStmt.exprTypes
                     .stream()
@@ -540,12 +540,75 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (matchedExpTypes.isEmpty()) {
                 // log error if a pattern will not match to any of the expected types
                 dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                continue;
             }
 
-            if (matchedExpTypes.size() > 1) {
-                // a pattern matched more than one expected type
+            if (pattern.getLiteral().type.tag == TypeTags.MAP) {
+                matchedRecordPatterns.add(pattern.getLiteral());
+                continue;
+            }
+
+            if (pattern.getLiteral().type.tag == TypeTags.TUPLE) {
+                matchedTuplePatterns.add(pattern.getLiteral());
             }
         }
+        analyzeUnreachableStaticPatterns(matchedRecordPatterns);
+        analyzeUnreachableStaticPatterns(matchedTuplePatterns);
+    }
+
+    private void analyzeUnreachableStaticPatterns(List<BLangExpression> matchedRecordPatterns) {
+        for (int i = 0; i < matchedRecordPatterns.size(); i++) {
+            BLangExpression precedingPattern = matchedRecordPatterns.get(i);
+            for (int j = i + 1; j < matchedRecordPatterns.size(); j++) {
+                BLangExpression pattern = matchedRecordPatterns.get(j);
+                if (checkLiteralSimilarity(precedingPattern, pattern)) {
+                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                    matchedRecordPatterns.remove(j--);
+                }
+            }
+        }
+    }
+
+    private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
+        if (precedingPattern.type.tag == TypeTags.MAP && pattern.type.tag == TypeTags.MAP) {
+            BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
+            Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
+                    .stream()
+                    .collect(Collectors.toMap(
+                            keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
+                            BLangRecordKeyValue::getValue
+                    ));
+
+            for (int i = 0; i < precedingRecordLiteral.keyValuePairs.size(); i++) {
+                BLangRecordKeyValue bLangRecordKeyValue = precedingRecordLiteral.keyValuePairs.get(i);
+                String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
+                if (!recordLiteral.containsKey(key)) {
+                    return false;
+                }
+                if (!checkLiteralSimilarity(bLangRecordKeyValue.valueExpr, recordLiteral.get(key))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (precedingPattern.type.tag == TypeTags.TUPLE && pattern.type.tag == TypeTags.TUPLE) {
+            BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
+            BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
+            for (int i = 0; i < precedingTupleLiteral.expressions.size(); i++) {
+                if (!checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
+                        tupleLiteral.expressions.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (types.isValueType(precedingPattern.type) && types.isValueType(pattern.type)) {
+            return (((BLangLiteral) precedingPattern).value.equals(((BLangLiteral) pattern).value));
+        }
+
+        return false;
     }
 
     private boolean isValidMatchPattern(BType matchType, BLangExpression literal) {

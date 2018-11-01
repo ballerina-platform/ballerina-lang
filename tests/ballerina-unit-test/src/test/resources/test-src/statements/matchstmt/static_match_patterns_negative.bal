@@ -128,7 +128,7 @@ function recordTypes() returns string {
     match r3 {
         {a: 20} => return "{a: 20}";
         {a: 20.2} => return "{a: 20.2}"; // pattern will not be matched
-        {a: 20, b: 10} => return "{a: 20, b: 10}";
+        {a: 21, b: 10} => return "{a: 21, b: 10}";
         {a: false, b: 10} => return "{a: false, b: 10}"; // pattern will not be matched
     }
 

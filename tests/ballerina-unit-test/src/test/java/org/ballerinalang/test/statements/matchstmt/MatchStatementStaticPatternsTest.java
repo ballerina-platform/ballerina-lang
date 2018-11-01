@@ -34,12 +34,14 @@ import org.testng.annotations.Test;
  */
 public class MatchStatementStaticPatternsTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result, resultNegative, resultNegative2;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/static-match-patterns.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/static_match_patterns_negative.bal");
+        resultNegative2 = BCompileUtil.
+                compile("test-src/statements/matchstmt/unreachable_static_match_patterns_negative.bal");
     }
 
     @Test(description = "Test basics of static pattern match statement 1")
@@ -81,9 +83,8 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "'true'");
     }
 
-    @Test(description = "Test negative static match patterns")
-    public void testStaticMatchStmtNegative() {
-
+    @Test(description = "Test pattern will not be matched")
+    public void testPatternNotMatched() {
         Assert.assertEquals(resultNegative.getErrorCount(), 50);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
@@ -144,5 +145,18 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 206, 9);
 
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 222, 9);
+    }
+    @Test(description = "Test unreachable pattern")
+    public void testUnreachablePatterns() {
+        Assert.assertEquals(resultNegative2.getErrorCount(), 5);
+        int i = -1;
+        String unreachablePatterm =
+                "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
+
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 25, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 26, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 31, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 41, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 43, 9);
     }
 }
