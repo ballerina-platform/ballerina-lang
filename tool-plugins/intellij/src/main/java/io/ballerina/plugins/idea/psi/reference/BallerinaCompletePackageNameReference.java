@@ -101,21 +101,6 @@ public class BallerinaCompletePackageNameReference extends FileReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        BallerinaImportDeclaration importDeclaration = PsiTreeUtil.getParentOfType(getElement(),
-                BallerinaImportDeclaration.class);
-        if (importDeclaration != null) {
-            if (importDeclaration.getOrgName() == null && importDeclaration.getCompletePackageName() != null) {
-                List<LookupElement> organizationList = new LinkedList<>();
-                organizationList.add(BallerinaCompletionUtils.createOrganizationLookup("ballerina"));
-                List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
-                for (VirtualFile organization : organizations) {
-                    organizationList.add(BallerinaCompletionUtils.createOrganizationLookup(organization.getName()));
-                }
-                // super.getVariants will return the packages in the current project.
-                return ArrayUtil.mergeArrays(super.getVariants(), organizationList.toArray(new LookupElement[0]));
-            }
-        }
-        // If we return an empty array, package completion in the same project will not be available.
-        return super.getVariants();
+        return new Object[0];
     }
 }

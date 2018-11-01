@@ -46,12 +46,6 @@ public class BallerinaOrgReference extends BallerinaCachedReference<BallerinaIde
     @NotNull
     @Override
     public Object[] getVariants() {
-        List<LookupElement> organizationList = new LinkedList<>();
-        organizationList.add(BallerinaCompletionUtils.createOrganizationLookup("ballerina"));
-        List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
-        for (VirtualFile organization : organizations) {
-            organizationList.add(BallerinaCompletionUtils.createOrganizationLookup(organization.getName()));
-        }
-        return organizationList.toArray(new LookupElement[0]);
+        return new Object[0];
     }
 }
