@@ -173,3 +173,49 @@ function testAnydataToNil() returns int? {
     anydata ad = nil;
     return ad is () ? ad : -1;
 }
+
+function testTypeCheckingOnAny() returns anydata {
+    any a = 10;
+    anydata[] ad = [];
+    int i = 0;
+
+    ad[i] = a is anydata ? a : ();
+    i += 1;
+
+    a = 23.45;
+    ad[i] = typeCheck(a);
+    i += 1;
+
+    a = true;
+    ad[i] = typeCheck(a);
+    i += 1;
+
+    a = "hello world!";
+    ad[i] = typeCheck(a);
+    i += 1;
+
+    json j = { name: "apple", color: "red", price: 40 };
+    a = j;
+    ad[i] = a is anydata ? a : ();
+    i += 1;
+
+    a = xml `<book>The Lost World</book>`;
+    ad[i] = typeCheck(a);
+    i += 1;
+
+    Foo foo = {a: 15};
+    a = foo;
+    ad[i] = typeCheck(a);
+    i += 1;
+
+    ClosedFoo cfoo = {ca: 15};
+    a = cfoo;
+    ad[i] = typeCheck(a);
+    i += 1;
+
+    return ad;
+}
+
+function typeCheck(any a) returns anydata {
+    return a is anydata ? a : ();
+}

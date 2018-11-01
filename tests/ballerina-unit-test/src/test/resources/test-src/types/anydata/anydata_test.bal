@@ -703,3 +703,61 @@ function testAnydataToNil() returns int? {
 
     return -1;
 }
+
+function testTypeCheckingOnAny() returns anydata {
+    any a = 10;
+    anydata[] ad = [];
+    int i = 0;
+
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    a = 23.45;
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    a = true;
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    a = "hello world!";
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    json j = { name: "apple", color: "red", price: 40 };
+    a = j;
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    a = xml `<book>The Lost World</book>`;
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    Foo foo = {a: 15};
+    a = foo;
+    if (a is DataType) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    ClosedFoo cfoo = {ca: 15};
+    a = cfoo;
+    if (a is DataType) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    return ad;
+}

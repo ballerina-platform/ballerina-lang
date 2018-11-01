@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -189,6 +190,7 @@ public class Types {
             return true;
         }
 
+        // TODO: 11/1/18 Convert the logic below to a switch case
         if (type.tag == TypeTags.MAP && isAnydata(((BMapType) type).constraint)) {
             return true;
         }
@@ -882,11 +884,21 @@ public class Types {
                 return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
             }
 
+            // TODO: 11/1/18 Remove the below check after verifying it doesn't break anything
             // Here condition is added for prevent explicit cast assigning map union constrained
             // to map any constrained.
             if (s.tag == TypeTags.MAP &&
                     ((BMapType) s).constraint.tag == TypeTags.UNION) {
                 return symTable.notFoundSymbol;
+            }
+
+            return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
+        }
+
+        @Override
+        public BSymbol visit(BAnydataType t, BType s) {
+            if (isValueType(s)) {
+                return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
             }
 
             return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
@@ -1094,6 +1106,11 @@ public class Types {
 
         @Override
         public Boolean visit(BAnyType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BAnydataType t, BType s) {
             return t == s;
         }
 
