@@ -557,3 +557,9 @@ type C object {
 
 public int publicGlobalVar_1;
 int publicGlobalVar_2;
+
+public type D record {
+    string a;
+    int b;
+    int c;
+};
