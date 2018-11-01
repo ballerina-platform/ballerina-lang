@@ -19,9 +19,9 @@ function arrayLengthAccessTestAssignmentCase (int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int lengthVal;
-    lengthVal = arr.length();
-    return lengthVal;
+    int length;
+    length = arr.length();
+    return length;
 }
 
 function arrayLengthAccessTestFunctionInvocationCase (int x, int y) returns (int) {
@@ -29,9 +29,9 @@ function arrayLengthAccessTestFunctionInvocationCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int lengthVal;
-    lengthVal = arrayLength(arr.length());
-    return lengthVal;
+    int length;
+    length = arrayLength(arr.length());
+    return length;
 }
 
 function arrayLength (int x) returns (int) {
@@ -43,8 +43,8 @@ function arrayLengthAccessTestVariableDefinitionCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int lengthVal = arrayLength(arr.length());
-    return lengthVal;
+    int length = arrayLength(arr.length());
+    return length;
 }
 
 function arrayLengthAccessTestArrayInitializerCase (int x, int y) returns (int) {
@@ -62,9 +62,9 @@ function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int) {
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length": arr.length()};
-    int lengthVal;
-    lengthVal =check <int> tempMap.length;
-    return lengthVal;
+    int length;
+    length =check <int> tempMap.length;
+    return length;
 }
 
 function arrayLengthAccessTestReturnStatementCase (int x, int y) returns (int) {
@@ -93,8 +93,8 @@ function arrayLengthAccessTestTypeCastExpressionCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int lengthVal = <int> arr.length();
-    return lengthVal;
+    int length = <int> arr.length();
+    return length;
 }
 
 function arrayLengthAccessTestIfConditionCase (int x, int y) returns (int) {
@@ -150,27 +150,27 @@ type Empty record {};
 
 function arrayLengthAccessTestJSONArrayCase (int x, int y) returns (int) {
     json arr = [x,y,5,5,6,6];
-    int lengthVal;
-    lengthVal = arr.length();
-    return lengthVal;
+    int length;
+    length = arr.length();
+    return length;
 }
 
 function lengthOfMap () returns (int) {
     map namesMap = {fname:"foo", lname:"bar", sname:"abc", tname:"pqr"};
-    int lengthVal = namesMap.length();
-    return lengthVal;
+    int length = namesMap.length();
+    return length;
 }
 
 function lengthOfEmptyMap () returns (int) {
     map namesMap;
-    int lengthVal = namesMap.length();
-    return lengthVal;
+    int length = namesMap.length();
+    return length;
 }
 
 function lengthOfSingleXmlElement() returns (int) {
     xml x1 = xml `<book>The Lost World</book>`;
-    int lengthVal = x1.length();
-    return lengthVal;
+    int length = x1.length();
+    return length;
 }
 
 function lengthOfMultipleXmlElements() returns (int) {
@@ -179,14 +179,14 @@ function lengthOfMultipleXmlElements() returns (int) {
     xml x3 = xml `<!--I am a comment-->`;
     xml x4 = xml `<?target data?>`;
     xml x5 = x1 + x2 + x3 + x4;
-    int lengthVal = x5.length();
-    return lengthVal;
+    int length = x5.length();
+    return length;
 }
 
 function lengthOfTuple() returns (int) {
     (int, string) a = (10, "John");
-    int lengthVal = a.length();
-    return lengthVal;
+    int length = a.length();
+    return length;
 }
 
 function lengthOfTable() returns (int) {
@@ -197,62 +197,56 @@ function lengthOfTable() returns (int) {
         { 3, "Jim", 330.5 }
         ]
     };
-    int lengthVal = tbEmployee.length();
-    return lengthVal;
+    int length = tbEmployee.length();
+    return length;
 }
 
 function lengthOfEmptyTable() returns (int) {
     table<Employee> tbEmployee = table {
         { key id, name, salary }
     };
-    int lengthVal = tbEmployee.length();
-    return lengthVal;
+    int length = tbEmployee.length();
+    return length;
 }
 
 function lengthOfRecord() returns (int) {
     Employee emp = {id : 1 , name : "John", salary: 300};
-    int lengthVal = emp.length();
-    return lengthVal;
+    int length = emp.length();
+    return length;
 }
 
 function lengthOfEmptyRecord() returns (int) {
     Empty emp = {};
-    int lengthVal = emp.length();
-    return lengthVal;
+    int length = emp.length();
+    return length;
 }
 
 function accessLengthOfNullArray() returns (int) {
     int[] arr;
-    int lengthVal = arr.length();
-    return lengthVal;
+    int length = arr.length();
+    return length;
 }
 
 function accessLengthOfNullMap() returns (int) {
     map m;
-    int lengthVal = m.length();
-    return lengthVal;
+    int length = m.length();
+    return length;
 }
 
 function accessLengthOfNullJson() returns (int) {
     json j;
-    int lengthVal = j.length();
-    return lengthVal;
-}
-
-function accessLengthOfNullTable() returns (int) {
-    table t;
-    int lengthVal = t.length();
-    return lengthVal;
+    int length = j.length();
+    return length;
 }
 
 function accessLengthOfNullTuple() returns (int) {
     (int, int )a;
-    int lengthVal = a.length();
-    return lengthVal;
+    int length = a.length();
+    return length;
 }
 
 function accessLengthOfNullXML() returns (int) {
     xml x;
-    int lengthVal = x.length();
-    return lengthVal;
+    int length = x.length();
+    return length;
 }

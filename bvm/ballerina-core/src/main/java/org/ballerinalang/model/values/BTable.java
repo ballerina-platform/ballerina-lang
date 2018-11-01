@@ -348,13 +348,13 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     /**
-     * Returns the length or the number of rows of the table if the table is not null.
+     * Returns the length or the number of rows of the table.
      *
      * @return number of rows of the table
      */
     public int length() {
         if (tableName == null) {
-            return -1;
+            return 0;
         }
         return tableProvider.getRowCount(tableName);
     }

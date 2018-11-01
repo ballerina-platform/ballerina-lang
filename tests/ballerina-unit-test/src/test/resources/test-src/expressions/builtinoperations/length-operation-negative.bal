@@ -24,10 +24,10 @@ type Person object {
 
 function assignLengthToInvalidType() {
     int [] intArr = [1, 2];
-    string lengthVal = intArr.length();
+    string length = intArr.length();
 }
 
 function invokeLengthOnObject() {
     Person p1 = new(5, "John", "Doe");
-    int lengthVal = p1.length();
+    int length = p1.length();
 }

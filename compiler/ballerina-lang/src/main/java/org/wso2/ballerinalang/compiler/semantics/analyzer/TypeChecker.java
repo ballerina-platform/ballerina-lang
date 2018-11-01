@@ -694,12 +694,12 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
-        if (BLangBuiltInMethod.UNDEFINED != builtInFunction) {
-            if (validBuiltinOpInvocation(builtInFunction, exprType.tag)) {
-                checkBuiltinFunctionInvocation(iExpr, builtInFunction, exprType);
-                return;
-            }
+        //Returns if the function is a builtin function
+        if (BLangBuiltInMethod.UNDEFINED != builtInFunction && checkBuiltinFunctionInvocation(iExpr, builtInFunction,
+                                                                                              exprType)) {
+            return;
         }
+
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
             return;
@@ -1766,7 +1766,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
+    private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
+        boolean isValidBuiltinFunc = false;
         switch (function) {
             case REASON:
             case DETAIL:
@@ -1777,26 +1778,37 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
                     resultType = symTable.semanticError;
                 }
+                isValidBuiltinFunc = true;
                 break;
             case ISNAN:
             case ISINFINITE:
             case ISFINITE:
-                handleBuiltInFunctions(iExpr, symTable.booleanType);
+                if (type.tag == TypeTags.FLOAT) {
+                    handleBuiltInFunctions(iExpr, symTable.booleanType);
+                } else {
+                    dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
+                    resultType = symTable.semanticError;
+                }
+                isValidBuiltinFunc = true;
                 break;
             case LENGTH:
-                handleBuiltInFunctions(iExpr, symTable.intType);
+                if (isValidTypeForLength(type.tag)) {
+                    handleBuiltInFunctions(iExpr, symTable.intType);
+                    isValidBuiltinFunc = true;
+                }
                 break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
-                return;
+                isValidBuiltinFunc = true;
         }
-        iExpr.builtinMethodInvocation = true;
-        iExpr.builtInMethod = function;
-        if (resultType != null && resultType != symTable.semanticError) {
-            if (iExpr.impConversionExpr == null) {
+        if (isValidBuiltinFunc) {
+            iExpr.builtinMethodInvocation = true;
+            iExpr.builtInMethod = function;
+            if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
                 types.setImplicitCastExpr(iExpr, resultType, expType);
             }
         }
+        return isValidBuiltinFunc;
     }
 
     private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function,
@@ -1816,19 +1828,6 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name);
         }
         resultType = types.checkType(iExpr, actualType, expType);
-    }
-
-    private boolean validBuiltinOpInvocation(BLangBuiltInMethod builtInFunction, int typeTag) {
-        switch (builtInFunction) {
-            case LENGTH:
-                return isValidTypeForLength(typeTag);
-            case ISNAN:
-            case ISINFINITE:
-            case ISFINITE:
-                return typeTag == TypeTags.FLOAT;
-            default:
-                return true;
-        }
     }
 
     private boolean isValidTypeForLength(int typeTag) {

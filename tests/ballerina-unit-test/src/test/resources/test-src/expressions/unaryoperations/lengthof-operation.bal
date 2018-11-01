@@ -3,9 +3,9 @@ function arrayLengthAccessTestAssignmentCase (int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int lengthVal;
-    lengthVal = (lengthof arr);
-    return lengthVal;
+    int length;
+    length = (lengthof arr);
+    return length;
 }
 
 function arrayLengthAccessTestFunctionInvocationCase (int x, int y) returns (int) {
@@ -13,9 +13,9 @@ function arrayLengthAccessTestFunctionInvocationCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int lengthVal;
-    lengthVal = arrayLength(lengthof arr);
-    return lengthVal;
+    int length;
+    length = arrayLength(lengthof arr);
+    return length;
 }
 
 function arrayLength (int x) returns (int) {
@@ -27,8 +27,8 @@ function arrayLengthAccessTestVariableDefinitionCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int lengthVal = arrayLength(lengthof arr);
-    return lengthVal;
+    int length = arrayLength(lengthof arr);
+    return length;
 }
 
 function arrayLengthAccessTestArrayInitializerCase (int x, int y) returns (int) {
@@ -46,9 +46,9 @@ function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int) {
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length":(lengthof arr)};
-    int lengthVal;
-    lengthVal =check <int> tempMap.length;
-    return lengthVal;
+    int length;
+    length =check <int> tempMap.length;
+    return length;
 }
 
 function arrayLengthAccessTestReturnStatementCase (int x, int y) returns (int) {
@@ -77,8 +77,8 @@ function arrayLengthAccessTestTypeCastExpressionCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int lengthVal = <int> (lengthof arr);
-    return lengthVal;
+    int length = <int> (lengthof arr);
+    return length;
 }
 
 function arrayLengthAccessTestIfConditionCase (int x, int y) returns (int) {
@@ -126,21 +126,21 @@ type Person record {
 
 function arrayLengthAccessTestJSONArrayCase (int x, int y) returns (int) {
     json arr = [x,y,5,5,6,6];
-    int lengthVal;
-    lengthVal = (lengthof arr);
-    return lengthVal;
+    int length;
+    length = (lengthof arr);
+    return length;
 }
 
 function lengthOfMap (int x, int y) returns (int) {
     map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    int lengthVal = lengthof namesMap;
-    return lengthVal;
+    int length = lengthof namesMap;
+    return length;
 }
 
 function lengthOfMapEmpty (int x, int y) returns (int) {
     map namesMap;
-    int lengthVal = lengthof namesMap;
-    return lengthVal;
+    int length = lengthof namesMap;
+    return length;
 }
 
 function lengthOfString() returns (int, int, int) {

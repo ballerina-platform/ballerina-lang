@@ -345,14 +345,6 @@ public class LengthOperationTest {
         BRunUtil.invoke(result, "accessLengthOfNullMap", args);
     }
 
-    @Test(description = "Test length of table when reference point to null table.",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
-    public void testTableLengthOfNull() {
-        BValue[] args = new BValue[0];
-        BRunUtil.invoke(result, "accessLengthOfNullTable", args);
-    }
-
     @Test(description = "Test length of tuple when it is null.")
     public void testTupleLengthOfNull() {
         BValue[] args = new BValue[0];
@@ -369,8 +361,8 @@ public class LengthOperationTest {
     @Test(description = "Test invoking length operation on an object")
     public void testNegativeTests() {
         Assert.assertEquals(resNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 27, 24);
-        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 32, 21);
+        BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 27, 21);
+        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 32, 18);
     }
 
 }
