@@ -313,7 +313,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             if (typeDef.symbol.tag == SymTag.OBJECT) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                
+
                 objectTypeNode.functions.forEach(f -> {
                     if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
                         pkgNode.functions.add(f);
@@ -1090,11 +1090,13 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                                                               (BVarSymbol) fieldAccessExpr.symbol, false);
-            }
 
-            if (!enclLocks.isEmpty() && fieldAccessExpr.expr.symbol.pkgID.equals(this.env.enclPkg.packageID)) {
-                enclLocks.peek().addFieldVariable((BVarSymbol) fieldAccessExpr.expr.symbol,
-                        fieldAccessExpr.field.value);
+                //field refs to objects in other packages are skipped
+                if (!enclLocks.isEmpty() && !(fieldAccessExpr.expr instanceof BLangLocalVarRef) &&
+                        fieldAccessExpr.expr.symbol.pkgID.equals(this.env.enclPkg.packageID)) {
+                    enclLocks.peek().addFieldVariable((BVarSymbol) fieldAccessExpr.expr.symbol,
+                            fieldAccessExpr.field.value);
+                }
             }
         } else if (varRefType.tag == TypeTags.RECORD) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
@@ -1104,10 +1106,6 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                                                               (BVarSymbol) fieldAccessExpr.symbol, true);
-            }
-            if (!enclLocks.isEmpty()) {
-                enclLocks.peek().addFieldVariable((BVarSymbol) fieldAccessExpr.expr.symbol,
-                        fieldAccessExpr.field.value);
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
