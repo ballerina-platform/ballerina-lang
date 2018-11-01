@@ -21,13 +21,13 @@ import TreeUtil from './../tree-util';
 import { ASTUtil } from "ast-model";
 
 class FunctionNode extends AbstractFunctionNode {
-     /**
-     * Indicates whether the given instance of node can be accepted when dropped
-     * on top of this node.
-     *
-     * @param {Node} node Node instance to be dropped
-     * @returns {Boolean} True if can be acceped.
-     */
+    /**
+    * Indicates whether the given instance of node can be accepted when dropped
+    * on top of this node.
+    *
+    * @param {Node} node Node instance to be dropped
+    * @returns {Boolean} True if can be acceped.
+    */
     canAcceptDrop(node) {
         return TreeUtil.isWorker(node) || TreeUtil.isEndpointTypeVariableDef(node);
     }
@@ -47,14 +47,14 @@ class FunctionNode extends AbstractFunctionNode {
                 const defaultWorker = node.meta;
                 delete node.meta;
                 const connectors = this.getBody().getStatements()
-                        .filter((statement) => { return TreeUtil.isEndpointTypeVariableDef(statement); });
+                    .filter((statement) => { return TreeUtil.isEndpointTypeVariableDef(statement); });
                 const statements = this.getBody().getStatements()
-                        .filter((statement) => { return !TreeUtil.isEndpointTypeVariableDef(statement); });
+                    .filter((statement) => { return !TreeUtil.isEndpointTypeVariableDef(statement); });
                 this.getBody().setStatements(connectors, true);
                 defaultWorker.getBody().setStatements(statements);
 
                 // If endpoints are defined should be last of endpoint
-                ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot(), this.ws[4].i);
+                ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot(), this.ws[4].i + 1);
                 this.addWorkers(defaultWorker, -1, true);
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
@@ -64,8 +64,11 @@ class FunctionNode extends AbstractFunctionNode {
             ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot());
             this.addWorkers(node, index);
         } else if (TreeUtil.isEndpoint(node)) {
-
-            ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.ws[4].i);
+            if (this.getEndpointNodes().length > 0) {
+                ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot());
+            } else {
+                ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.ws[4].i + 1);
+            }
             this.addEndpointNodes(node);
         }
     }

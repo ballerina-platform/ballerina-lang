@@ -19,7 +19,7 @@ import _ from 'lodash';
 import NodeFactory from 'plugins/ballerina/model/node-factory';
 import AbstractResourceNode from './abstract-tree/resource-node';
 import TreeUtil from './../tree-util';
-
+import { ASTUtil } from "ast-model";
 /**
  * Node for a resource definition.
  * @class ResourceNode
@@ -274,7 +274,11 @@ class ResourceNode extends AbstractResourceNode {
             ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot());
             this.addWorkers(node, index);
         } else if (TreeUtil.isEndpoint(node)) {
-            ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.ws[4].i);
+            if (this.getEndpointNodes().length > 0) {
+                ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot());
+            } else {
+                ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.ws[4].i + 1);
+            }
             this.addEndpointNodes(node);
         }
     }
