@@ -21,11 +21,13 @@ package org.ballerinalang.test.types.anydata;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -138,5 +140,23 @@ public class AnydataTernaryConvTest {
     public void testAnydataToNil() {
         BValue[] returns = BRunUtil.invoke(result, "testAnydataToNil");
         assertNull(returns[0]);
+    }
+
+    @Test(description = "Test type testing on any")
+    public void testTypeCheckingOnAny() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testTypeCheckingOnAny");
+
+        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        assertEquals(((BArrayType) returns[0].getType()).getElementType().getTag(), TypeTags.ANYDATA_TAG);
+
+        BRefValueArray rets = (BRefValueArray) returns[0];
+        assertEquals(((BInteger) rets.get(0)).intValue(), 10);
+        assertEquals(((BFloat) rets.get(1)).floatValue(), 23.45);
+        assertTrue(((BBoolean) rets.get(2)).booleanValue());
+        assertEquals(rets.get(3).stringValue(), "hello world!");
+        assertEquals(rets.get(4).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
+        assertEquals(rets.get(5).stringValue(), "<book>The Lost World</book>");
+        assertEquals(rets.get(6).stringValue(), "{a:15}");
+        assertEquals(rets.get(7).stringValue(), "{ca:15}");
     }
 }

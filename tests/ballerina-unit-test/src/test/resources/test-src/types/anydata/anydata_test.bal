@@ -81,7 +81,7 @@ function testJSONAssignment() returns anydata {
 
 function testTableAssignment() returns anydata {
     table<Employee> t = table {
-        { primarykey id, name, salary },
+        { key id, name, salary },
         [
           { 1, "Mary", 300.5 },
           { 2, "John", 200.5 },
@@ -147,7 +147,7 @@ function testConstrainedMaps() returns map<anydata> {
     json j = {name: "apple", color: "red", price: 40};
     xml x = xml `<book>The Lost World</book>`;
     table<Employee> t = table {
-            { primarykey id, name, salary },
+            { key id, name, salary },
             [ { 1, "Mary",  300.5 },
               { 2, "John",  200.5 },
               { 3, "Jim", 330.5 }
@@ -205,7 +205,7 @@ function testArrayAssignment() {
     ad = acr;
 
     table<Employee> t = table {
-                { primarykey id, name, salary },
+                { key id, name, salary },
                 [ { 1, "Mary",  300.5 },
                   { 2, "John",  200.5 },
                   { 3, "Jim", 330.5 }
@@ -277,7 +277,7 @@ function testUnionAssignment2() returns anydata[] {
     i += 1;
 
     table<Employee> t = table {
-                { primarykey id, name, salary },
+                { key id, name, salary },
                 [ { 1, "Mary",  300.5 },
                   { 2, "John",  200.5 },
                   { 3, "Jim", 330.5 }
@@ -530,7 +530,7 @@ function testAnydataToMap() {
 
 function testAnydataToTable() returns table<Employee> {
     table<Employee> t = table {
-                { primarykey id, name, salary },
+                { key id, name, salary },
                 [ { 1, "Mary",  300.5 },
                   { 2, "John",  200.5 },
                   { 3, "Jim", 330.5 }
@@ -602,7 +602,7 @@ function testAnydataToUnion2() returns DataType[] {
     }
 
     table<Employee> t = table {
-                    { primarykey id, name, salary },
+                    { key id, name, salary },
                     [ { 1, "Mary",  300.5 },
                       { 2, "John",  200.5 },
                       { 3, "Jim", 330.5 }
@@ -701,4 +701,62 @@ function testAnydataToNil() returns int? {
     }
 
     return -1;
+}
+
+function testTypeCheckingOnAny() returns anydata {
+    any a = 10;
+    anydata[] ad = [];
+    int i = 0;
+
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    a = 23.45;
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    a = true;
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    a = "hello world!";
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    json j = { name: "apple", color: "red", price: 40 };
+    a = j;
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    a = xml `<book>The Lost World</book>`;
+    if (a is anydata) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    Foo foo = {a: 15};
+    a = foo;
+    if (a is DataType) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    ClosedFoo cfoo = {ca: 15};
+    a = cfoo;
+    if (a is DataType) {
+        ad[i] = a;
+        i += 1;
+    }
+
+    return ad;
 }

@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -184,36 +185,30 @@ public class Types {
         return type.tag < TypeTags.JSON;
     }
 
-    public boolean isDataType(BType type) {
+    public boolean isAnydata(BType type) {
         if (type.tag <= TypeTags.ANYDATA) {
             return true;
         }
 
-        if (type.tag == TypeTags.MAP && isDataType(((BMapType) type).constraint)) {
-            return true;
+        switch (type.tag) {
+            case TypeTags.MAP:
+                return isAnydata(((BMapType) type).constraint);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes = recordType.fields.stream()
+                        .map(field -> field.type).collect(Collectors.toList());
+                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+            case TypeTags.UNION:
+                return isAnydata(((BUnionType) type).memberTypes);
+            case TypeTags.TUPLE:
+                return isAnydata(((BTupleType) type).tupleTypes);
+            default:
+                return type.tag == TypeTags.ARRAY && isAnydata(((BArrayType) type).eType);
         }
-
-        if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
-            List<BType> fieldTypes = recordType.fields.stream().map(field -> field.type).collect(Collectors.toList());
-            return allDataTypes(fieldTypes) && (recordType.sealed || isDataType(recordType.restFieldType));
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            return allDataTypes(unionType.memberTypes);
-        }
-
-        if (type.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) type;
-            return allDataTypes(tupleType.tupleTypes);
-        }
-
-        return type.tag == TypeTags.ARRAY && isDataType(((BArrayType) type).eType);
     }
 
-    private boolean allDataTypes(Collection<BType> types) {
-        return types.stream().allMatch(this::isDataType);
+    private boolean isAnydata(Collection<BType> types) {
+        return types.stream().allMatch(this::isAnydata);
     }
 
     public boolean isBrandedType(BType type) {
@@ -253,11 +248,12 @@ public class Types {
             return true;
         }
 
+        // TODO: Remove the isValueType() check
         if (target.tag == TypeTags.ANY && !isValueType(source)) {
             return true;
         }
 
-        if (target.tag == TypeTags.ANYDATA && isDataType(source)) {
+        if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
             return true;
         }
 
@@ -881,11 +877,21 @@ public class Types {
                 return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
             }
 
+            // TODO: 11/1/18 Remove the below check after verifying it doesn't break anything
             // Here condition is added for prevent explicit cast assigning map union constrained
             // to map any constrained.
             if (s.tag == TypeTags.MAP &&
                     ((BMapType) s).constraint.tag == TypeTags.UNION) {
                 return symTable.notFoundSymbol;
+            }
+
+            return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
+        }
+
+        @Override
+        public BSymbol visit(BAnydataType t, BType s) {
+            if (isValueType(s)) {
+                return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
             }
 
             return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
@@ -1093,6 +1099,11 @@ public class Types {
 
         @Override
         public Boolean visit(BAnyType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BAnydataType t, BType s) {
             return t == s;
         }
 

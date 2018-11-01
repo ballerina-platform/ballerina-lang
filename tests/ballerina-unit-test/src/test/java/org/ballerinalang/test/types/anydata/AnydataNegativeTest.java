@@ -112,7 +112,10 @@ public class AnydataNegativeTest {
 
         // Test invalid map insertions
         validateError(result, index++, "incompatible types: expected 'anydata', found 'Bar'", 147, 16);
-        validateError(result, index, "incompatible types: expected 'anydata', found 'int|float|string|boolean|byte|table|json|xml|Bar|map<anydata>|anydata[]?'", 150, 18);
+        validateError(result, index,
+                      "incompatible types: expected 'anydata', found " +
+                              "'int|float|string|boolean|byte|table|json|xml|Bar|map<anydata>|anydata[]?'",
+                      150, 18);
     }
 
     @Test(description = "Negative test cases for non-anydata closed record assignment")
