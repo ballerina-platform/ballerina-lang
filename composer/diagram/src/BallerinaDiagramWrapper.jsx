@@ -73,22 +73,26 @@ class BallerinaDiagramWrapper extends React.Component {
         }
     }
 
+    updateAST(ast) {
+        const { currentAST } = this.state;
+        if (ast) {
+            if (currentAST) {
+                currentAST.off(TREE_MODIFIED, this.onModelUpdate);
+            }
+            const newAST = TreeBuilder.build(ast);
+            if (newAST) {
+                newAST.on(TREE_MODIFIED, this.onModelUpdate.bind(this));
+            }
+            this.setState({
+                currentAST: newAST,
+            });
+        }
+    }
+
     updateDiagram(docUri) {
         this.props.getAST(docUri)
                 .then((parserReply) => {
-                    const { currentAST } = this.state;
-                    if (parserReply.ast) {
-                        if (currentAST) {
-                            currentAST.off(TREE_MODIFIED, this.onModelUpdate);
-                        }
-                        const newAST = TreeBuilder.build(parserReply.ast);
-                        if (newAST) {
-                            newAST.on(TREE_MODIFIED, this.onModelUpdate.bind(this));
-                        }
-                        this.setState({
-                            currentAST: newAST,
-                        });
-                    }
+                    this.updateAST(parserReply.ast);
                 });
     }
 

@@ -64,6 +64,9 @@ function testDiagramRendering(ast: BallerinaAST,  uri: string) {
         .spyOn(DiagramMenu.prototype, 'render')
         .mockImplementation(renderDiagramMenu);
 
+    const setStateSpy = jest.spyOn(BallerinaDiagramWrapper.prototype,
+                            'setState');
+
     const component = create(
         <BallerinaDiagramWrapper 
             docUri={uri}
@@ -76,16 +79,14 @@ function testDiagramRendering(ast: BallerinaAST,  uri: string) {
             goToSource={goToSource}
         />
     );
+    component.root.instance.updateAST(ast);
     let tree = component.toJSON();
     expect(tree).toMatchSnapshot();
     expect(getAST).toHaveBeenCalled();
-    console.warn(component.root.instance.state);
-    component.root.instance.setState({ currentAST: ast});
-    tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+    expect(setStateSpy).toHaveBeenCalled();
 }
 
-var bbeFiles = globSync(path.join(bbeDir, '**', 'hello_world_client.bal'), {});
+var bbeFiles = globSync(path.join(bbeDir, '**', '*.bal'), {});
 bbeFiles.forEach((file) => {
     const uri = URI.file(file).toString();
     test('Parsing and Rendering BBE: ' + path.basename(file), (done) => {
