@@ -32,20 +32,13 @@ import java.util.Map;
 public class ConstantInfo implements AttributeInfoPool {
 
     public int nameCPIndex;
-    public int typeCPIndex;
-//    public int valueTypeTag;
     public int flags;
-//    public int globalMemIndex;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, int typeCPIndex, /*int valueTypeTag,*/ int flags
-            /*, int globalMemIndex*/) {
+    public ConstantInfo(int nameCPIndex, int flags) {
         this.nameCPIndex = nameCPIndex;
-        this.typeCPIndex = typeCPIndex;
-//        this.valueTypeTag = valueTypeTag;
         this.flags = flags;
-//        this.globalMemIndex = globalMemIndex;
     }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {

@@ -651,27 +651,16 @@ public class CompiledPackageSymbolEnter {
 
     private void defineConstants(DataInputStream dataInStream) throws IOException {
         String constantName = getUTF8CPEntryValue(dataInStream);
-        String typeSig = getUTF8CPEntryValue(dataInStream);
-
-//        int valueTypeTag = dataInStream.readInt();
-
         int flags = dataInStream.readInt();
-//        int memIndex = dataInStream.readInt();
 
-        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-
-        // Create variable symbol
-        BType type = getBTypeFromDescriptor(typeSig);
+        // Create constant symbol.
         Scope enclScope = this.env.pkgSymbol.scope;
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, type, enclScope.owner);
-
-        setDocumentation(constantSymbol, attrDataMap);
-
-        // Todo - What tag?
-        //        constantSymbol.varIndex = new RegIndex(memIndex, varType.tag);
-//        constantSymbol.varIndex = new RegIndex(memIndex, valueTypeTag);
+                this.env.pkgSymbol.pkgID, null, enclScope.owner);
         enclScope.define(constantSymbol.name, constantSymbol);
+
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+        setDocumentation(constantSymbol, attrDataMap);
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {

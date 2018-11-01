@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -379,13 +378,6 @@ public class Desugar extends BLangNodeVisitor {
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode, env);
-
-        //        pkgNode.constants.forEach(constant -> {
-        //            BLangAssignment assignment = createAssignmentStmt(constant);
-        //            if (assignment.expr != null) {
-        //                pkgNode.initFunction.body.stmts.add(assignment);
-        //            }
-        //        });
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
@@ -1638,11 +1630,6 @@ public class Desugar extends BLangNodeVisitor {
         result = packageVarRef;
     }
 
-    //    @Override
-    //    public void visit(BLangConstantRef constant) {
-    //        result = ((BConstantSymbol) constant.symbol).value;
-    //    }
-
     @Override
     public void visit(BLangFunctionVarRef functionVarRef) {
         result = functionVarRef;
@@ -2498,26 +2485,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = variable.expr;
         assignmentStmt.pos = variable.pos;
-        assignmentStmt.setVariable(varRef);
-        return assignmentStmt;
-    }
-
-    private BLangAssignment createAssignmentStmt(BLangConstant constant) {
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = constant.pos;
-        varRef.variableName = constant.name;
-
-        BConstantSymbol currentSymbol = constant.symbol;
-        BVarSymbol newSymbol = new BVarSymbol(currentSymbol.flags, currentSymbol.name,
-                constant.symbol.pkgID, currentSymbol.value.type, constant.symbol.owner);
-
-        varRef.symbol = newSymbol;
-        //        varRef.symbol = currentSymbol;
-        varRef.type = newSymbol.type;
-
-        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = currentSymbol.value;
-        assignmentStmt.pos = constant.pos;
         assignmentStmt.setVariable(varRef);
         return assignmentStmt;
     }

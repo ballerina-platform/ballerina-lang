@@ -97,4 +97,11 @@ public class ConstantAccessTest {
         Assert.assertSame(returns[2].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 10.0);
     }
+
+    @Test
+    public void testTypeAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "main:0.0.0", "testTypeAssignment");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "A");
+    }
 }

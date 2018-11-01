@@ -32,8 +32,6 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
 
     public BLangLiteral value;
     public BType actualType;
-//    public int valueTypeTag;
-//    public RegIndex varIndex;
 
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(CONSTANT, flags, name, pkgID, type, owner);
@@ -43,11 +41,6 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
     public BLangLiteral getValue() {
         return value;
     }
-
-//    @Override
-//    public int getValueTag() {
-//        return valueTypeTag;
-//    }
 
     @Override
     public BType getActualType() {

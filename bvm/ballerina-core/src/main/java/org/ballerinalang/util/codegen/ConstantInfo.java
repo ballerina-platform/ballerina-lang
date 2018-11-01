@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 
@@ -34,22 +33,11 @@ public class ConstantInfo implements AttributeInfoPool {
     private int nameCPIndex;
     private String name;
 
-//    private int typeCPIndex;
-//    private int valueTypeTag;
-
-//    private int globalMemIndex;
-    private BType valueType;
-
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, String name ,/*int typeCPIndex*/ /*int valueTypeTag, int globalMemIndex,*/
-                        BType valueType) {
+    public ConstantInfo(int nameCPIndex, String name) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
-//        this.typeCPIndex = typeCPIndex;
-//        this.valueTypeTag = valueTypeTag;
-//        this.globalMemIndex = globalMemIndex;
-        this.valueType = valueType;
     }
 
     public int getNameCPIndex() {
@@ -60,18 +48,6 @@ public class ConstantInfo implements AttributeInfoPool {
         return name;
     }
 
-//    public int getTypeCPIndex() {
-//        return typeCPIndex;
-//    }
-
-    public BType getValueType() {
-        return valueType;
-    }
-
-//    public int getValueTypeTag() {
-//        return valueTypeTag;
-//    }
-
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
         return attributeInfoMap.get(attributeKind);
     }
@@ -79,10 +55,6 @@ public class ConstantInfo implements AttributeInfoPool {
     public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
         attributeInfoMap.put(attributeKind, attributeInfo);
     }
-
-//    public int getGlobalMemIndex() {
-//        return globalMemIndex;
-//    }
 
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);

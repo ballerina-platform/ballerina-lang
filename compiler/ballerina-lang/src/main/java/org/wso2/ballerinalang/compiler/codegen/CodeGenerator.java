@@ -100,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstantRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -412,12 +411,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
-//        // Todo - Ignore?
-//        // Visit constants first.
-//        pkgNode.topLevelNodes.stream()
-//                .filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
-//                .forEach(constant -> genNode((BLangNode) constant, this.env));
-
+        // We don't need to visit constants since we don't do any code generation.
         pkgNode.topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
@@ -901,13 +895,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex, except);
     }
 
-//    @Override
-//    public void visit(BLangConstant constant) {
-//        // Todo - Ignore?
-//        int i = 0;
-//
-//    }
-
     @Override
     public void visit(BLangPackageVarRef packageVarRef) {
         BPackageSymbol pkgSymbol;
@@ -928,25 +915,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
             emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
         }
-    }
-
-    @Override
-    public void visit(BLangConstantRef constantRef) {
-//        BSymbol symbol = constantRef.symbol;
-//        BSymbol ownerSymbol = symbol.owner;
-//        BPackageSymbol pkgSymbol;
-//        if (ownerSymbol.tag == SymTag.SERVICE) {
-//            pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
-//        } else {
-//            pkgSymbol = (BPackageSymbol) ownerSymbol;
-//        }
-//
-//        BConstantSymbol constantSymbol = (BConstantSymbol) constantRef.symbol;
-//        Operand gvIndex = constantSymbol.varIndex;
-//        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
-//        int opcode = getOpcode(((BConstantSymbol) symbol).value.typeTag, InstructionCodes.IGLOAD);
-//        constantRef.regIndex = calcAndGetExprRegIndex(constantRef);
-//        emit(opcode, getOperand(pkgRefCPIndex), gvIndex, constantRef.regIndex);
     }
 
     @Override
@@ -2047,33 +2015,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void createConstantInfo(BLangConstant constant) {
         BConstantSymbol constantSymbol = constant.symbol;
-//        int valueTypeTag = constantSymbol.value.typeTag;
-//        constantSymbol.varIndex = getPVIndex(valueTypeTag);
-
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
-        int typeCPIndex;
-        if (constantSymbol.type == null) {
-            typeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.value.type.getDesc());
-        } else {
-            typeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
-        }
 
-
-        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, typeCPIndex, /*valueTypeTag,*/
-                constantSymbol.flags/*, constantSymbol.varIndex.value*/);
+        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, constantSymbol.flags);
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
         DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(constantSymbol.value);
         constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
 
-        //        LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(constantSymbol);
-        //        LocalVariableAttributeInfo pkgVarAttrInfo = (LocalVariableAttributeInfo)
-        //                currentPkgInfo.getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-        //        pkgVarAttrInfo.localVars.add(localVarInfo);
-        //
-        //        // TODO Populate annotation attribute
-
-        // Add documentation attributes
+        // Add documentation attributes.
         addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
     }
 

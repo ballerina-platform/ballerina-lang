@@ -626,22 +626,10 @@ public class PackageInfoReader {
         int nameCPIndex = dataInStream.readInt();
         UTF8CPEntry nameUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
 
-        // Read constant value type.
-        int valueTypeCPIndex = dataInStream.readInt();
-        UTF8CPEntry valueTypeUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueTypeCPIndex);
-
-        // Read value type tag.
-//        int valueTypeTag = dataInStream.readInt();
-
         // Read and ignore flags.
         dataInStream.readInt();
 
-//        int globalMemIndex = dataInStream.readInt();
-
-        BType valueType = getBTypeFromDescriptor(packageInfo, valueTypeUTF8CPEntry.getValue());
-
-        ConstantInfo packageVarInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue() ,/*valueTypeCPIndex,*/
-                /*valueTypeTag, globalMemIndex,*/ valueType);
+        ConstantInfo packageVarInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue());
 
         // Read attributes.
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);

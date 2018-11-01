@@ -37,3 +37,10 @@ function accessPublicConstantFromOtherPackage() returns string {
 function accessPublicConstantTypeFromOtherPackage() returns variable:AB {
     return variable:A;
 }
+
+type AB "A";
+
+function testTypeAssignment() returns AB {
+    AB ab = variable:A; // This is valid because this is equivalant to `AB ab = "A";`.
+    return ab;
+}
