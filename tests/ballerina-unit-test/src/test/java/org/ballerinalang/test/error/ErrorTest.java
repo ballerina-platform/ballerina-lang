@@ -36,10 +36,10 @@ public class ErrorTest {
 
     private CompileResult basicErrorTest;
 
-    private final static String ERROR1 = "error1";
-    private final static String ERROR2 = "error2";
-    private final static String ERROR3 = "error3";
-    private final static String EMPTY_CURLY_BRACE = "{}";
+    private static final String ERROR1 = "error1";
+    private static final String ERROR2 = "error2";
+    private static final String ERROR3 = "error3";
+    private static final String EMPTY_CURLY_BRACE = "{}";
 
     @BeforeClass
     public void setup() {
