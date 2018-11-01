@@ -38,7 +38,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class CloneTest {
+public class CloneBuiltInMethodTest {
 
     private CompileResult result;
 
