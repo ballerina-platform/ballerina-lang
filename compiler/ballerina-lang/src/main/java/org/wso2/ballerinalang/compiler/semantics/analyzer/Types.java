@@ -184,36 +184,36 @@ public class Types {
         return type.tag < TypeTags.JSON;
     }
 
-    public boolean isDataType(BType type) {
+    public boolean isAnydata(BType type) {
         if (type.tag <= TypeTags.ANYDATA) {
             return true;
         }
 
-        if (type.tag == TypeTags.MAP && isDataType(((BMapType) type).constraint)) {
+        if (type.tag == TypeTags.MAP && isAnydata(((BMapType) type).constraint)) {
             return true;
         }
 
         if (type.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) type;
             List<BType> fieldTypes = recordType.fields.stream().map(field -> field.type).collect(Collectors.toList());
-            return allDataTypes(fieldTypes) && (recordType.sealed || isDataType(recordType.restFieldType));
+            return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
         }
 
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
-            return allDataTypes(unionType.memberTypes);
+            return isAnydata(unionType.memberTypes);
         }
 
         if (type.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) type;
-            return allDataTypes(tupleType.tupleTypes);
+            return isAnydata(tupleType.tupleTypes);
         }
 
-        return type.tag == TypeTags.ARRAY && isDataType(((BArrayType) type).eType);
+        return type.tag == TypeTags.ARRAY && isAnydata(((BArrayType) type).eType);
     }
 
-    private boolean allDataTypes(Collection<BType> types) {
-        return types.stream().allMatch(this::isDataType);
+    private boolean isAnydata(Collection<BType> types) {
+        return types.stream().allMatch(this::isAnydata);
     }
 
     public boolean isBrandedType(BType type) {
@@ -253,11 +253,12 @@ public class Types {
             return true;
         }
 
+        // TODO: Remove the isValueType() check
         if (target.tag == TypeTags.ANY && !isValueType(source)) {
             return true;
         }
 
-        if (target.tag == TypeTags.ANYDATA && isDataType(source)) {
+        if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
             return true;
         }
 

@@ -82,7 +82,7 @@ function testJSONAssignment() returns anydata {
 
 function testTableAssignment() returns anydata {
     table<Employee> t = table {
-        { primarykey id, name, salary },
+        { key id, name, salary },
         [
           { 1, "Mary", 300.5 },
           { 2, "John", 200.5 },
@@ -148,7 +148,7 @@ function testConstrainedMaps() returns map<anydata> {
     json j = {name: "apple", color: "red", price: 40};
     xml x = xml `<book>The Lost World</book>`;
     table<Employee> t = table {
-            { primarykey id, name, salary },
+            { key id, name, salary },
             [ { 1, "Mary",  300.5 },
               { 2, "John",  200.5 },
               { 3, "Jim", 330.5 }
@@ -206,7 +206,7 @@ function testArrayAssignment() {
     ad = acr;
 
     table<Employee> t = table {
-                { primarykey id, name, salary },
+                { key id, name, salary },
                 [ { 1, "Mary",  300.5 },
                   { 2, "John",  200.5 },
                   { 3, "Jim", 330.5 }
@@ -278,7 +278,7 @@ function testUnionAssignment2() returns anydata[] {
     i += 1;
 
     table<Employee> t = table {
-                { primarykey id, name, salary },
+                { key id, name, salary },
                 [ { 1, "Mary",  300.5 },
                   { 2, "John",  200.5 },
                   { 3, "Jim", 330.5 }
@@ -531,7 +531,7 @@ function testAnydataToMap() {
 
 function testAnydataToTable() returns table<Employee> {
     table<Employee> t = table {
-                { primarykey id, name, salary },
+                { key id, name, salary },
                 [ { 1, "Mary",  300.5 },
                   { 2, "John",  200.5 },
                   { 3, "Jim", 330.5 }
@@ -603,7 +603,7 @@ function testAnydataToUnion2() returns DataType[] {
     }
 
     table<Employee> t = table {
-                    { primarykey id, name, salary },
+                    { key id, name, salary },
                     [ { 1, "Mary",  300.5 },
                       { 2, "John",  200.5 },
                       { 3, "Jim", 330.5 }

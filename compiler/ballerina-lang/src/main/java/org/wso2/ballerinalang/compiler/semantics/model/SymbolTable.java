@@ -397,7 +397,6 @@ public class SymbolTable {
         defineConversionOperator(anydataType, booleanType, false, InstructionCodes.CHECKCAST);
         defineConversionOperator(anydataType, jsonType, false, InstructionCodes.ANY2JSON);
         defineConversionOperator(anydataType, xmlType, false, InstructionCodes.ANY2XML);
-        defineConversionOperator(anydataType, mapType, false, InstructionCodes.ANY2MAP);
         defineConversionOperator(anydataType, tableType, false, InstructionCodes.ANY2DT);
 
         defineConversionOperator(jsonType, intType, false, InstructionCodes.CHECKCAST);

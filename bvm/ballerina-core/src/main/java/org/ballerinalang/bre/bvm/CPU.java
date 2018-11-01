@@ -2963,7 +2963,7 @@ public class CPU {
             return checkFunctionCast(rhsType, (BFunctionType) lhsType);
         }
 
-        if (lhsType.getTag() == TypeTags.ANYDATA_TAG && isDataType(rhsType)) {
+        if (lhsType.getTag() == TypeTags.ANYDATA_TAG && isAnydata(rhsType)) {
             return true;
         }
 
@@ -3032,12 +3032,12 @@ public class CPU {
         return true;
     }
 
-    private static boolean isDataType(BType type) {
+    private static boolean isAnydata(BType type) {
         if (type.getTag() <= TypeTags.ANYDATA_TAG) {
             return true;
         }
 
-        if (type.getTag() == TypeTags.MAP_TAG && isDataType(((BMapType) type).getConstrainedType())) {
+        if (type.getTag() == TypeTags.MAP_TAG && isAnydata(((BMapType) type).getConstrainedType())) {
             return true;
         }
 
@@ -3046,24 +3046,24 @@ public class CPU {
             List<BType> fieldTypes = Arrays.stream(recordType.getFields())
                                             .map(BField::getFieldType)
                                             .collect(Collectors.toList());
-            return allDataTypes(fieldTypes) && (recordType.sealed || isDataType(recordType.restFieldType));
+            return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
         }
 
         if (type.getTag() == TypeTags.UNION_TAG) {
             BUnionType unionType = (BUnionType) type;
-            return allDataTypes(unionType.getMemberTypes());
+            return isAnydata(unionType.getMemberTypes());
         }
 
         if (type.getTag() == TypeTags.TUPLE_TAG) {
             BTupleType tupleType = (BTupleType) type;
-            return allDataTypes(tupleType.getTupleTypes());
+            return isAnydata(tupleType.getTupleTypes());
         }
 
-        return type.getTag() == TypeTags.ARRAY_TAG && isDataType(((BArrayType) type).getElementType());
+        return type.getTag() == TypeTags.ARRAY_TAG && isAnydata(((BArrayType) type).getElementType());
     }
 
-    private static boolean allDataTypes(Collection<BType> types) {
-        return types.stream().allMatch(CPU::isDataType);
+    private static boolean isAnydata(Collection<BType> types) {
+        return types.stream().allMatch(CPU::isAnydata);
     }
 
     private static BType getElementType(BType type) {
@@ -3884,6 +3884,7 @@ public class CPU {
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
                 return true;
+            case TypeTags.ANYDATA_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
                 return isAssignable(sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
