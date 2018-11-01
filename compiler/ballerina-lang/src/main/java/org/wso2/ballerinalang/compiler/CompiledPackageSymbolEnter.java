@@ -94,6 +94,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -216,7 +217,7 @@ public class CompiledPackageSymbolEnter {
         defineSymbols(dataInStream, rethrow(this::defineImportPackage));
 
         // define type defs
-        defineSymbols(dataInStream, rethrow(this::defineTypeDef));
+        defineTypeSymbols(dataInStream);
 
         // define annotations
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
@@ -332,6 +333,25 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
+    private void defineTypeSymbols(DataInputStream dataInStream) throws IOException {
+        // We read all of the type symbols. If the type symbol name starts with `$`, we define the symbol in the
+        // scope. Otherwise we add the symbol to this list. Then later we iterate through this list and define the
+        // symbols. This is done to make sure all of the finite type symbols are defined first.
+        List<BTypeSymbol> typeSymbols = new LinkedList<>();
+        int symbolCount = dataInStream.readShort();
+        for (int i = 0; i < symbolCount; i++) {
+            BTypeSymbol symbol = defineTypeDef(dataInStream);
+            if (symbol.name.value.startsWith("$")) {
+                this.env.pkgSymbol.scope.define(symbol.name, symbol);
+            } else {
+                typeSymbols.add(symbol);
+            }
+        }
+        for (BTypeSymbol namedTypeDef : typeSymbols) {
+            this.env.pkgSymbol.scope.define(namedTypeDef.name, namedTypeDef);
+        }
+    }
+
     // TODO do we need to load all the import packages of a compiled package.
     private void defineImportPackage(DataInputStream dataInStream) throws IOException {
         String orgName = getUTF8CPEntryValue(dataInStream);
@@ -404,7 +424,7 @@ public class CompiledPackageSymbolEnter {
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
-    private void defineTypeDef(DataInputStream dataInStream) throws IOException {
+    private BTypeSymbol defineTypeDef(DataInputStream dataInStream) throws IOException {
         String typeDefName = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
         boolean isLabel = dataInStream.readBoolean();
@@ -416,9 +436,7 @@ public class CompiledPackageSymbolEnter {
             typeDefSymbol = readLabelTypeSymbol(dataInStream, typeDefName, flags);
             // Read and ignore attributes
             readAttributes(dataInStream);
-
-            this.env.pkgSymbol.scope.define(typeDefSymbol.name, typeDefSymbol);
-            return;
+            return typeDefSymbol;
         }
 
         switch (typeTag) {
@@ -440,7 +458,7 @@ public class CompiledPackageSymbolEnter {
 
         setDocumentation(typeDefSymbol, attrDataMap);
 
-        this.env.pkgSymbol.scope.define(typeDefSymbol.name, typeDefSymbol);
+        return typeDefSymbol;
     }
 
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
