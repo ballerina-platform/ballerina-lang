@@ -3041,18 +3041,19 @@ public class CPU {
             case TypeTags.MAP_TAG:
                 return isAnydata(((BMapType) type).getConstrainedType());
             case TypeTags.RECORD_TYPE_TAG:
-                BRecordType
-                        recordType = (BRecordType) type;
+                BRecordType recordType = (BRecordType) type;
                 List<BType> fieldTypes = Arrays.stream(recordType.getFields())
-                        .map(BField::getFieldType)
-                        .collect(Collectors.toList());
+                                                .map(BField::getFieldType)
+                                                .collect(Collectors.toList());
                 return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes());
             case TypeTags.TUPLE_TAG:
                 return isAnydata(((BTupleType) type).getTupleTypes());
+            case TypeTags.ARRAY_TAG:
+                return isAnydata(((BArrayType) type).getElementType());
             default:
-                return type.getTag() == TypeTags.ARRAY_TAG && isAnydata(((BArrayType) type).getElementType());
+                return false;
         }
     }
 

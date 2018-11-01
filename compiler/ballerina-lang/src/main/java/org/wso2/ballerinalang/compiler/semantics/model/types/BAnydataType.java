@@ -22,7 +22,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 /**
- * @since 0.983.0
+ * {@code BAnydataType} represents the data types in Ballerina.
+ * 
+ * @since 0.985.0
  */
 public class BAnydataType extends BBuiltInRefType {
 

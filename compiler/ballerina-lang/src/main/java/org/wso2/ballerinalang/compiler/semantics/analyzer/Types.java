@@ -202,8 +202,10 @@ public class Types {
                 return isAnydata(((BUnionType) type).memberTypes);
             case TypeTags.TUPLE:
                 return isAnydata(((BTupleType) type).tupleTypes);
+            case TypeTags.ARRAY:
+                return isAnydata(((BArrayType) type).eType);
             default:
-                return type.tag == TypeTags.ARRAY && isAnydata(((BArrayType) type).eType);
+                return false;
         }
     }
 
