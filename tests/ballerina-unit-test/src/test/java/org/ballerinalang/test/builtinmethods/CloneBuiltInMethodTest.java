@@ -262,7 +262,7 @@ public class CloneBuiltInMethodTest {
     }
 
     @Test
-    public void testCloneWithParamsNegative() {
+    public void testCloneNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
         BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 3, 13);
         BAssertUtil.validateError(negativeResult, 1, "Cannot clone a value of a type other than anyData " +
