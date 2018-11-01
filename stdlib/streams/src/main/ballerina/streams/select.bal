@@ -48,7 +48,7 @@ public type Select object {
                     () => {
                         int i = 0;
                         foreach aggregator in aggregatorArr {
-                            aggregatorsClone[i] = aggregator.clone();
+                            aggregatorsClone[i] = aggregator.copy();
                             i += 1;
                         }
                         aggregatorsCloneMap[groupbyKey] = aggregatorsClone;

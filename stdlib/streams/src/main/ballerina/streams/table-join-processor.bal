@@ -72,7 +72,7 @@ public type TableJoinProcessor object {
         StreamEvent? joined = ();
         match lhsEvent {
             StreamEvent lhs => {
-                joined = lhs.clone();
+                joined = lhs.copy();
                 match rhsEvent {
                     StreamEvent rhs => {
                         joined.addData(rhs.data);

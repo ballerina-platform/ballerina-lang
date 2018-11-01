@@ -32,7 +32,7 @@ public type StreamEvent object {
         }
     }
 
-    public function clone() returns StreamEvent {
+    public function copy() returns StreamEvent {
         StreamEvent clone = new(cloneData(), eventType, timestamp);
         return clone;
     }

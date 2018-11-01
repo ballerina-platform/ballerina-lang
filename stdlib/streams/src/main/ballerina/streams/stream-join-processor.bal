@@ -139,7 +139,7 @@ public type StreamJoinProcessor object {
             // even if there are no matching events in the right stream.
             match lhsEvent {
                 StreamEvent lhs => {
-                    joined = lhs.clone();
+                    joined = lhs.copy();
                     match rhsEvent {
                         StreamEvent rhs => {
                             joined.addData(rhs.data);
@@ -158,7 +158,7 @@ public type StreamJoinProcessor object {
             // even if there are no matching events in the left stream.
             match rhsEvent {
                 StreamEvent rhs => {
-                    joined = rhs.clone();
+                    joined = rhs.copy();
                     match lhsEvent {
                         StreamEvent lhs => {
                             joined.addData(lhs.data);
@@ -178,7 +178,7 @@ public type StreamJoinProcessor object {
             if (lhsTriggered) {
                 match lhsEvent {
                     StreamEvent lhs => {
-                        joined = lhs.clone();
+                        joined = lhs.copy();
                         match rhsEvent {
                             StreamEvent rhs => {
                                 joined.addData(rhs.data);
@@ -195,7 +195,7 @@ public type StreamJoinProcessor object {
             } else {
                 match rhsEvent {
                     StreamEvent rhs => {
-                        joined = rhs.clone();
+                        joined = rhs.copy();
                         match lhsEvent {
                             StreamEvent lhs => {
                                 joined.addData(lhs.data);
@@ -220,10 +220,10 @@ public type StreamJoinProcessor object {
                 () => new StreamEvent({}, "CURRENT", 1)
             };
             if (lhsTriggered) {
-                joined = lEvt.clone();
+                joined = lEvt.copy();
                 joined.addData(rEvt.data);
             } else {
-                joined = rEvt.clone();
+                joined = rEvt.copy();
                 joined.addData(lEvt.data);
             }
         }
