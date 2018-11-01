@@ -1,6 +1,6 @@
 @test:Config
-function $$$testFunctionName$$$() {
+function ${testFunctionName}() {
     // Invoke function with test values
-    $$$actual$$$
+    ${actual}
 }
 

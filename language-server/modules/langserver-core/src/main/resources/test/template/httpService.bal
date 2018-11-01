@@ -1,7 +1,7 @@
 @test:Config
-function $$$testServiceFunctionName$$$() {
-    endpoint http:Client httpEndpoint { url: $$$serviceUriStrName$$$ };
+function ${testServiceFunctionName}() {
+    endpoint http:Client httpEndpoint { url: ${serviceUriStrName} };
 
-$$$resources$$$
+${resources}
 }
 

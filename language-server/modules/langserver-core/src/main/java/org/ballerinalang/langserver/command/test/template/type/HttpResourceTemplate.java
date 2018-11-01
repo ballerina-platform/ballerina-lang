@@ -13,11 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.ballerinalang.langserver.command.test.template.type;
 
-package org.ballerinalang.langserver.test.template;
-
-import org.ballerinalang.langserver.test.TestGeneratorException;
-import org.ballerinalang.langserver.test.template.io.FileTemplate;
+import org.ballerinalang.langserver.command.test.TestGeneratorException;
+import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
+import org.ballerinalang.langserver.command.test.template.AbstractTestTemplate;
+import org.ballerinalang.langserver.command.test.template.PlaceHolder;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -27,8 +29,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchArrayField;
-import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.searchArrayField;
+import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Resource template.
@@ -39,6 +41,7 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
     private final String serviceUriStrName;
 
     public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangResource resource) {
+        super(null);
         this.serviceUriStrName = serviceUriStrName;
         this.resourceMethods = new ArrayList<>();
         String resourceName = resource.name.value;
@@ -65,11 +68,11 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
     /**
      * Renders content into this file template.
      *
-     * @param rootFileTemplate root {@link FileTemplate}
+     * @param rendererOutput root {@link RendererOutput}
      * @throws TestGeneratorException when template population process fails
      */
     @Override
-    public void render(FileTemplate rootFileTemplate) throws TestGeneratorException {
+    public void render(RendererOutput rendererOutput) throws TestGeneratorException {
         StringBuilder methods = new StringBuilder();
         for (String[] method : resourceMethods) {
             String resourceName = method[0];
@@ -86,15 +89,15 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
                 additionalParams = ",\"\"";
             }
 
-            FileTemplate template = new FileTemplate("httpResource.bal");
-            template.put("resourceMethodAllCaps", resourceMethodAllCaps);
-            template.put("responseFieldName", responseFieldName);
-            template.put("resourceMethod", resourceMethod);
-            template.put("resourcePath", resourcePath);
-            template.put("additionalParams", additionalParams);
-            template.put("serviceUriStrName", serviceUriStrName);
-            methods.append(template.getRenderedContent());
+            RendererOutput resourceOutput = new TemplateBasedRendererOutput("httpResource.bal");
+            resourceOutput.put(PlaceHolder.OTHER.get("resourceMethodAllCaps"), resourceMethodAllCaps);
+            resourceOutput.put(PlaceHolder.OTHER.get("responseFieldName"), responseFieldName);
+            resourceOutput.put(PlaceHolder.OTHER.get("resourceMethod"), resourceMethod);
+            resourceOutput.put(PlaceHolder.OTHER.get("resourcePath"), resourcePath);
+            resourceOutput.put(PlaceHolder.OTHER.get("additionalParams"), additionalParams);
+            resourceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
+            methods.append(resourceOutput.getRenderedContent());
         }
-        rootFileTemplate.append(HttpServiceTemplate.PLACEHOLDER_ATTR_RESOURCES, methods.toString());
+        rendererOutput.append(PlaceHolder.OTHER.get("resources"), methods.toString());
     }
 }

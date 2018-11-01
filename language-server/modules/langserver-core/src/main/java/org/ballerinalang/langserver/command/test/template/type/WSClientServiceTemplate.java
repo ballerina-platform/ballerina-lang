@@ -13,22 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.ballerinalang.langserver.test.template;
+package org.ballerinalang.langserver.command.test.template.type;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.test.TestGeneratorException;
-import org.ballerinalang.langserver.test.template.io.FileTemplate;
-import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.langserver.command.test.TestGeneratorException;
+import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
+import org.ballerinalang.langserver.command.test.template.AbstractTestTemplate;
+import org.ballerinalang.langserver.command.test.template.PlaceHolder;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,10 +34,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchArrayField;
-import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.searchArrayField;
+import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Service template.
@@ -48,25 +45,13 @@ public class WSClientServiceTemplate extends AbstractTestTemplate {
     private static final Pattern WS_PATTERN = Pattern.compile("^(wss?):\\/\\/([A-Z\\d\\.-]{2,})[:]*(\\d{2,4})?(.*)");
     private final List<String[]> servicesList;
 
-    public WSClientServiceTemplate(BLangPackage bLangPackage, BLangService service) {
+    public WSClientServiceTemplate(BLangPackage builtTestFile,
+                                   List<BLangFunction> functions, BLangService service) {
+        super(builtTestFile);
         String serviceName = service.name.value;
         this.servicesList = new ArrayList<>();
-
-        //TODO: Removing test files from functions. Remove this filter once test source files are moved to another API
-        Names names = Names.getInstance(new CompilerContext());
-        PackageID testPkgID = new PackageID(names.fromString("ballerina"),
-                                            names.fromString("test"),
-                                            Names.EMPTY);
-        List<String> nonTestSourceFiles = bLangPackage.compUnits.stream()
-                .filter(unit -> unit.getTopLevelNodes().stream().anyMatch(node -> node instanceof BLangImportPackage
-                        && ((BLangImportPackage) node).symbol != null
-                        && !(((BLangImportPackage) node).symbol.pkgID.equals(testPkgID))))
-                .map(BLangCompilationUnit::getName).collect(Collectors.toList());
-
         // Iterate functions to find urls of the endpoints which has callbackService as current WSClientService
-        bLangPackage.functions.stream().filter(
-                func -> nonTestSourceFiles.stream().anyMatch(unit -> unit.equals(func.pos.src.cUnitName))
-        ).forEach(func -> func.endpoints.stream()
+        functions.forEach(func -> func.endpoints.stream()
                 .filter(ep -> {
                     Optional<String> optionalConfig = searchStringField(WebSocketConstants.CLIENT_SERVICE_CONFIG,
                                                                         (BLangRecordLiteral) ep.configurationExpr);
@@ -76,8 +61,10 @@ public class WSClientServiceTemplate extends AbstractTestTemplate {
                 .forEach(ep -> {
                              Object value = searchArrayField(WebSocketConstants.CLIENT_URL_CONFIG,
                                                              (BLangRecordLiteral) ep.configurationExpr);
-                             String testFunctionName = "test" + upperCaseFirstLetter(ep.name.value);
-                             String mockServiceName = "mock" + upperCaseFirstLetter(ep.name.value) + "Service";
+                             String testFunctionName =
+                                     getSafeFunctionName("test" + upperCaseFirstLetter(ep.name.value));
+                             String mockServiceName =
+                                     getSafeServiceName("mock" + upperCaseFirstLetter(ep.name.value) + "Service");
                              String url = (value instanceof BLangLiteral) ? "\"" + value + "\"" : value.toString();
                              servicesList.add(new String[]{testFunctionName, mockServiceName, url});
                          }
@@ -88,11 +75,11 @@ public class WSClientServiceTemplate extends AbstractTestTemplate {
     /**
      * Renders content into this file template.
      *
-     * @param rootFileTemplate root {@link FileTemplate}
+     * @param rendererOutput root {@link RendererOutput}
      * @throws TestGeneratorException when template population process fails
      */
     @Override
-    public void render(FileTemplate rootFileTemplate) throws TestGeneratorException {
+    public void render(RendererOutput rendererOutput) throws TestGeneratorException {
         StringBuilder content = new StringBuilder();
         Iterator<String[]> servicesIterator = servicesList.iterator();
         while (servicesIterator.hasNext()) {
@@ -116,15 +103,15 @@ public class WSClientServiceTemplate extends AbstractTestTemplate {
                 }
             }
             String filename = (uri.startsWith("wss:")) ? "wssClientService.bal" : "wsClientService.bal";
-            FileTemplate template = new FileTemplate(filename);
-            template.put("testServiceFunctionName", funcName);
-            template.put("mockServiceName", mckServiceName);
-            template.put("serviceUriStrName", uri);
-            template.put("mockServicePath", servicePath);
-            template.put("mockServicePort", servicePort);
-            template.put("request", "hey");
-            template.put("mockResponse", "hey");
-            String renderedContent = template.getRenderedContent();
+            RendererOutput serviceOutput = new TemplateBasedRendererOutput(filename);
+            serviceOutput.put(PlaceHolder.OTHER.get("testServiceFunctionName"), funcName);
+            serviceOutput.put(PlaceHolder.OTHER.get("mockServiceName"), mckServiceName);
+            serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), uri);
+            serviceOutput.put(PlaceHolder.OTHER.get("mockServicePath"), servicePath);
+            serviceOutput.put(PlaceHolder.OTHER.get("mockServicePort"), servicePort);
+            serviceOutput.put(PlaceHolder.OTHER.get("request"), "hey");
+            serviceOutput.put(PlaceHolder.OTHER.get("mockResponse"), "hey");
+            String renderedContent = serviceOutput.getRenderedContent();
             if (!servicesIterator.hasNext()) {
                 // If last, trim right-side
                 renderedContent = StringUtils.stripEnd(renderedContent, null);
@@ -132,6 +119,6 @@ public class WSClientServiceTemplate extends AbstractTestTemplate {
             content.append(renderedContent);
         }
         //Append to root template
-        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_CONTENT, content.toString());
+        rendererOutput.append(PlaceHolder.CONTENT, content.toString());
     }
 }

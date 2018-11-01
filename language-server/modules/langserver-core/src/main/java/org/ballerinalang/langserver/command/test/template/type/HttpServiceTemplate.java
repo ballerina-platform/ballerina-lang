@@ -13,11 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.ballerinalang.langserver.command.test.template.type;
 
-package org.ballerinalang.langserver.test.template;
-
-import org.ballerinalang.langserver.test.TestGeneratorException;
-import org.ballerinalang.langserver.test.template.io.FileTemplate;
+import org.ballerinalang.langserver.command.test.TestGeneratorException;
+import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
+import org.ballerinalang.langserver.command.test.template.AbstractTestTemplate;
+import org.ballerinalang.langserver.command.test.template.PlaceHolder;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.net.http.HttpConstants;
@@ -31,14 +33,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.netty.util.internal.StringUtil.LINE_FEED;
-import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.isRecordValueExists;
-import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.isRecordValueExists;
+import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Service template.
  */
 public class HttpServiceTemplate extends AbstractTestTemplate {
-    public static final String PLACEHOLDER_ATTR_RESOURCES = "resources";
     private final String serviceUri;
     private final boolean isSecure;
     private final String serviceUriStrName;
@@ -46,11 +47,10 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
     private final String serviceBasePath;
     private final List<BLangResource> resources;
 
-    public HttpServiceTemplate(BLangPackage bLangPackage, BLangService service) {
+    public HttpServiceTemplate(BLangPackage builtTestFile,
+                               List<? extends EndpointNode> globalEndpoints, BLangService service) {
+        super(builtTestFile);
         String serviceName = service.name.value;
-        this.serviceUriStrName = lowerCaseFirstLetter(serviceName) + "Uri";
-        this.testServiceFunctionName = "test" + upperCaseFirstLetter(serviceName);
-
         boolean isSecureTemp = false;
         String serviceUriTemp = HTTP + DEFAULT_IP + ":" + DEFAULT_PORT;
 
@@ -65,7 +65,7 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
 
         // Check for the bounded endpoint to get `port` and `isSecure` from it
         List<? extends SimpleVariableReferenceNode> boundEndpoints = service.getBoundEndpoints();
-        EndpointNode endpoint = (boundEndpoints.size() > 0) ? bLangPackage.getGlobalEndpoints().stream()
+        EndpointNode endpoint = (boundEndpoints.size() > 0) ? globalEndpoints.stream()
                 .filter(ep -> service.getBoundEndpoints().get(0).getVariableName().getValue()
                         .equals(ep.getName().getValue()))
                 .findFirst().orElse(null) : null;
@@ -91,6 +91,8 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
                 tempServiceBasePath = basePath.orElse(tempServiceBasePath);
             }
         }
+        this.serviceUriStrName = getSafeGlobalVariableName(lowerCaseFirstLetter(serviceName) + "Uri");
+        this.testServiceFunctionName = getSafeFunctionName("test" + upperCaseFirstLetter(serviceName));
         this.serviceBasePath = tempServiceBasePath;
         this.resources = service.getResources();
     }
@@ -98,24 +100,24 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
     /**
      * Renders content into this file template.
      *
-     * @param rootFileTemplate root {@link FileTemplate}
+     * @param rendererOutput root {@link RendererOutput}
      * @throws TestGeneratorException when template population process fails
      */
-    public void render(FileTemplate rootFileTemplate) throws TestGeneratorException {
+    public void render(RendererOutput rendererOutput) throws TestGeneratorException {
         String filename = (isSecure) ? "httpsService.bal" : "httpService.bal";
-        FileTemplate template = new FileTemplate(filename);
-        template.put("testServiceFunctionName", testServiceFunctionName);
-        template.put("serviceUriStrName", serviceUriStrName);
+        RendererOutput serviceOutput = new TemplateBasedRendererOutput(filename);
+        serviceOutput.put(PlaceHolder.OTHER.get("testServiceFunctionName"), testServiceFunctionName);
+        serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
 
         // Iterate through resources
         for (BLangResource resource : resources) {
             HttpResourceTemplate resTemplate = new HttpResourceTemplate(serviceUriStrName, serviceBasePath, resource);
-            resTemplate.render(template);
+            resTemplate.render(serviceOutput);
         }
 
         //Append to root template
-        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
-        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_CONTENT, template.getRenderedContent());
+        rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
+        rendererOutput.append(PlaceHolder.CONTENT, serviceOutput.getRenderedContent());
     }
 
     private String getServiceUriDeclaration() {

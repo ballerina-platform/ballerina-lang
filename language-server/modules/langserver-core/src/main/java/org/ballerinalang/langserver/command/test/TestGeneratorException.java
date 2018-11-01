@@ -13,8 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.ballerinalang.langserver.test;
+package org.ballerinalang.langserver.command.test;
 
 /**
  * This exception is thrown when Test Generator encounters an error.

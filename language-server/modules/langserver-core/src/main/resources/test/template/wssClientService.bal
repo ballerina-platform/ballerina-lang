@@ -1,17 +1,17 @@
 @test:Config
-function $$$testServiceFunctionName$$$ () {
-    endpoint http:WebSocketClient wsEndpoint { url: $$$serviceUriStrName$$$, callbackService: wsClientService };
+function ${testServiceFunctionName} () {
+    endpoint http:WebSocketClient wsEndpoint { url: ${serviceUriStrName}, callbackService: ${mockServiceName} };
     //Send a message to mock service
-    check wsEndpoint->pushText("$$$request$$$");
+    check wsEndpoint->pushText("${request}");
 }
 
 @http:WebSocketServiceConfig {
-    path: $$$mockServicePath$$$
+    path: ${mockServicePath}
 }
-service<http:WebSocketService> $$$mockServiceName$$$ bind { port: $$$mockServicePort$$$ } {
+service<http:WebSocketService> ${mockServiceName} bind { port: ${mockServicePort} } {
     // This resource is triggered when a new text frame is received from a client.
     onText(endpoint caller, string text, boolean final) {
-        caller->pushText("$$$mockResponse$$$") but {
+        caller->pushText("${mockResponse}") but {
             error e => log:printError("Error occurred when sending text",err = e)
         };
     }

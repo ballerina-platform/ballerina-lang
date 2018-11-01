@@ -1,4 +1,4 @@
-package org.ballerinalang.langserver.test;
+package org.ballerinalang.langserver.command.test;
 
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;

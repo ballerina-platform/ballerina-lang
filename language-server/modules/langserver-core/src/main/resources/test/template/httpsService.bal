@@ -1,7 +1,7 @@
 @test:Config
-function $$$testServiceFunctionName$$$() {
+function ${testServiceFunctionName}() {
     endpoint http:Client httpEndpoint {
-        url: $$$serviceUriStrName$$$,
+        url: ${serviceUriStrName},
         secureSocket: {
             trustStore: {
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -10,6 +10,6 @@ function $$$testServiceFunctionName$$$() {
         }
     };
 
-$$$resources$$$
+${resources}
 }
 

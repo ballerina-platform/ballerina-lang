@@ -14,20 +14,21 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.langserver.test.template;
+package org.ballerinalang.langserver.command.test.template;
 
-import org.ballerinalang.langserver.test.TestGeneratorException;
-import org.ballerinalang.langserver.test.template.io.FileTemplate;
+import org.ballerinalang.langserver.command.test.TestGeneratorException;
+import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
 
 /**
  * Represents a test template in ballerina.
  */
-public interface BallerinaTestTemplate {
+public interface TestTemplate {
     /**
      * Renders content into this file template.
      *
-     * @param rootFileTemplate root {@link FileTemplate}
+     * @param rendererOutput root {@link TemplateBasedRendererOutput}
      * @throws TestGeneratorException when template population process fails
      */
-    void render(FileTemplate rootFileTemplate) throws TestGeneratorException;
+    void render(RendererOutput rendererOutput) throws TestGeneratorException;
 }

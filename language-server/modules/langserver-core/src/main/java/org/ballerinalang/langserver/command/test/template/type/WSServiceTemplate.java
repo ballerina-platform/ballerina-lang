@@ -13,11 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.ballerinalang.langserver.command.test.template.type;
 
-package org.ballerinalang.langserver.test.template;
-
-import org.ballerinalang.langserver.test.TestGeneratorException;
-import org.ballerinalang.langserver.test.template.io.FileTemplate;
+import org.ballerinalang.langserver.command.test.TestGeneratorException;
+import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
+import org.ballerinalang.langserver.command.test.template.AbstractTestTemplate;
+import org.ballerinalang.langserver.command.test.template.PlaceHolder;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.net.http.HttpConstants;
@@ -31,8 +33,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.netty.util.internal.StringUtil.LINE_FEED;
-import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.isRecordValueExists;
-import static org.ballerinalang.langserver.test.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.isRecordValueExists;
+import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Service template.
@@ -42,10 +44,11 @@ public class WSServiceTemplate extends AbstractTestTemplate {
     private final boolean isSecure;
     private final String serviceUriStrName;
     private final String testServiceFunctionName;
+    private final String callbackServiceName;
 
-    public WSServiceTemplate(BLangPackage bLangPackage, BLangService service) {
-        this.serviceUriStrName = lowerCaseFirstLetter(service.name.value) + "Uri";
-        this.testServiceFunctionName = "test" + upperCaseFirstLetter(service.name.value);
+    public WSServiceTemplate(BLangPackage builtTestFile,
+                             List<? extends EndpointNode> globalEndpoints, BLangService service) {
+        super(builtTestFile);
         String tempServiceUri = WS + DEFAULT_IP + ":" + DEFAULT_PORT;
         boolean isSecureTemp = false;
 
@@ -60,7 +63,7 @@ public class WSServiceTemplate extends AbstractTestTemplate {
 
         // Check for the bounded endpoint to get `port` from it
         List<? extends SimpleVariableReferenceNode> boundEndpoints = service.getBoundEndpoints();
-        EndpointNode endpoint = (boundEndpoints.size() > 0) ? bLangPackage.getGlobalEndpoints().stream()
+        EndpointNode endpoint = (boundEndpoints.size() > 0) ? globalEndpoints.stream()
                 .filter(ep -> boundEndpoints.get(0).getVariableName().getValue()
                         .equals(ep.getName().getValue()))
                 .findFirst().orElse(null) : null;
@@ -71,7 +74,6 @@ public class WSServiceTemplate extends AbstractTestTemplate {
             String protocol = ((isSecureTemp) ? WSS : WS);
             tempServiceUri = optionalPort.map(port -> protocol + ":" + DEFAULT_IP + ":" + port).orElse(tempServiceUri);
         }
-        this.isSecure = isSecureTemp;
 
         // Service base path
         String serviceBasePath = "/" + service.name.value;
@@ -81,25 +83,31 @@ public class WSServiceTemplate extends AbstractTestTemplate {
             Optional<String> optionalPath = searchStringField(WebSocketConstants.ANNOTATION_ATTR_PATH, annotation);
             serviceBasePath = optionalPath.orElse("");
         }
+        String serviceName = upperCaseFirstLetter(service.name.value);
+        this.serviceUriStrName = getSafeGlobalVariableName(lowerCaseFirstLetter(service.name.value) + "Uri");
+        this.testServiceFunctionName = getSafeFunctionName("test" + serviceName);
+        this.callbackServiceName = getSafeServiceName("callback" + serviceName + "Service");
         this.serviceUri = tempServiceUri + serviceBasePath;
+        this.isSecure = isSecureTemp;
     }
 
     /**
      * Renders content into this file template.
      *
-     * @param rootFileTemplate root {@link FileTemplate}
+     * @param rendererOutput root {@link RendererOutput}
      * @throws TestGeneratorException when template population process fails
      */
     @Override
-    public void render(FileTemplate rootFileTemplate) throws TestGeneratorException {
+    public void render(RendererOutput rendererOutput) throws TestGeneratorException {
         String filename = (isSecure) ? "wssService.bal" : "wsService.bal";
-        FileTemplate template = new FileTemplate(filename);
-        template.put("testServiceFunctionName", testServiceFunctionName);
-        template.put("serviceUriStrName", serviceUriStrName);
+        RendererOutput serviceOutput = new TemplateBasedRendererOutput(filename);
+        serviceOutput.put(PlaceHolder.OTHER.get("testServiceFunctionName"), testServiceFunctionName);
+        serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
+        serviceOutput.put(PlaceHolder.OTHER.get("callbackServiceName"), callbackServiceName);
 
         //Append to root template
-        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
-        rootFileTemplate.append(RootTemplate.PLACEHOLDER_ATTR_CONTENT, template.getRenderedContent());
+        rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
+        rendererOutput.append(PlaceHolder.CONTENT, serviceOutput.getRenderedContent());
     }
 
     private String getServiceUriDeclaration() {
