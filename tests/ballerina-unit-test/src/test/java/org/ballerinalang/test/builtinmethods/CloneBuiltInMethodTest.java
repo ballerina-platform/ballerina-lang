@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.builtinmethods;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -41,10 +42,12 @@ import org.testng.annotations.Test;
 public class CloneBuiltInMethodTest {
 
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/builtinmethods/clone.bal");
+        result = BCompileUtil.compile("test-src/builtinmethods/clone/clone.bal");
+        negativeResult = BCompileUtil.compile("test-src/builtinmethods/clone/clone-negative.bal");
     }
 
     @Test
@@ -256,6 +259,14 @@ public class CloneBuiltInMethodTest {
         testCloneOnMaps(outputEmployeeEvents[0], "Charlos", 123, 21);
         testCloneOnMaps(outputEmployeeEvents[1], "Alex", 123, 21);
         testCloneOnMaps(outputEmployeeEvents[2], "Alex", 5000, 21);
+    }
+
+    @Test
+    public void testCloneWithParamsNegative() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 3, 13);
+        BAssertUtil.validateError(negativeResult, 1, "Cannot clone a value of a type other than anyData " +
+                "(boolean|int|float|decimal|string|xml|table|anydata[]|map<anydata>), but found 'typedesc'", 8, 18);
     }
 
     private void testCloneOnMaps(BValue outputEmployeeEvent, String name, int id, int age) {
