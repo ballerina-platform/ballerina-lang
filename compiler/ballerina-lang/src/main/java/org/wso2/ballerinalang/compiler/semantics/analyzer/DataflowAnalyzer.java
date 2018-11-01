@@ -761,7 +761,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        // TODO: make initializing of public/package fields mandatory?
         objectTypeNode.fields.forEach(field -> analyzeNode(field, env));
 
         // Visit the constructor with the same scope as the object
@@ -948,7 +947,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         }));
     }
 
-    private static enum InitStatus {
+    private enum InitStatus {
         UN_INIT, PARTIAL_INIT
     }
 }
