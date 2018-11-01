@@ -16,9 +16,7 @@
 
 package io.ballerina.plugins.idea.psi.reference;
 
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -26,17 +24,10 @@ import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReference;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.ArrayUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
-import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
-import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
-import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,7 +36,7 @@ import java.util.Set;
 public class BallerinaCompletePackageNameReference extends FileReference {
 
     public BallerinaCompletePackageNameReference(@NotNull FileReferenceSet fileReferenceSet, TextRange range, int index,
-                                                 String text) {
+            String text) {
         super(fileReferenceSet, range, index, text);
     }
 
@@ -61,7 +52,7 @@ public class BallerinaCompletePackageNameReference extends FileReference {
                 PsiElement element = resolveResult.getElement();
                 if (element instanceof PsiDirectory) {
                     if (isLast()) {
-                        return new ResolveResult[]{resolveResult};
+                        return new ResolveResult[] { resolveResult };
                     }
                     result.add(resolveResult);
                 }
