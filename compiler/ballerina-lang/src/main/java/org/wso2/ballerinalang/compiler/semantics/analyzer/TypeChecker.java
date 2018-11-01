@@ -555,6 +555,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
+                BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
                 if ((expType.tag & TypeTags.FINITE) == TypeTags.FINITE) {
                     // We need to check whether the value of the constant symbol can be assigned to the expected type.
                     // Eg -
@@ -569,7 +570,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     //     ACTION action = abc; // Cannot assign.
                     //     return action;
                     // }
-                    if (types.isAssignableToFiniteType(expType, ((BConstantSymbol) symbol).value)) {
+                    if (types.isAssignableToFiniteType(expType, constantSymbol.value)) {
                         // Even if the value is assignable, the type node can be empty. So in such cases, we need to
                         // set the implicit cast. Eg -
                         //
@@ -579,27 +580,27 @@ public class TypeChecker extends BLangNodeVisitor {
                         //    ACTION action = constActionWithoutType; // Need to set the implicit cast here.
                         //    return action;
                         // }
-                        if (((BConstantSymbol) symbol).actualType != null) {
-                            // Set the actual type as the result type.
-                            resultType = ((BConstantSymbol) symbol).actualType;
-                        } else {
+                        if (constantSymbol.actualType == null) {
                             // Set the implicit cast.
-                            types.setImplicitCastExpr(varRefExpr, ((BConstantSymbol) symbol).value.type, expType);
+                            types.setImplicitCastExpr(varRefExpr, constantSymbol.value.type, expType);
                             // Then we need to set the result type as the type of the value so it would get stored in
-                            // the proper registry. The implicit cast will move it among registry if necessary.
-                            resultType = ((BConstantSymbol) symbol).value.type;
+                            // the proper registry. The implicit cast will move it among registries if needed.
+                            resultType = constantSymbol.value.type;
+                        } else {
+                            // Set the actual type as the result type.
+                            resultType = constantSymbol.actualType;
                         }
-                        return;
                     } else {
                         // If we cannot assign the value of the symbol to the expected type, need to log an error.
-                        dlog.error(varRefExpr.pos, diagCode, expType, ((BConstantSymbol) symbol).actualType);
+                        dlog.error(varRefExpr.pos, diagCode, expType, constantSymbol.actualType);
                     }
+                    return;
                 } else {
-                    BType type = ((BConstantSymbol) symbol).actualType;
+                    BType type = constantSymbol.actualType;
                     // If the type is null, this means that the constant was defined without a type node. In such
                     // cases, set the type of the value as the actual type.
                     if (type == null) {
-                        type = ((BConstantSymbol) symbol).value.type;
+                        type = constantSymbol.value.type;
                     }
                     actualType = type;
                 }

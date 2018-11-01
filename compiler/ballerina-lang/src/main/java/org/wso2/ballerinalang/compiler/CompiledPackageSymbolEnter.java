@@ -661,6 +661,55 @@ public class CompiledPackageSymbolEnter {
 
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
         setDocumentation(constantSymbol, attrDataMap);
+
+        // Read value of the constant and set it in the symbol.
+        constantSymbol.value = getConstantValue(attrDataMap);
+    }
+
+    private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {
+        // Constants must have a value attribute.
+        byte[] documentationBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
+        DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));
+        // Create a new literal.
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        // Read the value from the stream. We need to set `value`, `valueTag` and `type` of the literal.
+        String typeDesc = getUTF8CPEntryValue(documentDataStream);
+        int valueCPIndex;
+        switch (typeDesc) {
+            case TypeDescriptor.SIG_BOOLEAN:
+                literal.value = documentDataStream.readBoolean();
+                literal.typeTag = TypeTags.BOOLEAN;
+                break;
+            case TypeDescriptor.SIG_INT:
+                valueCPIndex = documentDataStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = integerCPEntry.getValue();
+                literal.typeTag = TypeTags.INT;
+                break;
+            case TypeDescriptor.SIG_BYTE:
+                valueCPIndex = documentDataStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = byteCPEntry.getValue();
+                literal.typeTag = TypeTags.BYTE;
+                break;
+            case TypeDescriptor.SIG_FLOAT:
+                valueCPIndex = documentDataStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = floatCPEntry.getValue();
+                literal.typeTag = TypeTags.FLOAT;
+                break;
+            case TypeDescriptor.SIG_STRING:
+                valueCPIndex = documentDataStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                literal.value = stringCPEntry.getValue();
+                literal.typeTag = TypeTags.STRING;
+                break;
+            default:
+                // Todo - Allow json and xml.
+                throw new RuntimeException("unknown constant value type " + typeDesc);
+        }
+        literal.type = symTable.getTypeFromTag(literal.typeTag);
+        return literal;
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
