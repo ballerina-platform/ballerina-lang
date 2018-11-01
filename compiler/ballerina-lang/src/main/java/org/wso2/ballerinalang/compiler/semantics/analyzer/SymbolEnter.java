@@ -206,7 +206,21 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type definitions.
         this.typePrecedence = 0;
-        defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
+
+        // Need to define the anonymous type definitions first.
+        List<BLangTypeDefinition> anonymousTypeDefs = pkgNode.typeDefinitions.stream()
+                .filter(def -> def.name.value.startsWith("$"))
+                .collect(Collectors.toList());
+        defineTypeNodes(anonymousTypeDefs, pkgEnv);
+
+        // Define constants.
+        defineConstants(pkgNode.constants, pkgEnv);
+
+        // Define named type definitions.
+        List<BLangTypeDefinition> namedTypeDefs = pkgNode.typeDefinitions.stream()
+                .filter(def -> !def.name.value.startsWith("$"))
+                .collect(Collectors.toList());
+        defineTypeNodes(namedTypeDefs, pkgEnv);
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
@@ -339,6 +353,38 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
+    }
+
+    private void defineConstants(List<BLangConstant> constants, SymbolEnv env) {
+        for (BLangConstant constant : constants) {
+            BLangExpression expression = (BLangExpression) constant.value;
+            // Note - This is checked and error is logged in semantic analyzer.
+            if (expression.getKind() != NodeKind.LITERAL) {
+                continue;
+            }
+
+            Name name = names.fromIdNode(constant.name);
+            PackageID pkgID = env.enclPkg.symbol.pkgID;
+            BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, null,
+                    env.scope.owner);
+            if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+                constantSymbol.type = symTable.errType;
+                continue;
+            }
+
+            constantSymbol.value = (BLangLiteral) constant.value;
+            constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
+            constantSymbol.type = constant.associatedTypeNode.type;
+
+            // Note - constant.typeNode.type will be resolved in the semantic analyzer since we might not be able to
+            // resolve the type properly at this point.
+
+            // Add the symbol to the enclosing scope.
+            env.scope.define(constantSymbol.name, constantSymbol);
+
+            // Update the symbol of the node.
+            constant.symbol = constantSymbol;
+        }
     }
 
     private void defineTypeNodes(List<BLangTypeDefinition> typeDefs, SymbolEnv env) {
@@ -654,26 +700,35 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+
         BLangExpression expression = (BLangExpression) constant.value;
         // Note - This is checked and error is logged in semantic analyzer.
         if (expression.getKind() != NodeKind.LITERAL) {
             return;
         }
-        Name name = names.fromIdNode(constant.name);
-        PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, null,
-                env.scope.owner);
-        constantSymbol.value = (BLangLiteral) constant.value;
-        constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
-        // Note - constant.typeNode.type will be resolved in the semantic analyzer since we might not be able to
-        // resolve the type properly at this point.
 
-        // Add the symbol to the enclosing scope.
-        if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
-            constantSymbol.type = symTable.errType;
-        }
-        env.scope.define(constantSymbol.name, constantSymbol);
-        constant.symbol = constantSymbol;
+//        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(constant.name), SymTag.CONSTANT);
+//        symbol.type = null;
+
+
+        //        Name name = names.fromIdNode(constant.name);
+        //        PackageID pkgID = env.enclPkg.symbol.pkgID;
+        //        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
+        // null,
+        //                env.scope.owner);
+        //        constantSymbol.value = (BLangLiteral) constant.value;
+        //        constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant
+        // .markdownDocumentationAttachment);
+        //        // Note - constant.typeNode.type will be resolved in the semantic analyzer since we might not be
+        // able to
+        //        // resolve the type properly at this point.
+        //
+        //        // Add the symbol to the enclosing scope.
+        //        if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+        //            constantSymbol.type = symTable.errType;
+        //        }
+        //        env.scope.define(constantSymbol.name, constantSymbol);
+        //        constant.symbol = constantSymbol;
     }
 
     @Override

@@ -50,6 +50,7 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public BConstantSymbol symbol;
+    public BLangType associatedTypeNode;
 
     public BLangConstant() {
         this.flagSet = EnumSet.noneOf(Flag.class);

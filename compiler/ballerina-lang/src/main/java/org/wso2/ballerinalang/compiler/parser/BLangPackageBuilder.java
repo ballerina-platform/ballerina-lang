@@ -1498,6 +1498,34 @@ public class BLangPackageBuilder {
         attachMarkdownDocumentations(constantNode);
         attachDeprecatedNode(constantNode);
         this.compUnit.addTopLevelNode(constantNode);
+
+        // Check whether the value is a literal.
+        if (((BLangExpression) constantNode.value).getKind() == NodeKind.LITERAL) {
+            // Create a new literal.
+            BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            literal.setValue(((BLangLiteral) constantNode.value).value);
+            literal.typeTag = ((BLangLiteral) constantNode.value).typeTag;
+
+            // Create a new finite type node.
+            BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+            finiteTypeNode.valueSpace.add(literal);
+
+            // Create a new anonymous type definition.
+            BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+            String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+            IdentifierNode anonTypeGenName = createIdentifier(genName);
+            typeDef.setName(anonTypeGenName);
+            typeDef.flagSet.add(Flag.PUBLIC);
+            typeDef.typeNode = finiteTypeNode;
+            typeDef.pos = pos;
+
+            // Add the anonymous type definition to top level nodes.
+            this.compUnit.addTopLevelNode(typeDef);
+
+            // Set the type definition's type node as the constant node's associated type node. This is done to get
+            // the corresponding type later in the symbol enter.
+            constantNode.associatedTypeNode = typeDef.typeNode;
+        }
     }
 
     void addGlobalVariable(DiagnosticPos pos,
