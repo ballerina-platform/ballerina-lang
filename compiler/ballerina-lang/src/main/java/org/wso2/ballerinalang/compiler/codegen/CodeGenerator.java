@@ -1369,8 +1369,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int fromIP = nextIP();
         genNode(trapExpr.expr, env);
-        int toIP = nextIP();
         RegIndex regIndex = calcAndGetExprRegIndex(trapExpr);
+        emit(InstructionCodes.RMOVE, trapExpr.expr.regIndex, regIndex);
+        int toIP = nextIP();
         errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP, toIP, regIndex));
     }
 
