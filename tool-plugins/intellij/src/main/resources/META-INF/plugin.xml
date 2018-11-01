@@ -241,8 +241,8 @@
                          implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
         <preloadingActivity
-                implementation="io.ballerina.plugins.idea.preloading.LanguageServerPreloadingActivity"
-                id="io.ballerina.plugins.idea.preloading.LanguageServerPreloadingActivity"/>
+                implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
+                id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>
     </extensions>
 
     <actions>
