@@ -31,6 +31,10 @@ export default class Description extends React.Component {
         }];
     }
 
+    shouldComponentUpdate(newProps) {
+        return this.props.source !== newProps.source;
+    }
+
     componentWillReceiveProps(newProps) {
         this.diff = diffChars(this.props.source, newProps.source);
     }
@@ -63,4 +67,8 @@ export default class Description extends React.Component {
             }}
         />
     }
+}
+
+Description.defaultProps = {
+    source: '',
 }
