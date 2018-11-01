@@ -198,7 +198,7 @@ public final class Constants {
     public static final String SQL_MEMORY_DB_POSTFIX = "_MEMORY";
 
     public static final String DATABASE_ERROR_RECORD_NAME = "DatabaseError";
-    public static final String DATABASE_ERROR_MESSAGE = "SQL Exception Occurred";
+    public static final String DATABASE_ERROR_MESSAGE = "SQL Error Occurred";
     public static final String DATABASE_ERROR_CODE = "{ballerina/sql}" + DATABASE_ERROR_RECORD_NAME;
     
     public static final String PARAMETER_SQL_TYPE_FIELD = "sqlType";
