@@ -23,7 +23,9 @@ import org.ballerinalang.model.tree.statements.LockNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,6 +38,8 @@ public class BLangLock extends BLangStatement implements LockNode {
     public BLangBlockStmt body;
 
     public Set<BVarSymbol> lockVariables = new HashSet<>();
+
+    public Map<BVarSymbol, Set<String>> fieldVariables = new HashMap<>();
 
     public BLangLock() {
     }
@@ -62,6 +66,11 @@ public class BLangLock extends BLangStatement implements LockNode {
 
     public boolean addLockVariable(BVarSymbol variable) {
         return lockVariables.add(variable);
+    }
+
+    public void addFieldVariable(BVarSymbol symbol, String field) {
+        fieldVariables.putIfAbsent(symbol, new HashSet<>());
+        fieldVariables.get(symbol).add(field);
     }
 
     @Override

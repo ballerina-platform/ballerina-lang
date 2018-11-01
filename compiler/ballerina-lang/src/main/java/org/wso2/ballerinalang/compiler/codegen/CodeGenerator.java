@@ -224,6 +224,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -2777,7 +2778,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangLock lockNode) {
-        if (lockNode.lockVariables.isEmpty()) {
+        if (lockNode.lockVariables.isEmpty() && lockNode.fieldVariables.isEmpty()) {
             this.genNode(lockNode.body, this.env);
             return;
         }
@@ -2805,12 +2806,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private Operand[] getOperands(BLangLock lockNode) {
 
-        int fieldVarCount =
+        //locked fields used within attached function
+        int attachedFuncVarCount =
                 (int) lockNode.lockVariables.stream().filter(var -> var.owner.type.tag == TypeTags.OBJECT).count();
 
-        Operand[] operands = new Operand[(lockNode.lockVariables.size() * 4) + 1 + fieldVarCount];
+        //count rest of field vars
+        int fieldVarCount = 0;
+        for (Set fields : lockNode.fieldVariables.values()) {
+            fieldVarCount += fields.size();
+        }
+
+        Operand[] operands =
+                new Operand[(lockNode.lockVariables.size() * 4) + 1 + attachedFuncVarCount + fieldVarCount * 5];
         int i = 0;
-        operands[i++] = new Operand(lockNode.lockVariables.size());
+        operands[i++] = new Operand(lockNode.lockVariables.size() + fieldVarCount);
         for (BVarSymbol varSymbol : lockNode.lockVariables) {
             BSymbol ownerSymbol = varSymbol.owner;
             PackageID pkgId;
@@ -2821,27 +2830,47 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
 
             int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgId);
-
+            int typeSigCPIndex;
             if (ownerSymbol.type.tag == TypeTags.OBJECT) {
-                //isFiled var
+                //is Filed var
                 operands[i++] = getOperand(1);
                 //add field name
                 int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, varSymbol.name.value);
                 operands[i++] = getOperand(fieldNameCPEntry);
 
                 //use owners's type
-                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.owner.getType().getDesc());
-                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-                operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+                typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.owner.getType().getDesc());
             } else {
                 operands[i++] = getOperand(0);
-                int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
-                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
-                operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+                typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, varSymbol.getType().getDesc());
             }
+
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+            operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
 
             operands[i++] = getOperand(pkgRefCPIndex);
             operands[i++] = varSymbol.varIndex;
+        }
+
+        for (Entry<BVarSymbol, Set<String>> entry : lockNode.fieldVariables.entrySet()) {
+            BVarSymbol symbol = entry.getKey();
+            Set<String> fields = entry.getValue();
+
+            int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, symbol.pkgID);
+            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, symbol.getType().getDesc());
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
+
+            for (String field : fields) {
+                //isFiled var
+                operands[i++] = getOperand(1);
+                //add field name
+                int fieldNameCPEntry = addUTF8CPEntry(currentPkgInfo, field);
+                operands[i++] = getOperand(fieldNameCPEntry);
+
+                operands[i++] = getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
+                operands[i++] = getOperand(pkgRefCPIndex);
+                operands[i++] = symbol.varIndex;
+            }
         }
         return operands;
     }
@@ -3507,7 +3536,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
             } else if (NodeKind.LOCK == parent.getKind()) {
                 BLangLock lockNode = (BLangLock) parent;
-                if (!lockNode.lockVariables.isEmpty()) {
+                if (!lockNode.lockVariables.isEmpty() && !lockNode.fieldVariables.isEmpty()) {
                     Operand[] operands = getOperands(lockNode);
                     emit((InstructionCodes.UNLOCK), operands);
                 }

@@ -822,6 +822,11 @@ public class Desugar extends BLangNodeVisitor {
             String o2FullName = String.join(":", v2.pkgID.getName().getValue(), v2.name.getValue());
             return o1FullName.compareTo(o2FullName);
         }).collect(Collectors.toSet());
+
+        //check both a field and it's field are in locked variables
+        if (!lockNode.lockVariables.isEmpty()) {
+            lockNode.fieldVariables.keySet().removeIf(symbol -> lockNode.lockVariables.contains(symbol));
+        }
         result = lockNode;
     }
 
@@ -1086,6 +1091,11 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                                                               (BVarSymbol) fieldAccessExpr.symbol, false);
             }
+
+            if (!enclLocks.isEmpty() && fieldAccessExpr.expr.symbol.pkgID.equals(this.env.enclPkg.packageID)) {
+                enclLocks.peek().addFieldVariable((BVarSymbol) fieldAccessExpr.expr.symbol,
+                        fieldAccessExpr.field.value);
+            }
         } else if (varRefType.tag == TypeTags.RECORD) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
@@ -1094,6 +1104,10 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                                                               (BVarSymbol) fieldAccessExpr.symbol, true);
+            }
+            if (!enclLocks.isEmpty()) {
+                enclLocks.peek().addFieldVariable((BVarSymbol) fieldAccessExpr.expr.symbol,
+                        fieldAccessExpr.field.value);
             }
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
