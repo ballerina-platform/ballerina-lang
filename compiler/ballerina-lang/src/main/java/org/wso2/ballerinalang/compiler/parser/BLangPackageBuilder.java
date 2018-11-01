@@ -1604,6 +1604,9 @@ public class BLangPackageBuilder {
                 finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
             }
 
+            // Reverse the collection so that they would appear in the correct order.
+            Collections.reverse(finiteTypeNode.valueSpace);
+
             if (!members.memberTypeNodes.isEmpty()) {
                 BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
                 // Generate a name for the anonymous object
