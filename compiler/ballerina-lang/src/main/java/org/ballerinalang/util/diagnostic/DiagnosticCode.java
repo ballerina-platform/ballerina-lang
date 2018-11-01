@@ -309,8 +309,7 @@ public enum DiagnosticCode {
     UNNECESSARY_CONDITION("unnecessary.condition"),
 
     // Dataflow analysis related error codes
-    UNITIALIZED_VARIABLE("uninitialized.variable"),
-    PARTIALLY_ITIALIZED_VARIABLE("partially.initialized.variable");
+    PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable");
 
     private String value;
 
