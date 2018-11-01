@@ -266,6 +266,8 @@ class ResourceNode extends AbstractResourceNode {
                         .filter((statement) => { return !TreeUtil.isEndpointTypeVariableDef(statement); });
                 this.getBody().setStatements(connectors, true);
                 defaultWorker.getBody().setStatements(statements);
+
+                ASTUtil.reconcileWS(node, this.getWorkers(), this.getRoot(), this.getBlockStartWs());
                 this.addWorkers(defaultWorker, -1, true);
             }
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
@@ -277,7 +279,7 @@ class ResourceNode extends AbstractResourceNode {
             if (this.getEndpointNodes().length > 0) {
                 ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot());
             } else {
-                ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.ws[4].i + 1);
+                ASTUtil.reconcileWS(node, this.getEndpointNodes(), this.getRoot(), this.getBlockStartWs());
             }
             this.addEndpointNodes(node);
         }
@@ -288,6 +290,14 @@ class ResourceNode extends AbstractResourceNode {
             return this.parameters[0].name.value;
         }
         return '';
+    }
+
+    getBlockStartWs() {
+        const wsList = ASTUtil.extractWS(this.parent);
+        const startWs = _.find(wsList, (element) => {
+            return (element.text === "{");
+        });
+        return startWs.i + 1;
     }
 }
 
