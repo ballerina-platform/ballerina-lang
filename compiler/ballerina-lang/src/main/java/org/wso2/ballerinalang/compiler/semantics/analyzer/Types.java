@@ -190,28 +190,21 @@ public class Types {
             return true;
         }
 
-        // TODO: 11/1/18 Convert the logic below to a switch case
-        if (type.tag == TypeTags.MAP && isAnydata(((BMapType) type).constraint)) {
-            return true;
+        switch (type.tag) {
+            case TypeTags.MAP:
+                return isAnydata(((BMapType) type).constraint);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes = recordType.fields.stream()
+                        .map(field -> field.type).collect(Collectors.toList());
+                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+            case TypeTags.UNION:
+                return isAnydata(((BUnionType) type).memberTypes);
+            case TypeTags.TUPLE:
+                return isAnydata(((BTupleType) type).tupleTypes);
+            default:
+                return type.tag == TypeTags.ARRAY && isAnydata(((BArrayType) type).eType);
         }
-
-        if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
-            List<BType> fieldTypes = recordType.fields.stream().map(field -> field.type).collect(Collectors.toList());
-            return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
-        }
-
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            return isAnydata(unionType.memberTypes);
-        }
-
-        if (type.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) type;
-            return isAnydata(tupleType.tupleTypes);
-        }
-
-        return type.tag == TypeTags.ARRAY && isAnydata(((BArrayType) type).eType);
     }
 
     private boolean isAnydata(Collection<BType> types) {

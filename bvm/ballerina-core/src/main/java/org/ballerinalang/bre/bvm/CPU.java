@@ -3037,29 +3037,23 @@ public class CPU {
             return true;
         }
 
-        if (type.getTag() == TypeTags.MAP_TAG && isAnydata(((BMapType) type).getConstrainedType())) {
-            return true;
+        switch (type.getTag()) {
+            case TypeTags.MAP_TAG:
+                return isAnydata(((BMapType) type).getConstrainedType());
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType
+                        recordType = (BRecordType) type;
+                List<BType> fieldTypes = Arrays.stream(recordType.getFields())
+                        .map(BField::getFieldType)
+                        .collect(Collectors.toList());
+                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+            case TypeTags.UNION_TAG:
+                return isAnydata(((BUnionType) type).getMemberTypes());
+            case TypeTags.TUPLE_TAG:
+                return isAnydata(((BTupleType) type).getTupleTypes());
+            default:
+                return type.getTag() == TypeTags.ARRAY_TAG && isAnydata(((BArrayType) type).getElementType());
         }
-
-        if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            BRecordType recordType = (BRecordType) type;
-            List<BType> fieldTypes = Arrays.stream(recordType.getFields())
-                                            .map(BField::getFieldType)
-                                            .collect(Collectors.toList());
-            return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
-        }
-
-        if (type.getTag() == TypeTags.UNION_TAG) {
-            BUnionType unionType = (BUnionType) type;
-            return isAnydata(unionType.getMemberTypes());
-        }
-
-        if (type.getTag() == TypeTags.TUPLE_TAG) {
-            BTupleType tupleType = (BTupleType) type;
-            return isAnydata(tupleType.getTupleTypes());
-        }
-
-        return type.getTag() == TypeTags.ARRAY_TAG && isAnydata(((BArrayType) type).getElementType());
     }
 
     private static boolean isAnydata(Collection<BType> types) {
