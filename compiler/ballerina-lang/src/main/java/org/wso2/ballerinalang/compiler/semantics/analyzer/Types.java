@@ -242,7 +242,31 @@ public class Types {
 
     boolean isSealable(BType source, BType target) {
         if (target.tag == TypeTags.JSON) {
-            if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD) {
+            if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD || source.tag == TypeTags.MAP) {
+                return true;
+            }
+        }
+
+        if (target.tag == TypeTags.XML) {
+            if (source.tag == TypeTags.XML || source.tag == TypeTags.RECORD) {
+                return true;
+            }
+        }
+
+        if (target.tag == TypeTags.RECORD) {
+            if (source.tag == TypeTags.MAP) {
+                return true;
+            }
+        }
+
+        if (target.tag == TypeTags.MAP) {
+            if (source.tag == TypeTags.MAP) {
+                return true;
+            }
+        }
+
+        if (target.tag == TypeTags.ARRAY) {
+            if (source.tag == TypeTags.JSON) {
                 return true;
             }
         }

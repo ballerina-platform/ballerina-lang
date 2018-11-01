@@ -44,6 +44,13 @@ type EmployeeObj object {
 
 };
 
+type IntRecord record{
+   int a;
+   int b;
+};
+
+//-----------------------Record Seal -------------------------------------------------------------------
+
 function testSealWithOpenRecords() returns Employee {
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
@@ -65,12 +72,256 @@ function testSealClosedRecordWithOpenRecord() returns Employee {
     return p1;
 }
 
+function sealRecordToAny() returns any {
+    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    teacher.seal(any);
+
+    return teacher;
+}
+
+function sealRecordToJSON() returns json {
+
+    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    employee.seal(json);
+
+    return employee;
+}
+
+function sealRecordToMap() returns map {
+
+    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    employee.seal(map);
+
+    return employee;
+}
+
+function sealRecordToMapV2() returns map<string> {
+
+    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    employee.seal(map<string>);
+
+    return employee;
+}
+
+function sealRecordToMapV3() returns map {
+
+    Employee employee = { name: "John", status: "single", batch: "LK2014"};
+    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", emp : employee };
+    teacher.seal(map);
+
+    return teacher;
+}
+
+
+//----------------------------JSON Seal -------------------------------------------------------------
+
+
+function sealJSONToAny() returns any {
+
+    json jsonValue = 3;
+    jsonValue.seal(any);
+
+    return jsonValue;
+}
+
+function sealJSONToAnyV2() returns any {
+
+    json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
+    jsonValue.seal(any);
+
+    return jsonValue;
+}
+
+function sealJSONToRecord() returns Employee {
+
+    json employee = { name: "John", status: "single", batch: "LK2014" };
+    employee.seal(Employee);
+
+    return employee;
+}
+
+function sealJSONToRecordV2() returns Employee {
+
+    json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    employee.seal(Employee);
+
+    return employee;
+}
+
+function sealJSONToJSON() returns json {
+
+    json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    employee.seal(json);
+
+    return employee;
+}
+
+function sealJSONToMap() returns map {
+
+    json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    employee.seal(map);
+
+    return employee;
+}
+
+function sealJSONToMapV2() returns map {
+
+    json teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", emp : { name: "John", status: "single", batch: "LK2014"} };
+    teacher.seal(map);
+
+    return teacher;
+}
+
+function sealConstraintJSONToAny() returns any {
+
+    json<Student> student = { name: "John" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    student.seal(any);
+
+    return student;
+}
+
+function sealConstraintJSONToJSON() returns json {
+
+    json<Student> student = { name: "John" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    student.seal(json);
+
+    return student;
+}
+
+function sealConstraintJSONToConstraintJSON() returns json<Person> {
+
+    json<Student> student = { name: "Jon" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    student.seal(json<Person>);
+
+    return student;
+}
+
+function sealConstraintJSONToConstraintMap() returns map<Student> {
+
+    json<Student> student = { name: "Jon" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    student.seal(map<Student>);
+
+    return student;
+}
+
+function sealConstraintJSONToConstraintMapV2() returns map {
+
+    json<Student> student = { name: "Jon" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    student.seal(map);
+
+    return student;
+}
+
+function sealJSONArrayToConstraintArray() returns Student []{
+
+    json employeeArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
+                            { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
+    employeeArray.seal(Student []);
+
+    return employeeArray;
+}
+
+function sealJSONArrayToPrimitiveTypeArray() returns int []{
+
+    json intArray = [1, 2, 3, 4];
+    intArray.seal(int []);
+
+    return intArray;
+}
+
+function sealJSONArrayToAnyTypeArray() returns any []{
+
+    json jsonArray =  [1, false, "foo", { first: "John", last: "Pala" }];
+    jsonArray.seal(any []);
+
+    return jsonArray;
+}
+
+//----------------------------XML Seal -------------------------------------------------------------
+
+
+function sealXMLToAny() returns any {
+
+    xml xmlValue = xml `<book>The Lost World</book>`;
+
+    xmlValue.seal(any);
+    return xmlValue;
+}
+
+//----------------------------Object Seal -------------------------------------------------------------
+
+
+function sealObjectsV1() returns EmployeeObj {
+    PersonObj p = new PersonObj();
+    p.seal(EmployeeObj);
+
+    return p;
+}
+
+function sealObjectsToAny() returns any {
+    PersonObj p = new PersonObj();
+    p.seal(any);
+
+    return p;
+}
+
+//----------------------------Map Seal -------------------------------------------------------------
+
+function sealIntMapToRecord() returns IntRecord {
+    map<int> m = { "a": 1, "b": 2 };
+    m.seal(IntRecord);
+
+    return m;
+}
+
+function sealIntMapToJSON() returns json {
+    map<int> m = { "a": 1, "b": 2 };
+    m.seal(json);
+
+    return m;
+}
+
+function sealIntMapToAny() returns any {
+    map<int> m = { "a": 1, "b": 2 };
+    m.seal(any);
+
+    return m;
+}
+
+function sealIntMapToIntMap() returns map<int> {
+    map<int> m = { "a": 1, "b": 2 };
+    m.seal(map<int>);
+
+    return m;
+}
+
 function sealIntMapToAnyMap() returns map<any> {
     map<int> m = { "a": 1, "b": 2 };
     m.seal(map<any>);
 
     return m;
 }
+
 
 function sealAnyMapToIntMap() returns map<int> {
     map<any> m = { "a": 1, "b": 2 };
@@ -87,21 +338,6 @@ function sealAnyMapToStringMap() returns map<string> {
     return m;
 }
 
-function sealAnyToIntMultiDimensionMap() returns map<map<map<int>>> {
-    map<map<map<any>>> m = { "a": { "aa": { "aa": 11, "bb": 22 }, "bb": { "aa": 11, "bb": 22 } }, "b": { "aaa": { "aa":
-    11, "bb": 22 }, "bbb": { "aa": 11, "bb": 22 } } };
-    m.seal(map<map<map<int>>>);
-
-    return m;
-}
-
-function sealIntToAnyMultiDimensionMap() returns map<map<map<any>>> {
-    map<map<map<int>>> m = { "a": { "aa": { "aa": 11, "bb": 22 }, "bb": { "aa": 11, "bb": 22 } }, "b": { "aaa": { "aa":
-    11, "bb": 22 }, "bbb": { "aa": 11, "bb": 22 } } };
-    m.seal(map<map<map<any>>>);
-
-    return m;
-}
 
 function sealAnyMapToStringMapWithoutExplicitConstraintType() returns map<string> {
     map<any> m = { "firstName": "mohan", "lastName": "raj" };
@@ -110,12 +346,61 @@ function sealAnyMapToStringMapWithoutExplicitConstraintType() returns map<string
     return m;
 }
 
-function sealObjectsV1() returns EmployeeObj {
-    PersonObj p = new PersonObj();
-    p.seal(EmployeeObj);
+function sealAnyMapToRecord() returns Teacher {
+    map anyMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    return p;
+    anyMap.seal(Teacher);
+
+    return anyMap;
 }
+
+function sealAnyMapToJSON() returns json {
+    map anyMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    anyMap.seal(json);
+
+    return anyMap;
+}
+
+function sealAnyMapToAny() returns any {
+    map anyMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    anyMap.seal(any);
+
+    return anyMap;
+}
+
+function sealAnyMapToSimilarOpenRecordMap() returns map<Employee> {
+    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    map<any> teacherMap = { "a": p1, "b": p2 };
+    teacherMap.seal(map<Employee>);
+
+    return teacherMap;
+}
+
+
+function sealAnyMapToRecordMap() returns map<Teacher> {
+    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    map<any> teacherMap = { "a": p1, "b": p2 };
+    teacherMap.seal(map<Teacher>);
+
+    return teacherMap;
+}
+
+function sealAnyMapToJSONMap() returns map<json> {
+    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    map<any> teacherMap = { "a": p1, "b": p2 };
+    teacherMap.seal(map<json>);
+
+    return teacherMap;
+}
+
 
 function sealRecordMapToAnyMap() returns map<any> {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
@@ -137,26 +422,36 @@ function sealRecordMapToSimilarOpenRecordMap() returns map<Employee> {
     return teacherMap;
 }
 
-function sealAnyMapToSimilarOpenRecordMap() returns map<Employee> {
+function sealRecordMapToJSONMap() returns map<json> {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    map<any> teacherMap = { "a": p1, "b": p2 };
-    teacherMap.seal(map<Employee>);
+    map<Teacher> teacherMap = { "a": p1, "b": p2 };
+    teacherMap.seal(map<json>);
 
     return teacherMap;
+
 }
 
 
-function sealAnyToRecordMap() returns map<Teacher> {
-    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+function sealAnyToIntMultiDimensionMap() returns map<map<map<int>>> {
+    map<map<map<any>>> m = { "a": { "aa": { "aa": 11, "bb": 22 }, "bb": { "aa": 11, "bb": 22 } }, "b": { "aaa": { "aa":
+    11, "bb": 22 }, "bbb": { "aa": 11, "bb": 22 } } };
+    m.seal(map<map<map<int>>>);
 
-    map<any> teacherMap = { "a": p1, "b": p2 };
-    teacherMap.seal(map<Teacher>);
-
-    return teacherMap;
+    return m;
 }
+
+function sealIntToAnyMultiDimensionMap() returns map<map<map<any>>> {
+    map<map<map<int>>> m = { "a": { "aa": { "aa": 11, "bb": 22 }, "bb": { "aa": 11, "bb": 22 } }, "b": { "aaa": { "aa":
+    11, "bb": 22 }, "bbb": { "aa": 11, "bb": 22 } } };
+    m.seal(map<map<map<any>>>);
+
+    return m;
+}
+
+//----------------------------Array Seal -------------------------------------------------------------
+
 
 function sealRecordToAnyArray() returns any[] {
 
@@ -199,20 +494,10 @@ function sealRecordToSimilarOpenRecordArray() returns Employee[] {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     Teacher[] teacherArray = [p1, p2];
-    teacherArray.seal
-    (Employee[]);
+    teacherArray.seal(Employee[]);
 
     return teacherArray;
 }
-
-function sealJSONToAny() returns any {
-
-    json jsonValue = 3;
-    jsonValue.seal(any);
-
-    return jsonValue;
-}
-
 
 function sealAnyToJSON() returns json {
 
@@ -220,61 +505,5 @@ function sealAnyToJSON() returns json {
     anyValue.seal(json);
 
     return anyValue;
-}
-
-function sealJSONToAnyV2() returns any {
-
-    json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    jsonValue.seal(any);
-
-    return jsonValue;
-}
-
-function sealJSONToRecord() returns Employee {
-
-    json employee = { name: "John", status: "single", batch: "LK2014" };
-    employee.seal(Employee);
-
-    return employee;
-}
-
-function sealJSONToRecordV2() returns Employee {
-
-    json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    employee.seal(Employee);
-
-    return employee;
-}
-
-function sealRecordToJSON() returns json {
-
-    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    employee.seal(json);
-
-    return employee;
-}
-
-function sealConstraintJSONToAny() returns any {
-
-    json<Student> student = { name: "Jon" };
-    student.status = "Single";
-    student.batch = "LK2014";
-    student.school = "Hindu College";
-
-    student.seal(any);
-
-    return student;
-}
-
-function sealConstraintJSONToConstraintJSON() returns json<Person> {
-
-    json<Student> student = { name: "Jon" };
-    student.status = "Single";
-    student.batch = "LK2014";
-    student.school = "Hindu College";
-
-    student.seal(json<Person>);
-
-    return student;
 }
 
