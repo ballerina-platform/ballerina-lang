@@ -1457,10 +1457,10 @@ public class Types {
 
         lhsTypes.addAll(expandAndGetMemberTypesRecursive(lhsType));
         rhsTypes.addAll(expandAndGetMemberTypesRecursive(rhsType));
-        return intersectionExists(lhsTypes, rhsTypes);
+        return equalityIntersectionExists(lhsTypes, rhsTypes);
     }
 
-    private boolean intersectionExists(Set<BType> lhsTypes, Set<BType> rhsTypes) {
+    private boolean equalityIntersectionExists(Set<BType> lhsTypes, Set<BType> rhsTypes) {
         if (lhsTypes.contains(symTable.anyType) || rhsTypes.contains(symTable.anyType)) {
             return true;
         }
@@ -1472,7 +1472,7 @@ public class Types {
                         .anyMatch(t -> isSameType(s, t)));
 
         if (!matchFound) {
-            matchFound = intersectionExistsForComplexTypes(lhsTypes, rhsTypes);
+            matchFound = equalityIntersectionExistsForComplexTypes(lhsTypes, rhsTypes);
         }
 
         return matchFound;
@@ -1549,15 +1549,15 @@ public class Types {
         List<BType> rhsMemberTypes = rhsType.getTupleTypes();
 
         for (int i = 0; i < lhsType.getTupleTypes().size(); i++) {
-            if (!intersectionExists(expandAndGetMemberTypesRecursive(lhsMemberTypes.get(i)),
-                                    expandAndGetMemberTypesRecursive(rhsMemberTypes.get(i)))) {
+            if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsMemberTypes.get(i)),
+                                            expandAndGetMemberTypesRecursive(rhsMemberTypes.get(i)))) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean intersectionExistsForComplexTypes(Set<BType> lhsTypes, Set<BType> rhsTypes) {
+    private boolean equalityIntersectionExistsForComplexTypes(Set<BType> lhsTypes, Set<BType> rhsTypes) {
         for (BType lhsMemberType : lhsTypes) {
             switch (lhsMemberType.tag) {
                 case TypeTags.INT:
@@ -1583,20 +1583,34 @@ public class Types {
                                     tupleIntersectionExists((BTupleType) lhsMemberType, (BTupleType) rhsMemberType))) {
                         return true;
                     }
+
+                    if (rhsTypes.stream().anyMatch(
+                            rhsMemberType -> rhsMemberType.tag == TypeTags.ARRAY &&
+                                    arrayTupleEqualityIntersectionExists((BArrayType) rhsMemberType,
+                                                                         (BTupleType) lhsMemberType))) {
+                        return true;
+                    }
                     break;
                 case TypeTags.ARRAY:
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.ARRAY &&
-                                    intersectionExists(
+                                    equalityIntersectionExists(
                                             expandAndGetMemberTypesRecursive(((BArrayType) lhsMemberType).eType),
                                             expandAndGetMemberTypesRecursive(((BArrayType) rhsMemberType).eType)))) {
+                        return true;
+                    }
+
+                    if (rhsTypes.stream().anyMatch(
+                            rhsMemberType -> rhsMemberType.tag == TypeTags.TUPLE &&
+                                    arrayTupleEqualityIntersectionExists((BArrayType) lhsMemberType,
+                                                                         (BTupleType) rhsMemberType))) {
                         return true;
                     }
                     break;
                 case TypeTags.MAP:
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.MAP &&
-                                    intersectionExists(
+                                    equalityIntersectionExists(
                                             expandAndGetMemberTypesRecursive(((BMapType) lhsMemberType).constraint),
                                             expandAndGetMemberTypesRecursive(((BMapType) rhsMemberType).constraint)))) {
                         return true;
@@ -1664,11 +1678,19 @@ public class Types {
             return false;
         }
 
-        return allRecordFieldsIntersectionExists(lhsType, rhsType) ||
-                allRecordFieldsIntersectionExists(rhsType, lhsType);
+        return allRecordFieldsEqualityIntersectionExists(lhsType, rhsType) ||
+                allRecordFieldsEqualityIntersectionExists(rhsType, lhsType);
     }
 
-    private boolean allRecordFieldsIntersectionExists(BRecordType lhsType, BRecordType rhsType) {
+    private boolean arrayTupleEqualityIntersectionExists(BArrayType arrayType, BTupleType tupleType) {
+        Set<BType> elementTypes = expandAndGetMemberTypesRecursive(arrayType.eType);
+
+        return tupleType.tupleTypes.stream()
+                .allMatch(tupleMemType -> equalityIntersectionExists(elementTypes,
+                                                                     expandAndGetMemberTypesRecursive(tupleMemType)));
+    }
+
+    private boolean allRecordFieldsEqualityIntersectionExists(BRecordType lhsType, BRecordType rhsType) {
         List<BField> lhsFields = lhsType.fields;
         List<BField> rhsFields = rhsType.fields;
         for (BField lhsField : lhsFields) {
@@ -1676,8 +1698,8 @@ public class Types {
                     rhsFields.stream().filter(rhsField -> lhsField.name.equals(rhsField.name)).findFirst();
 
             if (match.isPresent()) {
-                if (!intersectionExists(expandAndGetMemberTypesRecursive(lhsField.type),
-                                        expandAndGetMemberTypesRecursive(match.get().type))) {
+                if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsField.type),
+                                                expandAndGetMemberTypesRecursive(match.get().type))) {
                     return false;
                 }
             } else {
@@ -1689,8 +1711,8 @@ public class Types {
                     return false;
                 }
 
-                if (!intersectionExists(expandAndGetMemberTypesRecursive(lhsField.type),
-                                        expandAndGetMemberTypesRecursive(rhsType.restFieldType))) {
+                if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsField.type),
+                                                expandAndGetMemberTypesRecursive(rhsType.restFieldType))) {
                     return false;
                 }
             }
@@ -1702,12 +1724,14 @@ public class Types {
         Set<BType> mapConstrTypes = expandAndGetMemberTypesRecursive(mapType.getConstraint());
 
         if (!recordType.sealed &&
-                !intersectionExists(mapConstrTypes, expandAndGetMemberTypesRecursive(recordType.restFieldType))) {
+                !equalityIntersectionExists(mapConstrTypes,
+                                            expandAndGetMemberTypesRecursive(recordType.restFieldType))) {
             return false;
         }
 
         return recordType.fields.stream().allMatch(
-                fieldType -> intersectionExists(mapConstrTypes, expandAndGetMemberTypesRecursive(fieldType.type)));
+                fieldType -> equalityIntersectionExists(mapConstrTypes,
+                                                        expandAndGetMemberTypesRecursive(fieldType.type)));
     }
 
     private boolean jsonEqualityIntersectionExists(BJSONType jsonType, Set<BType> typeSet) {
@@ -1720,8 +1744,9 @@ public class Types {
                         }
 
                         // Check constrained JSON compatibility
-                        if (intersectionExists(expandAndGetMemberTypesRecursive((jsonType).constraint),
-                                               expandAndGetMemberTypesRecursive(((BJSONType) type).constraint))) {
+                        if (equalityIntersectionExists(expandAndGetMemberTypesRecursive((jsonType).constraint),
+                                                       expandAndGetMemberTypesRecursive(
+                                                               ((BJSONType) type).constraint))) {
                             return true;
                         }
                         break;
@@ -1732,8 +1757,8 @@ public class Types {
                         }
                         break;
                     case TypeTags.RECORD:
-                        if (intersectionExists(expandAndGetMemberTypesRecursive((jsonType).constraint),
-                                               expandAndGetMemberTypesRecursive(type))) {
+                        if (equalityIntersectionExists(expandAndGetMemberTypesRecursive((jsonType).constraint),
+                                                       expandAndGetMemberTypesRecursive(type))) {
                             return true;
                         }
                 }

@@ -791,9 +791,27 @@ public class EqualAndNotEqualOperationsTest {
                 " as unequal.");
     }
 
+    @Test
+    public void testArrayTupleEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testArrayTupleEqualityPositive");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected array and tuple values to be identified" +
+                " as equal.");
+    }
+
+    @Test
+    public void testArrayTupleEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testArrayTupleEqualityNegative");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected array and tuple values to be identified" +
+                " as unequal.");
+    }
+
     @Test(description = "Test equal and not equal with errors")
     public void testEqualAndNotEqualNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 28);
+        Assert.assertEquals(resultNegative.getErrorCount(), 32);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '!=' not defined for 'int' and 'string'", 20, 24);
         validateError(resultNegative, 2, "operator '==' not defined for 'int[2]' and 'string[2]'", 26, 21);
@@ -834,6 +852,10 @@ public class EqualAndNotEqualOperationsTest {
                 "'json<EmployeeWithOptionalId>'", 87, 45);
         validateError(resultNegative, 27, "operator '!=' not defined for 'json<EmployeeWithOptionalId>' and " +
                 "'ClosedDept'", 87, 57);
+        validateError(resultNegative, 28, "operator '==' not defined for 'int[]' and '(float,float)'", 94, 22);
+        validateError(resultNegative, 29, "operator '!=' not defined for 'int[]' and '(float,float)'", 94, 34);
+        validateError(resultNegative, 30, "operator '==' not defined for 'int[]' and '(int,float)'", 97, 22);
+        validateError(resultNegative, 31, "operator '!=' not defined for '(int,float)' and 'int[]'", 97, 34);
     }
 
     @DataProvider(name = "equalIntValues")

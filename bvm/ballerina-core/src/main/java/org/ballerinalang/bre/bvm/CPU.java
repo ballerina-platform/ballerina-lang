@@ -4023,53 +4023,43 @@ public class CPU {
         int lhsValTypeTag = lhsValue.getType().getTag();
         int rhsValTypeTag = rhsValue.getType().getTag();
 
-        if (TypeTags.INT_TAG == lhsValTypeTag && TypeTags.BYTE_TAG == rhsValTypeTag) {
-            BInteger bInteger = (BInteger) lhsValue;
-            BByte bByte = (BByte) rhsValue;
-            return bInteger.intValue() == bByte.intValue();
-        }
-
-        if (TypeTags.BYTE_TAG == lhsValTypeTag && TypeTags.INT_TAG == rhsValTypeTag) {
-            BByte bByte = (BByte) lhsValue;
-            BInteger bInteger = (BInteger) rhsValue;
-            return bInteger.intValue() == bByte.intValue();
-        }
-
-        if (isMappingType(lhsValTypeTag) && isMappingType(rhsValTypeTag)) {
-            return isEqual((BMap) lhsValue, (BMap) rhsValue);
-        }
-
-        if (lhsValTypeTag != rhsValTypeTag) {
-            return false;
-        }
-
-        switch (lhsValue.getType().getTag()) {
+        switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
-            case TypeTags.INT_TAG:
-            case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
+                return lhsValue.equals(rhsValue);
+            case TypeTags.INT_TAG:
+                if (rhsValTypeTag == TypeTags.BYTE_TAG) {
+                    return ((BInteger) lhsValue).intValue() == (((BByte) rhsValue).intValue());
+                }
+                return lhsValue.equals(rhsValue);
+            case TypeTags.BYTE_TAG:
+                if (rhsValTypeTag == TypeTags.INT_TAG) {
+                    return ((BByte) lhsValue).intValue() == (((BInteger) rhsValue).intValue());
+                }
                 return lhsValue.equals(rhsValue);
             case TypeTags.XML_TAG:
                 return XMLUtils.isEqual((BXML) lhsValue, (BXML) rhsValue);
             case TypeTags.TABLE_TAG:
                 // TODO: 10/8/18
                 break;
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.TUPLE_TAG:
-                return isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return isEqual((BMap) lhsValue, (BMap) rhsValue);
+                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue);
+            case TypeTags.TUPLE_TAG:
+            case TypeTags.ARRAY_TAG:
+                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
         }
         return false;
     }
 
-    private static boolean isMappingType(int lhsValTypeTag) {
-        return lhsValTypeTag == TypeTags.MAP_TAG ||
-                     lhsValTypeTag == TypeTags.RECORD_TYPE_TAG ||
-                     lhsValTypeTag == TypeTags.JSON_TAG;
+    private static boolean isListType(int typeTag) {
+        return typeTag == TypeTags.ARRAY_TAG || typeTag == TypeTags.TUPLE_TAG;
+    }
+
+    private static boolean isMappingType(int typeTag) {
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
     }
 
     /**

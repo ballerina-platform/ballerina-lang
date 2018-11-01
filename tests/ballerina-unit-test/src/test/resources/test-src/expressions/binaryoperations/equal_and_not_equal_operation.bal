@@ -986,6 +986,39 @@ public function testJsonRecordMapEqualityNegative() returns boolean {
     return e == m || !(m != e) || e == m2 || !(m2 != e) || e == j || !(j != e) || e == j2 || !(j2 != e);
 }
 
+public function testArrayTupleEqualityPositive() returns boolean {
+    int[] a = [1, 2, 3];
+    (int, json, int) b = (1, 2, 3);
+
+    boolean equals = a == b && !(b != a);
+
+    int[3] c = [1, 2, 3];
+    equals = equals && isEqual(b, c);
+
+    OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
+    (OpenEmployeeTwo|json)[] f = [1, e, true, 3.2];
+    (int, OpenEmployeeTwo, boolean, float) g = (1, e, true, 3.2);
+
+    return equals && g == f && !(f != g);
+}
+
+public function testArrayTupleEqualityNegative() returns boolean {
+    (boolean|float)[] a = [true, 2.0, 1.23];
+    (json, json, float) b = (false, 2.0, 1.23);
+
+    boolean equals = a == b && !(b != a);
+
+    (string|boolean|float|int)[3] c = [false, 2, 1.23];
+    equals = equals && c == b && !(b != c);
+
+    OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
+    OpenEmployeeTwo e2 = { name: "Ziyad", id: 1000 };
+    (OpenEmployeeTwo|json)[] f = [1, e, true, 3.2];
+    (int|OpenEmployee, OpenEmployeeTwo, boolean|string, float) g = (1, e2, true, 3.2);
+
+    return equals || isEqual(g, f);
+}
+
 function isEqual(any a, any b) returns boolean {
     return a == b && !(b != a);
 }

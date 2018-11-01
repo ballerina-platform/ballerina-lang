@@ -87,6 +87,23 @@ function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
     return equals && b == c && !(c != b) && c == a && !(a != c);
 }
 
+function testArrayTupleEqualityOfIncompatibleTypes() returns boolean {
+    int[] a = [1, 2];
+    (float, float) b = (1.0, 2.0);
+
+    boolean equals = a == b && !(a != b);
+
+    (int, float) c = (1, 2.0);
+    return equals && a == c && !(c != a);
+
+    // Uncomment once closed list comparison is fixed
+    //Employee e = { name: "Em", id: 1234 };
+    //(Employee|int)[3] d = [e, 2, 3];
+    //(Employee, int) f = (e, 2);
+    //
+    //return equals && f == d && !(d != f);
+}
+
 type Employee record {
     string name;
     int id;
