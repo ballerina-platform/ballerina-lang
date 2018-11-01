@@ -171,7 +171,7 @@ public class HTTPServicesRegistry {
             if (requestURIPath.length() <= key.toString().length()) {
                 return key.toString();
             }
-            if (requestURIPath.charAt(key.toString().length()) == '/') {
+            if (requestURIPath.startsWith(key.toString().concat("/"))) {
                 return key.toString();
             }
         }

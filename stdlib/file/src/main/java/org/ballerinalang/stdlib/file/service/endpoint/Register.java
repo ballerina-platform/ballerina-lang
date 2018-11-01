@@ -23,11 +23,9 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,7 +41,6 @@ import org.wso2.transport.localfilesystem.server.exception.LocalFileSystemServer
 import org.wso2.transport.localfilesystem.server.util.Constants;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
@@ -108,15 +105,12 @@ public class Register extends BlockingNativeCallableUnit {
         for (Resource resource : service.getResources()) {
             switch (resource.getName()) {
                 case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
-                    validateParameter(resource);
                     registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);
                     break;
                 case DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE:
-                    validateParameter(resource);
                     registry.put(DirectoryListenerConstants.EVENT_DELETE, resource);
                     break;
                 case DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY:
-                    validateParameter(resource);
                     registry.put(DirectoryListenerConstants.EVENT_MODIFY, resource);
                     break;
                 default:
@@ -132,21 +126,5 @@ public class Register extends BlockingNativeCallableUnit {
             throw new BallerinaConnectorException(msg);
         }
         return registry;
-    }
-
-    private void validateParameter(Resource resource) {
-        final List<ParamDetail> paramDetails = resource.getParamDetails();
-        if (paramDetails.size() != 1) {
-            String msg = "Invalid resource signature in " + resource.getName() + ". A single file:"
-                    + FILE_SYSTEM_EVENT + " parameter allow in the resource signature.";
-            throw new BallerinaConnectorException(msg);
-        }
-        final ParamDetail paramDetail = paramDetails.get(0);
-        final BType varType = paramDetail.getVarType();
-        if (!FILE_PACKAGE.equals(varType.getPackagePath()) || !FILE_SYSTEM_EVENT.equals(varType.getName())) {
-            String msg = "Parameter should be of type - file:" + FILE_SYSTEM_EVENT + " in " + resource
-                    .getName();
-            throw new BallerinaConnectorException(msg);
-        }
     }
 }

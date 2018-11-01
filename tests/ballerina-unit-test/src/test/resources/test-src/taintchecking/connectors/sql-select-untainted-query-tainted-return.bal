@@ -5,7 +5,7 @@ type Employee record {
     string name;
 };
 
-function main(string... args) {
+public function main(string... args) {
     testSelectWithUntaintedQueryProducingTaintedReturn(...args);
 }
 

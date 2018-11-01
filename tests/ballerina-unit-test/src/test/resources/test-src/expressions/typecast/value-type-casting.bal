@@ -131,10 +131,3 @@ function booleanappendtostring(boolean value) returns (string) {
     result = value + "-append-" + value;
     return result;
 }
-
-function intarrtofloatarr() returns (float[]) {
-    float[] numbers;
-    numbers = [999,95,889];
-    return numbers;
-}
-

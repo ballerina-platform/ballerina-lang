@@ -71,6 +71,25 @@ public class ServiceTest {
     }
 
     @Test
+    public void testMostSpecificBasePathIdentificationWithDuplicatedPath() {
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/message/echo/message", "GET");
+        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(responseMsgPayload,
+                            "no matching resource found for path : /echo/message/echo/message , method : GET");
+    }
+
+    @Test
+    public void testMostSpecificBasePathIdentificationWithUnmatchedBasePath() {
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/abcd/message/echo/message", "GET");
+        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(responseMsgPayload, "no matching service found for path : /abcd/message/echo/message");
+    }
+
+    @Test
     public void testServiceDispatchingWithWorker() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/message_worker", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);

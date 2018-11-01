@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
@@ -36,24 +35,24 @@ import java.nio.file.Paths;
 /**
  * Test class for gRPC client invocation of unavailable service.
  */
-public class ServiceUnavailableTestCase extends IntegrationTestCase {
-    
+@Test(groups = "grpc-test")
+public class ServiceUnavailableTestCase extends GrpcBaseTest {
+
     @BeforeClass
     private void setup() throws Exception {
-        Utils.checkPortAvailability(9096);
+        Utils.checkPortAvailability(9110);
         TestUtils.prepareBalo(this);
     }
 
     @Test(description = "Test invoking unavailable service. Connector error is expected with connection refused.")
     public void testUnavailableServiceInvoke() {
-
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unavailable_service_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unavailable_service_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
         final String expectedMsg = "Error from Connector: Status{ code UNAVAILABLE, description null, cause " +
                 "Connection refused:";
-        final String expectedHostDetails = "localhost/127.0.0.1:9096";
-        
+        final String expectedHostDetails = "localhost/127.0.0.1:9110";
+
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);

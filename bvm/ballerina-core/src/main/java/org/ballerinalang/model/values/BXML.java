@@ -324,4 +324,11 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * @param qname Qualified name of the attribute
      */
     public abstract void removeAttribute(String qname);
+
+    /**
+     * Remove children matching the given name from an XML.
+     * 
+     * @param qname Namespace qualified name of the children to be removed.
+     */
+    public abstract void removeChildren(String qname);
 }

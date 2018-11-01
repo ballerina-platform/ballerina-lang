@@ -88,6 +88,7 @@ public class BallerinaDocUtils {
     /**
      * Load primitive types of Ballerina.
      *
+     * @param filterDescription is filter.
      * @return a lit of primitive types and their corresponding descriptions.
      */
     public static List<String> loadPrimitivesDescriptions(boolean filterDescription) {

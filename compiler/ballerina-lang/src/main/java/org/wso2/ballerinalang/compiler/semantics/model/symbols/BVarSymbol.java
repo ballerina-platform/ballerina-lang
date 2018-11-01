@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -37,7 +36,6 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
      * Represent the index of the variable in a memory block of the VM.
      */
     public RegIndex varIndex;
-    public DocTag docTag;
 
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(VARIABLE, flags, name, pkgID, type, owner);

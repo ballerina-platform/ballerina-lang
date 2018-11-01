@@ -20,10 +20,8 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.AnnotationAttributeNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
-import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -41,11 +39,8 @@ import java.util.Set;
  */
 public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public BLangIdentifier name;
-    @Deprecated
-    public List<BLangAnnotAttribute> attributes;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
-    public List<BLangDocumentation> docAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public BSymbol symbol;
@@ -53,11 +48,9 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public BLangType typeNode;
 
     public BLangAnnotation() {
-        this.attributes = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.attachPoints = EnumSet.noneOf(AttachPoint.class);
-        this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
     }
 
@@ -90,16 +83,6 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     }
 
     @Override
-    public List<BLangAnnotAttribute> getAttributes() {
-        return attributes;
-    }
-
-    @Override
-    public void addAttribute(AnnotationAttributeNode attribute) {
-        this.attributes.add((BLangAnnotAttribute) attribute);
-    }
-
-    @Override
     public Set<? extends Flag> getFlags() {
         return flagSet;
     }
@@ -117,16 +100,6 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.annAttachments.add((BLangAnnotationAttachment) annAttachment);
-    }
-
-    @Override
-    public List<BLangDocumentation> getDocumentationAttachments() {
-        return docAttachments;
-    }
-
-    @Override
-    public void addDocumentationAttachment(DocumentationNode docAttachment) {
-        this.docAttachments.add((BLangDocumentation) docAttachment);
     }
 
     @Override

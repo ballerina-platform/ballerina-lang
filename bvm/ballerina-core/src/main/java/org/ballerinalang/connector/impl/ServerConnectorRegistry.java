@@ -47,7 +47,7 @@ public class ServerConnectorRegistry {
                     serverConnectorMap.put(protocolPkg, serverConnector);
                 } else {
                     throw new BLangRuntimeException("Multiple server connectors in the runtime for" +
-                                                            " given protocol package - " + protocolPkg);
+                                                            " given protocol module - " + protocolPkg);
                 }
             });
         });

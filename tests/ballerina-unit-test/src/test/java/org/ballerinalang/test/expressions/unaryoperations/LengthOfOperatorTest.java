@@ -206,19 +206,6 @@ public class LengthOfOperatorTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test lengthof unary expression when reference point to JSON Object.")
-    public void testArrayLengthAccessJSONArrayNegativeNonArrayCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(result, "arrayLengthAccessTestJSONArrayNegativeNonArrayCase", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = -1;
-        Assert.assertEquals(actual, expected);
-    }
-
     @Test(description = "Test lengthof unary expression when array is null.")
     public void testArrayLengthAccessExpArrayNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
@@ -282,6 +269,13 @@ public class LengthOfOperatorTest {
 
     @Test(description = "Test lengthof string")
     public void lengthOfNullString() {
-        BRunUtil.invoke(result, "lengthOfNullString");
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfNullString");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+    @Test(description = "Test lengthof JSON object")
+    public void lengthOfJSONObject() {
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfJSONObject");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 }

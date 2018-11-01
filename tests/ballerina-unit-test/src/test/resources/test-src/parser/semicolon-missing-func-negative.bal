@@ -1,4 +1,4 @@
-function main(string... str) {
+public function main(string... str) {
 
 	// Following line is invalid.
 	int b

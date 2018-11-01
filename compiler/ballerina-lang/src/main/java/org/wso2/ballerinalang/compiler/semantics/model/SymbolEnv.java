@@ -27,10 +27,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -134,6 +139,13 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    public static SymbolEnv createArrowFunctionSymbolEnv(BLangArrowFunction node, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        symbolEnv.enclEnv = env;
+        symbolEnv.enclPkg = env.enclPkg;
+        return symbolEnv;
+    }
+
     public static SymbolEnv createForkJoinSymbolEnv(BLangForkJoin node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);
@@ -191,6 +203,25 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
+    public static SymbolEnv createStreamingQueryEnv(BLangStreamingQueryStatement node, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        env.copyTo(symbolEnv);
+        symbolEnv.node = node;
+        return symbolEnv;
+    }
+
+    public SymbolEnv createClone() {
+        Scope scope = new Scope(this.scope.owner);
+        for (Map.Entry<Name, Scope.ScopeEntry> entry: this.scope.entries.entrySet()) {
+            scope.entries.put(entry.getKey(), entry.getValue());
+        }
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        this.copyTo(symbolEnv);
+        symbolEnv.enclEnv = this.enclEnv != null ? this.enclEnv.createClone() : null;
+        symbolEnv.enclPkg = this.enclPkg;
+        return symbolEnv;
+    }
+
     // Private functions
 
     private static SymbolEnv duplicate(BLangNode node, Scope scope, SymbolEnv env) {
@@ -198,5 +229,4 @@ public class SymbolEnv {
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
-
 }

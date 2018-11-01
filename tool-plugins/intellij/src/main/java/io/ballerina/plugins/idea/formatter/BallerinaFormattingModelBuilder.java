@@ -47,6 +47,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AWAIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIND;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOCK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BUT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
@@ -55,6 +56,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.CALLABLE_UNIT_SIGNATU
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH_CLAUSES;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL_TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMA;
@@ -65,7 +68,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DIV;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_DESCRIPTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_COLON;
@@ -101,6 +103,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FROM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FULL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_INVOCATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_NAME_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.GROUP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.GT;
@@ -176,6 +179,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REST_PARAMETER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRIES;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURNS;
@@ -211,6 +215,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIGGER_WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_CONVERSION_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNARY_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNIDIRECTIONAL;
@@ -235,6 +240,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.YEAR;
  * Builds the Ballerina file formatting model.
  */
 public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
+
+    // TODO Fix formatting rules for XML literals
 
     @NotNull
     @Override
@@ -266,7 +273,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(XMLNS).spaceIf(true)
                 .around(RETURNS).spaceIf(true)
                 .around(VERSION).spaceIf(true)
-                .around(DOCUMENTATION).spaceIf(true)
                 .around(DEPRECATED).spaceIf(true)
 
                 .around(VAR).spaceIf(true)
@@ -337,6 +343,10 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(YEAR).spaceIf(true)
                 .around(FOREVER).spaceIf(true)
 
+                //Channel keyword
+                .between(CHANNEL, LT).spaceIf(false)
+                .between(CHANNEL_TYPE, IDENTIFIER).spaceIf(true)
+
                 // Common tokens
                 .before(COMMA).spaceIf(false)
                 .after(COMMA).spaceIf(true)
@@ -352,12 +362,14 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(SIMPLE_TYPE_NAME, EQUAL_GT).spaceIf(true)
                 .after(ANNOTATION_ATTACHMENT).spaceIf(true)
                 .between(FUNCTION, SIMPLE_TYPE_NAME).spaceIf(true)
+                .between(FUNCTION, LEFT_PARENTHESIS).spaceIf(true)
                 .around(SIMPLE_TYPE_NAME).spaceIf(false)
                 .between(NAME_REFERENCE, RECORD_LITERAL).spaceIf(true)
                 .around(NAME_REFERENCE).spaceIf(false)
                 .before(RETURN_TYPE).spaceIf(false)
                 .after(RETURN_TYPE).spaceIf(true)
                 .between(UNION_TYPE_NAME, IDENTIFIER).spaceIf(true)
+                .between(FUNCTION_NAME_REFERENCE, LEFT_PARENTHESIS).spaceIf(false)
 
                 .around(UNION_TYPE_NAME).spaceIf(false)
                 .between(TUPLE_TYPE_NAME, IDENTIFIER).spaceIf(true)
@@ -415,6 +427,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(ADD, FLOATING_POINT_LITERAL).spaceIf(false)
                 .between(SUB, FLOATING_POINT_LITERAL).spaceIf(false)
 
+                .between(SERVICE, IDENTIFIER).spaceIf(true)
                 .before(SERVICE_BODY).spaceIf(true)
                 .between(SERVICE, LT).spaceIf(false)
                 .before(SERVICE_ENDPOINT_ATTACHMENTS).spaceIf(true)
@@ -451,12 +464,13 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .around(DECIMAL_INTEGER_LITERAL).spaceIf(false)
 
+                //ELLIPSIS operator
                 .between(ELLIPSIS, VARIABLE_REFERENCE_EXPRESSION).spaceIf(false)
                 .between(EXPRESSION, ELLIPSIS).spaceIf(false)
                 .between(ELLIPSIS, EXPRESSION).spaceIf(false)
                 .between(SIMPLE_LITERAL_EXPRESSION, ELLIPSIS).spaceIf(false)
                 .between(ELLIPSIS, SIMPLE_LITERAL_EXPRESSION).spaceIf(false)
-
+                .betweenInside(ELLIPSIS, IDENTIFIER, REST_PARAMETER).spaceIf(true)
 
                 .before(INDEX).spaceIf(false)
 
@@ -479,6 +493,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .between(FORK, SEMICOLON).spaceIf(false)
                 .around(FORK).spaceIf(true)
+
+                .between(TYPE, IDENTIFIER).spaceIf(true)
 
                 .between(IDENTIFIER, FINITE_TYPE).spaceIf(true)
                 .between(IDENTIFIER, ENDPOINT_INITIALIZATION).spaceIf(true)
@@ -537,9 +553,11 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
+                .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, CATCH_CLAUSE).spaceIf(true)
 
                 .betweenInside(EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
+                .betweenInside(BRACED_OR_TUPLE_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
 

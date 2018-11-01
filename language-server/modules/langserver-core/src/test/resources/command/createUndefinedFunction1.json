@@ -1,0 +1,33 @@
+{
+  "arguments": "int a, int b",
+  "functionName": "addTwoIntegers",
+  "expected": {
+    "result":{
+      "edit":{
+        "changes":{
+
+        },
+        "documentChanges":[
+          {
+            "edits":[
+              {
+                "range":{
+                  "start":{
+                    "line":6,
+                    "character":1
+                  },
+                  "end":{
+                    "line":9,
+                    "character":0
+                  }
+                },
+                "newText":"\n\nfunction addTwoIntegers(int a, int b){\n\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc":"2.0"
+  }
+}

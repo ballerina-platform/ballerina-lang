@@ -57,12 +57,18 @@ public class Constants {
     public static final String CONSUMER_IDENTIFIER = "identifier";
     public static final String CONSUMER_ACTIONS = "consumerActions";
 
+    // Destination fields
+    public static final String DESTINATION_NAME = "destinationName";
+    public static final String DESTINATION_TYPE = "destinationType";
+
     // Native objects
     public static final String JMS_CONNECTION = "jms_connection_object";
     public static final String JMS_SESSION = "jms_session_object";
     public static final String JMS_PRODUCER_OBJECT = "jms_producer_object";
     public static final String JMS_MESSAGE_OBJECT = "jms_message_object";
     public static final String JMS_CONSUMER_OBJECT = "jms_consumer_object";
+    public static final String JMS_DESTINATION_OBJECT = "jms_destination_object";
+
     // Used to keep the session wrapper
     public static final String SESSION_CONNECTOR_OBJECT = "jms_session_connector_object";
 
@@ -130,6 +136,8 @@ public class Constants {
     public static final Map<String, String> MAPPING_PARAMETERS = Collections.unmodifiableMap(mappingParameters);
 
     public static final String JMS_MESSAGE_STRUCT_NAME = "Message";
+
+    public static final String JMS_DESTINATION_STRUCT_NAME = "Destination";
 
     /**
      * Acknowledge Modes.

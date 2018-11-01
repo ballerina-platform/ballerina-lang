@@ -223,6 +223,8 @@ public class MessageFramer {
 
     /**
      * Returns whether this framer has been closed or not.
+     *
+     * @return is closed
      */
     public boolean isClosed() {
         return closed;

@@ -1,26 +1,23 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.listener;
 
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
-import org.ballerinalang.test.context.Server;
-import org.ballerinalang.test.context.ServerInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.IExecutionListener;
@@ -34,20 +31,6 @@ import java.util.List;
  */
 public class TestExecutionListener implements IExecutionListener {
     private static final Logger log = LoggerFactory.getLogger(TestExecutionListener.class);
-
-    private static Server newServer;
-
-    /**
-     * To het the server instance started by listener.
-     *
-     * @return up and running server instance.
-     */
-    public static Server getServerInstance() {
-        if (newServer == null || !newServer.isRunning()) {
-            throw new RuntimeException("Server startup failed");
-        }
-        return newServer;
-    }
 
     /**
      * List the file in a given directory.
@@ -86,26 +69,7 @@ public class TestExecutionListener implements IExecutionListener {
      */
     @Override
     public void onExecutionStart() {
-        //path of the zip file distribution
-        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-
-        try {
-            newServer = new ServerInstance(serverZipPath) {
-                //config the service files need to be deployed
-                @Override
-                protected void configServer() {
-                    //path of the sample bal file directory
-                    String relativePath = System.getProperty("integration.test.utils.service.file");
-                    //list of sample bal files to be deploy
-                    String[] serviceFilesArr = {relativePath};
-                    setArguments(serviceFilesArr);
-                }
-            };
-            newServer.startServer();
-        } catch (BallerinaTestException e) {
-            log.error("Server failed to start. " + e.getMessage(), e);
-            throw new RuntimeException("Server failed to start. " + e.getMessage(), e);
-        }
+        // Do nothing - we don't have anything to do
     }
 
     /**
@@ -114,13 +78,6 @@ public class TestExecutionListener implements IExecutionListener {
      */
     @Override
     public void onExecutionFinish() {
-        if (newServer != null && newServer.isRunning()) {
-            try {
-                newServer.stopServer();
-            } catch (Exception e) {
-                log.error("Server failed to stop. " + e.getMessage(), e);
-                throw new RuntimeException("Server failed to stop. " + e.getMessage(), e);
-            }
-        }
+        // Do nothing - we don't have anything to do
     }
 }

@@ -27,7 +27,7 @@ function getAssignedGlobalVarFloat() returns (float) {
 }
 
 function getAnyGlobalVar() returns (any) {
-    float val = 45545;
+    float val = 45545.0;
     return val;
 }
 

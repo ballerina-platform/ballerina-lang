@@ -24,13 +24,13 @@ package org.ballerinalang.util.diagnostic;
  */
 public enum DiagnosticCode {
 
-    UNDEFINED_PACKAGE("undefined.package"),
-    UNUSED_IMPORT_PACKAGE("unused.import.package"),
-    PACKAGE_NOT_FOUND("package.not.found"),
-    REDECLARED_IMPORT_PACKAGE("redeclared.import.package"),
-    INVALID_PACKAGE_DECLARATION("invalid.package.declaration"),
-    MISSING_PACKAGE_DECLARATION("missing.package.declaration"),
-    UNEXPECTED_PACKAGE_DECLARATION("unexpected.package.declaration"),
+    UNDEFINED_MODULE("undefined.module"),
+    UNUSED_IMPORT_MODULE("unused.import.module"),
+    MODULE_NOT_FOUND("module.not.found"),
+    REDECLARED_IMPORT_MODULE("redeclared.import.module"),
+    INVALID_MODULE_DECLARATION("invalid.module.declaration"),
+    MISSING_MODULE_DECLARATION("missing.module.declaration"),
+    UNEXPECTED_MODULE_DECLARATION("unexpected.module.declaration"),
     REDECLARED_SYMBOL("redeclared.symbol"),
     REDECLARED_BUILTIN_SYMBOL("redeclared.builtin.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
@@ -39,6 +39,7 @@ public enum DiagnosticCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
+    TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
@@ -52,8 +53,13 @@ public enum DiagnosticCode {
     ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS("attached.functions.cannot.have.visibility.modifiers"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("attached.functions.must.have.body"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
-    CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
     CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
+    EXTERN_FUNCTION_CANNOT_HAVE_BODY("extern.function.cannot.have.body"),
+    ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
+    CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
+    INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
+    CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT("cannot.attach.functions.to.abstract.object"),
+    ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -70,9 +76,13 @@ public enum DiagnosticCode {
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
+    INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
+    REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
+    REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
-    MAIN_CANNOT_BE_PUBLIC("main.cannot.be.public"),
+    MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
+    INVALID_RETURN_WITH_MAIN("invalid.return.with.main"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
@@ -84,8 +94,6 @@ public enum DiagnosticCode {
     INTEGER_TOO_SMALL("integer.too.small"),
     HEXADECIMAL_TOO_LARGE("hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
-    OCTAL_TOO_LARGE("octal.too.large"),
-    OCTAL_TOO_SMALL("octal.too.small"),
     BINARY_TOO_LARGE("binary.too.large"),
     BINARY_TOO_SMALL("binary.too.small"),
 
@@ -136,6 +144,9 @@ public enum DiagnosticCode {
     REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("rest.field.not.allowed"),
     OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("open.record.constraint.not.allowed"),
     INVALID_RECORD_REST_DESCRIPTOR("invalid.record.rest.descriptor"),
+    MISSING_REQUIRED_RECORD_FIELD("missing.required.record.field"),
+    DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS("default.values.not.allowed.for.optional.fields"),
+    INVALID_FUNCTION_POINTER_INVOCATION("invalid.function.pointer.invocation"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
@@ -182,6 +193,7 @@ public enum DiagnosticCode {
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
+    DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
@@ -208,15 +220,12 @@ public enum DiagnosticCode {
     UNDOCUMENTED_PARAMETER("undocumented.parameter"),
     NO_SUCH_DOCUMENTABLE_PARAMETER("no.such.documentable.parameter"),
     PARAMETER_ALREADY_DOCUMENTED("parameter.already.documented"),
-
     UNDOCUMENTED_FIELD("undocumented.field"),
     NO_SUCH_DOCUMENTABLE_FIELD("no.such.documentable.field"),
     FIELD_ALREADY_DOCUMENTED("field.already.documented"),
-
     UNDOCUMENTED_VARIABLE("undocumented.variable"),
     NO_SUCH_DOCUMENTABLE_VARIABLE("no.such.documentable.variable"),
     VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),
-
     UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),
     NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),
 
@@ -276,12 +285,19 @@ public enum DiagnosticCode {
     INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
     INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
     INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
+    INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
+    STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
     TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
-    UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion")
+    UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),
+
+    // Anonymous functions related codes
+    ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
+    ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS("arrow.expression.cannot.infer.type.from.lhs"),
+    ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION("arrow.expression.not.supported.iterable.operation")
     ;
 
     private String value;

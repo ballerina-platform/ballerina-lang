@@ -46,7 +46,7 @@ import java.io.PrintStream;
  */
 public class BLangVMUtils {
     
-    private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
+    public static final String SERVICE_INFO_KEY = "SERVICE_INFO";
 
     private static final String TRANSACTION_INFO_KEY = "TRANSACTION_INFO";
 
@@ -378,8 +378,8 @@ public class BLangVMUtils {
         }
     }
     
-    public static void mergeInitWorkertData(WorkerData sourceData, WorkerData targetData, 
-            CodeAttributeInfo initWorkerCAI) {
+    public static void mergeInitWorkerData(WorkerData sourceData, WorkerData targetData,
+                                           CodeAttributeInfo initWorkerCAI) {
         for (int i = 0; i < initWorkerCAI.getMaxDoubleLocalVars(); i++) {
             targetData.doubleRegs[i] = sourceData.doubleRegs[i];
         }
@@ -442,7 +442,7 @@ public class BLangVMUtils {
         ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
     }
 
-    public static boolean getGlobalTransactionenabled(WorkerExecutionContext ctx) {
+    public static boolean getGlobalTransactionEnabled(WorkerExecutionContext ctx) {
         return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
     }
 }

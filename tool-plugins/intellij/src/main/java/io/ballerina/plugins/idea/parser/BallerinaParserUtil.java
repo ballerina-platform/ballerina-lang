@@ -176,10 +176,17 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                             || tokenType == BallerinaTypes.UNARY_EXPRESSION
                                             || tokenType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION
                                             || tokenType == BallerinaTypes.SIMPLE_TYPE_NAME
+                                            || tokenType == BallerinaTypes.INTEGER_RANGE_EXPRESSION
                                             ) {
                                         return true;
                                     }
                                 }
+                            } else if (rawLookup == BallerinaTypes.LEFT_BRACE
+                                    && (rawLookup2 == BallerinaTypes.DECIMAL_INTEGER_LITERAL
+                                    || rawLookup2 == BallerinaTypes.HEX_INTEGER_LITERAL
+                                    || rawLookup2 == BallerinaTypes.OCTAL_INTEGER_LITERAL
+                                    || rawLookup2 == BallerinaTypes.BINARY_INTEGER_LITERAL)) {
+                                return true;
                             } else if (rawLookup == BallerinaTypes.LINE_COMMENT &&
                                     rawLookup2 == BallerinaTypes.LINE_COMMENT) {
                                 if (next1Element == BallerinaTypes.COLON && next3Element == BallerinaTypes.COLON) {

@@ -19,16 +19,25 @@ package org.ballerinalang.langserver.index.dto;
 
 /**
  * DTO for BServiceSymbol.
+ * 
+ * @since 0.983.0
  */
-public class BLangServiceDTO {
+public final class BLangServiceDTO {
+    
+    private int id;
     
     private int packageId;
     
     private String name;
 
-    public BLangServiceDTO(int packageId, String name) {
+    private BLangServiceDTO(int id, int packageId, String name) {
+        this.id = id;
         this.packageId = packageId;
         this.name = name;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public int getPackageId() {
@@ -37,5 +46,36 @@ public class BLangServiceDTO {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * Builder for BLangServiceDTO.
+     */
+    public static class BLangServiceDTOBuilder {
+
+        private int id = -1;
+
+        private int packageId = -1;
+
+        private String name = "";
+
+        public BLangServiceDTOBuilder setId(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public BLangServiceDTOBuilder setPackageId(int packageId) {
+            this.packageId = packageId;
+            return this;
+        }
+
+        public BLangServiceDTOBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+        
+        public BLangServiceDTO build() {
+            return new BLangServiceDTO(this.id, this.packageId, this.name);
+        }
     }
 }

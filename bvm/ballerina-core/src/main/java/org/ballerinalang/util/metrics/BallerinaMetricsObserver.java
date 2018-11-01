@@ -170,7 +170,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private void handleError(String connectorName, Set<Tag> tags, RuntimeException e) {
         // Metric Provider may throw exceptions if there is a mismatch in tags.
-        consoleError.println("ballerina: error collecting metrics for " + connectorName + " with tags " + tags +
+        consoleError.println("error: error collecting metrics for " + connectorName + " with tags " + tags +
                 ": " + e.getMessage());
     }
 }

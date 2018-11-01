@@ -350,3 +350,32 @@ function testJsonIntToFloat () returns (float) {
     jFloat = check <float>j.score;
     return jFloat;
 }
+
+function testNullJsonToInt() returns (int) {
+    json j = null;
+    return check <int>j;
+}
+
+function testNullJsonToFloat() returns (float) {
+    json j = null;
+    return check <float>j;
+}
+function testNullJsonToString() returns (string) {
+    json j = null;
+    return check <string>j;
+}
+
+function testNullJsonToBoolean() returns (boolean) {
+    json j = null;
+    return check <boolean>j;
+}
+
+function testNullJsonToMap() returns (map) {
+    json j = null;
+    return check <map>j;
+}
+
+function testNullJsonToArray() returns (int[]) {
+    json j = null;
+    return check <int[]>j;
+}

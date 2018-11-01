@@ -72,6 +72,7 @@ public class BlockingStub extends AbstractStub {
      *
      * @param request          request message.
      * @param methodDescriptor method descriptor
+     * @param dataContext data context
      */
     public void executeUnary(Message request, MethodDescriptor methodDescriptor,
                                            DataContext dataContext) {

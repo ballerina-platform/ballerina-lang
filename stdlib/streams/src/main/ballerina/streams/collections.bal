@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/reflect;
 
 public type Node object {
@@ -147,23 +148,23 @@ public type LinkedList object {
 
     // Removes all of the elements from this list.
     public function clear() {
-        match first {
-            Node f => {
-                Node? x = f;
-                while (x != ()) {
-                    Node x1 = x but {() => new((), (), ())};
-                    Node? nxt = x1.next;
-                    x1.data = ();
-                    x1.next = ();
-                    x1.prev = ();
-                    x = nxt;
-                }
-                first = ();
-                last = ();
-                size = 0;
-            }
-            () => {}
-        }
+        // TODO: unlink every node and clean up properly.
+        //match first {
+        //    Node f => {
+        //        Node x = f;
+        //        while (x != ()) {
+        //            Node nxt = x.next;
+        //            x.data = ();
+        //            x.next = ();
+        //            x.prev = ();
+        //            x = nxt;
+        //        }
+        //        first = ();
+        //        last = ();
+        //        size = 0;
+        //    }
+        //    () => {}
+        //}
         first = ();
         last = ();
         size = 0;
@@ -270,6 +271,15 @@ public type LinkedList object {
         }
     }
 
+    public function insertBeforeCurrent(any data) {
+        match curr {
+            Node c => {
+                linkBefore(data, c);
+            }
+            () => {}
+        }
+    }
+
     // Links data as first element.
     function linkFirst(any data) {
         match first {
@@ -284,7 +294,7 @@ public type LinkedList object {
                 last = newNode;
             }
         }
-        size++;
+        size += 1;
     }
 
     // Links data as last element.
@@ -301,10 +311,10 @@ public type LinkedList object {
                 last = newNode;
             }
         }
-        size++;
+        size += 1;
     }
 
-    // Inserts element e before non-null Node succ.
+    // Inserts element 'data' before non-null Node succ.
     function linkBefore(any data, Node succ) {
         Node? pred = succ.prev;
         Node newNode = new(pred, data, succ);
@@ -317,7 +327,7 @@ public type LinkedList object {
                 first = newNode;
             }
         }
-        size++;
+        size += 1;
     }
 
     // Unlinks non-null first Node node.
@@ -335,7 +345,7 @@ public type LinkedList object {
                 last = ();
             }
         }
-        size--;
+        size -= 1;
         return data;
     }
 
@@ -354,7 +364,7 @@ public type LinkedList object {
                 first = ();
             }
         }
-        size--;
+        size -= 1;
         return data;
     }
 
@@ -389,7 +399,7 @@ public type LinkedList object {
             }
         }
         x.data = ();
-        size--;
+        size -= 1;
         return data;
     }
 

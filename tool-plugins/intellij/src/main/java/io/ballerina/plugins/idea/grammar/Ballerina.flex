@@ -20,7 +20,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inStringTemplate = false;
 
     private boolean inDeprecatedTemplate = false;
-    private boolean inDocTemplate = false;
 
     private boolean inSiddhi = false;
     private boolean inTableSqlQuery = false;
@@ -60,12 +59,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
         } else if (inStringTemplate) {
             yybegin(STRING_TEMPLATE_MODE);
             return EXPRESSION_END;
-        } else if (inDocTemplate) {
-            yybegin(DOCUMENTATION_TEMPLATE_MODE);
-            return DOCUMENTATION_TEMPLATE_ATTRIBUTE_END;
-        } else if (inDeprecatedTemplate) {
-            yybegin(DEPRECATED_TEMPLATE_MODE);
-            return DOCUMENTATION_TEMPLATE_ATTRIBUTE_END;
         } else {
             yypushback(1);
             return RIGHT_BRACE;
@@ -82,7 +75,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 
 DECIMAL_INTEGER_LITERAL = {DecimalNumeral}
 HEX_INTEGER_LITERAL = {HexNumeral}
-OCTAL_INTEGER_LITERAL = {OctalNumeral}
 BINARY_INTEGER_LITERAL = {BinaryNumeral}
 
 DecimalNumeral = 0 | {NonZeroDigit} {Digits}?
@@ -91,20 +83,23 @@ Digit = 0 | {NonZeroDigit}
 NonZeroDigit = [1-9]
 
 HexNumeral = 0 [xX] {HexDigits}
+
+DottedHexNumber = {HexDigits} "." {HexDigits} | "." {HexDigits}
+
+DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digit}+
+
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
-
-OctalNumeral = 0 {OctalDigits}
-OctalDigits = {OctalDigit}+
-OctalDigit = [0-7]
 
 BinaryNumeral = 0 [bB] {BinaryDigits}
 BinaryDigits = {BinaryDigit}+
 BinaryDigit = [01]
 
-// §3.10.2 Floating-Point Literals
+HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
 
-FLOATING_POINT_LITERAL = {DecimalFloatingPointLiteral} | {HexadecimalFloatingPointLiteral}
+DecimalFloatingPointNumber = {DecimalNumeral} {ExponentPart} | {DottedDecimalNumber} {ExponentPart}?
+
+// §3.10.2 Floating-Point Literals
 
 DecimalFloatingPointLiteral = {Digits} "." ({Digits} {ExponentPart}? | {Digits}? {ExponentPart})
     | "." {Digits} {ExponentPart}?
@@ -114,6 +109,9 @@ ExponentPart = {ExponentIndicator} {SignedInteger}
 ExponentIndicator = [eE]
 SignedInteger = {Sign}? {Digits}
 Sign = [+-]
+
+HexIndicator = 0 [xX]
+HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 
 HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent}
 HexSignificand = {HexNumeral} "."? | '0' [xX] {HexDigits}? "." {HexDigits}
@@ -131,6 +129,17 @@ ESCAPE_SEQUENCE = \\ [btnfr\"'\\]
 STRING_CHARACTER =  [^\"] | {ESCAPE_SEQUENCE}
 STRING_CHARACTERS = {STRING_CHARACTER}+
 QUOTED_STRING_LITERAL = \" {STRING_CHARACTERS}? \"?
+
+SYMBOLIC_STRING_LITERAL =  \' {UNDELIMETERED_INITIAL_CHAR} {UNDELIMETERED_FOLLOWING_CHAR}*
+
+UNDELIMETERED_INITIAL_CHAR = [a-zA-Z_]
+    // Negates ASCII characters
+    // Negates unicode whitespace characters : 0x200E, 0x200F, 0x2028 and 0x2029
+    // Negates unicode characters with property Pattern_Syntax=True (http://unicode.org/reports/tr31/tr31-2.html#Pattern_Syntax)
+    // Negates unicode characters of category "Private Use" ranging from: 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD
+    | [^\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF]
+
+UNDELIMETERED_FOLLOWING_CHAR = {UNDELIMETERED_INITIAL_CHAR} | {DIGIT}
 
 // Blob Literal
 
@@ -169,9 +178,8 @@ XML_LITERAL_START = xml[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_START = string[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_END = "`"
 
-DOCUMENTATION = "documentation"
+
 DEPRECATED = "deprecated"
-DOCUMENTATION_TEMPLATE_START = {DOCUMENTATION} {WHITE_SPACE}* {LEFT_BRACE}
 DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
 
 // Todo - Need to add spaces between braces?
@@ -247,18 +255,56 @@ XML_COMMENT_CHAR = [^{}>\\-] | {XML_ESCAPED_SEQUENCE}
 XML_COMMENT_ALLOWED_SEQUENCE = {XML_BRACES_SEQUENCE} | {XML_COMMENT_SPECIAL_SEQUENCE} | ({XML_BRACES_SEQUENCE} {XML_COMMENT_SPECIAL_SEQUENCE})+ {XML_BRACES_SEQUENCE}? | ({XML_COMMENT_SPECIAL_SEQUENCE} {XML_BRACES_SEQUENCE})+ {XML_COMMENT_SPECIAL_SEQUENCE}?
 XML_COMMENT_SPECIAL_SEQUENCE = ">"+ | (">"* "-" ">"+)+ | "-"? ">"* "-"+
 
-// DOCUMENTATION_TEMPLATE
-DOCUMENTATION_TEMPLATE_END = {RIGHT_BRACE}
-DOCUMENTATION_TEMPLATE_ATTRIBUTE_START = {ATTRIBUTE_PREFIX} {EXPRESSION_START}
-SB_DOC_INLINE_CODE_START = {ATTRIBUTE_PREFIX}? {DOC_BACK_TICK}
-DB_DOC_INLINE_CODE_START = {ATTRIBUTE_PREFIX}? {DOC_BACK_TICK} {DOC_BACK_TICK}
-TB_DOC_INLINE_CODE_START = {ATTRIBUTE_PREFIX}? {DOC_BACK_TICK} {DOC_BACK_TICK} {DOC_BACK_TICK}
-DOCUMENTATION_TEMPLATE_TEXT = {DOCUMENTATION_VALID_CHAR_SEQUENCE}? ({DOCUMENTATION_TEMPLATE_STRING_CHAR} {DOCUMENTATION_VALID_CHAR_SEQUENCE}?)+ | {DOCUMENTATION_VALID_CHAR_SEQUENCE} ({DOCUMENTATION_TEMPLATE_STRING_CHAR} {DOCUMENTATION_VALID_CHAR_SEQUENCE}?)*
-DOCUMENTATION_TEMPLATE_STRING_CHAR = [^`{}\\FPTRVE] | \\ [{}`] | {WHITE_SPACE} | {DOCUMENTATION_ESCAPED_SEQUENCE}
-ATTRIBUTE_PREFIX = [FPTRVE]
-DOC_BACK_TICK = "`"
-DOCUMENTATION_ESCAPED_SEQUENCE = \\\\
-DOCUMENTATION_VALID_CHAR_SEQUENCE = [FPTRVE] [^`{}\\] | [FPTRVE] \\ [{}`] | [FPTRVE] \\ [^{}`] | \\ [^\\]
+
+// MARKDOWN_DOCUMENTATION
+MARKDOWN_DOCUMENTATION_LINE_START =  {HASH} {DOCUMENTATION_SPACE}?
+PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCUMENTATION_SPACE}*
+RETURN_PARAMETER_DOCUMENTATION_START = {HASH} {DOCUMENTATION_SPACE}? {ADD} {DOCUMENTATION_SPACE}* {RETURN} {DOCUMENTATION_SPACE}* {SUB} {DOCUMENTATION_SPACE}*
+DOCUMENTATION_SPACE = [ ]
+
+// MARKDOWN_DOCUMENTATION_MODE
+DEFINITION_REFERERNCE = {REFERENCE_TYPE} {DOCUMENTATION_SPACE}+
+REFERENCE_TYPE = {TYPE}|{ENDPOINT}|{SERVICE}|{VARIABLE}|{VAR}|{ANNOTATION}|{MODULE}|{FUNCTION}|{PARAMETER}
+MARKDOWN_DOCUMENTATION_TEXT = {DOCUMENTATION_TEXT_CHARACTER}+
+DOCUMENTATION_TEXT_CHARACTER =  [^`\n] | '\\' {BACKTICK}
+DOCUMENTATION_ESCAPED_CHARACTERS = {DOCUMENTATION_SPACE}
+MARKDOWN_DOCUMENTATION_LINE_END = [\n]
+TYPE = "type"
+ENDPOINT = "endpoint"
+SERVICE = "service"
+VARIABLE = "variable"
+VAR = "var"
+ANNOTATION = "annotation"
+MODULE = "module"
+FUNCTION = "function"
+PARAMETER = "parameter"
+HASH = "#"
+ADD = "+"
+SUB = "-"
+RETURN = "return"
+
+// SINGLE_BACKTICKED_MARKDOWN
+SINGLE_BACKTICK_CONTENT = (([^`\n] | '\\' {BACKTICK})* [\n])? ({MARKDOWN_DOCUMENTATION_LINE_START} ([^`\n] | '\\' {BACKTICK})* [\n]?)+ | ([^`\n] | '\\' {BACKTICK})+
+SINGLE_BACKTICK_MARKDOWN_START = {BACKTICK}
+SINGLE_BACKTICK_MARKDOWN_END =  {BACKTICK}
+
+// DOUBLE_BACKTICKED_MARKDOWN
+DOUBLE_BACKTICK_CONTENT = (([^`\n] | {BACKTICK} [^`])* [\n])? ({MARKDOWN_DOCUMENTATION_LINE_START} ([^`\n] |
+{BACKTICK} [^`])* [\n]?)+ | ([^`\n] | {BACKTICK} [^`])+
+
+DOUBLE_BACKTICK_MARKDOWN_START = {BACKTICK} {BACKTICK}
+DOUBLE_BACKTICK_MARKDOWN_END = {BACKTICK} {BACKTICK}
+
+// TRIPLE_BACKTICKED_MARKDOWN
+TRIPLE_BACKTICK_CONTENT = (([^`\n] | {BACKTICK} [^`] | {BACKTICK} {BACKTICK} [^`])* [\n])? ({MARKDOWN_DOCUMENTATION_LINE_START} ([^`\n] | {BACKTICK} [^`] | {BACKTICK} {BACKTICK} [^`])* [\n]?)+
+                          | ([^`\n] | {BACKTICK} [^`] | {BACKTICK} {BACKTICK} [^`])+
+TRIPLE_BACKTICK_MARKDOWN_START = {BACKTICK} {BACKTICK} {BACKTICK}
+TRIPLE_BACKTICK_MARKDOWN_END = {BACKTICK} {BACKTICK} {BACKTICK}
+
+// MARKDOWN_PARAMETER_DOCUMENTATION
+PARAMETER_NAME = {IDENTIFIER}
+DESCRIPTION_SEPARATOR = {DOCUMENTATION_SPACE}* {SUB} {DOCUMENTATION_SPACE}*
+PARAMETER_DOCUMENTATION_END = [\n]
 
 // TRIPLE_BACKTICK_INLINE_CODE
 TRIPLE_BACK_TICK_INLINE_CODE_END = {BACKTICK} {BACKTICK} {BACKTICK}
@@ -301,10 +347,15 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 %state XML_PI_MODE
 %state XML_COMMENT_MODE
 
-%state DOCUMENTATION_TEMPLATE_MODE
-%state TRIPLE_BACKTICK_INLINE_CODE_MODE
-%state DOUBLE_BACKTICK_INLINE_CODE_MODE
+%state MARKDOWN_DOCUMENTATION_MODE
+%state MARKDOWN_PARAMETER_DOCUMENTATION_MODE
+%state SINGLE_BACKTICKED_MARKDOWN_MODE
+%state DOUBLE_BACKTICKED_MARKDOWN_MODE
+%state TRIPLE_BACKTICKED_MARKDOWN_MODE
+
 %state SINGLE_BACKTICK_INLINE_CODE_MODE
+%state DOUBLE_BACKTICK_INLINE_CODE_MODE
+%state TRIPLE_BACKTICK_INLINE_CODE_MODE
 %state DEPRECATED_TEMPLATE_MODE
 
 %state STRING_TEMPLATE_MODE
@@ -312,6 +363,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 %%
 <YYINITIAL> {
     "abort"                                     { return ABORT; }
+    "abstract"                                  { return ABSTRACT; }
     "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
     "any"                                       { return ANY; }
@@ -326,12 +378,12 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "byte"                                      { return BYTE; }
 
     "catch"                                     { return CATCH; }
+    "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
     "compensation"                              { return COMPENSATION; }
     "compensate"                                { return COMPENSATE; }
     "continue"                                  { return CONTINUE; }
 
-    "documentation"                             { return DOCUMENTATION; }
     "done"                                      { return DONE; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
@@ -441,6 +493,8 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "&"                                         { return BITAND; }
     "^"                                         { return BITXOR; }
 
+    "~"                                         { return BIT_COMPLEMENT; }
+
     "->"                                        { return RARROW; }
     "<-"                                        { return LARROW; }
     "@"                                         { return AT; }
@@ -456,12 +510,17 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "*="                                        { return COMPOUND_MUL; }
     "/="                                        { return COMPOUND_DIV; }
 
-    "++"                                        { return INCREMENT; }
-    "--"                                        { return DECREMENT; }
+    "&="                                        { return COMPOUND_BIT_AND; }
+    "|="                                        { return COMPOUND_BIT_OR; }
+    "^="                                        { return COMPOUND_BIT_XOR; }
+
+    "<<="                                       { return COMPOUND_LEFT_SHIFT; }
+    ">>="                                       { return COMPOUND_RIGHT_SHIFT; }
+    ">>>="                                      { return COMPOUND_LOGICAL_SHIFT; }
 
     "..<"                                       { return HALF_OPEN_RANGE; }
 
-    "from"                                      { inSiddhi = false; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
+    "from"                                      { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }
     "select"                                    { if(inTableSqlQuery) { inTableSqlQuery = false; return SELECT; } return IDENTIFIER; }
     "group"                                     { return GROUP; }
@@ -506,10 +565,13 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {BOOLEAN_LITERAL}                           { return BOOLEAN_LITERAL; }
     {DECIMAL_INTEGER_LITERAL}                   { return DECIMAL_INTEGER_LITERAL; }
     {HEX_INTEGER_LITERAL}                       { return HEX_INTEGER_LITERAL; }
-    {OCTAL_INTEGER_LITERAL}                     { return OCTAL_INTEGER_LITERAL; }
     {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
-    {FLOATING_POINT_LITERAL}                    { return FLOATING_POINT_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
+    {SYMBOLIC_STRING_LITERAL}                   { return SYMBOLIC_STRING_LITERAL; }
+
+    {DecimalFloatingPointNumber}                { return DECIMAL_FLOATING_POINT_NUMBER; }
+    {HexadecimalFloatingPointLiteral}           { return HEXADECIMAL_FLOATING_POINT_LITERAL; }
+
 
     {BASE_16_BLOB_LITERAL}                      { return BASE_16_BLOB_LITERAL; }
     {BASE_64_BLOB_LITERAL}                      { return BASE_64_BLOB_LITERAL; }
@@ -521,7 +583,10 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {STRING_TEMPLATE_LITERAL_START}             { inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); return STRING_TEMPLATE_LITERAL_START; }
     {EXPRESSION_END}                            { return checkExpressionEnd(); }
 
-    {DOCUMENTATION_TEMPLATE_START}              { inDocTemplate = true; yybegin(DOCUMENTATION_TEMPLATE_MODE); return DOCUMENTATION_TEMPLATE_START; }
+    {RETURN_PARAMETER_DOCUMENTATION_START}      { yybegin(MARKDOWN_DOCUMENTATION_MODE); return RETURN_PARAMETER_DOCUMENTATION_START; }
+    {PARAMETER_DOCUMENTATION_START}             { yybegin(MARKDOWN_PARAMETER_DOCUMENTATION_MODE); return PARAMETER_DOCUMENTATION_START; }
+    {MARKDOWN_DOCUMENTATION_LINE_START}         { yybegin(MARKDOWN_DOCUMENTATION_MODE); return MARKDOWN_DOCUMENTATION_LINE_START; }
+
     {DEPRECATED_TEMPLATE_START}                 { inDeprecatedTemplate = true; yybegin(DEPRECATED_TEMPLATE_MODE); return DEPRECATED_TEMPLATE_START; }
     .                                           { return BAD_CHARACTER; }
 }
@@ -589,32 +654,22 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     .                                           { inStringTemplate = false; yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
 
-<DOCUMENTATION_TEMPLATE_MODE>{
-    {DOCUMENTATION_TEMPLATE_END}                { inDocTemplate = false; yybegin(YYINITIAL); return DOCUMENTATION_TEMPLATE_END; }
-    {SB_DOC_INLINE_CODE_START}                  { yybegin(SINGLE_BACKTICK_INLINE_CODE_MODE); return SB_DOC_INLINE_CODE_START; }
-    {DB_DOC_INLINE_CODE_START}                  { yybegin(DOUBLE_BACKTICK_INLINE_CODE_MODE); return DB_DOC_INLINE_CODE_START; }
-    {TB_DOC_INLINE_CODE_START}                  { yybegin(TRIPLE_BACKTICK_INLINE_CODE_MODE); return TB_DOC_INLINE_CODE_START; }
-    {DOCUMENTATION_TEMPLATE_ATTRIBUTE_START}    { yybegin(YYINITIAL); return DOCUMENTATION_TEMPLATE_ATTRIBUTE_START; }
-    {DOCUMENTATION_TEMPLATE_TEXT}               { return DOCUMENTATION_TEMPLATE_TEXT; }
-    .                                           { yybegin(YYINITIAL); return BAD_CHARACTER; }
-}
-
 <SINGLE_BACKTICK_INLINE_CODE_MODE>{
-    {SINGLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return SINGLE_BACK_TICK_INLINE_CODE_END; }
+    {SINGLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return SINGLE_BACK_TICK_INLINE_CODE_END; }
     {SINGLE_BACK_TICK_INLINE_CODE}              { return SINGLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
 }
 
 <DOUBLE_BACKTICK_INLINE_CODE_MODE>{
-    {DOUBLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return DOUBLE_BACK_TICK_INLINE_CODE_END; }
+    {DOUBLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return DOUBLE_BACK_TICK_INLINE_CODE_END; }
     {DOUBLE_BACK_TICK_INLINE_CODE}              { return DOUBLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
 }
 
 <TRIPLE_BACKTICK_INLINE_CODE_MODE>{
-    {TRIPLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return TRIPLE_BACK_TICK_INLINE_CODE_END; }
+    {TRIPLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return TRIPLE_BACK_TICK_INLINE_CODE_END; }
     {TRIPLE_BACK_TICK_INLINE_CODE}              { return TRIPLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
 }
 
 <DEPRECATED_TEMPLATE_MODE>{
@@ -624,6 +679,40 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {TB_DEPRECATED_INLINE_CODE_START}           { yybegin(TRIPLE_BACKTICK_INLINE_CODE_MODE); return TB_DEPRECATED_INLINE_CODE_START; }
     {DEPRECATED_TEMPLATE_TEXT}                  { return DEPRECATED_TEMPLATE_TEXT; }
     .                                           { yybegin(YYINITIAL); return BAD_CHARACTER; }
+}
+
+<MARKDOWN_DOCUMENTATION_MODE>{
+    {MARKDOWN_DOCUMENTATION_LINE_END}           { yybegin(YYINITIAL); }
+    {SINGLE_BACKTICK_MARKDOWN_START}            { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return SINGLE_BACKTICK_MARKDOWN_START; }
+    {DOUBLE_BACKTICK_MARKDOWN_START}            { yybegin(DOUBLE_BACKTICKED_MARKDOWN_MODE); return DOUBLE_BACKTICK_MARKDOWN_START; }
+    {TRIPLE_BACKTICK_MARKDOWN_START}            { yybegin(TRIPLE_BACKTICKED_MARKDOWN_MODE); return TRIPLE_BACKTICK_MARKDOWN_START; }
+    {MARKDOWN_DOCUMENTATION_TEXT}               { return MARKDOWN_DOCUMENTATION_TEXT; }
+    .                                           { yybegin(YYINITIAL); return BAD_CHARACTER; }
+}
+
+<SINGLE_BACKTICKED_MARKDOWN_MODE>{
+    {SINGLE_BACKTICK_MARKDOWN_END}              { yybegin(MARKDOWN_DOCUMENTATION_MODE); return SINGLE_BACKTICK_MARKDOWN_END; }
+    {SINGLE_BACKTICK_CONTENT}                   { return SINGLE_BACKTICK_CONTENT; }
+    .                                           { return BAD_CHARACTER; }
+}
+
+<DOUBLE_BACKTICKED_MARKDOWN_MODE>{
+    {DOUBLE_BACKTICK_MARKDOWN_END}              { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DOUBLE_BACKTICK_MARKDOWN_END; }
+    {DOUBLE_BACKTICK_CONTENT}                   { return DOUBLE_BACKTICK_CONTENT; }
+    .                                           { return BAD_CHARACTER; }
+}
+
+<TRIPLE_BACKTICKED_MARKDOWN_MODE>{
+    {TRIPLE_BACKTICK_MARKDOWN_END}              { yybegin(MARKDOWN_DOCUMENTATION_MODE); return TRIPLE_BACKTICK_MARKDOWN_END; }
+    {TRIPLE_BACKTICK_CONTENT}                   { return TRIPLE_BACKTICK_CONTENT; }
+    .                                           { return BAD_CHARACTER; }
+}
+
+<MARKDOWN_PARAMETER_DOCUMENTATION_MODE> {
+    {PARAMETER_DOCUMENTATION_END}               { yybegin(YYINITIAL); }
+    {PARAMETER_NAME}                            { return PARAMETER_NAME; }
+    {DESCRIPTION_SEPARATOR}                     { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DESCRIPTION_SEPARATOR; }
+    .                                           { return BAD_CHARACTER; }
 }
 
 [^]                                             { return BAD_CHARACTER; }

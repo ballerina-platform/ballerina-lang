@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -33,10 +34,12 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
     protected final BLangDiagnosticLog dlog;
     protected SymbolTable symTable;
+    protected Types types;
 
-    public BIterableTypeVisitor(BLangDiagnosticLog dlog, SymbolTable symTable) {
+    public BIterableTypeVisitor(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
         this.dlog = dlog;
         this.symTable = symTable;
+        this.types = types;
     }
 
     @Override
@@ -88,11 +91,6 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
     }
 
     @Override
-    public List<BType> visit(BEnumType type, Operation op) {
-        return visit((BType) type, op);
-    }
-
-    @Override
     public List<BType> visit(BInvokableType type, Operation op) {
         return visit((BType) type, op);
     }
@@ -114,7 +112,7 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
     /* Util functions */
 
-    protected void logTooMayVariablesError(Operation op) {
+    protected void logTooManyVariablesError(Operation op) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, op.collectionType);
     }
 
@@ -129,13 +127,20 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
      */
     public abstract static class TerminalOperationTypeChecker extends BIterableTypeVisitor {
 
-        public TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
-            super(dlog, symTable);
+        public TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
+            super(dlog, symTable, types);
         }
 
         @Override
         public List<BType> visit(BMapType t, Operation operation) {
             return Lists.of(calculateType(operation, t.constraint));
+        }
+
+        @Override
+        public List<BType> visit(BRecordType t, Operation operation) {
+            // Need to pass the inferred field type of the record here since this type is used in the foreach vars
+            // in the desugared code.
+            return Lists.of(calculateType(operation, types.inferRecordFieldType(t)));
         }
 
         @Override

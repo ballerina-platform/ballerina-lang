@@ -222,6 +222,34 @@ function testTypeFalsePositive() returns (boolean) {
 
 // End Type
 
+// Start of Tuples
+
+function testStringTupleTruePositive() returns (boolean) {
+    (string, string) s1 = ("a", "b");
+    (string, string) s2 = ("a", "b");
+    return reflect:equals(s1,s2);
+}
+
+function testStringTupleTrueNegative() returns (boolean) {
+    (string, string) s1 = ("a", "b");
+    (string, string) s2 = ("a", "c");
+    return reflect:equals(s1,s2);
+}
+
+function testStringTupleFalseNegative() returns (boolean) {
+    (string, string) s1 = ("a", "b");
+    (string, string) s2 = ("a", "b");
+    return !reflect:equals(s1,s2);
+}
+
+function testStringTupleFalsePositive() returns (boolean) {
+    (string, string) s1 = ("a", "b");
+    (string, string) s2 = ("a", "c");
+    return !reflect:equals(s1,s2);
+}
+
+// End Tuples
+
 // Start String Arrays
 
 function testStringArrayTruePositive() returns (boolean) {

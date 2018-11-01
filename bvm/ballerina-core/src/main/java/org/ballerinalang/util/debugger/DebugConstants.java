@@ -40,6 +40,7 @@ public class DebugConstants {
     static final String CMD_RESUME = "RESUME";
     static final String CMD_STEP_IN = "STEP_IN";
     static final String CMD_STEP_OUT = "STEP_OUT";
+    static final String CMD_EVALUATE_EXP = "EVALUATE_EXPRESSION";
 
     // messages sent back to client
     static final String CODE_HIT = "DEBUG_HIT";
@@ -48,8 +49,10 @@ public class DebugConstants {
     static final String CODE_INVALID = "INVALID";
     static final String MSG_INVALID = "Invalid Command";
     static final String MSG_INVALID_WORKER_ID = "Invalid Worker ID : ";
+    static final String MSG_INVALID_BREAKPOINT = "Invalid Breakpoint : ";
 
     static final String CODE_ACK = "ACK";
+    static final String CODE_EXP_RESULTS = "EXPRESSION_RESULTS";
 
     static final String CODE_EXIT = "EXIT";
     static final String MSG_EXIT = "Exiting from debugger.";

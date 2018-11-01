@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Get the mock tracers object.
-
-    R{{}} Mock tracers object in json format
-}
+# Get the mock tracers object.
+#
+# + return - Mock tracers object in json format
 public extern function getMockTracers () returns json;

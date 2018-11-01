@@ -1,0 +1,35 @@
+{
+  "arguments": "int a, int b",
+  "functionName": "addTwoIntegers2",
+  "returns": "int",
+  "returnsDefault": "return 0;",
+  "expected": {
+    "result":{
+      "edit":{
+        "changes":{
+
+        },
+        "documentChanges":[
+          {
+            "edits":[
+              {
+                "range":{
+                  "start":{
+                    "line":6,
+                    "character":1
+                  },
+                  "end":{
+                    "line":9,
+                    "character":0
+                  }
+                },
+                "newText":"\n\nfunction addTwoIntegers2(int a, int b) returns \"int\" {\n\"return 0;\"\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc":"2.0"
+  }
+}

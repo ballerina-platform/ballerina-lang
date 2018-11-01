@@ -1,0 +1,17 @@
+# Ignore self
+.dockerignore
+Dockerfile
+
+resources/platform/bre/lib/jre1.8.0_172
+parser/
+pom.xml
+.vscode/
+.settings/
+node_modules/
+ballerina-extension/node_modules/
+browser-app/node_modules/
+electron-app/node_modules/
+lib/
+ballerina-extension/lib/
+browser-app/lib/
+electron-app/lib/

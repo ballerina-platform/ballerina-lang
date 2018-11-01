@@ -24,6 +24,7 @@ import io.ballerina.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -43,7 +44,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/BBE/examples";
+        return "../../examples";
     }
 
     private String getExpectedResultPath() {
@@ -60,8 +61,11 @@ public class BallerinaParsingTest extends ParsingTestCase {
         return true;
     }
 
-    public void testForBBE() {
+    public void testForBBE() throws RuntimeException, FileNotFoundException {
         Path path = Paths.get(getTestDataPath());
+        if (!path.toFile().exists()) {
+            throw new FileNotFoundException(path.toString());
+        }
         doTestDirectory(path);
     }
 

@@ -20,39 +20,49 @@ package org.ballerinalang.langserver.compiler.workspace.repository;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.wso2.ballerinalang.compiler.FileSystemProgramDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * FS program directory handler for the language server.
  */
 public class LangServerFSProgramDirectory extends FileSystemProgramDirectory {
-    private static final CompilerContext.Key<LangServerFSProgramDirectory> LS_PROGRAM_DIRECTORY =
-            new CompilerContext.Key<>();
+    private static final Map<Path, LangServerFSProgramDirectory> projectDirs = new HashMap<>();
 
     private Path programDirPath;
     private WorkspaceDocumentManager documentManager;
 
-    public static LangServerFSProgramDirectory getInstance(CompilerContext context, Path projectDirPath,
+    /**
+     * Returns a LangServerFSProgramDirectory instance for a given project root path.
+     *
+     * Note:
+     * It is important to note that we need to keep the same reference of the FileSystemProgramDirectory since the
+     * Compiler caches the initial reference of the FileSystemProgramDirectory (i.e.CompilerContext-Singleton).
+     *
+     * @param projectRootPath project root path
+     * @param documentManager document manager need to be assigned
+     * @return {@link LangServerFSProgramDirectory}
+     */
+    public static LangServerFSProgramDirectory getInstance(Path projectRootPath,
                                                            WorkspaceDocumentManager documentManager) {
-        LangServerFSProgramDirectory lsFSProgramDirectory = context.get(LS_PROGRAM_DIRECTORY);
-        if (lsFSProgramDirectory == null) {
+        LangServerFSProgramDirectory programDirectory = projectDirs.get(projectRootPath);
+        if (programDirectory == null) {
             synchronized (LangServerFSProgramDirectory.class) {
-                lsFSProgramDirectory = context.get(LS_PROGRAM_DIRECTORY);
-                if (lsFSProgramDirectory == null) {
-                    lsFSProgramDirectory = new LangServerFSProgramDirectory(context, projectDirPath, documentManager);
+                programDirectory = projectDirs.get(projectRootPath);
+                if (programDirectory == null) {
+                    programDirectory = new LangServerFSProgramDirectory(projectRootPath, documentManager);
                 }
             }
         }
-        lsFSProgramDirectory.documentManager = documentManager;
-        return lsFSProgramDirectory;
+        programDirectory.documentManager = documentManager;
+        return programDirectory;
     }
 
-    public LangServerFSProgramDirectory(CompilerContext context, Path programDirPath,
-                                        WorkspaceDocumentManager documentManager) {
+    private LangServerFSProgramDirectory(Path programDirPath, WorkspaceDocumentManager documentManager) {
         super(programDirPath);
-        context.put(LS_PROGRAM_DIRECTORY, this);
+        LangServerFSProgramDirectory.projectDirs.put(programDirPath, this);
         this.programDirPath = programDirPath;
         this.documentManager = documentManager;
     }

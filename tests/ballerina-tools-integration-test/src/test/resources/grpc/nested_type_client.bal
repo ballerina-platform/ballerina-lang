@@ -20,7 +20,7 @@ endpoint HelloWorldBlockingClient HelloWorldBlockingEp {
     url:"http://localhost:9090"
 };
 
-function main(string... args) {
+public function main(string... args) {
     Person p = {name:"Danesh", address:{postalCode:10300, state:"Western", country:"Sri Lanka"}};
     string output = testInputNestedStruct(p);
     io:println("testInputNestedStruct output: " + output);

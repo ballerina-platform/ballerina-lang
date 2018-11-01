@@ -110,22 +110,6 @@ public class LSAnnotationCache {
         map.put(packageID, new ArrayList<>(Collections.singletonList(bAnnotationSymbol)));
     }
 
-    public HashMap<PackageID, List<BAnnotationSymbol>> getServiceAnnotations() {
-        return serviceAnnotations;
-    }
-
-    public HashMap<PackageID, List<BAnnotationSymbol>> getResourceAnnotations() {
-        return resourceAnnotations;
-    }
-
-    public HashMap<PackageID, List<BAnnotationSymbol>> getFunctionAnnotations() {
-        return functionAnnotations;
-    }
-
-    public static HashMap<PackageID, List<BAnnotationSymbol>> getEndpointAnnotations() {
-        return endpointAnnotations;
-    }
-
     /**
      * Get the annotation map for the given type.
      *

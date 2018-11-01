@@ -80,7 +80,7 @@ public class File {
         fileDefinition.append("syntax = \"").append(fileDescriptorProto.getSyntax()).append("\";").append
                 (ServiceProtoConstants.NEW_LINE_CHARACTER);
         if (!"".equals(fileDescriptorProto.getPackage())) {
-            fileDefinition.append("package ").append(fileDescriptorProto.getPackage()).append(";").append
+            fileDefinition.append("module ").append(fileDescriptorProto.getPackage()).append(";").append
                     (ServiceProtoConstants.NEW_LINE_CHARACTER);
         }
         for (String dependency : dependencyList) {
@@ -148,9 +148,10 @@ public class File {
             return this;
         }
         
-        public void setDependency(String dependency) {
+        public Builder setDependency(String dependency) {
             fileBuilder.addDependency(dependency);
             dependencyList.add(dependency);
+            return this;
         }
         
         public List<DescriptorProtos.DescriptorProto> getRegisteredMessages() {

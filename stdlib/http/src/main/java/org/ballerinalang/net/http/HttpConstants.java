@@ -28,6 +28,11 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class HttpConstants {
 
+    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/http] started HTTPS/WSS endpoint ";
+    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/http] started HTTP/WS endpoint ";
+    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTPS/WSS endpoint ";
+    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTP/WS endpoint ";
+
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
     public static final String EXTRA_PATH_INFO = "EXTRA_PATH_INFO";
@@ -80,6 +85,7 @@ public class HttpConstants {
 
     /* Annotations */
     public static final String ANN_NAME_RESOURCE_CONFIG = "ResourceConfig";
+    public static final String ANN_NAME_INTERRUPTIBLE = "interruptible";
     public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
     public static final String ANN_RESOURCE_ATTR_PATH = "path";
     public static final String ANN_RESOURCE_ATTR_BODY = "body";
@@ -106,6 +112,8 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
     public static final String ANN_CONFIG_ATTR_COMPRESSION = "compression";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLE = "enable";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES = "contentTypes";
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
@@ -290,6 +298,9 @@ public class HttpConstants {
     public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
+    public static final String ENDPOINT_CONFIG_PIPELINING = "pipelining";
+    public static final String ENABLE_PIPELINING = "enable";
+    public static final String PIPELINING_REQUEST_LIMIT = "maxPipelinedRequests";
 
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
 
@@ -303,6 +314,10 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
     public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocol";
     public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
+    public static final String ENDPOINT_CONFIG_CERTIFICATE = "certFile";
+    public static final String ENDPOINT_CONFIG_KEY = "keyFile";
+    public static final String ENDPOINT_CONFIG_KEY_PASSWORD = "keyPassword";
+    public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";

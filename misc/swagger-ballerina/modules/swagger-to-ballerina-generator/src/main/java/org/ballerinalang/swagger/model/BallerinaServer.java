@@ -47,7 +47,7 @@ public class BallerinaServer implements BallerinaSwaggerObject<BallerinaServer, 
      *
      * @param server Open Api server definition
      * @return Parsed version of {@link Server} as a {@link BallerinaServer}
-     * @throws BallerinaOpenApiException
+     * @throws BallerinaOpenApiException when malformed URL is provided
      */
     @Override
     public BallerinaServer buildContext(Server server) throws BallerinaOpenApiException {

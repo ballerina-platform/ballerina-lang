@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.981.1-SNAPSHOT</version>
+        <version>0.982.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -129,10 +129,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-h2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -320,12 +316,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jdbc</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-mysql</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -409,9 +399,12 @@
                         <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
                         <user_name>b7auser</user_name>
                         <password>b7apw</password>
+                        <hello_http_host>192.168.1.11</hello_http_host>
                         <hello_http_port>5656</hello_http_port>
                         <hello_cache_enabled>true</hello_cache_enabled>
                         <hello_eviction_fac>0.2333333</hello_eviction_fac>
+                        <helloneg_http_port>invalid port</helloneg_http_port>
+                        <helloneg_eviction_fac>invalid eviction factor</helloneg_eviction_fac>
                     </environmentVariables>
                     <systemPropertyVariables>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties
@@ -432,7 +425,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.8</version>
                 <executions>
                     <execution>
                         <id>prepare-it-test-agent</id>

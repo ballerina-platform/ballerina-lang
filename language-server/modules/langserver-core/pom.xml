@@ -2,7 +2,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>language-server</artifactId>
-        <version>0.981.1-SNAPSHOT</version>
+        <version>0.982.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -74,12 +74,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jdbc</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-mysql</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -120,11 +114,6 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-examples</artifactId>
-            <type>zip</type>
-        </dependency>
     </dependencies>
 
     <build>
@@ -142,19 +131,6 @@
                         <configuration>
                             <includeClassifiers>ballerina-binary-repo</includeClassifiers>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-examples</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>
-                                ballerina-examples
-                            </includeArtifactIds>
-                            <outputDirectory>src/test/resources/sourceGen</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -209,27 +185,7 @@
                             <descriptors>
                                 <descriptor>assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>IndexDB</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>delete-examples</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <delete dir="src/test/resources/sourceGen" includeemptydirs="true" deleteonexit="true" />
-                            </target>
                         </configuration>
                     </execution>
                 </executions>

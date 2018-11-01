@@ -49,18 +49,6 @@ public class SQLDBUtils {
     private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**
-     * Create HyperSQL DB with the given name and initialize with given SQL file.
-     *
-     * @param dbDirectory Name of the DB directory.
-     * @param dbName  Name of the DB instance.
-     * @param sqlFile SQL statements for initialization.
-     */
-    public static void initHSQLDBDatabase(String dbDirectory, String dbName, String sqlFile) {
-        String jdbcURL = "jdbc:hsqldb:file:" + dbDirectory + dbName;
-        initDatabase(jdbcURL, "SA", "", sqlFile);
-    }
-
-    /**
      * Create H2 DB with the given name and initialize with given SQL file.
      *
      * @param dbDirectory Name of the DB directory.
@@ -179,6 +167,11 @@ public class SQLDBUtils {
         private JdbcDatabaseContainer databaseContainer;
 
         public ContainerizedTestDatabase(DBType dbType, String databaseScript) {
+            this(dbType);
+            SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
+        }
+
+        public ContainerizedTestDatabase(DBType dbType) {
             switch (dbType) {
             case MYSQL:
                 databaseContainer = new MySQLContainer();
@@ -194,7 +187,6 @@ public class SQLDBUtils {
             jdbcUrl = databaseContainer.getJdbcUrl();
             username = databaseContainer.getUsername();
             password = databaseContainer.getPassword();
-            SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
         }
 
         public void stop() {
@@ -209,6 +201,11 @@ public class SQLDBUtils {
         private String dbDirectory;
 
         public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
+            this(dbType, dbDirectory, dbName);
+            SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
+        }
+
+        public FileBasedTestDatabase(DBType dbType, String dbDirectory, String dbName) {
             this.dbDirectory = dbDirectory;
             switch (dbType) {
             case H2:
@@ -226,7 +223,6 @@ public class SQLDBUtils {
                         "Creating a file based database is not supported for: " + dbType);
             }
             password = "";
-            SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
         }
 
         public void stop() {

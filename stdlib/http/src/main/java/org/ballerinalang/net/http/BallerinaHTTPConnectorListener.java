@@ -72,6 +72,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             httpResource = HttpDispatcher.findResource(httpServicesRegistry, inboundMessage);
             if (HttpDispatcher.shouldDiffer(httpResource)) {
                 inboundMessage.setProperty(HTTP_RESOURCE, httpResource);
+                //Removes inbound content listener since data binding waits for all contents to be received
+                //before executing its logic.  
+                inboundMessage.removeInboundContentListener();
                 return;
             }
             if (httpResource != null) {
@@ -94,7 +97,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage inboundMessage,
                                                               HttpResource httpResource) {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
-        Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable);
+        boolean isInterruptible = httpResource.isInterruptible();
+        Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable,
+                                                                  isInterruptible);
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
         Resource balResource = httpResource.getBalResource();
 
@@ -118,7 +123,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return inboundMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    private Map<String, Object> collectRequestProperties(HttpCarbonMessage inboundMessage, boolean isInfectable) {
+    private Map<String, Object> collectRequestProperties(HttpCarbonMessage inboundMessage, boolean isInfectable,
+                                                         boolean isInterruptible) {
         Map<String, Object> properties = new HashMap<>();
         if (inboundMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = inboundMessage.getProperty(HttpConstants.SRC_HANDLER);
@@ -140,6 +146,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         properties.put(HttpConstants.ORIGIN_HOST, inboundMessage.getHeader(HttpConstants.ORIGIN_HOST));
         properties.put(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
                        inboundMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
+        properties.put(Constants.IS_INTERRUPTIBLE, isInterruptible);
         return properties;
     }
 

@@ -93,13 +93,6 @@ public class CompilerPluginTest {
                     add(new TestEvent(TestEvent.Kind.STRUCT_ANN, "Employee", 1));
                 }});
 
-        // Test enum events
-        assertData(TestEvent.Kind.ENUM_ANN,
-                abcEventMap,
-                new ArrayList<TestEvent>() {{
-                    add(new TestEvent(TestEvent.Kind.ENUM_ANN, "state", 1));
-                }});
-
         // Test function events
         assertData(TestEvent.Kind.FUNC_ANN,
                 abcEventMap,

@@ -41,7 +41,7 @@ public class DataProviderTest {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("data-provider-test.bal")}, new
                 ArrayList<>());
-        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 5);
+        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 6);
 
     }
 

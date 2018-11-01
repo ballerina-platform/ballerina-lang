@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler;
 
 /**
@@ -41,7 +41,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
         },
         isPublic = true
 )
-public class CloseSubscriber extends AbstractBlockinAction {
+public class CloseSubscriber extends AbstractBlockingAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         CloseConsumerHandler.handle(context);

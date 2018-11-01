@@ -26,23 +26,26 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * WebSocket service for service dispatching.
  */
-public class WebSocketService implements Service {
+public class WebSocketService {
 
     private final Service service;
-    private final String[] negotiableSubProtocols;
-    private final int idleTimeoutInSeconds;
-    private final int maxFrameSize;
+    private String[] negotiableSubProtocols = null;
+    private int idleTimeoutInSeconds = 0;
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
     private String basePath;
     private HttpResource upgradeResource;
     private static final int DEFAULT_MAX_FRAME_SIZE = 65536;
+    private int maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
+
+    public WebSocketService() {
+        service = null;
+    }
 
     public WebSocketService(Service service) {
         this.service = service;
@@ -50,21 +53,18 @@ public class WebSocketService implements Service {
             resourceMap.put(resource.getName(), resource);
         }
 
-        Annotation configAnnotation =
-                WebSocketUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service);
 
         Struct configAnnotationStruct = null;
         if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
             negotiableSubProtocols = findNegotiableSubProtocols(configAnnotationStruct);
             idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotationStruct);
             maxFrameSize = findMaxFrameSize(configAnnotationStruct);
-        } else {
-            negotiableSubProtocols = null;
-            idleTimeoutInSeconds = 0;
-            maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
         }
-        basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
-        upgradeResource = null;
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+            basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
+        }
+
     }
 
     public WebSocketService(String httpBasePath, HttpResource upgradeResource, Service service) {
@@ -81,39 +81,12 @@ public class WebSocketService implements Service {
         this.upgradeResource = upgradeResource;
     }
 
-    @Override
     public String getName() {
-        return service.getName();
+        return service != null ? service.getName() : null;
     }
 
-    @Override
-    public String getPackage() {
-        return service.getPackage();
-    }
-
-    @Override
-    public String getEndpointName() {
-        return service.getEndpointName();
-    }
-
-    @Override
-    public List<Annotation> getAnnotationList(String pkgPath, String name) {
-        return service.getAnnotationList(pkgPath, name);
-    }
-
-    @Override
-    public Resource[] getResources() {
-        return service.getResources();
-    }
-
-    @Override
     public ServiceInfo getServiceInfo() {
-        return service.getServiceInfo();
-    }
-
-    @Override
-    public String getPackageVersion() {
-        return null;
+        return service != null ? service.getServiceInfo() : null;
     }
 
     public Resource getResourceByName(String resourceName) {
@@ -137,9 +110,6 @@ public class WebSocketService implements Service {
     }
 
     private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
-        if (annAttrSubProtocols == null) {
-            return new String[0];
-        }
         Value[] subProtocolsInAnnotation = annAttrSubProtocols.getArrayField(
                 WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS);
 
@@ -179,8 +149,8 @@ public class WebSocketService implements Service {
         String path = null;
         if (annStruct != null) {
             String basePathVal = annStruct.getStringField(WebSocketConstants.ANNOTATION_ATTR_PATH);
-            if (basePathVal != null && !basePathVal.trim().isEmpty()) {
-                path = WebSocketUtil.refactorUri(basePathVal);
+            if (!basePathVal.trim().isEmpty()) {
+                path = HttpUtil.sanitizeBasePath(basePathVal);
             }
         }
         if (path == null) {

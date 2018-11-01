@@ -17,11 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
-import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -42,13 +40,11 @@ import java.util.Set;
  */
 public class BLangVariable extends BLangNode implements VariableNode {
 
-    public DocTag docTag;
     public BLangType typeNode;
     public BLangIdentifier name;
     public BLangExpression expr;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
-    public List<BLangDocumentation> docAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public boolean safeAssignment = false;
@@ -57,7 +53,6 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public BVarSymbol symbol;
 
     public BLangVariable() {
-        this.docAttachments = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.deprecatedAttachments = new ArrayList<>();
@@ -101,16 +96,6 @@ public class BLangVariable extends BLangNode implements VariableNode {
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
-    }
-
-    @Override
-    public List<BLangDocumentation> getDocumentationAttachments() {
-        return docAttachments;
-    }
-
-    @Override
-    public void addDocumentationAttachment(DocumentationNode docAttachment) {
-        this.docAttachments.add((BLangDocumentation) docAttachment);
     }
 
     @Override

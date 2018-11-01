@@ -24,7 +24,7 @@ Let's get started with a simple Hello World program in Ballerina. Create a file 
 
 ```Ballerina
 import ballerina.io;
-function main (string[] args) {
+public function main (string... args) {
     io:println("Hello, World!");
 }
 ``` 

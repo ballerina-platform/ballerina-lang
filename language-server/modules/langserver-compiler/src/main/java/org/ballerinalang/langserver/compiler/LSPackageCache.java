@@ -18,13 +18,12 @@ package org.ballerinalang.langserver.compiler;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.ballerinalang.model.elements.PackageID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Package context to keep the builtin and the current package.
@@ -37,7 +36,6 @@ public class LSPackageCache {
     private static final Object LOCK = new Object();
 
     private final ExtendedPackageCache packageCache;
-    private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
     public static LSPackageCache getInstance(CompilerContext context) {
         LSPackageCache lsPackageCache = context.get(LS_PACKAGE_CACHE_KEY);
@@ -82,6 +80,7 @@ public class LSPackageCache {
     /**
      * add package to the package map.
      *
+     * @param packageID ballerina id to be added.
      * @param bLangPackage ballerina package to be added.
      */
     public void put(PackageID packageID, BLangPackage bLangPackage) {
@@ -107,6 +106,7 @@ public class LSPackageCache {
             super(context);
             Cache<String, BLangPackage> cache = CacheBuilder.newBuilder().maximumSize(MAX_CACHE_COUNT).build();
             this.packageMap = cache.asMap();
+            this.packageSymbolMap = new ConcurrentHashMap<>();
         }
 
         public Map<String, BLangPackage> getMap() {
@@ -114,12 +114,23 @@ public class LSPackageCache {
         }
 
         public void remove(PackageID packageID) {
-            // TODO: Revisit cache update/ compiler context reuse process
             if (packageID != null) {
-                this.packageMap.entrySet().forEach(entry -> {
+                this.packageMap.forEach((key, value) -> {
+                    String alias = packageID.getName().toString();
+                    if (key.contains(alias + ":") || key.contains(alias)) {
+                        this.packageMap.remove(key);
+                    }
+                });
+                this.packageSymbolMap.forEach((key, value) -> {
+                    String alias = packageID.getName().toString();
+                    if (key.contains(alias + ":") || key.contains(alias)) {
+                        this.packageSymbolMap.remove(key);
+                    }
+                });
+                this.packageSymbolMap.entrySet().forEach(entry -> {
                     String alias = packageID.getName().toString();
                     if (entry.getKey().contains(alias + ":") || entry.getKey().contains(alias)) {
-                        this.packageMap.remove(entry.getKey());
+                        this.packageSymbolMap.remove(entry.getKey());
                     }
                 });
             }
@@ -127,6 +138,7 @@ public class LSPackageCache {
         
         public void clearCache() {
             this.packageMap.clear();
+            this.packageSymbolMap.clear();
         }
     }
 }

@@ -12,7 +12,7 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License.package http;
+// under the License.
 
 
 import ballerina/io;
@@ -28,14 +28,21 @@ public type AuthScheme "Basic"|"OAuth2"|"JWT";
 @final public AuthScheme OAUTH2 = "OAuth2";
 @final public AuthScheme JWT_AUTH = "JWT";
 
-documentation {
-    Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
-    configured in the HTTP client endpoint to secure the HTTP requests.
+# Specifies how the authentication credentials should be sent when using the refresh token to refresh the access token
+public type CredentialBearer "AUTH_HEADER_BEARER"|"POST_BODY_BEARER";
 
-    F{{serviceUri}} The URL of the remote HTTP endpoint
-    F{{config}} The configurations of the client endpoint associated with this HttpActions instance
-    F{{httpClient}} The underlying `HttpActions` instance which will be making the actual network calls
-}
+# Indicates that the authentication credentials should be sent via the Authentication Header
+@final public CredentialBearer AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
+
+# Indicates that the authentication credentials should be sent via the body of the POST request
+@final public CredentialBearer POST_BODY_BEARER = "POST_BODY_BEARER";
+
+# Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
+# configured in the HTTP client endpoint to secure the HTTP requests.
+#
+# + serviceUri - The URL of the remote HTTP endpoint
+# + config - The configurations of the client endpoint associated with this HttpActions instance
+# + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 public type HttpSecureClient object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
@@ -47,16 +54,14 @@ public type HttpSecureClient object {
         self.httpClient = createSimpleHttpClient(serviceUri, config);
     }
 
-    documentation {
-        This wraps the `post()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
-    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `post()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -69,16 +74,14 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `head()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
-    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `head()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -91,16 +94,14 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `put()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
-    public function put(string path,  Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `put()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    public function put(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -113,17 +114,15 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `execute()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{httpVerb}} HTTP verb value
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
-    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `execute()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + httpVerb - HTTP verb value
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                              message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -136,16 +135,14 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `patch()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
-    public function patch(string path,  Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `patch()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    public function patch(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -158,16 +155,14 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `delete()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
-    public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `delete()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -180,16 +175,14 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `get()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{path}} Request path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
-    public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `get()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + path - Request path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -202,16 +195,14 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `options()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{path}} Request path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
-    public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `options()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + path - Request path
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -224,14 +215,12 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `forward()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{path}} Request path
-        P{{request}} An HTTP inbound request message
-        R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    }
+    # This wraps the `forward()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + path - Request path
+    # + request - An HTTP inbound request message
+    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public function forward(string path, Request request) returns (Response|error) {
         check generateSecureRequest(request, config);
         Response response = check httpClient.forward(path, request);
@@ -243,80 +232,66 @@ public type HttpSecureClient object {
         return response;
     }
 
-    documentation {
-        This wraps the `submit()` function of the underlying HTTP actions provider. Add relevant authentication headers
-        to the request and send the request to actual network call.
-
-        P{{httpVerb}} The HTTP verb value
-        P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    }
-    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    # This wraps the `submit()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # to the request and send the request to actual network call.
+    #
+    # + httpVerb - The HTTP verb value
+    # + path - The resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
+    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns (HttpFuture|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
         return httpClient.submit(httpVerb, path, req);
     }
 
-    documentation {
-        This just pass the request to actual network call.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP response message, or an error if the invocation fails
-    }
+    # This just pass the request to actual network call.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP response message, or an error if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns (Response|error) {
         return httpClient.getResponse(httpFuture);
     }
 
-    documentation {
-        This just pass the request to actual network call.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} A `boolean` that represents whether a `PushPromise` exists
-    }
+    # This just pass the request to actual network call.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns boolean {
         return httpClient.hasPromise(httpFuture);
     }
 
-    documentation {
-        This just pass the request to actual network call.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP Push Promise message, or an error if the invocation fails
-    }
+    # This just pass the request to actual network call.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP Push Promise message, or an error if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
         return httpClient.getNextPromise(httpFuture);
     }
 
-    documentation {
-        This just pass the request to actual network call.
-
-        P{{promise}} The related `PushPromise`
-        R{{}} A promised HTTP `Response` message, or an error if the invocation fails
-    }
+    # This just pass the request to actual network call.
+    #
+    # + promise - The related `PushPromise`
+    # + return - A promised HTTP `Response` message, or an error if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns (Response|error) {
         return httpClient.getPromisedResponse(promise);
     }
 
-    documentation {
-        This just pass the request to actual network call.
-
-        P{{promise}} The Push Promise to be rejected
-    }
+    # This just pass the request to actual network call.
+    #
+    # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise) {
         return httpClient.rejectPromise(promise);
     }
 };
 
-documentation {
-    Creates an HTTP client capable of securing HTTP requests with authentication.
-
-    P{{url}} Base URL
-    P{{config}} Client endpoint configurations
-    R{{}} Created secure HTTP client
-}
+# Creates an HTTP client capable of securing HTTP requests with authentication.
+#
+# + url - Base URL
+# + config - Client endpoint configurations
+# + return - Created secure HTTP client
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns CallerActions {
     match config.auth {
         AuthConfig => {
@@ -330,13 +305,11 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     }
 }
 
-documentation {
-    Prepare HTTP request with the required headers for authentication.
-
-    P{{req}} An HTTP outbound request message
-    P{{config}} Client endpoint configurations
-    R{{}} The Error occured during HTTP client invocation
-}
+# Prepare HTTP request with the required headers for authentication.
+#
+# + req - An HTTP outbound request message
+# + config - Client endpoint configurations
+# + return - The Error occured during HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns (()|error) {
     match config.auth.scheme {
         AuthScheme scheme => {
@@ -372,13 +345,11 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
     return ();
 }
 
-documentation {
-    Update request and client config with new access tokens retrieved.
-
-    P{{req}} `Request` object to be updated
-    P{{config}} Client endpoint configurations
-    R{{}} The Error occured during HTTP client invocation
-}
+# Update request and client config with new access tokens retrieved.
+#
+# + req - `Request` object to be updated
+# + config - Client endpoint configurations
+# + return - The Error occured during HTTP client invocation
 function updateRequestAndConfig(Request req, ClientEndpointConfig config) returns (()|error) {
     string accessToken = check getAccessTokenFromRefreshToken(config);
     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
@@ -390,17 +361,16 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
     return ();
 }
 
-documentation {
-    Request an access token from authorization server using the provided refresh token.
-
-    P{{config}} Client endpoint configurations
-    R{{}} AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
-}
+# Request an access token from authorization server using the provided refresh token.
+#
+# + config - Client endpoint configurations
+# + return - AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|error) {
     string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
+    string[] scopes = config.auth.scopes but { () => [] };
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
         error err;
@@ -410,14 +380,22 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     }
 
     CallerActions refreshTokenClient = createSimpleHttpClient(refreshUrl, {});
-
-    string clientIdSecret = clientId + ":" + clientSecret;
-    string base64ClientIdSecret = check clientIdSecret.base64Encode();
-
     Request refreshTokenRequest = new;
-    refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
-    refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
-        contentType = mime:APPLICATION_FORM_URLENCODED);
+    string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
+    string scopeString = EMPTY_STRING;
+    foreach requestScope in scopes {
+        scopeString = scopeString + WHITE_SPACE + requestScope;
+    }
+    if (scopeString != EMPTY_STRING) {
+        textPayload = textPayload + "&scope=" + scopeString.trim();
+    }
+    if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
+        string clientIdSecret = clientId + ":" + clientSecret;
+        refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
+    } else {
+        textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+    }
+    refreshTokenRequest.setTextPayload(textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
     Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, refreshTokenRequest);
 
     json generatedToken = check refreshTokenResponse.getJsonPayload();
@@ -430,15 +408,13 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     }
 }
 
-documentation {
-    Check whether retry is required for the response. This returns true if the scheme is OAuth and the response status
-    is 401 only. That implies user has given a expired access token and the client should update it with the given
-    refresh url.
-
-    P{{response}} Response object
-    P{{config}} Client endpoint configurations
-    R{{}} Whether the client should retry or not
-}
+# Check whether retry is required for the response. This returns true if the scheme is OAuth and the response status
+# is 401 only. That implies user has given a expired access token and the client should update it with the given
+# refresh url.
+#
+# + response - Response object
+# + config - Client endpoint configurations
+# + return - Whether the client should retry or not
 function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
     match config.auth.scheme {
         AuthScheme scheme => {

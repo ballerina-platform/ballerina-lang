@@ -1,7 +1,7 @@
 
 @final Person p = 10;
 
-function main (string... i) {
+public function main (string... i) {
     return;
 }
 

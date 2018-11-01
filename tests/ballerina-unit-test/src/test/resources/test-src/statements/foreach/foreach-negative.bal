@@ -8,7 +8,7 @@ function test1(){
 
 function test2(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
-    float i = 10;
+    float i = 10.0;
     boolean s = true;
     foreach i, s in data {
         io:println(i + " " + s);
@@ -76,6 +76,6 @@ function test9(){
     io:println("done");
 }
 
-function main () {
+public function main () {
     io:println("done");
 }

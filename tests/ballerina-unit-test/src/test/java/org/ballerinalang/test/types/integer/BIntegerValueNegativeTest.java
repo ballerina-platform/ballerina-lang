@@ -44,27 +44,26 @@ public class BIntegerValueNegativeTest {
         expectedError = "Integer '9999999999999999999' too large";
         BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
 
-        expectedError = "Octal '07777777777777777777777' too large";
+        expectedError = "Binary '0b1111111111111111111111111111111111111111111111111111111111111111' too large";
         BAssertUtil.validateError(compileResult, index++, expectedError, 7, 13);
 
-        expectedError = "Binary '0b1111111111111111111111111111111111111111111111111111111111111111' too large";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 8, 13);
-
         expectedError = "Hexadecimal '-0xFFFFFFFFFFFFFFFF' too small";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 10, 13);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 9, 13);
 
         expectedError = "Integer '-9999999999999999999' too small";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 11, 13);
-
-        expectedError = "Octal '-07777777777777777777777' too small";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 12, 13);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 10, 13);
 
         expectedError = "Binary '-0b1111111111111111111111111111111111111111111111111111111111111111' too small";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 13, 13);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 11, 13);
 
+        expectedError = "extraneous input '672'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 13, 14);
+
+        expectedError = "extraneous input '912'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 14, 14);
 
         expectedError = "mismatched input '}'. expecting {'but', ';', '?', '+', '-', '*', '/', '%', '==', '!=', '>', " +
                 "'<', '>=', '<=', '&&', '||', '&', '^', '...', '|', '?:', '..<'}";
-        BAssertUtil.validateError(compileResult, index, expectedError, 17, 1);
+        BAssertUtil.validateError(compileResult, index, expectedError, 18, 1);
     }
 }

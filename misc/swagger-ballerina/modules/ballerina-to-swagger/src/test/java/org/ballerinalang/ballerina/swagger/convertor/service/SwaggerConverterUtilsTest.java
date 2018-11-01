@@ -250,8 +250,6 @@ public class SwaggerConverterUtilsTest {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(
                     serviceWithMultipleHTTPMethodsInResourceLevel, serviceName);
             Assert.assertNotNull(swaggerDefinition);
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina service to swagger definition");
         } catch (SwaggerConverterException e) {
             Assert.fail("Error while converting ballerina service to swagger definition");
         }
@@ -266,8 +264,6 @@ public class SwaggerConverterUtilsTest {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(
                     serviceWithNoHTTPMethodsAtResourceLevel, serviceName);
             Assert.assertNotNull(swaggerDefinition);
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina service to swagger definition");
         } catch (SwaggerConverterException e) {
             Assert.fail("Error while converting ballerina service to swagger definition");
         }
@@ -281,8 +277,6 @@ public class SwaggerConverterUtilsTest {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(serviceWithOneHTTPMethod,
                     serviceName);
             Assert.assertNotNull(swaggerDefinition);
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina service to swagger definition with empty service name");
         } catch (SwaggerConverterException e) {
             Assert.fail("Error while converting ballerina service to swagger definition");
         }
@@ -296,8 +290,6 @@ public class SwaggerConverterUtilsTest {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(
                     sampleSwaggerWithTwoResources, serviceName);
             Assert.assertNotNull(swaggerDefinition);
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina service to swagger definition with empty service name");
         } catch (SwaggerConverterException e) {
             Assert.fail("Error while converting ballerina service to swagger definition");
         }
@@ -342,8 +334,6 @@ public class SwaggerConverterUtilsTest {
         try {
             String oasDef = SwaggerConverterUtils.generateOAS3Definitions(invalidEchoServiceBal, null);
             Assert.fail("Error was not thrown for invalid ballerina service");
-        } catch (IOException e) {
-            Assert.fail("Error while converting ballerina echo service to swagger definition");
         } catch (SwaggerConverterException e) {
             Assert.assertEquals(e.getMessage(), "Please check if input source is valid and complete");
         }

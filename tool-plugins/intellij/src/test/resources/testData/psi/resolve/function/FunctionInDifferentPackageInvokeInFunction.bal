@@ -1,5 +1,5 @@
-import org.test;
+import test;
 
-function test () {
+function test() {
     test:/*ref*/fun();
 }

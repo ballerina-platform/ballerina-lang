@@ -19,11 +19,8 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -33,16 +30,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test WebSocket continuation frames and the aggregation of fragments when the content is other than a string.
  */
+@Test(groups = "websocket-test")
 public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommons {
-
-    @BeforeClass(description = "Initializes Ballerina")
-    public void setup() throws BallerinaTestException {
-        initBallerinaServer("push_and_onText.bal");
-    }
 
     @Test(description = "Tests string support for pushText and onText")
     public void testString() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9090/onTextString";
+        String url = "http://localhost:9080/onTextString";
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "Hello";
@@ -52,7 +45,7 @@ public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommon
 
     @Test(description = "Tests JSON support for pushText and onText")
     public void testJson() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9091/onTextJSON";
+        String url = "http://localhost:9081/onTextJSON";
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         assertSuccess(client, "{'id':1234, 'name':'Riyafa'}", "{\"id\":1234, \"name\":\"Riyafa\"}");
@@ -62,7 +55,7 @@ public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommon
 
     @Test(description = "Tests string support for pushText and onText")
     public void testXml() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9092/onTextXML";
+        String url = "http://localhost:9082/onTextXML";
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "<note><to>Tove</to></note>";
@@ -75,7 +68,7 @@ public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommon
 
     @Test(description = "Tests string support for pushText and onText")
     public void testRecord() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9093/onTextRecord";
+        String url = "http://localhost:9083/onTextRecord";
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         assertSuccess(client, "{'id':1234, 'name':'Riyafa'}", "{\"id\":1234, \"name\":\"Riyafa\"}");
@@ -100,10 +93,5 @@ public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommon
         CloseWebSocketFrame closeFrame = client.getReceivedCloseFrame();
         Assert.assertEquals(closeFrame.statusCode(), 1003, "Invalid status code");
         Assert.assertEquals(closeFrame.reasonText(), expected, "Invalid close reason");
-    }
-
-    @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
-        stopBallerinaServerInstance();
     }
 }

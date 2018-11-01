@@ -47,7 +47,7 @@ public class ConstrainedJSONTest {
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 11);
         
         // testStructConstraintInInitializationInvalid
         BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in record 'Person'", 17, 23);
@@ -76,6 +76,10 @@ public class ConstrainedJSONTest {
                 "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 77, 14);
 
         BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'byte[]'", 83, 14);
+
+        BAssertUtil.validateError(negativeResult, 9, "incompatible types: expected 'string', found 'int'", 89, 29);
+
+        BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'float'", 94, 21);
     }
 
     // disabled due to json to string conversion fails
@@ -277,5 +281,22 @@ public class ConstrainedJSONTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "name");
         Assert.assertEquals(((BStringArray) returns[0]).get(1), "age");
         Assert.assertEquals(((BStringArray) returns[0]).get(2), "address");
+    }
+
+    @Test(description = "Test basic json object constraint")
+    public void testJsonObjectConstraint() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonObjectConstraint");
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "John Doe");
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "John Doe");
+
+        Assert.assertTrue(returns[3] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 30);
     }
 }

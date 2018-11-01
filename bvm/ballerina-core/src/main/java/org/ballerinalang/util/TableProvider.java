@@ -74,7 +74,7 @@ public class TableProvider {
     }
 
     public String createTable(BType constrainedType, BStringArray primaryKeys, BStringArray indexeColumns) {
-        String tableName = TableConstants.TABLE_PREFIX + (constrainedType).getName()
+        String tableName = TableConstants.TABLE_PREFIX + constrainedType.getName()
                 .toUpperCase() + "_" + getTableID();
         String sqlStmt = generateCreateTableStatment(tableName, constrainedType, primaryKeys);
         executeStatement(sqlStmt);
@@ -128,7 +128,7 @@ public class TableProvider {
         try {
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(TableConstants.SQL_SELECT + tableName);
-            TableResourceManager rm = new TableResourceManager(conn, stmt);
+            TableResourceManager rm = new TableResourceManager(conn, stmt, true);
             rm.addResultSet(rs);
             itr = new TableIterator(rm, rs, type);
         } catch (SQLException e) {

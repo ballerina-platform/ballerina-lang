@@ -8,7 +8,7 @@ string glbVarString = "value";
 float glbVarFloat = 99.34323;
 any glbVarAny = 88343;
 
-float glbVarFloatChange = 99;
+float glbVarFloatChange = 99.0;
 
 float glbVarFloat1 = varpkg:glbVarFloat;
 

@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
+import org.ballerinalang.net.http.nativeimpl.pipelining.PipelinedResponse;
 import org.ballerinalang.net.http.util.CacheUtils;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -44,6 +45,9 @@ import java.util.Optional;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.pipeliningRequired;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.setPipeliningListener;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
@@ -54,9 +58,9 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "nativeRespond",
-        args = { @Argument(name = "connection", type = TypeKind.OBJECT),
+        args = {@Argument(name = "connection", type = TypeKind.OBJECT),
                 @Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
-                structPackage = "ballerina/http")},
+                        structPackage = "ballerina/http")},
         returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                 structPackage = "ballerina/http"),
         isPublic = true
@@ -69,14 +73,15 @@ public class Respond extends ConnectionAction {
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
         DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-
+        outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
+        outboundResponseMsg.setSequenceId(inboundRequestMsg.getSequenceId());
         setCacheControlHeader(outboundResponseStruct, outboundResponseMsg);
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
+        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg, outboundResponseMsg);
 
         // Based on https://tools.ietf.org/html/rfc7232#section-4.1
         if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
@@ -92,7 +97,18 @@ public class Respond extends ConnectionAction {
                 String.valueOf(outboundResponseStruct.get(RESPONSE_STATUS_CODE_FIELD))));
 
         try {
-            sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
+            if (pipeliningRequired(inboundRequestMsg)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Pipelining is required. Sequence id of the request: {}",
+                            inboundRequestMsg.getSequenceId());
+                }
+                PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg, outboundResponseMsg,
+                        dataContext, outboundResponseStruct);
+                setPipeliningListener(outboundResponseMsg);
+                executePipeliningLogic(inboundRequestMsg.getSourceContext(), pipelinedResponse);
+            } else {
+                sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
+            }
         } catch (EncoderException e) {
             //Exception is already notified by http transport.
             log.debug("Couldn't complete outbound response", e);

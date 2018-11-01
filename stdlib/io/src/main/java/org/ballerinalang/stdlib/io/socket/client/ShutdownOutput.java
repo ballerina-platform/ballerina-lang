@@ -33,6 +33,10 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NotYetConnectedException;
+
 /**
  * Extern function to ShutdownOutput in a socket.
  *
@@ -48,23 +52,35 @@ import org.slf4j.LoggerFactory;
 public class ShutdownOutput extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(ShutdownOutput.class);
+    private static final String READABLE_CHANNEL = "readableChannel";
+    private static final String WRITABLE_CHANNEL = "writableChannel";
 
     @Override
     public void execute(Context context) {
         BMap<String, BValue> socket;
         try {
             socket = (BMap<String, BValue>) context.getRefArgument(0);
-            BMap<String, BValue> byteChannelStruct = (BMap<String, BValue>) socket.get(IOConstants.BYTE_CHANNEL_NAME);
-            Channel channel = (Channel) byteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            if (channel instanceof SocketIOChannel) {
-                SocketIOChannel socketIOChannel = (SocketIOChannel) channel;
-                socketIOChannel.shutdownOutput();
-            }
-        } catch (Throwable e) {
-            String message = "Failed to shutdown output in socket:" + e.getMessage();
+            shutdownChannel((BMap<String, BValue>) socket.get(READABLE_CHANNEL));
+            shutdownChannel((BMap<String, BValue>) socket.get(WRITABLE_CHANNEL));
+        } catch (NotYetConnectedException e) {
+            String message = "Socket is not connected.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (ClosedChannelException e) {
+            String message = "Socket connection already closed.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (IOException e) {
+            String message = "Failed to shutdown input in socket:" + e.getMessage();
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }
         context.setReturnValues();
+    }
+
+    private void shutdownChannel(BMap<String, BValue> byteChannelStruct) throws IOException {
+        Channel channel = (Channel) byteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        if (channel instanceof SocketIOChannel) {
+            SocketIOChannel socketIOChannel = (SocketIOChannel) channel;
+            socketIOChannel.shutdownOutput();
+        }
     }
 }

@@ -1,46 +1,62 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/h2;
 import ballerina/io;
-import ballerina/jdbc;
 import ballerina/sql;
 
 type Person record {
-    int id,
-    int age,
-    float salary,
-    string name,
-    boolean married,
+    int id;
+    int age;
+    float salary;
+    string name;
+    boolean married;
 };
 
 type Company record {
-    int id,
-    string name,
+    int id;
+    string name;
 };
 
 type TypeTest record {
-    int id,
-    json jsonData,
-    xml xmlData,
+    int id;
+    json jsonData;
+    xml xmlData;
 };
 
 type BlobTypeTest record {
-    int id,
-    byte[] blobData,
+    int id;
+    byte[] blobData;
 };
 
 type AnyTypeTest record {
-    int id,
-    any anyData,
+    int id;
+    any anyData;
 };
 
 type ArraTypeTest record {
-    int id,
-    int[] intArrData,
-    float[] floatArrData,
-    string[] stringArrData,
-    boolean[] booleanArrData,
+    int id;
+    int[] intArrData;
+    float[] floatArrData;
+    string[] stringArrData;
+    boolean[] booleanArrData;
 };
 
 type ResultCount record {
-    int COUNTVAL,
+    int COUNTVAL;
 };
 
 table<Person> dt1 = table{};
@@ -59,9 +75,10 @@ function testEmptyTableCreate() returns (int, int) {
 }
 
 function checkTableCount(string tablePrefix) returns (int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:h2:mem:TABLEDB",
-        username: "sa",
+    endpoint h2:Client testDB {
+        name: "TABLEDB",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -224,7 +241,7 @@ function testPrintData() {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{
-        { primarykey id, primarykey age,  salary, name, married }
+        { key id, key age,  salary, name, married }
     };
     _ = dt.add(p1);
     _ = dt.add(p2);
@@ -466,7 +483,7 @@ function testTableRemoveSuccess() returns (int, json) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    int count = check dt.remove(isBellow35);
+    int count = check dt.remove(isBelow35);
     json j = check <json>dt;
 
     return (count, j);
@@ -499,7 +516,7 @@ function testTableRemoveFailed() returns (int, json) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    int count = check dt.remove(isBellow35);
+    int count = check dt.remove(isBelow35);
     json j = check <json>dt;
 
     return (count, j);
@@ -537,7 +554,7 @@ function testRemoveWithInvalidRecordType() returns string {
     _ = dt.add(p3);
 
     string returnStr;
-    var ret = dt.remove(isBellow35Invalid);
+    var ret = dt.remove(isBelow35Invalid);
 
     match ret {
         int i => returnStr = <string>i;
@@ -559,7 +576,7 @@ function testRemoveWithInvalidParamType() returns string {
     _ = dt.add(p3);
 
     string returnStr;
-    var ret = dt.remove(isBellow35InvalidParam);
+    var ret = dt.remove(isBelow35InvalidParam);
 
     match ret {
         int i => returnStr = <string>i;
@@ -578,7 +595,7 @@ function getCompanyId(Company p) returns (int) {
     return p.id;
 }
 
-function isBellow35(Person p) returns (boolean) {
+function isBelow35(Person p) returns (boolean) {
     return p.age < 35;
 }
 
@@ -586,10 +603,10 @@ function isJohn(Person p) returns (boolean) {
     return p.name == "john";
 }
 
-function isBellow35Invalid(Company p) returns (boolean) {
+function isBelow35Invalid(Company p) returns (boolean) {
     return p.id < 35;
 }
 
-function isBellow35InvalidParam(int p) returns (boolean) {
+function isBelow35InvalidParam(int p) returns (boolean) {
     return true;
 }

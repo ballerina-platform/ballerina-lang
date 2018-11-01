@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaMatchPatternClauseImpl extends BallerinaCompositeElementImpl implements BallerinaMatchPatternClause {
 
-  public BallerinaMatchPatternClauseImpl(ASTNode node) {
+  public BallerinaMatchPatternClauseImpl(@NotNull ASTNode node) {
     super(node);
   }
 

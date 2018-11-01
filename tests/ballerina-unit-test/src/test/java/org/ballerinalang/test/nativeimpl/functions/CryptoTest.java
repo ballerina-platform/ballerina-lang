@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.stdlib.crypto.util.HashUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -49,6 +50,10 @@ public class CryptoTest {
         BString message = new BString(messageString);
         String keyString = "abcdefghijk";
         BString key = new BString(keyString);
+        BString hexKey = new BString(HashUtils.toHexString(keyString.getBytes(StandardCharsets.UTF_8)));
+        BString base64Key = new BString(
+                new String(java.util.Base64.getEncoder().encode(keyString.getBytes(StandardCharsets.UTF_8)),
+                        StandardCharsets.UTF_8));
 
         String expectedMD5Hash = "3D5AC29160F2905A5C8153597798A4C1";
         String expectedSHA1Hash = "13DD8D54D0EB702EDC6E8EDCAF616837D3A51499";
@@ -66,6 +71,36 @@ public class CryptoTest {
 
         args = new BValue[]{message, key};
         returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA256", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
+
+        args = new BValue[]{message, hexKey};
+        returnValues = BRunUtil.invoke(compileResult, "testHmacHexKeyMD5", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
+
+        args = new BValue[]{message, base64Key};
+        returnValues = BRunUtil.invoke(compileResult, "testHmacBase64KeyMD5", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
+
+        args = new BValue[]{message, hexKey};
+        returnValues = BRunUtil.invoke(compileResult, "testHmacHexKeySHA1", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1Hash);
+
+        args = new BValue[]{message, base64Key};
+        returnValues = BRunUtil.invoke(compileResult, "testHmacBase64KeySHA1", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1Hash);
+
+        args = new BValue[]{message, hexKey};
+        returnValues = BRunUtil.invoke(compileResult, "testHmacHexKeySHA256", args);
+        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
+        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
+
+        args = new BValue[]{message, base64Key};
+        returnValues = BRunUtil.invoke(compileResult, "testHmacBase64KeySHA256", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
     }

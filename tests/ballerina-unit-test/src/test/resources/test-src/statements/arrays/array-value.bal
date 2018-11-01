@@ -61,7 +61,7 @@ function testDefaultValueOfJsonArrayElement() returns (json, json, json) {
 }
 
 function testArrayGrowth () returns (int) {
-    float value = 100;
+    float value = 100.0;
     int[] ar = [];
 
     int count = 0;

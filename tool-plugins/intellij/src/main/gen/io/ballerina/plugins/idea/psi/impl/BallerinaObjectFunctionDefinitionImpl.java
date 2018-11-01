@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaObjectFunctionDefinition {
 
-  public BallerinaObjectFunctionDefinitionImpl(ASTNode node) {
+  public BallerinaObjectFunctionDefinitionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
@@ -67,8 +67,8 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
-  public BallerinaDocumentationAttachment getDocumentationAttachment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationAttachment.class);
+  public BallerinaDocumentationString getDocumentationString() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
   }
 
   @Override

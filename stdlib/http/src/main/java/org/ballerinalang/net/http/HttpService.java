@@ -26,7 +26,6 @@ import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -39,9 +38,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpUtil.sanitizeBasePath;
 
 /**
  * {@code HttpService} This is the http wrapper for the {@code Service} implementation.
@@ -69,6 +71,7 @@ public class HttpService implements Cloneable {
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
     private String hostName;
+    private boolean interruptible;
 
     protected HttpService(Service service) {
         this.balService = service;
@@ -126,6 +129,14 @@ public class HttpService implements Cloneable {
         return hostName;
     }
 
+    public boolean isInterruptible() {
+        return interruptible;
+    }
+
+    public void setInterruptible(boolean interruptible) {
+        this.interruptible = interruptible;
+    }
+
     public String getBasePath() {
         return basePath;
     }
@@ -177,11 +188,11 @@ public class HttpService implements Cloneable {
         List<String> basePathList = new ArrayList<>();
         HttpService httpService = new HttpService(service);
         Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
+        httpService.setInterruptible(hasInterruptibleAnnotation(service));
 
         if (serviceConfigAnnotation == null) {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
-//            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
             basePathList.add(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
             httpService.setHostName(DEFAULT_HOST);
         } else {
@@ -295,31 +306,12 @@ public class HttpService implements Cloneable {
         if (annotationList == null || annotationList.isEmpty()) {
             return null;
         }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-
         return annotationList.get(0);
     }
 
-    private String sanitizeBasePath(String basePath) {
-        basePath = basePath.trim();
-
-        if (!basePath.startsWith(HttpConstants.DEFAULT_BASE_PATH)) {
-            basePath = HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-
-        if (basePath.endsWith(HttpConstants.DEFAULT_BASE_PATH) && basePath.length() != 1) {
-            basePath = basePath.substring(0, basePath.length() - 1);
-        }
-        //TODO Add proper basePath validation()
-        if (basePath.endsWith("*")) {
-            basePath = basePath.substring(0, basePath.length() - 1);
-        }
-
-        return basePath;
+    private static boolean hasInterruptibleAnnotation(Service service) {
+        List<Annotation> annotationList = service.getAnnotationList(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
+        return annotationList != null && !annotationList.isEmpty();
     }
 
     private String urlDecode(String basePath) {

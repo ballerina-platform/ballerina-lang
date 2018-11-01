@@ -34,17 +34,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether the errors are received correctly to the onError resource in WebSocket server.
  */
+@Test(groups = "websocket-test")
 public class OnErrorWebSocketTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/error/ws";
+    private static final String URL = "ws://localhost:9094/error/ws";
     private LogLeecher logLeecher;
 
     @BeforeClass(description = "Initializes the Ballerina server with the error_log_service.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
+    public void setup() throws InterruptedException, URISyntaxException {
         String expectingErrorLog = "error occurred: received continuation data frame outside fragmented message";
         logLeecher = new LogLeecher(expectingErrorLog);
-        initBallerinaServer("error_log_service.bal", logLeecher);
+        serverInstance.addLogLeecher(logLeecher);
 
         client = new WebSocketTestClient(URL);
         client.handshake();
@@ -66,8 +67,7 @@ public class OnErrorWebSocketTest extends WebSocketTestCommons {
     }
 
     @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
-        stopBallerinaServerInstance();
     }
 }

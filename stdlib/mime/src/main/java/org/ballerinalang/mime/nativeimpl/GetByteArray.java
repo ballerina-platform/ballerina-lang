@@ -78,10 +78,10 @@ public class GetByteArray extends BlockingNativeCallableUnit {
                 }
             } else {
                 result = EntityBodyHandler.constructBlobDataSource(entityStruct);
+                EntityBodyHandler.addMessageDataSource(entityStruct, result);
                 //Set byte channel to null, once the message data source has been constructed
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
-            EntityBodyHandler.addMessageDataSource(entityStruct, result);
             context.setReturnValues(result != null ? result : new BByteArray(new byte[0]));
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError

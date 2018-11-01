@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -96,17 +97,20 @@ public class Field {
         }
 
         public Builder setType(BType type) throws GrpcServerException {
+            if (type == null || type.tsymbol == null) {
+                throw new GrpcServerException("Unsupported field type, field type without symbol is not supported.");
+            }
             fieldType = BALLERINA_TO_PROTO_MAP.get(type.tsymbol.name.value) != null ? BALLERINA_TO_PROTO_MAP.get(type
                     .tsymbol.name.value) : type.tsymbol.name.value;
             DescriptorProtos.FieldDescriptorProto.Type primType = STRING_TYPE_MAP.get(fieldType);
             if (primType != null) {
                 fieldDescriptorBuilder.setType(primType);
             } else {
-                if (type instanceof BStructureType) {
+                if (type instanceof BStructureType || type instanceof FiniteType) {
                     fieldDescriptorBuilder.setTypeName(fieldType);
                 } else {
-                    throw new GrpcServerException("Unsupported field type, field type " + type.getKind().typeName() +
-                            " currently not supported.");
+                    throw new GrpcServerException("Unsupported field type, field type " + type.getKind().typeName()
+                            + " currently not supported.");
                 }
             }
             return this;
@@ -161,6 +165,6 @@ public class Field {
         BALLERINA_TO_PROTO_MAP.put("int", "int64");
         BALLERINA_TO_PROTO_MAP.put("boolean", "bool");
         BALLERINA_TO_PROTO_MAP.put("string", "string");
-        BALLERINA_TO_PROTO_MAP.put("blob", "byte");
+        BALLERINA_TO_PROTO_MAP.put("byte", "bytes");
     }
 }
