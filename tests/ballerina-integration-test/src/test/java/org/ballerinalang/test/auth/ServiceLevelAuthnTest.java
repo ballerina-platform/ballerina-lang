@@ -69,8 +69,21 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
     @Test(description = "Auth with JWT signed with expired trusted certificate")
-    public void testAuthnWithJWTSignedWithExpiredTrustedCertificate()
-            throws Exception {
+    public void testAuthnWithJWTSignedWithExpiredTrustedCertificate() throws Exception {
+        // JWT used in the test:
+        // {
+        //  "sub": "ballerina",
+        //  "iss": "ballerina",
+        //  "exp": 2818415019,
+        //  "iat": 1524575019,
+        //  "jti": "f5aded50585c46f2b8ca233d0c2a3c9d",
+        //  "aud": [
+        //    "ballerina",
+        //    "ballerina.org",
+        //    "ballerina.io"
+        //  ],
+        //  "scope": "hello"
+        //}
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJpbmEiLCJpc" +
                 "3MiOiJiYWxsZXJpbmEiLCJleHAiOjI4MTg0MTUwMTksImlhdCI6MTUyNDU3NTAxOSwianRpIjoiZjVhZGVkNTA1ODVjNDZmMm" +
