@@ -338,7 +338,7 @@ tableColumnDefinition
     ;
 
 tableColumn
-    :   PRIMARYKEY? Identifier
+    :   Identifier? Identifier
     ;
 
 tableDataArray

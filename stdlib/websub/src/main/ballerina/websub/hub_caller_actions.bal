@@ -111,15 +111,16 @@ function CallerActions::registerTopic(string topic) returns error? {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
                 string payload = response.getTextPayload() but { error => "" };
-                error webSubError = error("Error occured during topic registration: " + payload);
+                map errorDetail = { message : "Error occured during topic registration: " + payload };
+                error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
                 return webSubError;
             }
             return;
         }
         error err => {
-            // TODO : Fix this.
-            error webSubError = error("Error sending topic registration request: " + err.reason());
-                //cause:err};
+            string errCause = <string> err.detail().message;
+            map errorDetail = { message : "Error sending topic registration request: " + errCause };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     }
@@ -133,14 +134,16 @@ function CallerActions::unregisterTopic(string topic) returns error? {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
                 string payload = response.getTextPayload() but { error => "" };
-                error webSubError = error("Error occured during topic unregistration: " + payload);
+                map errorDetail = { message : "Error occured during topic unregistration: " + payload };
+                error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
                 return webSubError;
             }
             return;
         }
         error err => {
-            error webSubError = error("Error sending topic unregistration request: " + err.reason());
-                //cause:err}; TODO : Fix this.
+            string errCause = <string> err.detail().message;
+            map errorDetail = { message : "Error sending topic unregistration request: " + errCause };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     }
@@ -173,14 +176,15 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:Re
         http:Response httpResponse => {
             if (!isSuccessStatusCode(httpResponse.statusCode)) {
                 string textPayload = httpResponse.getTextPayload() but { error => "" };
-                error webSubError = error("Error occured publishing update: " + textPayload);
+                map errorDetail = { message : "Error occured publishing update: " + textPayload };
+                error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
                 return webSubError;
             }
             return;
         }
         error httpConnectorError => {
-            // map data = { cause: err }; TODO : Fix me.
-            error webSubError = error("Publish failed for topic [" + topic + "]");
+            map errorDetail = { message : "Publish failed for topic [" + topic + "]" };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     }
@@ -205,14 +209,15 @@ function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) re
         http:Response httpResponse => {
             if (!isSuccessStatusCode(httpResponse.statusCode)) {
                 string textPayload = httpResponse.getTextPayload() but { error => "" };
-                error webSubError = error("Error occured notifying update availability: " + textPayload);
+                map errorDetail = { message : "Error occured notifying update availability: " + textPayload };
+                error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
                 return webSubError;
             }
             return;
         }
         error httpConnectorError => {
-            error webSubError = error("Update availability notification failed for topic [" + topic + "]");
-                                 //cause:httpConnectorError}; TODO : Fix this.
+            map errorDetail = { message : "Update availability notification failed for topic [" + topic + "]" };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     }
@@ -273,10 +278,10 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
     string topic = subscriptionChangeRequest.topic;
     match response {
         error httpConnectorError => {
-            string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - "
-                + httpConnectorError.reason();
-            //map data = { cause: httpConnectorError }; TODO : Fix me.
-            error webSubError = error(errorMessage);
+            string errCause = <string> httpConnectorError.detail().message;
+            map errorDetail = { message : "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - " +
+                                    errCause };
+            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
         http:Response httpResponse => {
@@ -288,20 +293,22 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                     return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                                                                 httpClientEndpoint.config.auth, remainingRedirects - 1);
                 }
-                error subscriptionError = error("Redirection response received for subscription change request"
-                                            + " made with followRedirects disabled or after maxCount exceeded: Hub ["
-                                            + hub + "], Topic [" + subscriptionChangeRequest.topic + "]");
+                map errorDetail = { message : "Redirection response received for subscription change request"
+                                        + " made with followRedirects disabled or after maxCount exceeded: Hub ["
+                                        + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
+                error subscriptionError = error(WEBSUB_ERROR_CODE, errorDetail);
                 return subscriptionError;
             } else if (!isSuccessStatusCode(responseStatusCode)) {
                 var responsePayload = httpResponse.getTextPayload();
                 string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
                 match (responsePayload) {
                     string responseErrorPayload => { errorMessage = errorMessage + " - " + responseErrorPayload; }
-                    error payloadError => { errorMessage = errorMessage + " - "
-                        + "Error occurred identifying cause: "
-                        + payloadError.reason(); }
+                    error payloadError => {
+                        string errCause = <string> payloadError.detail().message;
+                        errorMessage = errorMessage + " - Error occurred identifying cause: " + errCause;
+                    }
                 }
-                error webSubError = error(errorMessage);
+                error webSubError = error(WEBSUB_ERROR_CODE, { message : errorMessage });
                 return webSubError;
             } else {
                 if (responseStatusCode != http:ACCEPTED_202) {

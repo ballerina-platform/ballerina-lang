@@ -5686,7 +5686,7 @@ public class BallerinaParser extends Parser {
 			match(LEFT_BRACE);
 			setState(1179);
 			_la = _input.LA(1);
-			if (_la==PRIMARYKEY || _la==Identifier) {
+			if (_la==Identifier) {
 				{
 				setState(1171);
 				tableColumn();
@@ -5725,8 +5725,10 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class TableColumnContext extends ParserRuleContext {
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public TerminalNode PRIMARYKEY() { return getToken(BallerinaParser.PRIMARYKEY, 0); }
+		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
+		public TerminalNode Identifier(int i) {
+			return getToken(BallerinaParser.Identifier, i);
+		}
 		public TableColumnContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5744,19 +5746,19 @@ public class BallerinaParser extends Parser {
 	public final TableColumnContext tableColumn() throws RecognitionException {
 		TableColumnContext _localctx = new TableColumnContext(_ctx, getState());
 		enterRule(_localctx, 126, RULE_tableColumn);
-		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1184);
-			_la = _input.LA(1);
-			if (_la==PRIMARYKEY) {
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,119,_ctx) ) {
+			case 1:
 				{
 				setState(1183);
-				match(PRIMARYKEY);
+				match(Identifier);
 				}
+				break;
 			}
-
 			setState(1186);
 			match(Identifier);
 			}
@@ -18002,7 +18004,7 @@ public class BallerinaParser extends Parser {
 		"\u0086\2\2\u0497\u0499\5\u0080A\2\u0498\u0496\3\2\2\2\u0499\u049c\3\2"+
 		"\2\2\u049a\u0498\3\2\2\2\u049a\u049b\3\2\2\2\u049b\u049e\3\2\2\2\u049c"+
 		"\u049a\3\2\2\2\u049d\u0495\3\2\2\2\u049d\u049e\3\2\2\2\u049e\u049f\3\2"+
-		"\2\2\u049f\u04a0\7\u0088\2\2\u04a0\177\3\2\2\2\u04a1\u04a3\7\u0080\2\2"+
+		"\2\2\u049f\u04a0\7\u0088\2\2\u04a0\177\3\2\2\2\u04a1\u04a3\7\u00bf\2\2"+
 		"\u04a2\u04a1\3\2\2\2\u04a2\u04a3\3\2\2\2\u04a3\u04a4\3\2\2\2\u04a4\u04a5"+
 		"\7\u00bf\2\2\u04a5\u0081\3\2\2\2\u04a6\u04a8\7\u008b\2\2\u04a7\u04a9\5"+
 		"\u0084C\2\u04a8\u04a7\3\2\2\2\u04a8\u04a9\3\2\2\2\u04a9\u04aa\3\2\2\2"+

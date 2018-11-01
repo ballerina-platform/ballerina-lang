@@ -222,7 +222,6 @@
                                                         <fileset dir="${basedir}/../../stdlib/config-api/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/crypto/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/database/h2/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/jdbc/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/database/mysql/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/database/sql/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/file/target/classes" />
@@ -267,7 +266,6 @@
                                                         <fileset dir="${basedir}/../../stdlib/config-api/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/crypto/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/database/h2/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/jdbc/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/database/mysql/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/database/sql/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/file/src/main/java" />

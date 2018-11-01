@@ -16,7 +16,7 @@ public function main() {
     // primary key in column descriptor. Three data records are inserted to the table. Order of
     // the data values should match with the order of the column descriptor.
     table<Employee> tbEmployee = table {
-        { primarykey id, name, salary },
+        { key id, name, salary },
         [ { 1, "Mary",  300.5 },
           { 2, "John",  200.5 },
           { 3, "Jim", 330.5 }
@@ -35,7 +35,7 @@ public function main() {
     // This creates an in-memory table constrained by the `Employee` type with id as the primary key.
     // Two records are inserted to the table.
     table<Employee> tb = table {
-        { primarykey id, name, salary },
+        { key id, name, salary },
         [e1, e2]
     };
 
