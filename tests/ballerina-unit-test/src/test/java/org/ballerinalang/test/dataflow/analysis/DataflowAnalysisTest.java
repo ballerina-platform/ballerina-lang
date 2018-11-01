@@ -33,7 +33,6 @@ public class DataflowAnalysisTest {
     @Test
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
-        System.out.println(result);
         Assert.assertEquals(result.getErrorCount(), 41);
         int i = 0;
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 53, 12);
