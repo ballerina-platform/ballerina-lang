@@ -100,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -168,6 +169,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -578,6 +580,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         overridingAnalysis = false;
+
+        // Copy the taint information from the original symbol to the newly created type guarded symbol
+        ifNode.typeGuards.forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+
         ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
             ifNode.elseStmt.accept(this);
@@ -962,6 +968,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         overridingAnalysis = false;
+
+        // Copy the taint information from the original symbol to the newly created type guarded symbol
+        ternaryExpr.typeGuards
+                .forEach((originalSymbol, guardedSymbol) -> guardedSymbol.tainted = originalSymbol.tainted);
+
         ternaryExpr.thenExpr.accept(this);
         TaintedStatus thenTaintedCheckResult = this.taintedStatus;
         ternaryExpr.elseExpr.accept(this);
@@ -1206,6 +1217,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         // TODO: Fix me.
+    }
+
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.expr.accept(this);
     }
 
     // Type nodes

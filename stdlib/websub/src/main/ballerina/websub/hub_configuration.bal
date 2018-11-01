@@ -26,9 +26,10 @@ import ballerina/log;
 @final string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
 //TODO: Fix persistence configs, H2?
-@final string DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/subscriptionsdb";
-@final string DEFAULT_DB_USERNAME = "ballerina";
-@final string DEFAULT_DB_PASSWORD = "ballerina";
+@final string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
+@final string DEFAULT_DB_NAME = "HUB_DB";
+@final string DEFAULT_DB_USERNAME = "sa";
+@final string DEFAULT_DB_PASSWORD = "";
 
 @readonly string hubHost;
 @readonly int hubPort;
@@ -40,7 +41,8 @@ import ballerina/log;
 @readonly string hubPublicUrl;
 
 @final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
-@final string hubDatabaseUrl = config:getAsString("b7a.websub.hub.db.url", default = DEFAULT_DB_URL);
+@final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
+@final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
 @final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
 @final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options

@@ -32,6 +32,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -206,10 +207,10 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         BValue[] returnValues = BLangFunctions.invokeCallable(functionInfo, new BValue[]{requestStruct,
                 new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType())});
 
-        BMap<String, BValue> errorStruct = (BMap<String, BValue>) returnValues[0];
+        BError errorStruct = (BError) returnValues[0];
         if (errorStruct != null) {
             log.debug("Signature Validation failed for Notification: " +
-                    errorStruct.get(ERROR_MESSAGE_FIELD).stringValue());
+                              ((BMap) errorStruct.getDetails()).get(ERROR_MESSAGE_FIELD).stringValue());
             httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
             throw new BallerinaException("validation failed for notification");
         }

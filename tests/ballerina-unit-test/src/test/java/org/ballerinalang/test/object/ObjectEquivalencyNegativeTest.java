@@ -31,7 +31,7 @@ public class ObjectEquivalencyNegativeTest {
     @Test(description = "Test equivalence of objects that are in the same package")
     public void testEquivalenceOfObjectsInSamePackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
-
+        Assert.assertEquals(compileResult.getErrorCount(), 9);
         BAssertUtil.validateError(compileResult, 0,
                 "incompatible types: expected 'person01', found 'person01|error'", 22, 18);
         BAssertUtil.validateError(compileResult, 1,
@@ -50,10 +50,6 @@ public class ObjectEquivalencyNegativeTest {
                 "incompatible types: expected 'person08', found 'person08|error'", 280, 18);
         BAssertUtil.validateError(compileResult, 8,
                 "incompatible types: expected 'person09', found 'person09|error'", 346, 18);
-        BAssertUtil.validateError(compileResult, 9,
-                "incompatible types: expected 'PersonNotInOrder', found 'PersonInOrder'", 397, 27);
-        BAssertUtil.validateError(compileResult, 10,
-                "incompatible types: expected 'PersonInOrder', found 'PersonNotInOrder'", 400, 24);
     }
 
     @Test(description = "Test equivalence of objects that are in the same package from a third package")

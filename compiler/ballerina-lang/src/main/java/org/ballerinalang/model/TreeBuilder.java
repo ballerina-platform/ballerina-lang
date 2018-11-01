@@ -83,6 +83,7 @@ import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.TrapExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.expressions.TypeInitNode;
+import org.ballerinalang.model.tree.expressions.TypeTestExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
@@ -204,6 +205,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -755,5 +757,9 @@ public class TreeBuilder {
 
     public static ScopeNode createScopeNode() {
         return new BLangScope();
+    }
+
+    public static TypeTestExpressionNode createTypeTestExpressionNode() {
+        return new BLangTypeTestExpr();
     }
 }

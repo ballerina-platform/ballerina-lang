@@ -8,7 +8,7 @@ import com.github.gtache.lsp.client.languageserver.wrapper.{LanguageServerWrappe
 import com.github.gtache.lsp.contributors.LSPNavigationItem
 import com.github.gtache.lsp.editor.listeners.{EditorListener, FileDocumentManagerListenerImpl, VFSListener}
 import com.github.gtache.lsp.requests.{Timeout, Timeouts}
-import com.github.gtache.lsp.settings.LSPState
+import com.github.gtache.lsp.settings.BallerinaLSPState
 import com.github.gtache.lsp.utils.{ApplicationUtils, FileUtils, GUIUtils}
 import com.intellij.AppTopics
 import com.intellij.navigation.NavigationItem
@@ -251,7 +251,7 @@ class PluginMain extends ApplicationComponent {
   override val getComponentName: String = "PluginMain"
 
   override def initComponent(): Unit = {
-    LSPState.getInstance.getState //Need that to trigger loadState
+    BallerinaLSPState.getInstance.getState //Need that to trigger loadState
     EditorFactory.getInstance.addEditorFactoryListener(new EditorListener, Disposer.newDisposable())
     VirtualFileManager.getInstance().addVirtualFileListener(VFSListener)
     ApplicationManager.getApplication.getMessageBus.connect().subscribe(AppTopics.FILE_DOCUMENT_SYNC, FileDocumentManagerListenerImpl)
