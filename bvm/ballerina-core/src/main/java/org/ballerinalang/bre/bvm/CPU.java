@@ -815,6 +815,7 @@ public class CPU {
             case TypeTags.MAP_TAG:
             case TypeTags.ARRAY_TAG:
             case TypeTags.TABLE_TAG:
+            case TypeTags.UNION_TAG:
             case TypeTags.JSON_TAG:
                 sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy();
                 break;

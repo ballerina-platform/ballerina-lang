@@ -199,6 +199,14 @@ public class CloneBuiltInMethodTest {
     }
 
     @Test
+    public void testCloneUnion() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneUnion");
+        Assert.assertEquals(((BInteger)outputEmployeeEvents[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger)outputEmployeeEvents[1]).intValue(), 1);
+        Assert.assertEquals(((BFloat)outputEmployeeEvents[2]).floatValue(), 300.5);
+    }
+
+    @Test
     public void testCloneConstrainedJSON() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneConstrainedJSON");
 

@@ -151,6 +151,15 @@ public function cloneUnionArray() returns (any[], any[], any[]) {
     return (a, x, y);
 }
 
+public function cloneUnion() returns (any, any, any) {
+    int|string|float a = 1;
+    int|string|float x = a.clone();
+    int|string|float y = a.clone();
+    a = 100;
+    y = 300.5;
+    return (a, x, y);
+}
+
 public function cloneConstrainedJSON() returns (json, json, json) {
     json<ConstrainedEmp> a = { id: 1, name: "Jane", salary: 300.50 };
     json<ConstrainedEmp> x = a.clone();
