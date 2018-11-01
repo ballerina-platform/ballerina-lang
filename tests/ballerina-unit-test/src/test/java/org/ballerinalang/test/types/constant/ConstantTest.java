@@ -22,6 +22,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -164,5 +166,69 @@ public class ConstantTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeInCondition");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testBooleanWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testBooleanWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testIntWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
+    @Test
+    public void testIntWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
+    }
+
+    // Note - We need to explicitly define bytes with the type node. Otherwise it will be considered as an int.
+    @Test
+    public void testByteWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testByteWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 240);
+    }
+
+    @Test
+    public void testFloatWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+    }
+
+    @Test
+    public void testFloatWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+    }
+
+    @Test
+    public void testStringWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
+    }
+
+    @Test
+    public void testStringWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
     }
 }
