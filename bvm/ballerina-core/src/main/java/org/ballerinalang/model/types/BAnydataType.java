@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BValue;
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class BAnydataType extends BType {
 
