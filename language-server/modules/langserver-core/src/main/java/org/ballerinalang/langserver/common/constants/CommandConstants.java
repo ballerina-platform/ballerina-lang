@@ -27,6 +27,7 @@ public class CommandConstants {
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
     public static final String UNRESOLVED_MODULE = "cannot resolve module";
     public static final Pattern UNRESOLVED_MODULE_PATTERN = Pattern.compile("cannot resolve module '(.*)'");
+    public static final Pattern UNDEFINED_FUNCTION_PATTERN = Pattern.compile("undefined function '(.*)'");
 
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
@@ -49,6 +50,8 @@ public class CommandConstants {
 
     public static final String ARG_KEY_NODE_LINE = "node.line";
 
+    public static final String ARG_KEY_NODE_COLUMN = "node.column";
+
 
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import Module ";
@@ -57,7 +60,9 @@ public class CommandConstants {
 
     public static final String CREATE_FUNCTION_TITLE = "Create Function ";
 
-    public static final String CREATE_TEST_TITLE = "Create Test ";
+    public static final String CREATE_TEST_FUNC_TITLE = "Create Test For Function";
+
+    public static final String CREATE_TEST_SERVICE_TITLE = "Create Test For Service";
 
     public static final String ADD_DOCUMENTATION_TITLE = "Document This";
 

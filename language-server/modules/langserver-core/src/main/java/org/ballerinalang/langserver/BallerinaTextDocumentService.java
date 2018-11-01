@@ -394,26 +394,25 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSDocument document = new LSDocument(fileUri);
                 List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
 
+                String topLevelNodeType = CommonUtil.topLevelNodeTypeInLine(params.getTextDocument(), start,
+                                                                            documentManager);
+                // Add create test commands
+                Path dir = document.getPath().getParent();
+                if (diagnostics.isEmpty() && document.hasProjectRepo() &&
+                        !dir.getFileName().toString().equals("tests")) {
+                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
+                }
+
                 // Add commands base on node diagnostics
                 if (!diagnostics.isEmpty()) {
                     diagnostics.forEach(diagnostic -> {
                         if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
-                            commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, documentManager,
-                                                                                lsCompiler));
+                            commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params));
                         }
                     });
                 }
-                // Add create test command
-                Path dir = document.getPath().getParent();
-                if (diagnostics.isEmpty() &&
-                        !document.getSourceRootPath().equals(dir) &&
-                        !dir.getFileName().toString().equals("tests")) {
-                    //Check if doc is not in root or tests folder
-                    commands.add(CommandUtil.getTestGenerationCommand(fileUri));
-                }
+
                 // Add commands base on node type
-                String topLevelNodeType = CommonUtil
-                        .topLevelNodeTypeInLine(params.getTextDocument(), start, documentManager);
                 if (topLevelNodeType != null) {
                     commands.addAll(CommandUtil.getCommandForNodeType(topLevelNodeType, fileUri, start.getLine()));
                 }

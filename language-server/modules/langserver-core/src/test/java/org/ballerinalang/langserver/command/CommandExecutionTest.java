@@ -38,6 +38,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
+
 /**
  * Command Execution Test Cases.
  *
@@ -65,12 +67,12 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = Arrays.asList(
-                new CommandUtil.CommandArgument("module", configJsonObject.get("module").getAsString()),
-                new CommandUtil.CommandArgument("doc.uri", sourcePath.toUri().toString()));
+                new CommandArgument("module", configJsonObject.get("module").getAsString()),
+                new CommandArgument("doc.uri", sourcePath.toUri().toString()));
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_IMPORT_MODULE);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertTrue(responseJson.equals(expected));
+        Assert.assertEquals(responseJson, expected);
     }
 
     @Test(dataProvider = "add-doc-data-provider")
@@ -80,13 +82,13 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = Arrays.asList(
-                new CommandUtil.CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
-                new CommandUtil.CommandArgument("doc.uri", sourcePath.toUri().toString()),
-                new CommandUtil.CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
+                new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
+                new CommandArgument("doc.uri", sourcePath.toUri().toString()),
+                new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_ADD_DOCUMENTATION);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertTrue(responseJson.equals(expected));
+        Assert.assertEquals(responseJson, expected);
     }
 
     @Test(dataProvider = "add-all-doc-data-provider")
@@ -96,11 +98,11 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = Collections.singletonList(
-                new CommandUtil.CommandArgument("doc.uri", sourcePath.toUri().toString()));
+                new CommandArgument("doc.uri", sourcePath.toUri().toString()));
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_ADD_ALL_DOC);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertTrue(responseJson.equals(expected));
+        Assert.assertEquals(responseJson, expected);
     }
     
     @Test(description = "Test Create Constructor for object")
@@ -110,13 +112,13 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = Arrays.asList(
-                new CommandUtil.CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
-                new CommandUtil.CommandArgument("doc.uri", sourcePath.toUri().toString()),
-                new CommandUtil.CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
+                new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
+                new CommandArgument("doc.uri", sourcePath.toUri().toString()),
+                new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_CONSTRUCTOR);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertTrue(responseJson.equals(expected));
+        Assert.assertEquals(responseJson, expected);
     }
     
     @Test(dataProvider = "create-function-data-provider")
@@ -126,21 +128,14 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = new ArrayList<>();
-        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
-        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_FUNC_ARGS,
-                configJsonObject.get("arguments").getAsString()));
-        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_FUNC_NAME,
-                configJsonObject.get("functionName").getAsString()));
-        if (configJsonObject.get("returns") != null && configJsonObject.get("returnsDefault") != null) {
-            args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_RETURN_TYPE,
-                    configJsonObject.get("returns").toString()));
-            args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_RETURN_DEFAULT_VAL,
-                    configJsonObject.get("returnsDefault").toString()));
-        }
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_FUNCTION);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertTrue(responseJson.equals(expected));
+        Assert.assertEquals(responseJson, expected);
     }
 
     @Test(dataProvider = "create-variable-data-provider")
@@ -150,17 +145,14 @@ public class CommandExecutionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         List<Object> args = new ArrayList<>();
-        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
-        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_FUNC_LOCATION,
-                                                 configJsonObject.get("functionLocation").getAsString()));
-        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_RETURN_TYPE,
-                                                 configJsonObject.get("functionReturnType").getAsString()));
-        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_VAR_NAME,
-                                                 configJsonObject.get("variableName").getAsString()));
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_VARIABLE);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertTrue(responseJson.equals(expected));
+        Assert.assertEquals(responseJson, expected);
     }
 
     @DataProvider(name = "package-import-data-provider")

@@ -21,14 +21,26 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEdit;
+import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
 
 /**
@@ -47,8 +59,6 @@ public class CreateVariableExecutor implements LSCommandExecutor {
     @Override
     public Object execute(LSContext context) throws LSCommandExecutorException {
         String documentUri = null;
-        String variableType = null;
-        String variableName = null;
         int sLine = -1;
         int sCol = -1;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
@@ -62,31 +72,46 @@ public class CreateVariableExecutor implements LSCommandExecutor {
                     textDocumentIdentifier.setUri(documentUri);
                     context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
                     break;
-                case CommandConstants.ARG_KEY_RETURN_TYPE:
-                    variableType = argVal;
+                case CommandConstants.ARG_KEY_NODE_LINE:
+                    sLine = Integer.parseInt(argVal);
                     break;
-                case CommandConstants.ARG_KEY_FUNC_LOCATION:
-                    String[] split = argVal.split(",");
-                    sLine = Integer.parseInt(split[0]);
-                    sCol = Integer.parseInt(split[1]);
-                    break;
-                case CommandConstants.ARG_KEY_VAR_NAME:
-                    variableName = argVal;
+                case CommandConstants.ARG_KEY_NODE_COLUMN:
+                    sCol = Integer.parseInt(argVal);
                     break;
                 default:
-                    //do nothing
             }
         }
 
-        if (documentUri == null) {
-            return new Object();
+        if (sLine == -1 || sCol == -1 || documentUri == null) {
+            throw new LSCommandExecutorException("Invalid parameters received for the create variable command!");
         }
+
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+
+        BLangInvocation functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler);
+        String variableName = CommonUtil.generateName(1, getAllEntries(functionNode));
+        String variableType = CommonUtil.FunctionGenerator.getFuncReturnSignature(functionNode.type);
 
         String editText = createVariableDeclaration(variableName, variableType);
         Position position = new Position(sLine - 1, sCol - 1);
 
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
         return applySingleTextEdit(editText, new Range(position, position), textDocumentIdentifier, client);
+    }
+
+    private static Set<String> getAllEntries(BLangInvocation functionNode) {
+        Set<String> strings = new HashSet<>();
+        BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
+        if (packageNode != null) {
+            packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
+            packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
+            packageNode.getServices().forEach(service -> strings.add(service.name.value));
+            packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
+        }
+        Map<Name, Scope.ScopeEntry> entries = functionNode.symbol.scope.entries;
+        entries.forEach((name, scopeEntry) -> strings.add(name.value));
+        return strings;
     }
 
     /**

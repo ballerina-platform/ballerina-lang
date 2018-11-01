@@ -65,7 +65,7 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.command.CommandUtil" />
+        <Class name="org.ballerinalang.langserver.command.docs.DocumentationGenerator" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>

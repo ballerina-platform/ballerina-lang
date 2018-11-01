@@ -1,7 +1,8 @@
 {
-    "variableName": "a",
-    "functionReturnType": "int",
-    "functionLocation": "3,4",
+    "arguments": {
+        "node.line" : 3,
+        "node.column" : 4
+    },
     "expected": {
         "result": {
             "edit": {
@@ -21,7 +22,7 @@
                                         "character": 3
                                     }
                                 },
-                                "newText": "int a = "
+                                "newText": "int c = "
                             }
                         ]
                     }

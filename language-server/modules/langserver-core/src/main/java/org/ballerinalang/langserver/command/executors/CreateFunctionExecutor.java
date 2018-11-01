@@ -32,18 +32,22 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEdit;
+import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Represents the command executor for creating a function.
- * 
+ *
  * @since 0.983.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
@@ -57,11 +61,13 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
     @Override
     public Object execute(LSContext context) throws LSCommandExecutorException {
         String documentUri = null;
-        String funcName = null;
         String returnType = null;
-        String returnDefaultValue = null;
+        String returnValue = null;
         String funcArgs = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
+
+        int argLine = -1;
+        int argColumn = -1;
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
             String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
@@ -72,54 +78,58 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                     textDocumentIdentifier.setUri(documentUri);
                     context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
                     break;
-                case CommandConstants.ARG_KEY_FUNC_NAME:
-                    funcName = argVal;
+                case CommandConstants.ARG_KEY_NODE_LINE:
+                    argLine = Integer.parseInt(argVal);
                     break;
-                case CommandConstants.ARG_KEY_RETURN_TYPE:
-                    returnType = argVal;
-                    break;
-                case CommandConstants.ARG_KEY_RETURN_DEFAULT_VAL:
-                    returnDefaultValue = argVal;
-                    break;
-                case CommandConstants.ARG_KEY_FUNC_ARGS:
-                    funcArgs = argVal;
+                case CommandConstants.ARG_KEY_NODE_COLUMN:
+                    argColumn = Integer.parseInt(argVal);
                     break;
                 default:
-                    break;
             }
         }
 
-        if (documentUri == null || funcName == null) {
-            return new Object();
+        if (argLine == -1 || argColumn == -1 || documentUri == null) {
+            throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+
+        BLangInvocation functionNode = getFunctionNode(argLine, argColumn, documentUri, documentManager, lsCompiler);
+        String functionName = functionNode.name.getValue();
+
+        BLangNode parent = functionNode.parent;
+        if (parent != null) {
+            returnType = CommonUtil.FunctionGenerator.getFuncReturnSignature(parent);
+            returnValue = CommonUtil.FunctionGenerator.getFuncReturnDefaultStatement(parent, "    return {%1};");
+            List<String> arguments = CommonUtil.FunctionGenerator.getFuncArguments(functionNode);
+            if (arguments != null) {
+                funcArgs = String.join(", ", arguments);
+            }
+        }
 
         Path filePath = Paths.get(URI.create(documentUri));
         Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
-        String fileContent;
+        String fileContent = null;
         try {
             fileContent = documentManager.getFileContent(compilationPath);
         } catch (WorkspaceDocumentException e) {
-            throw new LSCommandExecutorException("Error executing create function Command: " + e.getMessage());
+            throw new LSCommandExecutorException("Error occurred while reading the file:" + filePath.toString(), e);
         }
         String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
         int totalLines = contentComponents.length;
         int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
         int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
 
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                LSCustomErrorStrategy.class, false).getRight();
+                                                               LSCustomErrorStrategy.class, false).getRight();
         if (bLangPackage == null) {
             return new Object();
         }
 
-        String editText = CommonUtil.FunctionGenerator.createFunction(funcName, funcArgs, returnType,
-                returnDefaultValue);
-        Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
-
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        String editText = CommonUtil.FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue);
+        Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
         return applySingleTextEdit(editText, range, textDocumentIdentifier, client);
     }
 

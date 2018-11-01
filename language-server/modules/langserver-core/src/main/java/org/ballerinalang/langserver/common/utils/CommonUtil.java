@@ -701,14 +701,14 @@ public class CommonUtil {
      * @return {@link Boolean}  Whether a test source or not
      */
     public static boolean isTestSource(String relativeFilePath) {
-        return relativeFilePath.split(FILE_SEPARATOR)[0].equals("tests");
+        return relativeFilePath.startsWith("tests" + FILE_SEPARATOR);
     }
 
     /**
      * Get the Source's owner BLang package, this can be either the parent package or the testable BLang package.
      *
-     * @param relativePath          Relative source path
-     * @param parentPkg             parent package
+     * @param relativePath Relative source path
+     * @param parentPkg    parent package
      * @return {@link BLangPackage} Resolved BLangPackage
      */
     public static BLangPackage getSourceOwnerBLangPackage(String relativePath, BLangPackage parentPkg) {
@@ -1130,7 +1130,7 @@ public class CommonUtil {
          * @return return type signature
          */
         public static String getFuncReturnSignature(BType bType) {
-            if (bType.tsymbol == null && bType instanceof BArrayType) {
+            if ((bType.tsymbol == null || bType.tsymbol.name.value.isEmpty()) && bType instanceof BArrayType) {
                 // Check for array assignment eg.  int[]
                 return getFuncReturnSignature(((BArrayType) bType).eType.tsymbol) + "[]";
             } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
@@ -1152,7 +1152,7 @@ public class CommonUtil {
                 for (BType memberType : ((BTupleType) bType).tupleTypes) {
                     list.add(getFuncReturnSignature(memberType));
                 }
-                return "(" + String.join(",", list) + ")";
+                return "(" + String.join(", ", list) + ")";
             }
             return (bType.tsymbol != null) ? getFuncReturnSignature(bType.tsymbol) : "any";
         }
