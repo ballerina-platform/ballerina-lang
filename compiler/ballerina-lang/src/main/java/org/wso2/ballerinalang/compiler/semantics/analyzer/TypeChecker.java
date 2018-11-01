@@ -1804,6 +1804,12 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.TABLE:
             case TypeTags.JSON:
                 break;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType memberType : unionType.memberTypes) {
+                    validateAnyDataType(memberType, pos);
+                }
+                break;
             case TypeTags.ARRAY:
                 BArrayType arrType = (BArrayType) type;
                 validateAnyDataType(arrType.eType, pos);
