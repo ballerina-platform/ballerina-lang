@@ -67,4 +67,11 @@ public class ConstantTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "A");
     }
+
+    @Test
+    public void testAccessTypeWithContInDef() {
+        BValue[] returns = BRunUtil.invoke(result, "testAccessTypeWithContInDef");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "C");
+    }
 }

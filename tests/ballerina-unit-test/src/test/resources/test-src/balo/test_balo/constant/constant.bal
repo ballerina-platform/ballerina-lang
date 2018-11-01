@@ -18,3 +18,8 @@ function testAccessFiniteType() returns foo:AB {
 // function testReturnFiniteType() returns AB {
 //     return foo:A; // Valid because this is same as `return "A";`
 // }
+
+function testAccessTypeWithContInDef() returns foo:CD {
+    foo:CD c = "C";
+    return c;
+}
