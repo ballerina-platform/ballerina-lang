@@ -35,14 +35,14 @@ public class AuthBaseTest extends BaseTest {
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100};
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101};
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
         embeddedDirectoryServer.startLdapServer(9389);
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth").getAbsolutePath();
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        String[] args = new String[]{"--config", ballerinaConfPath};
+        String[] args = new String[]{"--config", ballerinaConfPath, "-e", "b7a.log.level=DEBUG"};
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(basePath, "authservices", args, requiredPorts);
     }
