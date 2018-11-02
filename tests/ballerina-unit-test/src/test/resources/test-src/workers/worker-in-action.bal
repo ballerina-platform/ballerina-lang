@@ -13,12 +13,12 @@ function ABCClient.testAction1() returns string {
         worker default {
             "xxx" -> sampleWorker;
             string result = "";
-            result <- sampleWorker;
+            result = <- sampleWorker;
             return result;
         }
         worker sampleWorker {
             string m = "";
-            m <- default;
+            m = <- default;
             string v = "result from sampleWorker";
             v -> default;
         } 
@@ -27,7 +27,7 @@ function ABCClient.testAction1() returns string {
 function ABCClient.testAction2() returns string {
         worker default {
             string result = "";
-            result <- sampleWorker;
+            result = <- sampleWorker;
             return result;
         }
         worker sampleWorker {

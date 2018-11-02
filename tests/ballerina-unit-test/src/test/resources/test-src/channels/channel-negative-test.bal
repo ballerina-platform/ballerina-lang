@@ -4,7 +4,7 @@ function workerWithChannels() returns xml {
     worker w1 {
         json key = {"id":50, name:"john"};
         xml result;
-        result <- chn, key;
+        result = <- chn, key;
         return result;
     }
 

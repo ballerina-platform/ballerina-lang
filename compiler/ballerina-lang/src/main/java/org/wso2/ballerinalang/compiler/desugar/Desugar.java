@@ -2297,7 +2297,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.expr = rewriteExpr(workerReceiveNode.expr);
         if (workerReceiveNode.keyExpr != null) {
             workerReceiveNode.keyExpr = rewriteExpr(workerReceiveNode.keyExpr);
         }

@@ -10,14 +10,14 @@ function testWorker () returns int {
         int result;
         int i = 10;
         i -> sampleWorker;
-        result <- sampleWorker;
+        result = <- sampleWorker;
         return result;
     }
 
     worker sampleWorker {
         int r = 120;
         int i;
-        i <- w1;
+        i = <- w1;
         r = changeMessage(i);
         r -> w1;
     }

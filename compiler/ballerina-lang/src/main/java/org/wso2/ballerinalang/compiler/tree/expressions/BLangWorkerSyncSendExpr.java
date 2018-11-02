@@ -26,7 +26,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since 0.983
+ * Implementation of {@link BLangWorkerSyncSendExpr}.
+ *
+ * @since 0.985
  */
 public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSendSyncExpressionNode {
 

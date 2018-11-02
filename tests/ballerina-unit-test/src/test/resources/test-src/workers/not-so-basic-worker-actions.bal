@@ -7,12 +7,12 @@ function forkJoinWithTimeoutTest1() returns map {
             int a = 5;
             int b = 0;
             a -> w2;
-            b <- w2;
+            b = <- w2;
         }
         worker w2 {
             int a = 0;
             int b = 15;
-            a <- w1;
+            a = <- w1;
             b -> w1;
             runtime:sleep(5000);
         }
@@ -52,12 +52,12 @@ function complexForkJoinWorkerSendReceive() returns map {
             int a = 5;
             int b = 0;
             a -> w2;
-            b <- w2;
+            b = <- w2;
         }
         worker w2 {
             int a = 0;
             int b = 15;
-            a <- w1;
+            a = <- w1;
             b -> w1;
         }
     } join (all) (map results) {
@@ -73,19 +73,19 @@ function chainedWorkerSendReceive() returns map {
             int a = 3;
             int b = 0;
             a -> w2;
-            b <- w3;
+            b = <- w3;
             m["x"] = b;
         }
         worker w2 {
             int a = 0;
             int b = 15;
-            a <- w1;
-                a * 2 -> w3;
+            a = <- w1;
+            a * 2 -> w3;
         }
         worker w3 {
             int a = 0;
             int b = 0;
-            a <- w2;
+            a = <- w2;
             b = a * 2;
             b -> w1;
         }
@@ -135,22 +135,22 @@ function forkJoinWithSomeSelectedJoin2() returns map {
         worker w1 {
             int x = 80;
             x -> w2;
-            x <- w3;
+            x = <- w3;
             m["x"] = x;
             10 -> w2;
         }
         worker w2 {
             int a = 0;
-            a <- w1;
+            a = <- w1;
             (a * 2) -> w3;
-            a <- w1;
+            a = <- w1;
             10 -> w3;
         }
         worker w3 {
             int a = 0;
-            a <- w2;
+            a = <- w2;
             (a * 2) -> w1;
-            a <- w2;
+            a = <- w2;
         }
     } join (some 1 w1, w2, w3) (map results) {
 
@@ -166,23 +166,23 @@ function forkJoinWithSomeSelectedJoin3() returns map {
             int x = 10;
             x -> w2;
             int a = 0;
-            a <- w3;
+            a = <- w3;
             (a * 2) -> w2;
         }
         worker w2 {
             int a = 0;
-            a <- w1;
+            a = <- w1;
             (a * 2) -> w3;
-            a <- w1;
+            a = <- w1;
             m["x"] = a;
             (a * 2) -> w3;
             runtime:sleep(1000);
         }
         worker w3 {
             int a = 0;
-            a <- w2;
+            a = <- w2;
             (a * 2) -> w1;
-            m["x"] <- w2;
+            m["x"] = <- w2;
         }
     } join (some 1 w2, w3) (map results) {
 
@@ -199,13 +199,13 @@ function forkJoinWithSomeSelectedJoin4() returns int {
         }
         worker w2 {
             int a = 0;
-            a <- w1;
+            a = <- w1;
             a -> w3;
             m["x"] = a;
         }
         worker w3 {
             int a = 0;
-            a <- w2;
+            a = <- w2;
             runtime:sleep(1000);
             m["x"] = a * 2;
         }
@@ -225,14 +225,14 @@ function forkJoinWithSomeSelectedJoin5() returns int {
         }
         worker w2 {
             int a = 0;
-            a <- w1;
+            a = <- w1;
             a -> w3;
             m["x"] = a;
-            a <- w3;
+            a = <- w3;
         }
         worker w3 {
             int a = 0;
-            a <- w2;
+            a = <- w2;
             runtime:sleep(5000);
             m["x"] = a * 2;
             a -> w2;
@@ -255,14 +255,14 @@ function forkJoinWithAllSelectedJoin1() returns map {
             int x = 10;
             x -> w2;
             int a = 0;
-            a <- w3;
+            a = <- w3;
             (a * 2) -> w2;
         }
         worker w2 {
             int a = 0;
-            a <- w1;
+            a = <- w1;
             (a * 2) -> w3;
-            a <- w1;
+            a = <- w1;
             m["x"] = a;
             (a * 2) -> w3;
             runtime:sleep(1000);
@@ -270,9 +270,9 @@ function forkJoinWithAllSelectedJoin1() returns map {
         }
         worker w3 {
             int a = 0;
-            a <- w2;
+            a = <- w2;
             (a * 2) -> w1;
-            m["x"] <- w2;
+            m["x"] = <- w2;
         }
     } join (all w2, w3) (map results) {
 
@@ -287,14 +287,14 @@ function forkJoinWithAllSelectedJoin2() returns int {
             int x = 10;
             x -> w2;
             int a = 0;
-            a <- w3;
+            a = <- w3;
             (a * 2) -> w2;
         }
         worker w2 {
             int a = 0;
-            a <- w1;
+            a = <- w1;
             (a * 2) -> w3;
-            a <- w1;
+            a = <- w1;
             result = a;
             (a * 2) -> w3;
             runtime:sleep(2000);
@@ -302,9 +302,9 @@ function forkJoinWithAllSelectedJoin2() returns int {
         }
         worker w3 {
             int a = 0;
-            a <- w2;
+            a = <- w2;
             (a * 2) -> w1;
-            result <- w2;
+            result = <- w2;
         }
     } join (all w2, w3) (map results) {
 
@@ -323,12 +323,12 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
             int a = 5;
             a -> w2;
             int b = 0;
-            b <- w2;
+            b = <- w2;
             b -> fork;
         }
         worker w2 {
             int a = 0;
-            a <- w1;
+            a = <- w1;
             int b = 15;
             b -> w1;
             a -> fork;
@@ -376,61 +376,61 @@ function largeForkJoinCreationTest() returns int {
                 int a = 2;
                 int b = 0;
                 a -> w2;
-                b <- w10;
+                b = <- w10;
                 m["x"] = result + b;
             }
             worker w2 {
                 int a = 0;
                 int b = 3;
-                a <- w1;
+                a = <- w1;
                 (a + b) -> w3;
             }
             worker w3 {
                 int a = 0;
                 int b = 4;
-                a <- w2;
+                a = <- w2;
                 (a + b) -> w4;
             }
             worker w4 {
                 int a = 0;
                 int b = 5;
-                a <- w3;
+                a = <- w3;
                 (a + b) -> w5;
             }
             worker w5 {
                 int a = 0;
                 int b = 6;
-                a <- w4;
+                a = <- w4;
                 (a + b) -> w6;
             }
             worker w6 {
                 int a = 0;
                 int b = 7;
-                a <- w5;
+                a = <- w5;
                 (a + b) -> w7;
             }
             worker w7 {
                 int a = 0;
                 int b = 8;
-                a <- w6;
+                a = <- w6;
                 (a + b) -> w8;
             }
             worker w8 {
                 int a = 0;
                 int b = 9;
-                a <- w7;
+                a = <- w7;
                 (a + b) -> w9;
             }
             worker w9 {
                 int a = 0;
                 int b = 10;
-                a <- w8;
+                a = <- w8;
                 (a + b) -> w10;
             }
             worker w10 {
                 int a = 0;
                 int b = 11;
-                a <- w9;
+                a = <- w9;
                 (a + b) -> w1;
             }
         } join (all) (map results) {
