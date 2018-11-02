@@ -298,20 +298,20 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
 
     AuthnHandlerChain authnHandlerChain = new(registry);
     AuthnFilter authnFilter = new(authnHandlerChain);
-    cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis, capacity =
-        config.positiveAuthzCache.capacity, evictionFactor = config.positiveAuthzCache.evictionFactor);
-    cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis, capacity =
-        config.negativeAuthzCache.capacity, evictionFactor = config.negativeAuthzCache.evictionFactor);
+    cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis,
+        capacity = config.positiveAuthzCache.capacity,
+        evictionFactor = config.positiveAuthzCache.evictionFactor);
+    cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
+        capacity = config.negativeAuthzCache.capacity,
+        evictionFactor = config.negativeAuthzCache.evictionFactor);
     auth:AuthStoreProvider authStoreProvider;
-
 
     foreach provider in authProviderList {
         if (provider.scheme == AUTHN_SCHEME_BASIC) {
             if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
                 match provider.authStoreProviderConfig {
                     auth:LdapAuthProviderConfig authStoreProviderConfig => {
-                        auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig,
-                            instanceId);
+                        auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig, instanceId);
                         authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
                     }
                     () => {
