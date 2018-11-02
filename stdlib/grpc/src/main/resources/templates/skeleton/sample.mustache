@@ -1,5 +1,5 @@
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 public function main (string... args) {
      endpoint {{serviceName}}Client ep {
@@ -19,9 +19,7 @@ service<grpc:Service> {{serviceName}}MessageListener {
     }
 
     onError (error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+        io:println("Error reported from server: " + err.reason());
     }
 
     onComplete () {

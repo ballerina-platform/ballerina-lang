@@ -35,7 +35,7 @@ service<http:Service> dataService bind { port: 9090 } {
         table dt;
         match selectRet {
             table tableReturned => dt = tableReturned;
-            error e => io:println("Select data from Data table failed: " + e.message);
+            error e => io:println("Select data from Data table failed: " + e.reason());
         }
 
         xml xmlConversionRet = check <xml>dt;

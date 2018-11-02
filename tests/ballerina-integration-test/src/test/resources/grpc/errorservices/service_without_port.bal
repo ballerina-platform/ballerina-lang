@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 endpoint grpc:Listener ep85 {
     host:"localhost"
@@ -24,8 +24,11 @@ service HelloWorld85 bind ep85 {
     hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
+        io:println("Server send response : " + message);
         error? err = caller->send(message);
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 }
