@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.annotation.Nullable;
 
 /**
  * Utilities used by ballerina swagger code generator.
@@ -48,8 +49,8 @@ public class CodegenUtils {
     /**
      * Resolves path to write generated main source files.
      *
-     * @param pkg source package
-     * @param path output path without package name
+     * @param pkg module
+     * @param path output path without module name
      * @return path to write generated source files
      */
     public static Path getSourcePath(String pkg, String path) {
@@ -61,7 +62,7 @@ public class CodegenUtils {
     /**
      * Resolves path to write generated implementation source files.
      *
-     * @param pkg source package
+     * @param pkg module
      * @param srcPath resolved path for main source files
      * @return path to write generated source files
      */
@@ -87,5 +88,18 @@ public class CodegenUtils {
                 writer.close();
             }
         }
+    }
+    
+    /**
+     * Removes underscores and hyphens for identifiers.
+     * @param identifier Path
+     * @return Cleaned identifier.
+     */
+    public static String normalizeForBIdentifier(@Nullable String identifier) {
+        if (identifier == null) {
+            return null;
+        }
+    
+        return identifier.replaceAll(" ", "_").replaceAll("-", "");
     }
 }

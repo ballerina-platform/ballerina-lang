@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.caching;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +37,7 @@ public class CacheControlParser {
     private static final Pattern pattern = Pattern.compile(DIRECTIVE_FORMAT);
 
     public static Map<CacheControlDirective, String> parse(String cacheControlHeader) {
-        Map<CacheControlDirective, String> directivesMap = new HashMap<>();
+        Map<CacheControlDirective, String> directivesMap = new EnumMap<>(CacheControlDirective.class);
         Matcher matcher = pattern.matcher(cacheControlHeader);
 
         while (matcher.find()) {
@@ -49,5 +49,8 @@ public class CacheControlParser {
         }
 
         return directivesMap;
+    }
+
+    private CacheControlParser() {
     }
 }

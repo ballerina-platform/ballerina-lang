@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.util.http2;
 
 import io.netty.bootstrap.Bootstrap;
@@ -24,7 +24,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpScheme;
 import io.netty.handler.codec.http2.Http2SecurityUtil;
@@ -62,7 +61,8 @@ public class HTTP2Client {
     private HTTP2ResponseHandler responseHandler;
     private HttpScheme scheme;
     private AsciiString hostName;
-    public HTTP2Client(boolean ssl, String host, int port) throws Exception {
+
+    public HTTP2Client(boolean ssl, String host, int port) {
         try {
             final SslContext sslCtx;
             if (ssl) {
@@ -100,8 +100,8 @@ public class HTTP2Client {
 
             // Wait for the HTTP/2 upgrade to occur.
             HTTP2SettingsHandler http2SettingsHandler = initializer.settingsHandler();
-            http2SettingsHandler.awaitSettings(TestConstant.HTTP2_RESPONSE_TIME_OUT, TestConstant
-                    .HTTP2_RESPONSE_TIME_UNIT);
+            http2SettingsHandler.awaitSettings(TestConstant.HTTP2_RESPONSE_TIME_OUT,
+                    TestConstant.HTTP2_RESPONSE_TIME_UNIT);
             responseHandler = initializer.responseHandler();
             scheme = ssl ? HttpScheme.HTTPS : HttpScheme.HTTP;
             hostName = new AsciiString(host + ':' + port);
@@ -111,7 +111,7 @@ public class HTTP2Client {
         }
     }
 
-    public int send(FullHttpRequest request) throws Exception {
+    public int send(FullHttpRequest request) {
         // Configure ssl.
         int currentStreamId = streamId.addAndGet(2);
         request.headers().add(HttpHeaderNames.HOST, hostName);
@@ -130,9 +130,5 @@ public class HTTP2Client {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
-    }
-
-    public FullHttpResponse getResponse(int streamId) {
-        return responseHandler.getResponse(streamId);
     }
 }

@@ -19,15 +19,13 @@ import ballerina/auth;
 import ballerina/log;
 import ballerina/runtime;
 
-documentation {Authentication cache name.}
+# Authentication cache name.
 @final string AUTH_CACHE = "basic_auth_cache";
 
-documentation {
-    Defines Basic Auth handler for HTTP traffic.
-
-    F{{name}} Authentication handler name
-    F{{authStoreProvider}} AuthStoreProvider instance
-}
+# Defines Basic Auth handler for HTTP traffic.
+#
+# + name - Authentication handler name
+# + authStoreProvider - AuthStoreProvider instance
 public type HttpBasicAuthnHandler object {
     public string name;
     public auth:AuthStoreProvider authStoreProvider;
@@ -36,19 +34,16 @@ public type HttpBasicAuthnHandler object {
         name = "basic";
     }
 
-    documentation {
-        Checks if the provided request can be authenticated with basic auth.
-
-        P{{req}} Request object
-        R{{}} `true` if it is possible authenticate with basic auth, else `false`
-    }
+    # Checks if the provided request can be authenticated with basic auth.
+    #
+    # + req - Request object
+    # + return - `true` if it is possible authenticate with basic auth, else `false`
     public function canHandle(Request req) returns (boolean);
-    documentation {
-        Intercept requests for authentication.
 
-        P{{req}} Request object
-        R{{}} `true` if authentication is a success, else `false`
-    }
+    # Intercept requests for authentication.
+    #
+    # + req - Request object
+    # + return - `true` if authentication is a success, else `false`
     public function handle(Request req) returns (boolean);
 };
 
@@ -90,33 +85,21 @@ function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
 }
 
 function HttpBasicAuthnHandler::canHandle(Request req) returns (boolean) {
-    string basicAuthHeader;
-    try {
-        basicAuthHeader = req.getHeader(AUTH_HEADER);
-    } catch (error e) {
-        return false;
-    }
-    match basicAuthHeader {
-        string basicAuthHeaderStr => {
+    match trap req.getHeader(AUTH_HEADER) {
+        string basicAuthHeader => {
             return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
         }
+        error => return false;
     }
 }
 
-documentation {
-    Extracts the basic authentication credentials from the header value.
-
-    P{{authHeader}} Basic authentication header
-    R{{}} A `string` tuple with the extracted username and password or `error` that occured while extracting credentials
-}
+# Extracts the basic authentication credentials from the header value.
+#
+# + authHeader - Basic authentication header
+# + return - A `string` tuple with the extracted username and password or `error` that occured while extracting credentials
 function extractBasicAuthCredentials(string authHeader) returns (string, string)|error {
     // extract user credentials from basic auth header
-    string decodedBasicAuthHeader;
-    try {
-        decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
-    } catch (error err) {
-        return err;
-    }
+    string decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
     string[] decodedCredentials = decodedBasicAuthHeader.split(":");
     if (lengthof decodedCredentials != 2) {
         return handleError("Incorrect basic authentication header format");

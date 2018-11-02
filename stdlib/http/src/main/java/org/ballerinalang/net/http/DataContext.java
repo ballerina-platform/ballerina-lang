@@ -21,9 +21,10 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
 import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
@@ -34,16 +35,15 @@ import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 public class DataContext {
     public Context context;
     public CallableUnitCallback callback;
-    private HTTPCarbonMessage correlatedMessage;
+    private HttpCarbonMessage correlatedMessage;
 
-    public DataContext(Context context, CallableUnitCallback callback, HTTPCarbonMessage correlatedMessage) {
+    public DataContext(Context context, CallableUnitCallback callback, HttpCarbonMessage correlatedMessage) {
         this.context = context;
         this.callback = callback;
         this.correlatedMessage = correlatedMessage;
     }
 
-    public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse,
-                                            BMap<String, BValue> httpConnectorError) {
+    public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse, BError httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
         if (inboundResponse != null) {
             context.setReturnValues(inboundResponse);
@@ -57,7 +57,7 @@ public class DataContext {
         callback.notifySuccess();
     }
 
-    public void notifyOutboundResponseStatus(BMap<String, BValue> httpConnectorError) {
+    public void notifyOutboundResponseStatus(BError httpConnectorError) {
         if (httpConnectorError == null) {
             context.setReturnValues();
         } else {
@@ -66,7 +66,7 @@ public class DataContext {
         callback.notifySuccess();
     }
 
-    public HTTPCarbonMessage getOutboundRequest() {
+    public HttpCarbonMessage getOutboundRequest() {
         return correlatedMessage;
     }
 }

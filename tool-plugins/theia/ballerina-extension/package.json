@@ -1,0 +1,38 @@
+{
+  "name": "ballerina-extension",
+  "keywords": [
+    "theia-extension"
+  ],
+  "version": "0.0.1",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@theia/callhierarchy": "^0.3.13",
+    "@theia/core": "^0.3.13",
+    "@theia/languages": "^0.3.13",
+    "@theia/monaco": "^0.3.13",
+    "@theia/preview": "^0.3.13",
+    "@types/request-promise": "^4.1.42",
+    "axios": "^0.18.0",
+    "request-promise": "^4.2.2",
+    "typescript": "^2.9.2",
+    "vscode-textmate": "^4.0.1"
+  },
+  "devDependencies": {
+    "rimraf": "latest"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/ballerina-frontend-module",
+      "backend": "lib/node/ballerina-backend-module"
+    }
+  ]
+}

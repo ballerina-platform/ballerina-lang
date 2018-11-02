@@ -30,22 +30,21 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * {@code Promise} is the native function to respond back to the client with a PUSH_PROMISE frame.
+ * {@code Promise} is the extern function to respond back to the client with a PUSH_PROMISE frame.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "promise",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
-                             structPackage = "ballerina/http"),
+                structPackage = "ballerina/http"),
         args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
-                        structPackage = "ballerina/http")
-        },
+                structPackage = "ballerina/http")},
         returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                                 structPackage = "ballerina/http"),
+                structPackage = "ballerina/http"),
         isPublic = true
 )
 public class Promise extends ConnectionAction {
@@ -53,13 +52,13 @@ public class Promise extends ConnectionAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
+        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
-                                                                    HttpUtil.createHttpPushPromise(pushPromiseStruct));
+                HttpUtil.createHttpPushPromise(pushPromiseStruct));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         setResponseConnectorListener(dataContext, outboundRespStatusFuture);
     }

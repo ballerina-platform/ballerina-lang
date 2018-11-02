@@ -32,8 +32,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.util.IllegalFormatConversionException;
+
 /**
- * Native function ballerina/io#sprintf.
+ * Extern function ballerina/io#sprintf.
  *
  * @since 0.964.0
  */
@@ -63,24 +65,15 @@ public class Sprintf extends BlockingNativeCallableUnit {
          *
          * Primitive built-in types (Same as Java String.format())
          * b            boolean
+         * B            boolean (ALL_CAPS)
          * d            int
          * f            float
          * s            string
          * x            hex
          * X            HEX (ALL_CAPS)
-         * o            octal
-         * B            binary
          *
-         * Complex built-in types
-         * p            map
-         * l            xml
-         * L            xmlDocument
-         * j            json
-         * t            datatable
-         *
-         * User defined types
-         * r            struct
-         * a            arrays
+         * s            is applicable for any of the supported types in Ballerina. These values will be converted to
+         * their string representation and displayed.
          */
 
         // i keeps index for checking %
@@ -101,45 +94,33 @@ public class Sprintf extends BlockingNativeCallableUnit {
                     padding.append(format.charAt(j));
                     j += 1;
                 }
-                switch (format.charAt(j)) {
-                    case 'b':
-                        result.append(String.format("%" + padding + "b", args.get(k).value()));
-                        break;
-                    case 'd':
-                        result.append(String.format("%" + padding + "d", args.get(k).value()));
-                        break;
-                    case 'f':
-                        result.append(String.format("%" + padding + "f", args.get(k).value()));
-                        break;
-                    case 'x':
-                        formatHexString(args, result, k, padding, "x");
-                        break;
-                    case 'X':
-                        formatHexString(args, result, k, padding, "X");
-                        break;
-                    case 'o':
-                        result.append(String.format("%" + padding + "o", args.get(k).value()));
-                        break;
-                    case 'B':
-                        result.append(Integer.toBinaryString(Integer.parseInt(args.get(k).stringValue())));
-                        break;
-                    case 'p': // fall through
-                    case 'l':
-                    case 'L':
-                    case 'j':
-                    case 't':
-                    case 'r':
-                    case 'a':
-                    case 's':
-                        result.append(String.format("%" + padding + "s", args.get(k).stringValue()));
-                        break;
-                    case '%':
-                        result.append("%");
-                        break;
-                    default:
-                        // format string not supported
-                        throw BLangExceptionHelper.getRuntimeException(
-                                RuntimeErrors.INVALID_FORMAT_SPECIFIER, format.charAt(j));
+                try {
+                    char formatSpecifier = format.charAt(j);
+                    switch (formatSpecifier) {
+                        case 'b':
+                        case 'B':
+                        case 'd':
+                        case 'f':
+                            result.append(String.format("%" + padding + formatSpecifier, args.get(k).value()));
+                            break;
+                        case 'x':
+                        case 'X':
+                            formatHexString(args, result, k, padding, formatSpecifier);
+                            break;
+                        case 's':
+                            result.append(String.format("%" + padding + "s", args.get(k).stringValue()));
+                            break;
+                        case '%':
+                            result.append("%");
+                            break;
+                        default:
+                            // format string not supported
+                            throw BLangExceptionHelper.getRuntimeException(
+                                    RuntimeErrors.INVALID_FORMAT_SPECIFIER, format.charAt(j));
+                    }
+                } catch (IllegalFormatConversionException e) {
+                    throw BLangExceptionHelper.getRuntimeException(
+                            RuntimeErrors.ILLEGAL_FORMAT_CONVERSION, format.charAt(j) + " != " + args.get(k).getType());
                 }
                 if (format.charAt(j) == '%') {
                     // special case %%, don't count as a format specifier
@@ -156,7 +137,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
         context.setReturnValues(new BString(result.toString()));
     }
 
-    private void formatHexString(BRefValueArray args, StringBuilder result, int k, StringBuilder padding, String x) {
+    private void formatHexString(BRefValueArray args, StringBuilder result, int k, StringBuilder padding, char x) {
         BRefType ref = args.get(k);
         if (TypeTags.ARRAY_TAG == ref.getType().getTag() &&
                 TypeTags.BYTE_TAG == ((BArrayType) ref.getType()).getElementType().getTag()) {

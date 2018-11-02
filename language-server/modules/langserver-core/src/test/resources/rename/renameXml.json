@@ -1,0 +1,22 @@
+{
+    "position": {
+        "line": 5,
+        "character": 9
+    },
+    "newName": "y1",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 19,
+                    "character": 0
+                }
+            },
+            "newText": "public function main (string... args) {\r\n    string data = \"static\";\r\n\r\n    xmlns \"http://ballerina.com/updated\" as ns0;\r\n\r\n    xml y1 = xml `<book>The Lost World{{data}}</book>`;\r\n    secureFunction(y1, y1);\r\n\r\n    xml x2 = xml `<{{data}}>The Lost World</{{data}}>`;\r\n    secureFunction(x2, x2);\r\n\r\n    xml x3 = xml `<ns0:book ns0:status=\"{{data}}\" count=\"5\"/>`;\r\n    secureFunction(x3@[ns0:status], x3@[ns0:status]);\r\n    secureFunction(x3@[ns0:count], x3@[ns0:count]);\r\n}\r\n\r\npublic function secureFunction (@sensitive any secureIn, any insecureIn) {\r\n\r\n}"
+        }
+    ]
+}

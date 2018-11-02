@@ -35,7 +35,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -97,11 +97,15 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 67, 5);
 
         // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, index++, "undefined package 'ns0'", 75, 19);
+        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 75, 19);
 
         // define namespace with empty URI
         BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
                 79, 5);
+
+        // XML elements with mismatching start and end tags
+        BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
+                                  83, 19);
     }
 
     @Test
@@ -433,7 +437,7 @@ public class XMLLiteralTest {
     public void testServiceLevelXML() {
         CompileResult result = BServiceUtil.setupProgramFile(this, "test-src/types/xml/xml_literals_in_service.bal");
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, "testEP", cMsg);
+        HttpCarbonMessage response = Services.invokeNew(result, "testEP", cMsg);
         Assert.assertNotNull(response);
 
         BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());

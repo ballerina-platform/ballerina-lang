@@ -20,7 +20,7 @@ package org.ballerinalang.test.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class ResponseReader {
      * @param response carbon response
      * @return return value from  input stream as a string
      */
-    public static String getReturnValue(HTTPCarbonMessage response) {
+    public static String getReturnValue(HttpCarbonMessage response) {
         Reader reader;
         final int bufferSize = 1024;
         final char[] buffer = new char[bufferSize];

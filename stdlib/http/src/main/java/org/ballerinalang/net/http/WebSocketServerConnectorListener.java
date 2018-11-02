@@ -23,19 +23,18 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
@@ -51,7 +50,6 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER
  */
 public class WebSocketServerConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketServerConnectorListener.class);
     private final WebSocketServicesRegistry servicesRegistry;
     private final WebSocketConnectionManager connectionManager;
     private final Struct httpEndpointConfig;
@@ -63,21 +61,21 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     }
 
     @Override
-    public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketInitMessage);
+    public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
+        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketHandshaker);
 
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         if (onUpgradeResource != null) {
-            webSocketInitMessage.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
-                    onUpgradeResource.getCorsHeaders());
+            webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
+                                                                   onUpgradeResource.getCorsHeaders());
             Resource balResource = onUpgradeResource.getBalResource();
-            BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketInitMessage
+            BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                     .getHttpCarbonRequest(), httpEndpointConfig);
 
             BMap<String, BValue> httpServiceEndpoint = (BMap<String, BValue>) signatureParams[0];
             BMap<String, BValue> httpConnection =
                     (BMap<String, BValue>) httpServiceEndpoint.get(SERVICE_ENDPOINT_CONNECTION_FIELD);
-            httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
+            httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketHandshaker);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
@@ -86,46 +84,56 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     SERVER_CONNECTOR_WEBSOCKET, wsService.getServiceInfo(), balResource.getName(),
                     null);
 
-            Executor.submit(balResource, new CallableUnitCallback() {
-                @Override
-                public void notifySuccess() {
-                    if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
-                        WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null,
-                                null);
-                        // TODO: Change this to readNextFrame
-                    } else {
-                        if (!webSocketInitMessage.isCancelled()) {
-                            Resource onOpenResource = wsService.getResourceByName(
-                                    WebSocketConstants.RESOURCE_NAME_ON_OPEN);
-                            WebSocketOpenConnectionInfo connectionInfo =
-                                    connectionManager.getConnectionInfo(webSocketInitMessage.getConnectionId());
-                            WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-                            BMap<String, BValue> webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
-                            BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) webSocketEndpoint
-                                    .get(WebSocketConstants.LISTENER_CONNECTOR_FIELD);
-                            if (onOpenResource != null) {
-                                WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint,
-                                        webSocketConnection);
-                            } else {
-                                WebSocketUtil.readFirstFrame(webSocketConnection, webSocketConnector);
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void notifyFailure(BMap<String, BValue> error) {
-                    ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-                    WebSocketOpenConnectionInfo connectionInfo =
-                            connectionManager.getConnectionInfo(webSocketInitMessage.getConnectionId());
-                    if (connectionInfo != null) {
-                        WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
-                    }
-                }
-            }, null, observerContext.orElse(null), signatureParams);
+            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
+                            null, observerContext.orElse(null), signatureParams);
 
         } else {
-            WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null, null);
+            WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null, null);
+        }
+    }
+
+    private class OnUpgradeResourceCallableUnitCallback implements CallableUnitCallback {
+        private final WebSocketHandshaker webSocketHandshaker;
+        private final WebSocketService wsService;
+
+        public OnUpgradeResourceCallableUnitCallback(WebSocketHandshaker webSocketHandshaker,
+                                                     WebSocketService wsService) {
+            this.webSocketHandshaker = webSocketHandshaker;
+            this.wsService = wsService;
+        }
+
+        @Override
+        public void notifySuccess() {
+            if (!webSocketHandshaker.isCancelled() && !webSocketHandshaker.isHandshakeStarted()) {
+                WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null, null);
+            } else {
+                if (!webSocketHandshaker.isCancelled()) {
+                    Resource onOpenResource = wsService.getResourceByName(
+                            WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                    WebSocketOpenConnectionInfo connectionInfo =
+                            connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
+                    WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
+                    BMap<String, BValue> webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
+                    BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) webSocketEndpoint
+                            .get(WebSocketConstants.LISTENER_CONNECTOR_FIELD);
+                    if (onOpenResource != null) {
+                        WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint,
+                                                            webSocketConnection);
+                    } else {
+                        WebSocketUtil.readFirstFrame(webSocketConnection, webSocketConnector);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void notifyFailure(BError error) {
+            ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
+            WebSocketOpenConnectionInfo connectionInfo =
+                    connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
+            if (connectionInfo != null) {
+                WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
+            }
         }
     }
 
@@ -150,23 +158,28 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         WebSocketDispatcher.dispatchCloseMessage(
-                connectionManager.removeConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
+                connectionManager.getConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
+    }
+
+    @Override
+    public void onClose(WebSocketConnection webSocketConnection) {
+        WebSocketUtil.setListenerOpenField(
+                connectionManager.removeConnectionInfo(webSocketConnection.getChannelId()));
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(
-                connectionManager.removeConnectionInfo(webSocketConnection.getId()), throwable);
+                connectionManager.getConnectionInfo(webSocketConnection.getChannelId()), throwable);
     }
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(getConnectionId(controlMessage)),
-                controlMessage);
+        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(getConnectionId(controlMessage)));
     }
 
     private String getConnectionId(WebSocketMessage webSocketMessage) {
-        return webSocketMessage.getWebSocketConnection().getId();
+        return webSocketMessage.getWebSocketConnection().getChannelId();
     }
 }
 

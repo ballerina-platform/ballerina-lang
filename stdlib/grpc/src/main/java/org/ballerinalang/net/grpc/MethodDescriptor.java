@@ -90,7 +90,7 @@ public final class MethodDescriptor {
      * unmarshalling.
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
      */
     public interface Marshaller {
 
@@ -286,6 +286,7 @@ public final class MethodDescriptor {
          * Sets the fully qualified (service and method) method name.
          *
          * @see MethodDescriptor#generateFullMethodName
+         * @param fullMethodName method name
          * @return builder instance.
          */
         public Builder setFullMethodName(String fullMethodName) {

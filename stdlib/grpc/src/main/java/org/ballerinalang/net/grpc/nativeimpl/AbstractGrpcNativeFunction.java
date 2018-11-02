@@ -24,7 +24,7 @@ import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
 /**
- * Abstract class of gRPC service endpoint native functions.
+ * Abstract class of gRPC service endpoint extern functions.
  *
  * @since 1.0.0
  */

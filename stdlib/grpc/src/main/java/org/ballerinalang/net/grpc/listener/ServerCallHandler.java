@@ -24,8 +24,9 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -217,7 +218,7 @@ public abstract class ServerCallHandler {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BType errorType = paramDetails.get(1).getVarType();
-        BMap<String, BValue> errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
+        BError errorStruct = MessageUtils.getConnectorError((BErrorType) errorType, error.getError());
         signatureParams[1] = errorStruct;
         BMap<String, BValue> headerStruct = getHeaderStruct(resource);
         if (headerStruct != null) {
@@ -275,10 +276,10 @@ public abstract class ServerCallHandler {
 
     /**
      * Callbacks for consuming incoming RPC messages.
-     * <p>
+     *
      * <p>Any contexts are guaranteed to arrive before any messages, which are guaranteed before half
      * close, which is guaranteed before completion.
-     * <p>
+     *
      * <p>Implementations are free to block for extended periods of time. Implementations are not
      * required to be thread-safe.
      */
@@ -303,7 +304,7 @@ public abstract class ServerCallHandler {
          * The call was cancelled and the server is encouraged to abort processing to save resources,
          * since the client will not process any further messages. Cancellations can be caused by
          * timeouts, explicit cancellation by the client, network errors, etc.
-         * <p>
+         *
          * <p>There will be no further callbacks for the call.
          */
         void onCancel();
@@ -311,7 +312,7 @@ public abstract class ServerCallHandler {
         /**
          * The call is considered complete and {@link #onCancel} is guaranteed not to be called.
          * However, the client is not guaranteed to have received all messages.
-         * <p>
+         *
          * <p>There will be no further callbacks for the call.
          */
         void onComplete();

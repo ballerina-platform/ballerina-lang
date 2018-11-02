@@ -24,11 +24,11 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.runtime.message.StringDataSource;
 
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
@@ -51,7 +51,7 @@ public class SetText extends BlockingNativeCallableUnit {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
         String textContent = context.getStringArgument(FIRST_PARAMETER_INDEX);
         String contentType = context.getStringArgument(SECOND_PARAMETER_INDEX);
-        EntityBodyHandler.addMessageDataSource(entityStruct, new StringDataSource(textContent));
+        EntityBodyHandler.addMessageDataSource(entityStruct, new BString(textContent));
         MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
         context.setReturnValues();
     }

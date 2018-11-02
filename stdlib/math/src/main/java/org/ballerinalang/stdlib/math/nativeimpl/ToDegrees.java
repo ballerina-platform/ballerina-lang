@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:toDegrees.
+ * Extern function ballerina.math:toDegrees.
  *
  * @since 0.94
  */

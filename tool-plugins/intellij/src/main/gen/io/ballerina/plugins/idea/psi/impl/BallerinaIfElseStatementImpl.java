@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaIfElseStatementImpl extends BallerinaCompositeElementImpl implements BallerinaIfElseStatement {
 
-  public BallerinaIfElseStatementImpl(ASTNode node) {
+  public BallerinaIfElseStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 

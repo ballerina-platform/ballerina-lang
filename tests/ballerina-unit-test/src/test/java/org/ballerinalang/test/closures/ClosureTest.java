@@ -20,6 +20,7 @@ package org.ballerinalang.test.closures;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -225,5 +226,19 @@ public class ClosureTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "test28");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 57);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 167);
+    }
+
+
+    @Test(description = "Test any and var access with closure")
+    public void testAnyVarWithClosure() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test29");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[5]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[7]).booleanValue());
     }
 }

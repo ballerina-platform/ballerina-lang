@@ -1,0 +1,17 @@
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run hello_world_service.bal
+Initiating service(s) in 'hello_world_service.bal'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+
+# To build a compiled program file, use the
+# `ballerina build` command followed by
+# the service module.
+$ ballerina build hello_world_service.bal
+Compiling source
+    hello_world_service.bal
+
+Generating executable
+    hello_world_service.balx
+$ ls
+hello_world_service.balx	hello_world_service.bal

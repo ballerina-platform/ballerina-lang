@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaStreamTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaStreamTypeName {
 
-  public BallerinaStreamTypeNameImpl(ASTNode node) {
+  public BallerinaStreamTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

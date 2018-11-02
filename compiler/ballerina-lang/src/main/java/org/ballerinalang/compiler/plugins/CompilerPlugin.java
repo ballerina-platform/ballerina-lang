@@ -22,7 +22,6 @@ import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -98,14 +97,6 @@ public interface CompilerPlugin {
      * @param annotations a list of annotations attached to the object node
      */
     void process(TypeDefinition typeDefinition, List<AnnotationAttachmentNode> annotations);
-
-    /**
-     * Processes a list of annotations attached to a enum node.
-     *
-     * @param enumNode    the enum node being annotated
-     * @param annotations a list of annotations attached to the enum node
-     */
-    void process(EnumNode enumNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Processes a list of annotations attached to a function node.

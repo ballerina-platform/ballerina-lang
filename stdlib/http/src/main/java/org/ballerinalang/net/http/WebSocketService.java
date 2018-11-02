@@ -26,23 +26,26 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * WebSocket service for service dispatching.
  */
-public class WebSocketService implements Service {
+public class WebSocketService {
 
     private final Service service;
-    private final String[] negotiableSubProtocols;
-    private final int idleTimeoutInSeconds;
-    private final int maxFrameSize;
+    private String[] negotiableSubProtocols = null;
+    private int idleTimeoutInSeconds = 0;
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
     private String basePath;
     private HttpResource upgradeResource;
     private static final int DEFAULT_MAX_FRAME_SIZE = 65536;
+    private int maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
+
+    public WebSocketService() {
+        service = null;
+    }
 
     public WebSocketService(Service service) {
         this.service = service;
@@ -50,21 +53,18 @@ public class WebSocketService implements Service {
             resourceMap.put(resource.getName(), resource);
         }
 
-        Annotation configAnnotation =
-                WebSocketUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service);
 
         Struct configAnnotationStruct = null;
         if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
             negotiableSubProtocols = findNegotiableSubProtocols(configAnnotationStruct);
             idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotationStruct);
             maxFrameSize = findMaxFrameSize(configAnnotationStruct);
-        } else {
-            negotiableSubProtocols = null;
-            idleTimeoutInSeconds = 0;
-            maxFrameSize = DEFAULT_MAX_FRAME_SIZE;
         }
-        basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
-        upgradeResource = null;
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
+            basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
+        }
+
     }
 
     public WebSocketService(String httpBasePath, HttpResource upgradeResource, Service service) {
@@ -81,39 +81,12 @@ public class WebSocketService implements Service {
         this.upgradeResource = upgradeResource;
     }
 
-    @Override
     public String getName() {
-        return service.getName();
+        return service != null ? service.getName() : null;
     }
 
-    @Override
-    public String getPackage() {
-        return service.getPackage();
-    }
-
-    @Override
-    public String getEndpointName() {
-        return service.getEndpointName();
-    }
-
-    @Override
-    public List<Annotation> getAnnotationList(String pkgPath, String name) {
-        return service.getAnnotationList(pkgPath, name);
-    }
-
-    @Override
-    public Resource[] getResources() {
-        return service.getResources();
-    }
-
-    @Override
     public ServiceInfo getServiceInfo() {
-        return service.getServiceInfo();
-    }
-
-    @Override
-    public String getPackageVersion() {
-        return null;
+        return service != null ? service.getServiceInfo() : null;
     }
 
     public Resource getResourceByName(String resourceName) {
@@ -137,21 +110,18 @@ public class WebSocketService implements Service {
     }
 
     private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
-        if (annAttrSubProtocols == null) {
-            return null;
-        }
         Value[] subProtocolsInAnnotation = annAttrSubProtocols.getArrayField(
                 WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS);
 
         if (subProtocolsInAnnotation == null) {
-            return null;
+            return new String[0];
         }
 
-        String[] negotiableSubProtocols = new String[subProtocolsInAnnotation.length];
+        String[] subProtoCols = new String[subProtocolsInAnnotation.length];
         for (int i = 0; i < subProtocolsInAnnotation.length; i++) {
-            negotiableSubProtocols[i] = subProtocolsInAnnotation[i].getStringValue();
+            subProtoCols[i] = subProtocolsInAnnotation[i].getStringValue();
         }
-        return negotiableSubProtocols;
+        return subProtoCols;
     }
 
     private int findIdleTimeoutInSeconds(Struct annAttrIdleTimeout) {
@@ -176,16 +146,16 @@ public class WebSocketService implements Service {
      * @return the full path of the WebSocket upgrade.
      */
     private String findFullWebSocketUpgradePath(Struct annStruct) {
-        String basePath = null;
+        String path = null;
         if (annStruct != null) {
             String basePathVal = annStruct.getStringField(WebSocketConstants.ANNOTATION_ATTR_PATH);
-            if (basePathVal != null && !basePathVal.trim().isEmpty()) {
-                basePath = WebSocketUtil.refactorUri(basePathVal);
+            if (!basePathVal.trim().isEmpty()) {
+                path = HttpUtil.sanitizeBasePath(basePathVal);
             }
         }
-        if (basePath == null) {
-            basePath = "/".concat(getName());
+        if (path == null) {
+            path = "/".concat(getName());
         }
-        return basePath;
+        return path;
     }
 }

@@ -14,7 +14,7 @@ function invalidByteLiteral() {
     int x = 45;
     byte y = x;
 
-    float w = 4;
+    float w = 4.0;
     byte z = w;
 
     string r = "4";

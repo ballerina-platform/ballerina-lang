@@ -32,14 +32,10 @@ import java.util.List;
 public class ParserRuleAssignmentStatementContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-
-        // TODO: left hand side of the assignment statement should analyze when suggesting the completions
-        // TODO: at the moment we are using the same completion resolving criteria as the variable definition
-
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Class parserRuleContext = BallerinaParser.VariableDefinitionStatementContext.class;
-        completionItems.addAll(
-                CompletionItemResolver.getResolverByClass(parserRuleContext).resolveItems(completionContext));
+        completionItems.addAll(CompletionItemResolver.getResolverByClass(parserRuleContext)
+                .resolveItems(completionContext));
 
         return completionItems;
     }

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDefaultableParameterImpl extends BallerinaCompositeElementImpl implements BallerinaDefaultableParameter {
 
-  public BallerinaDefaultableParameterImpl(ASTNode node) {
+  public BallerinaDefaultableParameterImpl(@NotNull ASTNode node) {
     super(node);
   }
 

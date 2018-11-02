@@ -4,7 +4,7 @@ import ballerina/mime;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
-    response.setTextPayload(untaint err.message);
+    response.setPayload(untaint <string>err.detail().message);
 }
 
 endpoint http:NonListener mockEP {
@@ -37,7 +37,7 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -59,7 +59,7 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -81,7 +81,7 @@ service<http:Service> test bind mockEP {
                }
             }
          }
-         _ = caller -> respond(response);
+         _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -103,7 +103,7 @@ service<http:Service> test bind mockEP {
                 }
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -127,7 +127,7 @@ service<http:Service> test bind mockEP {
                 response.setTextPayload(untaint content);
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -138,10 +138,10 @@ service<http:Service> test bind mockEP {
         http:Response response = new;
         match (request.getBodyParts()) {
             error err => {
-                response.setTextPayload(untaint err.message);
+                response.setPayload(untaint <string>err.detail().message);
             }
             mime:Entity[] entity => {
-                response.setTextPayload("Body parts detected!");
+                response.setPayload("Body parts detected!");
             }
         }
         _ = caller -> respond(response);
@@ -168,7 +168,7 @@ service<http:Service> test bind mockEP {
                 response.setTextPayload(untaint payload);
             }
         }
-        _ = caller -> respond(response);
+        _ = caller -> respond(untaint response);
     }
 }
 

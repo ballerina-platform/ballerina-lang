@@ -61,8 +61,8 @@ public class PushBinary implements NativeCallableUnit {
             ChannelFuture webSocketChannelFuture =
                     connectionInfo.getWebSocketConnection().pushBinary(ByteBuffer.wrap(binaryData), finalFrame);
             WebSocketUtil.handleWebSocketCallback(context, callback, webSocketChannelFuture);
-        } catch (Throwable throwable) {
-            context.setReturnValues(HttpUtil.getError(context, throwable));
+        } catch (Exception e) {
+            context.setReturnValues(HttpUtil.getError(context, e));
             callback.notifySuccess();
         }
     }

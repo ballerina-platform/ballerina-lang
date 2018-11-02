@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.toml.parser;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 import org.ballerinalang.toml.model.Central;
@@ -37,7 +38,7 @@ public class SettingsBuildListener extends TomlBaseListener {
     private final Proxy proxy = new Proxy();
     private final Central central = new Central();
     private final SingletonStack<String> currentKey = new SingletonStack<>();
-    private String currentHeader = null;
+    private SettingHeaders currentHeader = null;
 
     /**
      * Cosntructor with the settings object.
@@ -72,9 +73,9 @@ public class SettingsBuildListener extends TomlBaseListener {
      * Add the dependencies and patches to the manifest object.
      */
     private void setSettingObj() {
-        if (SettingHeaders.CENTRAL.stringEquals(currentHeader)) {
+        if (currentHeader == SettingHeaders.CENTRAL) {
             this.settings.setCentral(central);
-        } else if (SettingHeaders.PROXY.stringEquals(currentHeader)) {
+        } else if (currentHeader == SettingHeaders.PROXY) {
             this.settings.setProxy(proxy);
         }
     }
@@ -86,12 +87,12 @@ public class SettingsBuildListener extends TomlBaseListener {
      */
     private void setToManifest(String value) {
         if (currentKey.present()) {
-            if (SettingHeaders.PROXY.stringEquals(currentHeader)) {
+            if (currentHeader == SettingHeaders.PROXY) {
                 ProxyField proxyField = ProxyField.valueOfLowerCase(currentKey.pop());
                 if (proxyField != null) {
                     proxyField.setValueTo(proxy, value);
                 }
-            } else if (SettingHeaders.CENTRAL.stringEquals(currentHeader)) {
+            } else if (currentHeader == SettingHeaders.CENTRAL) {
                 CentralField centralField = CentralField.valueOfLowerCase(currentKey.pop());
                 if (centralField != null) {
                     centralField.setValueTo(central, value);
@@ -106,6 +107,10 @@ public class SettingsBuildListener extends TomlBaseListener {
      * @param key key specified in the header
      */
     private void addHeader(String key) {
-        currentHeader = key;
+        // Check if the header is valid for the Settings.toml
+        currentHeader = SettingHeaders.valueOfLowerCase(key);
+        if (currentHeader == null) {
+            throw new BLangCompilerException("invalid header [" + key + "] found in Settings.toml");
+        }
     }
 }

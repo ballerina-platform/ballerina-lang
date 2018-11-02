@@ -32,7 +32,7 @@ function testReturnFuncInvocationWithinFuncInvocation(int a, int b) returns (int
 }
 
 function testReturnNativeFuncInvocationWithinNativeFuncInvocation(float x) returns (float) {
-    return math:sqrt(math:pow(x, 2));
+    return math:sqrt(math:pow(x, 2.0));
 }
 
 function sum (int a) returns @untainted int {

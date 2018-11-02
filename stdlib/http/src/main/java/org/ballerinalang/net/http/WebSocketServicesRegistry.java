@@ -38,14 +38,8 @@ public class WebSocketServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
     private URITemplate<WebSocketService, WebSocketMessage> uriTemplate;
 
-    public WebSocketServicesRegistry() {
-    }
-
     public void registerService(WebSocketService service) {
         String basePath = service.getBasePath();
-        if (basePath == null) {
-            basePath = "/";
-        }
         basePath = urlDecode(basePath);
         // TODO: Add websocket services to the service registry when service creation get available.
         try {
@@ -53,7 +47,7 @@ public class WebSocketServicesRegistry {
         } catch (URITemplateException | UnsupportedEncodingException e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
-        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
+        logger.info("WebSocketService deployed : {} with context {}", service.getName(), basePath);
 
     }
 

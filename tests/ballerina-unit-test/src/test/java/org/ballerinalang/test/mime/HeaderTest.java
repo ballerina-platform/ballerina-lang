@@ -161,4 +161,15 @@ public class HeaderTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(Boolean.parseBoolean(returns[0].stringValue()));
     }
+
+    @Test(description = "Test headers with a newly created entity")
+    public void testHeaderWithNewEntity() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHeaderWithNewEntity", args);
+        Assert.assertEquals(returns.length, 2, "Two values should be returned from this test");
+        Assert.assertFalse(Boolean.parseBoolean(returns[0].stringValue()), "Newly created entity can't have" +
+                "any headers");
+        Assert.assertEquals(returns[1].stringValue(), "[]", "Header names for newly created entity" +
+                "should be empty");
+    }
 }

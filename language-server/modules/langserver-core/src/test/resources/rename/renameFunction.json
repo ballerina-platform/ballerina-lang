@@ -1,0 +1,22 @@
+{
+    "position": {
+        "line": 0,
+        "character": 10
+    },
+    "newName": "newTestFunction",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 7,
+                    "character": 0
+                }
+            },
+            "newText": "function newTestFunction (string input) returns string {\r\n    return input;\r\n}\r\n\r\npublic function main (string... args) {\r\n    newTestFunction(\"staticValue\");\r\n}"
+        }
+    ]
+}

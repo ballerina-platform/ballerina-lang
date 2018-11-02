@@ -21,7 +21,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -39,12 +39,12 @@ import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
 public class OutboundMessage {
 
     private static final int NULL_STATUS_CODE = -1;
-    private final HTTPCarbonMessage responseMessage;
+    private final HttpCarbonMessage responseMessage;
     private int statusCode = NULL_STATUS_CODE;
     private MessageFramer framer;
     private boolean outboundClosed;
 
-    public OutboundMessage(HTTPCarbonMessage responseMessage) {
+    public OutboundMessage(HttpCarbonMessage responseMessage) {
         this.responseMessage = responseMessage;
         this.framer = new MessageFramer(responseMessage);
     }
@@ -135,7 +135,7 @@ public class OutboundMessage {
     /**
      * @return the underlining CarbonMessage object.
      */
-    HTTPCarbonMessage getResponseMessage() {
+    HttpCarbonMessage getResponseMessage() {
         return responseMessage;
     }
 

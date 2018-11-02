@@ -27,7 +27,7 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Test cases for ballerina/http.response native functions.
@@ -47,7 +47,7 @@ public class ConnectionNativeFunctionTest {
     public void testRedirect() {
         String path = "/hello/redirect";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 301);

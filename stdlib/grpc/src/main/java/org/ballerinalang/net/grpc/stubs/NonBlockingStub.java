@@ -65,6 +65,8 @@ public class NonBlockingStub extends AbstractStub {
      * @param requestHeaders request headers.
      * @param responseObserver response Observer.
      * @param methodDescriptor method descriptor.
+     *
+     * @return streaming observer
      */
     public StreamObserver executeClientStreaming(HttpHeaders requestHeaders,
                                                                      StreamObserver responseObserver,
@@ -100,6 +102,8 @@ public class NonBlockingStub extends AbstractStub {
      * @param requestHeaders request headers.
      * @param responseObserver response Observer.
      * @param methodDescriptor method descriptor
+     *
+     * @return streaming observer
      */
     public StreamObserver executeBidiStreaming(HttpHeaders requestHeaders, StreamObserver responseObserver,
                                                MethodDescriptor methodDescriptor) {

@@ -1,4 +1,4 @@
-function main(string... args){
+public function main(string... args){
     int x = 1;
     string s = "ten";
     int i = 10;

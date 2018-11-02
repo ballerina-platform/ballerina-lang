@@ -54,10 +54,6 @@ public interface PackageNode extends Node {
 
     void addTypeDefinition(TypeDefinition typeDefinition);
 
-    List<? extends EnumNode> getEnums();
-
-    void addEnum(EnumNode enumNode);
-
     List<? extends AnnotationNode> getAnnotations();
 
     void addAnnotation(AnnotationNode annotation);

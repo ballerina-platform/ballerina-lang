@@ -23,14 +23,15 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -38,7 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -101,11 +102,12 @@ public class SymbolTable {
     public final BType endpointType = new BType(TypeTags.ENDPOINT, null);
     public final BType arrayType = new BArrayType(noType);
     public final BType intArrayType = new BArrayType(intType);
+    public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
 
     public final BTypeSymbol errSymbol;
-    public final BType errType;
+    public final BType semanticError;
 
-    public BRecordType errStructType;
+    public BErrorType errorType;
 
     public BPackageSymbol builtInPackageSymbol;
     private Names names;
@@ -147,20 +149,19 @@ public class SymbolTable {
         initializeType(futureType, TypeKind.FUTURE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
         initializeType(nilType, TypeKind.NIL.typeName());
+        initializeType(channelType, TypeKind.CHANNEL.typeName());
 
-        // Initialize error type;
-        this.errType = new BErrorType(null);
-        this.errSymbol = new BTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.INVALID,
-                rootPkgSymbol.pkgID, errType, rootPkgSymbol);
-        defineType(errType, errSymbol);
+        // Initialize semantic error type;
+        this.semanticError = new BSemanticErrorType(null);
+        this.errSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID,
+                semanticError, rootPkgSymbol);
+        defineType(semanticError, errSymbol);
 
-        // Initialize Ballerina error struct type temporally.
-        BTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
+        // Initialize Ballerina built-in error type.
+        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
-        this.errStructType = new BRecordType(errorStructSymbol);
-        errorStructSymbol.type = this.errStructType;
-        errorStructSymbol.scope = new Scope(errorStructSymbol);
-        defineType(this.errStructType, errorStructSymbol);
+        this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
+        defineType(this.errorType, errorSymbol);
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
@@ -188,8 +189,10 @@ public class SymbolTable {
                 return streamType;
             case TypeTags.NIL:
                 return nilType;
+            case TypeTags.ERROR:
+                return errorType;
             default:
-                return errType;
+                return semanticError;
         }
     }
 
@@ -252,6 +255,10 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.IRSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType, InstructionCodes.BIRSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, byteType, InstructionCodes.BIRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, intType, intType,
+                InstructionCodes.IURSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, byteType, intType,
+                InstructionCodes.IURSHIFT);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
@@ -334,6 +341,8 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.SUB, intType, intType, InstructionCodes.INEG);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, InstructionCodes.BNOT);
+        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType, -1);
+        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType, -1);
 
         defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, arrayType, intType, InstructionCodes.LENGTHOF);
@@ -346,15 +355,14 @@ public class SymbolTable {
 
     private void defineConversionOperators() {
         // Define both implicit and explicit conversion operators
-        defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2JSON);
+        defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2ANY);
         defineImplicitConversionOperator(intType, anyType, true, InstructionCodes.I2ANY);
-        defineImplicitConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineImplicitConversionOperator(byteType, anyType, true, InstructionCodes.BI2ANY);
-        defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
+        defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2ANY);
         defineImplicitConversionOperator(floatType, anyType, true, InstructionCodes.F2ANY);
-        defineImplicitConversionOperator(stringType, jsonType, true, InstructionCodes.S2JSON);
+        defineImplicitConversionOperator(stringType, jsonType, true, InstructionCodes.S2ANY);
         defineImplicitConversionOperator(stringType, anyType, true, InstructionCodes.S2ANY);
-        defineImplicitConversionOperator(booleanType, jsonType, true, InstructionCodes.B2JSON);
+        defineImplicitConversionOperator(booleanType, jsonType, true, InstructionCodes.B2ANY);
         defineImplicitConversionOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
         defineImplicitConversionOperator(typeDesc, anyType, true, InstructionCodes.NOP);
 
@@ -378,7 +386,7 @@ public class SymbolTable {
 
         // Define conversion operators
         defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
-//        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
+        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
         defineConversionOperator(intType, byteType, false, InstructionCodes.I2BI);
@@ -443,13 +451,13 @@ public class SymbolTable {
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) targetType;
-                unionType.memberTypes.add(this.errStructType);
+                unionType.memberTypes.add(this.errorType);
                 retType = targetType;
             } else {
                 BUnionType unionType = new BUnionType(null,
                         new LinkedHashSet<BType>(2) {{
                             add(targetType);
-                            add(errStructType);
+                            add(errorType);
                         }}, false);
                 retType = unionType;
             }

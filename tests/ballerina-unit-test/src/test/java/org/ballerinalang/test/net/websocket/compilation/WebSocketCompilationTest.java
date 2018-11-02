@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
  * Test WebSocket Service Compilation.
  */
 public class WebSocketCompilationTest {
-    @Test(description = "Successfully compiling WebSocket service")
-    public void testSuccess() {
+    @Test(description = "Successfully compiling WebSocketService")
+    public void testSuccessServer() {
         CompileResult compileResult = BCompileUtil.compileAndSetup(
                 "test-src/net/websocket/compilation/success.bal");
 
@@ -74,13 +74,24 @@ public class WebSocketCompilationTest {
                 "wsService: Unexpected parameter count", 30, 5);
     }
 
-    @Test(description = "Invalid signature for onText resource")
-    public void testFailOnText() {
+    @Test(description = "Invalid signature for onText resource with int")
+    public void testFailOnTextInt() {
         CompileResult compileResult = BCompileUtil.compile("test-src/net/websocket/compilation/fail_onText.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
-        BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onText resource in service " +
-                "wsService: The second parameter should be a string", 30, 5);
+        BAssertUtil.validateError(compileResult, 0,
+                                  "Invalid resource signature for onText resource in service wsService: The second " +
+                                          "parameter should be a string, json, xml, byte[] or a record type", 21, 5);
+    }
+
+    @Test(description = "Invalid signature for onText resource with JSON and final fragment")
+    public void testFailOnTextJSON() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/net/websocket/compilation/fail_onText_JSON.bal");
+
+        assertExpectedDiagnosticsLength(compileResult, 1);
+        BAssertUtil.validateError(compileResult, 0,
+                                  "Invalid resource signature for onText resource in service wsService: Final " +
+                                          "fragment is not valid if the second parameter is not a string", 21, 5);
     }
 
     @Test(description = "Invalid signature for onBinary resource")

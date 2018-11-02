@@ -1,0 +1,33 @@
+{
+  "nodeType": "record",
+  "nodeLine": "18",
+  "expected": {
+    "result":{
+      "edit":{
+        "changes":{
+
+        },
+        "documentChanges":[
+          {
+            "edits":[
+              {
+                "range":{
+                  "start":{
+                    "line":18,
+                    "character":0
+                  },
+                  "end":{
+                    "line":18,
+                    "character":0
+                  }
+                },
+                "newText":"# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc":"2.0"
+  }
+}

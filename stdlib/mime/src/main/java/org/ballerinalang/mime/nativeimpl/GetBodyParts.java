@@ -81,8 +81,8 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
                         "composite media type. Received content-type : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while extracting body parts from entity: " + e.getMessage()));
+            context.setReturnValues(MimeUtil.createError(context, "Error occurred while extracting body parts " +
+                    "from entity: " + e.getMessage()));
         }
     }
 }

@@ -58,8 +58,8 @@ public class Pong implements NativeCallableUnit {
             byte[] binaryData = ((BByteArray) context.getRefArgument(1)).getBytes();
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData));
             WebSocketUtil.handleWebSocketCallback(context, callback, future);
-        } catch (Throwable throwable) {
-            context.setReturnValues(HttpUtil.getError(context, throwable));
+        } catch (Exception e) {
+            context.setReturnValues(HttpUtil.getError(context, e));
             callback.notifySuccess();
         }
     }

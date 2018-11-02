@@ -30,6 +30,9 @@ public class LocalVariableInfo {
 
     public int[] attachmentIndexes = new int[0];
 
+    public int scopeStartLineNumber;
+    public int scopeEndLineNumber;
+
     public LocalVariableInfo(int varNameCPIndex, int varTypeSigCPIndex, int varIndex) {
         this.varNameCPIndex = varNameCPIndex;
         this.varTypeSigCPIndex = varTypeSigCPIndex;

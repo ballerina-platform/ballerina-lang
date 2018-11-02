@@ -18,6 +18,10 @@
 package org.ballerinalang.compiler;
 
 /**
+ * {@code CompilerPhase} represents a phase of the compiler.
+ *
+ * Ideally, we should rename this class as ASTPass.
+ *
  * @since 0.94
  */
 public enum CompilerPhase {
@@ -36,7 +40,9 @@ public enum CompilerPhase {
 
     DESUGAR("desugar"),
 
-    CODE_GEN("codeGen");
+    CODE_GEN("codeGen"),
+
+    BIR_GEN("birGen");
 
     private String value;
 
@@ -52,7 +58,7 @@ public enum CompilerPhase {
                 return TYPE_CHECK;
             case "codeAnalyze":
                 return CODE_ANALYZE;
-            case "documentationAnalyzer":
+            case "documentationAnalyze":
                 return DOCUMENTATION_ANALYZE;
             case "taintAnalyze":
                 return TAINT_ANALYZE;
@@ -62,6 +68,8 @@ public enum CompilerPhase {
                 return DESUGAR;
             case "codeGen":
                 return CODE_GEN;
+            case "birGen":
+                return BIR_GEN;
             default:
                 throw new IllegalArgumentException("invalid compiler phase: " + value);
         }

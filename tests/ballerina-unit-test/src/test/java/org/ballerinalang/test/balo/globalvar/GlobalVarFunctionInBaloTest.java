@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
@@ -112,10 +112,10 @@ public class GlobalVarFunctionInBaloTest {
         BValue[] returns = BRunUtil.invoke(result, "initializeGlobalVarSeparately");
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertSame(returns[1].getClass(), BFloat.class);
 
-        Assert.assertEquals(((BJSON) returns[0]).stringValue(), "{\"name\":\"James\",\"age\":30}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"James\", \"age\":30}");
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 3432.3423);
     }
 
@@ -175,6 +175,6 @@ public class GlobalVarFunctionInBaloTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.cleaPackageFromRepository("testorg", "foo");
+        BaloCreator.clearPackageFromRepository("testorg", "foo");
     }
 }

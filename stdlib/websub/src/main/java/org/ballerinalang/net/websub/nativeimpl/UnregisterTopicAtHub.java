@@ -29,15 +29,14 @@ import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to unregister a topic in the Ballerina Hub.
+ * Extern function to unregister a topic in the Ballerina Hub.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "unregisterTopicAtHub",
-        args = {@Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "secret", type = TypeKind.STRING)},
+        args = {@Argument(name = "topic", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
@@ -46,9 +45,8 @@ public class UnregisterTopicAtHub extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String topic = context.getStringArgument(0);
-        String secret = context.getStringArgument(1);
         try {
-            Hub.getInstance().unregisterTopic(topic, secret);
+            Hub.getInstance().unregisterTopic(topic);
             context.setReturnValues();
         } catch (BallerinaWebSubException e) {
             context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));

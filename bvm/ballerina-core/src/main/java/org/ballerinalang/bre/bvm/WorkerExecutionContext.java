@@ -18,8 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -72,13 +71,17 @@ public class WorkerExecutionContext {
     
     public boolean runInCaller;
 
-    private BMap<String, BValue> error;
+    private BError error;
 
     private DebugContext debugContext;
 
     private static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
 
     private static final String FALSE = "false";
+
+    public boolean interruptible;
+
+    public boolean markAsCheckPointed;
 
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
@@ -87,7 +90,7 @@ public class WorkerExecutionContext {
         configureDistributedTransactions();
     }
     
-    public WorkerExecutionContext(BMap<String, BValue> error) {
+    public WorkerExecutionContext(BError error) {
         this.error = error;
         this.workerInfo = new WorkerInfo(0, WORKER_NAME_NATIVE);
     }
@@ -105,6 +108,7 @@ public class WorkerExecutionContext {
         this.workerLocal = workerLocal;
         this.workerResult = workerResult;
         this.retRegIndexes = retRegIndexes;
+        this.interruptible = parent.interruptible;
         this.globalProps = parent.globalProps;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         this.runInCaller = runInCaller;
@@ -123,6 +127,7 @@ public class WorkerExecutionContext {
         this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;
         this.globalProps = parent.globalProps;
+        this.interruptible = parent.interruptible;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         this.runInCaller = runInCaller;
         initDebugger();
@@ -148,11 +153,11 @@ public class WorkerExecutionContext {
         this.programFile.getDebugger().addWorkerContext(this);
     }
     
-    public void setError(BMap<String, BValue> error) {
+    public void setError(BError error) {
         this.error = error;
     }
     
-    public BMap<String, BValue> getError() {
+    public BError getError() {
         return error;
     }
 
@@ -169,7 +174,7 @@ public class WorkerExecutionContext {
     }
 
     public boolean getGlobalTransactionEnabled() {
-        return BLangVMUtils.getGlobalTransactionenabled(this);
+        return BLangVMUtils.getGlobalTransactionEnabled(this);
     }
 
     public boolean isRootContext() {

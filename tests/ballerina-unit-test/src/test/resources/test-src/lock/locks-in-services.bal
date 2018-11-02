@@ -31,13 +31,13 @@ service<http:Service> sample1 bind echoEP {
 
     int requestCount = 0;
 
-    float price = 0;
+    float price = 0.0;
 
     string finalText = "";
 
     Person person = {age:2, name:"a", address:{no:5, line1:"", line2:"ppp"}};
 
-    float[] floatArr = [1, 2];
+    float[] floatArr = [1.0, 2.0];
 
     map mapVal = {name:""};
 
@@ -99,29 +99,29 @@ service<http:Service> sample1 bind echoEP {
 }
 
 type Person record {
-    int age,
-    string name,
-    Address address,
+    int age;
+    string name;
+    Address address;
 };
 
 type Address record {
-    int no,
-    string line1,
-    string line2,
+    int no;
+    string line1;
+    string line2;
 };
 
 string finalText1 = "";
 
 Person person1 = {age:2, name:"a", address:{no:5, line1:"", line2:"ppp"}};
 
-float[] floatArr1 = [1, 2];
+float[] floatArr1 = [1.0, 2.0];
 
 @http:ServiceConfig {}
 service<http:Service> sample2 bind echoEP {
 
     int requestCount = 0;
 
-    float price = 0;
+    float price = 0.0;
 
     map mapVal = {name:""};
 
@@ -195,8 +195,8 @@ service<http:Service> sample3 bind echoEP {
             io:println("************** waiting inside first request");
             runtime:sleep(100);
             message = "sample Response";
-            error err = {message:"error occurred"};
-            throw err;
+            error err = error("error occurred");
+            panic err;
         }
         //http:Response res = new;
         //_ = conn -> respond(res);

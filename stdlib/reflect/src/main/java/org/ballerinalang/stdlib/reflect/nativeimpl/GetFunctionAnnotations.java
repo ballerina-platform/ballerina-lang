@@ -40,6 +40,6 @@ public class GetFunctionAnnotations extends AbstractAnnotationReader {
             context.setReturnValues((BValue) null);
         }
         BFunctionPointer fp = (BFunctionPointer) bValue;
-        context.setReturnValues(getAnnotationValue(context, fp.value().getPackagePath(), fp.value().getFunctionName()));
+        context.setReturnValues(getAnnotationValue(context, fp.value().getPkgPath(), fp.value().getName()));
     }
 }

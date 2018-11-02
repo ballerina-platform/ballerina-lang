@@ -56,7 +56,7 @@ public class CodeGenerator {
 
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
-     * Generated source will be written to a ballerina package at {@code outPath}
+     * Generated source will be written to a ballerina module at {@code outPath}
      * <p>Method can be user for generating Ballerina mock services and clients</p>
      *
      * @param type           Output type. Following types are supported
@@ -137,10 +137,10 @@ public class CodeGenerator {
      * @param templateName Name of the parent template to be used
      * @param outPath      Destination path for writing the resulting source file
      * @throws IOException when file operations fail
-     * @deprecated This method is now deprecated. Use {@link #generate(GenType, String)} and implement a
-     * file write functionality your self, if you need to customize file writing steps.
-     * Otherwise use {{@link #generate(GenType, String, String)}} to directly write generated sources
-     * to a ballerina package.
+     * @deprecated This method is now deprecated. Use {@link #generate(GeneratorConstants.GenType, String) generate}
+     * and implement a file write functionality your self, if you need to customize file writing steps.
+     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String) generate}
+     * to directly write generated source to a ballerina module.
      */
     @Deprecated
     public void writeBallerina(Object object, String templateDir, String templateName, String outPath)
@@ -163,6 +163,7 @@ public class CodeGenerator {
     }
 
     private Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
+        defaultTemplateDir = defaultTemplateDir.replaceAll("\\\\", "/");
         String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);

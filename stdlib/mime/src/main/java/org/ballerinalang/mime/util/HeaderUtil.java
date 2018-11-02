@@ -21,6 +21,7 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -29,8 +30,8 @@ import org.jvnet.mimepull.Header;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
@@ -161,11 +162,11 @@ public class HeaderUtil {
     public static String appendHeaderParams(StringBuilder headerValue, BMap map) {
         int index = 0;
         if (map != null && !map.isEmpty()) {
-            Set<String> keys = map.keySet();
-            if (keys != null && !keys.isEmpty()) {
+            String[] keys = (String[]) map.keys();
+            if (keys.length != 0) {
                 for (String key : keys) {
                     BString paramValue = (BString) map.get(key);
-                    if (index == keys.size() - 1) {
+                    if (index == keys.length - 1) {
                         headerValue.append(key).append(ASSIGNMENT).append(paramValue.toString());
                     } else {
                         headerValue.append(key).append(ASSIGNMENT).append(paramValue.toString()).append(SEMICOLON);

@@ -53,6 +53,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         keyValuePairs = new ArrayList<>();
     }
 
+    public BLangRecordLiteral(BType type) {
+        keyValuePairs = new ArrayList<>();
+        this.type = type;
+    }
+
     @Override
     public NodeKind getKind() {
         return NodeKind.RECORD_LITERAL_EXPR;
@@ -196,6 +201,24 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         public BLangStreamLiteral(BType streamType, BLangIdentifier name) {
             this.type = streamType;
+            this.name = name;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * This class represents a channel type literal expression.
+     *
+     * @since 0.982.0
+     */
+    public static class BLangChannelLiteral extends BLangRecordLiteral {
+
+        public BLangChannelLiteral(BType channelType, BLangIdentifier name) {
+            this.type = channelType;
             this.name = name;
         }
 

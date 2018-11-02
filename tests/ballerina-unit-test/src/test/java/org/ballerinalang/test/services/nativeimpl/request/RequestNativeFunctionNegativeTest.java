@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -33,7 +34,7 @@ import org.ballerinalang.test.services.testutils.TestEntityUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
@@ -112,8 +113,8 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertTrue((returnVals[0].stringValue().contains("{message:\"Entity body is not json compatible " +
-                "since the received content-type is : text/plain\", cause:null}")));
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                "{\"message\":\"Entity body is not json compatible since the received content-type is : text/plain\"}");
     }
 
     @Test(description = "Test getTextPayload method with JSON payload")
@@ -171,15 +172,15 @@ public class RequestNativeFunctionNegativeTest {
         inRequest.put(REQUEST_ENTITY_FIELD, entity);
         BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertTrue(returnVals[0].stringValue().contains("{message:\"Error occurred while retrieving xml data " +
-                "from entity : Empty xml payload\", cause:null}"));
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                "{\"message\":\"Error occurred while retrieving xml data from entity : Empty xml payload\"}");
     }
 
     @Test
     public void testGetMethodNegative() {
         BMap<String, BValue> inRequest =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
+        HttpCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
         BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetMethod", inputArg);
@@ -192,7 +193,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetRequestURLNegative() {
         BMap<String, BValue> inRequest =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
+        HttpCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetRequestURL", inputArg);

@@ -1,14 +1,20 @@
 import ballerina/io;
 
-io:CharacterChannel? characterChannel;
+io:ReadableCharacterChannel? rch;
+io:WritableCharacterChannel? wch;
 
-function initCharacterChannel(string filePath, io:Mode permission, string encoding) {
-    io:ByteChannel channel = io:openFile(filePath, permission);
-    characterChannel = untaint new io:CharacterChannel(channel, encoding);
+function initReadableChannel(string filePath, string encoding) {
+    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
+    rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
+}
+
+function initWritableChannel(string filePath, string encoding) {
+    io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
+    wch = untaint new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
 function readCharacters(int numberOfCharacters) returns string|error {
-    var result = characterChannel.read(numberOfCharacters);
+    var result = rch.read(numberOfCharacters);
     match result {
         string characters => {
             return characters;
@@ -17,7 +23,7 @@ function readCharacters(int numberOfCharacters) returns string|error {
             return err;
         }
         () => {
-            error e = {message:"Character channel not initialized properly"};
+            error e = error("Character channel not initialized properly");
             return e;
         }
     }
@@ -33,7 +39,7 @@ function readAllCharacters() returns string|error? {
                 result = result + value;
             }
             error err => {
-                if (err.message == "io.EOF"){
+                if (err.reason() == "io.EOF"){
                     isDone = true;
                 } else {
                     return err;
@@ -45,7 +51,7 @@ function readAllCharacters() returns string|error? {
 }
 
 function writeCharacters(string content, int startOffset) returns int|error? {
-    var result = characterChannel.write(content, startOffset);
+    var result = wch.write(content, startOffset);
     match result {
         int numberOfCharsWritten => {
             return numberOfCharsWritten;
@@ -54,7 +60,7 @@ function writeCharacters(string content, int startOffset) returns int|error? {
             return err;
         }
         () => {
-            error e = {message:"Character channel not initialized properly"};
+            error e = error("Character channel not initialized properly");
             return e;
         }
 
@@ -62,7 +68,7 @@ function writeCharacters(string content, int startOffset) returns int|error? {
 }
 
 function readJson() returns json|error {
-    var result = characterChannel.readJson();
+    var result = rch.readJson();
     match result {
         json characters => {
             return characters;
@@ -74,7 +80,7 @@ function readJson() returns json|error {
 }
 
 function readXml() returns xml|error {
-    var result = characterChannel.readXml();
+    var result = rch.readXml();
     match result {
         xml characters => {
             return characters;
@@ -83,20 +89,24 @@ function readXml() returns xml|error {
             return err;
         }
         () => {
-            error e = {message:"Character channel not initialized properly"};
+            error e = error("Character channel not initialized properly");
             return e;
         }
     }
 }
 
 function writeJson(json content) {
-    var result = characterChannel.writeJson(content);
+    var result = wch.writeJson(content);
 }
 
 function writeXml(xml content) {
-    var result = characterChannel.writeXml(content);
+    var result = wch.writeXml(content);
 }
 
-function close() {
-    var err = characterChannel.close();
+function closeReadableChannel() {
+    var err = rch.close();
+}
+
+function closeWritableChannel() {
+    var err = wch.close();
 }

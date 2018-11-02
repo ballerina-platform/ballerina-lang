@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/io;
 
 endpoint http:Listener echoEP {
-    port:9099
+    port:9090
 };
 
 @http:ServiceConfig {

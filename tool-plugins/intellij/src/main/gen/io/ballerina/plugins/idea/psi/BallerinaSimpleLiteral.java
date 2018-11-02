@@ -30,6 +30,9 @@ public interface BallerinaSimpleLiteral extends BallerinaCompositeElement {
   BallerinaEmptyTupleLiteral getEmptyTupleLiteral();
 
   @Nullable
+  BallerinaFloatingPointLiteral getFloatingPointLiteral();
+
+  @Nullable
   BallerinaIntegerLiteral getIntegerLiteral();
 
   @Nullable
@@ -39,9 +42,6 @@ public interface BallerinaSimpleLiteral extends BallerinaCompositeElement {
   PsiElement getBooleanLiteral();
 
   @Nullable
-  PsiElement getFloatingPointLiteral();
-
-  @Nullable
   PsiElement getNullLiteral();
 
   @Nullable
@@ -49,5 +49,8 @@ public interface BallerinaSimpleLiteral extends BallerinaCompositeElement {
 
   @Nullable
   PsiElement getSub();
+
+  @Nullable
+  PsiElement getSymbolicStringLiteral();
 
 }

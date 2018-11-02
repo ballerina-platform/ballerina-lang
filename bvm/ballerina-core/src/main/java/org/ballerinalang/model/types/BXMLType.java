@@ -48,11 +48,6 @@ public class BXMLType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.XML.getName());
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.XML_TAG;
     }

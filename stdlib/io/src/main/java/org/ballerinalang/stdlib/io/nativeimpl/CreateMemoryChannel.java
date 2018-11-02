@@ -35,13 +35,13 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 /**
- * Native function ballerina/io#createMemoryChannel.
+ * Extern function ballerina/io#createMemoryChannel.
  *
  * @since 0.970.1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "createMemoryChannel",
+        functionName = "createReadableChannel",
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true
 )

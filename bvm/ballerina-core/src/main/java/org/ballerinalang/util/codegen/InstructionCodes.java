@@ -64,6 +64,9 @@ public interface InstructionCodes {
     int BGLOAD = 36;
     int RGLOAD = 37;
 
+    int CHNRECEIVE = 38;
+    int CHNSEND = 39;
+
     int MAPLOAD = 47;
     int JSONLOAD = 48;
 
@@ -87,6 +90,11 @@ public interface InstructionCodes {
     int SGSTORE = 63;
     int BGSTORE = 64;
     int RGSTORE = 65;
+
+    int ERROR = 70;
+    int PANIC = 71;
+    int REASON = 72;
+    int DETAIL = 73;
 
     int MAPSTORE = 74;
     int JSONSTORE = 75;
@@ -146,10 +154,9 @@ public interface InstructionCodes {
     int TR_RETRY = 119;
     int CALL = 120;
     int VCALL = 121;
-    int THROW = 123;
-    int ERRSTORE = 124;
-    int FPCALL = 125;
-    int FPLOAD = 126;
+    int FPCALL = 122;
+    int FPLOAD = 123;
+    int VFPLOAD = 124;
 
     int SEQ_NULL = 128;
     int SNE_NULL = 129;
@@ -158,31 +165,21 @@ public interface InstructionCodes {
     int I2F = 130;
     int I2S = 131;
     int I2B = 132;
-    int I2JSON = 133;
     int F2I = 134;
     int F2S = 135;
     int F2B = 136;
-    int F2JSON = 137;
     int S2I = 138;
     int S2F = 139;
     int S2B = 140;
-    int S2JSON = 141;
     int B2I = 142;
     int B2F = 143;
     int B2S = 144;
-    int B2JSON = 145;
-    int JSON2I = 146;
-    int JSON2F = 147;
-    int JSON2S = 148;
-    int JSON2B = 149;
     int DT2JSON = 150;
     int DT2XML = 151;
     int T2MAP = 152;
     int T2JSON = 153;
     int MAP2T = 154;
     int JSON2T = 155;
-
-    int S2XML = 156;
     int XML2S = 157;
 
     int BILSHIFT = 158;
@@ -211,11 +208,8 @@ public interface InstructionCodes {
     int ANY2T = 179;
     int ANY2C = 180;
     int CHECKCAST = 181;
-    int NULL2JSON = 182;
 
     int ANY2TYPE = 183;
-    int S2JSONX = 184;
-    int NULL2S = 185;
 
     int LOCK = 186;
     int UNLOCK = 187;
@@ -234,7 +228,7 @@ public interface InstructionCodes {
     int JSON2MAP = 195;
 
     int IS_ASSIGNABLE = 196;
-    int CHECK_CONVERSION = 197;
+    int O2JSON = 197;
     
     int ARRAY2JSON = 198;
     int JSON2ARRAY = 199;
@@ -245,13 +239,10 @@ public interface InstructionCodes {
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
-    int JSONNEWARRAY = 206;
-    int ARRAYLEN = 207;
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
-    int NEWJSON = 213;
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
 
@@ -266,6 +257,7 @@ public interface InstructionCodes {
     int BIXOR = 226;
     int IXOR = 227;
     int BACONST = 228;
+    int IURSHIFT = 229;
 
     int IRET = 230;
     int FRET = 231;
@@ -290,7 +282,7 @@ public interface InstructionCodes {
     int XMLLOADALL = 249;
     int NEWXMLSEQ = 250;
 
-    int TYPEOF = 251;
+    int TYPE_TEST = 251;
     int TYPELOAD = 252;
 
     int TEQ = 253;

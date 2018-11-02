@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 10,
+    "character": 12
+  },
+  "source": "resource/source/matchExpressionSuggestion2.bal",
+  "items": [
+    {
+      "label":"Match error",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"130",
+      "insertText":"error \u003d\u003e ${1:\"\"}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match ()",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"130",
+      "insertText":"() \u003d\u003e ${2:\"\"}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match error?",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"110",
+      "insertText":"error \u003d\u003e ${1:\"\"},\n() \u003d\u003e ${2:\"\"}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match any",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"any \u003d\u003e ${1:\"\"}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

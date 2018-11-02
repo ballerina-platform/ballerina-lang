@@ -45,8 +45,8 @@ public class BallerinaStreamsV2Test {
 
     @Test(description = "Test filter streaming query")
     public void testSelectorWithFilterQuery() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
         System.setProperty("enable.siddhiRuntime", "true");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

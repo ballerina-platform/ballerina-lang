@@ -25,7 +25,7 @@ function testForkJoinAnyOfSpecific () returns string[] {
             results[0] = <string> airlineResponses.PQR_Airline;
         }
         return results;
-    } timeout (30) (map airlineResponses) {
+    } timeout (3000) (map airlineResponses) {
         return results;
     }
 }

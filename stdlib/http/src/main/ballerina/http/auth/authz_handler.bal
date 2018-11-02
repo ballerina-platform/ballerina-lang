@@ -20,53 +20,45 @@ import ballerina/runtime;
 import ballerina/log;
 import ballerina/io;
 
-documentation {
-    Representation of Authorization Handler for HTTP
-
-    F{{authStoreProvider}} `AuthStoreProvider` instance
-    F{{authzCache}} `Cache` instance, which is optional
-}
+# Representation of Authorization Handler for HTTP
+#
+# + authStoreProvider - `AuthStoreProvider` instance
+# + positiveAuthzCache - `Cache` instance, which is cache positive authorizations
+# + negativeAuthzCache - `Cache` instance, which is cache negative authorizations
 public type HttpAuthzHandler object {
     public auth:AuthStoreProvider authStoreProvider;
-    public cache:Cache? authzCache;
+    public cache:Cache? positiveAuthzCache;
+    public cache:Cache? negativeAuthzCache;
 
-    public new (authStoreProvider, authzCache) {
+    public new (authStoreProvider, positiveAuthzCache, negativeAuthzCache) {
     }
 
-    documentation {
-        Checks if the request can be authorized
-
-        P{{req}} `Request` instance
-        R{{}} true if can be authorized, else false
-    }
+    # Checks if the request can be authorized
+    #
+    # + req - `Request` instance
+    # + return - true if can be authorized, else false
     function canHandle(Request req) returns (boolean);
 
-    documentation {
-        Tries to authorize the request
-
-        P{{username}} User name
-        P{{serviceName}} `Service` name
-        P{{resourceName}} `Resource` name
-        P{{method}} HTTP method name
-        P{{scopes}} Array of scopes
-        R{{}} true if authorization check is a success, else false
-    }
+    # Tries to authorize the request
+    #
+    # + username - User name
+    # + serviceName - `Service` name
+    # + resourceName - `Resource` name
+    # + method - HTTP method name
+    # + scopes - Array of scopes
+    # + return - true if authorization check is a success, else false
     function handle(string username, string serviceName, string resourceName, string method,
                                                                                     string[] scopes) returns (boolean);
-    documentation {
-        Tries to retrieve authorization decision from the cached information, if any
-
-        P{{authzCacheKey}} Cache key
-        R{{}} true or false in case of a cache hit, nil in case of a cache miss
-    }
+    # Tries to retrieve authorization decision from the cached information, if any
+    #
+    # + authzCacheKey - Cache key
+    # + return - true or false in case of a cache hit, nil in case of a cache miss
     function authorizeFromCache(string authzCacheKey) returns (boolean|());
 
-    documentation {
-        Cached the authorization result
-
-        P{{authzCacheKey}} Cache key
-        P{{isAuthorized}} boolean flag to indicate the authorization decision
-    }
+    # Cached the authorization result
+    #
+    # + authzCacheKey - Cache key
+    # + isAuthorized - boolean flag to indicate the authorization decision
     function cacheAuthzResult (string authzCacheKey, boolean isAuthorized);
 };
 
@@ -98,6 +90,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
                     self.cacheAuthzResult(authzCacheKey, authorized);
                     return authorized;
                 } else {
+                    self.cacheAuthzResult(authzCacheKey, false);
                     log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName +
                             ", method:" + method);
                     return false;
@@ -107,15 +100,13 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
     }
 }
 
-documentation {
-        Check whether the scopes of the user and scopes of resource matches.
-
-        P{{resourceScopes}} Scopes of resource
-        P{{userScopes}} Scopes of user
-        P{{resourceName}} Name of the `resource`
-        P{{method}} HTTP method name
-        R{{}} true if there is a match between resource and user scopes, else false
-}
+# Check whether the scopes of the user and scopes of resource matches.
+#
+# + resourceScopes - Scopes of resource
+# + userScopes - Scopes of user
+# + resourceName - Name of the `resource`
+# + method - HTTP method name
+# + return - true if there is a match between resource and user scopes, else false
 function checkForScopeMatch (string[] resourceScopes, string[] userScopes, string resourceName, string method)
                                                                                                     returns boolean {
     boolean authorized = matchScopes(resourceScopes, userScopes);
@@ -129,39 +120,48 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
 }
 
 function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
-    try {
-        match self.authzCache {
-            cache:Cache cache => {
-                return check <boolean> cache.get(authzCacheKey);
-            }
-        () => {
-                return ();
-            }
+    match trap self.positiveAuthzCache {
+        cache:Cache cache => {
+            return check <boolean> cache.get(authzCacheKey);
         }
-    } catch (error e) {
-        // do nothing
+        error|() => {}
+    }
+    match trap self.negativeAuthzCache {
+        cache:Cache cache => {
+            return check <boolean> cache.get(authzCacheKey);
+        }
+        error|() => {}
     }
     return ();
 }
 
 function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
-    match self.authzCache {
-        cache:Cache cache => {
-            cache.put(authzCacheKey, isAuthorized);
+    if (isAuthorized) {
+        match self.positiveAuthzCache {
+            cache:Cache cache => {
+                cache.put(authzCacheKey, isAuthorized);
+            }
+            () => {
+                return;
+            }
         }
-        () => {
-            return;
+    } else {
+        match self.negativeAuthzCache {
+            cache:Cache cache => {
+                cache.put(authzCacheKey, isAuthorized);
+            }
+            () => {
+                return;
+            }
         }
     }
 }
 
-documentation {
-        Tries to find a match between the two scope arrays
-
-        P{{scopesOfResource}} Scopes of resource
-        P{{scopesForRequest}} Scopes of the user
-        R{{}} true if there is a match, else false
-}
+# Tries to find a match between the two scope arrays
+#
+# + scopesOfResource - Scopes of resource
+# + scopesForRequest - Scopes of the user
+# + return - true if there is a match, else false
 function matchScopes (string[] scopesOfResource, string[] scopesForRequest) returns (boolean) {
     foreach scopeForRequest in scopesForRequest {
         foreach scopeOfResource in scopesOfResource {

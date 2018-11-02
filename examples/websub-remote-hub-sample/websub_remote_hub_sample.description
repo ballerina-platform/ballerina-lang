@@ -1,0 +1,12 @@
+// Ballerina provides the capability to easily introduce publishers and subscribers that are WebSub compliant.
+// Ballerina WebSub subscribers can specify the topic they wish to subscribe to and the hub they wish to subscribe at,
+// to receive notifications. If specified, the subscription process can be initiated at startup. Signature
+// validation is performed by default for subscribers that receive authenticated content. Ballerina WebSub Subscriber
+// Services could thus be registered as webhooks to receive event notifications.
+//
+// Ballerina also comes with an in-built WebSub Hub service that can be brought up by publishers that need to bring up
+// a hub.
+//
+// This example demonstrates a simple WebSub publisher and subscriber scenario, where a Ballerina WebSub Hub
+// that is brought up remotely is used by a Ballerina WebSub publisher to publish updates to a topic. A Ballerina
+// WebSub Subscriber subscribes at this remote hub to get the topic updates.

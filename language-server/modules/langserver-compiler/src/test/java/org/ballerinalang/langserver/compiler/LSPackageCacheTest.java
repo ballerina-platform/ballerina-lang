@@ -2,6 +2,7 @@ package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.PackageID;
@@ -33,23 +34,21 @@ public class LSPackageCacheTest {
         compileFileAndCheckCache(filePath);
     }
 
-    private void compileFileAndCheckCache(Path filePath) throws IOException {
+    private void compileFileAndCheckCache(Path filePath) throws IOException, LSCompilerException {
         // Read test bal file
         String content = new String(Files.readAllBytes(filePath));
         // Prepare compiler resources
-        String sourceRoot = LSCompiler.getSourceRoot(filePath);
-        String pkgName = LSCompiler.getPackageNameForGivenFile(sourceRoot, filePath.toString());
-        LSDocument sourceDocument = new LSDocument();
-        sourceDocument.setUri(filePath.toUri().toString());
-        sourceDocument.setSourceRoot(sourceRoot);
-        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
+        String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
+        String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
+        LSDocument sourceDocument = new LSDocument(filePath.toUri().toString(), sourceRoot);
+        WorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
-        CompilerContext context = LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument, true,
-                                                                    documentManager);
+        CompilerContext context = LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument,
+                                                                        true, documentManager);
         // Compile test bal file
         LSCompiler lsCompiler = new LSCompiler(documentManager);
-        lsCompiler.compileContent(content, filePath, CompilerPhase.TAINT_ANALYZE, true);
+        lsCompiler.updateAndCompileFile(filePath, content, CompilerPhase.TAINT_ANALYZE, documentManager);
 
         // Check cache whether it still holds the current package
         Set<String> packageMayKeySet = LSPackageCache.getInstance(context).getPackageMap().keySet();

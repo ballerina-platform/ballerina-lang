@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.config:setConfig.
+ * Extern function ballerina.config:setConfig.
  *
  * @since 0.966.0
  */

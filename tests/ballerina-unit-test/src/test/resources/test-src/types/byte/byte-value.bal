@@ -258,9 +258,51 @@ function testBitwiseLeftShiftOperator2(byte a, byte b, int i, int j) returns (in
     return (r1, r2, r3);
 }
 
+function testBitwiseUnsignedRightShiftOperator(byte a, int i, int j) returns (int, int){
+    int r1 = i >>> j;
+    int r2 = i >>> a;
+    return (r1, r2);
+}
+
 function testByteShift() returns byte {
     byte a = 129;
     byte c = a << 1;
     byte d = c >> 1;
+    return d;
+}
+
+function testBitwiseNotOperator(byte b, int i) returns (byte, int) {
+    byte a = ~b;
+    int j = ~i;
+    return (a, j);
+}
+
+function testBitwiseOperatorPrecedence1(byte a, byte b, byte c) returns byte {
+    byte d = ~a & b >> c;
+    return d;
+}
+
+function testBitwiseOperatorPrecedence2(byte a, byte b, byte c) returns byte {
+    byte d = b & ~a >> c;
+    return d;
+}
+
+function testBitwiseOperatorPrecedence3(byte a, byte b, byte c) returns byte {
+    byte d = b >> c & ~a;
+    return d;
+}
+
+function testBitwiseOperatorPrecedence4(int a, int b, int c) returns int {
+    int d = ~a & b >> c;
+    return d;
+}
+
+function testBitwiseOperatorPrecedence5(int a, int b, int c) returns int {
+    int d = b & ~a >> c;
+    return d;
+}
+
+function testBitwiseOperatorPrecedence6(int a, int b, int c) returns int {
+    int d = b >> c & ~a;
     return d;
 }

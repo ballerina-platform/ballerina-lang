@@ -5,8 +5,8 @@ import ballerina/io;
 @final string constPath = getConstPath();
 
 type Person record {
-    string name,
-    int age,
+    string name;
+    int age;
 };
 
 endpoint http:NonListener echoEP {
@@ -135,7 +135,8 @@ service<http:Service> echo bind echoEP {
                 res.setJsonPayload(untaint responseJson);
             }
             error err => {
-                res.setTextPayload(untaint err.message);
+                string errMsg = <string> err.detail().message;
+                res.setTextPayload(errMsg);
             }
         }
         _ = conn -> respond(res);

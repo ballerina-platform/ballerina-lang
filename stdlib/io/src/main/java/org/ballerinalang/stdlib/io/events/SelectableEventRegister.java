@@ -20,7 +20,7 @@
 package org.ballerinalang.stdlib.io.events;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.socket.server.SelectorManager;
+import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.ballerinalang.stdlib.io.socket.server.SocketIOExecutorQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

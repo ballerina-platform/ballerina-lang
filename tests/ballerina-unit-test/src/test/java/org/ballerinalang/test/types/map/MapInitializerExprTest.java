@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -87,9 +86,8 @@ public class MapInitializerExprTest {
         Assert.assertEquals(outerMap.get("name"), new BString("Supun"));
 
         BValue info = outerMap.get("info");
-        Assert.assertTrue(info instanceof BJSON);
-        BJSON infoJson = (BJSON) info;
-        Assert.assertEquals(infoJson.stringValue(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");
+        Assert.assertTrue(info instanceof BMap);
+        Assert.assertEquals(info.stringValue(), "{\"city\":\"Colombo\", \"country\":\"SriLanka\"}");
     }
     
     @Test
@@ -160,5 +158,13 @@ public class MapInitializerExprTest {
         Assert.assertEquals(mapValue.get("a").stringValue(), "Lion");
         Assert.assertEquals(mapValue.get("key1").stringValue(), "Cat");
         Assert.assertEquals(mapValue.get("key2").stringValue(), "Dog");
+    }
+
+    @Test
+    public void testEmptyMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMap", new BValue[] {});
+
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>, "empty map initialization with {}");
+        Assert.assertEquals(((BMap) returns[0]).size(), 0, "incorrect empty map size");
     }
 }

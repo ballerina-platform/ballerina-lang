@@ -13,7 +13,7 @@ function scheduleTimerWithError(int delay, int interval, string errMsg) {
 }
 
 function triggerWithError() returns error? {
-    error e = {message:origErrMsg};
+    error e = error(origErrMsg);
     return e;
 }
 

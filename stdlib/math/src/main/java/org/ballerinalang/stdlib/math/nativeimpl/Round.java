@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:round.
+ * Extern function ballerina.math:round.
  *
  * @since 0.94
  */

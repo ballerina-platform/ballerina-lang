@@ -63,7 +63,7 @@ function testNullableTypeBasics2() returns (int|boolean|()) {
 }
 
 public type ParamAny record {
-    any value,
+    any value;
 };
 
 public type GlobalParam string|int|boolean|float|ParamAny;
@@ -81,4 +81,57 @@ function testUnionTypeArrayWithValueTypeArrayAssignment() returns int {
     int[] intArray = [10, 20, 30];
     GlobalParam[] globalParamArray = intArray;
     return lengthof globalParamArray;
+}
+
+public type Person object {
+    string name;
+};
+
+public type RecPerson record {
+    string name;
+    int id;
+};
+
+function testRecordLiteralAssignment() returns string {
+    Person|RecPerson x = {name:"John", id:12};
+    match x {
+        Person p => {
+            return "Invalid";
+        }
+        RecPerson e => {
+            return <string> e.name;
+        }
+    }
+}
+
+type Foo record {
+    string s;
+    int i;
+    !...
+};
+
+type Bar record {
+    string x;
+    int y;
+    !...
+};
+
+function testUnionTypeWithMultipleRecordTypes() returns string[] {
+
+    string[] returnValues;
+
+    Foo|Bar var1 = {s : "dummy string"};
+    Foo|Bar var2 = {x : "dummy string"};
+
+    match var1 {
+        Foo => returnValues[0] = "FOO";
+        Bar => returnValues[0] = "BAR";
+    }
+
+    match var2 {
+        Foo => returnValues[1] = "FOO";
+        Bar => returnValues[1] = "BAR";
+    }
+
+    return returnValues;
 }

@@ -11,7 +11,7 @@ function printName(any name) {
 
     if (name == ""){
         xmlns "http://sample.com/wso2/a3" as ns;
-        var getName = () => (string) {
+        var getName = function () returns (string) {
             string name = "Ballerina";
             return "";
         };

@@ -20,12 +20,14 @@
 package org.ballerina.testobserve;
 
 import com.google.gson.Gson;
+
 import io.opentracing.mock.MockTracer;
+
 import org.ballerina.testobserve.extension.BMockTracer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -53,6 +55,6 @@ public class GetMockTracers extends BlockingNativeCallableUnit {
                         .forEach(mockSpan -> mockSpans
                                 .add(new BMockSpan(mockSpan.operationName(), mockSpan.context().traceId(),
                                         mockSpan.context().spanId(), mockSpan.parentId(), mockSpan.tags()))));
-        context.setReturnValues(new BJSON(new Gson().toJson(mockSpans)));
+        context.setReturnValues(JsonParser.parse(new Gson().toJson(mockSpans)));
     }
 }

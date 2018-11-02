@@ -27,3 +27,8 @@ function floatToBooleanExplicit(float f) returns (boolean) {
     boolean b = <boolean> f;
     return b;
 }
+
+function intToFloatExplicit(int i) returns float {
+    float f = <float> i;
+    return f;
+}

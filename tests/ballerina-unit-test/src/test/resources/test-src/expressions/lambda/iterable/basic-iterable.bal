@@ -3,7 +3,7 @@ int add;
 function testInt1 () returns (int, int, int, int, int, float) {
     add = 0;
     int[] fa = [-5, 2, 4, 5, 7, -8, -3, 2];
-    fa.foreach((int i) => { add = add + i;});
+    fa.foreach(function (int i) { add = add + i;});
     int fadd1 = add;
     int count = fa.count();
     int max = fa.max();
@@ -29,9 +29,9 @@ function filterIntNegative (int i) returns boolean {
 
 float fadd;
 function testFloat1() returns (float, int, float, float, float, float){
-    fadd = 0;
+    fadd = 0.0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
-    fa.foreach((float i) => { fadd = fadd + i;});
+    fa.foreach(function (float i) { fadd = fadd + i;});
     float fsum = fadd;
     int count = fa.count();
     float max = fa.max();
@@ -76,11 +76,11 @@ function concat ((string, string) value) {
 
 function testBasicArray2 (string[] values) returns (string) {
     output = "";
-    values.map(((int, string) tuple) => string {
+    values.map(function ((int, string) tuple) returns string {
                    var (a, b) = tuple;
                    return a + b;
                })
-    .foreach((string s) => {
+    .foreach(function (string s) {
                  output = output + s + " ";
              });
     return output.trim();
@@ -89,10 +89,10 @@ function testBasicArray2 (string[] values) returns (string) {
 function testBasicMap1 () returns (int, string[]) {
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
     int count = m.count();
-    string[] values = m.map((string value) => (string) {
+    string[] values = m.map(function (string value) returns (string) {
                                 return value.toLower();
                             })
-                      .filter((string v) => (boolean) {
+                      .filter(function (string v) returns (boolean) {
                                   if (v == "a" || v == "e") {
                                       return true;
                                   }
@@ -103,7 +103,7 @@ function testBasicMap1 () returns (int, string[]) {
 function testBasicMap2 () returns string[] {
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
     string[] values = m.map(mapToTuple)
-                      .filter(((string, string) v) => (boolean) {
+                      .filter(function ((string, string) v) returns (boolean) {
                                   var (k, t) = v;
                                   if (k == "a" || k == "e") {
                                       return true;
@@ -127,21 +127,21 @@ json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75},
 
 function jsonTest () returns (string, string[], int, int, string[]) {
     output = "";
-    j1.foreach((json j) => {
+    j1.foreach(function (json j) {
                    output = output + j.toString();
                });
 
-    string[] sa = j1.map((json j) => (string) {
+    string[] sa = j1.map(function(json j) returns (string) {
                              return j.toString();
                          })
-                  .filter((string s) => (boolean) {
+                  .filter(function(string s) returns (boolean) {
                               return s == "bob";
                           });
 
     int i1 = j1.count();
 
     var ja = check <json[]>j1.subjects;
-    string[] result = ja.map(((int, json) tuple) => (string) {
+    string[] result = ja.map(function ((int, json) tuple) returns (string) {
                                  var (i, j) = tuple;
                                  return  i + "->" + j.toString();
                              });
@@ -161,7 +161,7 @@ function xmlTest() returns (int, int, map) {
     int nodeCount = xdata.*.count();
     int elementCount = xdata.*.elements().count();
     map<xml> m = xdata.*.elements()[1].*.elements()
-                 .map(((int, xml) tuple) => (string, xml) {
+                 .map(function ((int, xml) tuple) returns (string, xml) {
                           var (i, x) = tuple;
                           return (<string>i, x);
                       });
@@ -194,8 +194,8 @@ function isBellow25 (person p) returns boolean {
 function testIgnoredValue () returns (string) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
-    _ = s.filter((string ss) => boolean {return lengthof ss == 3;})
-    .map((string ss) => string {
+    _ = s.filter(function (string ss) returns boolean {return lengthof ss == 3;})
+    .map(function (string ss) returns string {
             output = output + " " + ss;
             return (ss + ss);
              });
@@ -211,14 +211,14 @@ function testInExpression () returns (string, int) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
     float[] r = [1.1, -2.2, 3.3, 4.4];
-    appendAny("total count " + s.filter((string ss) => (boolean) {return lengthof ss == 3;}).count());
+    appendAny("total count " + s.filter(function (string ss) returns (boolean) {return lengthof ss == 3;}).count());
     int i = s.count() + r.count();
     return (output, i);
 }
 
 function testInFunctionInvocation () returns int {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
-    return doubleInt(m.filter((string a) => boolean {
+    return doubleInt(m.filter(function (string a) returns boolean {
                                   int i = lengthof a;
                                   return i == 3;})
                      .count());
@@ -230,10 +230,54 @@ function doubleInt (int i) returns (int) {
 
 function testInStatement () returns int {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
-    if (5 > m.filter((string a) => (boolean) {
+    if (5 > m.filter(function (string a) returns (boolean) {
                          return lengthof a == 3;})
             .count()) {
         return 10;
     }
     return 0;
+}
+
+function testIterableOutputPrint() returns (any, any, any, any, any) {
+    map<string> m = {a:"abc", b:"cd", c:"pqr"};
+    any count = m.count();
+    foo(count);
+    foo(m.count());
+
+    int[] a = [-5, 2, 4, 5, 7, -8, -3, 2];
+
+    foo(a.average());
+    any b = a.average();
+    foo(b);
+
+    foo(a.min());
+    any c = a.min();
+    foo(c);
+
+    foo(a.max());
+    any d = a.max();
+    foo(d);
+
+    foo(a.sum());
+    any e = a.sum();
+    foo(e);
+
+    return (count, b, c, d, e);
+}
+
+function foo(any a) {
+    //do nothing
+}
+
+function testIterableReturnLambda () returns (function (int) returns boolean)[] {
+
+    map<string> words = { a: "ant", b: "bear", c: "tiger"};
+
+    (function (int) returns boolean)[] lambdas = words.map(function (string input) returns (function (int) returns boolean) {
+        return function (int param) returns boolean {
+            return true;
+        };
+    });
+
+    return lambdas;
 }

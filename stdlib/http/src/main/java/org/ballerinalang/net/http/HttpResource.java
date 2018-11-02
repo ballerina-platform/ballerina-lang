@@ -31,8 +31,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
 
 /**
  * {@code HttpResource} This is the http wrapper for the {@code Resource} implementation.
@@ -62,6 +64,7 @@ public class HttpResource {
     private SignatureParams signatureParams;
     private HttpService parentService;
     private boolean transactionInfectable = true; //default behavior
+    private boolean interruptible;
 
     protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
@@ -127,7 +130,7 @@ public class HttpResource {
 
         if (produces != null) {
             List<String> subAttributeValues = produces.stream()
-                                                .map(mediaType -> mediaType.trim().substring(0, mediaType.indexOf("/")))
+                                                .map(mediaType -> mediaType.trim().substring(0, mediaType.indexOf('/')))
                                                 .distinct()
                                                 .collect(Collectors.toList());
             setProducesSubTypes(subAttributeValues);
@@ -158,6 +161,14 @@ public class HttpResource {
         this.transactionInfectable = transactionInfectable;
     }
 
+    public boolean isInterruptible() {
+        return interruptible;
+    }
+
+    public void setInterruptible(boolean interruptible) {
+        this.interruptible = interruptible;
+    }
+
     public String getEntityBodyAttributeValue() {
         return entityBodyAttribute;
     }
@@ -169,6 +180,7 @@ public class HttpResource {
     public static HttpResource buildHttpResource(Resource resource, HttpService httpService) {
         HttpResource httpResource = new HttpResource(resource, httpService);
         Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
+        httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
 
         if (resourceConfigAnnotation == null) {
             if (log.isDebugEnabled()) {
@@ -208,6 +220,11 @@ public class HttpResource {
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    private static boolean hasInterruptibleAnnotation(Resource resource) {
+        List<Annotation> annotationList = resource.getAnnotationList(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
+        return annotationList != null && !annotationList.isEmpty();
     }
 
     private static List<String> getAsStringList(Value[] values) {

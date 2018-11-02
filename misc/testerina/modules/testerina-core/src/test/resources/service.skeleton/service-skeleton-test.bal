@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/mime;
 import ballerina/test;
 import ballerina/config;
 

@@ -25,9 +25,9 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -46,7 +46,7 @@ import java.io.PrintStream;
  */
 public class BLangVMUtils {
     
-    private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
+    public static final String SERVICE_INFO_KEY = "SERVICE_INFO";
 
     private static final String TRANSACTION_INFO_KEY = "TRANSACTION_INFO";
 
@@ -378,8 +378,8 @@ public class BLangVMUtils {
         }
     }
     
-    public static void mergeInitWorkertData(WorkerData sourceData, WorkerData targetData, 
-            CodeAttributeInfo initWorkerCAI) {
+    public static void mergeInitWorkerData(WorkerData sourceData, WorkerData targetData,
+                                           CodeAttributeInfo initWorkerCAI) {
         for (int i = 0; i < initWorkerCAI.getMaxDoubleLocalVars(); i++) {
             targetData.doubleRegs[i] = sourceData.doubleRegs[i];
         }
@@ -397,8 +397,7 @@ public class BLangVMUtils {
         }
     }
     
-    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx,
-                                                                     BMap<String, BValue> error) {
+    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BError error) {
         parentCtx.setError(error);
         try {
             CPU.handleError(parentCtx);
@@ -442,7 +441,7 @@ public class BLangVMUtils {
         ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
     }
 
-    public static boolean getGlobalTransactionenabled(WorkerExecutionContext ctx) {
+    public static boolean getGlobalTransactionEnabled(WorkerExecutionContext ctx) {
         return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
     }
 }

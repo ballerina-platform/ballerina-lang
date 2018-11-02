@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:absInt.
+ * Extern function ballerina.math:absInt.
  *
  * @since 0.94
  */

@@ -31,7 +31,7 @@ import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to validate that the hub URL passed indicates the underlying Ballerina Hub (if started) and publish
+ * Extern function to validate that the hub URL passed indicates the underlying Ballerina Hub (if started) and publish
  * against a topic in the default Ballerina Hub's underlying broker.
  *
  * @since 0.965.0

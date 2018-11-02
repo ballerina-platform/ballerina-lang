@@ -35,6 +35,7 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
@@ -60,6 +61,7 @@ public class WebSocketTestClient {
     private WebSocketTestClientHandler webSocketHandler;
     private final URI uri;
     private EventLoopGroup group;
+    private boolean first = true;
 
     public WebSocketTestClient(String url) throws URISyntaxException {
         this(url, new HashMap<>());
@@ -112,6 +114,56 @@ public class WebSocketTestClient {
     }
 
     /**
+     * Send text to the server.
+     *
+     * @param text    text to be sent.
+     * @param isFinal whether the text is final
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendText(String text, boolean isFinal) throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        if (!isFinal) {
+            if (first) {
+                channel.writeAndFlush(new TextWebSocketFrame(false, 0, text)).sync();
+                first = false;
+            } else {
+                channel.writeAndFlush(new ContinuationWebSocketFrame(false, 0, text));
+            }
+        } else {
+            channel.writeAndFlush(new ContinuationWebSocketFrame(true, 0, text));
+            first = true;
+        }
+    }
+
+    /**
+     * Send binary to the server.
+     *
+     * @param buffer  buffer containing the data to be sent.
+     * @param isFinal whether the text is final
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendBinary(ByteBuffer buffer, boolean isFinal) throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        if (!isFinal) {
+            if (first) {
+                channel.writeAndFlush(new BinaryWebSocketFrame(false, 0, Unpooled.wrappedBuffer(buffer))).sync();
+                first = false;
+            } else {
+                channel.writeAndFlush(new ContinuationWebSocketFrame(false, 0, Unpooled.wrappedBuffer(buffer)));
+            }
+        } else {
+            channel.writeAndFlush(new ContinuationWebSocketFrame(true, 0, Unpooled.wrappedBuffer(buffer)));
+            first = true;
+        }
+    }
+
+    /**
      * Send binary data to server.
      *
      * @param buf buffer containing the data need to be sent.
@@ -140,6 +192,20 @@ public class WebSocketTestClient {
     }
 
     /**
+     * Send a pong message to the server.
+     *
+     * @param buf content of the pong message to be sent.
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendPong(ByteBuffer buf) throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(new PongWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
+    }
+
+    /**
      * Send corrupted frame to the server.
      *
      * @throws InterruptedException if connection is interrupted while sending the message.
@@ -152,6 +218,18 @@ public class WebSocketTestClient {
         channel.writeAndFlush(new ContinuationWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4}))).sync();
     }
 
+    /**
+     * Sends a close frame without a close code.
+     *
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendCloseFrameWithoutCloseCode() throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send close frame.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(new CloseWebSocketFrame()).sync();
+    }
     /**
      * @return the text received from the server.
      */
@@ -222,4 +300,11 @@ public class WebSocketTestClient {
         group.shutdownGracefully();
     }
 
+    /**
+     * Shutdown the WebSocket Client.
+     */
+    public void shutDownWithoutCloseFrame() {
+        channel.close();
+        group.shutdownGracefully();
+    }
 }

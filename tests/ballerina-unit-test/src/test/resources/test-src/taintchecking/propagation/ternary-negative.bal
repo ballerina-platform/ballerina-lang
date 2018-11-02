@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string data = lengthof args > 0 ? args[0] : "example";
     secureFunction(data, data);
 

@@ -16,13 +16,9 @@
 
 package org.ballerinalang.langserver.references.util;
 
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.references.ReferencesTreeVisitor;
-import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-
-import java.util.List;
 
 /**
  * Utility class for find all references functionality in language server.
@@ -33,11 +29,9 @@ public class ReferenceUtil {
      *
      * @param referencesContext   context of the references.
      * @param currentBLangPackage current package that is visiting.
-     * @return position
      */
-    public static List<Location> getReferences(LSServiceOperationContext referencesContext,
-                                               BLangPackage currentBLangPackage) {
+    public static void findReferences(LSServiceOperationContext referencesContext,
+                                      BLangPackage currentBLangPackage) {
         currentBLangPackage.accept(new ReferencesTreeVisitor(referencesContext));
-        return referencesContext.get(NodeContextKeys.REFERENCE_NODES_KEY);
     }
 }

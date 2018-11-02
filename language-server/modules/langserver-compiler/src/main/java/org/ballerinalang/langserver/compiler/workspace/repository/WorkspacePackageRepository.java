@@ -1,5 +1,6 @@
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
@@ -165,7 +166,7 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
                 if (documentManager.isFileOpen(filePath)) {
                     try {
                         this.code = documentManager.getFileContent(filePath).getBytes("UTF-8");
-                    } catch (UnsupportedEncodingException e) {
+                    } catch (WorkspaceDocumentException | UnsupportedEncodingException e) {
                         throw new RuntimeException("Error in loading package source entry '" + filePath +
                                 "': " + e.getMessage(), e);
                     }

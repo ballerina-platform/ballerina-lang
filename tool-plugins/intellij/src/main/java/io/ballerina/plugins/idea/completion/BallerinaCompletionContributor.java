@@ -41,13 +41,14 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class BallerinaCompletionContributor extends CompletionContributor {
 
     public BallerinaCompletionContributor() {
-        extend(CompletionType.BASIC, isBallerinaNameReference(), new BallerinaReferenceCompletionProvider());
-        extend(CompletionType.BASIC, isBallerinaTypeReference(), new BallerinaReferenceCompletionProvider());
-        extend(CompletionType.BASIC, isBallerinaObjectFunctionReference(), new BallerinaReferenceCompletionProvider());
-        extend(CompletionType.BASIC, isBallerinaObjectFieldReference(), new BallerinaReferenceCompletionProvider());
-        extend(CompletionType.BASIC, isBallerinaFieldReference(), new BallerinaReferenceCompletionProvider());
-        extend(CompletionType.BASIC, isBallerinaInvocationReference(), new BallerinaReferenceCompletionProvider());
-    }
+            extend(CompletionType.BASIC, isBallerinaNameReference(), new BallerinaReferenceCompletionProvider());
+            extend(CompletionType.BASIC, isBallerinaTypeReference(), new BallerinaReferenceCompletionProvider());
+            extend(CompletionType.BASIC, isBallerinaObjectFunctionReference(),
+                    new BallerinaReferenceCompletionProvider());
+            extend(CompletionType.BASIC, isBallerinaObjectFieldReference(), new BallerinaReferenceCompletionProvider());
+            extend(CompletionType.BASIC, isBallerinaFieldReference(), new BallerinaReferenceCompletionProvider());
+            extend(CompletionType.BASIC, isBallerinaInvocationReference(), new BallerinaReferenceCompletionProvider());
+        }
 
     @Override
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {

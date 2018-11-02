@@ -27,7 +27,7 @@ function testErrorLiftingAcessWithoutErrorOnLHS () returns any {
 }
 
 function testFieldAcessWithoutErrorLifting () returns any {
-    error e = {message:"custom error"};
+    error e = error("custom error");
     Info inf = {address1 : e};
     Person prsn = {info1 : inf};
     Person|error p = prsn;
@@ -53,15 +53,6 @@ function testSafeNavigateOnErrorOrNull_1() returns string{
 function testSafeNavigateOnErrorOrNull_3() returns string {
     error e;
     return e!message;
-}
-
-function testUpdatingNullableStructField () returns any {
-    Address adrs = {city:"Colombo"};
-    Info inf = {address2 : adrs};
-    Person prsn = {info2 : inf};
-    Person|() p = prsn;
-    p.info2.address2.city = "Kandy";
-    return p;
 }
 
 type Student record {

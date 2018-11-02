@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -31,13 +32,15 @@ public class WebSocketOpenConnectionInfo {
     private final WebSocketService webSocketService;
     private final BMap<String, BValue> webSocketEndpoint;
     private final WebSocketConnection webSocketConnection;
-    private int closeStatusCode = -1;
+    private String aggregateString = "";
+    private Context context;
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
-                                       BMap<String, BValue> webSocketEndpoint) {
+                                       BMap<String, BValue> webSocketEndpoint, Context context) {
         this.webSocketService = webSocketService;
         this.webSocketConnection = webSocketConnection;
         this.webSocketEndpoint = webSocketEndpoint;
+        this.context = context;
     }
 
     public WebSocketService getService() {
@@ -52,11 +55,19 @@ public class WebSocketOpenConnectionInfo {
         return webSocketConnection;
     }
 
-    public int getCloseStatusCode() {
-        return closeStatusCode;
+    String getAggregateString() {
+        return aggregateString;
     }
 
-    public void setCloseStatusCode(int closeStatusCode) {
-        this.closeStatusCode = closeStatusCode;
+    void appendAggregateString(String aggreageString) {
+        this.aggregateString += aggreageString;
+    }
+
+    void resetAggregateString() {
+        this.aggregateString = "";
+    }
+
+    public Context getContext() {
+        return context;
     }
 }

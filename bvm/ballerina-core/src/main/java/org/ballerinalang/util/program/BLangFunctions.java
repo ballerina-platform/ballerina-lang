@@ -33,12 +33,15 @@ import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -58,6 +61,7 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -125,6 +129,39 @@ public class BLangFunctions {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             invokePackageInitFunction(info.getInitFunctionInfo());
         }
+    }
+
+    /**
+     * This will order the package imports and invoke each package test init function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestInitFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestInitFunctionInfo() != null)
+              .forEach(packageInfo -> invokePackageInitFunction(packageInfo.getTestInitFunctionInfo()));
+    }
+
+    /**
+     * This will order the package imports and invoke each package start function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestStartFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStartFunctionInfo() != null)
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStartFunctionInfo()));
+    }
+
+    /**
+     * This will order the package imports and invoke each package stop function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageTestStopFunctions(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoEntries())
+              .filter(packageInfo -> packageInfo.getTestStopFunctionInfo() != null)
+              .forEach(packageInfo -> BLangFunctions.invokeVMUtilFunction(packageInfo.getTestStopFunctionInfo()));
     }
 
     /**
@@ -257,6 +294,7 @@ public class BLangFunctions {
                 invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
                 resultCtx = parentCtx;
             } else {
+                checkAndHandleInterruptibleCallable(callableUnitInfo, parentCtx);
                 resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
             }
         } else {
@@ -322,7 +360,7 @@ public class BLangFunctions {
             // An error in the context at this point means an unhandled runtime error has propagated
             // all the way up to the entry point. Hence throw a {@link BLangRuntimeException} and
             // terminate the execution.
-            BMap<String, BValue> error = parentCtx.getError();
+            BError error = parentCtx.getError();
             if (error != null) {
                 handleError(parentCtx);
             }
@@ -389,6 +427,7 @@ public class BLangFunctions {
                 nativeCallable.execute(ctx, null);
                 BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
                 checkAndStopCallableObservation(observerContext, flags);
+                BLangScheduler.handleInterruptibleAfterCallback(parentCtx);
                 /* we want the parent to continue, since we got the response of the native call already */
                 return parentCtx;
             } else {
@@ -430,7 +469,7 @@ public class BLangFunctions {
     private static void handleError(WorkerExecutionContext ctx) {
         throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(ctx.getError()));
     }
-
+    
     private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, WorkerExecutionContext parentCtx,
             int[] argRegs, CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi,
             WorkerData initWorkerLocalData, CodeAttributeInfo initWorkerCAI, boolean runInCaller,
@@ -438,7 +477,7 @@ public class BLangFunctions {
         WorkerData workerLocal = BLangVMUtils
                 .createWorkerDataForLocal(workerInfo, parentCtx, argRegs, callableUnitInfo.getParamTypes());
         if (initWorkerLocalData != null) {
-            BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
+            BLangVMUtils.mergeInitWorkerData(initWorkerLocalData, workerLocal, initWorkerCAI);
         }
         WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
@@ -464,7 +503,7 @@ public class BLangFunctions {
     }
     
     private static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
-        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(initFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -477,7 +516,7 @@ public class BLangFunctions {
     }
 
     private static void invokeVMUtilFunction(FunctionInfo utilFuncInfo, WorkerExecutionContext context) {
-        invokeCallable(utilFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(utilFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -491,7 +530,7 @@ public class BLangFunctions {
 
     public static void invokeServiceInitFunction(FunctionInfo initFuncInfo) {
         WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
-        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(initFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -524,7 +563,7 @@ public class BLangFunctions {
         if (forkjoinInfo.isTimeoutAvailable()) {
             long timeout = parentCtx.workerLocal.longRegs[timeoutRegIndex];
             //fork join timeout is in seconds, hence converting to milliseconds
-            AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout * 1000);
+            AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout);
         }
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.workerWaitForResponse(parentCtx);
@@ -606,7 +645,23 @@ public class BLangFunctions {
                 callableUnitInfo.attachedToType.toString(), callableUnitInfo.getName(), parentCtx);
         return observerContext.orElse(null);
     }
-    
+
+    private static void checkAndHandleInterruptibleCallable(CallableUnitInfo callableUnitInfo,
+                                                            WorkerExecutionContext parentCtx) {
+        NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
+        if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
+            InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
+                    = (InterruptibleNativeCallableUnit) nativeCallable;
+            String stateId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
+            if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
+                PersistenceStore.persistState(new State(parentCtx, stateId));
+            }
+            if (interruptibleNativeCallableUnit.persistAfterOperation()) {
+                parentCtx.markAsCheckPointed = true;
+            }
+        }
+    }
+
     /**
      * Callback handler to check for callable response availability.
      */
@@ -620,7 +675,7 @@ public class BLangFunctions {
         }
 
         @Override
-        public void notifyFailure(BMap<String, BValue> error) {
+        public void notifyFailure(BError error) {
             this.check.release();
         }
         

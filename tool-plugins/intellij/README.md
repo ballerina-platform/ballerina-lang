@@ -32,7 +32,8 @@ IntelliJ Platfom.
 | Plugin Version | Platform Version |
 | --- | --- |
 | 0.8.0 - 0.8.2 | IntelliJ IDEA 2016.3+ (Does not support IntelliJ IDEA 2017+)|
-| 0.8.3+ | IntelliJ IDEA 2016.3+ (Supports IntelliJ IDEA 2017+)|
+| 0.8.3 - 0.981.0 | IntelliJ IDEA 2016.3+ (Supports IntelliJ IDEA 2017+)|
+| 0.982.0+ | IntelliJ IDEA 2017.3+|
 
 ## Getting started
 

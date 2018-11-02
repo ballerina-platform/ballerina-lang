@@ -1,5 +1,5 @@
 
-function main(string... args) {
+public function main(string... args) {
     var a = testObjectWithInterface();
 }
 
@@ -19,8 +19,8 @@ public function testObjectWithInterface () returns (int, string) {
 
 type Person object {
 
-    public int age = 10,
-    public string name,
+    public int age = 10;
+    public string name;
 
 
     string month = "february";
@@ -69,6 +69,6 @@ function Person::attachInterface(int add) returns int {
 }
 
 type Foo record {
-    int count,
-    string last,
+    int count;
+    string last;
 };
