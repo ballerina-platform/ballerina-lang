@@ -230,11 +230,11 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 @final public KeepAlive KEEPALIVE_NEVER = "NEVER";
 
 function Listener::init (ServiceEndpointConfiguration c) {
-    match c.authProviders {
-        AuthProvider[] providers => addAuthFiltersForSecureListener(c, self.instanceId);
+    self.config = c;
+    match self.config.authProviders {
+        AuthProvider[] providers => addAuthFiltersForSecureListener(self.config, self.instanceId);
         () => {}
     }
-    self.config = c;
     var err = self.initEndpoint();
     if (err != null) {
         throw err;
@@ -244,6 +244,7 @@ function Listener::init (ServiceEndpointConfiguration c) {
 # Add authn and authz filters
 #
 # + config - `ServiceEndpointConfiguration` instance
+# + instanceId - Endpoint instance id
 function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) {
     // add authentication and authorization filters as the first two filters.
     // if there are any other filters specified, those should be added after the authn and authz filters.
@@ -265,6 +266,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, st
 # Create an array of auth and authz filters.
 #
 # + config - `ServiceEndpointConfiguration` instance
+# + instanceId - Endpoint instance id
 # + return - Array of Filters comprising of authn and authz Filters
 function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) returns (Filter[]) {
     // parse and create authentication handlers
