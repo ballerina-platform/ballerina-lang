@@ -114,6 +114,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public BLangPackage runPlugins(BLangPackage pkgNode) {
         this.defaultPos = pkgNode.pos;
         loadPlugins();
+        // Process the package node for each plugin in the plugin list
+        pluginList.forEach(plugin -> plugin.process(pkgNode));
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -123,14 +125,14 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             return;
         }
 
-        pluginList.forEach(plugin -> plugin.process(pkgNode));
-
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
 
         pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
         pkgNode.getTestablePkgs().forEach(testablePackage -> {
             this.defaultPos = testablePackage.pos;
+            // Process the testable package node for each plugin in the plugin list
+            pluginList.forEach(plugin -> plugin.process(testablePackage));
             visit((BLangPackage) testablePackage);
         });
     }

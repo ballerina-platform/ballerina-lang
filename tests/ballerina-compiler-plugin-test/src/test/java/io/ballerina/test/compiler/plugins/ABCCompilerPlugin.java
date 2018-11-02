@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(PackageNode packageNode) {
+    public void process(BLangPackage packageNode) {
         addEvent(TestEvent.Kind.PKG_NODE, packageNode.toString(), 1);
     }
 
