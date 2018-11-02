@@ -32,6 +32,7 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
 
     public BLangLiteral value;
     public BType actualType;
+    public BType constantType;
 
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(CONSTANT, flags, name, pkgID, type, owner);

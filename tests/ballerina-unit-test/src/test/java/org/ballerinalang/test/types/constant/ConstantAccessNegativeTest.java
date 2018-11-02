@@ -37,7 +37,7 @@ public class ConstantAccessNegativeTest {
         BAssertUtil.validateError(compileResult, 1, "undefined symbol 'address'", 5, 16);
         BAssertUtil.validateError(compileResult, 2, "cannot assign a value to a constant", 7, 5);
         BAssertUtil.validateError(compileResult, 3, "incompatible types: expected 'int', found 'string'", 9, 13);
-        BAssertUtil.validateError(compileResult, 4, "incompatible types: expected 'C|D', found 'A|B'", 11, 13);
-        BAssertUtil.validateError(compileResult, 5, "incompatible types: expected 'string', found 'A|B'", 13, 16);
+        BAssertUtil.validateError(compileResult, 4, "incompatible types: expected 'C|D', found 'A'", 11, 13);
+        BAssertUtil.validateError(compileResult, 5, "incompatible types: expected 'string', found 'A'", 13, 16);
     }
 }

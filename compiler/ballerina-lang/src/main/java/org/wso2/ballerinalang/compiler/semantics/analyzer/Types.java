@@ -237,6 +237,17 @@ public class Types {
             return true;
         }
 
+        if (source.tag == TypeTags.FINITE) {
+            BFiniteType finiteType = (BFiniteType) source;
+            BLangLiteral literal = (BLangLiteral) finiteType.valueSpace.iterator().next();
+            if (target.tag == TypeTags.FINITE) {
+                if (finiteType.valueSpace.size() == 1) {
+                    return isAssignableToFiniteType(target, literal);
+                }
+            }else if(isAssignableToFiniteType(target,literal )){
+
+            }
+        }
         if (target.tag == TypeTags.JSON) {
             if (source.tag == TypeTags.JSON) {
                 return ((BJSONType) target).constraint.tag == TypeTags.NONE;
@@ -885,12 +896,12 @@ public class Types {
             if (isSameType(s, t)) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
             } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) {
-//                TODO: do type checking and fail for obvious incompatible types
-//                if (checkStructToJSONConvertibility(s)) {
-//                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
-//                } else {
-//                    return symTable.notFoundSymbol;
-//                }
+                //                TODO: do type checking and fail for obvious incompatible types
+                //                if (checkStructToJSONConvertibility(s)) {
+                //                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
+                //                } else {
+                //                    return symTable.notFoundSymbol;
+                //                }
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
             } else if (s.tag == TypeTags.JSON) {
                 if (t.constraint.tag == TypeTags.NONE) {
@@ -1165,7 +1176,7 @@ public class Types {
     };
 
     private boolean checkPrivateObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                        List<TypePair> unresolvedTypes) {
+                                                  List<TypePair> unresolvedTypes) {
         for (int fieldCounter = 0; fieldCounter < lhsType.fields.size(); fieldCounter++) {
             BField lhsField = lhsType.fields.get(fieldCounter);
             BField rhsField = rhsType.fields.get(fieldCounter);
@@ -1217,7 +1228,7 @@ public class Types {
     }
 
     private boolean checkPublicObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
-                                                List<TypePair> unresolvedTypes) {
+                                                 List<TypePair> unresolvedTypes) {
         int fieldCounter = 0;
         for (; fieldCounter < lhsType.fields.size(); fieldCounter++) {
             BField lhsField = lhsType.fields.get(fieldCounter);
@@ -1316,7 +1327,7 @@ public class Types {
      * i.e: A variable of the given type can be initialized without a rhs expression.
      * eg: foo x;
      *
-     * @param pos position of the variable.
+     * @param pos  position of the variable.
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */
@@ -1469,7 +1480,7 @@ public class Types {
 
     /**
      * Type vector of size two, to hold the source and the target types.
-     * 
+     *
      * @since 0.982.0
      */
     private static class TypePair {

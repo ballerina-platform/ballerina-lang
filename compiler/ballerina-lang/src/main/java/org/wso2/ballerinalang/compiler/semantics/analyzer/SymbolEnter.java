@@ -207,20 +207,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type definitions.
         this.typePrecedence = 0;
 
-        // Need to define the anonymous type definitions first.
-        List<BLangTypeDefinition> anonymousTypeDefs = pkgNode.typeDefinitions.stream()
-                .filter(def -> def.name.value.startsWith("$"))
-                .collect(Collectors.toList());
-        defineTypeNodes(anonymousTypeDefs, pkgEnv);
+        //        // Need to define the anonymous type definitions first.
+        //        List<BLangTypeDefinition> anonymousTypeDefs = pkgNode.typeDefinitions.stream()
+        //                .filter(def -> def.name.value.startsWith("$"))
+        //                .collect(Collectors.toList());
+        //        defineTypeNodes(anonymousTypeDefs, pkgEnv);
 
         // Define constants.
         pkgNode.constants.forEach(constant -> defineNode(constant, pkgEnv));
 
         // Define named type definitions.
-        List<BLangTypeDefinition> namedTypeDefs = pkgNode.typeDefinitions.stream()
-                .filter(def -> !def.name.value.startsWith("$"))
-                .collect(Collectors.toList());
-        defineTypeNodes(namedTypeDefs, pkgEnv);
+        //        List<BLangTypeDefinition> namedTypeDefs = pkgNode.typeDefinitions.stream()
+        //                .filter(def -> !def.name.value.startsWith("$"))
+        //                .collect(Collectors.toList());
+        defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
 
         resolveConstantTypeNode(pkgNode.constants, pkgEnv);
 
@@ -377,9 +377,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
         for (BLangConstant constant : constants) {
-            // Resolve the type node and update the type of the typeNode.
-            if (constant.typeNode != null) {
-                constant.typeNode.type = symResolver.resolveTypeNode(constant.typeNode, env);
+            // Resolve the type node and update the type of the constantTypeNode.
+            if (constant.constantTypeNode != null && constant.symbol != null) {
+                BType type = symResolver.resolveTypeNode(constant.constantTypeNode, env);
+                constant.constantTypeNode.type = type;
+                constant.symbol.constantType = type;
             }
         }
     }
@@ -689,12 +691,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         constantSymbol.value = (BLangLiteral) constant.value;
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
-        // At this point, all anonymous type definitions are resolved. So set the type of the associatedTypeNode's type
-        // as the type of the constant symbol.
-        constantSymbol.type = constant.associatedTypeNode.type;
+        // Todo - comment
+        defineNode(constant.associatedTypeDefinition, env);
 
-        // Note - constant.typeNode.type will be resolved in a resolveConstantTypeNode() later since at this point we
-        // might not be able to resolve the type properly.
+        // Todo - comment
+        constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+        constant.type = constant.associatedTypeDefinition.symbol.type;
+
+        // Note - constant.constantTypeNode.type will be resolved in a resolveConstantTypeNode() later since at this
+        // point we might not be able to resolve the type properly.
 
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {

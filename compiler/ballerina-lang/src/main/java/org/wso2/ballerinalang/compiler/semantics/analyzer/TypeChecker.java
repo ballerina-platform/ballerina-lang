@@ -556,53 +556,87 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
                 BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
-                if ((expType.tag & TypeTags.FINITE) == TypeTags.FINITE) {
-                    // We need to check whether the value of the constant symbol can be assigned to the expected type.
-                    // Eg -
-                    //
-                    // type ACTION "GET";
-                    // const ACTION GET = "GET";
-                    //
-                    // type ABC "ABC";
-                    // const ABC abc = "ABC";
-                    //
-                    // function test() returns ACTION {
-                    //     ACTION action = abc; // Cannot assign.
-                    //     return action;
-                    // }
-                    if (types.isAssignableToFiniteType(expType, constantSymbol.value)) {
-                        // Even if the value is assignable, the type node can be empty. So in such cases, we need to
-                        // set the implicit cast. Eg -
-                        //
-                        // const constActionWithoutType = "GET";
-                        //
-                        // function test() returns ACTION {
-                        //    ACTION action = constActionWithoutType; // Need to set the implicit cast here.
-                        //    return action;
-                        // }
-                        if (constantSymbol.actualType == null) {
-                            // Set the implicit cast.
-                            types.setImplicitCastExpr(varRefExpr, constantSymbol.value.type, expType);
-                            // Then we need to set the result type as the type of the value so it would get stored in
-                            // the proper registry. The implicit cast will move it among registries if needed.
-                            resultType = constantSymbol.value.type;
-                        } else {
-                            // Set the actual type as the result type.
-                            resultType = constantSymbol.actualType;
-                        }
-                    } else {
-                        // If we cannot assign the value of the symbol to the expected type, need to log an error.
-                        dlog.error(varRefExpr.pos, diagCode, expType, constantSymbol.actualType);
-                    }
-                    return;
+                if (types.isAssignable(constantSymbol.type, expType)) {
+                    actualType = constantSymbol.type;
+                    //                } else if ((expType.tag & TypeTags.FINITE) == TypeTags.FINITE) {
+                    //                    // We need to check whether the value of the constant symbol can be
+                    // assigned to the expected type.
+                    //                    // Eg -
+                    //                    //
+                    //                    // type ACTION "GET";
+                    //                    // const ACTION GET = "GET";
+                    //                    //
+                    //                    // type ABC "ABC";
+                    //                    // const ABC abc = "ABC";
+                    //                    //
+                    //                    // function test() returns ACTION {
+                    //                    //     ACTION action = abc; // Cannot assign.
+                    //                    //     return action;
+                    //                    // }
+                    //                    if (types.isAssignableToFiniteType(expType, constantSymbol.value)) {
+                    //                        // Even if the value is assignable, the type node can be empty. So in
+                    // such cases, we need to
+                    //                        // set the implicit cast. Eg -
+                    //                        //
+                    //                        // const constActionWithoutType = "GET";
+                    //                        //
+                    //                        // function test() returns ACTION {
+                    //                        //    ACTION action = constActionWithoutType; // Need to set the
+                    // implicit cast here.
+                    //                        //    return action;
+                    //                        // }
+                    //                        if (constantSymbol.actualType == null) {
+                    //                            // Set the implicit cast.
+                    //                            types.setImplicitCastExpr(varRefExpr, constantSymbol.value.type,
+                    // expType);
+                    //                            // Then we need to set the result type as the type of the value so
+                    // it would get stored in
+                    //                            // the proper registry. The implicit cast will move it among
+                    // registries if needed.
+                    //                            resultType = constantSymbol.value.type;
+                    //                        } else {
+                    //                            // Set the actual type as the result type.
+                    //                            resultType = constantSymbol.actualType;
+                    //                        }
+                    //                    } else {
+                    //                        // If we cannot assign the value of the symbol to the expected type,
+                    // need to log an error.
+                    //                        dlog.error(varRefExpr.pos, diagCode, expType, constantSymbol.actualType);
+                    //                    }
+                    //                    return;
+                    //                } else if (expType != symTable.noType) {
+                    //                    actualType = constantSymbol.type;
                 } else {
-                    BType type = constantSymbol.actualType;
-                    // If the type is null, this means that the constant was defined without a type node. In such
-                    // cases, set the type of the value as the actual type.
-                    if (type == null) {
-                        type = constantSymbol.value.type;
+                    // const ABC = "ABC";
+                    if (constantSymbol.constantType == null) {
+                        actualType = constantSymbol.type;
+                        //                    } else if (expType == symTable.noType) {
+                        //                        actualType = constantSymbol.type;
+                    } else {
+                        if (constantSymbol.constantType.tag == TypeTags.FINITE) {
+                            actualType = constantSymbol.type;
+                        } else {
+
+
+                            // Eg -
+                            // function testConstInReturn() returns string {
+                            //     return name;
+                            // }
+                            actualType = constantSymbol.value.type;
+                            ////                    BType type = constantSymbol.actualType;
+                            ////                    // If the type is null, this means that the constant was defined
+                            // without a type node. In such
+                            ////                    // cases, set the type of the value as the actual type.
+                            ////                    if (type == null) {
+                            ////                        type = constantSymbol.value.type;
+                            ////                    }
+                            ////                    actualType = type;
+                            //                    actualType = constantSymbol.type;
+                            //                    if((actualType.tag & TypeTags.FINITE) == TypeTags.FINITE){
+                            ////                        types.isAssignable(actualType, )
+                            //                    }
+                        }
                     }
-                    actualType = type;
                 }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());

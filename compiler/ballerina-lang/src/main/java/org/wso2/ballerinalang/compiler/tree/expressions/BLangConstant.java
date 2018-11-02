@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -44,25 +45,27 @@ import java.util.Set;
  */
 public class BLangConstant extends BLangLiteral implements AnnotatableNode, DocumentableNode, TopLevelNode {
 
-    public BLangType typeNode;
+
+    // Type node defined in the constant definition.
+    public BLangType constantTypeNode;
+    public BLangTypeDefinition associatedTypeDefinition;
+
+
     public BLangIdentifier name;
     public Set<Flag> flagSet;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public BConstantSymbol symbol;
-    public BLangType associatedTypeNode;
 
     public BLangConstant() {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.deprecatedAttachments = new ArrayList<>();
     }
 
-    public TypeNode getTypeNode() {
-        return typeNode;
-    }
 
-    public void setTypeNode(TypeNode typeNode) {
-        this.typeNode = (BLangType) typeNode;
+
+    public void setConstantTypeNode(TypeNode constantTypeNode) {
+        this.constantTypeNode  = (BLangType)constantTypeNode;
     }
 
     public IdentifierNode getName() {

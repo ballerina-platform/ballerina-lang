@@ -1466,7 +1466,7 @@ public class BLangPackageBuilder {
         constantNode.setName(name);
         constantNode.addWS(ws);
         if (isTypeAvailable) {
-            constantNode.setTypeNode(this.typeNodeStack.pop());
+            constantNode.setConstantTypeNode(this.typeNodeStack.pop());
         }
         constantNode.setValue(this.exprNodeStack.pop());
         return constantNode;
@@ -1519,12 +1519,11 @@ public class BLangPackageBuilder {
             typeDef.typeNode = finiteTypeNode;
             typeDef.pos = pos;
 
-            // Add the anonymous type definition to top level nodes.
-            this.compUnit.addTopLevelNode(typeDef);
+            // Todo - update
+            constantNode.associatedTypeDefinition = typeDef;
 
-            // Set the type definition's type node as the constant node's associated type node. This is done to get
-            // the corresponding type later in the symbol enter.
-            constantNode.associatedTypeNode = typeDef.typeNode;
+            // Add the anonymous type definition to top level nodes.
+//            this.compUnit.addTopLevelNode(typeDef);
         }
     }
 

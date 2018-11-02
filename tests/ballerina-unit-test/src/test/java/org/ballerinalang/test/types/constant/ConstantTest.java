@@ -155,22 +155,8 @@ public class ConstantTest {
     }
 
     @Test
-    public void testConstWithoutTypeInCondition() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeInCondition");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
     public void testConstWithTypeInCondition() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeInCondition");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testBooleanWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanWithoutType");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
@@ -180,13 +166,6 @@ public class ConstantTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanWithType");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testIntWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntWithoutType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
     }
 
     @Test
@@ -205,24 +184,10 @@ public class ConstantTest {
     }
 
     @Test
-    public void testFloatWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatWithoutType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
-    }
-
-    @Test
     public void testFloatWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFloatWithType");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
-    }
-
-    @Test
-    public void testStringWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringWithoutType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
     }
 
     @Test

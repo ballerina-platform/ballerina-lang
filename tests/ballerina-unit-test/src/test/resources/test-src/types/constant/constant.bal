@@ -1,4 +1,4 @@
-const name = "Ballerina";
+const string name = "Ballerina";
 
 function testConstInReturn() returns string {
     return name;
@@ -116,17 +116,6 @@ function testEqualityWithConstWithType() returns boolean {
 
 // -----------------------------------------------------------
 
-const conditionWithoutType = true;
-
-function testConstWithoutTypeInCondition() returns boolean {
-    if (conditionWithoutType) {
-        return true;
-    }
-    return false;
-}
-
-// -----------------------------------------------------------
-
 const boolean conditionWithType = true;
 
 function testConstWithTypeInCondition() returns boolean {
@@ -138,12 +127,6 @@ function testConstWithTypeInCondition() returns boolean {
 
 // -----------------------------------------------------------
 
-const booleanWithoutType = true;
-
-function testBooleanWithoutType() returns boolean {
-    return booleanWithoutType;
-}
-
 const boolean booleanWithType = false;
 
 function testBooleanWithType() returns boolean {
@@ -151,12 +134,6 @@ function testBooleanWithType() returns boolean {
 }
 
 // -----------------------------------------------------------
-
-const intWithoutType = 20;
-
-function testIntWithoutType() returns int {
-    return intWithoutType;
-}
 
 const int intWithType = 40;
 
@@ -166,15 +143,6 @@ function testIntWithType() returns int {
 
 // -----------------------------------------------------------
 
-// Note - We need to explicitly define bytes with the type node. Otherwise it will be considered as an int. So the
-// below example is invalid.
-//
-// const byteWithoutType = 120;
-//
-// function testByteWithoutType() returns byte {
-//     return byteWithoutType;
-// }
-
 const byte byteWithType = 240;
 
 function testByteWithType() returns byte {
@@ -183,12 +151,6 @@ function testByteWithType() returns byte {
 
 // -----------------------------------------------------------
 
-const floatWithoutType = 2.0;
-
-function testFloatWithoutType() returns float {
-    return floatWithoutType;
-}
-
 const float floatWithType = 4.0;
 
 function testFloatWithType() returns float {
@@ -196,12 +158,6 @@ function testFloatWithType() returns float {
 }
 
 // -----------------------------------------------------------
-
-const stringWithoutType = "Ballerina rocks";
-
-function testStringWithoutType() returns string {
-    return stringWithoutType;
-}
 
 const string stringWithType = "Ballerina is awesome";
 
