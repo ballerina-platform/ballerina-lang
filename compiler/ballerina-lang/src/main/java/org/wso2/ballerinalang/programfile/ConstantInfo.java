@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
 
@@ -33,13 +32,15 @@ public class ConstantInfo implements AttributeInfoPool {
 
     public int nameCPIndex;
     public int actualTypeCPIndex;
+    public int typeNodeTypeCPIndex;
     public int flags;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex,int actualTypeCPIndex, int flags) {
+    public ConstantInfo(int nameCPIndex, int actualTypeCPIndex, int typeNodeTypeCPIndex, int flags) {
         this.nameCPIndex = nameCPIndex;
         this.actualTypeCPIndex = actualTypeCPIndex;
+        this.typeNodeTypeCPIndex = typeNodeTypeCPIndex;
         this.flags = flags;
     }
 

@@ -377,11 +377,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
         for (BLangConstant constant : constants) {
-            // Resolve the type node and update the type of the constantTypeNode.
-            if (constant.constantTypeNode != null && constant.symbol != null) {
-                BType type = symResolver.resolveTypeNode(constant.constantTypeNode, env);
-                constant.constantTypeNode.type = type;
-                constant.symbol.constantType = type;
+            // Resolve the type node and update the type of the typeNode.
+            if (constant.typeNode != null && constant.symbol != null) {
+                BType type = symResolver.resolveTypeNode(constant.typeNode, env);
+                constant.typeNode.type = type;
+                constant.symbol.typeNodeType = type;
             }
         }
     }
@@ -698,7 +698,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
         constant.type = constant.associatedTypeDefinition.symbol.type;
 
-        // Note - constant.constantTypeNode.type will be resolved in a resolveConstantTypeNode() later since at this
+        // Note - constant.typeNode.type will be resolved in a resolveConstantTypeNode() later since at this
         // point we might not be able to resolve the type properly.
 
         // Add the symbol to the enclosing scope.

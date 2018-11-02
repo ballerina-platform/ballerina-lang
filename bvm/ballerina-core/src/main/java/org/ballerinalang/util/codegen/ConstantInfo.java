@@ -32,17 +32,22 @@ import java.util.Map;
 public class ConstantInfo implements AttributeInfoPool {
 
     private int nameCPIndex;
-    private int actualTypeCPIndex;
     private String name;
+    private int actualTypeCPIndex;
     private BType actualType;
+    private int typeNodeTypeCPIndex;
+    private BType typeNodeType;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, String name, int actualTypeCPIndex, BType actualType) {
+    public ConstantInfo(int nameCPIndex, String name, int actualTypeCPIndex, BType actualType,
+                        int typeNodeTypeCPIndex, BType typeNodeType) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
         this.actualTypeCPIndex = actualTypeCPIndex;
         this.actualType = actualType;
+        this.typeNodeTypeCPIndex = typeNodeTypeCPIndex;
+        this.typeNodeType = typeNodeType;
     }
 
     public int getNameCPIndex() {
@@ -55,6 +60,14 @@ public class ConstantInfo implements AttributeInfoPool {
 
     public BType getActualType() {
         return actualType;
+    }
+
+    public int getTypeNodeTypeCPIndex() {
+        return typeNodeTypeCPIndex;
+    }
+
+    public BType getTypeNodeType() {
+        return typeNodeType;
     }
 
     public String getName() {

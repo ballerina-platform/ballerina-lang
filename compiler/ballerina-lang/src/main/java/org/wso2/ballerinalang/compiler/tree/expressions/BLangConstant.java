@@ -45,27 +45,24 @@ import java.util.Set;
  */
 public class BLangConstant extends BLangLiteral implements AnnotatableNode, DocumentableNode, TopLevelNode {
 
-
-    // Type node defined in the constant definition.
-    public BLangType constantTypeNode;
-    public BLangTypeDefinition associatedTypeDefinition;
-
-
     public BLangIdentifier name;
     public Set<Flag> flagSet;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public BConstantSymbol symbol;
 
+    // Type node defined in the constant definition.
+    public BLangType typeNode;
+    // Type definition associated with this constant.
+    public BLangTypeDefinition associatedTypeDefinition;
+
     public BLangConstant() {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.deprecatedAttachments = new ArrayList<>();
     }
 
-
-
-    public void setConstantTypeNode(TypeNode constantTypeNode) {
-        this.constantTypeNode  = (BLangType)constantTypeNode;
+    public void setTypeNode(TypeNode typeNode) {
+        this.typeNode = (BLangType) typeNode;
     }
 
     public IdentifierNode getName() {

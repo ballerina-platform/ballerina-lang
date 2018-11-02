@@ -608,12 +608,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     //                    actualType = constantSymbol.type;
                 } else {
                     // const ABC = "ABC";
-                    if (constantSymbol.constantType == null) {
+                    if (constantSymbol.typeNodeType == null) {
                         actualType = constantSymbol.type;
                         //                    } else if (expType == symTable.noType) {
                         //                        actualType = constantSymbol.type;
                     } else {
-                        if (constantSymbol.constantType.tag == TypeTags.FINITE) {
+                        if (constantSymbol.typeNodeType.tag == TypeTags.FINITE) {
                             actualType = constantSymbol.type;
                         } else {
 

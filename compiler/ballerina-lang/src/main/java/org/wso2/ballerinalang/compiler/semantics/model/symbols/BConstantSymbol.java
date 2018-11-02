@@ -30,9 +30,12 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.CON
  */
 public class BConstantSymbol extends BSymbol implements ConstantSymbol {
 
+    // Value of the constant.
     public BLangLiteral value;
+    // Actual finite type of the constant.
     public BType actualType;
-    public BType constantType;
+    // User defined type (type node) of the constant.
+    public BType typeNodeType;
 
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(CONSTANT, flags, name, pkgID, type, owner);

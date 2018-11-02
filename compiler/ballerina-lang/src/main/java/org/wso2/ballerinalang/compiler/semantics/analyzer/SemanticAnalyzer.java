@@ -1514,10 +1514,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BLangLiteral value = (BLangLiteral) constant.value;
 
-        BLangType typeNode = constant.constantTypeNode;
+        BLangType typeNode = constant.typeNode;
 
-        if (constant.constantTypeNode != null) {
-            types.isAssignable(constant.type, constant.constantTypeNode.type);
+        if (constant.typeNode != null) {
+            types.isAssignable(constant.type, constant.typeNode.type);
             typeChecker.checkExpr(value, env, typeNode.type);
         } else {
             // We don't have any expected type in this case since the type node is not available.

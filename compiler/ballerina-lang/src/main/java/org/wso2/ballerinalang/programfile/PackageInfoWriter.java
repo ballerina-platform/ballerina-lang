@@ -226,11 +226,15 @@ public class PackageInfoWriter {
     // Private methods
 
     private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
-                                                  ConstantInfo[] constantInfos) throws IOException {
+                                                 ConstantInfo[] constantInfos) throws IOException {
         dataOutStream.writeShort(constantInfos.length);
         for (ConstantInfo constantInfo : constantInfos) {
             dataOutStream.writeInt(constantInfo.nameCPIndex);
             dataOutStream.writeInt(constantInfo.actualTypeCPIndex);
+            dataOutStream.writeBoolean(constantInfo.typeNodeTypeCPIndex != -1);
+            if (constantInfo.typeNodeTypeCPIndex != -1) {
+                dataOutStream.writeInt(constantInfo.typeNodeTypeCPIndex);
+            }
             dataOutStream.writeInt(constantInfo.flags);
             writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
         }

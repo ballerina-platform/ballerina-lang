@@ -630,15 +630,27 @@ public class PackageInfoReader {
         int actualTypeSigCPIndex = dataInStream.readInt();
         UTF8CPEntry actualTypeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(actualTypeSigCPIndex);
 
+        boolean typeNodeTypeAvailable = dataInStream.readBoolean();
+
+        // Read actual type;
+        int typeNodeTypeCPIndex = -1;
+        BType typeNodeType = null;
+        if (typeNodeTypeAvailable) {
+            typeNodeTypeCPIndex = dataInStream.readInt();
+            UTF8CPEntry typeNodeTypeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(actualTypeSigCPIndex);
+            typeNodeType = getBTypeFromDescriptor(packageInfo, typeNodeTypeSigUTF8CPEntry.getValue());
+        }
+
         // Read and ignore flags.
         dataInStream.readInt();
 
-        // Get the type.
+        // Get the actual type.
         BType actualType = getBTypeFromDescriptor(packageInfo, actualTypeSigUTF8CPEntry.getValue());
+        // Get the type node's type.
 
         // Create a new constant info.
         ConstantInfo constantInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue(), actualTypeSigCPIndex,
-                actualType);
+                actualType, typeNodeTypeCPIndex, typeNodeType);
 
         // Read attributes.
         readAttributeInfoEntries(packageInfo, constantPool, constantInfo);

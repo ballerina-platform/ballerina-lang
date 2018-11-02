@@ -1466,7 +1466,7 @@ public class BLangPackageBuilder {
         constantNode.setName(name);
         constantNode.addWS(ws);
         if (isTypeAvailable) {
-            constantNode.setConstantTypeNode(this.typeNodeStack.pop());
+            constantNode.setTypeNode(this.typeNodeStack.pop());
         }
         constantNode.setValue(this.exprNodeStack.pop());
         return constantNode;

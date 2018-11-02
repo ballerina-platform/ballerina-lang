@@ -652,16 +652,25 @@ public class CompiledPackageSymbolEnter {
     private void defineConstants(DataInputStream dataInStream) throws IOException {
         String constantName = getUTF8CPEntryValue(dataInStream);
         String actualTypeSig = getUTF8CPEntryValue(dataInStream);
+        BType actualType = getBTypeFromDescriptor(actualTypeSig);
+
+        boolean typeNodeTypeAvailable = dataInStream.readBoolean();
+
+        BType typeNodeType = null;
+        if (typeNodeTypeAvailable) {
+            String typeNodeTypeSig = getUTF8CPEntryValue(dataInStream);
+            typeNodeType = getBTypeFromDescriptor(typeNodeTypeSig);
+        }
 
         int flags = dataInStream.readInt();
-
-        BType actualType = getBTypeFromDescriptor(actualTypeSig);
 
         // Create constant symbol.
         Scope enclScope = this.env.pkgSymbol.scope;
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
                 this.env.pkgSymbol.pkgID, null, enclScope.owner);
         constantSymbol.type = actualType;
+        constantSymbol.typeNodeType = typeNodeType;
+
         enclScope.define(constantSymbol.name, constantSymbol);
 
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
