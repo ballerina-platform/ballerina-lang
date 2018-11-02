@@ -67,4 +67,26 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
+
+    @Test(description = "Authn and authz success test case for a request with path parameters")
+    public void testAuthSuccessWithPathParameter() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        headers.put("Authorization", "Basic aXN1cnU6eHh4");
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo/path/1"),
+                headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Authn and authz failure test case for a request with path parameters")
+    public void testAuthFailureWithPathParameter() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo/path/1"),
+                headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+    }
 }

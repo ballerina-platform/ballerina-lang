@@ -16,11 +16,12 @@
  *  under the License.
  */
 
+package org.ballerinalang.test.auth;
 
-package org.ballerinalang.test.securelistener;
-
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -28,16 +29,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for verifying no token propagation scenario.
+ * Test cases for verifying wrong auth provider for a service.
  */
-@Test(groups = "secure-listener-test")
-public class NoTokenPropagationTest extends SecureListenerBaseTest {
+@Test(groups = "auth-test")
+public class SecureClientWrongAuthProviderTest extends AuthBaseTest {
 
-    @Test(description = "No JWT Token propagation, authn failure test")
-    public void testTokenPropagationSuccess() throws Exception {
+    @Test(description = "Authn failure with wrong auth provider")
+    public void testAuthSuccess() throws Exception {
         Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9090, "passthrough"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9194, "echo/test"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }

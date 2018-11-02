@@ -1,32 +1,38 @@
-
-
 import ballerina/http;
 
-// token propagation is set to false by default
-http:AuthProvider basicAuthProvider = {
+http:AuthProvider basicAuthProvider11 = {
     scheme:"basic",
-    authStoreProvider:"config"
+    authStoreProvider:"config",
+    propagateJwt: true,
+    issuer:"ballerina",
+    keyAlias:"ballerina",
+    keyPassword:"ballerina",
+    keyStore:
+    {
+        path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+        password:"ballerina"
+    }
 };
 
-endpoint http:Listener listener {
-    port:9090,
-    authProviders:[basicAuthProvider]
+endpoint http:Listener listener11 {
+    port:9192,
+    authProviders:[basicAuthProvider11]
 };
 
-// client will not propagate JWT
-endpoint http:Client nyseEP {
-    url: "http://localhost:9092"
+endpoint http:Client nyseEP03 {
+    url: "http://localhost:9193",
+    auth: {scheme: "JWT"}
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}
-service<http:Service> passthroughService bind listener {
+service<http:Service> passthroughService03 bind listener11 {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
     passthrough (endpoint caller, http:Request clientRequest) {
-        var response = nyseEP -> get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP03 -> get("/nyseStock/stocks", message = untaint clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);
@@ -41,7 +47,7 @@ service<http:Service> passthroughService bind listener {
     }
 }
 
-http:AuthProvider jwtAuthProvider = {
+http:AuthProvider jwtAuthProvider03 = {
     scheme: "jwt",
     issuer: "ballerina",
     audience: "ballerina",
@@ -52,13 +58,13 @@ http:AuthProvider jwtAuthProvider = {
     }
 };
 
-endpoint http:Listener listener1 {
-    port:9092,
-    authProviders:[jwtAuthProvider]
+endpoint http:Listener listener2 {
+    port:9193,
+    authProviders:[jwtAuthProvider03]
 };
 
 @http:ServiceConfig {basePath:"/nyseStock"}
-service<http:Service> nyseStockQuote bind listener1 {
+service<http:Service> nyseStockQuote03 bind listener2 {
 
     @http:ResourceConfig {
         methods:["GET"],

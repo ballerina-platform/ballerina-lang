@@ -7,7 +7,7 @@ http:AuthProvider basicAuthProvider03 = {
     authStoreProvider:"config"
 };
 
-endpoint http:Listener listener02 {
+endpoint http:Listener listener03 {
     port:9092,
     authProviders:[basicAuthProvider03]
 };
@@ -19,7 +19,7 @@ endpoint http:Listener listener02 {
         scopes:["xxx"]
     }
 }
-service<http:Service> echo02 bind listener02 {
+service<http:Service> echo03 bind listener03 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test",
