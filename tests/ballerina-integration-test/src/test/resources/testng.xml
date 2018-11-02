@@ -56,6 +56,7 @@
             <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
         </classes>
     </test>
 
