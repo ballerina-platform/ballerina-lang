@@ -222,6 +222,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
         defineTypeNodes(namedTypeDefs, pkgEnv);
 
+        resolveConstantTypeNode(pkgNode.constants, pkgEnv);
+
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
         pkgEnv.logErrors = true;
@@ -371,6 +373,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
+    }
+
+    private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
+        for (BLangConstant constant : constants) {
+            // Resolve the type node and update the type of the typeNode.
+            if (constant.typeNode != null) {
+                constant.typeNode.type = symResolver.resolveTypeNode(constant.typeNode, env);
+            }
+        }
     }
 
     @Override
@@ -682,8 +693,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // as the type of the constant symbol.
         constantSymbol.type = constant.associatedTypeNode.type;
 
-        // Note - constant.typeNode.type will be resolved in the semantic analyzer since we might not be able to
-        // resolve the type properly at this point.
+        // Note - constant.typeNode.type will be resolved in a resolveConstantTypeNode() later since at this point we
+        // might not be able to resolve the type properly.
 
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {

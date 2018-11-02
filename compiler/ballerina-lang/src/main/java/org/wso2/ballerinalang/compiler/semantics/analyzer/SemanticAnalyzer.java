@@ -1520,8 +1520,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeChecker.checkExpr(value, env);
             return;
         }
-        // Resolve the type node and update the type of the typeNode.
-        typeNode.type = symResolver.resolveTypeNode(typeNode, env);
 
         // Set the actual type. This is needed later in the typeChecker when we visit BLangSimpleVarRef.
         constant.symbol.actualType = typeNode.type;
