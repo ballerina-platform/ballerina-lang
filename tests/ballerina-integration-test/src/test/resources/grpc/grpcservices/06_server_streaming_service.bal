@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for server streaming scenario
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 // Server endpoint configuration
 endpoint grpc:Listener ep99 {
@@ -31,7 +31,11 @@ service HelloWorld45 bind ep99 {
         string[] greets = ["Hi", "Hey", "GM"];
         foreach greet in greets {
             error? err = caller->send(greet + " " + name);
-            io:println(err.message but { () => ("send reply: " + greet + " " + name) });
+            if (err is error) {
+                io:println("Error from Connector: " + err.reason());
+            } else {
+                io:println("send reply: " + greet + " " + name);
+            }
         }
         // Once all messages are sent, server send complete message to notify the client, I’m done.
         _ = caller->complete();

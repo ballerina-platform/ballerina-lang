@@ -19,6 +19,9 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * BError value.
  *
@@ -29,12 +32,14 @@ public class BError implements BRefType {
     BType type;
     public String reason;
     public BRefType details;
-    public BMap<String, BValue> stackElement;
+    public List<BMap<String, BValue>> callStack;
+    public BError cause;
 
     public BError(BType type, String reason, BRefType details) {
         this.type = type;
         this.reason = reason;
         this.details = details;
+        callStack = new ArrayList<>();
     }
 
     @Override

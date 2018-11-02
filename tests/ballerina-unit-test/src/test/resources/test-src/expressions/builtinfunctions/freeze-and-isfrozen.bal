@@ -69,7 +69,7 @@ function testIsFrozenOnStructuralTypes() returns (boolean, boolean) {
     xml x = xml `<bookItem>The Lost World</bookItem>`;
 
     table<Employee> empTable = table {
-        { primarykey id, name },
+        { key id, name },
         [
             { 1, "Mary" },
             { 2, "John" },
@@ -299,7 +299,7 @@ function testFrozenInnerRecordUpdate() {
 
 function testFrozenTableAddition() {
     table<Employee> empTable = table {
-        { primarykey id, name },
+        { key id, name },
         [
             { 1, "Mary" },
             { 2, "John" },
@@ -313,7 +313,7 @@ function testFrozenTableAddition() {
 
 function testFrozenTableRemoval() {
     table<Employee> empTable = table {
-        { primarykey id, name },
+        { key id, name },
         [
             { 1, "Mary" },
             { 2, "John" },

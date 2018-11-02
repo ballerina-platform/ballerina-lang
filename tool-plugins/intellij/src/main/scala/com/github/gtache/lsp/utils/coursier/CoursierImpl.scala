@@ -2,7 +2,7 @@ package com.github.gtache.lsp.utils.coursier
 
 import java.io.File
 
-import com.github.gtache.lsp.settings.LSPState
+import com.github.gtache.lsp.settings.BallerinaLSPState
 import com.github.gtache.lsp.utils.{ApplicationUtils, Utils}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.Messages
@@ -75,7 +75,7 @@ object CoursierImpl {
 
   private def getAdditionalRepositories: Iterable[Repository] = {
     import scala.collection.JavaConverters._
-    val repos = LSPState.getInstance().coursierResolvers.asScala
+    val repos = BallerinaLSPState.getInstance().coursierResolvers.asScala
     if (!checkRepositories(repos, showErrorMessage = false)) {
       ApplicationUtils.invokeLater(() => Messages.showErrorDialog("Malformed Coursier repositories, please check LSP settings", "Coursier error"))
       Seq()

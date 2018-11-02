@@ -21,6 +21,9 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.SQLDBUtils;
+import org.ballerinalang.test.util.SQLDBUtils.DBType;
+import org.ballerinalang.test.util.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinalang.test.util.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,7 +33,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +41,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Integration test for observability of metrics.
@@ -47,7 +48,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class MetricsTestCase extends BaseTest {
     private static BServerInstance serverInstance;
 
-    private SQLDBUtils.SqlServer sqlServer;
+    private TestDatabase sqlServer;
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "metrics" + File.separator;
     private static final String DB_NAME = "TEST_DB";
@@ -56,12 +57,9 @@ public class MetricsTestCase extends BaseTest {
     @BeforeClass
     private void setup() throws Exception {
         serverInstance = new BServerInstance(balServer);
-        Files.copy(new File(System.getProperty("hsqldb.jar")).toPath(), new File(serverInstance.getServerHome() +
-                        File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
-                REPLACE_EXISTING);
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability" +
-                File.separator + "metrics" + File.separator + "data.sql");
+        sqlServer = new FileBasedTestDatabase(DBType.H2,
+                "observability" + File.separator + "metrics" + File.separator + "data.sql", SQLDBUtils.DB_DIRECTORY,
+                DB_NAME);
         String balFile = new File(RESOURCE_LOCATION + "metrics-test.bal").getAbsolutePath();
         List<String> args = new ArrayList<>();
         args.add("--observe");

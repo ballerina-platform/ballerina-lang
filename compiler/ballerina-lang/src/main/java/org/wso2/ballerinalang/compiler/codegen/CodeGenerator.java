@@ -1243,13 +1243,16 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBuiltInMethodInvocation iExpr) {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
-
         switch (iExpr.builtInMethod) {
             case REASON:
                 emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
                 break;
             case DETAIL:
                 emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+                break;
+            case LENGTH:
+                Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
+                emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
                 break;
             case FREEZE:
                 emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
@@ -1380,8 +1383,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int fromIP = nextIP();
         genNode(trapExpr.expr, env);
-        int toIP = nextIP();
         RegIndex regIndex = calcAndGetExprRegIndex(trapExpr);
+        emit(InstructionCodes.RMOVE, trapExpr.expr.regIndex, regIndex);
+        int toIP = nextIP();
         errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP, toIP, regIndex));
     }
 

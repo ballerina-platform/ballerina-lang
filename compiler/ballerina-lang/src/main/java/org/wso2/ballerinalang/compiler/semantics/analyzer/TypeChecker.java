@@ -694,10 +694,12 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
-        if (BLangBuiltInMethod.UNDEFINED != builtInFunction) {
-            checkBuiltinFunctionInvocation(iExpr, builtInFunction, exprType);
+        //Returns if the function is a builtin function
+        if (BLangBuiltInMethod.UNDEFINED != builtInFunction && checkBuiltinFunctionInvocation(iExpr, builtInFunction,
+                                                                                              exprType)) {
             return;
         }
+
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
             return;
@@ -875,6 +877,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(trapExpr, actualType, expType);
+        if (resultType != null && resultType != symTable.semanticError) {
+            types.setImplicitCastExpr(trapExpr.expr, trapExpr.expr.type, resultType);
+        }
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -1544,6 +1549,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;
         }
@@ -1763,7 +1769,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
+    private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
+        boolean isValidBuiltinFunc = false;
         switch (function) {
             case REASON:
             case DETAIL:
@@ -1774,22 +1781,43 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
                     resultType = symTable.semanticError;
                 }
+                isValidBuiltinFunc = true;
+                break;
+            case IS_NAN:
+            case IS_INFINITE:
+            case IS_FINITE:
+                if (type.tag == TypeTags.FLOAT) {
+                    handleBuiltInFunctions(iExpr, symTable.booleanType);
+                } else {
+                    dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
+                    resultType = symTable.semanticError;
+                }
+                isValidBuiltinFunc = true;
+                break;
+            case LENGTH:
+                if (isValidTypeForLength(type.tag)) {
+                    handleBuiltInFunctions(iExpr, symTable.intType);
+                    isValidBuiltinFunc = true;
+                }
                 break;
             case FREEZE:
-                handleFreezeFunction(iExpr, function, type);
+                isValidBuiltinFunc = isValidFreezeFunction(iExpr, BLangBuiltInMethod.FREEZE, type);
                 break;
             case IS_FROZEN:
-                handleIsFrozenFunction(iExpr, function, type);
+                isValidBuiltinFunc = isValidIsFrozenFunction(iExpr, BLangBuiltInMethod.FREEZE, type);
                 break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
-                return;
+                isValidBuiltinFunc = true;
         }
-        iExpr.builtinMethodInvocation = true;
-        iExpr.builtInMethod = function;
-        if (resultType != null && resultType != symTable.semanticError) {
-            types.setImplicitCastExpr(iExpr, resultType, expType);
+        if (isValidBuiltinFunc) {
+            iExpr.builtinMethodInvocation = true;
+            iExpr.builtInMethod = function;
+            if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
+                types.setImplicitCastExpr(iExpr, resultType, expType);
+            }
         }
+        return isValidBuiltinFunc;
     }
 
     private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function,
@@ -1804,23 +1832,48 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void handleFreezeFunction(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
+    private void handleBuiltInFunctions(BLangInvocation iExpr, BType actualType) {
+        if (iExpr.argExprs.size() > 0) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name);
+        }
+        resultType = types.checkType(iExpr, actualType, expType);
+    }
+
+    private boolean isValidTypeForLength(int typeTag) {
+        switch (typeTag) {
+            case TypeTags.ARRAY:
+            case TypeTags.JSON:
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+            case TypeTags.TABLE:
+            case TypeTags.TUPLE:
+            case TypeTags.XML:
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isValidFreezeFunction(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
         if (iExpr.argExprs.size() > 0) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+            return false;
         }
 
         // TODO: 10/25/18 fail if the type would not be anydata
         // TODO: 10/25/18 if the type is not a sub-type of anydata, set type|error as the result type
         resultType = type;
+        return true;
     }
 
-    private void handleIsFrozenFunction(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
+    private boolean isValidIsFrozenFunction(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
         if (iExpr.argExprs.size() > 0) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+            return false;
         }
 
         // TODO: 10/25/18 fail if the type would not be a structured basic type
         resultType = symTable.booleanType;
+        return true;
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
