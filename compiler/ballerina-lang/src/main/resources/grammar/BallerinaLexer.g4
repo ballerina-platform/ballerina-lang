@@ -133,7 +133,6 @@ IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
 START       : 'start' ;
-AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
@@ -143,7 +142,7 @@ COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 FLUSH       : 'flush' ;
-WAIT        : 'wait' ;
+WAIT        : 'await' ;
 
 // Separators
 
