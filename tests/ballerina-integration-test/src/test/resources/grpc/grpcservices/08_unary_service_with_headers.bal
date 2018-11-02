@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for unary blocking/unblocking scenario
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 // Server endpoint configuration
 endpoint grpc:Listener ep101 {
@@ -38,8 +38,11 @@ service HelloWorld101 bind ep101 {
             io:println(headers.getAll("x-id"));
         }
         error? err = caller->send(message, headers = headers);
-        string msg = "Server send response : " + message;
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Server send response : " + message);
+        }
         _ = caller->complete();
     }
 }

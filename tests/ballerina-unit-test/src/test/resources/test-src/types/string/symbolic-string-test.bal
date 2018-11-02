@@ -123,7 +123,7 @@ function stringValueOf() returns (string) {
     return <string>(s);
 }
 
-function length() returns (int) {
+function lengthOfStr() returns (int) {
     string s = 'HelloWorld;
     return s.length();
 }

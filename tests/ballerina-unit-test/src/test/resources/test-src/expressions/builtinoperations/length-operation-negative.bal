@@ -13,18 +13,21 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/grpc;
 
-endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
+type Person object {
+    public int age;
+    public string firstName;
+    public string lastName;
+
+    new(age, firstName, lastName) {}
 };
 
-service HelloWorld bind ep {
-    invalidReqType(endpoint caller, string? name) {
-        string input = name but {() => ""};
-        string message = "Hello " + input;
-        error? err = caller->send(message);
-        _ = caller->complete();
-    }
+function assignLengthToInvalidType() {
+    int [] intArr = [1, 2];
+    string length = intArr.length();
+}
+
+function invokeLengthOnObject() {
+    Person p1 = new(5, "John", "Doe");
+    int length = p1.length();
 }

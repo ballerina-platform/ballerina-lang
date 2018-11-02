@@ -32,7 +32,7 @@ function testByteArray() returns (string) {
             return "byte array works";
         }
         error err => {
-            return "Error from Connector: " + err.message;
+            return "Error from Connector: " + err.reason();
         }
     }
 }

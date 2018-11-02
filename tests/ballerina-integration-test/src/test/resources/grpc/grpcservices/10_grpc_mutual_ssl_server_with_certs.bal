@@ -13,10 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina/config;
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/log;
 
 endpoint grpc:Listener grpcListenerEp {
     host:"localhost",
@@ -31,10 +30,14 @@ endpoint grpc:Listener grpcListenerEp {
 
 service grpcMutualSslService bind grpcListenerEp {
     hello(endpoint caller, string name) {
-        io:println("name: " + name);
+        log:printInfo("name: " + name);
         string message = "Hello " + name;
         error? err = caller->send(message);
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            log:printError(err.reason(), err = err);
+        } else {
+            log:printInfo("Server send response : " + message);
+        }
         _ = caller->complete();
     }
 }
