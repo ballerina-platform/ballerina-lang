@@ -99,22 +99,6 @@ service<http:Service> test bind mockEP {
     }
     multipart5 (endpoint caller, http:Request request) {
         http:Response response = new;
-        //match request.getBodyParts() {
-        //    error err => {
-        //        setErrorResponse(response, err);
-        //    }
-        //    mime:Entity[] bodyParts => {
-        //        string content = "";
-        //        int i = 0;
-        //        while (i < lengthof bodyParts) {
-        //            mime:Entity part = bodyParts[i];
-        //            content = content + " -- " + handleContent(part);
-        //            i = i + 1;
-        //        }
-        //        response.setTextPayload(untaint content);
-        //    }
-        //}
-
         var bodyParts = request.getBodyParts();
 
         if (bodyParts is mime:Entity[]) {
@@ -136,13 +120,12 @@ service<http:Service> test bind mockEP {
     }
     multipart6 (endpoint caller, http:Request request) {
         http:Response response = new;
-        match (request.getBodyParts()) {
-            error err => {
-                response.setPayload(untaint <string>err.detail().message);
-            }
-            mime:Entity[] entity => {
-                response.setPayload("Body parts detected!");
-            }
+        var bodyParts = request.getBodyParts();
+
+        if (bodyParts is mime:Entity[]) {
+            response.setPayload("Body parts detected!");
+        } else if (bodyParts is error) {
+            response.setPayload(untaint <string>bodyParts.detail().message);
         }
         _ = caller -> respond(response);
     }
@@ -153,20 +136,17 @@ service<http:Service> test bind mockEP {
     }
     multipart7 (endpoint caller, http:Request request) {
         http:Response response = new;
-        match request.getBodyParts() {
-            error err => {
-                setErrorResponse(response, err);
+        var bodyParts = request.getBodyParts();
+
+        if (bodyParts is mime:Entity[]) {
+            string payload = "";
+            int i = 0;
+            while (i < lengthof bodyParts) {
+                mime:Entity part = bodyParts[i];
+                payload = handleNestedParts(part);
+                i = i + 1;
             }
-            mime:Entity[] bodyParts => {
-                string payload = "";
-                int i = 0;
-                while (i < lengthof bodyParts) {
-                    mime:Entity part = bodyParts[i];
-                    payload = handleNestedParts(part);
-                    i = i + 1;
-                }
-                response.setTextPayload(untaint payload);
-            }
+            response.setTextPayload(untaint payload);
         }
         _ = caller -> respond(untaint response);
     }
@@ -176,18 +156,16 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
     string content = "";
     string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
-        match parentPart.getBodyParts() {
-            error err => {
-                return "Error decoding nested parts";
-            }
-            mime:Entity[] childParts => {
+        var childParts = parentPart.getBodyParts();
+        if (childParts is mime:Entity[]) {
             int i = 0;
-                while (i < lengthof childParts) {
-                    mime:Entity childPart = childParts[i];
-                    content = content + handleContent(childPart);
-                    i = i + 1;
-                }
+            while (i < lengthof childParts) {
+                mime:Entity childPart = childParts[i];
+                content = content + handleContent(childPart);
+                i = i + 1;
             }
+        } else if (childParts is error) {
+            return "Error decoding nested parts";
         }
     }
     return content;
@@ -198,30 +176,32 @@ function handleContent (mime:Entity bodyPart) returns (string) {
     string baseType = mediaType.getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         var payload = bodyPart.getXml();
-        match payload {
-            error err => return "Error in getting xml payload";
-            xml xmlContent => return xmlContent.getTextValue();
+        if (payload is xml) {
+            return payload.getTextValue();
+        } else if (payload is error) {
+            return "Error in getting xml payload";
         }
     } else if (mime:APPLICATION_JSON == baseType) {
         var payload = bodyPart.getJson();
-        match payload {
-            error err => return "Error in getting json payload";
-            json jsonContent => {
-               return extractFieldValue(jsonContent.bodyPart);
-            }
+        if (payload is json) {
+            return extractFieldValue(payload.bodyPart);
+        } else if (payload is error) {
+            return "Error in getting json payload";
         }
     } else if (mime:TEXT_PLAIN == baseType) {
         var payload = bodyPart.getText();
-        match payload {
-            error err => return "Error in getting string payload";
-            string textContent => return textContent;
+        if (payload is string) {
+            return payload;
+        } else if (payload is error) {
+            return "Error in getting string payload";
         }
     } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
         var payload = bodyPart.getByteArray();
-        match payload {
-            error err => return "Error in getting byte[] payload";
-            byte[] blobContent => return mime:byteArrayToString(blobContent, mime:DEFAULT_CHARSET);
-      }
+        if (payload is byte[]) {
+            return mime:byteArrayToString(payload, mime:DEFAULT_CHARSET);
+        } else if (payload is error) {
+            return "Error in getting byte[] payload";
+        }
     }
     return "";
 }
