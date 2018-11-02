@@ -152,7 +152,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceiveExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -2012,25 +2011,13 @@ public class BLangPackageBuilder {
     void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isVarDeclaration) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         ExpressionNode lExprNode = exprNodeStack.pop();
-        if (rExprNode.getKind() == NodeKind.WORKER_RECEIVE) {
-            BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-            workerReceiveNode.setWorkerName(((BLangWorkerReceiveExpr) rExprNode).getWorkerName());
-            workerReceiveNode.expr = (BLangExpression) lExprNode;
-            workerReceiveNode.keyExpr = ((BLangWorkerReceiveExpr) rExprNode).keyExpr;
-            workerReceiveNode.isChannel = ((BLangWorkerReceiveExpr) rExprNode).isChannel;
-            workerReceiveNode.env = ((BLangWorkerReceiveExpr) rExprNode).env;
-            workerReceiveNode.pos = pos;
-            workerReceiveNode.addWS(ws);
-            addStmtToCurrentBlock(workerReceiveNode);
-        } else {
-            BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
-            assignmentNode.setExpression(rExprNode);
-            assignmentNode.setDeclaredWithVar(isVarDeclaration);
-            assignmentNode.pos = pos;
-            assignmentNode.addWS(ws);
-            assignmentNode.varRef = ((BLangVariableReference) lExprNode);
-            addStmtToCurrentBlock(assignmentNode);
-        }
+        BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentNode.setExpression(rExprNode);
+        assignmentNode.setDeclaredWithVar(isVarDeclaration);
+        assignmentNode.pos = pos;
+        assignmentNode.addWS(ws);
+        assignmentNode.varRef = ((BLangVariableReference) lExprNode);
+        addStmtToCurrentBlock(assignmentNode);
     }
 
     void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws,
@@ -2339,16 +2326,16 @@ public class BLangPackageBuilder {
     }
 
     void addWorkerReceiveExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
-        BLangWorkerReceiveExpr workerReceiveExpr = TreeBuilder.createWorkerReceiveExpressionNode();
-        workerReceiveExpr.setWorkerName(this.createIdentifier(workerName));
-        workerReceiveExpr.pos = pos;
-        workerReceiveExpr.addWS(ws);
+        BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
+        workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
+        workerReceiveNode.addWS(ws);
+        workerReceiveNode.pos = pos;
         //if there are two expressions, this is a channel receive and the top expression is the key
         if (hasKey) {
-            workerReceiveExpr.keyExpr = (BLangExpression) exprNodeStack.pop();
-            workerReceiveExpr.isChannel = true;
+            workerReceiveNode.keyExpr = (BLangExpression) exprNodeStack.pop();
+            workerReceiveNode.isChannel = true;
         }
-        addExpressionNode(workerReceiveExpr);
+        addExpressionNode(workerReceiveNode);
     }
 
     void addWorkerFlushExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {

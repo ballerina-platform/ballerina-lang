@@ -141,7 +141,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -1065,26 +1064,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerReceive workerReceiveNode) {
-        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier), SymTag
-                .VARIABLE);
-
-        if (workerReceiveNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
-            visitChannelReceive(workerReceiveNode, symbol);
-            return;
-        }
-
-        this.typeChecker.checkExpr(workerReceiveNode.expr, this.env);
-        if (!this.isInTopLevelWorkerEnv()) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
-        }
-        String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (!this.workerExists(this.env, workerName)) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
-        }
-    }
-
-    @Override
     public void visit(BLangReturn returnNode) {
         if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
             return;
@@ -1517,36 +1496,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType constraint = ((BChannelType) channelSymbol.type).constraint;
         if (node.expr.type.tag != constraint.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
-        }
-    }
-
-    private void visitChannelReceive(BLangWorkerReceive node, BSymbol symbol) {
-        node.isChannel = true;
-        node.env = this.env;
-        if (symbol == null) {
-            symbol = symResolver.lookupSymbol(env, names.fromString(node.getWorkerName()
-                    .getValue()), SymTag.VARIABLE);
-        }
-
-        if (symTable.notFoundSymbol.equals(symbol)) {
-            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getWorkerName().getValue());
-            return;
-        }
-
-        if (TypeTags.CHANNEL != symbol.type.tag) {
-            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, symbol.type);
-            return;
-        }
-        typeChecker.checkExpr(node.expr, env);
-
-        BType constraint = ((BChannelType) symbol.type).constraint;
-        if (node.expr.type.tag != constraint.tag) {
-            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
-            return;
-        }
-
-        if (node.keyExpr != null) {
-            typeChecker.checkExpr(node.keyExpr, env);
         }
     }
 

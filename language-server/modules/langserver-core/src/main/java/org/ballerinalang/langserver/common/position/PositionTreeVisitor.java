@@ -578,10 +578,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        setPreviousNode(workerReceiveNode);
-        if (workerReceiveNode.expr != null) {
-            this.acceptNode(workerReceiveNode.expr);
-        }
+        //TODO Worker receive node is now an expression not a statement
     }
 
     @Override

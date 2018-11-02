@@ -2690,19 +2690,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         wrkrChnlRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
         Operand wrkrRplyRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry));
         workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex.value);
-
-        BLangExpression lExpr = workerReceiveStmt.expr;
-        RegIndex regIndex;
-        BType bType;
-        if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
-            lExpr.regIndex = ((BLangLocalVarRef) lExpr).varSymbol.varIndex;
-            regIndex = lExpr.regIndex;
-        } else {
-            lExpr.regIndex = getRegIndex(lExpr.type.tag);
-            lExpr.regIndex.isLHSIndex = true;
-            regIndex = lExpr.regIndex;
-        }
-        bType = lExpr.type;
+        BType bType = workerReceiveStmt.type;
+        RegIndex regIndex = calcAndGetExprRegIndex(workerReceiveStmt);
 
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{bType}));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
@@ -2713,13 +2702,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         wrkReceiveArgRegs[1] = sigCPIndex;
         wrkReceiveArgRegs[2] = regIndex;
         emit(InstructionCodes.WRKRECEIVE, wrkReceiveArgRegs);
-
-        if (!(lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                lExpr instanceof BLangLocalVarRef)) {
-            this.varAssignment = true;
-            this.genNode(lExpr, this.env);
-            this.varAssignment = false;
-        }
     }
 
     public void visit(BLangAction actionNode) {
@@ -3388,19 +3370,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 + channelReceive.getWorkerName().getValue());
         chnReceiveArgRegs[i++] = getOperand(chnName);
 
-        BLangExpression receiverExpr = channelReceive.expr;
-        RegIndex regIndex;
-        BType bType;
-        if (receiverExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && receiverExpr instanceof BLangLocalVarRef) {
-            receiverExpr.regIndex = ((BLangLocalVarRef) receiverExpr).varSymbol.varIndex;
-            regIndex = receiverExpr.regIndex;
-        } else {
-            receiverExpr.regIndex = getRegIndex(receiverExpr.type.tag);
-            receiverExpr.regIndex.isLHSIndex = true;
-            regIndex = receiverExpr.regIndex;
-        }
+        BType bType = channelReceive.type;
+        RegIndex regIndex = calcAndGetExprRegIndex(channelReceive);
 
-        bType = receiverExpr.type;
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
         chnReceiveArgRegs[i++] = sigCPIndex;

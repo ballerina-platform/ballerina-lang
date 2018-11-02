@@ -20,9 +20,9 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * Worker synchronous send expression.
+ * Worker synchronous send expression interface.
  *
- * @since 0.983
+ * @since 0.985
  */
 public interface WorkerSendSyncExpressionNode extends ExpressionNode {
     ExpressionNode getExpression();

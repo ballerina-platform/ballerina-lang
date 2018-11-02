@@ -20,9 +20,9 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 
 /**
- * flush[a]
+ * Worker flush expression interface.
  *
- * @since 0.983
+ * @since 0.985
  */
 public interface WorkerFlushExpressionNode extends ExpressionNode {
     IdentifierNode getWorkerName();

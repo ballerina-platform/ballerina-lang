@@ -5,7 +5,7 @@ function workerWithChannels() returns json {
     worker w1 {
         json key = {"id":50, name:"john"};
         json result;
-        result <- chn, key;
+        result = <- chn, key;
         return result;
     }
 
@@ -26,7 +26,7 @@ function sendBeforeReceive() returns json {
     worker w1 {
         json key = {"id":50, name:"john"};
         json result;
-        result <- chn, key;
+        result = <- chn, key;
         return result;
     }
 }
@@ -39,7 +39,7 @@ function nullKeyChannels() returns json {
 
     worker w1 {
         json result;
-        result <- chn;
+        result = <- chn;
         return result;
     }
 }
@@ -60,9 +60,9 @@ function multipleInteractions() returns json {
         json result;
         json key = {"id":50, name:"john"};
         json key2 = {"id":60, name:"john"};
-        result <- chn, key2;
-        result <- chn;
-        result <- chn, key;
+        result = <- chn, key2;
+        result = <- chn;
+        result = <- chn, key;
         return result;
     }
 }
@@ -83,8 +83,8 @@ function multipleChannels() returns json {
     worker w1 {
         json result;
         json key = {"id":50, name:"john"};
-        result <- chn,key;
-        result <- chn2, key;
+        result = <- chn,key;
+        result = <- chn2, key;
         return result;
     }
 }
@@ -106,13 +106,12 @@ function xmlChannels() returns xml {
             xml result;
             xml key = xml `<key><id>50</id><name>john</name></key>`;
             xml key2 = xml `<key><id>60</id><name>john</name></key>`;
-            result <- xmlChn, key2;
-            result <- xmlChn;
-            result <- xmlChn, key;
+            result = <- xmlChn, key2;
+            result = <- xmlChn;
+            result = <- xmlChn, key;
             return result;
         }
 }
-
 channel<int> intChan;
 channel<string> strChan;
 channel<boolean> boolChan;
@@ -134,28 +133,28 @@ function primitiveTypeChannels() returns boolean {
     byte byteResult;
     string strResult;
     boolean boolResult;
-    intResult <- intChan, key;
+    intResult = <- intChan, key;
 
     if (intResult == 10) {
-        floatResult <- floatChan, key;
+        floatResult = <- floatChan, key;
     } else {
         return false;
     }
 
     if (floatResult == 10.5) {
-        byteResult <- byteChan, key;
+        byteResult = <- byteChan, key;
     } else {
         return false;
     }
 
     if (byteResult == b) {
-        strResult <- strChan, key;
+        strResult = <- strChan, key;
     } else {
         return false;
     }
 
     if (strResult == "message") {
-        boolResult <- boolChan, key;
+        boolResult = <- boolChan, key;
         return boolResult;
     }
 
