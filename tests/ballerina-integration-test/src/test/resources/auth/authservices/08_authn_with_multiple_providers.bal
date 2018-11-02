@@ -38,12 +38,12 @@ http:AuthProvider jwtAuthProvider2 = {
     }
 };
 
-endpoint http:Listener listener8 {
+endpoint http:Listener listener08 {
     port:9099,
     authProviders:[jwtAuthProvider1, jwtAuthProvider2]
 };
 
-service<http:Service> echo8 bind listener8 {
+service<http:Service> echo8 bind listener08 {
     test8 (endpoint caller, http:Request req) {
         http:Response res = new;
         _ = caller -> respond(res);

@@ -27,7 +27,7 @@ http:AuthProvider jwtAuthProvider3 = {
     }
 };
 
-endpoint http:Listener listener9 {
+endpoint http:Listener listener09 {
     port:9100,
     authProviders:[jwtAuthProvider3]
 };
@@ -37,7 +37,7 @@ endpoint http:Listener listener9 {
         scopes:["test-scope"]
     }
 }
-service<http:Service> echo9 bind listener9 {
+service<http:Service> echo9 bind listener09 {
     test9 (endpoint caller, http:Request req) {
         http:Response res = new;
         _ = caller -> respond(res);

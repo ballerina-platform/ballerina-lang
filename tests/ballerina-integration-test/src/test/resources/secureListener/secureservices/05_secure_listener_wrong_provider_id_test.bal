@@ -1,7 +1,11 @@
 import ballerina/http;
 import ballerina/auth;
 
-http:AuthProvider basicAuthProvider04 = {id: "basic1", scheme:"basic", authStoreProvider:"config"};
+http:AuthProvider basicAuthProvider04 = {
+    id: "basic1",
+    scheme:"basic",
+    authStoreProvider:"config"
+};
 
 endpoint http:Listener listener04 {
     port:9096,
