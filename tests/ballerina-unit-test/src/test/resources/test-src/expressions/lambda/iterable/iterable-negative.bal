@@ -33,10 +33,10 @@ function test4() {
                            return (s, "value");
                        });
     map m = z.filter(function (string s) returns boolean {
-          return s == null;
+          return s == "";
     });
     any x = z.filter(function (string s) returns boolean {
-         return s == null;
+         return s == "";
      });
 }
 
