@@ -271,22 +271,23 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, st
 function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) returns (Filter[]) {
     // parse and create authentication handlers
     AuthHandlerRegistry registry;
+    AuthProvider[] authProviderList;
+    Filter[] authFilters = [];
+
     match config.authProviders {
-        AuthProvider[] providers => {
-            foreach provider in providers {
-                if (lengthof provider.id > 0) {
-                    registry.add(provider.id, createAuthHandler(provider, instanceId));
-                } else {
-                    string providerId = system:uuid();
-                    registry.add(providerId, createAuthHandler(provider, instanceId));
-                }
-            }
-        }
-        () => {
-            // No auth providers configured.
+        AuthProvider[] providers => authProviderList = providers;
+        () => return authFilters;
+    }
+
+    foreach provider in authProviderList {
+        if (lengthof provider.id > 0) {
+            registry.add(provider.id, createAuthHandler(provider, instanceId));
+        } else {
+            string providerId = system:uuid();
+            registry.add(providerId, createAuthHandler(provider, instanceId));
         }
     }
-    Filter[] authFilters = [];
+
     AuthnHandlerChain authnHandlerChain = new(registry);
     AuthnFilter authnFilter = new(authnHandlerChain);
     cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis, capacity =
@@ -294,36 +295,32 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
     cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis, capacity =
         config.negativeAuthzCache.capacity, evictionFactor = config.negativeAuthzCache.evictionFactor);
     auth:AuthStoreProvider authStoreProvider;
-    match config.authProviders {
-        AuthProvider[] providers => {
-            foreach provider in providers {
-                if (provider.scheme == AUTHN_SCHEME_BASIC) {
-                    if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
-                        match provider.authStoreProviderConfig {
-                            auth:LdapAuthProviderConfig authStoreProviderConfig => {
-                                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig,
-                                    instanceId);
-                                authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
-                            }
-                            () => {
-                                error e = {message: "Authstore config not provided for : " + provider.authStoreProvider };
-                                throw e;
-                            }
-                        }
-                    } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
-                        auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-                        authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
-                    } else {
-                        error configError = {message: "Unsupported auth store provider : " + provider.authStoreProvider };
-                        throw configError;
+
+
+    foreach provider in authProviderList {
+        if (provider.scheme == AUTHN_SCHEME_BASIC) {
+            if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
+                match provider.authStoreProviderConfig {
+                    auth:LdapAuthProviderConfig authStoreProviderConfig => {
+                        auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig,
+                            instanceId);
+                        authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
+                    }
+                    () => {
+                        error e = { message: "Authstore config not provided for : " + provider.authStoreProvider };
+                        throw e;
                     }
                 }
+            } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
+                auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+                authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+            } else {
+                error configError = { message: "Unsupported auth store provider : " + provider.authStoreProvider };
+                throw configError;
             }
         }
-        () => {
-            // No auth providers configured.
-        }
     }
+
     HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
     AuthzFilter authzFilter = new(authzHandler);
     authFilters[0] = authnFilter;
