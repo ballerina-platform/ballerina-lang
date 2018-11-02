@@ -27,6 +27,7 @@
     "node-sass": "^4.7.2",
     "sass-loader": "^6.0.3",
     "semantic-ui-less": "^2.3.2",
+    "source-map-loader": "^0.2.4",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.2.2",
     "typescript": "^3.1.3",
