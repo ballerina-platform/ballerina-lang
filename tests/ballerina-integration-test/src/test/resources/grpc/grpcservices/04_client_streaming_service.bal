@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for client streaming scenario
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 // Server endpoint configuration
 endpoint grpc:Listener ep7 {
@@ -35,14 +35,16 @@ service HelloWorld7 bind ep7 {
     }
 
     onError(endpoint caller, error err) {
-        if (err != ()) {
-            io:println("Something unexpected happens at server : " + err.message);
-        }
+        io:println("Something unexpected happens at server : " + err.reason());
     }
 
     onComplete(endpoint caller) {
         io:println("Server Response");
         error? err = caller->send("Ack");
-        io:println(err.message but { () => ("Server send response : Ack") });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Server send response : Ack");
+        }
     }
 }

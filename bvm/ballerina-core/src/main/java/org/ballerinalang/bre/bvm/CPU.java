@@ -1655,12 +1655,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
                 sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
                 break;
             case InstructionCodes.IMOD:
@@ -3598,7 +3592,9 @@ public class CPU {
         ip--;
         ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip);
         if (match != null) {
-            ctx.ip = match.getIpTarget();
+            ctx.ip = match.ipTarget;
+            ctx.workerLocal.refRegs[match.regIndex] = ctx.getError();
+            ctx.setError(null);
         } else {
             BLangScheduler.workerExcepted(ctx);
             throw new HandleErrorException(
@@ -3635,6 +3631,11 @@ public class CPU {
 
         if (typeTag == TypeTags.XML_TAG) {
             sf.longRegs[j] = ((BXML) entity).length();
+            return;
+        } else if (typeTag == TypeTags.TABLE_TAG) {
+            BTable bTable = (BTable) entity;
+            int tableLength = bTable.length();
+            sf.longRegs[j] = tableLength;
             return;
         } else if (entity instanceof BMap) {
             sf.longRegs[j] = ((BMap) entity).size();

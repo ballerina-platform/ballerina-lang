@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 endpoint HelloWorldBlockingClient helloWorldBlockingEp {
     url:"http://localhost:9098"
@@ -31,8 +31,8 @@ function testInvalidRemoteMethod(string name) returns (string) {
             return "Client got response: " + result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -41,7 +41,7 @@ function testInvalidInputParameter(int age) returns (int) {
     (int, grpc:Headers)|error unionResp = helloWorldBlockingEp->testInt(age);
     match unionResp {
         error err => {
-            io:println(err);
+            io:println("Error from Connector: " + err.reason());
             return -1;
         }
         (int, grpc:Headers) payload => {
@@ -58,7 +58,7 @@ function testInvalidOutputResponse(float salary) returns (float|string) {
     (float, grpc:Headers)|error unionResp = helloWorldBlockingEp->testFloat(salary);
     match unionResp {
         error err => {
-            string message = "Error from Connector: " + err.message;
+            string message = "Error from Connector: " + err.reason();
             io:println(message);
             return message;
         }
@@ -76,7 +76,7 @@ function testNonExistenceRemoteMethod(boolean isAvailable) returns (boolean|stri
     (boolean, grpc:Headers)|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
     match unionResp {
         error err => {
-            string message = "Error from Connector: " + err.message;
+            string message = "Error from Connector: " + err.reason();
             io:println(message);
             return message;
         }
