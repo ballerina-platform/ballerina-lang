@@ -190,9 +190,9 @@ public type WebSocketListener object {
     @readonly public boolean isOpen = false;
     @readonly public map attributes = {};
 
-    private WebSocketConnector conn;
+    private WebSocketConnector conn = new;
     private ServiceEndpointConfiguration config;
-    private Listener httpEndpoint;
+    private Listener httpEndpoint = new;
 
     public new() {
     }

@@ -54,7 +54,7 @@ public type FailoverActions object {
     public string serviceUri;
     public ClientEndpointConfig config;
     public FailoverInferredConfig failoverInferredConfig;
-    public int succeededEndpointIndex;
+    public int succeededEndpointIndex = 0;
 
     # Failover caller actions which provides failover capabilities to an HTTP client endpoint.
     #

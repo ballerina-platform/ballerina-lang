@@ -31,7 +31,7 @@ public type WebSocketClient object {
     @readonly public Response response = new;
     @readonly public map attributes = {};
 
-    private WebSocketConnector conn;
+    private WebSocketConnector conn = new;
     private WebSocketClientEndpointConfig config;
 
     # Gets called when the endpoint is being initialize during module init time.
