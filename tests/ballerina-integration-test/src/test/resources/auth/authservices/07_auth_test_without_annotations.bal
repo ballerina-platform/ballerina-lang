@@ -25,7 +25,13 @@ http:AuthProvider basicAuthProvider07 = {
 
 endpoint http:Listener listener07 {
     port:9098,
-    authProviders:[basicAuthProvider07]
+    authProviders:[basicAuthProvider07],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 service<http:Service> echo7 bind listener07 {
