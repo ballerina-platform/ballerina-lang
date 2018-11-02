@@ -54,18 +54,18 @@ public class CloneOperationTest {
     public void testCloneInt() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneInt");
         Assert.assertNotNull(outputEmployeeEvents);
-        Assert.assertEquals(((BInteger)outputEmployeeEvents[0]).intValue(), 12);
-        Assert.assertEquals(((BInteger)outputEmployeeEvents[1]).intValue(), 10);
-        Assert.assertEquals(((BInteger)outputEmployeeEvents[2]).intValue(), 13);
+        Assert.assertEquals(((BInteger) outputEmployeeEvents[0]).intValue(), 12);
+        Assert.assertEquals(((BInteger) outputEmployeeEvents[1]).intValue(), 10);
+        Assert.assertEquals(((BInteger) outputEmployeeEvents[2]).intValue(), 13);
     }
 
     @Test
     public void testCloneFloat() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneFloat");
         Assert.assertNotNull(outputEmployeeEvents);
-        Assert.assertEquals(((BFloat)outputEmployeeEvents[0]).floatValue(), 12.01);
-        Assert.assertEquals(((BFloat)outputEmployeeEvents[1]).floatValue(), 10.01);
-        Assert.assertEquals(((BFloat)outputEmployeeEvents[2]).floatValue(), 13.01);
+        Assert.assertEquals(((BFloat) outputEmployeeEvents[0]).floatValue(), 12.01);
+        Assert.assertEquals(((BFloat) outputEmployeeEvents[1]).floatValue(), 10.01);
+        Assert.assertEquals(((BFloat) outputEmployeeEvents[2]).floatValue(), 13.01);
     }
 
     @Test
@@ -123,8 +123,8 @@ public class CloneOperationTest {
 
     private void testValuesInJSON(BMap outputEmployeeEvent, String name, int age, int id, Object[] arr) {
         Assert.assertEquals(outputEmployeeEvent.get("name").stringValue(), name);
-        Assert.assertEquals(((BInteger)outputEmployeeEvent.get("age")).intValue(), age);
-        Assert.assertEquals(((BInteger)outputEmployeeEvent.get("id")).intValue(), id);
+        Assert.assertEquals(((BInteger) outputEmployeeEvent.get("age")).intValue(), age);
+        Assert.assertEquals(((BInteger) outputEmployeeEvent.get("id")).intValue(), id);
 
         BRefValueArray array = (BRefValueArray) outputEmployeeEvent.get("otherData");
         testJSONArray(arr, array);
@@ -133,9 +133,9 @@ public class CloneOperationTest {
     @Test
     public void testCloneJSONArray() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneJSONArray");
-        testJSONArray(new Object[] {100, "EE", 12.3}, (BRefValueArray) outputEmployeeEvents[0]);
-        testJSONArray(new Object[] {1, "EE", 12.3}, (BRefValueArray) outputEmployeeEvents[1]);
-        testJSONArray(new Object[] {1, "EE", 300.5}, (BRefValueArray) outputEmployeeEvents[2]);
+        testJSONArray(new Object[]{100, "EE", 12.3}, (BRefValueArray) outputEmployeeEvents[0]);
+        testJSONArray(new Object[]{1, "EE", 12.3}, (BRefValueArray) outputEmployeeEvents[1]);
+        testJSONArray(new Object[]{1, "EE", 300.5}, (BRefValueArray) outputEmployeeEvents[2]);
     }
 
     private void testJSONArray(Object[] arr, BRefValueArray array) {
@@ -143,17 +143,17 @@ public class CloneOperationTest {
     }
 
     private void testRefArray(Object[] arr, BRefValueArray array) {
-        Assert.assertEquals(((BInteger)array.getBValue(0)).intValue(), ((Integer)arr[0]).intValue());
+        Assert.assertEquals(((BInteger) array.getBValue(0)).intValue(), ((Integer) arr[0]).intValue());
         Assert.assertEquals((array.getBValue(1)).stringValue(), arr[1]);
-        Assert.assertEquals(((BFloat)array.getBValue(2)).floatValue(), arr[2]);
+        Assert.assertEquals(((BFloat) array.getBValue(2)).floatValue(), arr[2]);
     }
 
     @Test
     public void testCloneIntArray() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneIntArray");
-        testIntArray(new long[] {100, 2, 3}, (BIntArray) outputEmployeeEvents[0]);
-        testIntArray(new long[] {1, 2, 3}, (BIntArray) outputEmployeeEvents[1]);
-        testIntArray(new long[] {1, 2, 300}, (BIntArray) outputEmployeeEvents[2]);
+        testIntArray(new long[]{100, 2, 3}, (BIntArray) outputEmployeeEvents[0]);
+        testIntArray(new long[]{1, 2, 3}, (BIntArray) outputEmployeeEvents[1]);
+        testIntArray(new long[]{1, 2, 300}, (BIntArray) outputEmployeeEvents[2]);
     }
 
     private void testIntArray(long[] arr, BIntArray array) {
@@ -165,9 +165,9 @@ public class CloneOperationTest {
     @Test
     public void testCloneFloatArray() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneFloatArray");
-        testFloatArray(new double[] {100.5, 2.0, 3.0}, (BFloatArray) outputEmployeeEvents[0]);
-        testFloatArray(new double[] {1.0, 2.0, 3.0}, (BFloatArray) outputEmployeeEvents[1]);
-        testFloatArray(new double[] {1.0, 2.0, 300.5}, (BFloatArray) outputEmployeeEvents[2]);
+        testFloatArray(new double[]{100.5, 2.0, 3.0}, (BFloatArray) outputEmployeeEvents[0]);
+        testFloatArray(new double[]{1.0, 2.0, 3.0}, (BFloatArray) outputEmployeeEvents[1]);
+        testFloatArray(new double[]{1.0, 2.0, 300.5}, (BFloatArray) outputEmployeeEvents[2]);
     }
 
     private void testFloatArray(double[] arr, BFloatArray array) {
@@ -179,9 +179,9 @@ public class CloneOperationTest {
     @Test
     public void testCloneStringArray() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneStringArray");
-        testStringArray(new String[] {"XX", "B", "C"}, (BStringArray) outputEmployeeEvents[0]);
-        testStringArray(new String[] {"A", "B", "C"}, (BStringArray) outputEmployeeEvents[1]);
-        testStringArray(new String[] {"A", "B", "YY"}, (BStringArray) outputEmployeeEvents[2]);
+        testStringArray(new String[]{"XX", "B", "C"}, (BStringArray) outputEmployeeEvents[0]);
+        testStringArray(new String[]{"A", "B", "C"}, (BStringArray) outputEmployeeEvents[1]);
+        testStringArray(new String[]{"A", "B", "YY"}, (BStringArray) outputEmployeeEvents[2]);
     }
 
     private void testStringArray(String[] arr, BStringArray array) {
@@ -193,17 +193,17 @@ public class CloneOperationTest {
     @Test
     public void testCloneUnionArray() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneUnionArray");
-        testRefArray(new Object[] {100, "EE", 12.3}, (BRefValueArray) outputEmployeeEvents[0]);
-        testRefArray(new Object[] {1, "EE", 12.3}, (BRefValueArray) outputEmployeeEvents[1]);
-        testRefArray(new Object[] {1, "EE", 300.5}, (BRefValueArray) outputEmployeeEvents[2]);
+        testRefArray(new Object[]{100, "EE", 12.3}, (BRefValueArray) outputEmployeeEvents[0]);
+        testRefArray(new Object[]{1, "EE", 12.3}, (BRefValueArray) outputEmployeeEvents[1]);
+        testRefArray(new Object[]{1, "EE", 300.5}, (BRefValueArray) outputEmployeeEvents[2]);
     }
 
     @Test
     public void testCloneUnion() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneUnion");
-        Assert.assertEquals(((BInteger)outputEmployeeEvents[0]).intValue(), 100);
-        Assert.assertEquals(((BInteger)outputEmployeeEvents[1]).intValue(), 1);
-        Assert.assertEquals(((BFloat)outputEmployeeEvents[2]).floatValue(), 300.5);
+        Assert.assertEquals(((BInteger) outputEmployeeEvents[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) outputEmployeeEvents[1]).intValue(), 1);
+        Assert.assertEquals(((BFloat) outputEmployeeEvents[2]).floatValue(), 300.5);
     }
 
     @Test
@@ -251,9 +251,9 @@ public class CloneOperationTest {
         int i = 0;
         while (table.hasNext()) {
             BMap<String, BValue> next = table.getNext();
-            Assert.assertEquals(((BInteger) next.get("id")).intValue(), ((Integer)expectedValues[i][0]).intValue());
+            Assert.assertEquals(((BInteger) next.get("id")).intValue(), ((Integer) expectedValues[i][0]).intValue());
             Assert.assertEquals(next.get("name").stringValue(), expectedValues[i][1]);
-            Assert.assertEquals(((BFloat)next.get("salary")).floatValue(), expectedValues[i][2]);
+            Assert.assertEquals(((BFloat) next.get("salary")).floatValue(), expectedValues[i][2]);
             i++;
         }
         Assert.assertEquals(expectedValues.length, i);
@@ -298,8 +298,8 @@ public class CloneOperationTest {
     public void testCloneNil() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneNil");
         Assert.assertNotNull(outputEmployeeEvents);
-        Assert.assertEquals(((BInteger)outputEmployeeEvents[0]).intValue(), 4);
-        Assert.assertEquals(((BInteger)outputEmployeeEvents[1]).intValue(), 10);
-        Assert.assertEquals(((BInteger)outputEmployeeEvents[2]).intValue(), 5);
+        Assert.assertEquals(((BInteger) outputEmployeeEvents[0]).intValue(), 4);
+        Assert.assertEquals(((BInteger) outputEmployeeEvents[1]).intValue(), 10);
+        Assert.assertEquals(((BInteger) outputEmployeeEvents[2]).intValue(), 5);
     }
 }
