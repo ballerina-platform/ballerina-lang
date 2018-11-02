@@ -261,6 +261,7 @@ public enum DiagnosticCode {
     START_REQUIRE_INVOCATION("start.require.invocation"),
     INVALID_EXPR_STATEMENT("invalid.expr.statement"),
     INVALID_ACTION_INVOCATION_AS_EXPR("invalid.action.invocation.as.expr"),
+    INVALID_WORKER_RECEIVE_AS_EXPR("invalid.worker.receive.as.expr"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

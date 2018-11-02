@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -120,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -514,6 +516,72 @@ public class TypeChecker extends BLangNodeVisitor {
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier),
+                                                  SymTag.VARIABLE);
+
+        if (workerReceiveNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
+            visitChannelReceive(workerReceiveNode, symbol);
+            return;
+        }
+
+        if (!isInTopLevelWorkerEnv()) {
+            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
+        }
+
+        String workerName = workerReceiveNode.workerIdentifier.getValue();
+        if (!this.workerExists(this.env, workerName)) {
+            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        }
+        // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
+        // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
+        resultType = this.expType;
+    }
+
+    private void visitChannelReceive(BLangWorkerReceive workerReceiveNode, BSymbol symbol) {
+        workerReceiveNode.isChannel = true;
+        workerReceiveNode.env = this.env;
+        if (symbol == null) {
+            symbol = symResolver.lookupSymbol(env, names.fromString(workerReceiveNode.getWorkerName().getValue()),
+                                              SymTag.VARIABLE);
+        }
+
+        if (symTable.notFoundSymbol.equals(symbol)) {
+            dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_SYMBOL, workerReceiveNode.workerIdentifier);
+            return;
+        }
+
+        if (TypeTags.CHANNEL != symbol.type.tag) {
+            dlog.error(workerReceiveNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, symbol.type);
+            return;
+        }
+
+        BType constraint = ((BChannelType) symbol.type).constraint;
+        if (this.expType.tag != constraint.tag) {
+            dlog.error(workerReceiveNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, this.expType);
+            return;
+        }
+
+        if (workerReceiveNode.keyExpr != null) {
+            checkExpr(workerReceiveNode.keyExpr, env);
+        }
+
+        // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
+        // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
+        resultType = this.expType;
+    }
+
+    private boolean isInTopLevelWorkerEnv() {
+        return this.env.enclEnv.node.getKind() == NodeKind.WORKER ||
+                this.env.enclEnv.enclEnv.node.getKind() == NodeKind.WORKER;
+    }
+
+    private boolean workerExists(SymbolEnv env, String workerName) {
+        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.WORKER);
+        return (symbol != this.symTable.notFoundSymbol);
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
