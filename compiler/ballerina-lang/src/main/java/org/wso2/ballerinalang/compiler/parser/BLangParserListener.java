@@ -1967,6 +1967,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitBinaryRefEqualExpression(BallerinaParser.BinaryRefEqualExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
     public void exitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
