@@ -77,7 +77,7 @@ function jsonValueOf(json j) returns (string?) {
     return j.toString();
 }
 
-function length(string j) returns (int) {
+function lengthOfStr(string j) returns (int) {
     return j.length();
 }
 

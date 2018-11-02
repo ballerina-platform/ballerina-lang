@@ -214,6 +214,9 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
 
         public BLangBuiltInMethodInvocation(BLangInvocation iExpr, BLangBuiltInMethod builtInFunction) {
             this.expr = iExpr.expr;
+            this.type = iExpr.type;
+            this.pkgAlias = iExpr.pkgAlias;
+            this.name = iExpr.name;
             this.pos = iExpr.pos;
             this.requiredArgs = iExpr.requiredArgs;
             this.namedArgs = iExpr.namedArgs;
