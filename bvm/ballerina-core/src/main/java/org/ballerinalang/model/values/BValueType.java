@@ -61,6 +61,13 @@ public abstract class BValueType implements BValue {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean isFrozen() {
+        return true;
+    }
+
+    /**
      * Default BValueType toString implementation.
      * @return The string representation of this object
      */

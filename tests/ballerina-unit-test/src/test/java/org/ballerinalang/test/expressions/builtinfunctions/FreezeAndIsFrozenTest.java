@@ -367,7 +367,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testFreezeAndIsFrozenNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 25);
+        Assert.assertEquals(negativeResult.getErrorCount(), 21);
         validateError(negativeResult, 0, "'freeze' not allowed on value of type '()'", 19, 9);
         validateError(negativeResult, 1, "'freeze' not allowed on value of type 'PersonObj'", 24, 19);
         validateError(negativeResult, 2, "'freeze' not allowed on value of type 'stream<int>'", 27, 9);
@@ -398,10 +398,6 @@ public class FreezeAndIsFrozenTest {
                               "FreezeAllowedDepartment|float)|error'", 89, 60);
         validateError(negativeResult, 20, "incompatible types: expected 'FreezeAllowedDepartment', found " +
                               "'FreezeAllowedDepartment|error'", 92, 35);
-        validateError(negativeResult, 21, "'freeze' not allowed on value of type 'string|int'", 97, 9);
-        validateError(negativeResult, 22, "'isFrozen' not allowed on value of type 'string|int'", 98, 9);
-        validateError(negativeResult, 23, "'freeze' not allowed on value of type 'string|PersonObj'", 101, 9);
-        validateError(negativeResult, 24, "'isFrozen' not allowed on value of type 'string|PersonObj'", 102, 9);
     }
 
     @DataProvider(name = "booleanValues")

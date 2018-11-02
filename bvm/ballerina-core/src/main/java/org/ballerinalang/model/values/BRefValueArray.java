@@ -177,12 +177,12 @@ public class BRefValueArray extends BNewArray implements Serializable {
         if (frozen) {
             return this;
         }
+        this.frozen = true;
         for (int i = 0; i < this.size; i++) {
             if (this.get(i) != null) {
                 this.get(i).freeze();
             }
         }
-        this.frozen = true;
         return this;
     }
 }

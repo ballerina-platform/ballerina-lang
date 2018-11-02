@@ -1881,21 +1881,27 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        if (type.tag != TypeTags.UNION && type.tag != TypeTags.NIL) {
-            if (types.isAnydata(type)) {
+        boolean dataType = types.isAnydata(type);
+
+        if (type.tag == TypeTags.NIL || (!dataType && !isNonAnyDataFreezeAllowedType(type))) {
+            dlog.error(iExpr.pos, DiagnosticCode.FREEZE_NOT_ALLOWED_ON_VALUE_OF_TYPE, type);
+            return false;
+        }
+
+        if (dataType) {
+            iExpr.type = type;
+        } else {
+            if (type.tag == TypeTags.UNION && ((BUnionType) type).getMemberTypes().stream()
+                    .anyMatch(memType -> memType.tag == TypeTags.ERROR)) {
                 iExpr.type = type;
-                iExpr.originalType = iExpr.type;
-                resultType = types.checkType(iExpr, iExpr.type, expType);
-                return true;
-            } else if (isNonAnyDataFreezeAllowedType(type)) {
+            } else {
                 iExpr.type = new BUnionType(null, new HashSet<BType>() {{ add(type); add(symTable.errorType); }},
                                             false);
-                iExpr.originalType = iExpr.type;
-                resultType = types.checkType(iExpr, iExpr.type, expType);
-                return true;
             }
         }
-        dlog.error(iExpr.pos, DiagnosticCode.FREEZE_NOT_ALLOWED_ON_VALUE_OF_TYPE, type);
+//        iExpr.originalType = getSafeType(iExpr.type, iExpr); TODO: FIX
+        iExpr.originalType = iExpr.type;
+        resultType = types.checkType(iExpr, iExpr.type, expType);
         return true;
     }
 
@@ -1931,11 +1937,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (type.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) type;
-            boolean freezeUnallowedTypeFound =
-                    recordType.fields.stream().anyMatch(field -> !(isNonAnyDataFreezeAllowedType(field.type)));
-
-            return !freezeUnallowedTypeFound && (recordType.sealed ||
-                                                         isNonAnyDataFreezeAllowedType(recordType.restFieldType));
+            return recordType.fields.stream().noneMatch(field ->
+                                                                !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                                                                        !(isNonAnyDataFreezeAllowedType(field.type))) &&
+                    recordType.fields.stream().anyMatch(field -> isNonAnyDataFreezeAllowedType(field.type));
         }
 
         if (type.tag == TypeTags.UNION) {
@@ -1952,7 +1957,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isIsFrozenAllowedType(BType type) {
-        return type.tag != TypeTags.UNION && type.tag != TypeTags.NIL && !types.isValueType(type) &&
+        return type.tag != TypeTags.NIL && !types.isValueType(type) &&
                 (types.isAnydata(type) || isNonAnyDataFreezeAllowedType(type));
     }
 
