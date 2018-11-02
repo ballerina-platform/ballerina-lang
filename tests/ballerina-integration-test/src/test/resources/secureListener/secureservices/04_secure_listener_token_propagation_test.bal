@@ -14,7 +14,7 @@ http:AuthProvider basicAuthProvider03 = {
     }
 };
 
-endpoint http:SecureListener listener03 {
+endpoint http:Listener listener03 {
     port:9094,
     authProviders:[basicAuthProvider03]
 };
@@ -58,7 +58,7 @@ http:AuthProvider jwtAuthProvider03 = {
     }
 };
 
-endpoint http:SecureListener listener3 {
+endpoint http:Listener listener3 {
     port:9095,
     authProviders:[jwtAuthProvider03]
 };

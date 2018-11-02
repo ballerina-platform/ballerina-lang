@@ -18,8 +18,14 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/auth;
 
-endpoint http:APIListener listener7 {
-    port:9098
+http:AuthProvider basicAuthProvider07 = {
+    scheme:"basic",
+    authStoreProvider:"config"
+};
+
+endpoint http:Listener listener7 {
+    port:9098,
+    authProviders:[basicAuthProvider07]
 };
 
 service<http:Service> echo7 bind listener7 {

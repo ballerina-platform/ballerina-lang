@@ -38,7 +38,7 @@ http:AuthProvider jwtAuthProvider2 = {
     }
 };
 
-endpoint http:SecureListener listener8 {
+endpoint http:Listener listener8 {
     port:9099,
     authProviders:[jwtAuthProvider1, jwtAuthProvider2]
 };

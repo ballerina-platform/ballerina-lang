@@ -47,7 +47,7 @@ http:AuthProvider basicAuthProvider = {
     authStoreProviderConfig: ldapAuthProviderConfig
 };
 
-endpoint http:SecureListener ep {
+endpoint http:Listener ep {
     port: 9096,
     authProviders: [basicAuthProvider]
 };

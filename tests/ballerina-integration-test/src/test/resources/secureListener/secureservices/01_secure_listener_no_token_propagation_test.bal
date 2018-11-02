@@ -8,7 +8,7 @@ http:AuthProvider basicAuthProvider = {
     authStoreProvider:"config"
 };
 
-endpoint http:SecureListener listener {
+endpoint http:Listener listener {
     port:9090,
     authProviders:[basicAuthProvider]
 };
@@ -52,7 +52,7 @@ http:AuthProvider jwtAuthProvider = {
     }
 };
 
-endpoint http:SecureListener listener1 {
+endpoint http:Listener listener1 {
     port:9092,
     authProviders:[jwtAuthProvider]
 };

@@ -2,8 +2,14 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/auth;
 
-endpoint http:APIListener listener03 {
-    port:9093
+http:AuthProvider basicAuthProvider04 = {
+    scheme:"basic",
+    authStoreProvider:"config"
+};
+
+endpoint http:Listener listener03 {
+    port:9093,
+    authProviders:[basicAuthProvider04]
 };
 
 @http:ServiceConfig {

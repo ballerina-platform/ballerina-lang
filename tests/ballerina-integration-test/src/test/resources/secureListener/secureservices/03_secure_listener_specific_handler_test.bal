@@ -7,7 +7,7 @@ http:AuthProvider basicAuthProvider02 = {
     authStoreProvider: "config"
 };
 
-endpoint http:SecureListener listener02 {
+endpoint http:Listener listener02 {
     port:9093,
     authProviders:[basicAuthProvider02]
 };
