@@ -41,7 +41,7 @@ public type JWTValidatorConfig record {
 # + return - If JWT token is valied return the JWT payload.
 #            An error if token validation fails.
 public function validate(string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
-    string[] encodedJWTComponents;
+    string[] encodedJWTComponents = [];
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
         error e => return e;
@@ -113,7 +113,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
     JwtHeader jwtHeader = {};
-    map customClaims;
+    map customClaims = {};
 
     string[] keys = jwtHeaderJson.getKeys();
 
@@ -141,7 +141,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
 
 function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     JwtPayload jwtPayload = {};
-    map customClaims;
+    map customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
     foreach key in keys {
         if (key == ISS) {

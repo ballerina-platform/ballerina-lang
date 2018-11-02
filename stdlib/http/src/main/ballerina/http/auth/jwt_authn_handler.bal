@@ -45,7 +45,7 @@ public type HttpJwtAuthnHandler object {
 };
 
 function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
-    string authHeader;
+    string authHeader = "";
     match trap req.getHeader(AUTH_HEADER) {
         string s => authHeader = s;
         error e => {

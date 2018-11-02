@@ -29,12 +29,12 @@ import ballerina/mime;
 #                  on utilizing HTTP caching.
 public type Request object {
 
-    public string rawPath;
-    public string method;
-    public string httpVersion;
-    public string userAgent;
-    public string extraPathInfo;
-    public RequestCacheControl? cacheControl;
+    public string rawPath = "";
+    public string method = "";
+    public string httpVersion = "";
+    public string userAgent = "";
+    public string extraPathInfo = "";
+    public RequestCacheControl? cacheControl = ();
 
     private mime:Entity entity;
     private boolean dirtyRequest;
@@ -374,7 +374,7 @@ function Request::getFormParams() returns map<string>|error {
         error err => return err;
         mime:Entity entity => {
 
-            map<string> parameters;
+            map<string> parameters = {};
             var entityText = entity.getText();
             match entityText {
                 error txtErr => return txtErr; // TODO: Check if this is ok

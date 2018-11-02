@@ -24,7 +24,7 @@ public type LoadBalanceClient object {
     public string epName;
     public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
 
-    private Client httpEP;
+    private Client httpEP = new;
 
     # The initialization function for the load balance client endpoint.
     #

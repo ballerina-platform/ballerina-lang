@@ -147,7 +147,7 @@ public type Entity object {
     #
     # + return - Content type as a `string`
     public function getContentType() returns string {
-        string contentTypeHeaderValue;
+        string contentTypeHeaderValue = "";
         if (self.hasHeader(CONTENT_TYPE)) {
             contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
         }
@@ -166,7 +166,7 @@ public type Entity object {
     #
     # + return - Content ID as a `string`
     public function getContentId() returns string {
-        string contentId;
+        string contentId = "";
         if (self.hasHeader(CONTENT_ID)) {
             contentId = self.getHeader(CONTENT_ID);
         }
@@ -186,7 +186,7 @@ public type Entity object {
     #
     # + return - Content length as an `int`
     public function getContentLength() returns int|error {
-        string contentLength;
+        string contentLength = "";
         if (self.hasHeader(CONTENT_LENGTH)) {
             contentLength = self.getHeader(CONTENT_LENGTH);
         }
@@ -209,7 +209,7 @@ public type Entity object {
     #
     # + return - A `ContentDisposition` object
     public function getContentDisposition() returns ContentDisposition {
-        string contentDispositionVal;
+        string contentDispositionVal = "";
         if (self.hasHeader(CONTENT_DISPOSITION)) {
             contentDispositionVal = self.getHeader(CONTENT_DISPOSITION);
         }

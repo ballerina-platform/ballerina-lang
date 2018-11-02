@@ -77,7 +77,7 @@ public type AuthzFilter object {
 #            aborted(false)
 function isAuthzSuccessfull(Listener listener, boolean authorized) returns boolean {
     endpoint Listener caller = listener;
-    Response response;
+    Response response = new;
     if (!authorized) {
         response.statusCode = 403;
         response.setTextPayload("Authorization failure");
