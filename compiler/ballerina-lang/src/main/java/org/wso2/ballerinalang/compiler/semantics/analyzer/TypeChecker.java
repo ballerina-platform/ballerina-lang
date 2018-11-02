@@ -696,7 +696,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
         //Returns if the function is a builtin function
         if (BLangBuiltInMethod.UNDEFINED != builtInFunction && checkBuiltinFunctionInvocation(iExpr, builtInFunction,
-                                                                                              exprType)) {
+                exprType)) {
             return;
         }
 
@@ -1801,11 +1801,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case CLONE:
-                iExpr.originalType = type;
-                iExpr.type = type;
-                if (iExpr.argExprs.size() > 0) {
-                    dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
-                }
+                handleBuiltInFunctions(iExpr, type);
+                isValidBuiltinFunc = true;
                 validateAnyDataType(iExpr.expr.type, iExpr.expr.pos);
                 break;
             default:
@@ -1814,6 +1811,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (isValidBuiltinFunc) {
             iExpr.builtinMethodInvocation = true;
+            iExpr.originalType = type;
             iExpr.builtInMethod = function;
             if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
                 types.setImplicitCastExpr(iExpr, resultType, expType);
