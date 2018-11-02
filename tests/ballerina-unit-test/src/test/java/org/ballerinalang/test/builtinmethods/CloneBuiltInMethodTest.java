@@ -292,4 +292,13 @@ public class CloneBuiltInMethodTest {
         Assert.assertEquals(tmpId, id);
         Assert.assertEquals(tmpAge, age);
     }
+
+    @Test
+    public void testCloneNil() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "cloneNil");
+        Assert.assertNotNull(outputEmployeeEvents);
+        Assert.assertEquals(((BInteger)outputEmployeeEvents[0]).intValue(), 4);
+        Assert.assertEquals(((BInteger)outputEmployeeEvents[1]).intValue(), 10);
+        Assert.assertEquals(((BInteger)outputEmployeeEvents[2]).intValue(), 5);
+    }
 }

@@ -168,3 +168,12 @@ public function cloneConstrainedJSON() returns (json, json, json) {
     y.salary = 400.5;
     return (a, x, y);
 }
+
+public function cloneNil() returns (any, any, any) {
+    int? a = 10;
+    int? x = a.clone();
+    int? y = a.clone();
+    a = 4;
+    y = 5;
+    return (a, x, y);
+}

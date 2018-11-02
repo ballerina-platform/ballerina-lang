@@ -1777,6 +1777,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case CLONE:
+                iExpr.originalType = type;
+                iExpr.type = type;
                 if (iExpr.argExprs.size() > 0) {
                     dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
                 }
@@ -1803,6 +1805,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.XML:
             case TypeTags.TABLE:
             case TypeTags.JSON:
+            case TypeTags.NIL:
                 break;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
