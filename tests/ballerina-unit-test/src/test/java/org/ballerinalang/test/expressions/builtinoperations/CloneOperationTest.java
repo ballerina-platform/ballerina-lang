@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.builtinmethods;
+package org.ballerinalang.test.expressions.builtinoperations;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -39,15 +39,15 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class CloneBuiltInMethodTest {
+public class CloneOperationTest {
 
     private CompileResult result;
     private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/builtinmethods/clone/clone.bal");
-        negativeResult = BCompileUtil.compile("test-src/builtinmethods/clone/clone-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/builtinoperations/clone-operation.bal");
+        negativeResult = BCompileUtil.compile("test-src/expressions/builtinoperations/clone-operation-negative.bal");
     }
 
     @Test
