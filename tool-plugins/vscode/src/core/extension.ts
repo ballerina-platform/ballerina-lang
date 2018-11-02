@@ -249,7 +249,8 @@ export class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        if (fs.existsSync(path.join(homePath,'bin','ballerina'))) {
+        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina'
+        if (fs.existsSync(path.join(homePath, 'bin', ballerinaCmd))) {
             return true;
         }
         return false;
@@ -275,6 +276,9 @@ export class BallerinaExtension {
         let path = '';
         switch (platform) {
             case 'win32': // Windows
+                if (process.env.BALLERINA_HOME) {
+                    return process.env.BALLERINA_HOME;
+                }
                 try {
                     path = execSync('where ballerina').toString().trim();
                 } catch (error) {
