@@ -56,6 +56,10 @@ public class BCursorTable extends BTable {
                 new BallerinaException("data cannot be deleted from a table returned from a database")));
     }
 
+    public int length() {
+        throw new BallerinaException("The row count of a table returned from a database cannot be provided");
+    }
+
     protected boolean isIteratorGenerationConditionMet() {
         return false;
     }

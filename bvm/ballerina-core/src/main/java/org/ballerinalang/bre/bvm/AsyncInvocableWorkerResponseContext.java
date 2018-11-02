@@ -121,7 +121,7 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     
     private WorkerExecutionContext propagateErrorToTarget(WorkerExecutionContext targetCtx, boolean runInCaller) {
         WorkerExecutionContext ctx = this.onFinalizedError(targetCtx,
-                BLangVMErrors.createCallFailedException(targetCtx, new ArrayList<>(workerErrors.values())));
+                BLangVMErrors.handleError(targetCtx, workerErrors));
         return BLangScheduler.resume(ctx, runInCaller);
     }
     

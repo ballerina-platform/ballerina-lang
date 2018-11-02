@@ -1248,6 +1248,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
         } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
             emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+        } else if (iExpr.builtInMethod == BLangBuiltInMethod.LENGTH) {
+            Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
+            emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
         } else if (iExpr.builtInMethod == BLangBuiltInMethod.CLONE) {
             Operand typeCPIndex = getTypeCPIndex(iExpr.type);
             emit(InstructionCodes.CLONE, iExpr.expr.regIndex, typeCPIndex, regIndex);
@@ -1374,8 +1377,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int fromIP = nextIP();
         genNode(trapExpr.expr, env);
-        int toIP = nextIP();
         RegIndex regIndex = calcAndGetExprRegIndex(trapExpr);
+        emit(InstructionCodes.RMOVE, trapExpr.expr.regIndex, regIndex);
+        int toIP = nextIP();
         errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP, toIP, regIndex));
     }
 

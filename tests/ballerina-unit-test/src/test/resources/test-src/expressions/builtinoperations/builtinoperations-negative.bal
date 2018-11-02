@@ -13,18 +13,14 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/grpc;
+function testNegativeTests() {
+    int nanVal = 0/0;
+    int infinityVal = 7/0;
+    int finiteVal = 10/5;
+    boolean isNaN = nanVal.isNaN();
+    boolean isInf = infinityVal.isInfinite();
+    boolean isFin = nanVal.isFinite();
 
-endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
-};
-
-service HelloWorld bind ep {
-    invalidReqType(endpoint caller, string? name) {
-        string input = name but {() => ""};
-        string message = "Hello " + input;
-        error? err = caller->send(message);
-        _ = caller->complete();
-    }
+    string nan = nanVal.isNaN();
+    boolean [] arr = infinityVal.isInfinite();
 }
