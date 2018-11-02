@@ -16,7 +16,13 @@ http:AuthProvider basicAuthProvider11 = {
 
 endpoint http:Listener listener11 {
     port:9192,
-    authProviders:[basicAuthProvider11]
+    authProviders:[basicAuthProvider11],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 endpoint http:Client nyseEP03 {
@@ -60,7 +66,13 @@ http:AuthProvider jwtAuthProvider03 = {
 
 endpoint http:Listener listener2 {
     port:9193,
-    authProviders:[jwtAuthProvider03]
+    authProviders:[jwtAuthProvider03],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {basePath:"/nyseStock"}

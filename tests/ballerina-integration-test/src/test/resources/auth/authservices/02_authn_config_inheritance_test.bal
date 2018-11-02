@@ -9,7 +9,13 @@ http:AuthProvider basicAuthProvider02 = {
 
 endpoint http:Listener listener02 {
     port:9091,
-    authProviders:[basicAuthProvider02]
+    authProviders:[basicAuthProvider02],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {

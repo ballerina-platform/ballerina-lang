@@ -232,7 +232,15 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 function Listener::init (ServiceEndpointConfiguration c) {
     self.config = c;
     match self.config.authProviders {
-        AuthProvider[] providers => addAuthFiltersForSecureListener(self.config, self.instanceId);
+        AuthProvider[] providers => {
+            match self.config.secureSocket {
+                ServiceSecureSocket secureSocket => addAuthFiltersForSecureListener(self.config, self.instanceId);
+                () => {
+                    error err = { message: "Secure sockets have not been cofigured in order to enable auth providers." };
+                    throw err;
+                }
+            }
+        }
         () => {}
     }
     var err = self.initEndpoint();

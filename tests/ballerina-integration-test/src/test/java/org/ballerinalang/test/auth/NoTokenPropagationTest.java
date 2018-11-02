@@ -19,8 +19,8 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,7 +37,8 @@ public class NoTokenPropagationTest extends AuthBaseTest {
     public void testTokenPropagationSuccess() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9190, "passthrough"), headers);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9190, "passthrough"),
+                headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }

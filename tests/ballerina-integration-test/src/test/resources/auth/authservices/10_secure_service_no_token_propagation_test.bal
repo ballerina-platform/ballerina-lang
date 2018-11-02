@@ -1,6 +1,5 @@
-
-
 import ballerina/http;
+import ballerina/io;
 
 // token propagation is set to false by default
 http:AuthProvider basicAuthProvider10 = {
@@ -8,18 +7,24 @@ http:AuthProvider basicAuthProvider10 = {
     authStoreProvider:"config"
 };
 
-endpoint http:Listener listener10 {
+endpoint http:Listener listener10_1 {
     port:9190,
-    authProviders:[basicAuthProvider10]
+    authProviders:[basicAuthProvider10],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 // client will not propagate JWT
 endpoint http:Client nyseEP {
-    url: "http://localhost:9195"
+    url: "https://localhost:9195"
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}
-service<http:Service> passthroughService bind listener10 {
+service<http:Service> passthroughService bind listener10_1 {
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -41,7 +46,7 @@ service<http:Service> passthroughService bind listener10 {
     }
 }
 
-http:AuthProvider jwtAuthProvider = {
+http:AuthProvider jwtAuthProvider10 = {
     scheme: "jwt",
     issuer: "ballerina",
     audience: "ballerina",
@@ -52,13 +57,19 @@ http:AuthProvider jwtAuthProvider = {
     }
 };
 
-endpoint http:Listener listener1 {
+endpoint http:Listener listener10_2 {
     port:9195,
-    authProviders:[jwtAuthProvider]
+    authProviders:[jwtAuthProvider10],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {basePath:"/nyseStock"}
-service<http:Service> nyseStockQuote bind listener1 {
+service<http:Service> nyseStockQuote bind listener10_2 {
 
     @http:ResourceConfig {
         methods:["GET"],

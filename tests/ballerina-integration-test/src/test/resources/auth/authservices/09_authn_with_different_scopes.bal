@@ -29,7 +29,13 @@ http:AuthProvider jwtAuthProvider3 = {
 
 endpoint http:Listener listener09 {
     port:9100,
-    authProviders:[jwtAuthProvider3]
+    authProviders:[jwtAuthProvider3],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {
