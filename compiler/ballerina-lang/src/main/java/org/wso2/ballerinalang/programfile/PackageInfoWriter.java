@@ -230,6 +230,7 @@ public class PackageInfoWriter {
         dataOutStream.writeShort(constantInfos.length);
         for (ConstantInfo constantInfo : constantInfos) {
             dataOutStream.writeInt(constantInfo.nameCPIndex);
+            dataOutStream.writeInt(constantInfo.actualTypeCPIndex);
             dataOutStream.writeInt(constantInfo.flags);
             writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
         }

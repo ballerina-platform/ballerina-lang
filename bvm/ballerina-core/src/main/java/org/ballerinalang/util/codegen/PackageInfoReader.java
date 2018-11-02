@@ -626,14 +626,23 @@ public class PackageInfoReader {
         int nameCPIndex = dataInStream.readInt();
         UTF8CPEntry nameUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
 
+        // Read actual type;
+        int actualTypeSigCPIndex = dataInStream.readInt();
+        UTF8CPEntry actualTypeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(actualTypeSigCPIndex);
+
         // Read and ignore flags.
         dataInStream.readInt();
 
-        ConstantInfo packageVarInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue());
+        // Get the type.
+        BType actualType = getBTypeFromDescriptor(packageInfo, actualTypeSigUTF8CPEntry.getValue());
+
+        // Create a new constant info.
+        ConstantInfo constantInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue(), actualTypeSigCPIndex,
+                actualType);
 
         // Read attributes.
-        readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
-        return packageVarInfo;
+        readAttributeInfoEntries(packageInfo, constantPool, constantInfo);
+        return constantInfo;
     }
 
     private PackageVarInfo getGlobalVarInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {

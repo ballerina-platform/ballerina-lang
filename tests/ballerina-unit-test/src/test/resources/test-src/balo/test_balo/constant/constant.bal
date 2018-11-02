@@ -1,10 +1,14 @@
 import testorg/foo version v1;
 
-function testAccessConstantWithoutType() returns string {
+type Ballerina "Ballerina";
+
+function testAccessConstantWithoutType() returns Ballerina {
     return foo:constName;
 }
 
-function testAccessConstantWithType() returns string {
+type Colombo "Colombo";
+
+function testAccessConstantWithType() returns Colombo {
     return foo:constAddress;
 }
 

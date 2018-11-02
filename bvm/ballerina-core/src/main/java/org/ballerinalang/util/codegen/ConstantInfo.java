@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 
@@ -31,17 +32,29 @@ import java.util.Map;
 public class ConstantInfo implements AttributeInfoPool {
 
     private int nameCPIndex;
+    private int actualTypeCPIndex;
     private String name;
+    private BType actualType;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, String name) {
+    public ConstantInfo(int nameCPIndex, String name, int actualTypeCPIndex, BType actualType) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
+        this.actualTypeCPIndex = actualTypeCPIndex;
+        this.actualType = actualType;
     }
 
     public int getNameCPIndex() {
         return nameCPIndex;
+    }
+
+    public int getActualTypeCPIndex() {
+        return actualTypeCPIndex;
+    }
+
+    public BType getActualType() {
+        return actualType;
     }
 
     public String getName() {
