@@ -13,3 +13,18 @@ public type CD C|D;
 public const CD C = "C";
 
 public const CD D = "D";
+
+
+public const string KEY = "key";
+
+public const string VALUE = "value";
+
+public const boolean booleanWithType = false;
+
+public const int intWithType = 40;
+
+public const byte byteWithType = 240;
+
+public const float floatWithType = 4.0;
+
+public const string stringWithType = "Ballerina is awesome";
