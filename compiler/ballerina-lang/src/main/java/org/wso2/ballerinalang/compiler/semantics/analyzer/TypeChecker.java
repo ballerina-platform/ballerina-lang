@@ -1801,9 +1801,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case CLONE:
-                handleBuiltInFunctions(iExpr, type);
-                isValidBuiltinFunc = true;
-                validateAnyDataType(iExpr.expr.type, iExpr.expr.pos);
+                if (isValidAnyDataType(iExpr.expr.type, iExpr.expr.pos)) {
+                    handleBuiltInFunctions(iExpr, type);
+                    isValidBuiltinFunc = true;
+                }
                 break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
@@ -1820,7 +1821,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return isValidBuiltinFunc;
     }
 
-    private void validateAnyDataType(BType type, DiagnosticPos pos) {
+    private boolean isValidAnyDataType(BType type, DiagnosticPos pos) {
+        boolean isValid = true;
         switch (type.tag) {
             //TODO: Decimal to be added
             case TypeTags.INT:
@@ -1835,20 +1837,22 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
                 for (BType memberType : unionType.memberTypes) {
-                    validateAnyDataType(memberType, pos);
+                    isValid = isValid && isValidAnyDataType(memberType, pos);
                 }
                 break;
             case TypeTags.ARRAY:
                 BArrayType arrType = (BArrayType) type;
-                validateAnyDataType(arrType.eType, pos);
+                isValid = isValidAnyDataType(arrType.eType, pos);
                 break;
             case TypeTags.MAP:
                 BMapType mapType = (BMapType) type;
-                validateAnyDataType(mapType.constraint, pos);
+                isValid = isValidAnyDataType(mapType.constraint, pos);
                 break;
             default:
                 dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_CLONE, type);
+                isValid = false;
         }
+        return isValid;
     }
 
     private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function,
