@@ -155,5 +155,15 @@ public class UnionTypeSealInbuiltFunctionTest {
                 BStringType.class);
     }
 
+    @Test
+    public void testSealUnionToAny() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealUnionToAny");
+        BValue sealedValue = results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(sealedValue.getType().getClass(), BAnyType.class);
+    }
+
 }
 

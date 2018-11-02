@@ -277,6 +277,12 @@ public class Types {
             }
         }
 
+        if (target.tag == TypeTags.TUPLE) {
+            if (source.tag == TypeTags.TUPLE) {
+                return true;
+            }
+        }
+
         return false;
     }
 

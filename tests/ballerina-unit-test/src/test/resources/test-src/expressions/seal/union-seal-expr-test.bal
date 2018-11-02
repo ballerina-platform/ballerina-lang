@@ -83,3 +83,11 @@ function sealUnionToConstraintMap() returns map<Employee> {
     unionVar.seal(map<Employee>);
     return unionVar;
 }
+
+function sealUnionToAny() returns any {
+
+    int|float|string|boolean unionValue = "mohan";
+    unionValue.seal(any);
+
+    return unionValue;
+}
