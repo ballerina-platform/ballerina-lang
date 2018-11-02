@@ -271,6 +271,12 @@ public class Types {
             }
         }
 
+        if (target.tag == TypeTags.OBJECT || target.tag == TypeTags.MAP) {
+            if (source.tag == TypeTags.UNION) {
+                return true;
+            }
+        }
+
         return false;
     }
 
