@@ -169,13 +169,6 @@ public class NonBlockingStub extends AbstractStub {
         }
 
         @Override
-        public void onNext(ProgramFile value, BValue responseValue) {
-            // Do nothing for now
-            // TODO: need to remove this
-
-        }
-
-        @Override
         public void onError(Message error) {
             call.cancel("Cancelled by client with StreamObserver.onError()", error.getError());
         }

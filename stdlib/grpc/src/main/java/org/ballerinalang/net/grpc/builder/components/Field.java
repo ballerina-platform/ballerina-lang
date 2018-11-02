@@ -35,12 +35,14 @@ public class Field {
     private String fieldLabel;
     private String fieldName;
     private String defaultValue;
+    private String tag;
 
-    private Field(String fieldName, String fieldType, String fieldLabel, String defaultValue) {
+    private Field(String fieldName, String fieldType, String fieldLabel, String defaultValue, String tag) {
         this.fieldName = fieldName;
         this.fieldType = fieldType;
         this.fieldLabel = fieldLabel;
         this.defaultValue = defaultValue;
+        this.tag = tag;
     }
 
     public static Field.Builder newBuilder(DescriptorProtos.FieldDescriptorProto fieldDescriptor) {
@@ -77,7 +79,8 @@ public class Field {
                 fieldType = fieldTypeArray[fieldTypeArray.length - 1];
             }
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
-            return new Field(fieldDescriptor.getName(), fieldType, fieldLabel, fieldDescriptor.getDefaultValue());
+            String tag = String.valueOf(fieldDescriptor.getNumber());
+            return new Field(fieldDescriptor.getName(), fieldType, fieldLabel, fieldDescriptor.getDefaultValue(), tag);
         }
 
         private Builder(DescriptorProtos.FieldDescriptorProto fieldDescriptor) {

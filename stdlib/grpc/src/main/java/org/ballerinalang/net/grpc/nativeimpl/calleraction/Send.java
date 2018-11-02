@@ -80,8 +80,7 @@ public class Send extends BlockingNativeCallableUnit {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(clientEndpoint);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
-        ProgramFile programFile = context.getProgramFile();
-        
+
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
@@ -99,8 +98,7 @@ public class Send extends BlockingNativeCallableUnit {
                     if (headers != null) {
                         responseMessage.setHeaders(headers);
                     }
-                    responseObserver.onNext(programFile, responseValue);
-//                    responseObserver.onNext(responseMessage);
+                    responseObserver.onNext(responseMessage);
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);

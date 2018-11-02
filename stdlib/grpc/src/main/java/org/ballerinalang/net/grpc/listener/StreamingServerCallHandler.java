@@ -71,11 +71,6 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                         (onMessage, value, responseObserver));
             }
 
-            @Override public void onNext(ProgramFile value, BValue responseValue) {
-                // Do nothing for now
-                // TODO: need to remove this
-            }
-
             @Override
             public void onError(Message error) {
                 Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);

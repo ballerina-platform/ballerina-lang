@@ -30,10 +30,12 @@ import java.util.List;
 public class Message {
     private List<Field> fieldList;
     private String messageName;
+    private String size;
 
-    private Message(String messageName, List<Field> fieldList) {
+    private Message(String messageName, List<Field> fieldList, String size) {
         this.messageName = messageName;
         this.fieldList = fieldList;
+        this.size = size;
     }
 
     public static Message.Builder newBuilder(DescriptorProtos.DescriptorProto messageDescriptor) {
@@ -48,6 +50,10 @@ public class Message {
         return messageName;
     }
 
+    public String getSize() {
+        return size;
+    }
+
     /**
      * Message Definition.Builder.
      */
@@ -60,7 +66,7 @@ public class Message {
                Field field = Field.newBuilder(fieldDescriptorProto).build();
                fieldList.add(field);
             }
-            return new Message(messageDescriptor.getName(), fieldList);
+            return new Message(messageDescriptor.getName(), fieldList, String.valueOf(messageDescriptor.getFieldCount()));
         }
 
         private Builder(DescriptorProtos.DescriptorProto messageDescriptor) {

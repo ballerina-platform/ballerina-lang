@@ -83,11 +83,10 @@ map descriptorMap = {
 {{/each}}
 };
 
-{{#stubObject}}
-{{#structs}}
-    public function parse{{structId}}(io:ProtoChannel byteChannel) returns ({{structId}}) {
+{{#messageList}}
+    public function parse{{messageName}}(io:ProtoChannel byteChannel) returns ({{messageName}}) {
     boolean finished = false;
-    {{structId}} infoRecord;
+    {{messageName}} infoRecord;
     int endValue = {{size}};
     foreach i in 1 ... endValue {
         var tag = byteChannel.readTag();
@@ -97,7 +96,7 @@ map descriptorMap = {
                     finished = true;
                     break;
                 }
-            {{#attribute}}
+            {{#fieldList}}
                 if (fieldTag == {{tag}}) {
                     var fieldValue = byteChannel.{{method}};
                     match fieldValue {
@@ -113,7 +112,7 @@ map descriptorMap = {
                     }
                 }
             }
-        {{/attribute}}
+        {{/fieldList}}
         }
             error err => {
                 io:println(err);
@@ -122,5 +121,4 @@ map descriptorMap = {
     }
     return infoRecord;
 }
-{{/structs}}
-{{/stubObject}}
+{{/messageList}}

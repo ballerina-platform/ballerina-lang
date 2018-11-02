@@ -158,34 +158,6 @@ public final class ServerCall {
         }
     }
 
-    public void sendMessage(ProgramFile message, BValue responseValue) {
-//        if (!sendHeadersCalled) {
-//            throw new IllegalStateException("sendHeaders has not been called");
-//        }
-        if (closeCalled) {
-            throw new IllegalStateException("call is closed");
-        }
-        if (method.getType().serverSendsOneMessage() && messageSent) {
-            outboundMessage.complete(Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_RESPONSES), new
-                    DefaultHttpHeaders());
-            return;
-        }
-        messageSent = true;
-        try {
-            BValue[] protoChannel = BLangFunctions.invokeCallable(programFile.getEntryPackage().getFunctionInfo("testFunction"),
-                    new BValue[] { responseValue });
-            String fileName = "/home/bhashinee/Ballerina/test.txt";
-            byte[] bFile = Files.readAllBytes(new File(fileName).toPath());
-            InputStream resp = new ByteArrayInputStream(bFile);
-//            InputStream resp = new FileInputStream(fileName);
-//            InputStream resp = message;
-//            InputStream resp = method.streamResponse(message);
-            outboundMessage.sendMessage(resp);
-        } catch (Exception e) {
-            close(Status.fromThrowable(e), new DefaultHttpHeaders());
-        }
-    }
-
     public void setCompression(String compressorName) {
         // Added here to give a better error message.
         if (sendHeadersCalled) {
@@ -255,23 +227,13 @@ public final class ServerCall {
                 ProtoWrapper protoByteChannel = new ProtoWrapper(byteChannel);
 
                 BMap<String, BValue> byteChannelObject = BLangConnectorSPIUtil
-                        .createObject(call.programFile, IOConstants.IO_PACKAGE, "ByteChannel");
+                        .createObject(call.programFile, IOConstants.IO_PACKAGE, "ReadableByteChannel");
                 byteChannelObject.addNativeData(IOConstants.BYTE_CHANNEL_NAME, protoByteChannel);
                 BMap<String, BValue> protoChannel = BLangConnectorSPIUtil
-                        .createObject(call.programFile, "ballerina/io", "ProtoChannel", byteChannelObject);
-//                BMap<String, BValue> messageObject = BLangConnectorSPIUtil
-                //                        .createObject(call.programFile, call.programFile.getEntryPackage().getPkgPath(), "orderInfo",
-                //                                protoChannel);
+                        .createObject(call.programFile, "ballerina/io", "ReadableProtoChannel", byteChannelObject);
                 BValue[] record = BLangFunctions.invokeCallable(call.programFile.getEntryPackage().getFunctionInfo(
                         "parse" + this.call.method.schemaDescriptor.getInputType().getFullName().split("\\.")[1]),
                         new BValue[] { protoChannel });
-
-//                BValue[] record = BLangFunctions.invokeCallable(call.programFile.getEntryPackage()
-//                                .getFunctionInfo(this.call.method.getFullMethodName().split("/")[1]),
-//                        new BValue[] { protoChannel });
-
-//                BMap<String, BValue> requestRecord = (BMap<String, BValue>) record[0];
-//                requestRecord.addNativeData(MESSAGE_HEADERS, call.inboundMessage.getHeaders());
                 listener.onMessage(record[0]);
             } catch (Exception ex) {
                 MessageUtils.closeQuietly(message);

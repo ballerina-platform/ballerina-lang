@@ -113,17 +113,17 @@ public abstract class ServerCallHandler {
             call.sendMessage(response);
         }
 
-        @Override
-        public void onNext(ProgramFile programFile, BValue responseValue) {
-            if (cancelled) {
-                throw Status.Code.CANCELLED.toStatus().withDescription("call already cancelled").asRuntimeException();
-            }
-            if (!sentHeaders) {
+//        @Override
+//        public void onNext(ProgramFile programFile, BValue responseValue) {
+//            if (cancelled) {
+//                throw Status.Code.CANCELLED.toStatus().withDescription("call already cancelled").asRuntimeException();
+//            }
+//            if (!sentHeaders) {
 //                call.sendHeaders(response.getHeaders());
-                sentHeaders = true;
-            }
-            call.sendMessage(programFile, responseValue);
-        }
+//                sentHeaders = true;
+//            }
+//            call.sendMessage(programFile, responseValue);
+//        }
 
         @Override
         public void onError(Message error) {

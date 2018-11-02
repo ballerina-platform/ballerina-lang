@@ -84,11 +84,6 @@ public class DefaultStreamObserver implements StreamObserver {
     }
 
     @Override
-    public void onNext(ProgramFile value, BValue responseValue) {
-        // Do nothing for now.
-    }
-
-    @Override
     public void onError(Message error) {
         Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
         if (onError == null) {

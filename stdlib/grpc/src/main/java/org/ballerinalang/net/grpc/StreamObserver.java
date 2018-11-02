@@ -44,7 +44,7 @@ public interface StreamObserver {
      */
     void onNext(Message value);
 
-    void onNext(ProgramFile value, BValue responseValue);
+    //void onNext(ProgramFile value, BValue responseValue);
 
     /**
      * Receives a terminating error from the stream.
