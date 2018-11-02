@@ -978,7 +978,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         NodeKind literalNode = patternClause.literal.getKind();
 
         if (!(NodeKind.LITERAL == literalNode || NodeKind.RECORD_LITERAL_EXPR == literalNode ||
-                NodeKind.BRACED_TUPLE_EXPR == literalNode)){
+                NodeKind.BRACED_TUPLE_EXPR == literalNode)) {
             dlog.error(patternClause.pos, INVALID_LITERAL_FOR_MATCH_PATTERN);
         }
 
