@@ -2006,7 +2006,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
         switch (iExpr.builtInMethod) {
-            case ISNAN:
+            case IS_NAN:
                 BOperatorSymbol notEqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
                         OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
                 BLangBinaryExpr binaryExprNaN = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
@@ -2014,7 +2014,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                              OperatorKind.NOT_EQUAL, notEqSymbol);
                 result = rewriteExpr(binaryExprNaN);
                 break;
-            case ISFINITE:
+            case IS_FINITE:
                 BOperatorSymbol equalSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
                                                                                                   symTable.floatType,
                                                                                                   symTable.floatType);
@@ -2049,7 +2049,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                              andEqualSymbol);
                 result = rewriteExpr(binaryExpr);
                 break;
-            case ISINFINITE:
+            case IS_INFINITE:
                 BOperatorSymbol eqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
                                                                                                   symTable.floatType,
                                                                                                   symTable.floatType);

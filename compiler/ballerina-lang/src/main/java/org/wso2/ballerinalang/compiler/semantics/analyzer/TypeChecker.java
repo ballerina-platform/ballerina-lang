@@ -1780,9 +1780,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 isValidBuiltinFunc = true;
                 break;
-            case ISNAN:
-            case ISINFINITE:
-            case ISFINITE:
+            case IS_NAN:
+            case IS_INFINITE:
+            case IS_FINITE:
                 if (type.tag == TypeTags.FLOAT) {
                     handleBuiltInFunctions(iExpr, symTable.booleanType);
                 } else {

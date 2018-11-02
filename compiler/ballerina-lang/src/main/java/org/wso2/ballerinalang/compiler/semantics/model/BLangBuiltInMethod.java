@@ -24,11 +24,11 @@ package org.wso2.ballerinalang.compiler.semantics.model;
  */
 public enum BLangBuiltInMethod {
 
-    ISNAN("isNaN"),
+    IS_NAN("isNaN"),
 
-    ISINFINITE("isInfinite"),
+    IS_INFINITE("isInfinite"),
 
-    ISFINITE("isFinite"),
+    IS_FINITE("isFinite"),
 
     LENGTH("length"),
 

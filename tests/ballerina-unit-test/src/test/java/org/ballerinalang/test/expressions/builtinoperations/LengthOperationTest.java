@@ -194,7 +194,6 @@ public class LengthOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-
     @Test(description = "Test length of array when reference point to JSON array.")
     public void testArrayLengthAccessJSONArrayCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
