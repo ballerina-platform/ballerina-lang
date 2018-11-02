@@ -20,7 +20,7 @@ function simpleTypes() returns string {
         20 => return "20";
         {a: 20} => return "{a: 20}"; // pattern will not be matched
         false => return "false"; // pattern will not be matched
-        (20) => return "(20)";
+        (21) => return "(21)";
         (20, 21) => return "(20, 21)"; // pattern will not be matched
         "Ballerina" => return "Ballerina"; // pattern will not be matched
         10.4 => return "10.4"; // pattern will not be matched
@@ -31,7 +31,7 @@ function simpleTypes() returns string {
         20 => return "20"; // pattern will not be matched
         {a: 20} => return "{a: 20}"; // pattern will not be matched
         false => return "false";
-        (20) => return "(20)"; // pattern will not be matched
+        (21) => return "(21)"; // pattern will not be matched
         "Ballerina" => return "Ballerina"; // pattern will not be matched
         10.4 => return "10.4"; // pattern will not be matched
     }
@@ -41,7 +41,7 @@ function simpleTypes() returns string {
         20 => return "20"; // pattern will not be matched
         {a: 20} => return "{a: 20}"; // pattern will not be matched
         false => return "false"; // pattern will not be matched
-        (20) => return "(20)"; // pattern will not be matched
+        (21) => return "(21)"; // pattern will not be matched
         "Ballerina" => return "Ballerina"; // pattern will not be matched
         10.4 => return "10.4";
     }
@@ -51,7 +51,7 @@ function simpleTypes() returns string {
         20 => return "20";  // pattern will not be matched
         {a: 20} => return "{a: 20}"; // pattern will not be matched
         false => return "false"; // pattern will not be matched
-        (20) => return "(20)"; // pattern will not be matched
+        (21) => return "(21)"; // pattern will not be matched
         "Ballerina" => return "Ballerina";
         10.4 => return "10.4"; // pattern will not be matched
     }
@@ -61,7 +61,7 @@ function simpleTypes() returns string {
         20 => return "20";
         {a: 20} => return "{a: 20}"; // pattern will not be matched
         false => return "false"; // pattern will not be matched
-        (20) => return "(20)";
+        (21) => return "(21)";
         (20, 21) => return "(20, 21)"; // pattern will not be matched
         "Ballerina" => return "Ballerina"; // pattern will not be matched
         10.4 => return "10.4"; // pattern will not be matched
@@ -72,7 +72,7 @@ function simpleTypes() returns string {
         20 => return "20";
         {a: 20} => return "{a: 20}";
         false => return "false";
-        (20) => return "(20)";
+        (21) => return "(21)";
         "Ballerina" => return "Ballerina";
         10.4 => return "10.4";
     }
@@ -211,15 +211,18 @@ function tupleTypes() returns string {
 
 type Foo record {
     int x;
+    boolean? y;
     string...
 };
 
-function recordRestParam() returns string {
+function recordRestParamAndOptionalFields() returns string {
     Foo f = {x: 1, a: "a"};
     match f {
         {a: "b"} => return "f";
         {x: 1, b: "b"} => return "f";
         {x: 1, b: 2} => return "f"; // pattern will not be matched
+        {x: 1, y: 2} => return "f"; // pattern will not be matched
+        {x: 1, y: true} => return "f";
     }
 
     return "Fail";

@@ -530,6 +530,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (matchStmt.exprTypes.isEmpty()) {
             return;
         }
+        List<BLangExpression> matchedSimplePatterns = new ArrayList<>();
         List<BLangExpression> matchedRecordPatterns = new ArrayList<>();
         List<BLangExpression> matchedTuplePatterns = new ArrayList<>();
         for (BLangMatchStmtStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
@@ -550,20 +551,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             if (pattern.getLiteral().type.tag == TypeTags.TUPLE) {
                 matchedTuplePatterns.add(pattern.getLiteral());
+                continue;
             }
+
+            matchedSimplePatterns.add(pattern.getLiteral());
         }
-        analyzeUnreachableStaticPatterns(matchedRecordPatterns);
+        analyzeUnreachableStaticPatterns(matchedSimplePatterns);
         analyzeUnreachableStaticPatterns(matchedTuplePatterns);
+        analyzeUnreachableStaticPatterns(matchedRecordPatterns);
     }
 
-    private void analyzeUnreachableStaticPatterns(List<BLangExpression> matchedRecordPatterns) {
-        for (int i = 0; i < matchedRecordPatterns.size(); i++) {
-            BLangExpression precedingPattern = matchedRecordPatterns.get(i);
-            for (int j = i + 1; j < matchedRecordPatterns.size(); j++) {
-                BLangExpression pattern = matchedRecordPatterns.get(j);
+    private void analyzeUnreachableStaticPatterns(List<BLangExpression> matchedPatterns) {
+        for (int i = 0; i < matchedPatterns.size() - 1; i++) {
+            BLangExpression precedingPattern = matchedPatterns.get(i);
+            for (int j = i + 1; j < matchedPatterns.size(); j++) {
+                BLangExpression pattern = matchedPatterns.get(j);
                 if (checkLiteralSimilarity(precedingPattern, pattern)) {
                     dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                    matchedRecordPatterns.remove(j--);
+                    matchedPatterns.remove(j--);
                 }
             }
         }
@@ -605,7 +610,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (types.isValueType(precedingPattern.type) && types.isValueType(pattern.type)) {
-            return (((BLangLiteral) precedingPattern).value.equals(((BLangLiteral) pattern).value));
+            BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                    (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) : (BLangLiteral) pattern;
+
+            BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                    (BLangLiteral) ((BLangBracedOrTupleExpr) precedingPattern).expressions.get(0) :
+                    (BLangLiteral) precedingPattern;
+
+            return (precedingLiteral.value.equals(literal.value));
         }
 
         return false;
@@ -620,6 +632,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (matchType.tag == TypeTags.ANY || matchType.tag == TypeTags.JSON) {
             // when matching any type or json type, all patterns are allowed
+            // TODO: 11/2/18 Change to Anydata and fail any
             return true;
         }
 
@@ -664,15 +677,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             BField::getType
                     ));
 
-            for (BLangRecordKeyValue keyValue : mapLiteral.keyValuePairs) {
-                if (recordFields.containsKey(((BLangSimpleVarRef) keyValue.key.expr).variableName.value)) {
-                    if (!isValidMatchPattern(recordFields.get(
-                            ((BLangSimpleVarRef) keyValue.key.expr).variableName.value), keyValue.valueExpr)) {
+            for (BLangRecordKeyValue literalKeyValue : mapLiteral.keyValuePairs) {
+                if (recordFields.containsKey(((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value)) {
+                    if (!isValidMatchPattern(
+                            recordFields.get(((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value),
+                            literalKeyValue.valueExpr)) {
                         return false;
                     }
                 } else if (recordMatchType.sealed) {
                     return false;
-                } else if (!isValidMatchPattern(recordMatchType.restFieldType, keyValue.valueExpr)) {
+                } else if (!isValidMatchPattern(recordMatchType.restFieldType, literalKeyValue.valueExpr)) {
                     return false;
                 }
             }

@@ -45,3 +45,17 @@ function tupleTypes() returns string {
 
     return "Fail";
 }
+
+function simpleTypes() returns string {
+    any k = 10;
+    match k {
+        15 => return "T";
+        (12, 15) => return "T";
+        20 => return "T";
+        20 => return "T"; // unreachable pattern
+        15 => return "T"; // unreachable pattern
+        (12, 15) => return "T"; // unreachable pattern
+    }
+
+    return "Fail";
+}

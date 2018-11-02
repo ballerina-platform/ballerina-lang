@@ -85,7 +85,7 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 50);
+        Assert.assertEquals(resultNegative.getErrorCount(), 51);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -144,11 +144,12 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 203, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 206, 9);
 
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 222, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 223, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 224, 9);
     }
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative2.getErrorCount(), 5);
+        Assert.assertEquals(resultNegative2.getErrorCount(), 8);
         int i = -1;
         String unreachablePatterm =
                 "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
@@ -158,5 +159,8 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 31, 9);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 41, 9);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 43, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 55, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 56, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 57, 9);
     }
 }
