@@ -17,7 +17,6 @@
 
 import ballerina/grpc;
 import ballerina/io;
-import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
@@ -31,8 +30,8 @@ public function main(string... args) {
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     match res {
-        grpc:error err => {
-            io:print("error");
+        error err => {
+            io:println("Error from Connector: " + err.reason());
         }
         grpc:Client con => {
             ep = con;
@@ -56,9 +55,7 @@ service<grpc:Service> ChatMessageListener {
     }
 
     onError(error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+        io:println("Error reported from server: " + err.reason());
     }
 
     onComplete() {

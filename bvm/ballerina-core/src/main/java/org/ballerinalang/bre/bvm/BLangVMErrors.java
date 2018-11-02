@@ -35,6 +35,7 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
@@ -53,16 +54,57 @@ public class BLangVMErrors {
     public static final String STRUCT_GENERIC_ERROR = "error";
     private static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String STRUCT_CALL_STACK_ELEMENT = "CallStackElement";
-    public static final String CALL_FAILED_EXCEPTION = "CallFailedException";
     public static final String TRANSACTION_ERROR = "TransactionError";
     public static final String ERROR_MESSAGE_FIELD = "message";
-    public static final String ERROR_CAUSE_FIELD = "cause";
-    public static final String ERROR_CAUSE_ARRAY_FIELD = "causes";
     public static final String STACK_FRAME_CALLABLE_NAME = "callableName";
     public static final String STACK_FRAME_PACKAGE_NAME = "moduleName";
     public static final String STACK_FRAME_FILE_NAME = "fileName";
     public static final String STACK_FRAME_LINE_NUMBER = "lineNumber";
-    
+
+    /**
+     * Create BError value with given reason string.
+     *
+     * @param reason error reason
+     * @return BError instance
+     */
+    public static BError createError(String reason) {
+        return generateError(null, null, false, reason);
+    }
+
+    /**
+     * Create BError value.
+     *
+     * @param reason error reason
+     * @param detail error details
+     * @return BError instance
+     */
+    public static BError createError(String reason, BMap<String, BValue> detail) {
+        return generateError(null, null, false, BTypes.typeError, reason, detail);
+    }
+
+    /**
+     * Create BError value.
+     *
+     * @param errorType BError type
+     * @param reason    error reason
+     * @return BError instance
+     */
+    public static BError createError(BErrorType errorType, String reason) {
+        return generateError(null, null, false, errorType, reason, null);
+    }
+
+    /**
+     * Create BError value.
+     *
+     * @param errorType BError type
+     * @param reason    error reason
+     * @param detail    error detail
+     * @return BError instance
+     */
+    public static BError createError(BErrorType errorType, String reason, BMap<String, BValue> detail) {
+        return generateError(null, null, false, errorType, reason, detail);
+    }
+
     /**
      * Create error Struct from given error reason.
      *
@@ -118,13 +160,13 @@ public class BLangVMErrors {
         return generateError(context, true, NULL_REF_EXCEPTION);
     }
 
-    static BError createCallFailedException(WorkerExecutionContext context, List<BError> errors) {
-        BMap<String, BValue> details = new BMap<>(BTypes.typeMap);
+    static BError handleError(WorkerExecutionContext context, Map<String, BError> errors) {
         if (!errors.isEmpty()) {
-            details.put(ERROR_CAUSE_FIELD, errors.iterator().next());
-            details.put(ERROR_CAUSE_ARRAY_FIELD, createErrorCauseArray(errors));
+            BError error = errors.computeIfAbsent("default", key -> errors.values().iterator().next());
+            attachStackFrame(error, context);
+            return error;
         }
-        return generateError(context, true, MSG_CALL_FAILED, details);
+        return generateError(context, true, MSG_CALL_FAILED);
     }
 
     static BError createCallCancelledException(WorkerExecutionContext context) {
@@ -133,23 +175,8 @@ public class BLangVMErrors {
 
     /* Private Util Methods */
 
-    private static BRefValueArray createErrorCauseArray(List<BError> errors) {
-        BRefValueArray result = new BRefValueArray();
-        long i = 0;
-        for (BError entry : errors) {
-            result.add(i, entry);
-            i++;
-        }
-        return result;
-    }
-
     private static BError generateError(WorkerExecutionContext context, boolean attachCallStack, String reason) {
         BMap<String, BValue> details = new BMap<>(BTypes.typeMap);
-        return generateError(context, attachCallStack, BTypes.typeError, reason, details);
-    }
-
-    private static BError generateError(WorkerExecutionContext context, boolean attachCallStack, String reason,
-            BMap<String, BValue> details) {
         return generateError(context, attachCallStack, BTypes.typeError, reason, details);
     }
 
@@ -183,12 +210,12 @@ public class BLangVMErrors {
     }
 
     public static void attachStackFrame(BError error, WorkerExecutionContext context) {
-        error.stackElement = getStackFrame(context);
+        Optional.ofNullable(getStackFrame(context)).ifPresent(error.callStack::add);
     }
 
     public static void attachStackFrame(ProgramFile programFile, BError error,
                                         CallableUnitInfo callableUnitInfo) {
-        error.stackElement = getStackFrame(programFile, callableUnitInfo, 0);
+        Optional.ofNullable(getStackFrame(programFile, callableUnitInfo, 0)).ifPresent(error.callStack::add);
     }
 
     public static BRefValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
@@ -250,106 +277,54 @@ public class BLangVMErrors {
         return getStackFrame(context.programFile, context.callableUnitInfo, context.ip);
     }
 
-    private static boolean isCFE(BError error) {
-        return error.reason.equals(CALL_FAILED_EXCEPTION);
-    }
-
     public static String getPrintableStackTrace(BError error) {
-        BRefValueArray causeArray = null;
-        BError causeError = null;
-        if (isCFE(error)) {
-            causeArray = (BRefValueArray) (((BMap) error.details).get(ERROR_CAUSE_ARRAY_FIELD));
-        } else {
-            causeError = (BError) (((BMap) error.details).get(ERROR_CAUSE_FIELD));
-        }
-
-        /* skip the first call failed error, since it would be the root context that calls the
-         * entry point functions (i.e. main etc..). The error at the root context will have all
-         * the errors as causes of the entry point function */
-        if (causeArray != null) {
-            return getCauseStackTraceArray(causeArray);
-        } else if (causeError != null) {
-            return getCasueStackTrace(causeError);
-        }
-
-        return null;
-    }
-    
-    public static String getCauseStackTraceArray(BRefValueArray cause) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < cause.size(); i++) {
-            sb.append(getCasueStackTrace((BError) cause.get(i)) + "\n");
-        }
-        return sb.toString();
-    }
-
-    public static String getCasueStackTrace(BError error) {
         StringBuilder sb = new StringBuilder();
 
         // Get error type name and the message (if any)
         String errorMsg = getErrorMessage(error);
         sb.append(errorMsg).append("\n\tat ");
 
-        BMap<String, BValue> stackFrame = error.stackElement;
+        List<BMap<String, BValue>> stackFrames = error.callStack;
         // Append function/action/resource name with package path (if any)
-        String pkgName = stackFrame.get(STACK_FRAME_PACKAGE_NAME).stringValue();
-        if (pkgName.isEmpty() || DEFAULT_PKG_PATH.equals(pkgName) || BALLERINA_BUILTIN_PKG.equals(pkgName)) {
-            sb.append(stackFrame.get(STACK_FRAME_CALLABLE_NAME).stringValue());
-        } else {
-            sb.append(pkgName).append(":").append(stackFrame.get(STACK_FRAME_CALLABLE_NAME).stringValue());
-        }
-
-        // Append the filename
-        sb.append("(").append(stackFrame.get(STACK_FRAME_FILE_NAME).stringValue());
-
-        // Append the line number
-        long lineNo = ((BInteger) stackFrame.get(STACK_FRAME_LINE_NUMBER)).intValue();
-        if (lineNo > 0) {
-            sb.append(":").append(lineNo);
-        }
-        sb.append(")");
-
-        if (isCFE(error)) {
-            BRefValueArray cause = (BRefValueArray) (((BMap) error.details).get(ERROR_CAUSE_ARRAY_FIELD));
-            if (cause != null && cause.size() > 0) {
-                sb.append("\ncaused by ").append(getCauseStackTraceArray(cause));
+        for (int i = stackFrames.size() - 1; i >= 0; i--) {
+            BMap<String, BValue> stackFrame = stackFrames.get(i);
+            String pkgName = stackFrame.get(STACK_FRAME_PACKAGE_NAME).stringValue();
+            if (pkgName.isEmpty() || DEFAULT_PKG_PATH.equals(pkgName) || BALLERINA_BUILTIN_PKG.equals(pkgName)) {
+                sb.append(stackFrame.get(STACK_FRAME_CALLABLE_NAME).stringValue());
+            } else {
+                sb.append(pkgName).append(":").append(stackFrame.get(STACK_FRAME_CALLABLE_NAME).stringValue());
             }
-        } else {
-            BError cause = (BError) ((BMap) error.details).get(ERROR_CAUSE_FIELD);
-            if (cause != null) {
-                sb.append("\ncaused by ").append(getCasueStackTrace(cause));
+            // Append the filename
+            sb.append("(").append(stackFrame.get(STACK_FRAME_FILE_NAME).stringValue());
+
+            // Append the line number
+            long lineNo = ((BInteger) stackFrame.get(STACK_FRAME_LINE_NUMBER)).intValue();
+            if (lineNo > 0) {
+                sb.append(":").append(lineNo);
+            }
+            sb.append(")");
+            if (i != 0) {
+                sb.append("\n\t   ");
             }
         }
-
         return sb.toString();
     }
 
     private static String getErrorMessage(BError error) {
-        String errorMsg = error.getType().getName();
-        if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(DEFAULT_PKG_PATH) &&
-                !error.getType().getPackagePath().equals(BALLERINA_BUILTIN_PKG)) {
-            errorMsg = error.getType().getPackagePath() + ":" + errorMsg;
+        // No longer consider nominal error type, just the reason and details.
+
+        String errorMsg = "";
+        boolean reasonAdded = false;
+        if (error.reason != null && !error.reason.isEmpty()) {
+            errorMsg = removeJava(error.reason);
+            reasonAdded = true;
         }
 
-        String reason = error.reason;
-        if (reason == null) {
-            return errorMsg;
-        }
-
-        if (!reason.isEmpty()) {
-            errorMsg = errorMsg + ", message: " + removeJava(makeFirstLetterLowerCase(reason));
+        if (error.details != null) {
+            errorMsg = errorMsg + (reasonAdded ? " " : "") + error.details.toString();
         }
 
         return errorMsg;
-    }
-
-    private static String makeFirstLetterLowerCase(String s) {
-        if (s == null) {
-            return null;
-        }
-        char c[] = s.toCharArray();
-        c[0] = Character.toLowerCase(c[0]);
-        return new String(c);
     }
 
     private static String removeJava(String s) {
