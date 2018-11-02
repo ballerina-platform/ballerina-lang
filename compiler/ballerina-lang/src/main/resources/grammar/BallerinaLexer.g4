@@ -174,15 +174,17 @@ MOD     : '%';
 
 // Relational operators
 
-NOT         : '!' ;
-EQUAL       : '==' ;
-NOT_EQUAL   : '!=' ;
-GT          : '>' ;
-LT          : '<' ;
-GT_EQUAL    : '>=' ;
-LT_EQUAL    : '<=' ;
-AND         : '&&' ;
-OR          : '||' ;
+NOT             : '!' ;
+EQUAL           : '==' ;
+NOT_EQUAL       : '!=' ;
+GT              : '>' ;
+LT              : '<' ;
+GT_EQUAL        : '>=' ;
+LT_EQUAL        : '<=' ;
+AND             : '&&' ;
+OR              : '||' ;
+REF_EQUAL       : '===' ;
+REF_NOT_EQUAL   : '!==' ;
 
 // Bitwise Operators
 

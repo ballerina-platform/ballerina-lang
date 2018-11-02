@@ -622,7 +622,7 @@ public class HttpUtil {
                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION)));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
-        if (resourceArgValues != null) {
+        if (resourceArgValues != null && resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO) != null) {
             inboundRequestStruct.put(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
                     new BString(resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO)));
         }
