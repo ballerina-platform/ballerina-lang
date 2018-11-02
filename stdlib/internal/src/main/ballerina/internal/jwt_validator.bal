@@ -215,8 +215,8 @@ function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
     return true;
 }
 
-function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config) returns
-    error? {
+function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config)
+    returns error? {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
     TrustStore trustStore = {};
