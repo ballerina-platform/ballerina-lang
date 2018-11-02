@@ -66,6 +66,7 @@ public class BallerinaProjectExtension extends ProjectExtension {
         }
 
         // Need to prompt a restart action to clear and re initiate language server instance from the new SDK.
+        // Todo - Figure out a way to apply language server changes without restarting.
         ApplicationManager.getApplication().invokeLater(this::showRestartDialog);
     }
 
