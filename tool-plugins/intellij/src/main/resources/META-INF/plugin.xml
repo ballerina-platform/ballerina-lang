@@ -253,14 +253,14 @@
         </action>
 
         <!-- LSP Plugin Actions -->
-        <action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>
-        <action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>
-        <action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>
-        <action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
-        </action>
-        <action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction">
-            <keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/>
-        </action>
+        <!--<action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>-->
+        <!--</action>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction">-->
+            <!--<keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/>-->
+        <!--</action>-->
     </actions>
 
     <application-components>
