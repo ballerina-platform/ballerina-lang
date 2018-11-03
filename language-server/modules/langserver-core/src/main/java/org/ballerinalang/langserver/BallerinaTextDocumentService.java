@@ -452,9 +452,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
                 Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
                 int totalLines = 0;
-                while (matcher.find())
-                {
-                    totalLines ++;
+                while (matcher.find()) {
+                    totalLines++;
                 }
 
                 int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf("\n"),
