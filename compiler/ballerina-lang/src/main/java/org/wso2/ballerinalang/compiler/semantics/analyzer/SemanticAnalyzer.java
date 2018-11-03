@@ -1514,33 +1514,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BLangLiteral value = (BLangLiteral) constant.value;
 
-        BLangType typeNode = constant.typeNode;
-
         if (constant.typeNode != null) {
-            types.isAssignable(constant.type, constant.typeNode.type);
-            typeChecker.checkExpr(value, env, typeNode.type);
+            // Check the type of the value and typeNode's type.
+            typeChecker.checkExpr(value, env, constant.typeNode.type);
         } else {
-            // We don't have any expected type in this case since the type node is not available.
+            // We don't have any expected type in this case since the type node is not available. So we just visit
+            // the value to set the proper type to it.
             typeChecker.checkExpr(value, env);
         }
-
-
-
-
-//        if (typeNode == null) {
-//
-//            return;
-//        }
-//
-//        // Set the actual type. This is needed later in the typeChecker when we visit BLangSimpleVarRef.
-////        constant.symbol.actualType = typeNode.type;
-//
-//        // Check type of the value. This is to identify invalid assignments to types. We cannot use symbol's type
-//        // here since it causes issues in byte types (conflicts with int).
-//        //
-//        // Eg - type ABC "Ballerina";
-//        //      const ABC name = "Bal";
-//
     }
 
     // Private methods

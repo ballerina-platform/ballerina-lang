@@ -368,17 +368,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineTypeNodes(unresolvedTypes, env);
     }
 
-    private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
-        // Resolve the type node and update the type of the typeNode.
-        constants.stream()
-                .filter(constant -> constant.typeNode != null && constant.symbol != null)
-                .forEach(constant -> {
-                    BType type = symResolver.resolveTypeNode(constant.typeNode, env);
-                    constant.typeNode.type = type;
-                    constant.symbol.typeNodeType = type;
-                });
-    }
-
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
@@ -836,6 +825,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
 
     // Private methods
+
+    private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
+        // Resolve the type node and update the type of the typeNode.
+        constants.stream()
+                .filter(constant -> constant.typeNode != null && constant.symbol != null)
+                .forEach(constant -> {
+                    BType type = symResolver.resolveTypeNode(constant.typeNode, env);
+                    constant.typeNode.type = type;
+                    constant.symbol.typeNodeType = type;
+                });
+    }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
         return annotationAttachmentList.stream()

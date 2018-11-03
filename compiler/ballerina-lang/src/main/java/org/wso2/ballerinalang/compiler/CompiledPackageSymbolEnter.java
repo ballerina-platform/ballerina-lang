@@ -212,43 +212,37 @@ public class CompiledPackageSymbolEnter {
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
-        // define import packages
+        // Define import packages.
         defineSymbols(dataInStream, rethrow(this::defineImportPackage));
 
-        // define type defs
+        // Define type definitions.
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
 
-        // define annotations
+        // Define annotations.
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
 
-        // define services
+        // Define services.
         defineSymbols(dataInStream, rethrow(this::defineService));
 
 
-        // Resolve unresolved types..
+        // Resolve unresolved types.
         resolveTypes();
 
         // Read resource info entries.
         defineSymbols(dataInStream, rethrow(this::defineResource));
 
-        // Define package level variables
+        // Define constants.
         defineSymbols(dataInStream, rethrow(this::defineConstants));
 
-        // Define package level variables
+        // Define package level variables.
         defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
 
-        // Define resource entries
-
-        // Define global variables
-
-        // Define functions
+        // Define functions.
         defineSymbols(dataInStream, rethrow(this::defineFunction));
         assignInitFunctions();
 
         // Read package level attributes
         readAttributes(dataInStream);
-
-        // Read instructions array
 
         return this.env.pkgSymbol;
     }

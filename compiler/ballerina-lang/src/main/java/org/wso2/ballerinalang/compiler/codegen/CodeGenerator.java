@@ -411,7 +411,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
-        // We don't need to visit constants since we don't do any code generation.
+        // We don't need to visit constants since we don't do any code generation for constants.
         pkgNode.topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&

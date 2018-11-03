@@ -1132,12 +1132,11 @@ public class Desugar extends BLangNodeVisitor {
                         symResolver));
                 return;
             } else {
-
-                // Package variable | service variable
-                // We consider both of them as package level variables
+                // Package variable | service variable.
+                // We consider both of them as package level variables.
                 genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
 
-                //Only locking service level and package level variables
+                // Only locking service level and package level variables.
                 if (!enclLocks.isEmpty()) {
                     enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
                 }

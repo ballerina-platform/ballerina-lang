@@ -1499,7 +1499,7 @@ public class BLangPackageBuilder {
         attachDeprecatedNode(constantNode);
         this.compUnit.addTopLevelNode(constantNode);
 
-        // Check whether the value is a literal. If it is a var ref, it is an invalid case. So we don't need to
+        // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
         // consider it.
         if (((BLangExpression) constantNode.value).getKind() == NodeKind.LITERAL) {
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used

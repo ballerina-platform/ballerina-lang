@@ -622,17 +622,17 @@ public class PackageInfoReader {
     }
 
     private ConstantInfo getConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
-        // Read constant name;
+        // Read constant name.
         int nameCPIndex = dataInStream.readInt();
         UTF8CPEntry nameUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
 
-        // Read actual type;
+        // Read actual type.
         int actualTypeSigCPIndex = dataInStream.readInt();
         UTF8CPEntry actualTypeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(actualTypeSigCPIndex);
 
         boolean typeNodeTypeAvailable = dataInStream.readBoolean();
 
-        // Read actual type;
+        // Read type node's type if available.
         int typeNodeTypeCPIndex = -1;
         BType typeNodeType = null;
         if (typeNodeTypeAvailable) {
