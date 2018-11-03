@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 32);
+        Assert.assertEquals(compileResult.getErrorCount(), 33);
         String expectedErrMsg1 = "only simple literals can be assigned to a constant";
         String expectedErrMsg2 = "cannot assign a value to a constant";
         int index = 0;
@@ -69,7 +69,10 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '20'", 121, 12);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found '120'", 127, 12);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'float', found '2.0'", 133, 12);
-        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'string', found 'Ballerina " +
-                        "rocks'", 139, 12);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'Ballerina " +
+                "rocks'", 139, 12);
+        BAssertUtil.validateError(compileResult, index++, "function invocation on type 'SHA1' is not supported", 147,
+                17);
+        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'E|F', found 'D|E'", 164, 11);
     }
 }
