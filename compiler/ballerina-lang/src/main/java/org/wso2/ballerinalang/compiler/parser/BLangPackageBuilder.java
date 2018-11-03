@@ -1499,8 +1499,12 @@ public class BLangPackageBuilder {
         attachDeprecatedNode(constantNode);
         this.compUnit.addTopLevelNode(constantNode);
 
-        // Check whether the value is a literal.
+        // Check whether the value is a literal. If it is a var ref, it is an invalid case. So we don't need to
+        // consider it.
         if (((BLangExpression) constantNode.value).getKind() == NodeKind.LITERAL) {
+            // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
+            // in type definitions.
+
             // Create a new literal.
             BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
             literal.setValue(((BLangLiteral) constantNode.value).value);
@@ -1519,11 +1523,10 @@ public class BLangPackageBuilder {
             typeDef.typeNode = finiteTypeNode;
             typeDef.pos = pos;
 
-            // Todo - update
+            // We add this type definition to the `associatedTypeDefinition` field of the constant node. Then when we
+            // visit the constant node, we visit this type definition as well. By doing this, we don't need to change
+            // any of the type def visiting logic in symbol enter.
             constantNode.associatedTypeDefinition = typeDef;
-
-            // Add the anonymous type definition to top level nodes.
-//            this.compUnit.addTopLevelNode(typeDef);
         }
     }
 

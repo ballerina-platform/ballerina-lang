@@ -34,7 +34,7 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
     public BLangLiteral value;
     // Actual finite type of the constant.
     public BType actualType;
-    // User defined type (type node) of the constant.
+    // Type of the type node specified when declaring the constant.
     public BType typeNodeType;
 
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {

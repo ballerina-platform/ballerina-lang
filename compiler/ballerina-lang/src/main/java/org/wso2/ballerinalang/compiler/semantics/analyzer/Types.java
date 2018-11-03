@@ -237,17 +237,16 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.FINITE) {
+        // Check whether the source is a proper sub set of the target.
+        if (source.tag == TypeTags.FINITE && target.tag == TypeTags.FINITE) {
             BFiniteType finiteType = (BFiniteType) source;
-            BLangLiteral literal = (BLangLiteral) finiteType.valueSpace.iterator().next();
-            if (target.tag == TypeTags.FINITE) {
-                if (finiteType.valueSpace.size() == 1) {
-                    return isAssignableToFiniteType(target, literal);
-                }
-            }else if(isAssignableToFiniteType(target,literal )){
-
+            boolean isAssignable = finiteType.valueSpace.stream()
+                    .allMatch(expression -> isAssignableToFiniteType(target, (BLangLiteral) expression));
+            if (isAssignable) {
+                return true;
             }
         }
+
         if (target.tag == TypeTags.JSON) {
             if (source.tag == TypeTags.JSON) {
                 return ((BJSONType) target).constraint.tag == TypeTags.NONE;
