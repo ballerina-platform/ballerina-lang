@@ -212,6 +212,78 @@ public class ModuleBuildTestCase extends BaseTest {
     }
 
     /**
+     * Building a project with a module only with tests.
+     *
+     * @throws BallerinaTestException When an error occurs executing the command.
+     */
+    @Test(description = "Test building a project with a module only with tests")
+    public void testBuildOnlyWithTest() throws BallerinaTestException, IOException {
+        Path projectPath = tempProjectDirectory.resolve("testModuleBuild");
+        initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
+
+        // Delete the source files in the module
+        Files.deleteIfExists(projectPath.resolve("foo").resolve("main.bal"));
+
+        String msg = "Compiling source\n" +
+                    "    integrationtests/foo:0.0.1\n" +
+                    "\n" +
+                    "Running tests\n" +
+                    "    integrationtests/foo:0.0.1\n" +
+                    "I'm the before suite function!\n" +
+                    "I'm the before function!\n" +
+                    "I'm in test function!\n" +
+                    "I'm the after function!\n" +
+                    "I'm the after suite function!\n" +
+                    "\t[pass] testFunction\n" +
+                    "\n" +
+                    "\t1 passing\n" +
+                    "\t0 failing\n" +
+                    "\t0 skipped\n" +
+                    "\n" +
+                    "Generating executable\n" +
+                    "    ./target/foo.balx";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+
+        balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                          projectPath.toString());
+        clientLeecher.waitForText(3000);
+    }
+
+    /**
+     * Executing tests in a project with a module only with tests.
+     *
+     * @throws BallerinaTestException When an error occurs executing the command.
+     */
+    @Test(description = "Test executing tests in a project with a module only with tests")
+    public void testExecOnlyWithTest() throws BallerinaTestException, IOException {
+        Path projectPath = tempProjectDirectory.resolve("testModule");
+        initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
+
+        // Delete the source files in the module
+        Files.deleteIfExists(projectPath.resolve("foo").resolve("main.bal"));
+
+        String msg = "Compiling tests\n" +
+                "    integrationtests/foo:0.0.1\n" +
+                "\n" +
+                "Running tests\n" +
+                "    integrationtests/foo:0.0.1\n" +
+                "I'm the before suite function!\n" +
+                "I'm the before function!\n" +
+                "I'm in test function!\n" +
+                "I'm the after function!\n" +
+                "I'm the after suite function!\n" +
+                "\t[pass] testFunction\n" +
+                "\n" +
+                "\t1 passing\n" +
+                "\t0 failing\n" +
+                "\t0 skipped\n";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+
+        balClient.runMain("test", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                          projectPath.toString());
+        clientLeecher.waitForText(3000);
+    }
+    /**
      * Init project.
      *
      * @param projectPath project path
