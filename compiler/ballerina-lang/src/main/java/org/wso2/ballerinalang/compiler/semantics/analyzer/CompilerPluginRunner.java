@@ -203,7 +203,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangConstant constant) {
-        // Todo
+        /* ignore */
     }
 
     // private methods

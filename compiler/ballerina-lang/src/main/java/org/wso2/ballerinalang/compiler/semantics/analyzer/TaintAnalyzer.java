@@ -1359,7 +1359,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        // Todo
+        /* ignore */
     }
 
     // Private

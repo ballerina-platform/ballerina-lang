@@ -1182,7 +1182,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        // Todo
+        /* ignore */
     }
 
     /**
