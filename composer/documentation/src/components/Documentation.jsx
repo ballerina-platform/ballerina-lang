@@ -23,6 +23,7 @@ import './Documentation.css';
 
 const Documentation = ({ docDetails }) => {
     const { title, kind, description, parameters, typeNodeKind, returnParameter } = docDetails;
+    const paramNames = Object.keys(parameters);
 
     let type = (kind == 'TypeDefinition') ? typeNodeKind : kind;
 
@@ -45,7 +46,7 @@ const Documentation = ({ docDetails }) => {
                     <div className='return-description'>{<Description source={returnParameter.description || ''} />}</div>
                 </div>
             )}
-            {parameters.length > 0 && (
+            {paramNames.length > 0 && (
                 <Table celled compact className='parameters'>
                     <Table.Header>
                         <Table.Row>
@@ -57,8 +58,8 @@ const Documentation = ({ docDetails }) => {
                     </Table.Header>
                     <Table.Body>
                         {
-                            parameters.map((param) => {
-                                const { name, type, defaultValue, description } = param;
+                            paramNames.map((param) => {
+                                const { name, type, defaultValue, description } = parameters[param];
                                 return (
                                     <Table.Row>
                                         <Table.Cell>

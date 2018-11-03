@@ -1,38 +1,37 @@
 import ballerina/http;
+import ballerina/io;
 
-http:AuthProvider basicAuthProvider03 = {
+// token propagation is set to false by default
+http:AuthProvider basicAuthProvider10 = {
     scheme:"basic",
-    authStoreProvider:"config",
-    propagateJwt: true,
-    issuer:"ballerina",
-    keyAlias:"ballerina",
-    keyPassword:"ballerina",
-    keyStore:
-    {
-        path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-        password:"ballerina"
+    authStoreProvider:"config"
+};
+
+endpoint http:Listener listener10_1 {
+    port:9190,
+    authProviders:[basicAuthProvider10],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
     }
 };
 
-endpoint http:SecureListener listener03 {
-    port:9094,
-    authProviders:[basicAuthProvider03]
-};
-
-endpoint http:Client nyseEP03 {
-    url: "http://localhost:9095",
-    auth: {scheme: "JWT"}
+// client will not propagate JWT
+endpoint http:Client nyseEP {
+    url: "https://localhost:9195"
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}
-service<http:Service> passthroughService03 bind listener03 {
+service<http:Service> passthroughService bind listener10_1 {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
     passthrough (endpoint caller, http:Request clientRequest) {
-        var response = nyseEP03 -> get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP -> get("/nyseStock/stocks", message = untaint clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);
@@ -47,7 +46,7 @@ service<http:Service> passthroughService03 bind listener03 {
     }
 }
 
-http:AuthProvider jwtAuthProvider03 = {
+http:AuthProvider jwtAuthProvider10 = {
     scheme: "jwt",
     issuer: "ballerina",
     audience: "ballerina",
@@ -58,13 +57,19 @@ http:AuthProvider jwtAuthProvider03 = {
     }
 };
 
-endpoint http:SecureListener listener3 {
-    port:9095,
-    authProviders:[jwtAuthProvider03]
+endpoint http:Listener listener10_2 {
+    port:9195,
+    authProviders:[jwtAuthProvider10],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {basePath:"/nyseStock"}
-service<http:Service> nyseStockQuote03 bind listener3 {
+service<http:Service> nyseStockQuote bind listener10_2 {
 
     @http:ResourceConfig {
         methods:["GET"],

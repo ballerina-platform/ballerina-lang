@@ -21,28 +21,31 @@ import Documentation from './Documentation';
 
 export default class DocPreview extends React.Component {
     getDocumentationDetails(node) {
-        const { markdownDocumentationAttachment: mdDoc } = node;
 
         let parameters = {};
         if(this[`_get${node.kind}Parameters`]) {
             parameters = this[`_get${node.kind}Parameters`](node);
         }
 
-        const processedParameters = mdDoc.parameters.map((param) => {
-            const name = param.parameterName.value
-            const { type, defaultValue } =  parameters[name] || {};
-            const description = param.parameterDocumentation;
-            return {
-                name, type, defaultValue, description
-            };
-        });
-
         let returnParameter;
         if (node.returnTypeNode) {
             returnParameter = {
                 type: node.returnTypeNode.typeKind,
-                description: mdDoc.returnParameterDocumentation,
             };
+        }
+
+        const { markdownDocumentationAttachment: mdDoc } = node;
+        let description;
+        if (mdDoc) {
+            description = mdDoc.documentation;
+            mdDoc.parameters.map((param) => {
+                const name = param.parameterName.value;
+                parameters[name].description = param.parameterDocumentation;
+            });
+
+            if (mdDoc.returnParameterDocumentation) {
+                returnParameter.description = mdDoc.returnParameterDocumentation;
+            }
         }
 
         let typeNodeKind;
@@ -53,8 +56,8 @@ export default class DocPreview extends React.Component {
         const documentationDetails = {
             kind: node.kind,
             title: node.name.value,
-            description: mdDoc.documentation,
-            parameters: processedParameters,
+            description,
+            parameters,
             typeNodeKind,
             returnParameter
         };
@@ -95,12 +98,15 @@ export default class DocPreview extends React.Component {
     render() {
         const docElements = [];
         this.props.ast.topLevelNodes.forEach(node => {
-            if(node.markdownDocumentationAttachment) {
-                const docDetails = this.getDocumentationDetails(node);
-                docElements.push(
-                    <Documentation docDetails={docDetails}/>
-                );
+            const documentables = ['Function', 'Service', 'TypeDefinition', 'Variable', 'Endpoint'];
+            if (!documentables.includes(node.kind)) {
+                return;
             }
+
+            const docDetails = this.getDocumentationDetails(node);
+            docElements.push(
+                <Documentation docDetails={docDetails}/>
+            );
         });
         return docElements;
     }
