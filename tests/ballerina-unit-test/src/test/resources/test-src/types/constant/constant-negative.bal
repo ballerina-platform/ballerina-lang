@@ -132,3 +132,22 @@ const stringWithoutType = "Ballerina rocks";
 function testStringWithoutType() returns string {
     return stringWithoutType;
 }
+
+// -----------------------------------------------------------
+
+const D = "D";
+
+const E = "E";
+
+const F = "F";
+
+type G E|F;
+
+type H D|E;
+
+const H h = "D";
+
+function testImproperSubset() returns G {
+    G g = h;
+    return g;
+}

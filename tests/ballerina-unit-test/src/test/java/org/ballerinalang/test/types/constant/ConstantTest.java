@@ -293,4 +293,10 @@ public class ConstantTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
     }
+    @Test
+    public void testProperSubset() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testProperSubset");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "D");
+    }
 }

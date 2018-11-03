@@ -25,7 +25,7 @@ function testParam(string s) returns string {
 // -----------------------------------------------------------
 
 type Data record {
-   string firstName;
+    string firstName;
 };
 
 function testConstInRecord() returns string {
@@ -242,6 +242,25 @@ function testFloatConstInTuple() returns float {
 function testStringConstInTuple() returns string {
     (string, boolean) v = (stringWithType, true);
     return v[0];
+}
+
+// -----------------------------------------------------------
+
+const D = "D";
+
+const E = "E";
+
+const F = "F";
+
+type G D|E|F;
+
+type H D|E;
+
+const H h = "D";
+
+function testProperSubset() returns G {
+    G g = h;
+    return g;
 }
 
 // -----------------------------------------------------------

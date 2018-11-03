@@ -56,12 +56,12 @@ public class ConstantInTypeDefinitionTest {
         Assert.assertEquals(returns[0].stringValue(), "GET");
     }
 
-//    @Test
-//    public void testConstWithoutTypeAssignmentToType() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeAssignmentToType");
-//        Assert.assertNotNull(returns[0]);
-//        Assert.assertEquals(returns[0].stringValue(), "GET");
-//    }
+    @Test
+    public void testConstWithoutTypeAssignmentToType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeAssignmentToType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "GET");
+    }
 
     @Test
     public void testConstAndTypeComparison() {

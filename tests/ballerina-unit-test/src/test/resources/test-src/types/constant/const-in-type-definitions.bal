@@ -15,12 +15,12 @@ function testConstWithTypeAssignmentToType() returns ACTION {
     return action;
 }
 
-//const constActionWithoutType = "GET";
-//
-//function testConstWithoutTypeAssignmentToType() returns ACTION {
-//    ACTION action = constActionWithoutType;
-//    return action;
-//}
+const constActionWithoutType = "GET";
+
+function testConstWithoutTypeAssignmentToType() returns ACTION {
+    ACTION action = constActionWithoutType;
+    return action;
+}
 
 function testConstAndTypeComparison() returns boolean {
     return "GET" == GET;
