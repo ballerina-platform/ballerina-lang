@@ -31,40 +31,45 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 27);
+        Assert.assertEquals(compileResult.getErrorCount(), 32);
         String expectedErrMsg1 = "only simple literals can be assigned to a constant";
         String expectedErrMsg2 = "cannot assign a value to a constant";
         int index = 0;
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 3, 21);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 4, 29);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 8, 13);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 1, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'", 2, 21);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'", 3, 23);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'float', found 'boolean'", 4,
+                25);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 5, 27);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 9, 21);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 16, 5);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '10', found 'int'", 16, 9);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 17, 5);
-        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 23, 9);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '10', found 'int'", 26, 9);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 30, 21);
-        BAssertUtil.validateError(compileResult, index++, "only simple literals can be assigned to a constant", 32, 18);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 37, 1);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", 43, 5);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'", 54, 21);
-        BAssertUtil.validateError(compileResult, index++, "function invocation on type 'XYZ' is not supported", 60, 24);
-        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for 'true' and 'string'", 66, 12);
-        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for '24' and 'string'", 72, 12);
-        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for '12' and 'string'", 78, 12);
-        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for '25.5' and 'string'", 84, 12);
-        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for 'Ballerina' and 'string'", 90,
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 10, 29);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 14, 13);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg1, 15, 21);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 22, 5);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '10', found 'int'", 22, 9);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 23, 5);
+        BAssertUtil.validateError(compileResult, index++, expectedErrMsg2, 29, 9);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '10', found 'int'", 32, 9);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 36, 21);
+        BAssertUtil.validateError(compileResult, index++, "only simple literals can be assigned to a constant", 38, 18);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 43, 1);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", 49, 5);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'", 60, 21);
+        BAssertUtil.validateError(compileResult, index++, "function invocation on type 'XYZ' is not supported", 66, 24);
+        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for 'true' and 'string'", 72, 12);
+        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for '24' and 'string'", 78, 12);
+        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for '12' and 'string'", 84, 12);
+        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for '25.5' and 'string'", 90, 12);
+        BAssertUtil.validateError(compileResult, index++, "operator '+' not defined for 'Ballerina' and 'string'", 96,
                 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'true'", 98,
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'true'", 104,
                 9);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'true'", 109,
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'true'", 115,
                 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '20'", 115, 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found '120'", 121, 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'float', found '2.0'", 127, 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'Ballerina " +
-                "rocks'", 133, 12);
-        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'E|F', found 'D|E'" , 151, 11);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '20'", 121, 12);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found '120'", 127, 12);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'float', found '2.0'", 133, 12);
+        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'string', found 'Ballerina " +
+                        "rocks'", 139, 12);
     }
 }

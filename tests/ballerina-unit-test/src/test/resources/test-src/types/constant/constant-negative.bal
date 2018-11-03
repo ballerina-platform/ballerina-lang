@@ -1,3 +1,9 @@
+const boolean someBoolean = 10;
+const int someInt = "ABC";
+const byte someByte = 500;
+const float someFloat = true;
+const string someString = 120;
+
 // Assigning var ref.
 string s = "Ballerina";
 const string name = s;
