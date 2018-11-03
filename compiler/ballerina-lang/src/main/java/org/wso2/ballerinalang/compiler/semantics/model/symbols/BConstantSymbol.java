@@ -32,8 +32,6 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
 
     // Value of the constant.
     public BLangLiteral value;
-    // Actual finite type of the constant.
-    public BType actualType;
     // Type of the type node specified when declaring the constant.
     public BType typeNodeType;
 
@@ -44,10 +42,5 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
     @Override
     public BLangLiteral getValue() {
         return value;
-    }
-
-    @Override
-    public BType getActualType() {
-        return actualType;
     }
 }

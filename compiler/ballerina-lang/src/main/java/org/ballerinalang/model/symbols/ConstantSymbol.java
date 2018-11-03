@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model.symbols;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 /**
@@ -27,6 +26,4 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 public interface ConstantSymbol extends Symbol {
 
     BLangLiteral getValue();
-
-    BType getActualType();
 }
