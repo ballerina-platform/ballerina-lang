@@ -106,6 +106,12 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstant constant) {
+        validateNoParameters(constant);
+        validateReturnParameter(constant, null, false);
+    }
+
+    @Override
     public void visit(BLangVariable varNode) {
         validateNoParameters(varNode);
         validateReturnParameter(varNode, null, false);
@@ -163,11 +169,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
 
         validateReturnParameter(resourceNode, null, false);
-    }
-
-    @Override
-    public void visit(BLangConstant constant) {
-        // Todo
     }
 
     private void validateParameters(DocumentableNode documentableNode, List<? extends VariableNode> actualParameters,

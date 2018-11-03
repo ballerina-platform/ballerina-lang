@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
@@ -47,6 +48,7 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
 
     public BLangIdentifier name;
     public Set<Flag> flagSet;
+    public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public BConstantSymbol symbol;
@@ -57,6 +59,7 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
     public BLangTypeDefinition associatedTypeDefinition;
 
     public BLangConstant() {
+        this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.deprecatedAttachments = new ArrayList<>();
     }
@@ -74,13 +77,8 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
     }
 
     @Override
-    public NodeKind getKind() {
-        return NodeKind.CONSTANT;
-    }
-
-    @Override
-    public Set<? extends Flag> getFlags() {
-        return null;
+    public Set<Flag> getFlags() {
+        return flagSet;
     }
 
     @Override
@@ -89,19 +87,18 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
     }
 
     @Override
-    public List<? extends AnnotationAttachmentNode> getAnnotationAttachments() {
-        // Todo
-        return null;
+    public List<BLangAnnotationAttachment> getAnnotationAttachments() {
+        return annAttachments;
     }
 
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
-        // Todo
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
     }
 
     @Override
     public BLangMarkdownDocumentation getMarkdownDocumentationAttachment() {
-        return null;
+        return markdownDocumentationAttachment;
     }
 
     @Override
@@ -110,7 +107,7 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
     }
 
     @Override
-    public List<? extends DeprecatedNode> getDeprecatedAttachments() {
+    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
         return deprecatedAttachments;
     }
 
@@ -120,7 +117,18 @@ public class BLangConstant extends BLangLiteral implements AnnotatableNode, Docu
     }
 
     @Override
+    public NodeKind getKind() {
+        return NodeKind.CONSTANT;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return (typeNode == null ? String.valueOf(type) : String.valueOf(typeNode)) + " " + symbol.name.value +
+                " = " + String.valueOf(value);
     }
 }
