@@ -558,49 +558,48 @@ public class TypeChecker extends BLangNodeVisitor {
                 BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
                 if (types.isAssignable(constantSymbol.type, expType)) {
                     actualType = constantSymbol.type;
-                } else if(constantSymbol.typeNodeType!=null){
-                    if(expType.tag== TypeTags.FINITE){
-                        actualType=constantSymbol.type;
-                    }else {
-
-                        if (constantSymbol.typeNodeType.tag== TypeTags.FINITE) {
-                            actualType=constantSymbol.type;
-                        }else{
+                } else if (constantSymbol.typeNodeType != null) {
+                    if (expType.tag == TypeTags.FINITE) {
+                        actualType = constantSymbol.type;
+                    } else {
+                        // This distinction is also needed to print proper error messages. Eg -
+                        //
+                        // type AB "A"|"B";
+                        // type CD "C"|"D";
+                        //
+                        // const AB A = "A";
+                        //
+                        // CD c = A; // In here, we want to say 'A' instead of 'A|B' in the error message.
+                        //
+                        // Eg - `incompatible types: expected 'C|D', found 'A'`.
+                        //
+                        //      If we set the actualType to `constantSymbol.typeNodeType`, it will print
+                        //      `incompatible types: expected 'C|D', found 'A|B'` which is not correct.
+                        if (constantSymbol.typeNodeType.tag == TypeTags.FINITE) {
+                            // Eg -
+                            //
+                            // type ACTION "GET"|"POST";
+                            //
+                            // const ACTION GET = "GET";
+                            //
+                            // function testConstAndTypeComparison() returns boolean {
+                            //     return "GET" == GET;
+                            // }
+                            actualType = constantSymbol.type;
+                        } else {
+                            // Eg -
+                            //
+                            // const string name = "Ballerina";
+                            //
+                            // function testConstInReturn() returns string {
+                            //     return name;
+                            // }
                             actualType = constantSymbol.typeNodeType;
                         }
-                        //                    if(types.isAssignable(constantSymbol.typeNodeType,expType )){
-
-                        //                    }
                     }
-                }else{
+                } else {
                     actualType = constantSymbol.type;
                 }
-
-
-
-//                else if (constantSymbol.typeNodeType == null) {
-//                    // Eg -
-//                    //
-//                    // const constActionWithoutType = "GET"; // Type node not available.
-//                    //
-//                    // function testConstWithoutTypeAssignmentToType() returns ACTION {
-//                    //     ACTION action = constActionWithoutType; // Checking this reference.
-//                    //     return action;
-//                    // }
-//                    actualType = constantSymbol.type;
-//                } else if (constantSymbol.typeNodeType.tag == TypeTags.FINITE ||
-//                        constantSymbol.typeNodeType.tag == TypeTags.UNION) {
-//                    actualType = constantSymbol.type;
-//                } else {
-//                    // Eg -
-//                    //
-//                    // const string name = "Ballerina";
-//                    //
-//                    // function testConstInReturn() returns string {
-//                    //     return name;
-//                    // }
-//                    actualType = constantSymbol.value.type;
-//                }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
