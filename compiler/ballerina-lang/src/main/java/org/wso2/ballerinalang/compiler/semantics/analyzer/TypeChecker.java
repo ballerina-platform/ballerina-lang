@@ -1884,7 +1884,6 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean dataType = types.isAnydata(type);
 
         if (type.tag == TypeTags.NIL || (!dataType && !isNonAnyDataFreezeAllowedType(type))) {
-            dlog.error(iExpr.pos, DiagnosticCode.FREEZE_NOT_ALLOWED_ON_VALUE_OF_TYPE, type);
             return false;
         }
 
@@ -1912,7 +1911,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (!isIsFrozenAllowedType(type)) {
-            dlog.error(iExpr.pos, DiagnosticCode.IS_FROZEN_NOT_ALLOWED_ON_VALUE_OF_TYPE, type);
             return false;
         }
 
