@@ -163,8 +163,8 @@ function addAuthFiltersForSecureListener(SecureEndpointConfiguration config, str
         Filter[] newFilters = createAuthFiltersForSecureListener(config, instanceId);
         // add existing filters next
         int i = 0;
-        while (i < lengthof config.filters) {
-            newFilters[i + (lengthof newFilters)] = config.filters[i];
+        while (i < config.filters.length()) {
+            newFilters[i + (newFilters.length())] = config.filters[i];
             i = i + 1;
         }
         config.filters = newFilters;
@@ -181,7 +181,7 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, 
     match config.authProviders {
         AuthProvider[] providers => {
             foreach provider in providers {
-                if (lengthof provider.id > 0) {
+                if (provider.id.length() > 0) {
                     registry.add(provider.id, createAuthHandler(provider, instanceId));
                 } else {
                     string providerId = system:uuid();

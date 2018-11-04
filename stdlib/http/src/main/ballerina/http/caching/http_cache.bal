@@ -74,7 +74,7 @@ public type HttpCache object {
 
     function get (string key) returns Response {
         match <Response[]>cache.get(key) {
-            Response[] cacheEntry => return cacheEntry[lengthof cacheEntry - 1];
+            Response[] cacheEntry => return cacheEntry[cacheEntry.length() - 1];
             error err => panic err;
         }
     }
@@ -155,7 +155,7 @@ function addEntry (cache:Cache cache, string key, Response inboundResponse) {
     // TODO : Fix this logic.
     var existingResponses = trap cache.get(key);
     match existingResponses {
-        Response[] cachedRespArray => cachedRespArray[lengthof cachedRespArray] = inboundResponse;
+        Response[] cachedRespArray => cachedRespArray[cachedRespArray.length()] = inboundResponse;
         error err => {
             Response[] cachedResponses = [inboundResponse];
             cache.put(key, cachedResponses);
@@ -169,8 +169,8 @@ function addEntry (cache:Cache cache, string key, Response inboundResponse) {
 }
 
 function weakValidatorEquals (string etag1, string etag2) returns boolean {
-    string validatorPortion1 = etag1.hasPrefix(WEAK_VALIDATOR_TAG) ? etag1.substring(2, lengthof etag1) : etag1;
-    string validatorPortion2 = etag2.hasPrefix(WEAK_VALIDATOR_TAG) ? etag2.substring(2, lengthof etag2) : etag2;
+    string validatorPortion1 = etag1.hasPrefix(WEAK_VALIDATOR_TAG) ? etag1.substring(2, etag1.length()) : etag1;
+    string validatorPortion2 = etag2.hasPrefix(WEAK_VALIDATOR_TAG) ? etag2.substring(2, etag2.length()) : etag2;
 
     return validatorPortion1 == validatorPortion2;
 }

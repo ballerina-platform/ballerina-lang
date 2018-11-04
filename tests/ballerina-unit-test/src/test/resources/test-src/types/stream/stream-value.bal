@@ -125,7 +125,7 @@ function testStreamPublishingAndSubscriptionForMultipleRecordEvents() returns (E
     s1.publish(e2);
     s1.publish(e3);
     int startTime = time:currentTime().time;
-    while (lengthof globalEmployeeArray < 3 && time:currentTime().time - startTime < 5000) {
+    while (globalEmployeeArray.length() < 3 && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEmployees, globalEmployeeArray);
@@ -142,7 +142,7 @@ function testStreamPublishingAndSubscriptionForIntegerStream() returns (int[], i
         intStream.publish(intEvent);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalIntegerArray < lengthof publishedIntegerEvents && time:currentTime().time - startTime < 5000) {
+    while (globalIntegerArray.length() < publishedIntegerEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedIntegerEvents, globalIntegerArray);
@@ -159,7 +159,7 @@ function testStreamPublishingAndSubscriptionForBooleanStream() returns (boolean[
         booleanStream.publish(booleanEvent);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalBooleanArray < lengthof publishedBooleanEvents && time:currentTime().time - startTime < 5000) {
+    while (globalBooleanArray.length() < publishedBooleanEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedBooleanEvents, globalBooleanArray);
@@ -178,7 +178,7 @@ function testStreamPublishingAndSubscriptionForUnionTypeStream() returns (any[],
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEvents, globalAnyArray);
@@ -195,7 +195,7 @@ function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int int
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEvents, globalAnyArray);
@@ -213,7 +213,7 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream() returns (any[],
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEvents, globalAnyArray);
@@ -230,7 +230,7 @@ any[] {
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalAnyArray / 2 < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+    while (globalAnyArray.length() / 2 < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return globalAnyArray;
@@ -247,7 +247,7 @@ function testStreamPublishingAndSubscriptionForAnyTypeStream() returns (any[], a
         anyStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEvents, globalAnyArray);
@@ -264,7 +264,7 @@ function testStreamPublishingAndSubscriptionForUnconstrainedStream() returns (an
         unconstrainedStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEvents, globalAnyArray);
@@ -282,7 +282,7 @@ function testStreamsPublishingForStructurallyEquivalentRecords() returns (any[],
         employeeStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalEmployeeArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+    while (globalEmployeeArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedEvents, globalEmployeeArray);
@@ -302,7 +302,7 @@ function testStreamsPublishingForStructurallyEquivalentObjects() returns (any[],
         memberStream.publish(event);
     }
     int startTime = time:currentTime().time;
-    while (lengthof globalMemberArray < lengthof publishedCaptains && time:currentTime().time - startTime < 5000) {
+    while (globalMemberArray.length() < publishedCaptains.length() && time:currentTime().time - startTime < 5000) {
         //allow for value update
     }
     return (publishedCaptains, globalMemberArray);

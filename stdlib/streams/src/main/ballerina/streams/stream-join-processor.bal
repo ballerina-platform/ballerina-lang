@@ -63,7 +63,7 @@ public type StreamJoinProcessor object {
                         (StreamEvent?, StreamEvent?)[] evtArr => {
                             candidateEvents = evtArr;
                             // with left/full joins, we need to emit an event even there's no candidate events in rhs.
-                            if (lengthof candidateEvents == 0 && (joinType == "LEFTOUTERJOIN"
+                            if (candidateEvents.length() == 0 && (joinType == "LEFTOUTERJOIN"
                                     || joinType == "FULLOUTERJOIN")) {
                                 candidateEvents[0] = (event, ());
                             }
@@ -83,7 +83,7 @@ public type StreamJoinProcessor object {
                         (StreamEvent?, StreamEvent?)[] evtArr => {
                             candidateEvents = evtArr;
                             // with right/full joins, we need to emit an event even there's no candidate events in rhs.
-                            if (lengthof candidateEvents == 0 && (joinType == "RIGHTOUTERJOIN"
+                            if (candidateEvents.length() == 0 && (joinType == "RIGHTOUTERJOIN"
                                     || joinType == "FULLOUTERJOIN")) {
                                 candidateEvents[0] = ((), event);
                             }

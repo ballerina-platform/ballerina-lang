@@ -560,15 +560,15 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
     while (dt.hasNext()) {
         ResultMap rs = check <ResultMap>dt.getNext();
         io:println(rs.INT_ARRAY);
-        intArrLen = lengthof rs.INT_ARRAY;
+        intArrLen = rs.INT_ARRAY.length();
         io:println(rs.LONG_ARRAY);
-        longArrLen = lengthof rs.LONG_ARRAY;
+        longArrLen = rs.LONG_ARRAY.length();
         io:println(rs.FLOAT_ARRAY);
-        floatArrLen = lengthof rs.FLOAT_ARRAY;
+        floatArrLen = rs.FLOAT_ARRAY.length();
         io:println(rs.BOOLEAN_ARRAY);
-        boolArrLen = lengthof rs.BOOLEAN_ARRAY;
+        boolArrLen = rs.BOOLEAN_ARRAY.length();
         io:println(rs.STRING_ARRAY);
-        strArrLen = lengthof rs.STRING_ARRAY;
+        strArrLen = rs.STRING_ARRAY.length();
     }
     testDB.stop();
     return (updateRet, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
@@ -1435,7 +1435,7 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
         json result = check <json>dt;
 
         json j = result[1];
-        return (result, lengthof result);
+        return (result, result.length());
     } finally {
         testDB.stop();
     }
@@ -1461,7 +1461,7 @@ function testToJsonAndIterate() returns (json, int) {
             i += 1;
         }
 
-        return (j, lengthof j);
+        return (j, j.length());
     } finally {
         testDB.stop();
     }
@@ -1502,11 +1502,11 @@ function testToJsonAndLengthof() returns (int, int) {
         json result = check <json>dt;
 
         // get the length before accessing
-        int beforeLen = lengthof result;
+        int beforeLen = result.length();
 
         // get the length after accessing
         json j = result[0];
-        int afterLen = lengthof result;
+        int afterLen = result.length();
 
         return (beforeLen, afterLen);
     } finally {

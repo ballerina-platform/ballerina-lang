@@ -37,7 +37,7 @@ function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
     Protocol[] protocols;
     foreach remoteProtocol in remoteProtocols {
         Protocol proto = {name:remoteProtocol.name};
-        protocols[lengthof protocols] = proto;
+        protocols[protocols.length()] = proto;
     }
     return protocols;
 }

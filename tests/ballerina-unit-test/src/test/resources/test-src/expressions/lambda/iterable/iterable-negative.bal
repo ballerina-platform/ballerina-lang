@@ -5,7 +5,7 @@ function test1(){
     int x = 0;
     x.foreach(function (int i) { count = count + i;});
     string y = "foo";
-    y.map(function (string s) returns (int) { return lengthof s;});
+    y.map(function (string s) returns (int) { return s.length();});
 }
 
 function test2(){

@@ -103,7 +103,7 @@ function MediaType::toString() returns (string) {
     string contentType = self.getBaseType();
     // map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
-    int size = lengthof arrKeys;
+    int size = arrKeys.length();
     if (size > 0) {
         contentType = contentType + "; ";
     }
