@@ -148,6 +148,7 @@ function testFunctionInvocation(){
 }
 
 // -----------------------------------------------------------
+
 const D = "D";
 
 const E = "E";
@@ -164,3 +165,8 @@ function testImproperSubset() returns G {
     G g = h;
     return g;
 }
+
+// -----------------------------------------------------------
+
+// Cyclic dependency.
+type IJK IJK;

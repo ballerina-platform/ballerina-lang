@@ -765,6 +765,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             userDefinedTypeNode.flagSet = EnumSet.of(Flag.CONNECTOR);
         }
         resultType = symbol.type;
+        if (resultType == null) {
+            // Symbol's type can be `null` in situations where we create dummy type def symbols.
+            // Eg - type ABC ABC;
+            resultType = symTable.noType;
+        }
     }
 
     @Override

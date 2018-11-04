@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 33);
+        Assert.assertEquals(compileResult.getErrorCount(), 34);
         String expectedErrMsg1 = "only simple literals can be assigned to a constant";
         String expectedErrMsg2 = "cannot assign a value to a constant";
         int index = 0;
@@ -73,6 +73,7 @@ public class ConstantNegativeTest {
                 "rocks'", 139, 12);
         BAssertUtil.validateError(compileResult, index++, "function invocation on type 'SHA1' is not supported", 147,
                 17);
-        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'E|F', found 'D|E'", 164, 11);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'D|E'", 165, 11);
+        BAssertUtil.validateError(compileResult, index, "cyclic type reference in '[IJK]'", 172, 1);
     }
 }
