@@ -245,39 +245,27 @@ public class Types {
             if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD || source.tag == TypeTags.MAP) {
                 return true;
             }
-        }
-
-        if (target.tag == TypeTags.XML) {
+        } else if (target.tag == TypeTags.XML) {
             if (source.tag == TypeTags.XML || source.tag == TypeTags.RECORD) {
                 return true;
             }
-        }
-
-        if (target.tag == TypeTags.RECORD) {
+        } else if (target.tag == TypeTags.RECORD) {
             if (source.tag == TypeTags.MAP) {
                 return true;
             }
-        }
-
-        if (target.tag == TypeTags.MAP) {
-            if (source.tag == TypeTags.MAP) {
+        } else if (target.tag == TypeTags.MAP) {
+            if (source.tag == TypeTags.MAP || source.tag == TypeTags.UNION) {
                 return true;
             }
-        }
-
-        if (target.tag == TypeTags.ARRAY) {
+        } else if (target.tag == TypeTags.ARRAY) {
             if (source.tag == TypeTags.JSON) {
                 return true;
             }
-        }
-
-        if (target.tag == TypeTags.OBJECT || target.tag == TypeTags.MAP) {
+        } else if (target.tag == TypeTags.OBJECT) {
             if (source.tag == TypeTags.UNION) {
                 return true;
             }
-        }
-
-        if (target.tag == TypeTags.TUPLE) {
+        } else if (target.tag == TypeTags.TUPLE) {
             if (source.tag == TypeTags.TUPLE) {
                 return true;
             }

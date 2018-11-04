@@ -44,7 +44,7 @@ public class SealInbuiltFunctionNegativeTest {
     @Test
     public void testSealNegativeTest() {
 
-        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 6);
 
         //Negative test case to verify the unsupported type for seal operation.
         BAssertUtil.validateError(compileResult, 1,
@@ -65,6 +65,11 @@ public class SealInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(compileResult, 4,
                 "function 'seal' defined on not supported type 'string[]'",
                 38, 5);
+
+        //Negative test case to confirm values cannot be sealed as union type.
+        BAssertUtil.validateError(compileResult, 5,
+                "Incompatible seal type: variable 'jsonVar' with type 'json' cannot be sealed as type 'int|float|json'",
+                46, 5);
     }
 
 }
