@@ -77,7 +77,7 @@ public class GeneratorConstants {
                     "xml", "table", "stream", "any", "typedesc", "type", "future", "var", "new", "if", "match", "else",
                     "foreach", "while", "continue", "break", "fork", "join", "some", "all", "timeout", "try", "catch",
                     "finally", "throw", "return", "transaction", "abort", "retry", "onretry", "retries", "onabort",
-                    "oncommit", "lengthof", "with", "in", "lock", "untaint", "start", "await", "but", "check", "done",
+                    "oncommit", "lengthof", "with", "in", "lock", "untaint", "start", "wait", "but", "check", "done",
                     "scope", "compensation", "primarykey"));
 
 }
