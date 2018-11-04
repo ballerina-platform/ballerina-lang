@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -68,7 +69,7 @@ public class BServerInstance implements BServer {
     }
 
     private void configureAgentArgs() throws BallerinaTestException {
-        String balAgent = System.getProperty("ballerina.agent.path");
+        String balAgent = Paths.get(System.getProperty("ballerina.agent.path")).toString();
 
         if (balAgent == null || balAgent.isEmpty()) {
             throw new BallerinaTestException("Cannot start server, Ballerina agent not provided");
