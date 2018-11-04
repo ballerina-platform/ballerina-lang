@@ -18,11 +18,11 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
- * This represents the await expression node.
+ * This represents the wait expression node.
  * 
  * @since 0.965
  */
-public interface AwaitExpressionNode extends ExpressionNode {
+public interface WaitExpressionNode extends ExpressionNode {
 
     ExpressionNode getExpression();
 

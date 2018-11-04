@@ -1240,7 +1240,7 @@ public class PackageInfoReader {
                 case InstructionCodes.XMLATTRS2MAP:
                 case InstructionCodes.ANY2SCONV:
                 case InstructionCodes.XML2S:
-                case InstructionCodes.AWAIT:
+                case InstructionCodes.WAIT:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
                 case InstructionCodes.REASON:

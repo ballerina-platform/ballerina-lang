@@ -400,7 +400,7 @@ public class SourceGen {
                  + w("", sourceGenParams) + ";" + a("", sourceGenParams.isShouldIndent());
         }
         public String getSourceForAwaitExpr(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            return w("", sourceGenParams) + "await"
+            return w("", sourceGenParams) + "wait"
                  + a(" ", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
         }
