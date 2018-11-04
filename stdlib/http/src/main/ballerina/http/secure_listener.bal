@@ -146,8 +146,9 @@ public type AuthProvider record {
 };
 
 function SecureListener::init(SecureEndpointConfiguration c) {
-    addAuthFiltersForSecureListener(c, self.instanceId);
-    self.httpListener.init(c);
+    self.config = c;
+    addAuthFiltersForSecureListener(self.config, self.instanceId);
+    self.httpListener.init(self.config);
 }
 
 # Add authn and authz filters
@@ -229,7 +230,10 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config, 
             }
         }
         () => {
-            // No auth providers configured.
+            // if no auth providers are specified, create a config based auth store provider
+            // as default auth store provider
+            auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+            authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
         }
     }
     HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
