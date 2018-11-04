@@ -39,9 +39,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
@@ -55,6 +57,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -101,6 +104,8 @@ public class SymbolTable {
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType endpointType = new BType(TypeTags.ENDPOINT, null);
     public final BType arrayType = new BArrayType(noType);
+    public final BType tupleType = new BTupleType(Lists.of(noType));
+    public final BType recordType = new BRecordType(null);
     public final BType intArrayType = new BArrayType(intType);
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
 
@@ -344,13 +349,9 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType, -1);
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType, -1);
 
-        defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOF);
-        defineUnaryOperator(OperatorKind.LENGTHOF, arrayType, intType, InstructionCodes.LENGTHOF);
-        defineUnaryOperator(OperatorKind.LENGTHOF, xmlType, intType, InstructionCodes.LENGTHOF);
-        defineUnaryOperator(OperatorKind.LENGTHOF, mapType, intType, InstructionCodes.LENGTHOF);
-        defineUnaryOperator(OperatorKind.LENGTHOF, stringType, intType, InstructionCodes.LENGTHOF);
-
         defineConversionOperators();
+
+        defineBuiltinMethods();
     }
 
     private void defineConversionOperators() {
@@ -406,6 +407,39 @@ public class SymbolTable {
 //        defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
         defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
 //        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
+    }
+
+    private void defineBuiltinMethods() {
+
+        // Error related methods.
+        defineBuiltinMethod(BLangBuiltInMethod.REASON, errorType, stringType, InstructionCodes.REASON);
+        defineBuiltinMethod(BLangBuiltInMethod.DETAIL, errorType, mapType, InstructionCodes.DETAIL);
+
+        // Length methods.
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, stringType, intType, InstructionCodes.LENGTHOF);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, arrayType, intType, InstructionCodes.LENGTHOF);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tupleType, intType, InstructionCodes.LENGTHOF);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, mapType, intType, InstructionCodes.LENGTHOF);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, recordType, intType, InstructionCodes.LENGTHOF);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, jsonType, intType, InstructionCodes.LENGTHOF);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, xmlType, intType, InstructionCodes.LENGTHOF);
+        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tableType, intType, InstructionCodes.LENGTHOF);
+
+        // float related methods.
+        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType, InstructionCodes.NOP);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, floatType, booleanType, InstructionCodes.NOP);
+        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType, InstructionCodes.NOP);
+    }
+
+    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType, int opcode) {
+        defineBuiltinMethod(method, type, Collections.emptyList(), retType, opcode);
+    }
+
+    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, List<BType> args, BType retType,
+            int opcode) {
+        List<BType> paramTypes = Lists.of(type);
+        paramTypes.addAll(args);
+        defineOperator(names.fromString(method.getName()), paramTypes, retType, opcode);
     }
 
     private void defineBinaryOperator(OperatorKind kind,
