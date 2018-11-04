@@ -372,7 +372,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + a(' ') + getSourceOf(node.expression, pretty, l, replaceLambda)
                  + w() + ';';
         case 'AwaitExpr':
-            return w() + 'await' + a(' ')
+            return w() + 'wait' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'BinaryExpr':
             if (node.inTemplateLiteral && node.leftExpression

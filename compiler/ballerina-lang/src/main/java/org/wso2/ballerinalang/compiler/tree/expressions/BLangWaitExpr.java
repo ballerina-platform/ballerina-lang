@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.AwaitExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.WaitExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * 
  * @since 0.965
  */
-public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNode {
+public class BLangWaitExpr extends BLangExpression implements WaitExpressionNode {
 
     private static final String WAIT_KEYWORD = "wait";
     
