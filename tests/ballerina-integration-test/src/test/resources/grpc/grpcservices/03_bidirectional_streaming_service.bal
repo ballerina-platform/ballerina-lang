@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for bidirectional streaming scenario
-
 import ballerina/grpc;
 import ballerina/io;
 
@@ -43,15 +42,15 @@ service Chat bind ep5 {
         while (i < len) {
             con = check <grpc:Listener>consMap[conKeys[i]];
             error? err = con->send(msg);
-            io:println(err.message but { () => "" });
+            if (err is error) {
+                io:println("Error from Connector: " + err.reason());
+            }
             i = i + 1;
         }
     }
 
     onError(endpoint client, error err) {
-        if (err != ()) {
-            io:println("Something unexpected happens at server : " + err.message);
-        }
+        io:println("Something unexpected happens at server : " + err.reason());
     }
 
     onComplete(endpoint client) {
@@ -65,7 +64,9 @@ service Chat bind ep5 {
         while (i < len) {
             con = check <grpc:Listener>consMap[conKeys[i]];
             error? err = con->send(msg);
-            io:println(err.message but { () => "" });
+            if (err is error) {
+                io:println("Error from Connector: " + err.reason());
+            }
             i = i + 1;
         }
     }

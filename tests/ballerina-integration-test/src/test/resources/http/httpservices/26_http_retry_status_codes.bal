@@ -50,7 +50,7 @@ service<http:Service> retryStatusService bind { port: 9225 } {
                 error responseError => {
                     http:Response errorResponse = new;
                     errorResponse.statusCode = 500;
-                    errorResponse.setPayload(responseError.message);
+                    errorResponse.setPayload(responseError.reason());
                     caller->respond(errorResponse) but {
                         error e => log:printError("Error sending response", err = e)
                     };
@@ -67,7 +67,7 @@ service<http:Service> retryStatusService bind { port: 9225 } {
                 error responseError => {
                     http:Response errorResponse = new;
                     errorResponse.statusCode = 500;
-                    errorResponse.setPayload(responseError.message);
+                    errorResponse.setPayload(responseError.reason());
                     caller->respond(errorResponse) but {
                         error e => log:printError("Error sending response", err = e)
                     };
