@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -75,7 +76,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
     }
 
     public void add(long index, BRefType<?> value) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
         prepareForAdd(index, values.length);
@@ -173,14 +174,14 @@ public class BRefValueArray extends BNewArray implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public BValue freeze() {
-        if (frozen) {
+    public BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (this.isFrozen()) {
             return this;
         }
-        this.frozen = true;
+        this.freezeStatus = freezeStatus;
         for (int i = 0; i < this.size; i++) {
             if (this.get(i) != null) {
-                this.get(i).freeze();
+                this.get(i).attemptFreeze(freezeStatus);
             }
         }
         return this;

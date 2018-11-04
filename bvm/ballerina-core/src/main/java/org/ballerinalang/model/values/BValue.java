@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -44,11 +45,11 @@ public interface BValue {
     BValue copy();
 
     /**
-     * Method to freeze a {@link BValue}, to disallow further modification.
+     * Method to attempt freezing a {@link BValue}, to disallow further modification.
      *
      * @return The frozen self instance
      */
-    default BValue freeze() {
+    default BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
         throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
     }
 

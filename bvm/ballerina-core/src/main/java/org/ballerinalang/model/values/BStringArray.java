@@ -55,7 +55,7 @@ public class BStringArray extends BNewArray {
     }
 
     public void add(long index, String value) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
         prepareForAdd(index, values.length);

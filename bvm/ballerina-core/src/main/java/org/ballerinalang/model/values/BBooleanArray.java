@@ -52,7 +52,7 @@ public class BBooleanArray extends BNewArray {
     }
 
     public void add(long index, int value) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
         prepareForAdd(index, values.length);

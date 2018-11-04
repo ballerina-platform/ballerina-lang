@@ -18,6 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructureType;
@@ -49,7 +50,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean tableClosed;
-    private volatile boolean frozen;
+    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus();
 
     public BTable() {
         this.iterator = null;
@@ -203,7 +204,7 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
     public void performAddOperation(BMap<String, BValue> data, Context context) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -239,7 +240,7 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param lambdaFunction The function that decides the condition of data removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -403,18 +404,18 @@ public class BTable implements BRefType<Object>, BCollection {
      */
     @Override
     public boolean isFrozen() {
-        return frozen;
+        return this.freezeStatus.isFrozen();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BValue freeze() {
-        if (frozen) {
+    public BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (this.isFrozen()) {
             return this;
         }
-        this.frozen = true;
+        this.freezeStatus = freezeStatus;
         return this;
     }
 }

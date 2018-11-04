@@ -377,7 +377,8 @@ public class FreezeAndIsFrozenTest {
         validateError(negativeResult, 6, "function invocation on type 'PersonObj[]' is not supported", 43, 9);
         validateError(negativeResult, 7, "function invocation on type 'PersonObjTwo|PersonObj[]' is not supported", 46,
                       9);
-        validateError(negativeResult, 8, "function invocation on type '(PersonObj|PersonObjTwo,PersonObjTwo)' is not supported", 51, 9);
+        validateError(negativeResult, 8, "function invocation on type '(PersonObj|PersonObjTwo,PersonObjTwo)' is " +
+                              "not supported", 51, 9);
         validateError(negativeResult, 9, "undefined field 'freeze' in record 'Department'", 56, 9);
         validateError(negativeResult, 10, "undefined function 'int.isFrozen'", 61, 17);
         validateError(negativeResult, 11, "function invocation on type 'byte' is not supported", 64, 9);

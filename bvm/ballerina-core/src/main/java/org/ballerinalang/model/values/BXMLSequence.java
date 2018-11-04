@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;
@@ -167,7 +168,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -260,7 +261,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -276,7 +277,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -436,7 +437,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void removeAttribute(String qname) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -483,7 +484,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
 
     @Override
     public void removeChildren(String qname) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -498,12 +499,12 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BRefType<BRefValueArray> freeze() {
-        if (frozen) {
+    public BRefType<BRefValueArray> attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (this.isFrozen()) {
             return this;
         }
-        Arrays.stream(sequence.values).forEach(BValue::freeze);
-        this.frozen = true;
+        this.freezeStatus = freezeStatus;
+        Arrays.stream(sequence.values).forEach(val -> val.attemptFreeze(freezeStatus));
         return this;
     }
 }

@@ -825,7 +825,9 @@ public class CPU {
         switch (opcode) {
             case InstructionCodes.FREEZE:
                 try {
-                    sf.refRegs[j] = (BRefType<?>) value.freeze();
+                    FreezeStatus freezeStatus = new FreezeStatus();
+                    sf.refRegs[j] = (BRefType<?>) value.attemptFreeze(freezeStatus);
+                    freezeStatus.setFrozen();
                 } catch (BLangFreezeException e) {
                     sf.refRegs[j] = BLangVMErrors.createError(ctx, e.getMessage());
                 }
@@ -4200,6 +4202,24 @@ public class CPU {
             }
         }
         return true;
+    }
+
+
+    /**
+     * Maintains the frozen status of a freezable {@link BValue}.
+     *
+     * @since 0.985.0
+     */
+    public static class FreezeStatus {
+        boolean frozen = false;
+
+        private void setFrozen() {
+            this.frozen = true;
+        }
+
+        public boolean isFrozen() {
+            return frozen;
+        }
     }
 
     /**

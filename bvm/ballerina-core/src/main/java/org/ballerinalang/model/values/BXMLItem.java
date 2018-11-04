@@ -33,6 +33,7 @@ import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
@@ -349,7 +350,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setAttributes(BMap<String, ?> attributes) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -478,7 +479,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void setChildren(BXML<?> seq) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -512,7 +513,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void addChildren(BXML<?> seq) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -709,7 +710,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void removeAttribute(String qname) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -737,7 +738,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public void removeChildren(String qname) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
 
@@ -847,11 +848,11 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public BValue freeze() {
-        if (frozen) {
+    public BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        if (this.isFrozen()) {
             return this;
         }
-        this.frozen = true;
+        this.freezeStatus = freezeStatus;
         return this;
     }
 }

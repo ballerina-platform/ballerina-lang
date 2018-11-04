@@ -52,7 +52,7 @@ public class BFloatArray extends BNewArray {
     }
 
     public void add(long index, double value) {
-        if (frozen) {
+        if (this.isFrozen()) {
             throw new BLangFreezeException("modification not allowed on frozen value");
         }
         prepareForAdd(index, values.length);

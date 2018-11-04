@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
@@ -60,7 +61,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private final Lock writeLock = lock.writeLock();
     private BType type = BTypes.typeMap;
     private HashMap<String, Object> nativeData = new HashMap<>();
-    private volatile boolean frozen = false;
+    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus();
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -133,7 +134,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public void put(K key, V value) {
         writeLock.lock();
         try {
-            if (frozen) {
+            if (this.isFrozen()) {
                 throw new BLangFreezeException("modification not allowed on frozen value");
             }
             map.put(key, value);
@@ -148,7 +149,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public void clear() {
         writeLock.lock();
         try {
-            if (frozen) {
+            if (this.isFrozen()) {
                 throw new BLangFreezeException("modification not allowed on frozen value");
             }
             map.clear();
@@ -202,7 +203,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public boolean remove(K key) {
         writeLock.lock();
         try {
-            if (frozen) {
+            if (this.isFrozen()) {
                 throw new BLangFreezeException("modification not allowed on frozen value");
             }
             boolean hasKey = map.containsKey(key);
@@ -431,21 +432,21 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      * {@inheritDoc}
      */
     @Override
-    public BValue freeze() {
+    public BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
         writeLock.lock();
         try {
             if (this.type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
                 throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
             }
 
-            if (frozen) {
+            if (this.isFrozen()) {
                 return this;
             }
 
-            this.frozen = true;
+            this.freezeStatus = freezeStatus;
             map.values().forEach(val -> {
                 if (val != null) {
-                    val.freeze();
+                    val.attemptFreeze(freezeStatus);
                 }
             });
         } finally {
@@ -459,7 +460,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      */
     @Override
     public boolean isFrozen() {
-        return frozen;
+        return this.freezeStatus.isFrozen();
     }
 
     private String getStringValue(V value) {

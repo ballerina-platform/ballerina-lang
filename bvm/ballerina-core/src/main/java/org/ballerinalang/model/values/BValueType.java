@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.CPU;
+
 /**
  * The {@code BValueType} represents a value type value in Ballerina.
  *
@@ -56,7 +58,7 @@ public abstract class BValueType implements BValue {
     /**
      * {@inheritDoc}
      */
-    public BValue freeze() {
+    public BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
         return this;
     }
 

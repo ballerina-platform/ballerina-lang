@@ -18,6 +18,7 @@ package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -64,7 +65,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      */
     public static final String PI_END = "?>";
 
-    protected volatile boolean frozen = false;
+    protected CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus();
 
     /**
      * Check whether the XML sequence is empty.
@@ -338,6 +339,6 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * {@inheritDoc}
      */
     public boolean isFrozen() {
-        return frozen;
+        return this.freezeStatus.isFrozen();
     }
 }
