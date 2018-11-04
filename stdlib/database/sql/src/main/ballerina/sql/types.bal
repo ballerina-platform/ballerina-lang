@@ -80,52 +80,52 @@ public type PoolOptions record {
 # ARRAY - Composite data value that consists of zero or more elements of a specified data type
 # STRUCT - User defined structured type, consists of one or more attributes
 # REFCURSOR - Cursor value
-public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARCHAR"|"BIT"|"BOOLEAN"|
-"TINYINT"|"SMALLINT"|"INTEGER"|"BIGINT"|"NUMERIC"|"DECIMAL"|"REAL"|"FLOAT"|"DOUBLE"|
-"BINARY"|"BLOB"|"LONGVARBINARY"|"VARBINARY"|"CLOB"|"NCLOB"|"DATE"|"TIME"|"DATETIME"|
-"TIMESTAMP"|"ARRAY"|"STRUCT"|"REFCURSOR";
+public type SQLType TYPE_VARCHAR|TYPE_CHAR|TYPE_LONGVARCHAR|TYPE_NCHAR|TYPE_LONGNVARCHAR|TYPE_NVARCHAR|TYPE_BIT|
+TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TYPE_DECIMAL|TYPE_REAL|TYPE_FLOAT|
+TYPE_DOUBLE|TYPE_BINARY|TYPE_BLOB|TYPE_LONGVARBINARY|TYPE_VARBINARY|TYPE_CLOB|TYPE_NCLOB|TYPE_DATE|TYPE_TIME|
+TYPE_DATETIME|TYPE_TIMESTAMP|TYPE_ARRAY|TYPE_STRUCT|TYPE_REFCURSOR;
 
-@final public SQLType TYPE_VARCHAR = "VARCHAR";
-@final public SQLType TYPE_CHAR = "CHAR";
-@final public SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
-@final public SQLType TYPE_NCHAR = "NCHAR";
-@final public SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
-@final public SQLType TYPE_NVARCHARR = "NVARCHAR";
-@final public SQLType TYPE_BIT = "BIT";
-@final public SQLType TYPE_BOOLEAN = "BOOLEAN";
-@final public SQLType TYPE_TINYINT = "TINYINT";
-@final public SQLType TYPE_SMALLINT = "SMALLINT";
-@final public SQLType TYPE_INTEGER = "INTEGER";
-@final public SQLType TYPE_BIGINT = "BIGINT";
-@final public SQLType TYPE_NUMERIC = "NUMERIC";
-@final public SQLType TYPE_DECIMAL = "DECIMAL";
-@final public SQLType TYPE_REAL = "REAL";
-@final public SQLType TYPE_FLOAT = "FLOAT";
-@final public SQLType TYPE_DOUBLE = "DOUBLE";
-@final public SQLType TYPE_BINARY = "BINARY";
-@final public SQLType TYPE_BLOB = "BLOB";
-@final public SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
-@final public SQLType TYPE_VARBINARY = "VARBINARY";
-@final public SQLType TYPE_CLOB = "CLOB";
-@final public SQLType TYPE_NCLOB = "NCLOB";
-@final public SQLType TYPE_DATE = "DATE";
-@final public SQLType TYPE_TIME = "TIME";
-@final public SQLType TYPE_DATETIME = "DATETIME";
-@final public SQLType TYPE_TIMESTAMP = "TIMESTAMP";
-@final public SQLType TYPE_ARRAY = "ARRAY";
-@final public SQLType TYPE_STRUCT = "STRUCT";
-@final public SQLType TYPE_REFCURSOR = "REFCURSOR";
+public const SQLType TYPE_VARCHAR = "VARCHAR";
+public const SQLType TYPE_CHAR = "CHAR";
+public const SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
+public const SQLType TYPE_NCHAR = "NCHAR";
+public const SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+public const SQLType TYPE_NVARCHAR = "NVARCHAR";
+public const SQLType TYPE_BIT = "BIT";
+public const SQLType TYPE_BOOLEAN = "BOOLEAN";
+public const SQLType TYPE_TINYINT = "TINYINT";
+public const SQLType TYPE_SMALLINT = "SMALLINT";
+public const SQLType TYPE_INTEGER = "INTEGER";
+public const SQLType TYPE_BIGINT = "BIGINT";
+public const SQLType TYPE_NUMERIC = "NUMERIC";
+public const SQLType TYPE_DECIMAL = "DECIMAL";
+public const SQLType TYPE_REAL = "REAL";
+public const SQLType TYPE_FLOAT = "FLOAT";
+public const SQLType TYPE_DOUBLE = "DOUBLE";
+public const SQLType TYPE_BINARY = "BINARY";
+public const SQLType TYPE_BLOB = "BLOB";
+public const SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
+public const SQLType TYPE_VARBINARY = "VARBINARY";
+public const SQLType TYPE_CLOB = "CLOB";
+public const SQLType TYPE_NCLOB = "NCLOB";
+public const SQLType TYPE_DATE = "DATE";
+public const SQLType TYPE_TIME = "TIME";
+public const SQLType TYPE_DATETIME = "DATETIME";
+public const SQLType TYPE_TIMESTAMP = "TIMESTAMP";
+public const SQLType TYPE_ARRAY = "ARRAY";
+public const SQLType TYPE_STRUCT = "STRUCT";
+public const SQLType TYPE_REFCURSOR = "REFCURSOR";
 
 # The direction of the parameter.
 #
 # IN - IN parameters are used to send values to stored procedures
 # OUT - OUT parameters are used to get values from stored procedures
 # INOUT - INOUT parameters are used to send values and get values from stored procedures
-public type Direction "IN"|"OUT"|"INOUT";
+public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
 
-@final public Direction DIRECTION_IN = "IN";
-@final public Direction DIRECTION_OUT = "OUT";
-@final public Direction DIRECTION_INOUT = "INOUT";
+public const Direction DIRECTION_IN = "IN";
+public const Direction DIRECTION_OUT = "OUT";
+public const Direction DIRECTION_INOUT = "INOUT";
 
 # Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
 #

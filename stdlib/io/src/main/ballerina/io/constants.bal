@@ -22,13 +22,13 @@
 # CSV - Field separator would be "," and the record separator would be new line.
 #
 # TDF - Field separator will be tab and record separator will be new line.
-public type Format "default"|"csv"|"tdf";
-@final public Format DEFAULT = "default";
-@final public Format CSV = "csv";
-@final public Format TDF = "tdf";
+public type Format DEFAULT|CSV|TDF;
+public const Format DEFAULT = "default";
+public const Format CSV = "csv";
+public const Format TDF = "tdf";
 
 # Field separators which are supported by DelimitedTextRecordChannel.
-public type Separator ","|"\t"|":";
-@final public Separator COMMA = ",";
-@final public Separator TAB = "\t";
-@final public Separator COLON = ":";
+public type Separator COMMA|TAB|COLON;
+public const Separator COMMA = ",";
+public const Separator TAB = "\t";
+public const Separator COLON = ":";

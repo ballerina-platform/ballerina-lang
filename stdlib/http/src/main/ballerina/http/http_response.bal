@@ -251,7 +251,7 @@ function Response::setHeader(string headerName, string headerValue) {
     entity.setHeader(headerName, headerValue);
 
     // TODO: see if this can be handled in a better manner
-    if (SERVER.equalsIgnoreCase(headerName)) {
+    if (headerName.equalsIgnoreCase(SERVER)) {
         self.server = headerValue;
     }
 }

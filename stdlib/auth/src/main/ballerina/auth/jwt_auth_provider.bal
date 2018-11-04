@@ -114,10 +114,10 @@ public type JWTAuthProvider object {
 
 };
 
-@final string SCOPES = "scope";
-@final string GROUPS = "groups";
-@final string USERNAME = "name";
-@final string AUTH_TYPE_JWT = "jwt";
+const string SCOPES = "scope";
+const string GROUPS = "groups";
+const string USERNAME = "name";
+const string AUTH_TYPE_JWT = "jwt";
 
 # Represents JWT validator configurations
 #

@@ -591,9 +591,9 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
-            if (SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
+            if (hubSignatureMethod.equalsIgnoreCase(SHA1)) { //not recommended
                 generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
-            } else if (SHA256.equalsIgnoreCase(hubSignatureMethod)) {
+            } else if (hubSignatureMethod.equalsIgnoreCase(SHA256)) {
                 generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
             }
             xHubSignature = xHubSignature + generatedSignature;

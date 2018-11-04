@@ -18,35 +18,35 @@ import ballerina/file;
 import ballerina/io;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
-@final public string BOUNDARY = "boundary";
+public const string BOUNDARY = "boundary";
 
 # Key name for `start` parameter in MediaType. This determines which part in the multipart message contains the
 # payload.
-@final public string START = "start";
+public const string START = "start";
 
 # Key name for `type` parameter in MediaType. This indicates the MIME media type of the `root` body part.
-@final public string TYPE = "type";
+public const string TYPE = "type";
 
 # Key name for `charset` parameter in MediaType. This indicates the character set of the body text.
-@final public string CHARSET = "charset";
+public const string CHARSET = "charset";
 
 # Default charset to be used with MIME encoding and decoding.
-@final public string DEFAULT_CHARSET = "UTF-8";
+public const string DEFAULT_CHARSET = "UTF-8";
 
 # Permission to be used with opening a byte channel for overflow data.
-@final io:Mode READ_PERMISSION = "r";
+const io:Mode READ_PERMISSION = "r";
 
 # Represents `content-id` header name.
-@final public string CONTENT_ID = "content-id";
+public const string CONTENT_ID = "content-id";
 
 # Represents `content-length` header name.
-@final public string CONTENT_LENGTH = "content-length";
+public const string CONTENT_LENGTH = "content-length";
 
 # Represents `content-type` header name.
-@final public string CONTENT_TYPE = "content-type";
+public const string CONTENT_TYPE = "content-type";
 
 # Represents `content-disposition` header name.
-@final public string CONTENT_DISPOSITION = "content-disposition";
+public const string CONTENT_DISPOSITION = "content-disposition";
 
 # Represents values in `Content-Disposition` header.
 #

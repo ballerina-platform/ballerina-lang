@@ -19,10 +19,10 @@ import ballerina/task;
 import ballerina/time;
 
 # Cache cleanup task starting delay in ms.
-@final int CACHE_CLEANUP_START_DELAY = 0;
+const int CACHE_CLEANUP_START_DELAY = 0;
 
 # Cache cleanup task invoking interval in ms.
-@final int CACHE_CLEANUP_INTERVAL = 5000;
+const int CACHE_CLEANUP_INTERVAL = 5000;
 
 # Map which stores all of the caches.
 map<Cache> cacheMap;
