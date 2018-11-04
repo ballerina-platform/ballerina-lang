@@ -564,8 +564,28 @@ public class NativeConversionTest {
     }
 
     @Test
-    public void testJsonToStructInPackage() {
-        BValue[] returns = BRunUtil.invoke(packageResult, "testJsonToStruct");
+    public void testJsonToRecordInPackage() {
+        BValue[] returns = BRunUtil.invoke(packageResult, "testJsonToRecord");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
+
+        String name = struct.get("name").stringValue();
+        Assert.assertEquals(name, "John");
+
+        long age = ((BInteger) struct.get("age")).intValue();
+        Assert.assertEquals(age, 30);
+
+        BValue address = struct.get("adrs");
+        Assert.assertTrue(address instanceof BMap);
+        BMap<String, BValue> addressStruct = (BMap<String, BValue>) address;
+        Assert.assertEquals(addressStruct.get("street").stringValue(), "20 Palm Grove");
+        Assert.assertEquals(addressStruct.get("city").stringValue(), "Colombo 03");
+        Assert.assertEquals(addressStruct.get("country").stringValue(), "Sri Lanka");
+    }
+
+    @Test
+    public void testMapToRecordInPackage() {
+        BValue[] returns = BRunUtil.invoke(packageResult, "testMapToRecord");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
 

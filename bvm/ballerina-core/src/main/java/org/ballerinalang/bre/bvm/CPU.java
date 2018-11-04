@@ -3473,7 +3473,7 @@ public class CPU {
     private static BMap<String, BValue> convertMapToStruct(WorkerExecutionContext ctx,
                                                            BMap<String, BValue> bMap, BStructureType structType) {
         BMap<String, BValue> bStruct = new BMap<>(structType);
-        StructureTypeInfo structInfo = ctx.callableUnitInfo.getPackageInfo().getStructInfo(structType.getName());
+        StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
 
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             String key = fieldInfo.getName();
