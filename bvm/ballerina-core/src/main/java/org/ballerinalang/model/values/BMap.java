@@ -432,7 +432,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      * {@inheritDoc}
      */
     @Override
-    public BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
         writeLock.lock();
         try {
             if (this.type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -440,7 +440,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             }
 
             if (this.isFrozen()) {
-                return this;
+                return;
             }
 
             this.freezeStatus = freezeStatus;
@@ -452,7 +452,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         } finally {
             writeLock.unlock();
         }
-        return this;
     }
 
     /**

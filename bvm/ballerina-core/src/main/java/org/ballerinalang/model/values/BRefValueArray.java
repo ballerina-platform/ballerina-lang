@@ -174,9 +174,9 @@ public class BRefValueArray extends BNewArray implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
         if (this.isFrozen()) {
-            return this;
+            return;
         }
         this.freezeStatus = freezeStatus;
         for (int i = 0; i < this.size; i++) {
@@ -184,6 +184,5 @@ public class BRefValueArray extends BNewArray implements Serializable {
                 this.get(i).attemptFreeze(freezeStatus);
             }
         }
-        return this;
     }
 }

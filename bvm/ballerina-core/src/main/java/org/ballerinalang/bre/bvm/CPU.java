@@ -826,8 +826,12 @@ public class CPU {
             case InstructionCodes.FREEZE:
                 try {
                     FreezeStatus freezeStatus = new FreezeStatus();
-                    sf.refRegs[j] = (BRefType<?>) value.attemptFreeze(freezeStatus);
+                    value.attemptFreeze(freezeStatus);
+
+                    // if freeze is successful, set the frozen status of the value and its constituents to true, and
+                    // set the value itself as the return value
                     freezeStatus.setFrozen();
+                    sf.refRegs[j] = value;
                 } catch (BLangFreezeException e) {
                     sf.refRegs[j] = BLangVMErrors.createError(ctx, e.getMessage());
                 }

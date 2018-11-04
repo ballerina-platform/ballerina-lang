@@ -499,12 +499,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BRefType<BRefValueArray> attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
         if (this.isFrozen()) {
-            return this;
+            return;
         }
         this.freezeStatus = freezeStatus;
         Arrays.stream(sequence.values).forEach(val -> val.attemptFreeze(freezeStatus));
-        return this;
     }
 }

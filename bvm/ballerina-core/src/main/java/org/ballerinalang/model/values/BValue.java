@@ -46,10 +46,8 @@ public interface BValue {
 
     /**
      * Method to attempt freezing a {@link BValue}, to disallow further modification.
-     *
-     * @return The frozen self instance
      */
-    default BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    default void attemptFreeze(CPU.FreezeStatus freezeStatus) {
         throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
     }
 

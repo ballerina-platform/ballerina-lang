@@ -58,8 +58,8 @@ public abstract class BValueType implements BValue {
     /**
      * {@inheritDoc}
      */
-    public BValue attemptFreeze(CPU.FreezeStatus freezeStatus) {
-        return this;
+    public void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+        // do nothing, since value types are always frozen
     }
 
     /**
