@@ -828,7 +828,7 @@ public type ExternalTimeBatchWindow object {
         while (newEventChunk.hasNext()) {
             streamEvents[streamEvents.length()] = check <StreamEvent>newEventChunk.next();
         }
-        if (streamEvents != null) {
+        if (streamEvents.length() != 0) {
             complexEventChunks.addLast(streamEvents);
         }
     }
@@ -897,7 +897,7 @@ public type ExternalTimeBatchWindow object {
         while (newEventChunk.hasNext()) {
             streamEvents[streamEvents.length()] = check <StreamEvent>newEventChunk.next();
         }
-        if (streamEvents != null) {
+        if (streamEvents.length() != 0) {
             complexEventChunks.addLast(streamEvents);
         }
 

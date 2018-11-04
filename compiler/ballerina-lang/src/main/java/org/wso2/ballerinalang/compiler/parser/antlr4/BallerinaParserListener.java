@@ -1672,6 +1672,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code binaryRefEqualExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinaryRefEqualExpression(BallerinaParser.BinaryRefEqualExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code binaryRefEqualExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinaryRefEqualExpression(BallerinaParser.BinaryRefEqualExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code binaryEqualExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
