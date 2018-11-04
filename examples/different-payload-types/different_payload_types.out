@@ -1,8 +1,8 @@
 #At the command line, navigate to the directory that contains the 
 #`.bal` file and run the `ballerina run` command. 
 $ ballerina run different_payload_types.bal
-ballerina: started HTTP/WS endpoint 0.0.0.0:9091
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9091
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
 2018-06-03 10:53:56,480 INFO  [] - Text data: Hello
 2018-06-03 10:53:56,494 INFO  [] - Text data: Hello
 2018-06-03 10:53:56,501 INFO  [] - There's no body in response

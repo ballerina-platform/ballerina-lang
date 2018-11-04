@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -60,14 +58,13 @@ function startLengthBatchwindowTest1() returns (TeacherOutput[]) {
         }
     }
 
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
 function testLengthBatchwindow() {
 
     forever {
-        from inputStreamLengthBatchTest1 window lengthBatchWindow(2)
+        from inputStreamLengthBatchTest1 window lengthBatchWindow([2])
         select inputStreamLengthBatchTest1.name, count() as count
         group by inputStreamLengthBatchTest1.school
         => (TeacherOutput [] emp) {

@@ -63,7 +63,7 @@ public class CommandConstants {
 
     public static final String CREATE_CONSTRUCTOR_TITLE = "Create Constructor";
 
-    public static final String PULL_PKG_TITLE = "Pull from Ballerina Central";
+    public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
 
     // Commands List
     public static final String CMD_IMPORT_MODULE = "IMPORT_MODULE";
