@@ -52,8 +52,10 @@ public class BallerinaStreamsV2TableJoinTest {
         BMap<String, BValue> stock1 = (BMap<String, BValue>) stocksWithPrices[0];
         BMap<String, BValue> stock2 = (BMap<String, BValue>) stocksWithPrices[1];
 
+        Assert.assertEquals(stock1.get("symbol").stringValue(), "WSO2");
         Assert.assertEquals(stock1.get("tweet").stringValue(), "Hello WSO2, happy to be a user.");
         Assert.assertEquals(((BFloat) stock1.get("price")).floatValue(), 55.6);
+        Assert.assertEquals(stock2.get("symbol").stringValue(), "IBM");
         Assert.assertEquals(stock2.get("tweet").stringValue(), "Hello IBM, happy to be a user.");
         Assert.assertEquals(((BFloat) stock2.get("price")).floatValue(), 58.6);
     }
@@ -68,8 +70,10 @@ public class BallerinaStreamsV2TableJoinTest {
         BMap<String, BValue> stock1 = (BMap<String, BValue>) stocksWithPrices[0];
         BMap<String, BValue> stock2 = (BMap<String, BValue>) stocksWithPrices[1];
 
+        Assert.assertEquals(stock1.get("symbol").stringValue(), "WSO2");
         Assert.assertEquals(stock1.get("tweet").stringValue(), "Hello WSO2, happy to be a user.");
         Assert.assertEquals(((BFloat) stock1.get("price")).floatValue(), 55.6);
+        Assert.assertNull(stock2.get("symbol"));
         Assert.assertEquals(stock2.get("tweet").stringValue(), "Hello BMW, happy to be a user.");
         Assert.assertNull(stock2.get("price"));
     }

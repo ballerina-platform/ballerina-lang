@@ -966,7 +966,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangFieldBasedAccess nextProcessMethodAccess = createNextProcessFuncPointer(joinStreamingInput.pos);
 
         BInvokableSymbol tableJoinProcessorInvokableSymbol = (BInvokableSymbol) symResolver.
-                resolvePkgSymbol(joinStreamingInput.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                resolvePkgSymbol(joinStreamingInput.pos, env, Names.STREAMS_MODULE).
                 scope.lookup(new Name(CREATE_TABLE_JOIN_PROCESS_METHOD_NAME)).symbol;
 
         BType tableJoinProcessorReturnType = tableJoinProcessorInvokableSymbol.type.getReturnType();
@@ -1845,8 +1845,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         (((BLangFieldBasedAccess) expression).expr.type.tag == TypeTags.STREAM)) {
                     BLangFieldBasedAccess expr = (BLangFieldBasedAccess) expression;
                     BLangExpression fieldAccessExpr = createMapVariableIndexAccessExpr(mapVarSymbol, expr);
-                    expressionList.add(createCheckedExpr(generateConversionExpr(fieldAccessExpr,
-                            expr.type, symResolver)));
+                    if (expr.type.tag == TypeTags.STRING) {
+                        // <string> is not a checked cast
+                        expressionList.add(generateConversionExpr(fieldAccessExpr, expr.type, symResolver));
+                    } else {
+                        expressionList.add(createCheckedExpr(generateConversionExpr(fieldAccessExpr,
+                                expr.type, symResolver)));
+                    }
                 } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isInHaving) {
                     BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
                     expressionList.add(refactorVarRefAfterSelect(varRef, varRef.symbol.type));
