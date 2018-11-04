@@ -1,5 +1,3 @@
-import ballerina/sql;
-import ballerina/jdbc;
 import ballerina/io;
 import ballerina/http;
 

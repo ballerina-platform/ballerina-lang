@@ -1,4 +1,3 @@
-import ballerina/jdbc;
 import ballerina/h2;
 
 type ResultCount record {
@@ -6,15 +5,19 @@ type ResultCount record {
 };
 
 function testXATransactonSuccess() returns (int, int) {
-    endpoint jdbc:Client testDB1 {
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+    endpoint h2:Client testDB1 {
+        path: "./target/H2_1/",
+        name: "TestDB1",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
-    endpoint jdbc:Client testDB2 {
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+    endpoint h2:Client testDB2 {
+        path: "./target/H2_2/",
+        name: "TestDB2",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
@@ -44,15 +47,19 @@ function testXATransactonSuccess() returns (int, int) {
 }
 
 function testXATransactonSuccessWithDataSource() returns (int, int) {
-    endpoint jdbc:Client testDB1 {
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+    endpoint h2:Client testDB1 {
+        path: "./target/H2_1/",
+        name: "TestDB1",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
     };
 
-    endpoint jdbc:Client testDB2 {
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+    endpoint h2:Client testDB2 {
+        path: "./target/H2_2/",
+        name: "TestDB2",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
     };
 
@@ -125,15 +132,19 @@ function testXATransactonSuccessWithH2Client() returns (int, int) {
 
 function testXATransactonFailed1() returns (int, int) {
 
-    endpoint jdbc:Client testDB1 {
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+    endpoint h2:Client testDB1 {
+        path: "./target/H2_1/",
+        name: "TestDB1",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
-    endpoint jdbc:Client testDB2 {
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+    endpoint h2:Client testDB2 {
+        path: "./target/H2_2/",
+        name: "TestDB2",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
@@ -168,15 +179,19 @@ function testXATransactonFailed1() returns (int, int) {
 
 function testXATransactonFailed2() returns (int, int) {
 
-    endpoint jdbc:Client testDB1 {
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+    endpoint h2:Client testDB1 {
+        path: "./target/H2_1/",
+        name: "TestDB1",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
-    endpoint jdbc:Client testDB2 {
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+    endpoint h2:Client testDB2 {
+        path: "./target/H2_2/",
+        name: "TestDB2",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
@@ -210,15 +225,19 @@ function testXATransactonFailed2() returns (int, int) {
 
 function testXATransactonRetry() returns (int, int) {
 
-    endpoint jdbc:Client testDB1 {
-        url: "jdbc:h2:file:./target/H2_1/TestDB1",
+    endpoint h2:Client testDB1 {
+        path: "./target/H2_1/",
+        name: "TestDB1",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 
-    endpoint jdbc:Client testDB2 {
-        url: "jdbc:h2:file:./target/H2_2/TestDB2",
+    endpoint h2:Client testDB2 {
+        path: "./target/H2_2/",
+        name: "TestDB2",
         username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     };
 

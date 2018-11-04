@@ -14,7 +14,7 @@ $ curl -v http://localhost:9090/multiparts/encode
 < HTTP/1.1 200 OK
 < content-type: multipart/form-data; boundary=3bbfa10811dcdee6
 < date: Thu, 14 Jun 2018 15:22:21 +0530
-< server: ballerina/0.974.1-SNAPSHOT
+< server: ballerina/0.982.1-SNAPSHOT
 < content-length: 398
 <
 --3bbfa10811dcdee6
