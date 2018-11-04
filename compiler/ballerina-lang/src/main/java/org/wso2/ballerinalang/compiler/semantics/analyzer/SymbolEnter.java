@@ -372,7 +372,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
         if (definedType == symTable.noType) {
-            this.unresolvedTypes.add(typeDefinition);
+            // This is to prevent concurrent modification exception.
+            if (!this.unresolvedTypes.contains(typeDefinition)) {
+                this.unresolvedTypes.add(typeDefinition);
+            }
             return;
         }
 
