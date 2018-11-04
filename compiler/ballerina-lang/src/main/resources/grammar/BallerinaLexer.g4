@@ -144,7 +144,7 @@ COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 FLUSH       : 'flush' ;
-WAIT        : 'await' ;
+WAIT        : 'wait' ;
 
 // Separators
 

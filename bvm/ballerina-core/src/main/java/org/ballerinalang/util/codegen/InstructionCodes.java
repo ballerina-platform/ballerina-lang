@@ -245,8 +245,8 @@ public interface InstructionCodes {
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
     int FORKJOIN = 192;
-
-    int AWAIT = 193;
+    
+    int WAIT = 193;
 
     int MAP2JSON = 194;
     int JSON2MAP = 195;

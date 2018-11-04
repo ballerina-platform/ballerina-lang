@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -119,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -1378,7 +1378,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         endJumpAddr.value = nextIP();
     }
 
-    public void visit(BLangAwaitExpr awaitExpr) {
+    public void visit(BLangWaitExpr awaitExpr) {
         Operand valueRegIndex;
         if (awaitExpr.type != null) {
             valueRegIndex = calcAndGetExprRegIndex(awaitExpr);
@@ -1387,7 +1387,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         genNode(awaitExpr.expr, this.env);
         Operand futureRegIndex = awaitExpr.expr.regIndex;
-        this.emit(InstructionCodes.AWAIT, futureRegIndex, valueRegIndex);
+        this.emit(InstructionCodes.WAIT, futureRegIndex, valueRegIndex);
     }
 
     @Override

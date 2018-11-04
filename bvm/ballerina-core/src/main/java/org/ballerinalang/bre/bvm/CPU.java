@@ -772,7 +772,7 @@ public class CPU {
                         handleVariableUnlock(ctx, instructionUnLock.types,
                                 instructionUnLock.pkgRefs, instructionUnLock.varRegs);
                         break;
-                    case InstructionCodes.AWAIT:
+                    case InstructionCodes.WAIT:
                         ctx = execAwait(ctx, operands);
                         if (ctx == null) {
                             return;

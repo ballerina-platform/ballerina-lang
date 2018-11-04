@@ -35,7 +35,7 @@ public function main() {
             "/get?test=123");
     io:println(sum(25, 75));
     io:println(f3.isDone());
-    var response = await f3;
+    var response = wait f3;
     match response {
         http:Response resp => {
             io:println(untaint resp.getJsonPayload());
@@ -61,12 +61,12 @@ function cube(int n) returns int {
 
 function squarePlusCube(future<int> f) returns int {
     worker w1 {
-        int n = await f;
+        int n = wait f;
         int sq = square(n);
         sq -> w2;
     }
     worker w2 {
-        int n = await f;
+        int n = wait f;
         int cb = cube(n);
         int sq;
         sq <- w1;

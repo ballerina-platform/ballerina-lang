@@ -64,7 +64,7 @@ if (typeof hljs === 'object') {
         return {
             "k": "package import as public private native service resource function object annotation parameter transformer worker endpoint " +
                 "bind xmlns returns version documentation deprecated new if else match foreach while next break fork join some all timeout " +
-                "try catch finally throw return transaction abort fail onretry retries onabort oncommit lengthof with in lock untaint start await but check",
+                "try catch finally throw return transaction abort fail onretry retries onabort oncommit lengthof with in lock untaint start wait but check",
             "i": {},
             "c": [{
                 "cN": "ballerinadoc",
