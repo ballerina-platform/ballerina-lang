@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -1252,12 +1253,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangWhere) afterWhereNode).accept(this);
         }
 
-        //Create duplicate symbol for stream alias
-        if (streamingInput.getAlias() != null) {
-            BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
-            BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
-            streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
-            symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+        if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+            if (streamingInput.getAlias() == null) {
+                dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS, ((BLangInvocation) streamRef)
+                        .name.getValue());
+            }
+            BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
+            symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), ((BTableType) functionSymbol
+                    .retType).constraint, names.fromString(streamingInput.getAlias()), env);
+        } else {
+            //Create duplicate symbol for stream alias
+            if (streamingInput.getAlias() != null) {
+                BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
+                BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+                streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+                symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+            }
         }
     }
 
