@@ -6,22 +6,22 @@
 
 [Ballerina](https://ballerina.io/) is a simple programming language whose syntax and runtime address the hard 
 problems of integration. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. 
-Ballerina code is compiled into services that include transactions, embedded brokers and gateway runtime.
-Ballerina makes it easy to build resilient services that integration and orchestrate across distributed endpoints. 
+Ballerina code is compiled into services that include transactions, embedded brokers, and gateway runtime.
+Ballerina makes it easy to build resilient services for integration and orchestrate across distributed endpoints.
 
-Ballerina plugin provides Ballerina Language support in IntelliJ IDEA .
+Ballerina plugin provides Ballerina Language support in IntelliJ IDEA.
 
 ## Table of Contents
 
 - [**Getting Started**](getting-started/README.md)
-    - [How to Install](#how-to-install)
+    - [How To Install](#how-to-install)
     - [Setting Up Ballerina SDK](getting-started/setting-up-ballerina-sdk/README.md)
     - [Writing Hello World In Ballerina](getting-started/writing-hello-world/README.md)
     
 - [**Plugin Features**](getting-started/plugin-features/README.md)
     - [Running Ballerina Programs](getting-started/plugin-features/README.md#running-ballerina-programs)
     - [Debugging Ballerina Programs](getting-started/plugin-features/README.md#debugging-ballerina-programs) 
-    - [Import modules On-the-fly](getting-started/plugin-features/README.md#import-modules-on-the-fly)
+    - [Import Modules On-the-fly](getting-started/plugin-features/README.md#import-modules-on-the-fly)
     - [Auto Import Unambiguous Modules](getting-started/plugin-features/README.md#auto-import-unambiguous-modules)
     - [Find Usage](getting-started/plugin-features/README.md#find-usage)
     - [Go to Definition](getting-started/plugin-features/README.md#go-to-definition)
@@ -38,14 +38,14 @@ Ballerina plugin provides Ballerina Language support in IntelliJ IDEA .
 - [**Plugin Developer Guide**](getting-started/plugin-developer-guide/README.md#plugin-developer-guide)
     - [Testing/Debugging the plugin using IntelliJ](getting-started/plugin-developer-guide/README.md#testingdebugging-the-plugin-using-intellij-idea)
     
-- [**Release versions schema**](#release-versions-schema)
-- [**How to Contribute**](#how-to-contribute) 
+- [**Release Versions Schema**](#release-versions-schema)
+- [**How To Contribute**](#how-to-contribute) 
 - [**Licence**](#license)
 - [**Copyright**](#copyright)
 - [**Useful Links**](#useful-links)
 
 
-## How to Install
+## How To Install
 
 ### From Jetbrains plugin repository
 1. Go to **Settings** (**Preferences** in **MacOS**)-> **Plugins**. 
@@ -53,17 +53,22 @@ Ballerina plugin provides Ballerina Language support in IntelliJ IDEA .
 3. Search for **Ballerina** using the search box. Ballerina plugin will show up. Then you can install the plugin using the Install button.
 4. Restart IDEA.
 
-### From a local build
-1. Run `./gradlew buildPlugin`. In the **build/distributions** directory, **ballerina-intellij-idea-plugin-[VERSION].zip** will be created.
-    >**Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
-2. Go to **File -> Settings** (**IntelliJ IDEA -> Preferences** in **macOS**) and select **Plugins**.
-3. Click **Install plugin from disc** button and select the deployed **plugin zip** file. Please make sure to install the Zip file, not the extracted Jar files. This zip contains an additional library as well. Without this library, the plugin will not work properly.
+### To install a plugin from disk
+If you have a plugin file available on your computer, you can install it from disk. A plugin file is an archive file (ZIP or a JAR) and you do not need to decompress it before installation
+1. Navigate to the plugin source directory using terminal and run `./gradlew buildPlugin`. 
+**ballerina-intellij-idea-plugin-[VERSION].zip** is created in the **build/distributions** directory.
+   >**Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
+2. Open IntelliJ IDEA and go to **File -> Settings** (**IntelliJ IDEA -> Preferences** in **macOS**) and select 
+**Plugins**.
+3. Click **Install plugin from disc** button and select the **plugin ZIP** file. Please make sure to install 
+the ZIP file, not the extracted JAR files. This ZIP contains an additional library as well. Without this library, the 
+plugin will not work properly.
 4. Restart IDEA.
 
 
 ## Release Versions Schema
 
-Below you can see the plugin versions which correspond to the versions of the IntelliJ Platform.
+Below you can see the plugin versions that correspond to the versions of the IntelliJ Platform.
 
 | Plugin Version | Platform Version Compatibility |
 |--- | --- |
@@ -77,7 +82,7 @@ Pull requests are highly encouraged and we recommend you to create a GitHub issu
 
 
 ## License
-Ballerina IDEA plugin source is available under the [Apache 2.0 License](LICENSE).
+Ballerina IDEA plugin source is licensed under the [Apache 2.0 License](LICENSE).
 
 
 ## Copyright
