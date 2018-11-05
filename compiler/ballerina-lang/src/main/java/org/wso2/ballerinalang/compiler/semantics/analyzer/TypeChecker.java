@@ -141,7 +141,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -393,7 +392,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Change the expected type to map,
             expType = symTable.mapType;
         }
-        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.OBJECT) {
+        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.ANYDATA || expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.semanticError;
             return;
@@ -894,8 +893,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
-                        binaryExpr);
+                opSymbol = getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
             }
 
             if (opSymbol == symTable.notFoundSymbol) {
@@ -910,23 +908,47 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
-    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType,
-                                                 BType rhsType, BLangBinaryExpr binaryExpr) {
-        if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
-            return symTable.notFoundSymbol;
+    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
+                                                 BLangBinaryExpr binaryExpr) {
+        boolean validEqualityIntersectionExists;
+        switch (opKind) {
+            case EQUAL:
+            case NOT_EQUAL:
+                validEqualityIntersectionExists = types.validEqualityIntersectionExists(lhsType, rhsType);
+                break;
+            case REF_EQUAL:
+            case REF_NOT_EQUAL:
+                validEqualityIntersectionExists =
+                        types.isAssignable(lhsType, rhsType) || types.isAssignable(rhsType, lhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
         }
-        if (types.isIntersectionExist(lhsType, rhsType)) {
+
+
+        if (validEqualityIntersectionExists) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
                     (types.isValueType(lhsType) && types.isValueType(rhsType))) {
-                return symResolver.createReferenceEqualityOperator(opKind, lhsType, rhsType);
+                return symResolver.createEqualityOperator(opKind, lhsType, rhsType);
             } else {
                 types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
                 types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
-                return symResolver.createReferenceEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+
+                switch (opKind) {
+                    case REF_EQUAL:
+                        // if one is a value type, consider === the same as ==
+                        return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
+                                                                  symTable.anyType);
+                    case REF_NOT_EQUAL:
+                        // if one is a value type, consider !== the same as !=
+                        return symResolver.createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
+                                                                  symTable.anyType);
+                    default:
+                        return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+                }
             }
-        } else {
-            return symTable.notFoundSymbol;
         }
+        return symTable.notFoundSymbol;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
@@ -1023,7 +1045,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // This is a tuple.
             BType actualType = new BTupleType(results);
 
-            if (expType.tag == TypeTags.ANY) {
+            if (expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
                 dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
                 resultType = symTable.semanticError;
                 return;

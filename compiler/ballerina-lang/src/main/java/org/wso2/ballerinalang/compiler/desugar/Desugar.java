@@ -1347,39 +1347,60 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
+        int rhsExprTypeTag = binaryExpr.rhsExpr.type.tag;
+        int lhsExprTypeTag = binaryExpr.lhsExpr.type.tag;
+
         // Check for bitwise shift operator and add type conversion to int
-        if (isBitwiseShiftOperation(binaryExpr) && TypeTags.BYTE == binaryExpr.rhsExpr.type.tag) {
+        if (isBitwiseShiftOperation(binaryExpr) && TypeTags.BYTE == rhsExprTypeTag) {
             binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
                     symTable.intType);
             return;
         }
 
+        // Check for int and byte ==, != or === comparison and add type conversion to int for byte
+        if (rhsExprTypeTag != lhsExprTypeTag && (binaryExpr.opKind == OperatorKind.EQUAL ||
+                                                         binaryExpr.opKind == OperatorKind.NOT_EQUAL ||
+                                                         binaryExpr.opKind == OperatorKind.REF_EQUAL ||
+                                                         binaryExpr.opKind == OperatorKind.REF_NOT_EQUAL)) {
+            if (lhsExprTypeTag == TypeTags.INT && rhsExprTypeTag == TypeTags.BYTE) {
+                binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                              symTable.intType);
+                return;
+            }
+
+            if (lhsExprTypeTag == TypeTags.BYTE && rhsExprTypeTag == TypeTags.INT) {
+                binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                              symTable.intType);
+                return;
+            }
+        }
+
         // Check lhs and rhs type compatibility
-        if (binaryExpr.lhsExpr.type.tag == binaryExpr.rhsExpr.type.tag) {
+        if (lhsExprTypeTag == rhsExprTypeTag) {
             return;
         }
 
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+        if (lhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                          binaryExpr.lhsExpr.type);
             return;
         }
 
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+        if (rhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                          binaryExpr.rhsExpr.type);
             return;
         }
 
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.FLOAT) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+        if (lhsExprTypeTag == TypeTags.FLOAT) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                          binaryExpr.lhsExpr.type);
             return;
         }
 
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.FLOAT) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+        if (rhsExprTypeTag == TypeTags.FLOAT) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                          binaryExpr.rhsExpr.type);
         }
     }
 

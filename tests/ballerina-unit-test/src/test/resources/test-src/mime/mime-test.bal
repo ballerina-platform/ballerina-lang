@@ -147,26 +147,22 @@ function testGetJsonMultipleTimes(json jsonContent) returns (json) {
     json content2 = {};
     json content3 = {};
 
-    match returnContent1 {
-        error err => log:printInfo("error in returnContent1");
-        json jsonBody => {
-            content1 = jsonBody;
-        }
-
+    if (returnContent1 is json) {
+        content1 = returnContent1;
+    } else if (returnContent1 is error) {
+        log:printError("error in returnContent1", err = returnContent1);
     }
 
-    match returnContent2 {
-        error err => log:printInfo("error in returnContent2");
-        json jsonBody => {
-            content2 = jsonBody;
-        }
+    if (returnContent2 is json) {
+        content2 = returnContent2;
+    } else if (returnContent2 is error) {
+        log:printError("error in returnContent2", err = returnContent2);
     }
 
-    match returnContent3 {
-        error err => log:printInfo("error in returnContent3");
-        json jsonBody => {
-            content3 = jsonBody;
-        }
+    if (returnContent3 is json) {
+        content3 = returnContent3;
+    } else if (returnContent3 is error) {
+        log:printError("error in returnContent3", err = returnContent3);
     }
 
     json returnContent = { concatContent: [content1, content2, content3] };
@@ -190,25 +186,22 @@ function testGetXmlMultipleTimes(xml xmlContent) returns (xml) {
     xml content2;
     xml content3;
 
-    match returnContent1 {
-        error err => log:printInfo("error in returnContent1");
-        xml xmlBody => {
-            content1 = xmlBody;
-        }
+    if (returnContent1 is xml) {
+        content1 = returnContent1;
+    } else if (returnContent1 is error) {
+        log:printError("error in returnContent1", err = returnContent1);
     }
 
-    match returnContent2 {
-        error err => log:printInfo("error in returnContent2");
-        xml xmlBody => {
-            content2 = xmlBody;
-        }
+    if (returnContent2 is xml) {
+        content2 = returnContent2;
+    } else if (returnContent2 is error) {
+        log:printError("error in returnContent2", err = returnContent2);
     }
 
-    match returnContent3 {
-        error err => log:printInfo("error in returnContent3");
-        xml xmlBody => {
-            content3 = xmlBody;
-        }
+    if (returnContent3 is xml) {
+        content3 = returnContent3;
+    } else if (returnContent3 is error) {
+        log:printError("error in returnContent3", err = returnContent3);
     }
 
     xml returnContent = content1 + content2 + content3;
@@ -232,26 +225,24 @@ function testGetTextMultipleTimes(string textContent) returns (string) {
     string content2;
     string content3;
 
-    match returnContent1 {
-        error err => log:printInfo("error in returnContent1");
-        string textBody => {
-            content1 = textBody;
-        }
+    if (returnContent1 is string) {
+        content1 = returnContent1;
+    } else if (returnContent1 is error) {
+        log:printError("error in returnContent1", err = returnContent1);
     }
 
-    match returnContent2 {
-        error err => log:printInfo("error in returnContent2");
-        string textBody => {
-            content2 = textBody;
-        }
+    if (returnContent2 is string) {
+        content2 = returnContent2;
+    } else if (returnContent2 is error) {
+        log:printError("error in returnContent2", err = returnContent2);
     }
 
-    match returnContent3 {
-        error err => log:printInfo("error in returnContent3");
-        string textBody => {
-            content3 = textBody;
-        }
+    if (returnContent3 is string) {
+        content3 = returnContent3;
+    } else if (returnContent3 is error) {
+        log:printError("error in returnContent3", err = returnContent3);
     }
+
     string returnContent = content1 + content2 + content3;
     return returnContent;
 }
@@ -273,27 +264,23 @@ function testGetByteArrayMultipleTimes(byte[] blobContent) returns (string) {
     byte[] content2;
     byte[] content3;
 
-    match returnContent1 {
-        error err => log:printInfo("error in returnContent1");
-        byte[] binaryBody => {
-            content1 = binaryBody;
-        }
+    if (returnContent1 is byte[]) {
+        content1 = returnContent1;
+    } else if (returnContent1 is error) {
+        log:printError("error in returnContent1", err = returnContent1);
     }
 
-    match returnContent2 {
-        error err => log:printInfo("error in returnContent2");
-        byte[] binaryBody => {
-            content2 = binaryBody;
-        }
+    if (returnContent2 is byte[]) {
+        content2 = returnContent2;
+    } else if (returnContent2 is error) {
+        log:printError("error in returnContent2", err = returnContent2);
     }
 
-    match returnContent3 {
-        error err => log:printInfo("error in returnContent3");
-        byte[] binaryBody => {
-            content3 = binaryBody;
-        }
+    if (returnContent3 is byte[]) {
+        content3 = returnContent3;
+    } else if (returnContent3 is error) {
+        log:printError("error in returnContent3", err = returnContent3);
     }
-
 
     string contentAsString = mime:byteArrayToString(content1, "utf-8") + mime:byteArrayToString(content2, "utf-8") +
         mime:byteArrayToString(content3, "utf-8");
@@ -340,12 +327,13 @@ function testGetTextDataSource(io:ReadableByteChannel byteChannel) returns strin
     entity.setHeader("content-type", "text/plain");
     //Consume byte channel externally
     var result = entity.getByteChannel();
-    match result {
-        error err => log:printInfo("error in returnContent1");
-        io:ReadableByteChannel returnChannel => {
-            consumeChannel(returnChannel);
-        }
+
+    if (result is io:ReadableByteChannel) {
+        consumeChannel(result);
+    } else if (result is error) {
+        log:printError("error in reading byte channel");
     }
+
     return entity.getText();
 }
 
@@ -355,11 +343,11 @@ function testGetJsonDataSource(io:ReadableByteChannel byteChannel) returns json|
     entity.setHeader("content-type", "application/json");
     //Consume byte channel externally
     var result = entity.getByteChannel();
-    match result {
-        error err => log:printInfo("error in returnContent1");
-        io:ReadableByteChannel returnChannel => {
-            consumeChannel(returnChannel);
-        }
+
+    if (result is io:ReadableByteChannel) {
+        consumeChannel(result);
+    } else if (result is error) {
+        log:printError("error in reading byte channel");
     }
 
     return entity.getJson();
