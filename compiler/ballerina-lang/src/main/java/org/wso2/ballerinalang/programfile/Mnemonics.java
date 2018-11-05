@@ -120,12 +120,14 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SEQ] = "seq";
         mnemonics[InstructionCodes.BEQ] = "beq";
         mnemonics[InstructionCodes.REQ] = "req";
+        mnemonics[InstructionCodes.REF_EQ] = "ref_eq";
         mnemonics[InstructionCodes.TYPE_TEST] = "teq";
         mnemonics[InstructionCodes.INE] = "ine";
         mnemonics[InstructionCodes.FNE] = "fne";
         mnemonics[InstructionCodes.SNE] = "sne";
         mnemonics[InstructionCodes.BNE] = "bne";
         mnemonics[InstructionCodes.RNE] = "rne";
+        mnemonics[InstructionCodes.REF_NEQ] = "ref_neq";
         mnemonics[InstructionCodes.TNE] = "tne";
 
         mnemonics[InstructionCodes.IGT] = "igt";

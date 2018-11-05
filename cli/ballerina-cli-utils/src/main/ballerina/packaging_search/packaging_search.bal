@@ -33,7 +33,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     } else {
         jsonResponse = check (httpResponse.getJsonPayload());
         json[] artifacts = check <json[]> jsonResponse.artifacts;
-        if (artifacts == null || lengthof artifacts > 0) {
+        if (lengthof artifacts > 0) {
             int artifactsLength = lengthof artifacts;
             printTitle("Ballerina Central");
             

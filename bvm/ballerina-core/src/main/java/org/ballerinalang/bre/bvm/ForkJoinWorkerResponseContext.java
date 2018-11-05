@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.program.BLangVMUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -161,7 +160,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
     }
 
     private BError createCallFailedError(WorkerExecutionContext context, Map<String, BError> errors) {
-        return BLangVMErrors.createCallFailedException(context, new ArrayList<>(errors.values()));
+        return BLangVMErrors.handleError(context, errors);
     }
 
 }
