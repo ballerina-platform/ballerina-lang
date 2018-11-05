@@ -25,17 +25,17 @@ function testSelect() returns (int[]) {
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
     int[] customerIds;
-    match (val) {
-        table dt => {
-            int i = 0;
-            while (dt.hasNext()) {
-                Customer rs = check <Customer>dt.getNext();
-                customerIds[i] = rs.customerId;
-                i += 1;
-            }
-            return customerIds;
+
+    if (val is table<Customer>) {
+        int i = 0;
+        while (val.hasNext()) {
+            Customer rs = check <Customer>val.getNext();
+            customerIds[i] = rs.customerId;
+            i += 1;
         }
-        error err => return [];
+        return customerIds;
+    } else {
+        return [];
     }
 }
 
@@ -68,10 +68,12 @@ function testCall() returns (string) {
     var ret = testDB->call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
 
     table[] dts;
-    match ret {
-        table[] dtsRet => dts = dtsRet;
-        () => return "nil";
-        error e => return e.message;
+    if (ret is table[]) {
+        dts = ret;
+    } else if (ret is ()) {
+        return "nil";
+    } else if (ret is error) {
+        return ret.detail();
     }
 
     string name;
@@ -97,16 +99,13 @@ function testGeneratedKeyOnInsert() returns (string) {
     var x = testDB->updateWithGeneratedKeys("insert into Customers (name,
             creditLimit,country) values ('Sam', 1200, 'USA')", ());
 
-    match x {
-        (int, string[]) y => {
-            int a;
-            string[] b;
-            (a, b) = y;
-            returnVal = b[0];
-        }
-        error err1 => {
-            returnVal = err1.message;
-        }
+    if (x is (int, string[])) {
+        int a;
+        string[] b;
+        (a, b) = x;
+        returnVal = b[0];
+    } else if (x is error) {
+        returnVal = x.detail();
     }
 
     testDB.stop();
@@ -138,16 +137,13 @@ function testBatchUpdate() returns (int[]) {
     sql:Parameter para8 = { sqlType: sql:TYPE_VARCHAR, value: "UK" };
     sql:Parameter[] parameters2 = [para5, para6, para7, para8];
 
-    var x = trap testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
+    var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
 
     int [] ret;
-    match x {
-        int[] data => {
-            ret = data;
-        }
-        error err1 => {
-            ret = [];
-        }
+    if (x is int[]) {
+        ret = x;
+    } else if (x is error) {
+        ret = [];
     }
     testDB.stop();
     return ret;
@@ -252,19 +248,18 @@ function testReInitEndpoint() returns int {
 function selectFunction(h2:Client testDBClient) returns (int[]) {
     endpoint h2:Client testDB = testDBClient;
 
-    var val = trap testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
+    var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
     int[] customerIds;
-    match (val) {
-        table dt => {
-            int i = 0;
-            while (dt.hasNext()) {
-                Customer rs = check <Customer>dt.getNext();
+    if (val is table<Customer>) {
+        int i = 0;
+            while (val.hasNext()) {
+                Customer rs = check <Customer>val.getNext();
                 customerIds[i] = rs.customerId;
                 i += 1;
             }
-        }
-        error err => customerIds = [];
+    } else if (val is error) {
+        customerIds = [];
     }
     testDB.stop();
     return customerIds;
