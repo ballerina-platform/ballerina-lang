@@ -419,7 +419,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
             analyzeNode(varNode.expr, varInitEnv);
-            setTaintedStatus(varNode, this.taintedStatus);
+            // Checks in the BLangWorkerReceive was moved here since its an expression now. So it can be used with
+            // variable definitions: int a = <- w1. The RHS of the variable will be visited first which will be the
+            // receive. Since the tainted status is not known, it will set the tainted status as null. Since we need to
+            // get the tainted status of the variable based on what is being received (send statement), we need to do a
+            // recursive call to all statements of the worker. To do so we need to set these variables to be true.
+            // So in the next pass the tainted status on what is being received will be known, then we simply set it to
+            // the variable.
+            if (this.taintedStatus == null) {
+                blockedOnWorkerInteraction = true;
+                stopAnalysis = true;
+            } else {
+                setTaintedStatus(varNode, this.taintedStatus);
+            }
         }
     }
 
@@ -477,7 +489,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAssignment assignNode) {
         assignNode.expr.accept(this);
         BLangExpression varRefExpr = assignNode.varRef;
-        visitAssignment(varRefExpr, this.taintedStatus, assignNode.pos);
+        // Checks in the BLangWorkerReceive was moved here since its an expression now. So it can be used in assignments
+        // (a = <- w1; where 'a' is defined above) The RHS of the assignment will be visited first which will be the
+        // receive. Since the tainted status is not known, it will set the tainted status as null. Since we need to
+        // get the tainted status of the variable based on what is being received (send statement), we need to do a
+        // recursive call to all statements of the worker. To do so we need to set these variables to be true. So in the
+        // next pass the tainted status on what is being received will be known, then we simply set the tainted status
+        // to the variable reference.
+        if (this.taintedStatus == null) {
+            blockedOnWorkerInteraction = true;
+            stopAnalysis = true;
+        } else {
+            visitAssignment(varRefExpr, this.taintedStatus, assignNode.pos);
+        }
     }
 
     @Override
@@ -853,14 +877,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             analyzeExprList(exprList);
             return;
         }
-
-        TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
-        if (taintedStatus == null) {
-            blockedOnWorkerInteraction = true;
-            stopAnalysis = true;
-        } else {
-            visitAssignment(workerReceiveNode, taintedStatus, workerReceiveNode.pos);
-        }
+        this.taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
     }
 
     // Expressions
