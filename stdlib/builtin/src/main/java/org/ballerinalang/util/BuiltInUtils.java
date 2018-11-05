@@ -57,8 +57,18 @@ public class BuiltInUtils {
         return new BString(value);
     }
 
-    public static BError createConversionError(Context context, String msg) {
-        return BLangVMErrors.createError(context, msg);
+    /**
+     * Get builtin conversion error.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error description
+     * @return conversion error
+     */
+    public static BError createConversionError(Context context, String errMsg) {
+        BMap<String, BValue> errorMap = new BMap<>();
+        errorMap.put("message", new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, "{ballerina/builtin}ConversionError",
+                                         errorMap);
     }
 
     private static BMap<String, BValue> createBase64Error(Context context, String msg,
