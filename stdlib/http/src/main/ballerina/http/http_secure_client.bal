@@ -293,15 +293,12 @@ public type HttpSecureClient object {
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns CallerActions {
-    match config.auth {
-        AuthConfig => {
-            HttpSecureClient httpSecureClient = new(url, config);
-            return httpSecureClient;
-        }
-        () => {
-            CallerActions httpClient = createSimpleHttpClient(url, config);
-            return httpClient;
-        }
+    if config.auth is AuthConfig {
+        HttpSecureClient httpSecureClient = new(url, config);
+        return httpSecureClient;
+    } else {
+        CallerActions httpClient = createSimpleHttpClient(url, config);
+        return httpClient;
     }
 }
 
@@ -311,34 +308,32 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # + config - Client endpoint configurations
 # + return - The Error occured during HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns (()|error) {
-    match config.auth.scheme {
-        AuthScheme scheme => {
-            if (scheme == BASIC_AUTH) {
-                string username = config.auth.username but { () => EMPTY_STRING };
-                string password = config.auth.password but { () => EMPTY_STRING };
-                string str = username + ":" + password;
-                string token = check str.base64Encode();
-                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
-            } else if (scheme == OAUTH2) {
-                string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
-                if (accessToken == EMPTY_STRING) {
-                    return updateRequestAndConfig(req, config);
-                } else {
-                    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                }
-            } else if (scheme == JWT_AUTH) {
-                string authToken = runtime:getInvocationContext().authContext.authToken;
-                if (authToken == EMPTY_STRING) {
-                    error err = error("Authentication token is not set at invocation context");
-                    return err;
-                }
-                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+    var scheme = config.auth.scheme;
+    if scheme is AuthScheme {
+        if (scheme == BASIC_AUTH) {
+            string username = config.auth.username but { () => EMPTY_STRING };
+            string password = config.auth.password but { () => EMPTY_STRING };
+            string str = username + ":" + password;
+            string token = check str.base64Encode();
+            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
+        } else if (scheme == OAUTH2) {
+            string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
+            if (accessToken == EMPTY_STRING) {
+                return updateRequestAndConfig(req, config);
             } else {
-                error err = error("Invalid authentication scheme. It should be basic, oauth2 or jwt");
+                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+            }
+        } else if (scheme == JWT_AUTH) {
+            string authToken = runtime:getInvocationContext().authContext.authToken;
+            if (authToken == EMPTY_STRING) {
+                error err = error("Authentication token is not set at invocation context");
                 return err;
             }
+            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+        } else {
+            error err = error("Invalid authentication scheme. It should be basic, oauth2 or jwt");
+            return err;
         }
-        () => return ();
     }
     return ();
 }
@@ -352,9 +347,8 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
     string accessToken = check getAccessTokenFromRefreshToken(config);
     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
     AuthConfig? authConfig = config.auth;
-    match authConfig {
-        () => {}
-        AuthConfig ac => ac.accessToken = accessToken;
+    if authConfig is AuthConfig {
+        authConfig.accessToken = accessToken;
     }
     return ();
 }
@@ -413,13 +407,11 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
 # + config - Client endpoint configurations
 # + return - Whether the client should retry or not
 function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
-    match config.auth.scheme {
-        AuthScheme scheme => {
-            if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
-                return true;
-            }
+    var scheme = config.auth.scheme;
+    if scheme is AuthScheme {
+        if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
+            return true;
         }
-        () => return false;
     }
     return false;
 }

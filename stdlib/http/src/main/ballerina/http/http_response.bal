@@ -282,83 +282,31 @@ function Response::getContentType() returns string {
 }
 
 function Response::getJsonPayload() returns json|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getJson() {
-                error payloadErr => return payloadErr;
-                json jsonPayload => return jsonPayload;
-            }
-        }
-    }
+    return self.getEntity()!getJson();
 }
 
 function Response::getXmlPayload() returns xml|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getXml() {
-                error payloadErr => return payloadErr;
-                xml xmlPayload => return xmlPayload;
-            }
-        }
-    }
+    return self.getEntity()!getXml();
 }
 
 function Response::getTextPayload() returns string|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getText() {
-                error payloadErr => return payloadErr;
-                string textPayload => return textPayload;
-            }
-        }
-    }
+    return self.getEntity()!getText();
 }
 
 function Response::getPayloadAsString() returns string|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getBodyAsString() {
-                error payloadErr => return payloadErr;
-                string stringPayload => return stringPayload;
-            }
-        }
-    }
+    return self.getEntity()!getBodyAsString();
 }
 
 function Response::getBinaryPayload() returns byte[]|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getByteArray() {
-                error payloadErr => return payloadErr;
-                byte[] binaryPayload => return binaryPayload;
-            }
-        }
-    }
+    return self.getEntity()!getByteArray();
 }
 
 function Response::getByteChannel() returns io:ReadableByteChannel|error {
-    match self.getEntity() {
-        error err => return err;
-        mime:Entity mimeEntity => {
-            match mimeEntity.getByteChannel() {
-                error payloadErr => return payloadErr;
-                io:ReadableByteChannel byteChannel => return byteChannel;
-            }
-        }
-    }
+    return self.getEntity()!getByteChannel();
 }
 
 function Response::getBodyParts() returns mime:Entity[]|error {
-    var mimeEntity = self.getEntity();
-    match mimeEntity {
-        mime:Entity entity => return entity.getBodyParts();
-        error err => return err;
-    }
+    return self.getEntity()!getBodyParts();
 }
 
 function Response::setETag(json|xml|string|byte[] payload) {
@@ -402,8 +350,7 @@ function Response::setBodyParts(mime:Entity[] bodyParts, string contentType = "m
     self.setEntity(entity);
 }
 
-function Response::setFileAsPayload(string filePath, string contentType = "application/octet-stream")
-{
+function Response::setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
@@ -416,12 +363,17 @@ function Response::setByteChannel(io:ReadableByteChannel payload, string content
 }
 
 function Response::setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
-    match payload {
-        string textContent => self.setTextPayload(textContent);
-        xml xmlContent => self.setXmlPayload(xmlContent);
-        json jsonContent => self.setJsonPayload(jsonContent);
-        byte[] blobContent => self.setBinaryPayload(blobContent);
-        io:ReadableByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
-        mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
+    if payload is string {
+        self.setTextPayload(payload);
+    } else if payload is xml {
+        self.setXmlPayload(payload);
+    } else if payload is json {
+        self.setJsonPayload(payload);
+    } else if payload is byte[] {
+        self.setBinaryPayload(payload);
+    } else if payload is io:ReadableByteChannel {
+        self.setByteChannel(payload);
+    } else if payload is mime:Entity[] {
+        self.setBodyParts(payload);
     }
 }
