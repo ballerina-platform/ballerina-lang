@@ -55,7 +55,7 @@ public type LoadBalanceClient object {
 # + cache - The configurations for controlling the caching behaviour
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
-# + algorithm - The algorithm to be used for load balancing. The HTTP module provides 'roundRobin()' by default
+# + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {
     CircuitBreakerConfig? circuitBreaker;
@@ -69,10 +69,10 @@ public type LoadBalanceClientEndpointConfiguration record {
     ProxyConfig? proxy;
     ConnectionThrottling? connectionThrottling;
     TargetService[] targets;
-    LoadBalancerRule lbRule,
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     AuthConfig? auth;
+    LoadBalancerRule? lbRule;
     boolean failover = true;
     !...
 };
@@ -114,16 +114,22 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
 }
 
 function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                    returns CallerActions {
+             returns CallerActions {
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
-                                                                            loadBalanceClientConfig.lbRule.targets[0]);
+        loadBalanceClientConfig.targets[0]);
     CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
 
-    LoadBalancerRule lbBalanceRule = loadBalanceClientConfig.lbRule;
-    lbBalanceRule.loadBalanceClientsArray = lbClients;
-
-    return new LoadBalancerActions(loadBalanceClientConfig.lbRule.targets[0].url, config, lbClients,
-        loadBalanceClientConfig.lbRule, 0, loadBalanceClientConfig.failover);
+    match loadBalanceClientConfig.lbRule {
+        LoadBalancerRule lbRule => {
+            return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients, lbRule,
+                loadBalanceClientConfig.failover);
+        }
+        () => {
+            LoadBalancerRounRobinRule loadBalancerRounRobinRule = new;
+            return new LoadBalancerActions(loadBalanceClientConfig.targets[0].url, config, lbClients,
+                loadBalancerRounRobinRule, loadBalanceClientConfig.failover);
+        }
+    }
 }
 
 function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
@@ -131,7 +137,7 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
     CallerActions[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;
-    string uri = loadBalanceClientConfig.lbRule.targets[0].url;
+    string uri = loadBalanceClientConfig.targets[0].url;
     var cbConfig = loadBalanceClientConfig.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
@@ -146,7 +152,7 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
         }
     }
 
-    foreach target in loadBalanceClientConfig.lbRule.targets {
+    foreach target in loadBalanceClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
         uri = target.url;
         if (uri.hasSuffix("/")) {

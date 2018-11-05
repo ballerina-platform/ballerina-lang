@@ -14,20 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#
+# LoadBalancerRule provides a required interfaces to implement different algorithms.
+#
+public type LoadBalancerRule abstract object {
 
-public type LoadBalancerRule object {
-
-    public TargetService[] targets;
-    public CallerActions[] loadBalanceClientsArray;
-    //public (function (LoadBalancerActions, CallerActions[]) returns CallerActions) algorithm;
-
-    documentation {
-        Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
-
-        P{{loadBalanceClientsArray}} Array of HTTP clients for load balancing
-   }
-    public new(targets) {}
-
-    public function resolve() returns CallerActions;
-
+    # Provides an HTTP client which is choosen according to the algorithm.
+    #
+    # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
+    # + return - Choosen `CallerActions` from the algorithm or an `error`
+    #            for the failure in the algorithm implementation
+    public function getNextCallerActions(CallerActions[] loadBalanceCallerActionsArray) returns CallerActions|error;
 };

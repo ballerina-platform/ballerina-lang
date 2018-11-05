@@ -24,18 +24,14 @@
 # + serviceUri - The URL of the remote HTTP endpoint
 # + config - The configurations of the client endpoint associated with this `LoadBalancer` instance
 # + loadBalanceClientsArray - Array of HTTP clients for load balancing
-# + algorithm - Load balancing algorithm
-# + nextIndex - Index of the next load balancing client
+# + lbRule - Load balancing rule
 # + failover - Whether to fail over in case of a failure
 public type LoadBalancerActions object {
 
    public string serviceUri;
    public ClientEndpointConfig config;
    public CallerActions[] loadBalanceClientsArray;
-   //public (function (LoadBalancerActions, CallerActions[]) returns CallerActions) algorithm;
    public LoadBalancerRule lbRule;
-   //public string algorithm;
-   public int nextIndex;
    public boolean failover;
 
     # Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
@@ -43,13 +39,11 @@ public type LoadBalancerActions object {
     # + serviceUri - The URL of the remote HTTP endpoint
     # + config - The configurations of the client endpoint associated with this `LoadBalancer` instance
     # + loadBalanceClientsArray - Array of HTTP clients for load balancing
-    # + algorithm - Load balancing algorithm
-    # + nextIndex - Index of the next load balancing client
+    # + lbRule - Load balancing rule
     # + failover - Whether to fail over in case of a failure
-public new (serviceUri, config, loadBalanceClientsArray, lbRule, nextIndex, failover) {}
+    public new(serviceUri, config, loadBalanceClientsArray, lbRule, failover) {}
 
-
-# The POST action implementation of the LoadBalancer Connector.
+    # The POST action implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -280,10 +274,11 @@ function performLoadBalanceExecuteAction(LoadBalancerActions lb, string path, Re
 
 // Handles all the actions exposed through the Load Balance connector.
 function performLoadBalanceAction(LoadBalancerActions lb, string path, Request request, HttpOperation requestAction)
-                                    returns Response|error {
+             returns Response|error {
     int loadBalanceTermination = 0; // Tracks at which point failover within the load balancing should be terminated.
     //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
     LoadBalanceActionError loadBalanceActionError = {statusCode:500};
+    int lbErrorIndex = 0;
     loadBalanceActionError.httpActionErr = [];
     Request loadBlancerInRequest = request;
     mime:Entity requestEntity = new;
@@ -301,67 +296,29 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
     }
 
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
-        CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
-
-        match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
-            Response inResponse => return inResponse;
-
-            error httpActionErr => {
-                if (!lb.failover) {
-                    return httpActionErr;
-                } else {
-                    loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
-                    loadBalanceActionError.httpActionErr[lb.nextIndex] = httpActionErr;
-                    loadBalanceTermination = loadBalanceTermination + 1;
+        match lb.lbRule.getNextCallerActions(lb.loadBalanceClientsArray) {
+            CallerActions loadBalanceClient => {
+                match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
+                    Response inResponse => return inResponse;
+                    error httpActionErr => {
+                        if (lb.failover) {
+                            loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
+                            loadBalanceActionError.httpActionErr[lbErrorIndex] = httpActionErr;
+                            lbErrorIndex += 1;
+                            loadBalanceTermination += 1;
+                        } else {
+                            return httpActionErr;
+                        }
+                    }
                 }
+            }
+            error algorithmError => {
+                return algorithmError;
             }
         }
     }
     return populateGenericLoadBalanceActionError(loadBalanceActionError);
 }
-
-//// Round Robin Algorithm implementation with respect to load balancing endpoints.
-//documentation {
-//    Round Robin Algorithm implementation with respect to load balancing endpoints.
-//
-//    P{{lb}} `LoadBalancer` object
-//    P{{loadBalanceConfigArray}} Array of HTTP Clients that needs to be load balanced
-//    R{{}} HttpClient elected from the algorithm
-//}
-//public function roundRobin(LoadBalancerActions lb, CallerActions[] loadBalanceConfigArray) returns CallerActions {
-//    CallerActions httpClient = new;
-//
-//    lock {
-//        if (lb.nextIndex == ((lengthof (loadBalanceConfigArray)) - 1)) {
-//            httpClient = loadBalanceConfigArray[lb.nextIndex];
-//            lb.nextIndex = 0;
-//        } else {
-//            httpClient = loadBalanceConfigArray[lb.nextIndex];
-//            lb.nextIndex = lb.nextIndex + 1;
-//        }
-//    }
-//
-//    return httpClient;
-//}
-
-// Round Robin Algorithm implementation with respect to load balancing endpoints.
-public function (LoadBalancerActions, CallerActions[]) returns CallerActions roundRobin = (LoadBalancerActions lb, CallerActions[] loadBalaceConfigArray) => (CallerActions) {
-
-    CallerActions httpClient;
-
-    lock {
-        if (lb.nextIndex == ((lengthof (loadBalaceConfigArray)) - 1)) {
-            httpClient = loadBalaceConfigArray[lb.nextIndex];
-            lb.nextIndex = 0;
-        } else {
-            httpClient = loadBalaceConfigArray[lb.nextIndex];
-            lb.nextIndex = lb.nextIndex + 1;
-        }
-    }
-
-    return httpClient;
-};
-
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
 function populateGenericLoadBalanceActionError(LoadBalanceActionError loadBalanceActionError)

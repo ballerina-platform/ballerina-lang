@@ -14,39 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
+# Implementation of round robin load balancing strategy.
+#
+# + index - Keep tracks the current point of the CallerActions[]
 public type LoadBalancerRounRobinRule object {
 
-   public TargetService[] targets;
-   public CallerActions[] loadBalanceClientsArray;
-   public int nextIndex;
-   //public (function (LoadBalancerActions, CallerActions[]) returns CallerActions) algorithm;
+    public int index = 0;
 
-   documentation {
-        Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.
-
-        P{{loadBalanceClientsArray}} Array of HTTP clients for load balancing
-   }
-   public new (targets, nextIndex) {
-
-   }
-
-   public function resolve() returns CallerActions;
-
+    # Provides an HTTP client which is choosen according to the round robin algorithm.
+    #
+    # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
+    # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
+    #            the algorithm implementation
+    public function getNextCallerActions(CallerActions[] loadBalanceCallerActionsArray) returns CallerActions|error;
 };
 
-function LoadBalancerRounRobinRule::resolve() returns CallerActions {
-   CallerActions httpClient;
-
-   lock {
-      if (self.nextIndex == ((lengthof (self.loadBalanceClientsArray)) - 1)) {
-         httpClient = self.loadBalanceClientsArray[self.nextIndex];
-         self.nextIndex = 0;
-      } else {
-         httpClient = self.loadBalanceClientsArray[self.nextIndex];
-         self.nextIndex = self.nextIndex + 1;
-      }
-   }
-
-   return httpClient;
+function LoadBalancerRounRobinRule::getNextCallerActions(CallerActions[] loadBalanceCallerActionsArray)
+                                       returns CallerActions|error {
+    CallerActions httpClient;
+    lock {
+         if (self.index == ((lengthof (loadBalanceCallerActionsArray)) - 1)) {
+             httpClient = loadBalanceCallerActionsArray[self.index];
+             self.index = 0;
+         } else {
+             httpClient = loadBalanceCallerActionsArray[self.index];
+             self.index += 1;
+         }
+    }
+    return httpClient;
 }
