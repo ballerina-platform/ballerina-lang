@@ -1112,7 +1112,8 @@ public class SQLDatasourceUtils {
     }
 
     public static BError getSQLConnectorError(Context context, Throwable throwable) {
-        String detailedErrorMessage = throwable.getMessage() != null ? throwable.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        String detailedErrorMessage = 
+            throwable.getMessage() != null ? throwable.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
         BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
                 .createBStruct(context, Constants.SQL_PACKAGE_PATH, Constants.DATABASE_ERROR_RECORD_NAME,
                         detailedErrorMessage);
