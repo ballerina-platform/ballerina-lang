@@ -1254,14 +1254,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangWhere) afterWhereNode).accept(this);
         }
 
-        if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+        if (isTableReference(streamingInput.getStreamReference())) {
             if (streamingInput.getAlias() == null) {
                 dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS, ((BLangInvocation) streamRef)
                         .name.getValue());
             }
-            BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
-            symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), ((BTableType) functionSymbol
-                    .retType).constraint, names.fromString(streamingInput.getAlias()), env);
+            if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+                BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), ((BTableType) functionSymbol
+                        .retType).constraint, names.fromString(streamingInput.getAlias()), env);
+            } else {
+                BType constraint = ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
+                        .constraint;
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
+                        names.fromString(streamingInput.getAlias()), env);
+            }
         } else {
             //Create duplicate symbol for stream alias
             if (streamingInput.getAlias() != null) {
@@ -1270,6 +1277,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
                 symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
             }
+        }
+    }
+
+    private boolean isTableReference(ExpressionNode streamReference) {
+        if (streamReference.getKind() == NodeKind.INVOCATION) {
+            return ((BLangInvocation) streamReference).type.tsymbol.type == symTable.tableType;
+        } else {
+            return ((BLangVariableReference) streamReference).type.tsymbol.type == symTable.tableType;
         }
     }
 

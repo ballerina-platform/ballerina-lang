@@ -255,21 +255,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             isInJoin = true;
             BLangStreamingInput streamingInput = (BLangStreamingInput) joinStreamingInput.getStreamingInput();
             createStreamAliasMap(streamingInput);
-            // If the node kind is INVOCATION, considering that as a table join.
-            if (queryStmt.getStreamingInput().getStreamReference().getKind() == NodeKind.INVOCATION) {
-                lhsStream = (BLangVariableReference) joinStreamingInput.getStreamingInput().getStreamReference();
-                rhsStream = (BLangVariableReference) queryStmt.getStreamingInput().getStreamReference();
-                conditionExpr = (BLangInvocation) queryStmt.getStreamingInput().getStreamReference();
-                isTableJoin = true;
-            } else {
-                lhsStream = (BLangVariableReference) queryStmt.getStreamingInput().getStreamReference();
-                rhsStream = (BLangVariableReference) joinStreamingInput.getStreamingInput().getStreamReference();
-                isTableJoin = joinStreamingInput.getStreamingInput().getStreamReference().getKind()
-                        == NodeKind.INVOCATION;
-                if (isTableJoin) {
-                    conditionExpr = (BLangInvocation) joinStreamingInput.getStreamingInput().getStreamReference();
-                }
-            }
+            resolveJoinProperties(queryStmt.getStreamingInput().getStreamReference(),
+                    joinStreamingInput.getStreamingInput().getStreamReference());
             joinStreamingInput.accept(this);
             isInJoin = false;
         }
@@ -278,7 +265,32 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangStreamingInput streamingInput = (BLangStreamingInput) queryStmt.getStreamingInput();
         createStreamAliasMap(streamingInput);
         streamingInput.accept(this);
+    }
 
+    private void resolveJoinProperties(ExpressionNode lhsStreamReference, ExpressionNode rhsStreamReference) {
+        if (isTableReference(lhsStreamReference)) {
+            lhsStream = (BLangVariableReference) rhsStreamReference;
+            rhsStream = (BLangVariableReference) lhsStreamReference;
+            conditionExpr = (BLangExpression) lhsStreamReference;
+            isTableJoin = true;
+        } else if (isTableReference(rhsStreamReference)) {
+            lhsStream = (BLangVariableReference) lhsStreamReference;
+            rhsStream = (BLangVariableReference) rhsStreamReference;
+            conditionExpr = (BLangExpression) rhsStreamReference;
+            isTableJoin = true;
+        } else {
+            lhsStream = (BLangVariableReference) lhsStreamReference;
+            rhsStream = (BLangVariableReference) rhsStreamReference;
+            isTableJoin = false;
+        }
+    }
+
+    private boolean isTableReference(ExpressionNode streamReference) {
+        if (streamReference.getKind() == NodeKind.INVOCATION) {
+            return ((BLangInvocation) streamReference).type.tsymbol.type == symTable.tableType;
+        } else {
+            return ((BLangVariableReference) streamReference).type.tsymbol.type == symTable.tableType;
+        }
     }
 
     @Override
@@ -1036,21 +1048,25 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 outputArrayVariable);
         lambdaBody.addStatement(outputArrayVarDef);
 
-        // table<Stock> stocks = queryStocksTable(<string> s.data["twitterStream.company"], 1);
-        BInvokableSymbol onConditionFunctionSymbol = (BInvokableSymbol) ((BLangInvocation) conditionExpr).symbol;
-        BTableType tableType = (BTableType) onConditionFunctionSymbol.retType;
-        BType constraint = tableType.constraint;
-
-        // refactor queryFunction(inputStream.name) into queryFunction(check <string> e.data["inputStream.name"])
-        conditionExpr = refactorInvocationWithIndexBasedArgs((BVarSymbol)
-                        createEventDataFieldAccessExpr(onConditionExpr.pos, streamEventVarArg.symbol).symbol,
-                (BLangInvocation) conditionExpr);
-
+        BType constraint;
+        BTableType tableType;
+        if (conditionExpr.getKind() == NodeKind.INVOCATION) {
+            // table<Stock> stocks = queryStocksTable(<string> s.data["twitterStream.company"], 1);
+            BInvokableSymbol onConditionFunctionSymbol = (BInvokableSymbol) ((BLangInvocation) conditionExpr).symbol;
+            tableType = (BTableType) onConditionFunctionSymbol.retType;
+            constraint = tableType.constraint;
+            // refactor queryFunction(inputStream.name) into queryFunction(check <string> e.data["inputStream.name"])
+            conditionExpr = refactorInvocationWithIndexBasedArgs((BVarSymbol)
+                            createEventDataFieldAccessExpr(onConditionExpr.pos, streamEventVarArg.symbol).symbol,
+                    (BLangInvocation) conditionExpr);
+        } else {
+            // table<Stock> stocks = stocksTableVariable;
+            tableType = (BTableType) ((BLangVariableReference) conditionExpr).type;
+            constraint = tableType.constraint;
+        }
         BLangVariable resultTableVariable = ASTBuilderUtil.createVariable(onConditionExpr.pos,
                 VAR_RESULTS_TABLE, tableType, conditionExpr, null);
         defineVariable(resultTableVariable, env.scope.owner.pkgID, env.scope.owner);
-        BLangSimpleVarRef resultTableRef = ASTBuilderUtil.createVariableRef(onConditionExpr.pos,
-                resultTableVariable.symbol);
         BLangVariableDef resultTableDef = ASTBuilderUtil.createVariableDef(onConditionExpr.pos,
                 resultTableVariable);
         lambdaBody.addStatement(resultTableDef);
@@ -1160,7 +1176,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     public void visit(BLangStreamingInput streamingInput) {
         //Lambda function parameter
         BType lambdaParameterType;
-        if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+
+        if (isTableReference(streamingInput.getStreamReference())) {
             lambdaParameterType = ((BTableType) ((BLangExpression) streamingInput.getStreamReference()).type)
                     .constraint;
         } else {
