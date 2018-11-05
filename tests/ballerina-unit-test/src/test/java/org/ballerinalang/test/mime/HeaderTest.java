@@ -127,9 +127,8 @@ public class HeaderTest {
             Assert.assertEquals(returns[0].stringValue(), "");
         } catch (Exception exception) {
             String errorMessage = exception.getMessage();
-            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
+            Assert.assertTrue(errorMessage.contains("error: Http Header does not exist!"));
         }
-
     }
 
     @Test(description = "Test getting all header names")
