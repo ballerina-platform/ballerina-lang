@@ -221,13 +221,12 @@ public class CompilerDriver {
             // testable package can have one or many. This has to be treated separately. Check if the package node
             // is empty and then execute the condition.
             if (pkgNode.getCompilationUnits().isEmpty()) {
-                return checkNextPhase(nextPhase) &&
-                        (dlog.errorCount > 0 || pkgNode.getTestablePkg().getCompilationUnits().isEmpty());
+                return checkNextPhase(nextPhase) && dlog.errorCount > 0;
             }
-            // Both the package node and testable node contains compilation unit nodes, check for both the compilation
-            // unit nodes in the package and testable node
-            return checkNextPhase(nextPhase) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty() ||
-                    pkgNode.getTestablePkg().getCompilationUnits().isEmpty());
+            // Both the package node and testable node contains compilation unit nodes, check for the compilation unit
+            // nodes in the package. At this point the compilation unit nodes of the testable package will never be
+            // empty.
+            return checkNextPhase(nextPhase) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
         }
         return (checkNextPhase(nextPhase)) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
     }
