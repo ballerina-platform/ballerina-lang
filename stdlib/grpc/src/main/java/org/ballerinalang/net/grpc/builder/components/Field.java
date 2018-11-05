@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.net.grpc.exception.BalGenerationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,13 +37,16 @@ public class Field {
     private String fieldName;
     private String defaultValue;
     private String tag;
+    private String method;
 
-    private Field(String fieldName, String fieldType, String fieldLabel, String defaultValue, String tag) {
+    private Field(String fieldName, String fieldType, String fieldLabel, String defaultValue, String tag,
+            String method) {
         this.fieldName = fieldName;
         this.fieldType = fieldType;
         this.fieldLabel = fieldLabel;
         this.defaultValue = defaultValue;
         this.tag = tag;
+        this.method = method;
     }
 
     public static Field.Builder newBuilder(DescriptorProtos.FieldDescriptorProto fieldDescriptor) {
@@ -65,6 +69,14 @@ public class Field {
         return defaultValue;
     }
 
+    public String getTag() {
+        return tag;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
     /**
      * Field Definition.Builder.
      */
@@ -80,11 +92,35 @@ public class Field {
             }
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
             String tag = String.valueOf(fieldDescriptor.getNumber());
-            return new Field(fieldDescriptor.getName(), fieldType, fieldLabel, fieldDescriptor.getDefaultValue(), tag);
+            String method = generateMethodNames(fieldDescriptor.getType());
+            return new Field(fieldDescriptor.getName(), fieldType, fieldLabel, fieldDescriptor.getDefaultValue(), tag,
+                    method);
         }
 
         private Builder(DescriptorProtos.FieldDescriptorProto fieldDescriptor) {
             this.fieldDescriptor = fieldDescriptor;
+        }
+    }
+
+    private static String generateMethodNames(DescriptorProtos.FieldDescriptorProto.Type type) {
+        switch (type) {
+        case TYPE_STRING:
+            return "readString()";
+        case TYPE_INT64:
+        case TYPE_INT32:
+            return "readInt()";
+        case TYPE_FIXED32:
+            return "readFixed32()";
+        case TYPE_FIXED64:
+            return "readFixed64()";
+        case TYPE_BOOL:
+            return "readBool()";
+        case TYPE_DOUBLE:
+            return "readDouble()";
+        case TYPE_FLOAT:
+            return "readFloat()";
+        default:
+            throw new BalGenerationException("Error defining the type of the attribute.");
         }
     }
 

@@ -5,9 +5,6 @@ import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
 import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.ByteChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 /**

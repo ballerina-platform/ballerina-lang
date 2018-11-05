@@ -30,7 +30,6 @@ import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.Map;
 
@@ -110,7 +109,8 @@ public class StreamingServerCallHandler extends ServerCallHandler {
             requestObserver.onNext(request);
         }
 
-        @Override public void onMessage(BValue message) {
+        @Override
+        public void onMessage(BValue message) {
             // do nothing.
         }
 

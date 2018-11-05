@@ -66,7 +66,8 @@ public class Message {
                Field field = Field.newBuilder(fieldDescriptorProto).build();
                fieldList.add(field);
             }
-            return new Message(messageDescriptor.getName(), fieldList, String.valueOf(messageDescriptor.getFieldCount()));
+            return new Message(messageDescriptor.getName(), fieldList,
+                    String.valueOf(messageDescriptor.getFieldCount()));
         }
 
         private Builder(DescriptorProtos.DescriptorProto messageDescriptor) {

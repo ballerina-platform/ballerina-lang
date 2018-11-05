@@ -162,6 +162,7 @@ public class BallerinaFileBuilder {
                 Message message = Message.newBuilder(descriptorProto).build();
                 stubFileObject.addMessage(message);
             }
+
             // read enum types.
             for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
                 EnumMessage enumMessage = EnumMessage.newBuilder(descriptorProto).build();

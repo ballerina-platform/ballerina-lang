@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.net.grpc;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ProgramFile;
-
 /**
  * Receives notifications from an observable stream of messages.
  * <p>
@@ -43,8 +40,6 @@ public interface StreamObserver {
      * @param value Request/Response value.
      */
     void onNext(Message value);
-
-    //void onNext(ProgramFile value, BValue responseValue);
 
     /**
      * Receives a terminating error from the stream.

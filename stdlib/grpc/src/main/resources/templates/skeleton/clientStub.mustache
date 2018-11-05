@@ -84,7 +84,7 @@ map descriptorMap = {
 };
 
 {{#messageList}}
-    public function parse{{messageName}}(io:ProtoChannel byteChannel) returns ({{messageName}}) {
+public function parse{{messageName}}(io:ProtoChannel byteChannel) returns ({{messageName}}) {
     boolean finished = false;
     {{messageName}} infoRecord;
     int endValue = {{size}};
@@ -101,7 +101,7 @@ map descriptorMap = {
                     var fieldValue = byteChannel.{{method}};
                     match fieldValue {
                         {{type}} value => {
-                        infoRecord.{{name}} = value;
+                        infoRecord.{{fieldName}} = value;
                         io:println(value);
                     }
                     error err => {

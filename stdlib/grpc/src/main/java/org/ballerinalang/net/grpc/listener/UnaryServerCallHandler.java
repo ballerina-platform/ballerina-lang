@@ -54,7 +54,6 @@ public class UnaryServerCallHandler extends ServerCallHandler {
         private final ServerCall call;
         private final ServerCallStreamObserver responseObserver;
         private boolean canInvoke = true;
-//        private Message request;
         private BValue request;
 
         UnaryServerCallListener(ServerCallStreamObserver responseObserver, ServerCall call) {

@@ -32,7 +32,6 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -113,18 +113,6 @@ public abstract class ServerCallHandler {
             call.sendMessage(response);
         }
 
-//        @Override
-//        public void onNext(ProgramFile programFile, BValue responseValue) {
-//            if (cancelled) {
-//                throw Status.Code.CANCELLED.toStatus().withDescription("call already cancelled").asRuntimeException();
-//            }
-//            if (!sentHeaders) {
-//                call.sendHeaders(response.getHeaders());
-//                sentHeaders = true;
-//            }
-//            call.sendMessage(programFile, responseValue);
-//        }
-
         @Override
         public void onError(Message error) {
             if (!sentHeaders) {
@@ -255,18 +243,16 @@ public abstract class ServerCallHandler {
         return signatureParams;
     }
 
-    BValue[] computeSignatureParams(Resource resource, BValue request, StreamObserver responseObserver) {
+    private BValue[] computeSignatureParams(Resource resource, BValue request, StreamObserver responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BMap<String, BValue> headerStruct = getHeaderStruct(resource);
-        if (headerStruct != null) {
-            System.out.println("Inside header struct");
+//        if (headerStruct != null) {
 //            headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
-        }
-        BValue requestParam = request;
-        if (requestParam != null) {
-            signatureParams[1] = requestParam;
+//        }
+        if (request != null) {
+            signatureParams[1] = request;
         }
         if (headerStruct != null) {
             signatureParams[signatureParams.length - 1] = headerStruct;

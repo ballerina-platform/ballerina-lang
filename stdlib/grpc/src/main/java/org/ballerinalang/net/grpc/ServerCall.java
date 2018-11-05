@@ -21,7 +21,6 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
@@ -32,19 +31,14 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
-import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 
 /**
  * Encapsulates a single call received from a remote client.
