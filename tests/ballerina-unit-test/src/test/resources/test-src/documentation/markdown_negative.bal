@@ -1,3 +1,4 @@
+import ballerina/file;
 import ballerina/http;
 
 # Documentation for Test annotation
@@ -99,3 +100,17 @@ service<http:Service> PizzaService {
 # + testConstd - abc description
 # + return - description
 @final string testConsts = "TestConstantDocumentation";
+
+# Documentation for the endpoint.
+# + param -  description
+# + return - return param description
+endpoint file:Listener localFolder {
+    path: "target/fs"
+};
+
+# Documentation for the public endpoint.
+# + param -  description
+# + return - return param description
+public endpoint file:Listener localFolder2 {
+    path: "target/fs"
+};

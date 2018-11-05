@@ -91,17 +91,23 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-
+        // Ignore.
     }
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
+        // Ignore.
+    }
 
+    @Override
+    public void visit(BLangXMLNS xmlnsNode) {
+        // Ignore.
     }
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
-
+        validateNoParameters(endpointNode);
+        validateReturnParameter(endpointNode, null, false);
     }
 
     @Override
@@ -124,10 +130,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateReturnParameter(funcNode, funcNode, hasReturn);
     }
 
-    @Override
-    public void visit(BLangXMLNS xmlnsNode) {
-
-    }
 
     @Override
     public void visit(BLangService serviceNode) {

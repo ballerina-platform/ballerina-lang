@@ -148,6 +148,30 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(parameters.get(2).getParameterDocumentation(), "type `field c` documentation");
     }
 
+    @Test(description = "Test global endpoints")
+    public void testGlobalEndpoint() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_endpoints.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
+
+        PackageNode packageNode = compileResult.getAST();
+        BLangMarkdownDocumentation documentationAttachment =
+                packageNode.getGlobalEndpoints().get(0).getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for the endpoint.");
+        LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
+        Assert.assertEquals(parameters.size(), 0);
+
+        documentationAttachment = packageNode.getGlobalEndpoints().get(1).getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for the public endpoint.");
+        parameters = documentationAttachment.getParameters();
+        Assert.assertEquals(parameters.size(), 0);
+
+        documentationAttachment = packageNode.getFunctions().get(0).getMarkdownDocumentationAttachment();
+        Assert.assertNull(documentationAttachment);
+    }
+
     @Test(description = "Test doc function")
     public void testDocFunction() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function.bal");
@@ -218,32 +242,36 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 22);
+        Assert.assertEquals(compileResult.getWarnCount(), 26);
 
         int index = 0;
 
-        BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 5, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 7, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 8, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cd'", 12, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 22, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 24, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cdd'", 28, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "parameter 'accessMode' already documented", 35, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'successful'", 36, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented return parameter", 37, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "field 'path' already documented", 44, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'path2'", 45, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'path3'", 48, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "field 'url' already documented", 69, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'urls'", 70, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 73, 3);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 78, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 79, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 87, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 88, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 99, 5);
-        BAssertUtil.validateWarning(compileResult, index, "no documentable return parameter", 100, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 6, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 8, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 9, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cd'", 13, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 23, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 25, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cdd'", 29, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "parameter 'accessMode' already documented", 36, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'successful'", 37, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented return parameter", 38, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'path' already documented", 45, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'path2'", 46, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'path3'", 49, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'url' already documented", 70, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'urls'", 71, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 74, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 79, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 80, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 88, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 89, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 100, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 101, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'param'", 105, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 106, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'param'", 112, 5);
+        BAssertUtil.validateWarning(compileResult, index, "no documentable return parameter", 113, 1);
     }
 
     @Test(description = "Test doc service")

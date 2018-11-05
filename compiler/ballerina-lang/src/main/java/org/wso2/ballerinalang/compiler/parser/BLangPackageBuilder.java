@@ -808,6 +808,10 @@ public class BLangPackageBuilder {
         lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
 
+    void attachDocumentationToEndpoint() {
+        attachMarkdownDocumentations(lastBuiltEndpoint);
+    }
+
     void markLastInvocationAsAsync(DiagnosticPos pos) {
         final ExpressionNode expressionNode = this.exprNodeStack.peek();
         if (expressionNode.getKind() == NodeKind.INVOCATION) {

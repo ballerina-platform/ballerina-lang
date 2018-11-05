@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
  *
  * @since 0.965.0
  */
-public interface EndpointNode extends AnnotatableNode, TopLevelNode {
+public interface EndpointNode extends AnnotatableNode, TopLevelNode, DocumentableNode {
 
     IdentifierNode getName();
 

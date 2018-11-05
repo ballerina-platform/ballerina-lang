@@ -18,8 +18,10 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -43,12 +45,15 @@ public class BLangEndpoint extends BLangNode implements EndpointNode {
     public BLangExpression configurationExpr;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
+    public BLangMarkdownDocumentation markdownDocumentationAttachment;
+    public List<BLangDeprecatedNode> deprecatedAttachments;
 
     public BEndpointVarSymbol symbol;
 
     public BLangEndpoint() {
         flagSet = EnumSet.noneOf(Flag.class);
         annAttachments = new ArrayList<>();
+        deprecatedAttachments = new ArrayList<>();
     }
 
     @Override
@@ -94,5 +99,25 @@ public class BLangEndpoint extends BLangNode implements EndpointNode {
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
+    }
+
+    @Override
+    public BLangMarkdownDocumentation getMarkdownDocumentationAttachment() {
+        return markdownDocumentationAttachment;
+    }
+
+    @Override
+    public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
+        this.markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
+    }
+
+    @Override
+    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
+        return deprecatedAttachments;
+    }
+
+    @Override
+    public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
+        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
     }
 }

@@ -1120,6 +1120,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (KEYWORD_PUBLIC.equals(ctx.getChild(0).getText())) {
             this.pkgBuilder.markLastEndpointAsPublic(getWS(ctx));
         }
+        this.pkgBuilder.attachDocumentationToEndpoint();
     }
 
     /**
