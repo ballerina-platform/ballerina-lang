@@ -248,9 +248,9 @@ public abstract class ServerCallHandler {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BMap<String, BValue> headerStruct = getHeaderStruct(resource);
-//        if (headerStruct != null) {
-//            headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
-//        }
+        if (headerStruct != null) {
+            headerStruct.addNativeData(MESSAGE_HEADERS, ((BMap) request).getNativeData().get(MESSAGE_HEADERS));
+        }
         if (request != null) {
             signatureParams[1] = request;
         }

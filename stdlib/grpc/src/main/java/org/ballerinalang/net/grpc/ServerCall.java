@@ -39,6 +39,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
+import static org.ballerinalang.net.grpc.GrpcConstants.READABLE_PROTO_CHANNEL;
 
 /**
  * Encapsulates a single call received from a remote client.
@@ -221,14 +223,18 @@ public final class ServerCall {
                 ProtoWrapper protoByteChannel = new ProtoWrapper(byteChannel);
 
                 BMap<String, BValue> byteChannelObject = BLangConnectorSPIUtil
-                        .createObject(call.programFile, IOConstants.IO_PACKAGE, "ReadableByteChannel");
+                        .createObject(call.programFile, IOConstants.IO_PACKAGE, READABLE_PROTO_CHANNEL);
                 byteChannelObject.addNativeData(IOConstants.BYTE_CHANNEL_NAME, protoByteChannel);
                 BMap<String, BValue> protoChannel = BLangConnectorSPIUtil
-                        .createObject(call.programFile, "ballerina/io", "ReadableProtoChannel", byteChannelObject);
+                        .createObject(call.programFile, IOConstants.IO_PACKAGE, READABLE_PROTO_CHANNEL,
+                                byteChannelObject);
                 BValue[] record = BLangFunctions.invokeCallable(call.programFile.getEntryPackage().getFunctionInfo(
                         "parse" + this.call.method.schemaDescriptor.getInputType().getFullName().split("\\.")[1]),
                         new BValue[] { protoChannel });
-                listener.onMessage(record[0]);
+                HttpHeaders headers = call.inboundMessage.getHeaders();
+                BValue requestMessage = record[0];
+                ((BMap) requestMessage).addNativeData(MESSAGE_HEADERS, headers);
+                listener.onMessage(requestMessage);
             } catch (Exception ex) {
                 MessageUtils.closeQuietly(message);
                 throw new ServerRuntimeException(ex);
