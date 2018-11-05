@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test streams and table join in Ballerina Streaming V2.
  *
- * @since 0.980.0
+ * @since 0.982.1
  */
 public class BallerinaStreamsV2TableJoinTest {
 
