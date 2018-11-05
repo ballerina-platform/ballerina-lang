@@ -145,26 +145,26 @@ function tar2(any f) returns string {
     return "Value is 'Default'";
 }
 
-//type Bar record {
-//    int x;
-//    (string, Foo, string) y;
-//};
-//
-//function testRecordAndTupleComplexStaticMatch() returns string[] {
-//    (boolean, float) t1 = (true, 12.1);
-//    Foo f1 = {x: 12, y: "Ballerina", z: t1};
-//    Bar b1 = {x: 15, y: ("John", f1, "Snow"), z: 15.1};
-//
-//    string[] result = [tar3(b1)];
-//
-//    return result;
-//}
-//
-//function tar3(any f) returns string {
-//
-//    match f {
-//        {x: 15, y: ("John", {x: 12, y: "Ballerina", z: (true, 12.1)} , "Snow")} => return "Value is Correct";
-//    }
-//
-//    return "Value is 'Default'";
-//}
+type Bar record {
+    int x;
+    (string, Foo, string) y;
+};
+
+function testRecordAndTupleComplexStaticMatch() returns string[] {
+    (boolean, float) t1 = (true, 12.1);
+    Foo f1 = {x: 12, y: "Ballerina", z: t1};
+    Bar b1 = {x: 15, y: ("John", f1, "Snow"), z: 15.1};
+
+    string[] result = [tar3(b1)];
+
+    return result;
+}
+
+function tar3(any f) returns string {
+
+    match f {
+        {x: 15, y: ("John", {x: 12, y: "Ballerina", z: (true, 12.1)} , "Snow"), z:15.1} => return "Value is 'Correct'";
+    }
+
+    return "Value is 'Default'";
+}

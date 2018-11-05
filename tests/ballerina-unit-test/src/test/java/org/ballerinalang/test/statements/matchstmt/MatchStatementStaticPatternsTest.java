@@ -121,20 +121,20 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "'(15, Ballerina)'");
         Assert.assertEquals(results.get(++i), msg + "'Default'");
     }
-//
-//    @Test(description = "Test complex static match pattern")
-//    public void testRecordAndTupleComplexStaticMatch() {
-//
-//        BValue[] returns = BRunUtil.invoke(result, "testRecordAndTupleComplexStaticMatch");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BStringArray.class);
-//
-//        BStringArray results = (BStringArray) returns[0];
-//        Assert.assertEquals(1, results.size());
-//
-//        int i = -1;
-//        Assert.assertEquals(results.get(++i), "Value is Correct");
-//    }
+
+    @Test(description = "Test complex static match pattern")
+    public void testRecordAndTupleComplexStaticMatch() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testRecordAndTupleComplexStaticMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+        Assert.assertEquals(1, results.size());
+
+        int i = -1;
+        Assert.assertEquals(results.get(++i), "Value is 'Correct'");
+    }
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {

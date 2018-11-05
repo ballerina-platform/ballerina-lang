@@ -76,10 +76,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
     @Override
     public String toString() {
-        return keyValuePairs
-                .stream()
-                .collect(Collectors.toMap(keyValuePair -> keyValuePair.key.toString(),
-                        keyValuePair -> keyValuePair.valueExpr.toString(), (a, b) -> b)).toString();
+        return " {" + keyValuePairs.stream()
+                .map(BLangRecordKeyValue::toString)
+                .collect(Collectors.joining(",")) + "}";
     }
 
     /**
@@ -114,7 +113,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         @Override
         public String toString() {
-            return key + ((valueExpr != null) ? "=" + valueExpr : "");
+            return key + ((valueExpr != null) ? ": " + valueExpr : "");
         }
     }
 
