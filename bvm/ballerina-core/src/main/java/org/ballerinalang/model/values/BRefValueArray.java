@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 /**
  * @since 0.87
@@ -99,7 +100,9 @@ public class BRefValueArray extends BNewArray implements Serializable {
 
     @Override
     public BValue copy() {
-        BRefValueArray refValueArray = new BRefValueArray(Arrays.copyOf(values, values.length), arrayType);
+        BRefType<?>[] values = new BRefType[size];
+        IntStream.range(0, this.size).forEach(i -> values[i] = (BRefType<?>) this.values[i].copy());
+        BRefValueArray refValueArray = new BRefValueArray(values, arrayType);
         refValueArray.size = this.size;
         return refValueArray;
     }
