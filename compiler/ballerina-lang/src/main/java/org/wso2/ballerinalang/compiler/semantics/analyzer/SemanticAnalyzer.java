@@ -112,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -974,16 +975,53 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatchStmtStaticBindingPatternClause patternClause) {
+        checkStaticMatchPatternLiteralType(patternClause.literal);
+        analyzeStmt(patternClause.body, this.env);
+    }
 
-        NodeKind literalNode = patternClause.literal.getKind();
+    private BType checkStaticMatchPatternLiteralType(BLangExpression expression) {
 
-        if (!(NodeKind.LITERAL == literalNode || NodeKind.RECORD_LITERAL_EXPR == literalNode ||
-                NodeKind.BRACED_TUPLE_EXPR == literalNode)) {
-            dlog.error(patternClause.pos, INVALID_LITERAL_FOR_MATCH_PATTERN);
+        NodeKind literalNode = expression.getKind();
+
+        if (NodeKind.LITERAL == literalNode) {
+            return typeChecker.checkExpr(expression, this.env);
         }
 
-        typeChecker.checkExpr(patternClause.literal, this.env);
-        analyzeStmt(patternClause.body, this.env);
+        if (NodeKind.RECORD_LITERAL_EXPR == literalNode) {
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+            for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
+                if (recLiteralKeyValue.key.expr.getKind() != NodeKind.VARIABLE) {
+                    recLiteralKeyValue.key.expr.type = symTable.stringType;
+                } else {
+                    dlog.error(recLiteralKeyValue.key.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
+                }
+
+                BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
+                types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
+            }
+            recordLiteral.type = symTable.mapType;
+            return recordLiteral.type;
+
+        } else if (NodeKind.BRACED_TUPLE_EXPR == literalNode) {
+            BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expression;
+            List<BType> results = new ArrayList<>();
+            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                results.add(checkStaticMatchPatternLiteralType(bracedOrTupleExpr.expressions.get(i)));
+            }
+
+            if (bracedOrTupleExpr.expressions.size() > 1) {
+                bracedOrTupleExpr.type = new BTupleType(results);
+                return bracedOrTupleExpr.type;
+            } else {
+                bracedOrTupleExpr.isBracedExpr = true;
+                bracedOrTupleExpr.type = results.get(0);
+                return bracedOrTupleExpr.type;
+            }
+        }
+
+        dlog.error(expression.pos, INVALID_LITERAL_FOR_MATCH_PATTERN);
+        expression.type = symTable.errorType;
+        return expression.type;
     }
 
     public void visit(BLangMatchStmtStructuredBindingPatternClause patternClause) {

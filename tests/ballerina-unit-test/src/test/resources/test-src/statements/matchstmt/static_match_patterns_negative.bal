@@ -138,7 +138,7 @@ function recordTypes() returns string {
         {a: 20.2} => return "{a: 20.2}";
         {a: false, b: 10} => return "{a: false, b: 10}";
         {a: true} => return "{a: 20, b: 10}";
-        {a: r1, b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
+        {a: "r1", b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
     }
 
     Rec1|Rec4 r5 = r1;
@@ -147,7 +147,7 @@ function recordTypes() returns string {
         {a: 20.2, b: true} => return "{a: 20.2}";
         {a: false, b: 10} => return "{a: false, b: 10}";
         {a: true} => return "{a: 20, b: 10}";
-        {a: r1, b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
+        {a: "r1", b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
     }
 
     Rec1|Rec5 r6 = r1;
@@ -156,7 +156,7 @@ function recordTypes() returns string {
         {a: 20.2} => return "{a: 20.2}";
         {a: false, b: 10} => return "{a: false, b: 10}"; // pattern will not be matched
         {a: true} => return "{a: 20, b: 10}";
-        {a: r1, b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
+        {a: "r1", b: 10} => return "{a: r1, b: 10}"; // pattern will not be matched
     }
     return "Fail";
 }
