@@ -491,7 +491,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BLangType typeRef : structureTypeNode.typeRefs) {
                 BType referencedType = symResolver.resolveTypeNode(typeRef, env);
                 if (referencedType == symTable.noType) {
-                    this.unresolvedTypes.add(typeDefinition);
+                    if (!this.unresolvedTypes.contains(typeDefinition)) {
+                        this.unresolvedTypes.add(typeDefinition);
+                    }
                     return;
                 }
             }
