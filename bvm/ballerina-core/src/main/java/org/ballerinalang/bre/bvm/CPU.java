@@ -347,12 +347,14 @@ public class CPU {
                     case InstructionCodes.SEQ:
                     case InstructionCodes.BEQ:
                     case InstructionCodes.REQ:
+                    case InstructionCodes.REF_EQ:
                     case InstructionCodes.TEQ:
                     case InstructionCodes.INE:
                     case InstructionCodes.FNE:
                     case InstructionCodes.SNE:
                     case InstructionCodes.BNE:
                     case InstructionCodes.RNE:
+                    case InstructionCodes.REF_NEQ:
                     case InstructionCodes.TNE:
                     case InstructionCodes.IAND:
                     case InstructionCodes.BIAND:
@@ -397,8 +399,6 @@ public class CPU {
                     case InstructionCodes.BR_TRUE:
                     case InstructionCodes.BR_FALSE:
                     case InstructionCodes.GOTO:
-                    case InstructionCodes.SEQ_NULL:
-                    case InstructionCodes.SNE_NULL:
                         execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
                         break;
                     case InstructionCodes.INT_RANGE:
@@ -1217,24 +1217,6 @@ public class CPU {
                     sf.intRegs[j] = 0;
                 }
                 break;
-            case InstructionCodes.SEQ_NULL:
-                i = operands[0];
-                j = operands[1];
-                if (sf.stringRegs[i] == null) {
-                    sf.intRegs[j] = 1;
-                } else {
-                    sf.intRegs[j] = 0;
-                }
-                break;
-            case InstructionCodes.SNE_NULL:
-                i = operands[0];
-                j = operands[1];
-                if (sf.stringRegs[i] != null) {
-                    sf.intRegs[j] = 1;
-                } else {
-                    sf.intRegs[j] = 0;
-                }
-                break;
             case InstructionCodes.BR_TRUE:
                 i = operands[0];
                 j = operands[1];
@@ -1762,8 +1744,14 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
                 }
+                break;
+            case InstructionCodes.REF_EQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.TEQ:
                 i = operands[0];
@@ -1806,8 +1794,14 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
+                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j])) ? 1 : 0;
                 }
+                break;
+            case InstructionCodes.REF_NEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.TNE:
                 i = operands[0];
@@ -4044,6 +4038,110 @@ public class CPU {
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+    }
+
+    /**
+     * Deep value equality check for anydata.
+     *
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
+     * @return True if values are equal, else false.
+     */
+    private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
+        if (lhsValue == rhsValue) {
+            return true;
+        }
+
+        if (null == lhsValue || null == rhsValue) {
+            return false;
+        }
+
+        int lhsValTypeTag = lhsValue.getType().getTag();
+        int rhsValTypeTag = rhsValue.getType().getTag();
+
+        switch (lhsValTypeTag) {
+            case TypeTags.STRING_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+                return lhsValue.equals(rhsValue);
+            case TypeTags.INT_TAG:
+                if (rhsValTypeTag == TypeTags.BYTE_TAG) {
+                    return ((BInteger) lhsValue).intValue() == (((BByte) rhsValue).intValue());
+                }
+                return lhsValue.equals(rhsValue);
+            case TypeTags.BYTE_TAG:
+                if (rhsValTypeTag == TypeTags.INT_TAG) {
+                    return ((BByte) lhsValue).intValue() == (((BInteger) rhsValue).intValue());
+                }
+                return lhsValue.equals(rhsValue);
+            case TypeTags.XML_TAG:
+                return XMLUtils.isEqual((BXML) lhsValue, (BXML) rhsValue);
+            case TypeTags.TABLE_TAG:
+                // TODO: 10/8/18
+                break;
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue);
+            case TypeTags.TUPLE_TAG:
+            case TypeTags.ARRAY_TAG:
+                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
+        }
+        return false;
+    }
+
+    private static boolean isListType(int typeTag) {
+        return typeTag == TypeTags.ARRAY_TAG || typeTag == TypeTags.TUPLE_TAG;
+    }
+
+    private static boolean isMappingType(int typeTag) {
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
+    }
+
+    /**
+     * Deep equality check for an array/tuple.
+     *
+     * @param lhsList   The array/tuple on the left hand side
+     * @param rhsList   The array/tuple on the right hand side
+     * @return True if the array/tuple values are equal, else false.
+     */
+    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList) {
+        if (lhsList.size() != rhsList.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsList.size(); i++) {
+            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Deep equality check for a map.
+     *
+     * @param lhsMap    Map on the left hand side
+     * @param rhsMap    Map on the right hand side
+     * @return True if the map values are equal, else false.
+     */
+    private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
+        if (lhsMap.size() != rhsMap.size()) {
+            return false;
+        }
+
+        if (!lhsMap.getMap().keySet().containsAll(rhsMap.getMap().keySet())) {
+            return false;
+        }
+
+        Iterator<Map.Entry<String, BValue>> mapIterator = lhsMap.getMap().entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<String, BValue> lhsMapEntry = mapIterator.next();
+            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

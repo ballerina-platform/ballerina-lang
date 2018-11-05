@@ -123,13 +123,15 @@ public interface InstructionCodes {
     int FEQ = 94;
     int SEQ = 95;
     int BEQ = 96;
-    int REQ = 98;
+    int REQ = 97;
+    int REF_EQ = 98;
 
     int INE = 99;
     int FNE = 100;
     int SNE = 101;
     int BNE = 102;
-    int RNE = 104;
+    int RNE = 103;
+    int REF_NEQ = 104;
 
     int IGT = 105;
     int FGT = 106;
@@ -159,9 +161,6 @@ public interface InstructionCodes {
     int VFPLOAD = 124;
 
     int CLONE = 125;
-
-    int SEQ_NULL = 128;
-    int SNE_NULL = 129;
 
     // Type Conversion related instructions
     int I2F = 130;
