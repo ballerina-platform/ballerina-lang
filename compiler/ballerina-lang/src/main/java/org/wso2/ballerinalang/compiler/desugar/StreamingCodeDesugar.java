@@ -139,6 +139,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String STREAM_EVENT_ARRAY_PARAM_REFERENCE = "$lambda$streaming$stream$event$variable";
     private static final String OUTPUT_EVENT_SELECTOR_PARAM_REFERENCE =
             "$lambda$streaming$output$event$selector$variable";
+    private static final String VAR_OUTPUT_EVENTS = "$lambda$streaming$output$process$output$events$variable";
+    private static final String VAR_RESULTS_TABLE = "$lambda$streaming$table$join$on$condition$result$variable";
+    private static final String VAR_FOREACH_VAL = "$lambda$streaming$foreach$key$val$variable";
     private static final String NEXT_PROCESS_METHOD_NAME = "process";
     private static final String STREAM_EVENT_OBJECT_NAME = "StreamEvent";
     private static final String FILTER_OBJECT_NAME = "Filter";
@@ -164,10 +167,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String EVENT_TYPE_VARIABLE_NAME = "eventType";
     private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
     private static final String STREAM_SUBSCRIBE_METHOD_NAME = "stream.subscribe";
-    private static final String VAR_FOREACH_VAL = "val";
-    private static final String VAR_OUTPUT_EVENTS = "outputEvents";
-    private static final String VAR_RESULTS_TABLE = "resultsTable";
-
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
             new CompilerContext.Key<>();
     private static final String ORDER_BY_FIELD_ATTR = "fieldFuncs";
