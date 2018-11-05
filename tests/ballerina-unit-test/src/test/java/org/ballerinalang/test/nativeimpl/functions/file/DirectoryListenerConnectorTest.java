@@ -108,7 +108,7 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (BLangRuntimeException e) {
             String actualMsg = e.getMessage().substring(7, 133);
-            String expectedErrorMsg = "At least a single resource requires from following: "
+            String expectedErrorMsg = "At least a single resource required from following: "
                     + "onCreate ,onDelete ,onModify. Parameter should be of type - file:FileEvent";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error msg for not having resources");
         }
