@@ -13,6 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+public type Person record {
+    int id;
+    string name;
+    float salary;
+    string...
+};
 
 type Employee record {
     int id;
@@ -44,6 +50,16 @@ public function cloneFloat() returns (float, float, float) {
     y = 13.01;
     return (a, x, y);
 }
+
+public function cloneByte() returns (byte, byte, byte) {
+    byte a = 100;
+    byte x = a.clone();
+    byte y = a.clone();
+    a = 234;
+    y = 133;
+    return (a, x, y);
+}
+
 
 public function cloneBoolean() returns (boolean, boolean, boolean) {
     boolean a = true;
@@ -149,6 +165,15 @@ public function cloneFloatArray() returns (float[], float[], float[]) {
     return (a, x, y);
 }
 
+public function cloneByteArray() returns (byte[], byte[], byte[]) {
+    byte[] a = [1, 2, 3];
+    byte[] x = a.clone();
+    byte[] y = a.clone();
+    a[0] = 100;
+    y[2] = 234;
+    return (a, x, y);
+}
+
 public function cloneStringArray() returns (string[], string[], string[]) {
     string[] a = ["A", "B", "C"];
     string[] x = a.clone();
@@ -191,5 +216,50 @@ public function cloneNil() returns (any, any, any) {
     int? y = a.clone();
     a = 4;
     y = 5;
+    return (a, x, y);
+}
+
+public function cloneTuple() returns ((map, int[]), (map, int[]), (map, int[])) {
+    map<int> m;
+    m["one"] = 100;
+    int[] arr = [200];
+    (map<int>, int[]) a = (m, arr);
+    (map, int[]) x = a.clone();
+    (map, int[]) y = a.clone();
+    a[1][0] = 400;
+    y[1][0] = 500;
+    return (a, x, y);
+}
+
+public function cloneArrayOfArrays() returns (int[][], int[][], int[][]) {
+    int[][] a = [[200]];
+    int[][] x = a.clone();
+    int[][] y = a.clone();
+    a[0][0] = 400;
+    y[0][0] = 500;
+    return (a, x, y);
+}
+
+function getIntValue(int[] val) returns int[] {
+    int[] x = val;
+    x[0] = x[0] * 2;
+    return x;
+}
+
+public function cloneReturnValues() returns (int[], int[], int[]) {
+    int[] a = [10];
+    int[] x = getIntValue(a).clone();
+    int[] y = getIntValue(a).clone();
+    a[0] = 100;
+    y[0] = 1000;
+    return (a, x, y);
+}
+
+public function cloneAnydataRecord() returns (Person, Person, Person) {
+    Person a = {id: 100, name: "Alex", salary: 300.5};
+    Person x = a.clone();
+    Person y = a.clone();
+    a.name = "Charlos";
+    y.salary = 400.5;
     return (a, x, y);
 }
