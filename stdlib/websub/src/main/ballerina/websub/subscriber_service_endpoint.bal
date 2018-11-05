@@ -26,7 +26,7 @@ import ballerina/log;
 # + serviceEndpoint - The underlying HTTP service endpoint
 public type Listener object {
 
-    public SubscriberServiceEndpointConfiguration config;
+    public SubscriberServiceEndpointConfiguration config = {};
 
     private http:Listener serviceEndpoint;
 
@@ -249,8 +249,8 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
         http:Response response => {
             match (extractTopicAndHubUrls(response)) {
                 (string, string[]) topicAndHubs => {
-                    string topic;
-                    string[] hubs;
+                    string topic = "";
+                    string[] hubs = [];
                     (topic, hubs) = topicAndHubs;
                     return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
                 }
@@ -288,7 +288,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
         return;
     }
 
-    int leaseSeconds;
+    int leaseSeconds = 0;
 
     string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
     match (<int>strLeaseSeconds) {

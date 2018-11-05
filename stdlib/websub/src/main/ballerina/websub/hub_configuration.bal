@@ -31,14 +31,14 @@ import ballerina/log;
 @final string DEFAULT_DB_USERNAME = "sa";
 @final string DEFAULT_DB_PASSWORD = "";
 
-@readonly string hubHost;
-@readonly int hubPort;
-@readonly int hubLeaseSeconds;
+@readonly string hubHost = "";
+@readonly int hubPort = 0;
+@readonly int hubLeaseSeconds = 0;
 @readonly string hubSignatureMethod;
-@readonly boolean hubRemotePublishingEnabled;
+@readonly boolean hubRemotePublishingEnabled = false;
 @readonly RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
-@readonly boolean hubTopicRegistrationRequired;
-@readonly string hubPublicUrl;
+@readonly boolean hubTopicRegistrationRequired = false;
+@readonly string hubPublicUrl = "";
 
 @final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
 @final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
@@ -47,7 +47,7 @@ import ballerina/log;
 @final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
-@readonly boolean hubSslEnabled;
+@readonly boolean hubSslEnabled = false;
 @readonly http:ServiceSecureSocket? hubServiceSecureSocket = ();
 @readonly http:SecureSocket? hubClientSecureSocket = ();
 
