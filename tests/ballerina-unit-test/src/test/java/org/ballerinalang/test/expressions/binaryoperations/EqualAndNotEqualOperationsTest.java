@@ -811,7 +811,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equal and not equal with errors")
     public void testEqualAndNotEqualNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 32);
+        Assert.assertEquals(resultNegative.getErrorCount(), 38);
         validateError(resultNegative, 0, "operator '==' not defined for 'int' and 'string'", 20, 12);
         validateError(resultNegative, 1, "operator '!=' not defined for 'int' and 'string'", 20, 24);
         validateError(resultNegative, 2, "operator '==' not defined for 'int[2]' and 'string[2]'", 26, 21);
@@ -856,6 +856,14 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, 29, "operator '!=' not defined for 'int[]' and '(float,float)'", 94, 34);
         validateError(resultNegative, 30, "operator '==' not defined for 'int[]' and '(int,float)'", 97, 22);
         validateError(resultNegative, 31, "operator '!=' not defined for '(int,float)' and 'int[]'", 97, 34);
+        validateError(resultNegative, 32, "operator '==' not defined for '(int,stream)' and '(int,float)'", 111,
+                      22);
+        validateError(resultNegative, 33, "operator '!=' not defined for '(int,float)' and '(int,stream)'", 111,
+                      34);
+        validateError(resultNegative, 34, "operator '==' not defined for 'any' and 'int'", 115, 14);
+        validateError(resultNegative, 35, "operator '!=' not defined for 'int' and 'any'", 115, 26);
+        validateError(resultNegative, 36, "operator '==' not defined for 'map<int|string>' and 'map'", 119, 14);
+        validateError(resultNegative, 37, "operator '!=' not defined for 'map' and 'map<int|string>'", 119, 26);
     }
 
     @DataProvider(name = "equalIntValues")
