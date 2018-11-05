@@ -46,7 +46,7 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
         this.lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
     }
 
-    public void handle(WorkerExecutionContext ctx, Instruction instruction) {
+    public void handle(WorkerExecutionContext ctx) {
 
         String entryPkgPath = ctx.programFile.getEntryPackage().pkgPath;
         LineNumberInfoHolder lineNumberInfoHolderForPkg = lineNumberInfoHolderForProject.get(entryPkgPath);

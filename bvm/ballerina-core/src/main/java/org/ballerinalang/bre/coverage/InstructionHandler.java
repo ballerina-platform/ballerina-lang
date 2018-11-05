@@ -22,6 +22,6 @@ import org.ballerinalang.util.codegen.Instruction;
 
 public interface InstructionHandler {
 
-    public void handle(WorkerExecutionContext ctx, Instruction instruction);
+    public void handle(WorkerExecutionContext ctx);
 
 }

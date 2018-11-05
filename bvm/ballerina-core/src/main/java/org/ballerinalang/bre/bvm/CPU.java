@@ -194,7 +194,7 @@ public class CPU {
                 Instruction instruction = ctx.code[ctx.ip];
 
                 if(instructionHandler != null) {
-                    instructionHandler.handle(ctx, instruction);
+                    instructionHandler.handle(ctx);
                 }
 
                 int opcode = instruction.getOpcode();

@@ -23,6 +23,6 @@ import org.ballerinalang.util.codegen.Instruction;
 
 public class DebugInstructionHandlerImpl implements InstructionHandler {
 
-    public void handle(WorkerExecutionContext ctx, Instruction instruction) {}
+    public void handle(WorkerExecutionContext ctx) {}
 
 }
