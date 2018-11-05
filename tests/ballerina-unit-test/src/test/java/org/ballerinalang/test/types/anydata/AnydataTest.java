@@ -194,6 +194,16 @@ public class AnydataTest {
         assertNull(returns[0]);
     }
 
+    @Test(description = "Test finite type assignment")
+    public void testFiniteTypeAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAssignment");
+        assertEquals(returns[0].stringValue(), "A");
+        assertEquals(returns[1].stringValue(), "Z");
+        assertEquals(((BInteger) returns[2]).intValue(), 123);
+        assertEquals(((BFloat) returns[3]).floatValue(), 23.45);
+        assertTrue(((BBoolean) returns[4]).booleanValue());
+    }
+
     @Test(description = "Test anydata array")
     public void testAnydataArray() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataArray", new BValue[]{});
@@ -317,6 +327,16 @@ public class AnydataTest {
     public void testAnydataToNil() {
         BValue[] returns = BRunUtil.invoke(result, "testAnydataToNil");
         assertNull(returns[0]);
+    }
+
+    @Test(description = "Test anydata to finite type conversion")
+    public void testAnydataToFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnydataToFiniteType");
+        assertEquals(returns[0].stringValue(), "A");
+        assertEquals(returns[1].stringValue(), "Z");
+        assertEquals(((BInteger) returns[2]).intValue(), 123);
+        assertEquals(((BFloat) returns[3]).floatValue(), 23.45);
+        assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
     @Test(description = "Test type testing on any")

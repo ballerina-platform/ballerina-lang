@@ -205,6 +205,10 @@ public class Types {
                 return isAnydata(((BTupleType) type).tupleTypes);
             case TypeTags.ARRAY:
                 return isAnydata(((BArrayType) type).eType);
+            case TypeTags.FINITE:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                        .map(val -> val.type).collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes);
             default:
                 return false;
         }
@@ -1084,6 +1088,10 @@ public class Types {
 
         @Override
         public BSymbol visit(BFiniteType t, BType s) {
+            if (s.tag == symTable.anyType.tag || s.tag == symTable.anydataType.tag) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            }
+
             return symTable.notFoundSymbol;
         }
     };
