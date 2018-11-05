@@ -1,6 +1,6 @@
 # Plugin Developer Guide
 
-## Testing the plugin using IDEA
+## Testing/Debugging the plugin using IntelliJ IDEA
 
 1. Go to **File -> Open** and open the cloned repository using IntelliJ IDEA.
 

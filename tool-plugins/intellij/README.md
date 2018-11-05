@@ -1,8 +1,8 @@
 
+# Ballerina plugin for IntelliJ IDEA
+
 [![Version](https://img.shields.io/jetbrains/plugin/v/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
-
-# Ballerina plugin for IntelliJ IDEA
 
 [Ballerina](https://ballerina.io/) is a simple programming language whose syntax and runtime address the hard 
 problems of integration. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. 
@@ -13,25 +13,57 @@ Ballerina plugin provides Ballerina Language support in IntelliJ IDEA .
 
 ## Table of Contents
 
-- [**Getting Started**](getting-started)
-    - [Installing the plugin in IDEA](getting-started/installing-the-plugin)
-    - [Setting Up Ballerina SDK](getting-started/setting-up-ballerina-sdk)
-    - [Writing Hello World In Ballerina](getting-started/writing-hello-world)
-- [**Plugin Features**](getting-started/plugin-features)
-- [**Plugin Developer Guide**](getting-started/plugin-developer-guide)
-    - [Testing/Debugging the plugin using IntelliJ](getting-started/plugin-developer-guide)
-- [**General Information**](#general-information)
-    - [Release versions schema](#release-versions-schema)
-    - [How to Contribute](#how-to-contribute) 
-    - [Licence](#license)
-    - [Copyright](#copyright)
+- [**Getting Started**](getting-started/README.md)
+    - [How to Install](#how-to-install)
+    - [Setting Up Ballerina SDK](getting-started/setting-up-ballerina-sdk/README.md)
+    - [Writing Hello World In Ballerina](getting-started/writing-hello-world/README.md)
+    
+- [**Plugin Features**](getting-started/plugin-features/README.md)
+    - [Running Ballerina Programs](getting-started/plugin-features/README.md#running-ballerina-programs)
+    - [Debugging Ballerina Programs](getting-started/plugin-features/README.md#debugging-ballerina-programs) 
+    - [Import modules On-the-fly](getting-started/plugin-features/README.md#import-modules-on-the-fly)
+    - [Auto Import Unambiguous Modules](getting-started/plugin-features/README.md#auto-import-unambiguous-modules)
+    - [Find Usage](getting-started/plugin-features/README.md#find-usage)
+    - [Go to Definition](getting-started/plugin-features/README.md#go-to-definition)
+    - [Formatting](getting-started/plugin-features/README.md#formatting)
+    - [Parameter Information](getting-started/plugin-features/README.md#parameter-information)
+    - [Quick Documentation](getting-started/plugin-features/README.md#quick-documentation)
+    - [Object/Record Fields suggestions](getting-started/plugin-features/README.md#objectrecord-fields-suggestions)
+    - [Annotation fields suggestions](getting-started/plugin-features/README.md#annotation-fields-suggestions)
+    - [File Templates](getting-started/plugin-features/README.md#file-templates)
+    - [Live Templates and Code snippets](getting-started/plugin-features/README.md#live-templates-and-code-snippets)
+    - [Spell Checking](getting-started/plugin-features/README.md#spell-checking)
+    - [Semantic Analyzing](getting-started/plugin-features/README.md#semantic-analyzing) 
 
-## General Information
+- [**Plugin Developer Guide**](getting-started/plugin-developer-guide/README.md#plugin-developer-guide)
+    - [Testing/Debugging the plugin using IntelliJ](getting-started/plugin-developer-guide/README.md#testingdebugging-the-plugin-using-intellij-idea)
+    
+- [**Release versions schema**](#release-versions-schema)
+- [**How to Contribute**](#how-to-contribute) 
+- [**Licence**](#license)
+- [**Copyright**](#copyright)
+- [**Useful Links**](#useful-links)
 
-### Release versions Schema
 
-Below you can see the versions of the plugin which correspond to the versions of the 
-IntelliJ Platfom.
+## How to Install
+
+### From Jetbrains plugin repository
+1. Go to **Settings** (**Preferences** in **MacOS**)-> **Plugins**. 
+2. Select **Browse Repositories** button at the bottom. 
+3. Search for **Ballerina** using the search box. Ballerina plugin will show up. Then you can install the plugin using the Install button.
+4. Restart IDEA.
+
+### From a local build
+1. Run `./gradlew buildPlugin`. In the **build/distributions** directory, **ballerina-intellij-idea-plugin-[VERSION].zip** will be created.
+    >**Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
+2. Go to **File -> Settings** (**IntelliJ IDEA -> Preferences** in **macOS**) and select **Plugins**.
+3. Click **Install plugin from disc** button and select the deployed **plugin zip** file. Please make sure to install the Zip file, not the extracted Jar files. This zip contains an additional library as well. Without this library, the plugin will not work properly.
+4. Restart IDEA.
+
+
+## Release Versions Schema
+
+Below you can see the plugin versions which correspond to the versions of the IntelliJ Platform.
 
 | Plugin Version | Platform Version Compatibility |
 |--- | --- |
@@ -39,11 +71,19 @@ IntelliJ Platfom.
 | 0.8.3 - 0.981.0 | IntelliJ IDEA 2016.3+ |
 | 0.982.0+ | IntelliJ IDEA 2017.3+ |
 
-### How to contribute
+
+## How to Contribute
 Pull requests are highly encouraged and we recommend you to create a GitHub issue to discuss the issue or feature that you are contributing to.
 
-### License
-Ballerina IDEA plugin source is available under the Apache 2.0 License.
 
-### Copyright
+## License
+Ballerina IDEA plugin source is available under the [Apache 2.0 License](LICENSE).
+
+
+## Copyright
 Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+
+## Useful Links
+* The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
+* Chat live with us on our [Slack channel](https://ballerina.io/open-source/slack/).

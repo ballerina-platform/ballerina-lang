@@ -11,7 +11,7 @@ The following features are supported by the plugin, as listed below.
 - [Formatting](#formatting)
 - [Parameter Information](#parameter-information)
 - [Quick Documentation](#quick-documentation)
-- [Object/Record Fields suggestions](#object/record-fields-suggestions)
+- [Object/Record Fields suggestions](#objectrecord-fields-suggestions)
 - [Annotation fields suggestions](#annotation-fields-suggestions)
 - [File Templates](#file-templates)
 - [Live Templates and Code snippets](#live-templates-and-code-snippets)
