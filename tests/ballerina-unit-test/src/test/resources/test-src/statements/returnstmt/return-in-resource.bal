@@ -1,6 +1,18 @@
 service<DummyService> helloWorld {
-    sayHello(string x) {
+    sayHelloWithString(string x) returns string {
         return x;
+    }
+
+    sayHelloWithInt(int x) returns int {
+        return x;
+    }
+
+    sayHelloWithNil1(string x) {
+        return;
+    }
+
+    sayHelloWithNil2(string x) returns () {
+        return;
     }
 }
 
