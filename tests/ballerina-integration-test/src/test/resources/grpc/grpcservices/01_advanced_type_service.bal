@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 endpoint grpc:Listener ep {
     host:"localhost",
@@ -27,8 +27,11 @@ service HelloWorld bind ep {
         io:println("name: " + req.name);
         io:println(req.address);
         string message = "Submitted name: " + req.name;
+        io:println("Response message " + message);
         error? err = caller->send(message);
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 
@@ -37,7 +40,9 @@ service HelloWorld bind ep {
         Person person = {name:"Sam", address:{postalCode:10300, state:"CA", country:"USA"}};
         io:println(person);
         error? err = caller->send(person);
-        io:println(err.message but { () => "" });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 
@@ -47,7 +52,9 @@ service HelloWorld bind ep {
         149.18};
         io:println(res);
         error? err = caller->send(res);
-        io:println(err.message but { () => "" });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 
@@ -63,19 +70,21 @@ service HelloWorld bind ep {
         StockQuote res = {symbol:"WSO2", name:"WSO2 Inc.", last:14.0, low:15.0, high:16.0};
         StockQuote res1 = {symbol:"Google", name:"Google Inc.", last:100.0, low:101.0, high:102.0};
         StockQuotes quotes = {stock:[res, res1]};
-        io:println(quotes);
 
         error? err = caller->send(quotes);
-        io:println(err.message but { () => "" });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 
     testNoInputOutputArray(endpoint caller) {
         string[] names = ["WSO2", "Google"];
-        io:println(names);
         StockNames stockNames = {names:names};
         error? err = caller->send(stockNames);
-        io:println(err.message but { () => "" });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 }

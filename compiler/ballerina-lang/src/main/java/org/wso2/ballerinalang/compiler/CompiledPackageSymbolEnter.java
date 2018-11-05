@@ -1058,6 +1058,8 @@ public class CompiledPackageSymbolEnter {
                     return symTable.anyType;
                 case 'N':
                     return symTable.nilType;
+                case 'K':
+                    return symTable.anydataType;
                 default:
                     throw new IllegalArgumentException("unsupported basic type char: " + typeChar);
             }

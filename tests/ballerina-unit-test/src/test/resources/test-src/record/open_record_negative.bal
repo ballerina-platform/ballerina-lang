@@ -20,3 +20,12 @@ function emptyRecordForAnyRestField() {
 type Pet record {
     Animal lion;
 };
+
+type Bar object {
+    int a;
+};
+
+function testInvalidRestFieldAddition() {
+    PersonA p = {};
+    p.invField = new Bar();
+}

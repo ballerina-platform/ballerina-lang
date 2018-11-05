@@ -224,6 +224,7 @@ recordFieldDefinitionList
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
+    |   TYPE_ANYDATA
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
@@ -717,6 +718,7 @@ expression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression

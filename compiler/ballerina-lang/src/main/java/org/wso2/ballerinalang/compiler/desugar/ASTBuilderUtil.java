@@ -125,7 +125,7 @@ public class ASTBuilderUtil {
     }
 
     private static boolean isValueType(BType type) {
-        return type.tag < TypeTags.TYPEDESC;
+        return type.tag < TypeTags.JSON;
     }
 
     static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,
@@ -358,7 +358,7 @@ public class ASTBuilderUtil {
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPEDESC) {
+        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.BOOLEAN) {
             return varRef;
         }
         // Box value using cast expression.

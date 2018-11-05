@@ -181,6 +181,10 @@
             {
                 "name": "Integer Ranges",
                 "url": "integer-ranges"
+            },
+            {
+                "name": "Equality",
+                "url": "equality"
             }
         ]
     },

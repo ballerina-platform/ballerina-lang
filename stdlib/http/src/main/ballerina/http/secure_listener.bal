@@ -156,7 +156,7 @@ function SecureListener::init(SecureEndpointConfiguration c) {
 function addAuthFiltersForSecureListener(SecureEndpointConfiguration config, string instanceId) {
     // add authentication and authorization filters as the first two filters.
     // if there are any other filters specified, those should be added after the authn and authz filters.
-    if (config.filters == null) {
+    if (lengthof config.filters == 0) {
         // can add authn and authz filters directly
         config.filters = createAuthFiltersForSecureListener(config, instanceId);
     } else {

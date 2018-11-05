@@ -45,6 +45,7 @@ public class TypeSignatureReader<T> {
             case 'Y':
             case 'A':
             case 'N':
+            case 'K':
                 typeStack.push(typeCreater.getBasicType(typeChar));
                 return index + 1;
             case 'E':
@@ -136,6 +137,7 @@ public class TypeSignatureReader<T> {
             case 'Y':
             case 'A':
             case 'N':
+            case 'K':
                 return typeCreater.getBasicType(ch);
             case 'R':
                 String typeName = desc.substring(1, desc.length() - 1);
