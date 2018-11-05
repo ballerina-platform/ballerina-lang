@@ -302,6 +302,4 @@ public class JSONSealInbuiltFunctionTest {
     public void testSealJSONToMapNegative() {
         BRunUtil.invoke(compileResult, "sealJSONToMapNegative");
     }
-
 }
-

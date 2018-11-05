@@ -33,12 +33,15 @@ public class SealInbuiltFunctionNegativeTest {
 
     private CompileResult compileResult;
     private CompileResult recordNegativeTestCompileResult;
+    private CompileResult jsonNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/expressions/seal/negative/seal-expr-negative-test.bal");
         recordNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/seal/negative/record-seal-expr-negative-test.bal");
+        jsonNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/json-seal-expr-negative-test.bal");
     }
 
 
@@ -123,6 +126,27 @@ public class SealInbuiltFunctionNegativeTest {
                         " '(string,string)'",
                 88, 5);
 
+    }
+
+    @Test
+    public void testJSONSealNegativeTest() {
+
+        Assert.assertEquals(jsonNegativeTestCompileResult.getErrorCount(), 6);
+
+        //Negative test case to confirm record cannot be sealed as xml.
+        BAssertUtil.validateError(jsonNegativeTestCompileResult, 0,
+                "Incompatible seal type: variable 'jsonValue' with type 'json' " +
+                        "cannot be sealed as type 'xml'", 12, 5);
+
+        //Negative test case to confirm record cannot be sealed as xml.
+        BAssertUtil.validateError(jsonNegativeTestCompileResult, 2,
+                "Incompatible seal type: variable 'employee' with type 'json' cannot be sealed as " +
+                        "type 'EmployeeObj'", 19, 5);
+
+        //Negative test case to confirm record cannot be sealed as tuple.
+        BAssertUtil.validateError(jsonNegativeTestCompileResult, 4,
+                "Incompatible seal type: variable 'jsonValue' with type 'json' cannot be sealed as " +
+                        "type '(string,string)'", 27, 5);
     }
 }
 
