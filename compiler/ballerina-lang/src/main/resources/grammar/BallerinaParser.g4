@@ -224,6 +224,7 @@ recordFieldDefinitionList
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
+    |   TYPE_ANYDATA
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
