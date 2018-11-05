@@ -936,13 +936,18 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
         // Resolve the type node and update the type of the typeNode.
-        constants.stream()
-                .filter(constant -> constant.typeNode != null && constant.symbol != null)
-                .forEach(constant -> {
-                    BType type = symResolver.resolveTypeNode(constant.typeNode, env);
-                    constant.typeNode.type = type;
-                    constant.symbol.typeNodeType = type;
-                });
+        for (BLangConstant constant : constants) {
+            if (constant.symbol == null) {
+                continue;
+            }
+            if (constant.typeNode != null) {
+                BType type = symResolver.resolveTypeNode(constant.typeNode, env);
+                constant.typeNode.type = type;
+                constant.symbol.typeNodeType = type;
+            } else {
+                constant.symbol.typeNodeType = symTable.getTypeFromTag(constant.symbol.value.typeTag);
+            }
+        }
     }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {

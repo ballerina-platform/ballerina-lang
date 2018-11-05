@@ -43,22 +43,30 @@ public class ConstantTest {
     }
 
     @Test
-    public void testConstInReturn() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInReturn");
+    public void testConstWithTypeInReturn() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeInReturn");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
     @Test
-    public void testConstWithTypeInReturn() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeInReturn");
+    public void testConstWithoutTypeInReturn() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeInReturn");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+
+    @Test
+    public void testConstWithTypeAsParam() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeAsParam");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
     @Test
-    public void testConstAsParam() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstAsParam");
+    public void testConstWithoutTypeAsParam() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeAsParam");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
@@ -71,36 +79,43 @@ public class ConstantTest {
     }
 
     @Test
-    public void testConstAssignmentToGlobalVariable() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstAssignmentToGlobalVariable");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
-    }
-
-    @Test
-    public void testConstAssignmentToLocalVariable() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstAssignmentToLocalVariable");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
-    }
-
-    @Test
     public void testConstWithTypeAssignmentToGlobalVariable() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeAssignmentToGlobalVariable");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
     @Test
     public void testConstWithTypeAssignmentToLocalVariable() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeAssignmentToLocalVariable");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
 
     @Test
-    public void testConstConcat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstConcat");
+    public void testConstWithoutTypeAssignmentToGlobalVariable() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeAssignmentToGlobalVariable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
+    public void testConstWithoutTypeAssignmentToLocalVariable() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeAssignmentToLocalVariable");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
+    public void testConstWithTypeConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithTypeConcat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
+    }
+
+    @Test
+    public void testConstWithoutTypeConcat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeConcat");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
     }
@@ -140,12 +155,6 @@ public class ConstantTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
-    public void testEqualityWithConstWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqualityWithConstWithoutType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
 
     @Test
     public void testEqualityWithConstWithType() {
@@ -162,10 +171,24 @@ public class ConstantTest {
     }
 
     @Test
+    public void testConstWithoutTypeInCondition() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeInCondition");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testBooleanWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanWithType");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testBooleanWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -175,6 +198,14 @@ public class ConstantTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
     }
 
+    @Test
+    public void testIntWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
+    // Note - Byte without type cannot be specified.
     @Test
     public void testByteWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testByteWithType");
@@ -190,10 +221,24 @@ public class ConstantTest {
     }
 
     @Test
+    public void testFloatWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+    }
+
+    @Test
     public void testStringWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringWithType");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
+    }
+
+    @Test
+    public void testStringWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
     }
 
     @Test
@@ -293,6 +338,7 @@ public class ConstantTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
     }
+
     @Test
     public void testProperSubset() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testProperSubset");

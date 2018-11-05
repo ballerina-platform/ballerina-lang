@@ -51,6 +51,13 @@ public class ConstantTests {
     }
 
     @Test
+    public void testAccessConstantWithoutTypeAsString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessConstantWithoutTypeAsString");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
+
+    @Test
     public void testAccessConstantWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAccessConstantWithType");
         Assert.assertEquals(returns.length, 1);

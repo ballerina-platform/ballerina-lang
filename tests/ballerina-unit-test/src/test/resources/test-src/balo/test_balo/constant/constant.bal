@@ -6,6 +6,10 @@ function testAccessConstantWithoutType() returns Ballerina {
     return foo:constName;
 }
 
+function testAccessConstantWithoutTypeAsString() returns string {
+    return foo:constName;
+}
+
 type Colombo "Colombo";
 
 function testAccessConstantWithType() returns Colombo {

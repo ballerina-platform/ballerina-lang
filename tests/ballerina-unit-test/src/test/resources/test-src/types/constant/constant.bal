@@ -1,21 +1,24 @@
-const string name = "Ballerina";
+const nameWithoutType = "Ballerina";
+const string nameWithType = "Ballerina";
 
-function testConstInReturn() returns string {
-    return name;
+function testConstWithTypeInReturn() returns string {
+    return nameWithType;
 }
 
 // -----------------------------------------------------------
 
-const int age = 10;
-
-function testConstWithTypeInReturn() returns int {
-    return age;
+function testConstWithoutTypeInReturn() returns string {
+    return nameWithType;
 }
 
 // -----------------------------------------------------------
 
-function testConstAsParam() returns string {
-    return testParam(name);
+function testConstWithTypeAsParam() returns string {
+    return testParam(nameWithType);
+}
+
+function testConstWithoutTypeAsParam() returns string {
+    return testParam(nameWithoutType);
 }
 
 function testParam(string s) returns string {
@@ -35,34 +38,40 @@ function testConstInRecord() returns string {
 
 // -----------------------------------------------------------
 
-string sgv = name;
+string sgvWithType = nameWithType;
 
-function testConstAssignmentToGlobalVariable() returns string {
-    return sgv;
+function testConstWithTypeAssignmentToGlobalVariable() returns string {
+    return sgvWithType;
 }
 
-function testConstAssignmentToLocalVariable() returns string {
-    string slv = name;
+function testConstWithTypeAssignmentToLocalVariable() returns string {
+    string slv = nameWithType;
     return slv;
 }
 
 // -----------------------------------------------------------
 
-int igv = age;
+string sgvWithoutType = nameWithoutType;
 
-function testConstWithTypeAssignmentToGlobalVariable() returns int {
-    return igv;
+function testConstWithoutTypeAssignmentToGlobalVariable() returns string {
+    return sgvWithoutType;
 }
 
-function testConstWithTypeAssignmentToLocalVariable() returns int {
-    int ilv = age;
-    return ilv;
+function testConstWithoutTypeAssignmentToLocalVariable() returns string {
+    string slv = nameWithoutType;
+    return slv;
 }
 
 // -----------------------------------------------------------
 
-function testConstConcat() returns string {
-    return name + " rocks";
+function testConstWithTypeConcat() returns string {
+    return nameWithType + " rocks";
+}
+
+// -----------------------------------------------------------
+
+function testConstWithoutTypeConcat() returns string {
+    return nameWithoutType + " rocks";
 }
 
 // -----------------------------------------------------------
@@ -104,14 +113,8 @@ function typeConstAsParam(ACTION a) returns boolean {
 
 // -----------------------------------------------------------
 
-function testEqualityWithConstWithoutType() returns boolean {
-    return name == "Ballerina";
-}
-
-// -----------------------------------------------------------
-
 function testEqualityWithConstWithType() returns boolean {
-    return age == 10;
+    return nameWithType == "Ballerina";
 }
 
 // -----------------------------------------------------------
@@ -127,10 +130,27 @@ function testConstWithTypeInCondition() returns boolean {
 
 // -----------------------------------------------------------
 
+const conditionWithoutType = true;
+
+function testConstWithoutTypeInCondition() returns boolean {
+    if (conditionWithoutType) {
+        return true;
+    }
+    return false;
+}
+
+// -----------------------------------------------------------
+
 const boolean booleanWithType = false;
 
 function testBooleanWithType() returns boolean {
     return booleanWithType;
+}
+
+const booleanWithoutType = true;
+
+function testBooleanWithoutType() returns boolean {
+    return booleanWithoutType;
 }
 
 // -----------------------------------------------------------
@@ -139,6 +159,12 @@ const int intWithType = 40;
 
 function testIntWithType() returns int {
     return intWithType;
+}
+
+const intWithoutType = 20;
+
+function testIntWithoutType() returns int {
+    return intWithoutType;
 }
 
 // -----------------------------------------------------------
@@ -157,12 +183,24 @@ function testFloatWithType() returns float {
     return floatWithType;
 }
 
+const floatWithoutType = 2.0;
+
+function testFloatWithoutType() returns float {
+    return floatWithoutType;
+}
+
 // -----------------------------------------------------------
 
 const string stringWithType = "Ballerina is awesome";
 
 function testStringWithType() returns string {
     return stringWithType;
+}
+
+const stringWithoutType = "Ballerina rocks";
+
+function testStringWithoutType() returns string {
+    return stringWithoutType;
 }
 
 // -----------------------------------------------------------

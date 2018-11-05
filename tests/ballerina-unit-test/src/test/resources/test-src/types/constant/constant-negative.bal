@@ -90,53 +90,12 @@ function testFloatConcat() returns string {
     return aFloat + " rocks";
 }
 
-const name = "Ballerina";
-
-function testConstConcat() returns string {
-    return name + " rocks";
-}
-
 // -----------------------------------------------------------
-
-const conditionWithoutType = true;
-
-function testConstWithoutTypeInCondition() returns boolean {
-    if (conditionWithoutType) {
-        return true;
-    }
-    return false;
-}
-
-// -----------------------------------------------------------
-
-const booleanWithoutType = true;
-
-function testBooleanWithoutType() returns boolean {
-    return booleanWithoutType;
-}
-
-const intWithoutType = 20;
-
-function testIntWithoutType() returns int {
-    return intWithoutType;
-}
 
 const byteWithoutType = 120;
 
 function testByteWithoutType() returns byte {
     return byteWithoutType;
-}
-
-const floatWithoutType = 2.0;
-
-function testFloatWithoutType() returns float {
-    return floatWithoutType;
-}
-
-const stringWithoutType = "Ballerina rocks";
-
-function testStringWithoutType() returns string {
-    return stringWithoutType;
 }
 
 // -----------------------------------------------------------
