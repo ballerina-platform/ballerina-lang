@@ -125,10 +125,12 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -2988,6 +2990,10 @@ public class CPU {
             return checkFunctionCast(rhsType, (BFunctionType) lhsType);
         }
 
+        if (lhsType.getTag() == TypeTags.ANYDATA_TAG && isAnydata(rhsType)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -3051,6 +3057,40 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    private static boolean isAnydata(BType type) {
+        if (type.getTag() <= TypeTags.ANYDATA_TAG) {
+            return true;
+        }
+
+        switch (type.getTag()) {
+            case TypeTags.MAP_TAG:
+                return isAnydata(((BMapType) type).getConstrainedType());
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes = Arrays.stream(recordType.getFields())
+                                                .map(BField::getFieldType)
+                                                .collect(Collectors.toList());
+                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+            case TypeTags.UNION_TAG:
+                return isAnydata(((BUnionType) type).getMemberTypes());
+            case TypeTags.TUPLE_TAG:
+                return isAnydata(((BTupleType) type).getTupleTypes());
+            case TypeTags.ARRAY_TAG:
+                return isAnydata(((BArrayType) type).getElementType());
+            case TypeTags.FINITE_TYPE_TAG:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                                                                        .map(BValue::getType)
+                                                                        .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean isAnydata(Collection<BType> types) {
+        return types.stream().allMatch(CPU::isAnydata);
     }
 
     private static BType getElementType(BType type) {
@@ -3384,6 +3424,7 @@ public class CPU {
                 }
                 return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
+            case TypeTags.ANYDATA_TAG:
                 return true;
             default:
                 return false;
@@ -3877,6 +3918,7 @@ public class CPU {
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
                 return true;
+            case TypeTags.ANYDATA_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
                 return isAssignable(sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
