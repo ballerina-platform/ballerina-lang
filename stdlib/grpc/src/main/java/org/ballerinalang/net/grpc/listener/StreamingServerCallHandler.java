@@ -111,7 +111,7 @@ public class StreamingServerCallHandler extends ServerCallHandler {
 
         @Override
         public void onMessage(BValue message) {
-            // do nothing.
+            // do nothing. This needs to be removed after implementing the response part using ballerina APIs.
         }
 
         @Override
