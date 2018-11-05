@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -65,6 +66,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -181,7 +183,39 @@ public class Types {
     }
 
     public boolean isValueType(BType type) {
-        return type.tag < TypeTags.TYPEDESC;
+        return type.tag < TypeTags.JSON;
+    }
+
+    public boolean isAnydata(BType type) {
+        if (type.tag <= TypeTags.ANYDATA) {
+            return true;
+        }
+
+        switch (type.tag) {
+            case TypeTags.MAP:
+                return isAnydata(((BMapType) type).constraint);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes = recordType.fields.stream()
+                        .map(field -> field.type).collect(Collectors.toList());
+                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+            case TypeTags.UNION:
+                return isAnydata(((BUnionType) type).memberTypes);
+            case TypeTags.TUPLE:
+                return isAnydata(((BTupleType) type).tupleTypes);
+            case TypeTags.ARRAY:
+                return isAnydata(((BArrayType) type).eType);
+            case TypeTags.FINITE:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                        .map(val -> val.type).collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes);
+            default:
+                return false;
+        }
+    }
+
+    private boolean isAnydata(Collection<BType> types) {
+        return types.stream().allMatch(this::isAnydata);
     }
 
     public boolean isBrandedType(BType type) {
@@ -221,7 +255,12 @@ public class Types {
             return true;
         }
 
+        // TODO: Remove the isValueType() check
         if (target.tag == TypeTags.ANY && !isValueType(source)) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
             return true;
         }
 
@@ -845,11 +884,21 @@ public class Types {
                 return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
             }
 
+            // TODO: 11/1/18 Remove the below check after verifying it doesn't break anything
             // Here condition is added for prevent explicit cast assigning map union constrained
             // to map any constrained.
             if (s.tag == TypeTags.MAP &&
                     ((BMapType) s).constraint.tag == TypeTags.UNION) {
                 return symTable.notFoundSymbol;
+            }
+
+            return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
+        }
+
+        @Override
+        public BSymbol visit(BAnydataType t, BType s) {
+            if (isValueType(s)) {
+                return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
             }
 
             return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
@@ -877,6 +926,8 @@ public class Types {
                     return symTable.notFoundSymbol;
                 }
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
+            } else if (s.tag == TypeTags.ANYDATA) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2MAP);
             } else if (t.constraint.tag != TypeTags.ANY) {
                 // Semantically fail rest of the casts for Constrained Maps.
                 // Eg:- ANY2MAP cast is undefined for Constrained Maps.
@@ -961,7 +1012,7 @@ public class Types {
 
         @Override
         public BSymbol visit(BRecordType t, BType s) {
-            if (s == symTable.anyType) {
+            if (s == symTable.anyType || s == symTable.anydataType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2T);
             }
 
@@ -980,7 +1031,7 @@ public class Types {
 
         @Override
         public BSymbol visit(BTableType t, BType s) {
-            if (s == symTable.anyType) {
+            if (s == symTable.anyType || s.tag == symTable.anydataType.tag) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2DT);
             }
 
@@ -989,7 +1040,7 @@ public class Types {
 
         @Override
         public BSymbol visit(BTupleType t, BType s) {
-            if (s == symTable.anyType) {
+            if (s == symTable.anyType || s == symTable.anydataType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             }
             return symTable.notFoundSymbol;
@@ -1037,6 +1088,10 @@ public class Types {
 
         @Override
         public BSymbol visit(BFiniteType t, BType s) {
+            if (s.tag == symTable.anyType.tag || s.tag == symTable.anydataType.tag) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            }
+
             return symTable.notFoundSymbol;
         }
     };
@@ -1055,6 +1110,11 @@ public class Types {
 
         @Override
         public Boolean visit(BAnyType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BAnydataType t, BType s) {
             return t == s;
         }
 
