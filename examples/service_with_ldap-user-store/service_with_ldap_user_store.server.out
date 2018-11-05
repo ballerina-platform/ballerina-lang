@@ -1,0 +1,7 @@
+# At the command line, navigate to the directory that contains the
+# `.bal` file. Ensure that the embedded ldap server has been started
+# prior to starting the Ballerina service.
+# Then run the program using `ballerina run` command.
+$ ballerina run service_with_ldap_user_store.bal
+Initiating service(s) in 'service_with_ldap_user_store.bal'
+[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9090
