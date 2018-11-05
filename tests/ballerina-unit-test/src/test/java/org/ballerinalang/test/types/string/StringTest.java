@@ -65,7 +65,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testContainsNull() {
         // With null substring
         BValue[] args = new BValue[]{new BString(s1), new BString(null)};
@@ -73,7 +73,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testContainsInNull() {
         // With null parent string
         BValue[] args = new BValue[]{new BString(null), new BString("WSO2")};
@@ -81,7 +81,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testContainsNullInNull() {
         // With null parent string and substring
         BValue[] args = new BValue[]{new BString(null), new BString(null)};
@@ -95,7 +95,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testEqualsIgnoreCaseNull() {
         // With null second string
         BValue[] args = new BValue[]{new BString("WSO2"), new BString(null)};
@@ -103,7 +103,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testEqualsIgnoreCaseNullOther() {
         // With null first string
         BValue[] args = new BValue[]{new BString(null), new BString("WSO2")};
@@ -111,7 +111,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testEqualsIgnoreCaseBothNull() {
         // With null first and second string
         BValue[] args = new BValue[]{new BString(null), new BString(null)};
@@ -134,7 +134,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testHasNullPrefix() {
         // With null second string
         BValue[] args = new BValue[]{new BString("Expendables"), new BString(null)};
@@ -142,7 +142,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testHasPrefixInNull() {
         // With null first string
         BValue[] args = new BValue[]{new BString(null), new BString("Ex")};
@@ -150,7 +150,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testHasNullPrefixInNull() {
         // With null first and second string
         BValue[] args = new BValue[]{new BString(null), new BString(null)};
@@ -164,7 +164,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testHasNullSuffix() {
         // With null second string
         BValue[] args = new BValue[]{new BString("One Two"), new BString(null)};
@@ -172,7 +172,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testHasSuffixInNull() {
         // With null first string
         BValue[] args = new BValue[]{new BString(null), new BString("Two")};
@@ -180,7 +180,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testHasNullSuffixInNull() {
         // With null first and second string
         BValue[] args = new BValue[]{new BString(null), new BString(null)};
@@ -194,7 +194,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testIndexOfNull() {
         // With null second string
         BValue[] args = new BValue[]{new BString("Lion in the town"), new BString(null)};
@@ -202,7 +202,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testIndexOfInNull() {
         // With null first string
         BValue[] args = new BValue[]{new BString(null), new BString("in")};
@@ -210,7 +210,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testIndexOfNullInNull() {
         // With null first and second string
         BValue[] args = new BValue[]{new BString(null), new BString(null)};
@@ -242,7 +242,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testLastIndexOfNull() {
         // With null second string
         BValue[] args = new BValue[]{new BString("test x value x is x 18"), new BString(null)};
@@ -250,7 +250,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testLastIndexOfInNul() {
         // With null first string
         BValue[] args = new BValue[]{new BString(null), new BString("x")};
@@ -258,7 +258,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testLastIndexOfNullInNull() {
         // With null first and second string
         BValue[] args = new BValue[]{new BString(null), new BString(null)};
@@ -274,7 +274,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testLengthofNull() {
         BValue[] args = {new BString(null)};
         BRunUtil.invoke(result, "lengthOfStr", args);
@@ -289,21 +289,21 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceInNull() {
         BValue[] args = {new BString(null), new BString("Google"), new BString("WSO2")};
         BRunUtil.invoke(result, "replace", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceNull() {
         BValue[] args = {new BString("Best Company is Google"), new BString(null), new BString("WSO2")};
         BRunUtil.invoke(result, "replace", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceByNull() {
         BValue[] args = {new BString("Best Company is Google"), new BString("Google"), new BString(null)};
         BRunUtil.invoke(result, "replace", args);
@@ -318,21 +318,21 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceAllInNull() {
         BValue[] args = {new BString(null), new BString("abc"), new BString("xyz")};
         BRunUtil.invoke(result, "replaceAll", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceAllNull() {
         BValue[] args = {new BString("abc is not abc as abc anymore"), new BString(null), new BString("xyz")};
         BRunUtil.invoke(result, "replaceAll", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceAllByNull() {
         BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("abc"), new BString(null)};
         BRunUtil.invoke(result, "replaceAll", args);
@@ -347,21 +347,21 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceFirstInNull() {
         BValue[] args = {new BString(null), new BString("abc"), new BString("xyz")};
         BRunUtil.invoke(result, "replaceFirst", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceFirstNull() {
         BValue[] args = {new BString("abc is not abc as abc anymore"), new BString(null), new BString("xyz")};
         BRunUtil.invoke(result, "replaceFirst", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testReplaceFirstByNull() {
         BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("abc"), new BString(null)};
         BRunUtil.invoke(result, "replaceFirst", args);
@@ -385,7 +385,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSubStringFromNull() {
         BValue[] args = {new BString(null), new BInteger(0), new BInteger(9)};
         BRunUtil.invoke(result, "substring", args);
@@ -400,7 +400,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testNullToLowerCase() {
         BValue[] args = {new BString(null)};
         BRunUtil.invoke(result, "toLower", args);
@@ -415,7 +415,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testNullToUpperCase() {
         BValue[] args = {new BString(null)};
         BRunUtil.invoke(result, "toUpper", args);
@@ -430,7 +430,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testTrimNull() {
         BValue[] args = {new BString(null)};
         BValue[] returns = BRunUtil.invoke(result, "trim", args);
@@ -447,7 +447,7 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testUnescapeNull() {
         BValue[] args = {new BString(null)};
         BRunUtil.invoke(result, "unescape", args);
@@ -481,14 +481,14 @@ public class StringTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSplitNull() {
         BValue[] args = {new BString(null), new BString(" ")};
         BRunUtil.invoke(result, "split", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testSplitByNull() {
         BValue[] args = {new BString("name1 name2 name3"), new BString(null)};
         BRunUtil.invoke(result, "split", args);
