@@ -70,10 +70,10 @@ public type LinkedList object {
         match curr {
             Node c => {
                 Node? next = c.next;
-                return next != ();
+                return next !== ();
             }
             () => {
-                return (ascend && first != ());
+                return (ascend && first !== ());
             }
         }
     }
@@ -83,10 +83,10 @@ public type LinkedList object {
         match curr {
             Node c => {
                 Node? prev = c.prev;
-                return prev != ();
+                return prev !== ();
             }
             () => {
-                return (!ascend && last != ());
+                return (!ascend && last !== ());
             }
         }
     }
@@ -433,7 +433,7 @@ public type LinkedList object {
             match first {
                 Node value => {
                     temp = value;
-                    while (temp != ()) {
+                    while (temp !== ()) {
                         arr[i] = temp.data;
                         i = i + 1;
                         temp = temp.next;
