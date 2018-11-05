@@ -26,5 +26,4 @@ package org.ballerinalang.model.values;
 public interface BRefType<T> extends BValue {
 
     T value();
-
 }

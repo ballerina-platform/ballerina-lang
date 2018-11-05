@@ -95,8 +95,8 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test
-    public void testBasicTypesAsJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testBasicTypesAsJson", new BValue[0]);
+    public void testBasicTypesAsJsonFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testBasicTypesAsJsonFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected json values to be the same");
@@ -302,32 +302,48 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test
-    public void testInvalidMapFreeze() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvalidMapFreeze", new BValue[0]);
+    public void testSimpleUnionFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleUnionFreeze", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as frozen");
+    }
+
+    @Test
+    public void testInvalidComplexMapFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexMapFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
     }
 
     @Test
-    public void testInvalidArrayFreeze() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvalidArrayFreeze", new BValue[0]);
+    public void testInvalidComplexArrayFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexArrayFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: freeze not allowed on 'typedesc'");
     }
 
     @Test
-    public void testInvalidRecordFreeze() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvalidRecordFreeze", new BValue[0]);
+    public void testInvalidComplexRecordFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexRecordFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
     }
 
     @Test
-    public void testInvalidTupleFreeze() {
-        BValue[] returns = BRunUtil.invoke(result, "testInvalidTupleFreeze", new BValue[0]);
+    public void testInvalidComplexTupleFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexTupleFreeze", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
+    }
+
+    @Test
+    public void testInvalidComplexUnionFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexUnionFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
@@ -365,9 +381,17 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
     }
 
+    @Test(description = "test a union of member type not purely anydata, a combination of anydata and non-anydata")
+    public void testValidComplexUnionFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testValidComplexUnionFreeze", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
+    }
+
     @Test
     public void testFreezeAndIsFrozenNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 21);
+        Assert.assertEquals(negativeResult.getErrorCount(), 22);
         validateError(negativeResult, 0, "function invocation on type '()' is not supported", 19, 9);
         validateError(negativeResult, 1, "undefined function 'freeze' in object 'PersonObj'", 24, 19);
         validateError(negativeResult, 2, "undefined function 'stream.freeze'", 27, 9);
@@ -375,8 +399,8 @@ public class FreezeAndIsFrozenTest {
         validateError(negativeResult, 4, "undefined function 'map.freeze'", 35, 9);
         validateError(negativeResult, 5, "undefined function 'map.freeze'", 38, 9);
         validateError(negativeResult, 6, "function invocation on type 'PersonObj[]' is not supported", 43, 9);
-        validateError(negativeResult, 7, "function invocation on type 'PersonObjTwo|PersonObj[]' is not supported", 46,
-                      9);
+        validateError(negativeResult, 7, "function invocation on type 'PersonObjTwo|PersonObj[]' is not supported",
+                      46, 9);
         validateError(negativeResult, 8, "function invocation on type '(PersonObj|PersonObjTwo,PersonObjTwo)' is " +
                               "not supported", 51, 9);
         validateError(negativeResult, 9, "undefined field 'freeze' in record 'Department'", 56, 9);
@@ -386,18 +410,20 @@ public class FreezeAndIsFrozenTest {
         validateError(negativeResult, 13, "undefined function 'string.isFrozen'", 70, 9);
         validateError(negativeResult, 14, "undefined function 'boolean.isFrozen'", 73, 9);
         validateError(negativeResult, 15, "incompatible types: expected 'map<string|PersonObj>', found " +
-                "'error|map<string|PersonObj>'", 78, 32);
-        validateError(negativeResult, 16, "incompatible types: expected 'map<(any,any)>', found 'error|map<" +
-                "(string|PersonObj,FreezeAllowedDepartment|float)>'", 81, 26);
+                "'map<string|PersonObj>|error'", 78, 32);
+        validateError(negativeResult, 16, "incompatible types: expected 'map<(any,any)>', found 'map<" +
+                "(string|PersonObj,FreezeAllowedDepartment|float)>|error'", 81, 26);
         validateError(negativeResult, 17, "incompatible types: expected 'boolean|PersonObj|float[]', found " +
-                              "'error|boolean|PersonObj|float[]'", 84, 38);
+                              "'boolean|PersonObj|float[]|error'", 84, 38);
         validateError(negativeResult, 18, "incompatible types: expected 'any[]', found " +
-                              "'error|boolean|PersonObj|float[]'", 86, 16);
+                              "'boolean|PersonObj|float[]|error'", 86, 16);
         validateError(negativeResult, 19, "incompatible types: expected '(string|PersonObj," +
-                              "FreezeAllowedDepartment|float)', found '(string|PersonObj," +
-                              "FreezeAllowedDepartment|float)|error'", 89, 60);
+                "FreezeAllowedDepartment|float)', found '(string|PersonObj,FreezeAllowedDepartment|float)|error'",
+                      89, 60);
         validateError(negativeResult, 20, "incompatible types: expected 'FreezeAllowedDepartment', found " +
                               "'FreezeAllowedDepartment|error'", 92, 35);
+        validateError(negativeResult, 21, "incompatible types: expected 'string|PersonObj', found " +
+                "'string|PersonObj|error'", 95, 27);
     }
 
     @DataProvider(name = "booleanValues")

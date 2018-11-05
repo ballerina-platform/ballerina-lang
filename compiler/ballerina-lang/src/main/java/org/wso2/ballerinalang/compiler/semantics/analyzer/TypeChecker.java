@@ -1890,11 +1890,18 @@ public class TypeChecker extends BLangNodeVisitor {
         if (dataType) {
             iExpr.type = type;
         } else {
-            if (type.tag == TypeTags.UNION && ((BUnionType) type).getMemberTypes().stream()
-                    .anyMatch(memType -> memType.tag == TypeTags.ERROR)) {
-                iExpr.type = type;
+            if (type.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) type;
+                if (unionType.getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.ERROR)) {
+                    iExpr.type = type;
+                } else {
+                    Set<BType> unionTypeMemTypes = new LinkedHashSet<>(unionType.memberTypes.size() + 1);
+                    unionTypeMemTypes.addAll(unionType.memberTypes);
+                    unionTypeMemTypes.add(symTable.errorType);
+                    iExpr.type = new BUnionType(null, unionTypeMemTypes, false);
+                }
             } else {
-                iExpr.type = new BUnionType(null, new HashSet<BType>() {{ add(type); add(symTable.errorType); }},
+                iExpr.type = new BUnionType(null, new LinkedHashSet<BType>() {{ add(type); add(symTable.errorType); }},
                                             false);
             }
         }

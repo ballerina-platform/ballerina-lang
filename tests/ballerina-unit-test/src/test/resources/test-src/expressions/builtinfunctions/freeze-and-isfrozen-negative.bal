@@ -90,16 +90,9 @@ function testInvalidAssignmentWithFreeze() {
 
     FreezeAllowedDepartment fd;
     FreezeAllowedDepartment fd2 = fd.freeze();
-}
 
-function testFreezeAndIsFrozenOnUnionType() {
-    string|int u = "hi";
-    _ = u.freeze();
-    _ = u.isFrozen();
-
-    string|PersonObj u2 = "hi";
-    _ = u2.freeze();
-    _ = u2.isFrozen();
+    string|PersonObj u1 = "hi";
+    string|PersonObj u2 = u1.freeze();
 }
 
 type PersonObj object {

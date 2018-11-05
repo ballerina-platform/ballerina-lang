@@ -20,7 +20,7 @@ package org.ballerinalang.util.exceptions;
 /**
  * Represents an error that occurs in the Ballerina runtime, while attempting freezing a value.
  *
- * @since 0.983.0
+ * @since 0.985.0
  */
 public class BLangFreezeException extends BLangRuntimeException {
 
