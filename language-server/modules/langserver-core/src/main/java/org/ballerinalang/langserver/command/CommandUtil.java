@@ -68,12 +68,14 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -333,15 +335,24 @@ public class CommandUtil {
         return null;
     }
 
-    public static DocAttachmentInfo getFunctionNodeDocumentation(BLangFunction bLangFunction) {
+    private static DocAttachmentInfo getFunctionNodeDocumentation(BLangFunction bLangFunction) {
         List<String> attributes = new ArrayList<>();
         DiagnosticPos functionPos =  CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
         List<BLangAnnotationAttachment> annotations = bLangFunction.getAnnotationAttachments();
         Position docStart = getDocumentationStartPosition(bLangFunction.getPosition(), annotations);
         int offset = functionPos.getStartColumn();
+        
+        List<BLangVariable> params = new ArrayList<>(bLangFunction.getParameters());
+        if (bLangFunction.getRestParameters() != null) {
+            params.add((BLangVariable) bLangFunction.getRestParameters());
+        }
+        params.addAll(bLangFunction.getDefaultableParameters()
+                .stream()
+                .map(bLangVariableDef -> bLangVariableDef.var)
+                .collect(Collectors.toList()));
+        params.sort(new FunctionArgsComparator());
 
-        bLangFunction.getParameters()
-                .forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangVariable) param, offset)));
+        params.forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangVariable) param, offset)));
         if (bLangFunction.symbol.retType.getKind() != TypeKind.NIL) {
             attributes.add(getReturnFieldDescription(offset));
         }
@@ -712,6 +723,16 @@ public class CommandUtil {
 
         public Position getDocStartPos() {
             return docStartPos;
+        }
+    }
+    
+    private static class FunctionArgsComparator implements Serializable, Comparator<BLangVariable> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public int compare(BLangVariable arg1, BLangVariable arg2) {
+            return arg1.getPosition().getStartColumn() - arg2.getPosition().getStartColumn();
         }
     }
 }
