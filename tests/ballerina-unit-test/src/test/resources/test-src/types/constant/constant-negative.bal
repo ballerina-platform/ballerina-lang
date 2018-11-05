@@ -169,4 +169,45 @@ function testImproperSubset() returns G {
 // -----------------------------------------------------------
 
 // Cyclic dependency.
-type IJK IJK;
+type UVW UVW;
+
+// -----------------------------------------------------------
+
+// Cyclic dependency and unknown type.
+type IJK IJK|"R"|SSS|"S";
+
+// -----------------------------------------------------------
+
+// Cyclic dependency and multiple unknown types.
+type LMN OPQ|"QRS"|RST|STU;
+
+type OPQ LMN|"STU"|RST;
+
+// -----------------------------------------------------------
+
+// Complex cyclic dependency.
+type ACE BDF;
+
+type BDF "AAA"|CEG|"TTT"|DFH;
+
+type CEG ACE|"UUU"|EGI;
+
+type DFH "DFH";
+
+type EGI BDF|ACE;
+
+// -----------------------------------------------------------
+
+// Type node's type undefined.
+type MNO PQ;
+
+// -----------------------------------------------------------
+
+// Type node's one of member's type not available.
+type JKL J|STU;
+
+const J = "J";
+
+type STU S|T|U;
+
+const S = "S";

@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 34);
+        Assert.assertEquals(compileResult.getErrorCount(), 59);
         String expectedErrMsg1 = "only simple literals can be assigned to a constant";
         String expectedErrMsg2 = "cannot assign a value to a constant";
         int index = 0;
@@ -74,6 +74,37 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "function invocation on type 'SHA1' is not supported", 147,
                 17);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'D|E'", 165, 11);
-        BAssertUtil.validateError(compileResult, index, "cyclic type reference in '[IJK]'", 172, 1);
+
+
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", 172, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", 177, 18);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[IJK, IJK]'", 177, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", 182, 20);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[LMN, OPQ, LMN]'", 182, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", 184, 20);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[OPQ, LMN, OPQ]'", 184, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, BDF]'", 189, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, EGI, ACE]'", 189,
+                1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, ACE]'", 189, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'DFH'", 191, 26);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, BDF]'", 191, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, ACE, BDF]'", 191,
+                1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, ACE, BDF]'", 191, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[CEG, EGI, BDF, CEG]'", 193, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[CEG, EGI, ACE, BDF, CEG]'", 193,
+                1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[CEG, ACE, BDF, CEG]'", 193, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[EGI, BDF, CEG, EGI]'", 197, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, ACE, BDF]'", 197, 1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[EGI, ACE, BDF, CEG, EGI]'", 197,
+                1);
+        BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, ACE]'", 197, 1);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'PQ'", 202, 10);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'J'", 207, 10);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'S'", 211, 10);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'T'", 211, 12);
+        BAssertUtil.validateError(compileResult, index, "unknown type 'U'", 211, 14);
     }
 }
