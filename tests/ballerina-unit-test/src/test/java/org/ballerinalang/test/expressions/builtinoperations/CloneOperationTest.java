@@ -277,10 +277,10 @@ public class CloneOperationTest {
     @Test
     public void testCloneNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
-        BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 3, 13);
+        BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 19, 13);
         BAssertUtil.validateError(negativeResult, 1, "Cannot clone a value of a type other than anyData " +
-                "(boolean|int|float|decimal|string|xml|table|anydata[]|map<anydata>), but found 'typedesc'", 8, 18);
-        BAssertUtil.validateError(negativeResult, 2, "function invocation on type 'typedesc' is not supported", 8, 18);
+                "(boolean|int|float|decimal|string|xml|table|anydata[]|map<anydata>), but found 'typedesc'", 24, 18);
+        BAssertUtil.validateError(negativeResult, 2, "function invocation on type 'typedesc' is not supported", 24, 18);
     }
 
     private void testCloneOnMaps(BValue outputEmployeeEvent, String name, int id, int age) {
