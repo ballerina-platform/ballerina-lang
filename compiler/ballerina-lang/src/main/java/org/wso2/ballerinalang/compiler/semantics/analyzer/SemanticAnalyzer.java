@@ -136,7 +136,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -177,8 +176,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT;
 
 /**
  * @since 0.94
@@ -937,14 +934,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatch matchNode) {
-
-        //first fail if both static and typed patterns have been defined in the match stmt
-        if (matchNode.getTypedPatternClauses().size() > 0 &&
-                matchNode.patternClauses.size() != matchNode.getTypedPatternClauses().size()) {
-            dlog.error(matchNode.pos, INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
-            return;
-        }
-
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {
@@ -968,11 +957,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         symbolEnter.defineNode(patternClause.variable, this.env);
-        analyzeStmt(patternClause.body, this.env);
-    }
-
-    public void visit(BLangMatchStmtStaticBindingPatternClause patternClause) {
-        typeChecker.checkExpr(patternClause.literal, this.env);
         analyzeStmt(patternClause.body, this.env);
     }
 
