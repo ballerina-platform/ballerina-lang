@@ -1166,8 +1166,6 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSEQSTORE:
                 case InstructionCodes.TYPELOAD:
-                case InstructionCodes.SEQ_NULL:
-                case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.BI2ANY:
@@ -1248,11 +1246,13 @@ public class PackageInfoReader {
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
                 case InstructionCodes.REQ:
+                case InstructionCodes.REF_EQ:
                 case InstructionCodes.INE:
                 case InstructionCodes.FNE:
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
                 case InstructionCodes.RNE:
+                case InstructionCodes.REF_NEQ:
                 case InstructionCodes.IGT:
                 case InstructionCodes.FGT:
                 case InstructionCodes.IGE:
@@ -1796,6 +1796,8 @@ public class PackageInfoReader {
                     return BTypes.typeAny;
                 case 'N':
                     return BTypes.typeNull;
+                case 'K':
+                    return BTypes.typeAnydata;
                 default:
                     throw new IllegalArgumentException("unsupported basic type char: " + typeChar);
             }

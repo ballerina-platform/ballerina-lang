@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 endpoint HelloWorldBlockingClient helloWorldBlockingEp {
     url:"http://localhost:9110"
@@ -31,8 +31,8 @@ function testUnaryBlockingClient(string name) returns (string) {
             return "Client got response: " + result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
