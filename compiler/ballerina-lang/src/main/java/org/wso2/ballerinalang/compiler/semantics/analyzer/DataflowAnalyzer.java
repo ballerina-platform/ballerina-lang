@@ -333,6 +333,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         analyzeNode(returnNode.expr, env);
+
+        // return statement will exit from the function. There will be no uninitialized 
+        // variables left after the return statement.
+        this.uninitializedVars.clear();
     }
 
     @Override
@@ -642,6 +646,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDone doneNode) {
+        // 'done' statement will exit from the worker. There will be no uninitialized 
+        // variables left after the 'done' statement.
+        this.uninitializedVars.clear();
     }
 
     @Override

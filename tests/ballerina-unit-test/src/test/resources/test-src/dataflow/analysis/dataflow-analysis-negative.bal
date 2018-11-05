@@ -563,3 +563,30 @@ public type D record {
     int b;
     int c;
 };
+
+endpoint http:Listener testEP {
+    port: 9092
+};
+
+service<http:Service> testService bind testEP {
+
+    int a;
+
+    resource_1(endpoint caller, http:Request req) {
+        a = 5;
+        int b = a;
+        int c;
+
+        if (true) {
+            done;
+        } else {
+            c = 3;
+        }
+
+        int d = c;
+    }
+
+    resource_2(endpoint caller, http:Request req) {
+        int b = a;
+    }
+}

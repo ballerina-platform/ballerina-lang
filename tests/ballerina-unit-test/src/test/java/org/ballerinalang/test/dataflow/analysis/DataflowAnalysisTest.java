@@ -56,7 +56,6 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 270, 9);
         BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 270, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 290, 20);
-        BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 292, 16);
         BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 298, 1);
         BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 305, 12);
         BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 309, 13);
@@ -78,5 +77,6 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 550, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 552, 5);
         BAssertUtil.validateError(result, i++, "variable 'publicGlobalVar_1' is not initialized", 558, 1);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 590, 17);
     }
 }
