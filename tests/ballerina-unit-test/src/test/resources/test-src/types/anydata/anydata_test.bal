@@ -353,7 +353,34 @@ function testNilAssignment() returns anydata {
     return ad;
 }
 
-// TODO: do the following tests for ternary operator as well
+type FiniteT "A"|"Z"|123|23.45|true;
+
+function testFiniteTypeAssignment() returns anydata {
+    anydata[] ad = [];
+    int i = 0;
+
+    FiniteT ft = "A";
+    ad[i] = ft;
+    i += 1;
+
+    ft = "Z";
+    ad[i] = ft;
+    i += 1;
+
+    ft = 123;
+    ad[i] = ft;
+    i += 1;
+
+    ft = 23.45;
+    ad[i] = ft;
+    i += 1;
+
+    ft = true;
+    ad[i] = ft;
+    i += 1;
+
+    return ad;
+}
 
 function testAnydataToValueTypes() returns (int, float, boolean, string) {
     anydata ad = 33;
@@ -702,6 +729,48 @@ function testAnydataToNil() returns int? {
     }
 
     return -1;
+}
+
+function testAnydataToFiniteType() returns FiniteT[] {
+    FiniteT[] ftar = [];
+    int i = 0;
+
+    FiniteT ft = "A";
+    anydata ad = ft;
+    if (ad is FiniteT) {
+        ftar[i] = ad;
+        i += 1;
+    }
+
+    ft = "Z";
+    ad = ft;
+    if (ad is FiniteT) {
+        ftar[i] = ad;
+        i += 1;
+    }
+
+    ft = 123;
+    ad = ft;
+    if (ad is FiniteT) {
+        ftar[i] = ad;
+        i += 1;
+    }
+
+    ft = 23.45;
+    ad = ft;
+    if (ad is FiniteT) {
+        ftar[i] = ad;
+        i += 1;
+    }
+
+    ft = true;
+    ad = ft;
+    if (ad is FiniteT) {
+        ftar[i] = ad;
+        i += 1;
+    }
+
+    return ftar;
 }
 
 function testTypeCheckingOnAny() returns anydata {

@@ -130,6 +130,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -3040,6 +3041,11 @@ public class CPU {
                 return isAnydata(((BTupleType) type).getTupleTypes());
             case TypeTags.ARRAY_TAG:
                 return isAnydata(((BArrayType) type).getElementType());
+            case TypeTags.FINITE_TYPE_TAG:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                                                                        .map(BValue::getType)
+                                                                        .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes);
             default:
                 return false;
         }
