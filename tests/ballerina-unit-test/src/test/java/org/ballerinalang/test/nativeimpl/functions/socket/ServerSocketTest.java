@@ -61,7 +61,8 @@ public class ServerSocketTest {
             }
             buf.clear();
             socketChannel.read(buf);
-            Assert.assertEquals(new String(SocketUtils.getByteArrayFromByteBuffer(buf), StandardCharsets.UTF_8), welcomeMsg);
+            Assert.assertEquals(new String(SocketUtils.getByteArrayFromByteBuffer(buf), StandardCharsets.UTF_8),
+                    welcomeMsg);
         } catch (IOException e) {
             Assert.fail(e.getMessage(), e);
         }
