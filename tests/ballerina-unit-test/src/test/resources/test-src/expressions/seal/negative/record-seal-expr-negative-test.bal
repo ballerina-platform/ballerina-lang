@@ -75,12 +75,17 @@ function sealClosedRecordToMap() returns map<string> {
     return person;
 }
 
-function sealOpenRecordToMap() returns map<string> {
+function sealRecordToArray() returns string[] {
+    Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
+    e1.seal(string[]);
 
-    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    teacher.seal(map<string>);
-
-    return teacher;
+    return e1;
 }
 
+function sealRecordToTuple() returns (string,string) {
 
+    Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
+    e1.seal((string,string));
+
+    return e1;
+}
