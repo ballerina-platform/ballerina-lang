@@ -1,57 +1,49 @@
-# Ballerina plugin for IntelliJ IDEA
 
 [![Version](https://img.shields.io/jetbrains/plugin/v/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 
-## Building from the source
+# Ballerina plugin for IntelliJ IDEA
 
-Run `./gradlew buildPlugin`. In the **build/distributions** directory, **ballerina-intellij-idea-plugin-[VERSION].zip** will be created.
+[Ballerina](https://ballerina.io/) is a simple programming language whose syntax and runtime address the hard 
+problems of integration. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. 
+Ballerina code is compiled into services that include transactions, embedded brokers and gateway runtime.
+Ballerina makes it easy to build resilient services that integration and orchestrate across distributed endpoints. 
 
-**Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
+Ballerina plugin provides Ballerina Language support in IntelliJ IDEA .
 
-## Installing the plugin to IDEA
+## Table of Contents
 
-### From Jetbrains plugin repository
-1. Go to **Settings** (**Preferences** in **MacOS**)-> **Plugins**. 
-2. Select **Browse Repositories** button at the bottom. 
-3. Search for **Ballerina** using the search box. Ballerina plugin will show up. Then you can install the plugin using the Install button.
-4. Restart IDEA.
+- [**Getting Started**](getting-started)
+    - [Installing the plugin in IDEA](getting-started/installing-the-plugin)
+    - [Setting Up Ballerina SDK](getting-started/setting-up-ballerina-sdk)
+    - [Writing Hello World In Ballerina](getting-started/writing-hello-world)
+- [**Plugin Features**](getting-started/plugin-features)
+- [**Plugin Developer Guide**](getting-started/plugin-developer-guide)
+    - [Testing/Debugging the plugin using IntelliJ](getting-started/plugin-developer-guide)
+- [**General Information**](#general-information)
+    - [Release versions schema](#release-versions-schema)
+    - [How to Contribute](#how-to-contribute) 
+    - [Licence](#license)
+    - [Copyright](#copyright)
 
-**Note:** Refer the [Getting Started](https://github.com/ballerinalang/plugin-intellij#getting-started) section to view details about setting up Ballerina SDK.
+## General Information
 
-### From a local build
-1. Go to **File -> Settings** (**IntelliJ IDEA -> Preferences** in **macOS**) and select **Plugins**.
-2. Click **Install plugin from disc** button and select the deployed **plugin zip** file. Please make sure to install the Zip file, not the extracted Jar files. This zip contains an additional library as well. Without this library, the plugin will not work properly.
-3. Restart IDEA.
-
-## Release versions schema
+### Release versions Schema
 
 Below you can see the versions of the plugin which correspond to the versions of the 
 IntelliJ Platfom.
 
-| Plugin Version | Platform Version |
-| --- | --- |
-| 0.8.0 - 0.8.2 | IntelliJ IDEA 2016.3+ (Does not support IntelliJ IDEA 2017+)|
-| 0.8.3 - 0.981.0 | IntelliJ IDEA 2016.3+ (Supports IntelliJ IDEA 2017+)|
-| 0.982.0+ | IntelliJ IDEA 2017.3+|
+| Plugin Version | Platform Version Compatibility |
+|--- | --- |
+| 0.8.0 - 0.8.2 | IntelliJ IDEA 2016.3 - 2016.4 |
+| 0.8.3 - 0.981.0 | IntelliJ IDEA 2016.3+ |
+| 0.982.0+ | IntelliJ IDEA 2017.3+ |
 
-## Getting started
-
-Please refer the [Getting Started](getting-started) section.
-
-## Semantic Analyzing
-
-Ballerina IDEA plugin provides semantic analyzing capabilities through Ballerina SDK. But this feature is disabled by default due to performance related reasons.
-
-You can enable this in `Settings -> Languages & Frameworks -> Ballerina -> Semantic Analyzer`.
-
-![alt text](getting-started/features/images/SemanticAnalyzing.png)
-
-## How to contribute
+### How to contribute
 Pull requests are highly encouraged and we recommend you to create a GitHub issue to discuss the issue or feature that you are contributing to.
 
-## License
+### License
 Ballerina IDEA plugin source is available under the Apache 2.0 License.
 
-## Copyright
+### Copyright
 Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
