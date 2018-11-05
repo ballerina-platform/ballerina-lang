@@ -92,8 +92,8 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     printInCLI(summary, descColWidth - authorsColWidth);
                     string authors = "";
                     json authorsArr = jsonElement.authors;
-                    foreach authorIndex in 0 ..< lengthof authorsArr {
-                        if (authorIndex == lengthof authorsArr - 1) {
+                    foreach authorIndex in 0 ..< authorsArr.length() {
+                        if (authorIndex == authorsArr.length() - 1) {
                             authors = authors + authorsArr[authorIndex].toString();
                         } else {
                             authors = authors + " , " + authorsArr[authorIndex].toString();
