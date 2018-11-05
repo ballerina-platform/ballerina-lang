@@ -1,4 +1,4 @@
-# Features
+# Plugin Features
 
 The following features are supported by the plugin, as listed below.
 
@@ -113,5 +113,5 @@ Ballerina IDEA plugin provides semantic analyzing and diagnostics capabilities t
 **Note:** This feature is disabled by default due to performance related reasons. You can enable this in `Settings ->
  Languages & Frameworks -> Ballerina -> Semantic Analyzer`.
 
-![alt text](getting-started/features/images/SemanticAnalyzing.png)
+![alt text](images/SemanticAnalyzer.png)
 
