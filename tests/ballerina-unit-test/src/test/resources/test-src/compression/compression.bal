@@ -3,33 +3,18 @@ import ballerina/internal;
 function decompressFile(string src, string destDir) returns internal:CompressionError? {
     internal:Path srcPath = new(src);
     internal:Path dstPath = new(destDir);
-    var result = internal:decompress(srcPath, dstPath);
-    if (result is internal:CompressionError) {
-        return result;
-    } else {
-        return;
-    }
+    return internal:decompress(srcPath, dstPath);
 }
 
 function compressFile(string src, string destDir) returns internal:CompressionError? {
     internal:Path srcPath = new(src);
     internal:Path dstPath = new(destDir);
-    var result =internal:compress(srcPath, dstPath);
-    if (result is internal:CompressionError) {
-        return result;
-    } else {
-        return;
-    }
+    return internal:compress(srcPath, dstPath);
 }
 
 function decompressBlob(byte[] content, string destDir) returns internal:CompressionError? {
     internal:Path dstPath = new(destDir);
-    var result = internal:decompressFromByteArray(content, dstPath);
-    if (result is internal:CompressionError) {
-        return result;
-    } else {
-        return;
-    }
+    return internal:decompressFromByteArray(content, dstPath);
 }
 
 function compressDirToBlob(string src) returns byte[]|internal:CompressionError {
