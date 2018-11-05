@@ -661,7 +661,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         BSymbol symbol = type.tsymbol;
-        if (Symbols.isPrivate(symbol)) {
+        if (!Symbols.isPublic(symbol)) {
             dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
@@ -1234,7 +1234,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (env.enclPkg.symbol.pkgID != symbol.pkgID && Symbols.isPrivate(symbol)) {
+        if (env.enclPkg.symbol.pkgID != symbol.pkgID && !Symbols.isPublic(symbol)) {
             dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
         }
     }
