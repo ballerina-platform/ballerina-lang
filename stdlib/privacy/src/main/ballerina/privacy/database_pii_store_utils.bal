@@ -14,11 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+
 # Represents personally identifiable information (PII) stored in a database
 #
 # + pii - personally identifiable information
 type PiiData record {
     string pii;
+    ...!
 };
 
 # Build insert query based on the table name and column names
@@ -28,7 +31,7 @@ type PiiData record {
 # + piiColumn - column name used to store PII
 # + return - insert query
 function buildInsertQuery (string tableName, string idColumn, string piiColumn) returns string {
-    return "INSERT INTO " + tableName + " (" + idColumn + "," + piiColumn + ") VALUES (?, ?)";
+    return io:sprintf("INSERT INTO %s (%s, %s) VALUES (?, ?)", tableName, idColumn, piiColumn);
 }
 
 # Build select query based on the table name and column names
@@ -38,7 +41,7 @@ function buildInsertQuery (string tableName, string idColumn, string piiColumn) 
 # + piiColumn - column name used to store PII
 # + return - select query
 function buildSelectQuery (string tableName, string idColumn, string piiColumn) returns string {
-    return "SELECT " + piiColumn + " FROM " + tableName + " WHERE " + idColumn + " = ?";
+    return io:sprintf("SELECT %s FROM %s WHERE %s = ?", piiColumn, tableName, idColumn);
 }
 
 # Build delete query based on the table name and column names
@@ -47,7 +50,7 @@ function buildSelectQuery (string tableName, string idColumn, string piiColumn) 
 # + idColumn - column name used to store pseudonymized identifier
 # + return - delete query
 function buildDeleteQuery (string tableName, string idColumn) returns string {
-    return "DELETE FROM " + tableName + " WHERE " + idColumn + " = ?";
+    return io:sprintf("DELETE FROM %s WHERE %s = ?", tableName, idColumn);
 }
 
 # Validate the table name and column names and throw errors if validation errors are present

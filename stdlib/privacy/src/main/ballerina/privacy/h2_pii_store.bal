@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/h2;
-import ballerina/sql;
 import ballerina/system;
 
 # Represents personally identifiable information (PII) storage mechanisum based on H2 database
@@ -48,9 +47,7 @@ public type H2PiiStore object {
         endpoint h2:Client client = clientEndpoint;
         string dbQuery = buildInsertQuery(tableName, idColumn, piiColumn);
         string id = system:uuid();
-        sql:Parameter paramId = {sqlType: sql:TYPE_VARCHAR, value: id};
-        sql:Parameter paramPii = {sqlType: sql:TYPE_VARCHAR, value: pii};
-        var queryResult = client->update(dbQuery, paramId, paramPii);
+        var queryResult = client->update(dbQuery, id, pii);
         return processInsertResult(id, queryResult);
     }
 
@@ -61,8 +58,7 @@ public type H2PiiStore object {
     public function depseudonymize (string id) returns string|error {
         endpoint h2:Client client = clientEndpoint;
         string dbQuery = buildSelectQuery(tableName, idColumn, piiColumn);
-        sql:Parameter paramId = {sqlType: sql:TYPE_VARCHAR, value: id};
-        var queryResult = client->select(dbQuery, PiiData, paramId);
+        var queryResult = client->select(dbQuery, PiiData, id);
         return processSelectResult(id, queryResult);
     }
 
@@ -73,8 +69,7 @@ public type H2PiiStore object {
     public function delete (string id) returns error? {
         endpoint h2:Client client = clientEndpoint;
         string dbQuery = buildDeleteQuery(tableName, idColumn);
-        sql:Parameter paramId = {sqlType: sql:TYPE_VARCHAR, value: id};
-        var queryResult = client->update(dbQuery, paramId);
+        var queryResult = client->update(dbQuery, id);
         return processDeleteResult(id, queryResult);
     }
 
