@@ -342,12 +342,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
             this.seal(((BJSONType) type).getConstrainedType());
         } else if (type.getTag() == TypeTags.MAP_TAG) {
-            if(this.type.getTag() == TypeTags.JSON_TAG) {
-                this.seal(((BMapType) type).getConstrainedType());
-            } else {
-                for (Object mapEntry : (this).values()) {
-                    ((BValue) mapEntry).seal(((BMapType) type).getConstrainedType());
-                }
+            for (Object mapEntry : (this).values()) {
+                ((BValue) mapEntry).seal(((BMapType) type).getConstrainedType());
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             Map<String, BType> fieldMap = new HashMap<>();
