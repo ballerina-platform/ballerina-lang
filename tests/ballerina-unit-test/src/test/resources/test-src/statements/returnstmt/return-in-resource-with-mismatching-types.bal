@@ -15,20 +15,16 @@
 // under the License.
 
 service<DummyService> helloWorld {
-    sayHelloWithString(string x) returns string {
+    sayHelloWithString(int x) returns string {
         return x;
     }
 
-    sayHelloWithInt(int x) returns int {
+    sayHelloWithInt(string x) returns int {
         return x;
     }
 
-    sayHelloWithNil1(string x) {
-        return;
-    }
-
-    sayHelloWithNil2(string x) returns () {
-        return;
+    sayHelloWithNil(string x) {
+        return x;
     }
 }
 
