@@ -68,7 +68,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 };
 {{/stubList}}
 {{#messageList}}
-type {{messageName}} record {
+public type {{messageName}} record {
     {{#fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
     {{/fieldList}}
 };
@@ -84,39 +84,22 @@ map descriptorMap = {
 };
 
 {{#messageList}}
-public function parse{{messageName}}(io:ProtoChannel byteChannel) returns ({{messageName}}) {
+public function parse{{messageName}}(io:ReadableProtoChannel protoChannel) returns ({{messageName}}) {
     boolean finished = false;
     {{messageName}} infoRecord;
     int endValue = {{size}};
     foreach i in 1 ... endValue {
-        var tag = byteChannel.readTag();
-        match tag {
-            int fieldTag => {
-                if (fieldTag < 0) {
-                    finished = true;
-                    break;
-                }
+        var tag = protoChannel.readTag();
+        if (tag is int) {
             {{#fieldList}}
-                if (fieldTag == {{tag}}) {
-                    var fieldValue = byteChannel.{{method}};
-                    match fieldValue {
-                        {{type}} value => {
-                        infoRecord.{{fieldName}} = value;
-                        io:println(value);
-                    }
-                    error err => {
-                        io:println(err);
-                    }
-                    () => {
-                        io:println("*******Nil*****");
-                    }
+            if (tag == {{tag}}) {
+                var fieldValue = protoChannel.{{method}};
+                if (fieldValue is {{fieldType}}) {
+                    infoRecord.{{fieldName}} = fieldValue;
+                    io:println(fieldValue);
                 }
             }
         {{/fieldList}}
-        }
-            error err => {
-                io:println(err);
-            }
         }
     }
     return infoRecord;

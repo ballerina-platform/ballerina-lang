@@ -63,7 +63,7 @@ public class UnaryServerCallHandler extends ServerCallHandler {
 
         @Override
         public void onMessage(Message message) {
-            //Do nothing.
+            //Do nothing. This needs to be removed after implementing the response part using ballerina APIs.
         }
 
         @Override
