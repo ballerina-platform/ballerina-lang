@@ -1666,7 +1666,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, "OUTPUT." + varRefExpr
                             .variableName.value));
             refactoredVarRef = generateConversionExpr(refactoredVarRef, expType, symResolver);
-            if (refactoredVarRef.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            if (refactoredVarRef.getKind() == NodeKind.TYPE_CONVERSION_EXPR && expType.tag != TypeTags.STRING) {
                 refactoredVarRef = createCheckedExpr((BLangTypeConversionExpr) refactoredVarRef);
             }
         } else {
