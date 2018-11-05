@@ -48,6 +48,9 @@ import ballerina/io;
 # Represents `content-disposition` header name.
 @final public string CONTENT_DISPOSITION = "content-disposition";
 
+# Represents MIME error code.
+@final string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
+
 type MIMEError record {
     string message;
 };
@@ -387,13 +390,18 @@ function Entity::setFileAsEntityBody(@sensitive string filePath,
 }
 
 function Entity::setBody(@sensitive (string|xml|json|byte[]|io:ReadableByteChannel|Entity[]) entityBody) {
-    match entityBody {
-        string textContent => self.setText(textContent);
-        xml xmlContent => self.setXml(xmlContent);
-        json jsonContent => self.setJson(jsonContent);
-        byte[] blobContent => self.setByteArray(blobContent);
-        io:ReadableByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
-        Entity[] bodyParts => self.setBodyParts(bodyParts);
+    if (entityBody is string) {
+        self.setText(entityBody);
+    } else if (entityBody is xml) {
+        self.setXml(entityBody);
+    } else if (entityBody is json) {
+        self.setJson(entityBody);
+    } else if (entityBody is byte[]) {
+        self.setByteArray(entityBody);
+    } else if(entityBody is io:ReadableByteChannel) {
+        self.setByteChannel(entityBody);
+    } else if (entityBody is Entity[]) {
+        self.setBodyParts(entityBody);
     }
 }
 
@@ -424,12 +432,12 @@ extern function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeD
 # + valueToBeEncoded - Content that needs to be encoded
 # + return - An encoded byte[]. In case of errors, an `error` record is returned
 public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
-    error customErr = error("Error occurred while encoding byte[]");
-    match base64Encode(valueToBeEncoded) {
-        string returnString => return customErr;
-        byte[] returnBlob => return returnBlob;
-        io:ReadableByteChannel returnChannel => return customErr;
-        error encodeErr => return encodeErr;
+    var result = base64Encode(valueToBeEncoded);
+    if (result is byte[]|error) {
+        return result;
+    } else {
+        error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding byte[]"});
+        return encodeErr;
     }
 }
 
@@ -439,12 +447,12 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
 # + charset - Charset to be used
 # + return - An encoded `string`. In case of errors, an `error` record is returned
 public function base64EncodeString(string valueToBeEncoded, string charset = "utf-8") returns string|error {
-    error customErr = error("Error occurred while encoding string");
-    match base64Encode(valueToBeEncoded) {
-        string returnString => return returnString;
-        byte[] returnBlob => return customErr;
-        io:ReadableByteChannel returnChannel => return customErr;
-        error encodeErr => return encodeErr;
+    var result = base64Encode(valueToBeEncoded);
+    if (result is string|error) {
+        return result;
+    } else {
+        error encodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding string"});
+        return encodeErr;
     }
 }
 
@@ -453,12 +461,12 @@ public function base64EncodeString(string valueToBeEncoded, string charset = "ut
 # + valueToBeEncoded - Content that needs to be encoded
 # + return - An encoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
 public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded) returns io:ReadableByteChannel|error {
-    error customErr = error("Error occurred while encoding ByteChannel content");
-    match base64Encode(valueToBeEncoded) {
-        string returnString => return customErr;
-        byte[] returnBlob => return customErr;
-        io:ReadableByteChannel returnChannel => return returnChannel;
-        error encodeErr => return encodeErr;
+    var result = base64Encode(valueToBeEncoded);
+    if (result is io:ReadableByteChannel|error) {
+        return result;
+    } else {
+        error customErr = error(MIME_ERROR_CODE, { message : "Error occurred while encoding ReadableByteChannel content"});
+        return customErr;
     }
 }
 
@@ -467,12 +475,12 @@ public function base64EncodeByteChannel(io:ReadableByteChannel valueToBeEncoded)
 # + valueToBeDecoded - Content that needs to be decoded
 # + return - A decoded `byte[]`. In case of errors, an `error` record is returned
 public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
-    error customErr = error("Error occurred while decoding byte[]");
-    match base64Decode(valueToBeDecoded) {
-        string returnString => return customErr;
-        byte[] returnBlob => return returnBlob;
-        io:ReadableByteChannel returnChannel => return customErr;
-        error decodeErr => return decodeErr;
+    var result = base64Decode(valueToBeDecoded);
+    if (result is byte[]|error) {
+        return result;
+    } else {
+        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding byte[]"});
+        return decodeErr;
     }
 }
 
@@ -482,12 +490,12 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
 # + charset - Charset to be used
 # + return - A decoded `string`. In case of errors, an `error` record is returned
 public function base64DecodeString(string valueToBeDecoded, string charset = "utf-8") returns string|error {
-    error customErr = error("Error occurred while decoding string");
-    match base64Decode(valueToBeDecoded) {
-        string returnString => return returnString;
-        byte[] returnBlob => return customErr;
-        io:ReadableByteChannel returnChannel => return customErr;
-        error decodeErr => return decodeErr;
+    var result = base64Decode(valueToBeDecoded);
+    if (result is string|error) {
+        return result;
+    } else {
+        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding string"});
+        return decodeErr;
     }
 }
 
@@ -496,12 +504,12 @@ public function base64DecodeString(string valueToBeDecoded, string charset = "ut
 # + valueToBeDecoded - Content that needs to be decoded
 # + return - A decoded `io:ReadableByteChannel`. In case of errors, an `error` record is returned
 public function base64DecodeByteChannel(io:ReadableByteChannel valueToBeDecoded) returns io:ReadableByteChannel|error {
-    error customErr = error("Error occurred while decoding ByteChannel content");
-    match base64Decode(valueToBeDecoded) {
-        string returnString => return customErr;
-        byte[] returnBlob => return customErr;
-        io:ReadableByteChannel returnChannel => return returnChannel;
-        error decodeErr => return decodeErr;
+    var result = base64Decode(valueToBeDecoded);
+    if (result is io:ReadableByteChannel|error) {
+        return result;
+    } else {
+        error decodeErr = error(MIME_ERROR_CODE, { message : "Error occurred while decoding ReadableByteChannel content"});
+        return decodeErr;
     }
 }
 
