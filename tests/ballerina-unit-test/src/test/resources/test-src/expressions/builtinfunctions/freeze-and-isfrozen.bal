@@ -334,7 +334,7 @@ function testSimpleUnionFreeze() returns boolean {
     return u1.isFrozen() && u2.isFrozen();
 }
 
-function testInvalidComplexMapFreeze() returns string {
+function testInvalidComplexMapFreeze() returns (string, boolean) {
     map<string|PersonObj> m1;
     PersonObj p = new("John");
 
@@ -342,13 +342,11 @@ function testInvalidComplexMapFreeze() returns string {
     m1.two = p;
 
     map<string|PersonObj>|error res = m1.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, m1.isFrozen());
 }
 
-function testInvalidComplexArrayFreeze() returns string {
+function testInvalidComplexArrayFreeze() returns (string, boolean) {
     (string|typedesc|float)[] a1;
     typedesc p = int;
 
@@ -357,102 +355,84 @@ function testInvalidComplexArrayFreeze() returns string {
     a1[2] = p;
 
     (string|typedesc|float)[]|error res = a1.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, a1.isFrozen());
 }
 
-function testInvalidComplexRecordFreeze() returns string {
+function testInvalidComplexRecordFreeze() returns (string, boolean) {
     PersonObj p = new("Anne");
     PersonObj p1 = new("Harry");
     PersonObj p2 = new("John");
     FreezeAllowedDepartment fd = { head: p, e1: p1, e2: 10 };
 
     FreezeAllowedDepartment|error res = fd.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, fd.isFrozen());
 }
 
-function testInvalidComplexTupleFreeze() returns string {
+function testInvalidComplexTupleFreeze() returns (string, boolean) {
     PersonObj p = new("John");
     (int, string|PersonObj|float, boolean) t1 = (1, p, true);
 
     any|error res = t1.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, t1.isFrozen());
 }
 
-function testInvalidComplexUnionFreeze() returns string {
+function testInvalidComplexUnionFreeze() returns (string, boolean) {
     PersonObj p = new("John");
     int|Dept|PersonObj u1 = p;
 
     int|Dept|PersonObj|error res = u1.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, u1.isFrozen());
 }
 
-function testValidComplexMapFreeze() returns string {
+function testValidComplexMapFreeze() returns (string, boolean) {
     map<string|PersonObj> m1;
 
     m1.one = "one";
     m1.two = "2";
 
     map<string|PersonObj>|error res = m1.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, m1.isFrozen());
 }
 
-function testValidComplexArrayFreeze() returns string {
+function testValidComplexArrayFreeze() returns (string, boolean) {
     (string|PersonObj|float)[] a1;
 
     a1[0] = 2.0;
     a1[1] = "hello world";
 
     (string|PersonObj|float)[]|error res = a1.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, a1.isFrozen());
 }
 
-function testValidComplexRecordFreeze() returns string {
+function testValidComplexRecordFreeze() returns (string, boolean) {
     FreezeAllowedDepartment fd = { head: "John", e1: 234, e2: 10 };
 
     any|error res = fd.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, fd.isFrozen());
 }
 
-function testValidComplexTupleFreeze() returns string {
+function testValidComplexTupleFreeze() returns (string, boolean) {
     (int, string|PersonObj|float, boolean) t1 = (1, 3.0, true);
 
     (int, string|PersonObj|float, boolean)|error res = t1.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, t1.isFrozen());
 }
 
-function testValidComplexUnionFreeze() returns string {
+function testValidComplexUnionFreeze() returns (string, boolean) {
     Dept d = { code: "FN101", name: "Finance" };
     int|Dept|PersonObj u1 = d;
 
     int|Dept|PersonObj|error res = u1.freeze();
-    if (res is error) {
-        return FREEZE_ERROR_OCCURRED + res.reason();
-    }
-    return FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, u1.isFrozen());
 }
 
 function isIdTwo(Employee e) returns boolean {
@@ -475,7 +455,6 @@ type DeptEmployee record {
 type Dept record {
     string code;
     string name;
-    !...
 };
 
 type PersonObj object {

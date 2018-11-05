@@ -312,81 +312,111 @@ public class FreezeAndIsFrozenTest {
     @Test
     public void testInvalidComplexMapFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexMapFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
+                "was encountered");
     }
 
     @Test
     public void testInvalidComplexArrayFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexArrayFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: freeze not allowed on 'typedesc'");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
+                "was encountered");
     }
 
     @Test
     public void testInvalidComplexRecordFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexRecordFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
+                "was encountered");
     }
 
     @Test
     public void testInvalidComplexTupleFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexTupleFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
+                "was encountered");
     }
 
     @Test
     public void testInvalidComplexUnionFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexUnionFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
+                "was encountered");
     }
 
     @Test(description = "test a map of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexMapFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testValidComplexMapFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+                "was encountered");
     }
 
     @Test(description = "test an array of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexArrayFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testValidComplexArrayFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+                "was encountered");
     }
 
     @Test(description = "test a record of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexRecordFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testValidComplexRecordFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+                "was encountered");
     }
 
     @Test(description = "test a tuple of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexTupleFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testValidComplexTupleFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+                "was encountered");
     }
 
     @Test(description = "test a union of member type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexUnionFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testValidComplexUnionFreeze", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+                "was encountered");
     }
 
     @Test
