@@ -241,16 +241,26 @@ public class Types {
     }
 
     boolean isSealable(BType source, BType target) {
+        return (isAssignable(source, target) || isAssignable(target, source) ||
+                isExprSealable(source, target) || isExprSealable(target, source));
+
+    }
+
+    private boolean isExprSealable(BType source, BType target) {
         if (target.tag == TypeTags.JSON) {
             if (source.tag == TypeTags.JSON || source.tag == TypeTags.RECORD || source.tag == TypeTags.MAP) {
                 return true;
             }
-        } else if (target.tag == TypeTags.XML) {
-            if (source.tag == TypeTags.XML || source.tag == TypeTags.RECORD) {
-                return true;
-            }
         } else if (target.tag == TypeTags.RECORD) {
             if (source.tag == TypeTags.MAP) {
+                int mapConstraintTypeTag = ((BMapType) source).constraint.tag;
+                if (mapConstraintTypeTag != TypeTags.ANY && ((BRecordType) target).sealed) {
+                    for (BField field : ((BStructureType) target).getFields()) {
+                        if (field.getType().tag != mapConstraintTypeTag) {
+                            return false;
+                        }
+                    }
+                }
                 return true;
             }
         } else if (target.tag == TypeTags.MAP) {

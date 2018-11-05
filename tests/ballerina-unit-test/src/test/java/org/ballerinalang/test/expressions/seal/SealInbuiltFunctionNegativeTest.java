@@ -32,10 +32,13 @@ import org.testng.annotations.Test;
 public class SealInbuiltFunctionNegativeTest {
 
     private CompileResult compileResult;
+    private CompileResult recordNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/expressions/seal/seal-expr-negative-test.bal");
+        compileResult = BCompileUtil.compile("test-src/expressions/seal/negative/seal-expr-negative-test.bal");
+        recordNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/record-seal-expr-negative-test.bal");
     }
 
 
@@ -72,5 +75,37 @@ public class SealInbuiltFunctionNegativeTest {
                 46, 5);
     }
 
+    @Test
+    public void testRecordSealNegativeTest() {
+
+        Assert.assertEquals(recordNegativeTestCompileResult.getErrorCount(), 8);
+
+        //Negative test case to confirm record cannot be sealed as xml.
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 0,
+                "Incompatible seal type: variable 'employeeRecord' with type 'Employee' cannot be sealed as type 'xml'",
+                42, 5);
+
+        //Negative test case to confirm open record to closed record seal conversion.
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 2,
+                "Incompatible seal type: variable 'teacher' with type 'Teacher' cannot be sealed as type 'Employee'",
+                49, 5);
+
+        //TODO enable test case once respective source is fixed in Ballerina core
+        //Negative test case to confirm closed record to closed record seal conversion.
+//        BAssertUtil.validateError(recordNegativeTestCompileResult, 4,
+//                "Incompatible seal type: variable 'teacher' with type 'Teacher' cannot be sealed as type 'Student'",
+//                57, 5);
+
+        //Negative test case to confirm closed record to closed record seal conversion.
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 4,
+                "Incompatible seal type: variable 'teacher' with type 'Teacher' cannot be sealed as type 'TeacherObj'",
+                65, 5);
+
+        //Negative test case to confirm closed record to closed record seal conversion.
+        BAssertUtil.validateError(recordNegativeTestCompileResult, 6,
+                "Incompatible seal type: variable 'person' with type 'Person' cannot be sealed as type 'map<string>'",
+                73, 5);
+
+    }
 }
 
