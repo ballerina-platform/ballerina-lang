@@ -83,6 +83,59 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "'true'");
     }
 
+    @Test(description = "Test record static match pattern")
+    public void testRecordStaticMatch() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testRecordStaticMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+        Assert.assertEquals(5, results.size());
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + "'x: 12, y: Ballerina'");
+        Assert.assertEquals(results.get(++i), msg + "'x: 10, y: B'");
+        Assert.assertEquals(results.get(++i), msg + "'15'");
+        Assert.assertEquals(results.get(++i), msg + "'x: 12, y: Ballerina, z: true'");
+        Assert.assertEquals(results.get(++i), msg + "'Default'");
+    }
+
+    @Test(description = "Test tuple static match pattern")
+    public void testTupleStaticMatch() {
+
+        BValue[] returns = BRunUtil.invoke(result, "testTupleStaticMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+
+        BStringArray results = (BStringArray) returns[0];
+        Assert.assertEquals(6, results.size());
+
+        int i = -1;
+        String msg = "Value is ";
+        Assert.assertEquals(results.get(++i), msg + "'(12, Ballerina)'");
+        Assert.assertEquals(results.get(++i), msg + "'(12, Ballerina)'");
+        Assert.assertEquals(results.get(++i), msg + "'(15)'");
+        Assert.assertEquals(results.get(++i), msg + "'(15, Bal, 100)'");
+        Assert.assertEquals(results.get(++i), msg + "'(15, Ballerina)'");
+        Assert.assertEquals(results.get(++i), msg + "'Default'");
+    }
+//
+//    @Test(description = "Test complex static match pattern")
+//    public void testRecordAndTupleComplexStaticMatch() {
+//
+//        BValue[] returns = BRunUtil.invoke(result, "testRecordAndTupleComplexStaticMatch");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertSame(returns[0].getClass(), BStringArray.class);
+//
+//        BStringArray results = (BStringArray) returns[0];
+//        Assert.assertEquals(1, results.size());
+//
+//        int i = -1;
+//        Assert.assertEquals(results.get(++i), "Value is Correct");
+//    }
+
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
         Assert.assertEquals(resultNegative.getErrorCount(), 51);

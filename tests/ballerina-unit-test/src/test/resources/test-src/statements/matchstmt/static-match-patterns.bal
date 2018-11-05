@@ -68,7 +68,7 @@ function testStaticMatchPatternsBasic2() returns string[] {
     return result;
 }
 
-function bar(string | int | boolean a, string | int | boolean b)  returns string{
+function bar(string | int | boolean a, string | int | boolean b)  returns string {
     match a {
         12 => return "Value is '12'";
         "Hello" => return "Value is 'Hello'";
@@ -85,3 +85,86 @@ function bar(string | int | boolean a, string | int | boolean b)  returns string
 
     return "Value is 'Default'";
 }
+
+type Foo record {
+    int x;
+    string y;
+};
+
+function testRecordStaticMatch() returns string[] {
+
+    Foo f1 = {x: 12, y: "Ballerina"};
+    map m1 = {x: 10, y: "B"};
+    Foo f2 = {x: 12, y: "Ballerina", z: true};
+    map m2 = {x: 10, z: "Ballerina"};
+
+    string[] result = [tar1(f1), tar1(m1), tar1(15), tar1(f2), tar1(m2)];
+
+    return result;
+}
+
+function tar1(Foo|map|int f) returns string {
+
+    match f {
+        {x: 12, y: "B"} => return "Value is 'x: 12, y: B'";
+        {x: 10, y: "Ballerina"} => return "Value is 'x: 10, y: B'";
+        {x: 12, y: "Ballerina", z: true} => return "Value is 'x: 12, y: Ballerina, z: true'";
+        {x: 12, y: "Ballerina"} => return "Value is 'x: 12, y: Ballerina'";
+        {x: 10, y: "B"} => return "Value is 'x: 10, y: B'";
+        16 => return "Value is '16'";
+        15 => return "Value is '15'";
+    }
+
+    return "Value is 'Default'";
+}
+
+function testTupleStaticMatch() returns string[] {
+
+    (int, string) t1 = (12, "Ballerina");
+    any t2 = t1;
+    (int, string, byte) t3 = (15, "Bal", 100);
+    (int, string) t4 = (15, "Ballerina");
+    (int, string) t5 = (16, "Ballerina");
+
+    string[] result = [tar2(t1), tar2(t2), tar2(15), tar2(t3), tar2(t4), tar2(t5)];
+
+    return result;
+}
+
+function tar2(any f) returns string {
+
+    match f {
+        (15) => return "Value is '(15)'";
+        (12, "Ballerina") => return "Value is '(12, Ballerina)'";
+        (15, "Ballerina", 100) => return "Value is '(15, Ballerina, 100)'";
+        (15, "Ballerina") => return "Value is '(15, Ballerina)'";
+        (15, "Bal", 100) => return "Value is '(15, Bal, 100)'";
+        16 => return "Value is '16'";
+    }
+
+    return "Value is 'Default'";
+}
+
+//type Bar record {
+//    int x;
+//    (string, Foo, string) y;
+//};
+//
+//function testRecordAndTupleComplexStaticMatch() returns string[] {
+//    (boolean, float) t1 = (true, 12.1);
+//    Foo f1 = {x: 12, y: "Ballerina", z: t1};
+//    Bar b1 = {x: 15, y: ("John", f1, "Snow"), z: 15.1};
+//
+//    string[] result = [tar3(b1)];
+//
+//    return result;
+//}
+//
+//function tar3(any f) returns string {
+//
+//    match f {
+//        {x: 15, y: ("John", {x: 12, y: "Ballerina", z: (true, 12.1)} , "Snow")} => return "Value is Correct";
+//    }
+//
+//    return "Value is 'Default'";
+//}

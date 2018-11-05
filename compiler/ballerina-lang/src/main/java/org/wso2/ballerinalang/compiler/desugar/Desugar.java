@@ -3214,21 +3214,17 @@ public class Desugar extends BLangNodeVisitor {
 
             BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
 
-            BLangExpression conversionExpr = addConversionExprIfRequired(varRef, pattern.literal.type);
+            BLangExpression binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, varRef, pattern.literal,
+                    symTable.booleanType, OperatorKind.EQUAL, null);
 
-            BLangExpression binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, conversionExpr, pattern.literal,
-                    symTable.booleanType, OperatorKind.EQUAL,
-                    (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL, patternType,
-                            pattern.literal.type));
+            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, pattern.literal.type);
 
-            if (!types.isValueType(varSymbol.type)) {
-                //todo should this be is-like check?
-                BLangIsAssignableExpr lhsExpr = createIsAssignableExpression(pos, varSymbol, patternType);
-
-                binaryExpr =  ASTBuilderUtil.createBinaryExpr(pos, lhsExpr, binaryExpr, symTable.booleanType,
-                        OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
-                                symTable.booleanType, symTable.booleanType));
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = types.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anyType,
+                        pattern.literal.type, (BLangBinaryExpr) binaryExpr);
             }
+
+            ((BLangBinaryExpr) binaryExpr).opSymbol = (BOperatorSymbol) opSymbol;
 
             return binaryExpr;
         }

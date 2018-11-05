@@ -600,6 +600,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (precedingPattern.type.tag == TypeTags.TUPLE && pattern.type.tag == TypeTags.TUPLE) {
             BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
             BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
+            if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+                return false;
+            }
             for (int i = 0; i < precedingTupleLiteral.expressions.size(); i++) {
                 if (!checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
                         tupleLiteral.expressions.get(i))) {

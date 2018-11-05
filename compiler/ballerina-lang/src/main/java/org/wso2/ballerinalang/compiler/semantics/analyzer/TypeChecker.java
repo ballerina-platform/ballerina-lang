@@ -954,7 +954,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
+                opSymbol = types.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
             }
 
             if (opSymbol == symTable.notFoundSymbol) {
@@ -967,49 +967,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
-    }
-
-    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
-                                                 BLangBinaryExpr binaryExpr) {
-        boolean validEqualityIntersectionExists;
-        switch (opKind) {
-            case EQUAL:
-            case NOT_EQUAL:
-                validEqualityIntersectionExists = types.validEqualityIntersectionExists(lhsType, rhsType);
-                break;
-            case REF_EQUAL:
-            case REF_NOT_EQUAL:
-                validEqualityIntersectionExists =
-                        types.isAssignable(lhsType, rhsType) || types.isAssignable(rhsType, lhsType);
-                break;
-            default:
-                return symTable.notFoundSymbol;
-        }
-
-
-        if (validEqualityIntersectionExists) {
-            if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
-                    (types.isValueType(lhsType) && types.isValueType(rhsType))) {
-                return symResolver.createEqualityOperator(opKind, lhsType, rhsType);
-            } else {
-                types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
-                types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
-
-                switch (opKind) {
-                    case REF_EQUAL:
-                        // if one is a value type, consider === the same as ==
-                        return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
-                                                                  symTable.anyType);
-                    case REF_NOT_EQUAL:
-                        // if one is a value type, consider !== the same as !=
-                        return symResolver.createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
-                                                                  symTable.anyType);
-                    default:
-                        return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
-                }
-            }
-        }
-        return symTable.notFoundSymbol;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {

@@ -21,6 +21,7 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -51,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -1680,6 +1682,49 @@ public class Types {
 
         return allRecordFieldsEqualityIntersectionExists(lhsType, rhsType) ||
                 allRecordFieldsEqualityIntersectionExists(rhsType, lhsType);
+    }
+
+    public BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
+                                                 BLangBinaryExpr binaryExpr) {
+        boolean validEqualityIntersectionExists;
+        switch (opKind) {
+            case EQUAL:
+            case NOT_EQUAL:
+                validEqualityIntersectionExists = validEqualityIntersectionExists(lhsType, rhsType);
+                break;
+            case REF_EQUAL:
+            case REF_NOT_EQUAL:
+                validEqualityIntersectionExists =
+                        isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+
+        if (validEqualityIntersectionExists) {
+            if ((!isValueType(lhsType) && !isValueType(rhsType)) ||
+                    (isValueType(lhsType) && isValueType(rhsType))) {
+                return symResolver.createEqualityOperator(opKind, lhsType, rhsType);
+            } else {
+                setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
+                setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
+
+                switch (opKind) {
+                    case REF_EQUAL:
+                        // if one is a value type, consider === the same as ==
+                        return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
+                                symTable.anyType);
+                    case REF_NOT_EQUAL:
+                        // if one is a value type, consider !== the same as !=
+                        return symResolver.createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
+                                symTable.anyType);
+                    default:
+                        return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+                }
+            }
+        }
+        return symTable.notFoundSymbol;
     }
 
     private boolean arrayTupleEqualityIntersectionExists(BArrayType arrayType, BTupleType tupleType) {
