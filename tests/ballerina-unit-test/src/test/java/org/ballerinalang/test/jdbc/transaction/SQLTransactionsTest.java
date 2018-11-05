@@ -21,13 +21,18 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType;
+import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
+import static org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 
 /**
  * Class to test functionality of transactions in SQL.
@@ -37,12 +42,13 @@ public class SQLTransactionsTest {
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_TR";
     private static final String TRANSACTION_TEST_GROUP = "TransactionTest";
+    private TestDatabase testDatabase;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/jdbc/transaction/sql_transaction_test.bal");
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
+        testDatabase = new FileBasedTestDatabase(DBType.H2,
+                "datafiles/sql/SQLTableCreate.sql", DB_DIRECTORY, DB_NAME);
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -222,8 +228,25 @@ public class SQLTransactionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
+    //Following methods are used as UDFs
+    public static void insertPersonDataSuccessful(Connection conn, int regid1, int regid2) throws SQLException {
+        conn.createStatement().executeUpdate("INSERT INTO Customers (firstName, lastName, registrationID, creditLimit,"
+                + " country)  values ('James', 'Clerk', " + regid1 + ", 5000.75, 'USA')");
+        conn.createStatement().executeUpdate("INSERT INTO Customers (firstName, lastName, registrationID, creditLimit,"
+                + " country)  values ('James', 'Clerk', " + regid2 + ", 5000.75, 'USA')");
+    }
+
+    public static void insertPersonDataFailure(Connection conn, int regid1, int regid2) throws SQLException {
+        conn.createStatement().executeUpdate("INSERT INTO Customers (firstName, lastName, registrationID, creditLimit,"
+                + " country)  values ('James', 'Clerk', " + regid1 + ", 5000.75, 'USA')");
+        conn.createStatement().executeUpdate("INSERT INTO Customers (firstName, lastName, registrationID, creditLimit,"
+                + " country)  values ('James', 'Clerk', " + regid2 + ", 'invalid', 'USA')");
+    }
+
     @AfterSuite
     public void cleanup() {
-        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
+        if (testDatabase != null) {
+            testDatabase.stop();
+        }
     }
 }

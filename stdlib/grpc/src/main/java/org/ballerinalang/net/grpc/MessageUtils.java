@@ -36,6 +36,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -55,6 +56,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -398,6 +400,17 @@ public class MessageUtils {
                     }
                     break;
                 }
+                case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
+                    byte[] value;
+                    if (responseValue instanceof BMap) {
+                        value = ((BByteArray) ((BMap) responseValue).get(fieldName)).getBytes();
+                        responseMessage.addField(fieldName, value);
+                    } else if (responseValue instanceof BByteArray) {
+                        value = ((BByteArray) responseValue).getBytes();
+                        responseMessage.addField(fieldName, value);
+                    }
+                    break;
+                }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                     if (responseValue instanceof BMap) {
                         BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
@@ -443,6 +456,8 @@ public class MessageUtils {
             }
         } else if (TypeKind.BOOLEAN.typeName().equals(structType.getName())) {
             bValue = new BBoolean((Boolean) fields.get(fieldName));
+        } else if (structType instanceof BArrayType) {
+            bValue = new BByteArray((byte[]) fields.get(fieldName));
         } else if (structType instanceof BStructureType) {
             BMap<String, BValue> requestStruct = BLangConnectorSPIUtil.createBStruct(programFile,
                     structType.getPackagePath(), structType.getName());
@@ -473,6 +488,12 @@ public class MessageUtils {
                                 structFieldName, structField.getFieldType()));
                     }
                 } else if (structFieldType instanceof BArrayType) {
+                    if (((BArrayType) structFieldType).getElementType().getTag() == TypeTags.BYTE) {
+                        BByteArray bByteValue = (BByteArray) generateRequestStruct(request, programFile,
+                                structFieldName, structFieldType);
+                        requestStruct.put(structFieldName, bByteValue);
+                        continue;
+                    }
                     long arrayIndex = 0;
                     BArrayType fieldArrayType = (BArrayType) structFieldType;
                     BType elementType = fieldArrayType.getElementType();

@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/jdbc;
+import ballerinax/jdbc;
 
 // Create an endpoint for the first database named testdb1. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.

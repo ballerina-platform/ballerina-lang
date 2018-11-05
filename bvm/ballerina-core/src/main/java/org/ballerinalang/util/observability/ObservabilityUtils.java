@@ -215,10 +215,10 @@ public class ObservabilityUtils {
                 : Optional.empty();
     }
 
-    public static Map<String, String> getContextProperties(ObserverContext observerContext, String headerName) {
+    public static Map<String, String> getContextProperties(ObserverContext observerContext) {
         BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (bSpan != null) {
-            return bSpan.getTraceContext(headerName);
+            return bSpan.getTraceContext();
         }
         return Collections.emptyMap();
     }

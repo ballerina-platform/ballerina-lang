@@ -294,22 +294,23 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     if (version >= this.version) {
       val document = editor.getDocument
       if (document.isWritable) {
-        () => { computableWriteAction(() => {
-          edits.foreach(edit => {
-            val text = edit.getNewText
-            val range = edit.getRange
-            val start = DocumentUtils.LSPPosToOffset(editor, range.getStart)
-            val end = DocumentUtils.LSPPosToOffset(editor, range.getEnd)
-            if (text == "" || text == null) {
-              document.deleteString(start, end)
-            } else if (end - start <= 0) {
-              document.insertString(start, text)
-            } else {
-              document.replaceString(start, end, text)
-            }
+        () => {
+          computableWriteAction(() => {
+            edits.foreach(edit => {
+              val text = edit.getNewText
+              val range = edit.getRange
+              val start = DocumentUtils.LSPPosToOffset(editor, range.getStart)
+              val end = DocumentUtils.LSPPosToOffset(editor, range.getEnd)
+              if (text == "" || text == null) {
+                document.deleteString(start, end)
+              } else if (end - start <= 0) {
+                document.insertString(start, text)
+              } else {
+                document.replaceString(start, end, text)
+              }
+            })
+            saveDocument()
           })
-          saveDocument()
-        })
         }
       } else {
         LOG.warn("Document is not writable")
@@ -389,7 +390,8 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
             val detail = item.getDetail
             val doc = item.getDocumentation
             val filterText = item.getFilterText
-            val insertText = item.getInsertText
+            // Todo - Revert after fixing ballerina language server plain text snippet issues
+            val insertText = item.getInsertText.replaceAll("[$][{][^}]*[}]","")
             val insertFormat = item.getInsertTextFormat
             val kind = item.getKind
             val label = item.getLabel
@@ -446,7 +448,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
               })
             }
             if (kind == CompletionItemKind.Keyword) lookupElementBuilder = lookupElementBuilder.withBoldness(true)
-            lookupElementBuilder.withPresentableText(presentableText).withTailText(tailText, true).withIcon(icon).withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT)
+            lookupElementBuilder.withPresentableText(presentableText).withTypeText(tailText, true).withIcon(icon).withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT)
           }
 
           completion match {

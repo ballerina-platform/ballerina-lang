@@ -683,27 +683,6 @@
       ]
     },
     {
-      "label":"ballerina/jdbc",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"jdbc",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":0,
-              "character":20
-            },
-            "end":{
-              "line":0,
-              "character":20
-            }
-          },
-          "newText":"\nimport ballerina/jdbc;\n"
-        }
-      ]
-    },
-    {
       "label":"ballerina/system",
       "detail":"Package",
       "sortText":"140",
