@@ -803,6 +803,7 @@ public class CPU {
                 sf.longRegs[j] = sf.longRegs[i];
                 break;
             case TypeTags.BOOLEAN_TAG:
+            case TypeTags.BYTE_TAG:
                 sf.intRegs[j] = sf.intRegs[i];
                 break;
             case TypeTags.FLOAT_TAG:
@@ -816,7 +817,9 @@ public class CPU {
             case TypeTags.ARRAY_TAG:
             case TypeTags.TABLE_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.TUPLE_TAG:
             case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy();
                 break;
         }

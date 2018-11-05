@@ -1850,6 +1850,7 @@ public class TypeChecker extends BLangNodeVisitor {
             //TODO: Decimal to be added
             case TypeTags.INT:
             case TypeTags.FLOAT:
+            case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.XML:
@@ -1859,8 +1860,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
-                for (BType memberType : unionType.memberTypes) {
-                    isValid = isValid && isValidAnyDataType(memberType, pos);
+                for (BType bType : unionType.memberTypes) {
+                    isValid = isValid && isValidAnyDataType(bType, pos);
                 }
                 break;
             case TypeTags.ARRAY:
@@ -1870,6 +1871,22 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.MAP:
                 BMapType mapType = (BMapType) type;
                 isValid = isValidAnyDataType(mapType.constraint, pos);
+                break;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                for (BType memberType : tupleType.tupleTypes) {
+                    isValid = isValid && isValidAnyDataType(memberType, pos);
+                }
+                break;
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                if (!recordType.sealed) {
+                    isValid = isValidAnyDataType(recordType.restFieldType, pos);
+                }
+                for (BField field : recordType.fields) {
+                    BType fieldType = field.type;
+                    isValid = isValid && isValidAnyDataType(fieldType, pos);
+                }
                 break;
             default:
                 dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_CLONE, type);
