@@ -47,7 +47,7 @@ function tupleTypes() returns string {
 }
 
 function simpleTypes() returns string {
-    any k = 10;
+    anydata k = 10;
     match k {
         15 => return "T";
         (12, 15) => return "T";

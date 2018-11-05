@@ -628,14 +628,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean isValidMatchPattern(BType matchType, BLangExpression literal) {
         // note: literalType can only be simple type, map type & tuple type
-        if (matchType.tag == TypeTags.ARRAY) {
+        if (matchType.tag == TypeTags.ARRAY || matchType.tag == TypeTags.ANY) {
             // TODO: Support array type static match to array literal
             return false;
         }
 
-        if (matchType.tag == TypeTags.ANY || matchType.tag == TypeTags.JSON) {
+        if (matchType.tag == TypeTags.ANYDATA || matchType.tag == TypeTags.JSON) {
             // when matching any type or json type, all patterns are allowed
-            // TODO: 11/2/18 Change to Anydata and fail any
             return true;
         }
 

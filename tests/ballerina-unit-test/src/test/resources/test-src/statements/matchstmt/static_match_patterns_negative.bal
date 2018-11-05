@@ -67,7 +67,7 @@ function simpleTypes() returns string {
         10.4 => return "10.4"; // pattern will not be matched
     }
 
-    any x6 = 15;
+    anydata x6 = 15;
     match x6 {
         20 => return "20";
         {a: 20} => return "{a: 20}";

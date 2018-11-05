@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -984,7 +985,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         NodeKind literalNode = expression.getKind();
 
         if (NodeKind.LITERAL == literalNode) {
-            return typeChecker.checkExpr(expression, this.env);
+            BType exprType = typeChecker.checkExpr(expression, this.env);
+            if (types.isAnydata(expression.type)) {
+                return exprType;
+            } else {
+                dlog.error(expression.pos, DiagnosticCode.STATIC_MATCH_ONLY_SUPPORTS_ANYDATA);
+                return symTable.errorType;
+            }
         }
 
         if (NodeKind.RECORD_LITERAL_EXPR == literalNode) {
@@ -999,7 +1006,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                 types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
             }
-            recordLiteral.type = symTable.mapType;
+            recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anyType, null);
             return recordLiteral.type;
 
         } else if (NodeKind.BRACED_TUPLE_EXPR == literalNode) {

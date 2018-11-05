@@ -121,7 +121,7 @@ function tar1(Foo|map|int f) returns string {
 function testTupleStaticMatch() returns string[] {
 
     (int, string) t1 = (12, "Ballerina");
-    any t2 = t1;
+    anydata t2 = t1;
     (int, string, byte) t3 = (15, "Bal", 100);
     (int, string) t4 = (15, "Ballerina");
     (int, string) t5 = (16, "Ballerina");
@@ -131,7 +131,7 @@ function testTupleStaticMatch() returns string[] {
     return result;
 }
 
-function tar2(any f) returns string {
+function tar2(anydata f) returns string {
 
     match f {
         (15) => return "Value is '(15)'";
@@ -160,7 +160,7 @@ function testRecordAndTupleComplexStaticMatch() returns string[] {
     return result;
 }
 
-function tar3(any f) returns string {
+function tar3(anydata f) returns string {
 
     match f {
         {x: 15, y: ("John", {x: 12, y: "Ballerina", z: (true, 12.1)} , "Snow"), z:15.1} => return "Value is 'Correct'";
