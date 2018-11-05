@@ -363,9 +363,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
             // dependencies or undefined types in type node.
 
-            // Todo - Need to keep track of the location.
-            // We need to maintain a list to keep track of all encountered unresolved types.
-            LinkedList<String> unknownTypes = new LinkedList<>();
+            // We need to maintain a list to keep track of all encountered unresolved types. We need to keep track of
+            // the location as well since the same unknown type can be specified in multiple places.
+            LinkedList<LocationData> unknownTypes = new LinkedList<>();
             for (BLangTypeDefinition unresolvedType : unresolvedTypes) {
                 // We need to keep track of all visited types to print cyclic dependency.
                 LinkedList<String> references = new LinkedList<>();
@@ -383,7 +383,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void checkErrors(BLangTypeDefinition unresolvedType, BLangType currentTypeNode, List<String> visitedNodes,
-                             List<String> unknownTypes) {
+                             List<LocationData> encounteredUnknownTypes) {
         String unresolvedTypeNodeName = unresolvedType.name.value;
         // Type node can be either user defined type or union type. Finite types will not be added to the
         // unresolved list because they can be resolved.
@@ -393,7 +393,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BLangType memberTypeNode : memberTypeNodes) {
                 if (memberTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
                     // Recursively check all members.
-                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, unknownTypes);
+                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
                 } else if (memberTypeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                     String memberTypeNodeName = ((BLangUserDefinedType) memberTypeNode).typeName.value;
                     // Skip all types defined as anonymous types.
@@ -410,7 +410,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         // Otherwise, unwanted types will get printed in the cyclic dependency error.
                         visitedNodes.remove(visitedNodes.lastIndexOf(memberTypeNodeName));
                     } else {
-                        checkErrors(unresolvedType, memberTypeNode, visitedNodes, unknownTypes);
+                        checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
                     }
                 }
             }
@@ -448,10 +448,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (typeDefinitions.isEmpty()) {
                     // If a type is declared, it should either get defined successfully or added to the unresolved
                     // types list. If a type is not in either one of them, that means it is an undefined type.
-                    // Todo - Check location.
-                    if (!unknownTypes.contains(currentTypeNodeName)) {
+
+                    LocationData locationData = new LocationData(currentTypeNodeName, currentTypeNode.pos.sLine,
+                            currentTypeNode.pos.sCol);
+
+                    if (!encounteredUnknownTypes.contains(locationData)) {
                         dlog.error(currentTypeNode.pos, DiagnosticCode.UNKNOWN_TYPE, currentTypeNodeName);
-                        unknownTypes.add(currentTypeNodeName);
+                        encounteredUnknownTypes.add(locationData);
                     }
                 } else {
                     for (BLangTypeDefinition typeDefinition : typeDefinitions) {
@@ -459,7 +462,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         // Add the node name to the list.
                         visitedNodes.add(typeName);
                         // Recursively check for errors.
-                        checkErrors(unresolvedType, typeDefinition.typeNode, visitedNodes, unknownTypes);
+                        checkErrors(unresolvedType, typeDefinition.typeNode, visitedNodes, encounteredUnknownTypes);
                         // We need to remove the added type node here since we have finished checking errors.
                         visitedNodes.remove(visitedNodes.lastIndexOf(typeName));
                     }
@@ -1516,5 +1519,32 @@ public class SymbolEnter extends BLangNodeVisitor {
                 new BAttachedFunction(function.funcName, funcSymbol, (BInvokableType) funcSymbol.type);
         ((BObjectTypeSymbol) typeDef.symbol).attachedFuncs.add(attachedFunc);
         ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(attachedFunc);
+    }
+
+    /**
+     * Used to store location data for encountered unknown types in `checkErrors` method.
+     *
+     * @since 0.985.0
+     */
+    class LocationData {
+
+        private String name;
+        private int row;
+        private int column;
+
+        LocationData(String name, int row, int column) {
+            this.name = name;
+            this.row = row;
+            this.column = column;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof LocationData)) {
+                return false;
+            }
+            LocationData data = (LocationData) o;
+            return name.equals(data.name) && row == data.row && column == data.column;
+        }
     }
 }
