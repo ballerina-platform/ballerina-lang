@@ -29,6 +29,12 @@ As you develop new connectors, actions, and functions that you want to share wit
 When you write your code in aforementioned editors and IDEs, the syntax is checked for you as you write it, and you can use the Debug button to step through your program. You can also manually test a Ballerina file using the following command:
 
 ```
+./ballerina test <file_name>
+```
+
+If you want to run all the tests within a module use the following command
+
+```
 ./ballerina test <module_name>
 ```
 
