@@ -39,6 +39,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This class contains the test cases to clone operation
+ * @version 0.983.0
+ */
+
 public class CloneOperationTest {
 
     private CompileResult result;
