@@ -47,9 +47,9 @@ public type HttpJwtAuthnHandler object {
 function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     string authHeader;
     var headerValue = trap req.getHeader(AUTH_HEADER);
-    if headerValue is string {
+    if (headerValue is string) {
         authHeader = headerValue;
-    } else if headerValue is error {
+    } else if (headerValue is error) {
         log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason());
         return false;
     }

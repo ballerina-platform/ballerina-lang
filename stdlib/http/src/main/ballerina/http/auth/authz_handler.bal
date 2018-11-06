@@ -68,9 +68,9 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
     // since different resources can have different scopes
     string authzCacheKey = runtime:getInvocationContext().userPrincipal.username +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
-    var isAuthorized =  self.authorizeFromCache(authzCacheKey);
-    if (isAuthorized is boolean) {
-        return isAuthorized;
+    var authorizedFromCache =  self.authorizeFromCache(authzCacheKey);
+    if (authorizedFromCache is boolean) {
+        return authorizedFromCache;
     } else {
         // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
         // match against those.
