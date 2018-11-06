@@ -235,7 +235,7 @@ function performRedirectIfEligible(RedirectClient redirectClient, string path, R
 //Inspect the response for redirect eligibility.
 function checkRedirectEligibility(Response|error response, string resolvedRequestedURI, HttpOperation httpVerb, Request
     request, RedirectClient redirectClient) returns @untainted Response|error {
-    if response is Response {
+    if (response is Response) {
         if (isRedirectResponse(response.statusCode)) {
             return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
         } else {
@@ -268,15 +268,15 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
         log:printDebug("Redirect count : " + currentCount);
         redirectClient.currentRedirectCount = currentCount;
         var redirectMethod = getRedirectMethod(httpVerb, response);
-        if redirectMethod is HttpOperation {
+        if (redirectMethod is HttpOperation) {
             if (response.hasHeader(LOCATION)) {
                 string location = response.getHeader(LOCATION);
                 log:printDebug("Location header value: " + location);
                 if (!isAbsolute(location)) {
                     var resolvedURI = resolve(resolvedRequestedURI, location);
-                    if resolvedURI is string {
+                    if (resolvedURI is string) {
                         return performRedirection(resolvedURI, redirectClient, redirectMethod, request, response);
-                    } else if resolvedURI is error {
+                    } else if (resolvedURI is error) {
                         redirectClient.currentRedirectCount = 0;
                         return resolvedURI;
                     }

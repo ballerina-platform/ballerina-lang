@@ -363,17 +363,17 @@ function Response::setByteChannel(io:ReadableByteChannel payload, string content
 }
 
 function Response::setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
-    if payload is string {
+    if (payload is string) {
         self.setTextPayload(payload);
-    } else if payload is xml {
+    } else if (payload is xml) {
         self.setXmlPayload(payload);
-    } else if payload is json {
+    } else if (payload is json) {
         self.setJsonPayload(payload);
-    } else if payload is byte[] {
+    } else if (payload is byte[]) {
         self.setBinaryPayload(payload);
-    } else if payload is io:ReadableByteChannel {
+    } else if (payload is io:ReadableByteChannel) {
         self.setByteChannel(payload);
-    } else if payload is mime:Entity[] {
+    } else if (payload is mime:Entity[]) {
         self.setBodyParts(payload);
     }
 }

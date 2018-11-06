@@ -166,7 +166,7 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 function Listener::init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
-    if err is error {
+    if (err is error) {
         panic err;
     }
 }

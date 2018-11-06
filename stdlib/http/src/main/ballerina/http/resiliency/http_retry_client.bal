@@ -293,7 +293,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
     while (currentRetryCount < (retryCount + 1)) {
         inRequest = populateMultipartRequest(inRequest);
         var backendResponse = invokeEndpoint(path, inRequest, requestAction, httpClient);
-        if backendResponse is Response {
+        if (backendResponse is Response) {
             int responseStatusCode = backendResponse.statusCode;
             if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode] == true)
                                                               && currentRetryCount < (retryCount)) {
@@ -302,7 +302,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
             } else {
                 return backendResponse;
             }
-        } else if backendResponse is error {
+        } else if (backendResponse is error) {
             (interval, currentRetryCount) =
                             calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
             httpConnectorErr = backendResponse;

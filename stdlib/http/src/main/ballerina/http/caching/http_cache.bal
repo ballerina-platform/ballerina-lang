@@ -72,9 +72,9 @@ public type HttpCache object {
     function get (string key) returns Response {
         Response response;
         var cacheEntry = <Response[]>cache.get(key);
-        if cacheEntry is Response[] {
+        if (cacheEntry is Response[]) {
             response = cacheEntry[cacheEntry.length() - 1];
-        } else if cacheEntry is error {
+        } else if (cacheEntry is error) {
             panic cacheEntry;
         }
         return response;
@@ -82,7 +82,7 @@ public type HttpCache object {
 
     function getAll (string key) returns Response[]|() {
         var cacheEntry = <Response[]>cache.get(key);
-        if cacheEntry is Response[] {
+        if (cacheEntry is Response[]) {
             return cacheEntry;
         }
         return ();
@@ -94,7 +94,7 @@ public type HttpCache object {
         int i = 0;
 
         var responses = getAll(key);
-        if responses is Response[] {
+        if (responses is Response[]) {
             cachedResponses = responses;
         }
 
@@ -114,7 +114,7 @@ public type HttpCache object {
         int i = 0;
 
         var responses = getAll(key);
-        if responses is Response[] {
+        if (responses is Response[]) {
             cachedResponses = responses;
         }
 
@@ -156,9 +156,9 @@ function isCacheableStatusCode (int statusCode) returns boolean {
 function addEntry (cache:Cache cache, string key, Response inboundResponse) {
     // TODO : Fix this logic.
     var existingResponses = trap cache.get(key);
-    if existingResponses is Response[] {
+    if (existingResponses is Response[]) {
         existingResponses[existingResponses.length()] = inboundResponse;
-    } else if existingResponses is error {
+    } else if (existingResponses is error) {
         Response[] cachedResponses = [inboundResponse];
         cache.put(key, cachedResponses);
         //panic err;

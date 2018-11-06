@@ -306,7 +306,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
         startIndex = initialIndex;
         currentIndex = currentIndex + 1;
         var endpointResponse = invokeEndpoint(path, failoverRequest, requestAction, failoverClient);
-        if endpointResponse is Response {
+        if (endpointResponse is Response) {
             int httpStatusCode = endpointResponse.statusCode;
             // Check whether HTTP status code of the response falls into configued `failoverCodes`
             if (failoverCodeIndex[httpStatusCode] == true) {
@@ -352,7 +352,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 failoverActions.succeededEndpointIndex = currentIndex - 1;
                 break;
             }
-        } else if endpointResponse is error {
+        } else if (endpointResponse is error) {
             error httpConnectorErr = endpointResponse;
             // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
             // endpoint configured in the failover endpoints gave the errornous response.

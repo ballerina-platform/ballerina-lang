@@ -192,19 +192,19 @@ public extern function parseHeader (string headerValue) returns (string, map)|er
 
 function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
     Request request = new;
-    if message is Request {
+    if (message is Request) {
         request = message;
-    } else if message is string {
+    } else if (message is string) {
         request.setTextPayload(message);
-    } else if message is xml {
+    } else if (message is xml) {
         request.setXmlPayload(message);
-    } else if message is json {
+    } else if (message is json) {
         request.setJsonPayload(message);
-    } else if message is byte[] {
+    } else if (message is byte[]) {
         request.setBinaryPayload(message);
-    } else if message is io:ReadableByteChannel {
+    } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
-    } else if message is mime:Entity[] {
+    } else if (message is mime:Entity[]) {
         request.setBodyParts(message);
     }
     return request;
@@ -212,19 +212,19 @@ function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime
 
 function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Response {
     Response response = new;
-    if message is Response {
+    if (message is Response) {
         response = message;
-    } else if message is string {
+    } else if (message is string) {
         response.setTextPayload(message);
-    } else if message is xml {
+    } else if (message is xml) {
         response.setXmlPayload(message);
-    } else if message is json {
+    } else if (message is json) {
         response.setJsonPayload(message);
-    } else if message is byte[] {
+    } else if (message is byte[]) {
         response.setBinaryPayload(message);
-    } else if message is io:ReadableByteChannel {
+    } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
-    } else if message is mime:Entity[] {
+    } else if (message is mime:Entity[]) {
         response.setBodyParts(message);
     }
     return response;
@@ -352,66 +352,3 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
 
 //Resolve a given path against a given URI.
 extern function resolve(string baseUrl, string path) returns string|error;
-
-//function getJson(mime:Entity|error mimeEntity) returns json|error|() {
-//    if mimeEntity is mime:Entity {
-//        return mimeEntity.getJson();
-//    } else if mimeEntity is error {
-//        return mimeEntity;
-//    }
-//}
-//
-//function getXml(mime:Entity|error mimeEntity) returns xml|error {
-//    if mimeEntity is mime:Entity {
-//        return mimeEntity.getXml();
-//    } else if mimeEntity is error {
-//        return mimeEntity;
-//    } else {
-//        panic error("err", {message :"hello"});
-//    }
-//}
-//
-//function getText(mime:Entity|error mimeEntity) returns string|error {
-//    if mimeEntity is mime:Entity {
-//        return mimeEntity.getText();
-//    } else if mimeEntity is error {
-//        return mimeEntity;
-//    }
-//    return;
-//}
-//
-//function getBodyAsString(mime:Entity|error mimeEntity) returns string|error {
-//    if mimeEntity is mime:Entity {
-//        return mimeEntity.getBodyAsString();
-//    } else if mimeEntity is error {
-//        return mimeEntity;
-//    }
-//    return;
-//}
-//
-//function getByteArray(mime:Entity|error mimeEntity) returns byte[]|error {
-//    if mimeEntity is mime:Entity {
-//        return mimeEntity.getByteArray();
-//    } else if mimeEntity is error {
-//        return mimeEntity;
-//    }
-//    return;
-//}
-//
-//function getByteChannel(mime:Entity|error mimeEntity) returns io:ReadableByteChannel|error {
-//    if mimeEntity is mime:Entity {
-//        return mimeEntity.getByteChannel();
-//    } else if mimeEntity is error {
-//        return mimeEntity;
-//    }
-//    return;
-//}
-//
-//function getBodyParts(mime:Entity|error mimeEntity) returns mime:Entity[]|error {
-//    if mimeEntity is mime:Entity {
-//        return mimeEntity.getBodyParts();
-//    } else if mimeEntity is error {
-//        return mimeEntity;
-//    }
-//    return;
-//}

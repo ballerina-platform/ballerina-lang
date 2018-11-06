@@ -521,9 +521,9 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
 
 function updataCircuitHealthAndRespond(Response|error serviceResponse, CircuitHealth circuitHealth,
                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|error {
-    if serviceResponse is Response {
+    if (serviceResponse is Response) {
         updateCircuitHealthSuccess(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
-    } else if serviceResponse is error {
+    } else if (serviceResponse is error) {
         updateCircuitHealthFailure(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
     }
     return serviceResponse;

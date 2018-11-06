@@ -69,7 +69,7 @@ function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boo
         response.statusCode = 401;
         response.setTextPayload("Authentication failure");
         var err = caller->respond(response);
-        if err is error {
+        if (err is error) {
             panic err;
         }
         return false;
@@ -97,12 +97,12 @@ function getResourceAuthConfig(FilterContext context) returns (boolean, string[]
     }
     // check if auth providers are given at resource level
     var resourceProviders = resourceLevelAuthAnn.authProviders;
-    if resourceProviders is string[] {
+    if (resourceProviders is string[]) {
         authProviderIds = resourceProviders;
     } else {
         // no auth providers found in resource level, try in service level
         var serviceProviders = serviceLevelAuthAnn.authProviders;
-        if serviceProviders is string[] {
+        if (serviceProviders is string[]) {
             authProviderIds = serviceProviders;
         }
     }
@@ -113,12 +113,12 @@ function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAut
              returns boolean {
     boolean isSecured;
     var resourceAuthn = resourceLevelAuthAnn.authentication;
-    if resourceAuthn is Authentication {
+    if (resourceAuthn is Authentication) {
         isSecured = resourceAuthn.enabled;
     } else {
         // if not found at resource level, check in the service level
         var serviceAuthn = serviceLevelAuthAnn.authentication;
-        if serviceAuthn is Authentication {
+        if (serviceAuthn is Authentication) {
             isSecured = serviceAuthn.enabled;
         } else {
             // if still authentication annotation is nil, means the user has not specified that the service
@@ -148,7 +148,7 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
             break;
         }
     }
-    if authAnn is reflect:annotationData {
+    if (authAnn is reflect:annotationData) {
         if (annotationName == RESOURCE_ANN_NAME) {
             HttpResourceConfig resourceConfig = check <HttpResourceConfig>authAnn.value;
             return resourceConfig.authConfig;

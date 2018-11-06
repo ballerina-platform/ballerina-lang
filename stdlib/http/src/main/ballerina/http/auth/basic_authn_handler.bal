@@ -51,14 +51,14 @@ function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
     string basicAuthHeaderValue;
-    if basicAuthHeader is string {
+    if (basicAuthHeader is string) {
         basicAuthHeaderValue = basicAuthHeader;
     } else {
         log:printError("Error in extracting basic authentication header");
         return false;
     }
     var credentials = extractBasicAuthCredentials(basicAuthHeaderValue);
-    if credentials is (string, string) {
+    if (credentials is (string, string)) {
         var (username, password) = credentials;
         boolean isAuthenticated = self.authStoreProvider.authenticate(username, password);
         if (isAuthenticated) {
@@ -71,7 +71,7 @@ function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
             }
         }
         return isAuthenticated;
-    } else if credentials is error {
+    } else if (credentials is error) {
         log:printError("Error in decoding basic authentication header", err = credentials);
     }
     return false;
@@ -79,7 +79,7 @@ function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
 
 function HttpBasicAuthnHandler::canHandle(Request req) returns (boolean) {
     var basicAuthHeader = trap req.getHeader(AUTH_HEADER);
-    if basicAuthHeader is string {
+    if (basicAuthHeader is string) {
         return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
     }
     return false;

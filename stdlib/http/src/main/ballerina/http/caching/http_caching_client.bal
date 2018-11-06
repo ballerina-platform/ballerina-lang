@@ -245,7 +245,7 @@ function HttpCachingClient::post(string path, Request|string|xml|json|byte[]|io:
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient.post(path, req);
-    if inboundResponse is Response {
+    if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
     return inboundResponse;
@@ -264,7 +264,7 @@ function HttpCachingClient::put(string path, Request|string|xml|json|byte[]|io:R
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient.put(path, req);
-    if inboundResponse is Response {
+    if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
     return inboundResponse;
@@ -281,7 +281,7 @@ function HttpCachingClient::execute(string httpMethod, string path,
     }
 
     var inboundResponse = self.httpClient.execute(httpMethod, path, request);
-    if inboundResponse is Response {
+    if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
     return inboundResponse;
@@ -293,7 +293,7 @@ function HttpCachingClient::patch(string path, Request|string|xml|json|byte[]|io
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient.patch(path, req);
-    if inboundResponse is Response {
+    if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
     return inboundResponse;
@@ -305,7 +305,7 @@ function HttpCachingClient::delete(string path, Request|string|xml|json|byte[]|i
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient.delete(path, req);
-    if inboundResponse is Response {
+    if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
     return inboundResponse;
@@ -324,7 +324,7 @@ function HttpCachingClient::options(string path, Request|string|xml|json|byte[]|
     setRequestCacheControlHeader(req);
 
     var inboundResponse = self.httpClient.options(path, message = req);
-    if inboundResponse is Response {
+    if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
     return inboundResponse;
@@ -336,7 +336,7 @@ function HttpCachingClient::forward(string path, Request request) returns Respon
     }
 
     var inboundResponse = self.httpClient.forward(path, request);
-    if inboundResponse is Response {
+    if (inboundResponse is Response) {
         invalidateResponses(self.cache, inboundResponse, path);
     }
     return inboundResponse;
@@ -412,7 +412,7 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
         log:printDebug("Validating a stale response for '" + path + "' with the origin server.");
         var validatedResponse = getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path,
                                                             httpMethod, false);
-        if validatedResponse is Response {
+        if (validatedResponse is Response) {
             updateResponseTimestamps(validatedResponse, currentT.time, time:currentTime().time);
             setAgeHeader(validatedResponse);
         }
@@ -423,7 +423,7 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
 
     log:printDebug("Sending new request to: " + path);
     var response = sendNewRequest(httpClient, req, path, httpMethod);
-    if response is Response {
+    if (response is Response) {
         if (cache.isAllowedToCache(response)) {
             response.requestTime = currentT.time;
             response.receivedTime = time:currentTime().time;
@@ -446,9 +446,9 @@ function getValidationResponse(CallerActions httpClient, Request req, Response c
     }
 
     var response = sendValidationRequest(httpClient, path, cachedResponse);
-    if response is Response {
+    if (response is Response) {
         validationResponse = response;
-    } else if response is error {
+    } else if (response is error) {
     // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
     // This behaviour is based on the fact that currently error structs are returned only
     // if the connection is refused or the connection times out.
@@ -479,7 +479,7 @@ function getValidationResponse(CallerActions httpClient, Request req, Response c
     } else {
         // Forward the received response and replace the stored responses
         validationResponse.requestTime = currentT.time;
-        if req.cacheControl is RequestCacheControl {
+        if (req.cacheControl is RequestCacheControl) {
             cache.put(getCacheKey(httpMethod, path), req.cacheControl, validationResponse);
         }
         log:printDebug("Received a full response. Storing it in cache and forwarding to the client");
@@ -541,7 +541,7 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
 function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) returns int {
     // TODO: Ensure that duplicate directives are not counted towards freshness lifetime.
     var responseCacheControl = cachedResponse.cacheControl;
-    if responseCacheControl is ResponseCacheControl {
+    if (responseCacheControl is ResponseCacheControl) {
         if (isSharedCache && responseCacheControl.sMaxAge >= 0) {
             return responseCacheControl.sMaxAge;
         }
@@ -586,7 +586,7 @@ function isAllowedToBeServedStale(RequestCacheControl? requestCacheControl, Resp
                                   boolean isSharedCache) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
     var responseCacheControl = cachedResponse.cacheControl;
-    if responseCacheControl is ResponseCacheControl {
+    if (responseCacheControl is ResponseCacheControl) {
         if (isServingStaleProhibited(requestCacheControl, responseCacheControl)) {
             return false;
         }
@@ -732,7 +732,7 @@ function getResponseAge(Response cachedResponse) returns int {
     }
 
     var ageValue = <int>cachedResponse.getHeader(AGE);
-    if ageValue is int {
+    if (ageValue is int) {
         return ageValue;
     }
     return 0;

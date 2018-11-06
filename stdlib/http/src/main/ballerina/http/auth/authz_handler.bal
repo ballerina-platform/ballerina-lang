@@ -69,7 +69,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
     string authzCacheKey = runtime:getInvocationContext().userPrincipal.username +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
     var isAuthorized =  self.authorizeFromCache(authzCacheKey);
-    if isAuthorized is boolean {
+    if (isAuthorized is boolean) {
         return isAuthorized;
     } else {
         // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
@@ -119,11 +119,11 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
 
 function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
     var positiveCache = trap self.positiveAuthzCache;
-    if positiveCache is cache:Cache {
+    if (positiveCache is cache:Cache) {
         return check <boolean> positiveCache.get(authzCacheKey);
     }
     var negativeCache =  trap self.negativeAuthzCache;
-    if negativeCache is cache:Cache {
+    if (negativeCache is cache:Cache) {
         return check <boolean> negativeCache.get(authzCacheKey);
     }
     return ();
@@ -132,12 +132,12 @@ function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boo
 function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
     if (isAuthorized) {
         var cache = self.positiveAuthzCache;
-        if cache is cache:Cache {
+        if (cache is cache:Cache) {
             cache.put(authzCacheKey, isAuthorized);
         }
     } else {
         var cache = self.negativeAuthzCache;
-        if cache is cache:Cache {
+        if (cache is cache:Cache) {
             cache.put(authzCacheKey, isAuthorized);
         }
     }

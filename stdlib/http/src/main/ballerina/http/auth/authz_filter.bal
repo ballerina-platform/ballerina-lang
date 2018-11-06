@@ -48,7 +48,7 @@ public type AuthzFilter object {
 
         string[]? scopes = getScopesForResource(resourceLevelAuthAnn, serviceLevelAuthAnn);
         boolean authorized;
-        if scopes is string[] {
+        if (scopes is string[]) {
             if (authzHandler.canHandle(request)) {
                 authorized = authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
                     context.serviceName, context.resourceName, request.method, scopes);
@@ -79,7 +79,7 @@ function isAuthzSuccessfull(Listener listener, boolean authorized) returns boole
         response.statusCode = 403;
         response.setTextPayload("Authorization failure");
         var err = caller->respond(response);
-        if err is error {
+        if (err is error) {
             panic err;
         }
         return false;
@@ -94,10 +94,10 @@ function isAuthzSuccessfull(Listener listener, boolean authorized) returns boole
 # + return - Array of scopes for the given resource or nil of no scopes are defined
 function getScopesForResource (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
                                                                                             returns (string[]|()) {
-    if resourceLevelAuthAnn.scopes is string[] {
+    if (resourceLevelAuthAnn.scopes is string[]) {
         return resourceLevelAuthAnn.scopes;
     } else {
-        if serviceLevelAuthAnn.scopes is string[] {
+        if (serviceLevelAuthAnn.scopes is string[]) {
             return serviceLevelAuthAnn.scopes;
         }
         return ();

@@ -68,9 +68,9 @@ function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
 function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
     var isAuthenticated = self.jwtAuthenticator.authenticate(jwtToken);
-    if isAuthenticated is boolean {
+    if (isAuthenticated is boolean) {
         return isAuthenticated;
-    } else if isAuthenticated is error {
+    } else if (isAuthenticated is error) {
         log:printError("Error while validating JWT token ", err = isAuthenticated);
     }
     return false;

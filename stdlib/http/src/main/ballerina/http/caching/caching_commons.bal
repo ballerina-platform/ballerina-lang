@@ -276,7 +276,7 @@ function getExpirationDirectiveValue (string directive) returns int {
     }
 
     var age =  <int>directiveParts[1];
-    if age is int {
+    if (age is int) {
         return age;
     }
     return -1; // Disregarding the directive if the value cannot be parsed
@@ -284,7 +284,7 @@ function getExpirationDirectiveValue (string directive) returns int {
 
 function setRequestCacheControlHeader(Request request) {
     var requestCacheControl = request.cacheControl;
-    if requestCacheControl is RequestCacheControl {
+    if (requestCacheControl is RequestCacheControl) {
         if (!request.hasHeader(CACHE_CONTROL)) {
             request.setHeader(CACHE_CONTROL, requestCacheControl.buildCacheControlDirectives());
         }
@@ -293,7 +293,7 @@ function setRequestCacheControlHeader(Request request) {
 
 function setResponseCacheControlHeader(Response response) {
     var responseCacheControl = response.cacheControl;
-    if responseCacheControl is ResponseCacheControl {
+    if (responseCacheControl is ResponseCacheControl) {
         if (!response.hasHeader(CACHE_CONTROL)) {
             response.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
         }

@@ -293,7 +293,7 @@ public type HttpSecureClient object {
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns CallerActions {
-    if config.auth is AuthConfig {
+    if (config.auth is AuthConfig) {
         HttpSecureClient httpSecureClient = new(url, config);
         return httpSecureClient;
     } else {
@@ -309,7 +309,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # + return - The Error occured during HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns (()|error) {
     var scheme = config.auth.scheme;
-    if scheme is AuthScheme {
+    if (scheme is AuthScheme) {
         if (scheme == BASIC_AUTH) {
             string username = config.auth.username but { () => EMPTY_STRING };
             string password = config.auth.password but { () => EMPTY_STRING };
@@ -347,7 +347,7 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
     string accessToken = check getAccessTokenFromRefreshToken(config);
     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
     AuthConfig? authConfig = config.auth;
-    if authConfig is AuthConfig {
+    if (authConfig is AuthConfig) {
         authConfig.accessToken = accessToken;
     }
     return ();
@@ -408,7 +408,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
 # + return - Whether the client should retry or not
 function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
     var scheme = config.auth.scheme;
-    if scheme is AuthScheme {
+    if (scheme is AuthScheme) {
         if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
             return true;
         }

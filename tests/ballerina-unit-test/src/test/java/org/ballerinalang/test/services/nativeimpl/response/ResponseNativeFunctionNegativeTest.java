@@ -74,7 +74,7 @@ public class ResponseNativeFunctionNegativeTest {
             Assert.assertNull(returnVals[0]);
         } catch (Exception exception) {
             String errorMessage = exception.getMessage();
-            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
+            Assert.assertTrue(errorMessage.contains("error: Http Header does not exist!"));
         }
     }
 

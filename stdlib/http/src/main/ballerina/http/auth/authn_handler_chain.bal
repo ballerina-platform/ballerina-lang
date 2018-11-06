@@ -55,7 +55,7 @@ function AuthnHandlerChain::handle (Request req) returns (boolean) {
 function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean) {
     foreach authProviderId in authProviderIds {
         var authnHandler =  self.authHandlerRegistry.get(authProviderId);
-        if authnHandler is HttpAuthnHandler {
+        if (authnHandler is HttpAuthnHandler) {
             if (authnHandler.canHandle(req)) {
                 log:printDebug("Trying to authenticate with the auth provider: " + authProviderId);
                 return authnHandler.handle(req);

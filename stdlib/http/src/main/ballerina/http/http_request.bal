@@ -327,7 +327,7 @@ function Request::getBodyParts() returns mime:Entity[]|error {
 function Request::getFormParams() returns map<string>|error {
     var formData = self.getEntity()!getText();
     map<string> parameters;
-    if formData is string {
+    if (formData is string) {
         if (formData != "") {
             string[] entries = formData.split("&");
             int entryIndex = 0;
@@ -344,7 +344,7 @@ function Request::getFormParams() returns map<string>|error {
                 entryIndex = entryIndex + 1;
             }
         }
-    } else if formData is error {
+    } else if (formData is error) {
         return formData;
     }
     return parameters;
@@ -393,17 +393,17 @@ function Request::setByteChannel(io:ReadableByteChannel payload, string contentT
 }
 
 function Request::setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
-    if payload is string {
+    if (payload is string) {
         self.setTextPayload(payload);
-    } else if payload is xml {
+    } else if (payload is xml) {
         self.setXmlPayload(payload);
-    } else if payload is json {
+    } else if (payload is json) {
         self.setJsonPayload(payload);
-    } else if payload is byte[] {
+    } else if (payload is byte[]) {
         self.setBinaryPayload(payload);
-    } else if payload is io:ReadableByteChannel {
+    } else if (payload is io:ReadableByteChannel) {
         self.setByteChannel(payload);
-    } else if payload is mime:Entity[] {
+    } else if (payload is mime:Entity[]) {
         self.setBodyParts(payload);
     }
 }

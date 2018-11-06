@@ -301,9 +301,9 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
         CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
 
         var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
-        if serviceResponse is Response {
+        if (serviceResponse is Response) {
             return serviceResponse;
-        } else if serviceResponse is error {
+        } else if (serviceResponse is error) {
             if (!lb.failover) {
                 return serviceResponse;
             } else {
