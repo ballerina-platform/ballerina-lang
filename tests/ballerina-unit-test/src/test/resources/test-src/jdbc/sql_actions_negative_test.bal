@@ -163,7 +163,7 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(
     };
 
     var ret = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers]);
-(string, string)|error|() retVal;
+    (string, string)|error|() retVal;
     if (ret is table[]) {
         string firstName1;
         string firstName2;
