@@ -144,3 +144,7 @@ public type Parameter record {
 
 # The parameter passed into the operations.
 type Param string|int|boolean|float|byte[]|Parameter;
+
+public type DatabaseErrorData record {
+    string message;
+};
