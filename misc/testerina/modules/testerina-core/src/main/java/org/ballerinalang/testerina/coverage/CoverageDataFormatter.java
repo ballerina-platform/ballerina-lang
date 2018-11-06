@@ -35,6 +35,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is for converting the Ip coverage information to output format.
+ * Formats: lcov for now
+ *
+ * @since 0.985
+ */
 public class CoverageDataFormatter {
 
     private static PrintStream errStream = System.err;
@@ -67,6 +73,13 @@ public class CoverageDataFormatter {
         lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
     }
 
+    /**
+     * Outputs lcov formatted coverage data for the Ip coverage data for each test suite for the project.
+     *
+     * @param executedInstructionOrderMap Ip coverage data map for each module of the project
+     * @param testSuiteForProject test suites map for each module of the project
+     * @return lcov formatted data list for each test function
+     */
     public List<LCovData> getFormattedCoverageData(Map<String, List<ExecutedInstruction>> executedInstructionOrderMap,
                                                    Map<String, TestSuite> testSuiteForProject) {
 
@@ -193,6 +206,7 @@ public class CoverageDataFormatter {
 
     }
 
+    // return true if the function comes from test
     private boolean skipTestFunctionIps(ExecutedInstruction executedInstruction, TestSuite suite) {
 
         boolean skipTestFunctionIps = false;
@@ -226,6 +240,14 @@ public class CoverageDataFormatter {
         return skipTestFunctionIps;
     }
 
+    /**
+     * write lcov formatted data to the coverage data file. coverage output file location and file name
+     * can be changed with --config configuration file
+     *
+     * @param packageLCovDataList lcov formatted coverage data list
+     * @param sourceRoot project source root folder location
+     * @throws IOException throws when output writing to the file fails.
+     */
     public void writeFormattedCovDataToFile(List<LCovData> packageLCovDataList, String sourceRoot) throws IOException {
 
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();

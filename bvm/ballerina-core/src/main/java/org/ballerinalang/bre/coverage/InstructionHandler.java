@@ -20,8 +20,18 @@ package org.ballerinalang.bre.coverage;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.util.codegen.Instruction;
 
+/**
+ * This is CPU Ip interceptor API for debugger and coverage data collection.
+ *
+ * @since 0.985
+ */
 public interface InstructionHandler {
 
-    public void handle(WorkerExecutionContext ctx);
+    /**
+     * Ip interceptor method to handle each Ip for the CPU.
+     *
+     * @param ctx worker execution context for the Ip
+     */
+    void handle(WorkerExecutionContext ctx);
 
 }

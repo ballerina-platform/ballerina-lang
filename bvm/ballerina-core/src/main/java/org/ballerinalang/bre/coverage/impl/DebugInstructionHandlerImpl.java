@@ -21,8 +21,18 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.coverage.InstructionHandler;
 import org.ballerinalang.util.codegen.Instruction;
 
+/**
+ * This is CPU Ip interceptor implementation for debugger.
+ *
+ * @since 0.985
+ */
 public class DebugInstructionHandlerImpl implements InstructionHandler {
 
+    /**
+     * Ip interceptor method to handle each Ip for the CPU for debugger.
+     *
+     * @param ctx worker execution context for the Ip
+     */
     public void handle(WorkerExecutionContext ctx) {}
 
 }

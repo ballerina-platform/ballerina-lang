@@ -26,6 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * This is singleton object which manages data and objects required for the coverage data and reports.
+ *
+ * @since 0.985
+ */
 public class CoverageManager {
 
     private static final Map<String, List<ExecutedInstruction>> executedInstructionOrderMap = new ConcurrentHashMap<>();
@@ -43,6 +48,11 @@ public class CoverageManager {
         return coverageManger;
     }
 
+    /**
+     * Setter for the program files for the project
+     *
+     * @param programFilesForProject Map of program files from each module for the project
+     */
     public static void setProgramFilesForProject(Map<String, ProgramFile> programFilesForProject) {
         CoverageManager.programFilesForProject = programFilesForProject;
 
@@ -53,10 +63,20 @@ public class CoverageManager {
         });
     }
 
+    /**
+     * Getter for map of line number info for each module of the project
+     *
+     * @return map of line number info for each module of the project
+     */
     public static Map<String, LineNumberInfoHolder> getLineNumberInfoHolderForProject() {
         return lineNumberInfoHolderForProject;
     }
 
+    /**
+     * Getter for the map of execution data of each Ip from each module of the project
+     *
+     * @return map of execution data of each Ip from each module of the project
+     */
     public static Map<String, List<ExecutedInstruction>> getExecutedInstructionOrderMap() {
         return executedInstructionOrderMap;
     }

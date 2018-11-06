@@ -33,6 +33,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is CPU Ip interceptor API for coverage data collection.
+ *
+ * @since 0.985
+ */
 @JavaSPIService("org.ballerinalang.bre.coverage.InstructionHandler")
 public class CoverageInstructionHandlerImpl implements InstructionHandler {
 
@@ -46,6 +51,11 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
         this.lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
     }
 
+    /**
+     * Ip interceptor method to handle each Ip for the CPU for coverage data collector.
+     *
+     * @param ctx worker execution context for the Ip
+     */
     public void handle(WorkerExecutionContext ctx) {
 
         String entryPkgPath = ctx.programFile.getEntryPackage().pkgPath;
