@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -114,8 +115,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public BLangPackage runPlugins(BLangPackage pkgNode) {
         this.defaultPos = pkgNode.pos;
         loadPlugins();
-        // Process the package node for each plugin in the plugin list
-        pluginList.forEach(plugin -> plugin.process(pkgNode));
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -125,16 +124,28 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             return;
         }
 
+        pluginList.forEach(plugin -> plugin.process(pkgNode));
+
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
 
-        pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
         pkgNode.getTestablePkgs().forEach(testablePackage -> {
             this.defaultPos = testablePackage.pos;
-            // Process the testable package node for each plugin in the plugin list
-            pluginList.forEach(plugin -> plugin.process(testablePackage));
-            visit((BLangPackage) testablePackage);
+            visit(testablePackage);
         });
+        pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
+    }
+
+    public void visit(BLangTestablePackage testablePkgNode) {
+        if (testablePkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
+            return;
+        }
+
+        pluginList.forEach(plugin -> plugin.process(testablePkgNode));
+
+        // Then visit each top-level element sorted using the compilation unit
+        testablePkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
+        testablePkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
     }
 
     public void visit(BLangAnnotation annotationNode) {
