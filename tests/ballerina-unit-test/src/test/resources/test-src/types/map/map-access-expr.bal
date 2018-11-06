@@ -38,7 +38,7 @@ function testAccessThroughVar() returns (string) {
 
 function constructString(map m) returns (string) {
     string [] keys = m.keys();
-    int len = lengthof keys;
+    int len = keys.length();
     int i = 0;
     string returnStr = "";
     while (i < len) {
@@ -53,7 +53,7 @@ function constructString(map m) returns (string) {
 function testMapClear() returns (int) {
     map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     namesMap.clear();
-    return lengthof namesMap;
+    return namesMap.length();
 }
 
 function testHasKeyPositive() returns (boolean) {
@@ -104,7 +104,7 @@ function testMapConcurrentAccess() returns int {
     map<int> intMap;
     int n = 100000;
     processConcurrent(intMap, n);
-    return lengthof intMap;
+    return intMap.length();
 }
 
 function processConcurrent(map<int> intMap, int n) {
@@ -180,7 +180,7 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
             int i = 0;
             int length;
             while (i < n) {
-                length = lengthof intMap.keys();
+                length = intMap.keys().length();
                 i += 1;
             }
         } catch (error e) {
