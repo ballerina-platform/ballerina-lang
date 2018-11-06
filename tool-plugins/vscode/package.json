@@ -172,7 +172,7 @@
             },
             {
                 "command": "ballerina.showDocs",
-                "title": "Open Doc Prview",
+                "title": "Open Doc Preview",
                 "category": "Ballerina"
             }
         ],
@@ -201,9 +201,9 @@
         "cross-env": "^5.2.0",
         "glob": "^7.1.3",
         "lodash": "^4.17.11",
+        "ms-wmic": "^1.0.4",
         "openport": "0.0.4",
         "ps-node": "^0.1.6",
-        "request-promise": "^4.2.2",
         "toml": "^2.3.3",
         "vscode": "^1.1.21",
         "vscode-debugadapter": "^1.31.0",
@@ -219,7 +219,9 @@
         "@types/node": "^8.10.25",
         "@types/ws": "^6.0.0",
         "chai": "^4.2.0",
+        "cross-env": "^5.2.0",
         "decache": "^4.4.0",
+        "glob": "^7.1.3",
         "istanbul": "^0.4.5",
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.12.0",
@@ -227,6 +229,7 @@
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.36.2",
-        "vscode-debugadapter-testsupport": "^1.32.0"
+        "vscode-debugadapter-testsupport": "^1.32.0",
+        "ast-model": "file:../../composer/ast-model"
     }
 }

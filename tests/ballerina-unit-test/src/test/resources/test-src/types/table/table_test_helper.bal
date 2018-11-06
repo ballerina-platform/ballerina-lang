@@ -15,16 +15,17 @@
 // under the License.
 
 import ballerina/sql;
-import ballerina/jdbc;
+import ballerina/h2;
 
 type ResultCount record {
     int COUNTVAL;
 };
 
 function getTableCount(string tablePrefix) returns (int) {
-    endpoint jdbc:Client testDB {
-        url: "jdbc:h2:mem:TABLEDB",
-        username: "sa",
+    endpoint h2:Client testDB {
+        name: "TABLEDB",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -45,10 +46,10 @@ function getTableCount(string tablePrefix) returns (int) {
 }
 
 function getSessionCount() returns (int) {
-
-    endpoint jdbc:Client testDB {
-        url: "jdbc:h2:mem:TABLEDB",
-        username: "sa",
+    endpoint h2:Client testDB {
+        name: "TABLEDB",
+        username: "SA",
+        password: "",
         poolOptions: { maximumPoolSize: 1 }
     };
 
