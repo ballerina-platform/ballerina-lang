@@ -196,15 +196,15 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     }
 
     string stringPayload;
-    match (request.getPayloadAsString()) {
-        string payloadAsString => { stringPayload = payloadAsString; }
-        error entityError => {
-            string errCause = <string> entityError.detail().message;
-            map errorDetail = { message : "Error extracting notification payload as string " +
-                                            "for signature validation: " + errCause };
-            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-            return webSubError;
-        }
+    var payload = request.getPayloadAsString();
+    if payload is string {
+        stringPayload = payload;
+    } else if payload is error {
+        string errCause = <string> payload.detail().message;
+        map errorDetail = { message : "Error extracting notification payload as string " +
+                                        "for signature validation: " + errCause };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
     }
 
     return validateSignature(xHubSignature, stringPayload, secret);
@@ -562,20 +562,23 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
 
     WebSubContent content = {};
 
-    match(payload) {
-        io:ReadableByteChannel byteChannel => content.payload = constructByteArray(byteChannel);
-        string|xml|json|byte[] => content.payload = payload;
+    if payload is io:ReadableByteChannel {
+        content.payload = constructByteArray(payload);
+    } else {
+        content.payload = payload;
     }
 
-    match(contentType) {
-        string stringContentType => content.contentType = stringContentType;
-        () => {
-            match(payload) {
-                string => content.contentType = mime:TEXT_PLAIN;
-                xml => content.contentType = mime:APPLICATION_XML;
-                json => content.contentType = mime:APPLICATION_JSON;
-                byte[]|io:ReadableByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
-            }
+    if (contentType is string) {
+        content.contentType = contentType;
+    } else {
+        if (payload is string) {
+            content.contentType = mime:TEXT_PLAIN;
+        } else if (payload is xml) {
+            content.contentType = mime:APPLICATION_XML;
+        } else if (payload is json) {
+            content.contentType = mime:APPLICATION_JSON;
+        } else if (payload is byte[]|io:ReadableByteChannel) {
+            content.contentType = mime:APPLICATION_OCTET_STREAM;
         }
     }
 

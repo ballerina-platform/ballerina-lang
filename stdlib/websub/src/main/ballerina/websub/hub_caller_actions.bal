@@ -107,22 +107,18 @@ function CallerActions::registerTopic(string topic) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
     var registrationResponse = httpClientEndpoint->post("", request);
-    match (registrationResponse) {
-        http:Response response => {
-            if (response.statusCode != http:ACCEPTED_202) {
-                string payload = response.getTextPayload() but { error => "" };
-                map errorDetail = { message : "Error occured during topic registration: " + payload };
-                error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-                return webSubError;
-            }
-            return;
-        }
-        error err => {
-            string errCause = <string> err.detail().message;
-            map errorDetail = { message : "Error sending topic registration request: " + errCause };
+    if (registrationResponse is http:Response) {
+        if (registrationResponse.statusCode != http:ACCEPTED_202) {
+            string payload = registrationResponse.getTextPayload() but { error => "" };
+            map errorDetail = { message : "Error occured during topic registration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
+    } else if (registrationResponse is error) {
+        string errCause = <string> registrationResponse.detail().message;
+        map errorDetail = { message : "Error sending topic registration request: " + errCause };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
     }
 }
 
@@ -130,22 +126,18 @@ function CallerActions::unregisterTopic(string topic) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
     var unregistrationResponse = httpClientEndpoint->post("", request);
-    match (unregistrationResponse) {
-        http:Response response => {
-            if (response.statusCode != http:ACCEPTED_202) {
-                string payload = response.getTextPayload() but { error => "" };
-                map errorDetail = { message : "Error occured during topic unregistration: " + payload };
-                error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-                return webSubError;
-            }
-            return;
-        }
-        error err => {
-            string errCause = <string> err.detail().message;
-            map errorDetail = { message : "Error sending topic unregistration request: " + errCause };
+    if (unregistrationResponse is http:Response) {
+        if (unregistrationResponse.statusCode != http:ACCEPTED_202) {
+            string payload = unregistrationResponse.getTextPayload() but { error => "" };
+            map errorDetail = { message : "Error occured during topic unregistration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
+    } else if (unregistrationResponse is error) {
+        string errCause = <string> unregistrationResponse.detail().message;
+        map errorDetail = { message : "Error sending topic unregistration request: " + errCause };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
     }
 }
 
@@ -162,31 +154,24 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:Re
         () => {}
     }
 
-    match (headers) {
-        map<string> headerMap => {
-            foreach key, value in headerMap {
-                request.setHeader(key, value);
-            }
+    if (headers is map<string>) {
+        foreach key, value in headers {
+            request.setHeader(key, value);
         }
-        () => {}
     }
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
-    match (response) {
-        http:Response httpResponse => {
-            if (!isSuccessStatusCode(httpResponse.statusCode)) {
-                string textPayload = httpResponse.getTextPayload() but { error => "" };
-                map errorDetail = { message : "Error occured publishing update: " + textPayload };
-                error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-                return webSubError;
-            }
-            return;
-        }
-        error httpConnectorError => {
-            map errorDetail = { message : "Publish failed for topic [" + topic + "]" };
+    if (response is http:Response) {
+        if (!isSuccessStatusCode(response.statusCode)) {
+            string textPayload = response.getTextPayload() but { error => "" };
+            map errorDetail = { message : "Error occured publishing update: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
+    } else if (response is error) {
+        map errorDetail = { message : "Publish failed for topic [" + topic + "]" };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
     }
 }
 
@@ -195,27 +180,22 @@ function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) re
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
-    match (headers) {
-        map<string> headerMap => {
-            foreach key, value in headerMap {
-                request.setHeader(key, value);
-            }
+    if (headers is map<string>) {
+        foreach key, value in headers {
+            request.setHeader(key, value);
         }
-        () => {}
     }
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
     match (response) {
-        http:Response httpResponse => {
-            if (!isSuccessStatusCode(httpResponse.statusCode)) {
-                string textPayload = httpResponse.getTextPayload() but { error => "" };
+        if (response is http:Response) {
+            if (!isSuccessStatusCode(response.statusCode)) {
+                string textPayload = response.getTextPayload() but { error => "" };
                 map errorDetail = { message : "Error occured notifying update availability: " + textPayload };
                 error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
                 return webSubError;
             }
-            return;
-        }
-        error httpConnectorError => {
+        } else if (response is error) {
             map errorDetail = { message : "Update availability notification failed for topic [" + topic + "]" };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
