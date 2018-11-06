@@ -700,6 +700,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
+        if (matchType.tag == TypeTags.FINITE && literal.getKind() == NodeKind.LITERAL) {
+            return types.isAssignableToFiniteType(matchType, (BLangLiteral) literal);
+        }
+
         return types.isSameType(literal.type, matchType);
     }
 

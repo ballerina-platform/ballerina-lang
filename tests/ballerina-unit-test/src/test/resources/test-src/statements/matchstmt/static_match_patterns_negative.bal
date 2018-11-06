@@ -227,3 +227,22 @@ function recordRestParamAndOptionalFields() returns string {
 
     return "Fail";
 }
+
+type Finite "A" | "B" | true | 15;
+
+function finiteTypes() returns string {
+    Finite f = "B";
+    match f {
+        16 => return "a"; // pattern will not be matched
+        15 => return "a";
+        "A" => return "a";
+        {a: "b"} => return "a"; // pattern will not be matched
+        "B" => return "a";
+        true => return "a";
+        false => return "a"; // pattern will not be matched
+        "C" => return "a"; // pattern will not be matched
+        (12, "B") => return "a"; // pattern will not be matched
+    }
+
+    return "Fail";
+}

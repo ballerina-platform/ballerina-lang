@@ -136,9 +136,23 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), "Value is 'Correct'");
     }
 
+    @Test(description = "Test matching finite type")
+    public void testFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Value is '15.2'");
+    }
+
+    @Test(description = "Test matching finite type")
+    public void testFiniteType2() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Value is 'true'");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 51);
+        Assert.assertEquals(resultNegative.getErrorCount(), 56);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -199,6 +213,12 @@ public class MatchStatementStaticPatternsTest {
 
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 223, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 224, 9);
+
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 236, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 239, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 242, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 243, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 244, 9);
     }
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {
