@@ -1,7 +1,7 @@
 # Create a Ballerina project and a module inside it.
 # Generate client stub code using .proto file generated from the service.
 # For example, if you create a module named 'client', execute the following command to generate stub code.
-$ ballerina grpc --input Chat.proto --output client
+$ ballerina grpc --input Chat.proto --output client --mode client
 
 # Once you run the command, the following files will be generated inside client directory.
 # * Chat_pb.bal

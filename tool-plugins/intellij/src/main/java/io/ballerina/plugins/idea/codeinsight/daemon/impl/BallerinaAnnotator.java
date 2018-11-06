@@ -23,6 +23,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -34,6 +35,7 @@ import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
+import io.ballerina.plugins.idea.psi.BallerinaTableColumn;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.BallerinaXmlItem;
@@ -212,6 +214,15 @@ public class BallerinaAnnotator implements Annotator {
                 } else if (parent instanceof BallerinaGlobalVariableDefinition) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
+                } else if (parent instanceof BallerinaTableColumn) {
+                    if (element.getText().equals("key") && element.getNextSibling() instanceof PsiWhiteSpace) {
+                        PsiElement nextElement = element.getNextSibling().getNextSibling();
+                        if (nextElement instanceof LeafPsiElement
+                                && ((LeafPsiElement) element).getElementType() == BallerinaTypes.IDENTIFIER) {
+                            Annotation annotation = holder.createInfoAnnotation(element, null);
+                            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
+                        }
+                    }
                 } else if ("self".equals(element.getText())) {
                     BallerinaTypeDefinition typeDefinition = PsiTreeUtil
                             .getParentOfType(element, BallerinaTypeDefinition.class);
