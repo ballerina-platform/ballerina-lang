@@ -305,7 +305,8 @@ statement
     |   throwStatement
     |   panicStatement
     |   returnStatement
-    |   workerInteractionStatement
+    |   workerSendAsyncStatement
+    |   triggerWorker
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
@@ -580,27 +581,16 @@ returnStatement
     :   RETURN expression? SEMICOLON
     ;
 
-workerInteractionStatement
-    :   triggerWorker
-    |   workerSendAsync
-    ;
-
-workerSendAsync
+workerSendAsyncStatement
     :   expression RARROW Identifier (COMMA expression)? SEMICOLON
     ;
 
-// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
+flushWorker
+    :   FLUSH Identifier?
+    ;
+
 triggerWorker
     :   expression RARROW FORK SEMICOLON              #invokeFork
-    ;
-
-// below left Identifier is of type WORKER or CHANNEL and the right Identifier is of type message
-workerReply
-    :   LARROW Identifier (COMMA expression)?
-    ;
-
-flushWorker
-    :   FLUSH LEFT_BRACKET Identifier RIGHT_BRACKET
     ;
 
 waitForCollection
@@ -752,7 +742,7 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeName                                                            # typeAccessExpression
-    |   workerReply                                                         # workerReceiveExpression
+    |   LARROW Identifier (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     ;
 

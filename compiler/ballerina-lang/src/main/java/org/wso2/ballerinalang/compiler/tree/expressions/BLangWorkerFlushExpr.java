@@ -44,17 +44,11 @@ public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlush
 
     @Override
     public String toString() {
-        return "flush[" + String.valueOf(workerIdentifier) + "]";
+        return "flush " + String.valueOf(workerIdentifier);
     }
 
     @Override
     public IdentifierNode getWorkerName() {
         return workerIdentifier;
     }
-
-    @Override
-    public void setWorkerName(IdentifierNode identifierNode) {
-        this.workerIdentifier = (BLangIdentifier) identifierNode;
-    }
-
 }

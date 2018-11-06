@@ -1750,7 +1750,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
+    public void exitWorkerReceiveExpression(BallerinaParser.WorkerReceiveExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -1764,12 +1764,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-        this.pkgBuilder.addWorkerFlushExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        String workerName = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
+        this.pkgBuilder.addWorkerFlushExpr(getCurrentPos(ctx), getWS(ctx), workerName);
     }
 
     @Override
-    public void exitWorkerSendAsync(BallerinaParser.WorkerSendAsyncContext ctx) {
+    public void exitWorkerSendAsyncStatement(BallerinaParser.WorkerSendAsyncStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -1796,10 +1796,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         // Wait for all
         if (ctx.waitForCollection() != null) {
-            this.pkgBuilder.addCollectionToWaitForAll(getCurrentPos(ctx), getWS(ctx));
+            this.pkgBuilder.handleWaitForAll(getCurrentPos(ctx), getWS(ctx));
         } else {
             // Wait for Any or Wait for one
-            this.pkgBuilder.handleWaitForOneAndAny(getCurrentPos(ctx), getWS(ctx));
+            this.pkgBuilder.handleWait(getCurrentPos(ctx), getWS(ctx));
         }
     }
 
