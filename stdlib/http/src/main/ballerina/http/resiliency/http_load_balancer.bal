@@ -300,17 +300,16 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
         CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
 
-        match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
-            Response inResponse => return inResponse;
-
-            error httpActionErr => {
-                if (!lb.failover) {
-                    return httpActionErr;
-                } else {
-                    loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
-                    loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = httpActionErr;
-                    loadBalanceTermination = loadBalanceTermination + 1;
-                }
+        var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
+        if serviceResponse is Response {
+            return serviceResponse;
+        } else if serviceResponse is error {
+            if (!lb.failover) {
+                return serviceResponse;
+            } else {
+                loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
+                loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = serviceResponse;
+                loadBalanceTermination = loadBalanceTermination + 1;
             }
         }
     }
