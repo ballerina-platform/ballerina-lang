@@ -47,4 +47,13 @@ public class PkgRunFunctionNegativeTestCase extends BaseTest {
         balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }
+
+    @Test
+    public void testWrongEntryFunctionNameInArgWithColons() throws BallerinaTestException {
+        String sourceArg = "pkg:with:colons:colonsInName:WrongFunction";
+        LogLeecher errLogLeecher = new LogLeecher("'colonsInName:WrongFunction' function not found in " +
+                                                          "'pkg:with:colons'", LeecherType.ERROR);
+        balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(2000);
+    }
 }

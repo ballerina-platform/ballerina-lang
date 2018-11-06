@@ -45,11 +45,12 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
 
     private static final String PRINT_RETURN = "--printreturn";
 
-    private String sourceRoot = (new File("src/test/resources/run/balx/")).getAbsolutePath();
+    private String sourceRoot = (new File("src/test/resources/run/balx/simple/")).getAbsolutePath();
 
-    private Path tempProjectDir;
     private String balxPath;
     private String sourceArg;
+    private Path tempProjectDir;
+    private Path tempProjectDirTwo;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -61,6 +62,8 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
                 new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
         balxPath = generatedBalx.toString();
+
+        tempProjectDirTwo = Files.createTempDirectory("temp-entry-func-test-complex");
     }
 
     @Test
@@ -95,10 +98,28 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         outLogLeecher.waitForText(2000);
     }
 
+    @Test
+    public void testArgWithColons() throws BallerinaTestException {
+        String arg = "test arg";
+        String fileName = "test:with_colons:multiple.bal";
+        String[] args = {"-o",
+                tempProjectDirTwo.toString().concat(File.separator).concat("test:with_colons:multiple"),
+                (new File("src/test/resources/run/balx/complex")).getAbsolutePath().concat(File.separator)
+                        .concat(fileName)};
+        balClient.runMain("build", args, null, new String[0], new LogLeecher[0],
+                          tempProjectDirTwo.toString());
+        Path generatedBalx = tempProjectDirTwo.resolve(fileName.replace("bal", "balx"));
+        String sourceArg = generatedBalx.toString() + ":colonsInName:Function";
+        LogLeecher outLogLeecher = new LogLeecher(arg);
+        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg}, new LogLeecher[]{outLogLeecher});
+        outLogLeecher.waitForText(2000);
+    }
+
     @AfterClass
     public void tearDown() throws BallerinaTestException {
         try {
             deleteFiles(tempProjectDir);
+            deleteFiles(tempProjectDirTwo);
         } catch (IOException e) {
             throw new BallerinaTestException("Error deleting files");
         }

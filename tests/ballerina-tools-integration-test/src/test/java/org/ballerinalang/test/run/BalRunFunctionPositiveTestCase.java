@@ -64,4 +64,14 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
                 "just", "the", "rest"}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
     }
+
+    @Test
+    public void testArgWithColons() throws BallerinaTestException {
+        String arg = "test arg";
+        sourceArg = (new File("src/test/resources/run/file/test:with_colons:multiple.bal")).getAbsolutePath() +
+                ":colonsInName:Function";
+        LogLeecher outLogLeecher = new LogLeecher(arg);
+        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg}, new LogLeecher[]{outLogLeecher});
+        outLogLeecher.waitForText(2000);
+    }
 }

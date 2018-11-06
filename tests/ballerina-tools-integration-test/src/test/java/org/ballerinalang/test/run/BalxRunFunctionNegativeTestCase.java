@@ -44,10 +44,11 @@ import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
  */
 public class BalxRunFunctionNegativeTestCase extends BaseTest {
 
-    private String sourceRoot = (new File("src/test/resources/run/balx/")).getAbsolutePath();
+    private String sourceRoot = (new File("src/test/resources/run/balx/simple")).getAbsolutePath();
 
-    private Path tempProjectDir;
     private String balxPath;
+    private Path tempProjectDir;
+    private Path tempProjectDirTwo;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -59,6 +60,8 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
                 new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
         balxPath = generatedBalx.toString();
+
+        tempProjectDirTwo = Files.createTempDirectory("temp-entry-func-test-complex");
     }
 
     @Test
@@ -70,10 +73,29 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
         errLogLeecher.waitForText(2000);
     }
 
+    @Test
+    public void testWrongEntryFunctionNameInArgWithColons() throws BallerinaTestException {
+        String fileName = "test:with_colons:multiple.bal";
+        String[] clientArgs = {"-o",
+                tempProjectDirTwo.toString().concat(File.separator).concat("test:with_colons:multiple"),
+                (new File("src/test/resources/run/balx/complex")).getAbsolutePath().concat(File.separator)
+                        .concat(fileName)};
+        balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0],
+                          tempProjectDirTwo.toString());
+        Path generatedBalx = tempProjectDirTwo.resolve(fileName.replace("bal", "balx"));
+        String sourceArg = generatedBalx.toString() + ":colonsInName:WrongFunction";
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: 'colonsInName:WrongFunction' function not found in '"
+                                                          + tempProjectDirTwo.resolve(fileName.replace("bal", "balx"))
+                                                          + "'", LeecherType.ERROR);
+        balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(2000);
+    }
+
     @AfterClass
     public void tearDown() throws BallerinaTestException {
         try {
             deleteFiles(tempProjectDir);
+            deleteFiles(tempProjectDirTwo);
         } catch (IOException e) {
             throw new BallerinaTestException("Error deleting files");
         }

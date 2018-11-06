@@ -37,14 +37,23 @@ import java.io.File;
  */
 public class BalRunFunctionNegativeTestCase extends BaseTest {
 
-    private String fileName = "test_entry_function.bal";
-    private String filePath = (new File("src/test/resources/run/file/" + fileName)).getAbsolutePath();
+    private String sourceRootPath = "src/test/resources/run/file/";
 
     @Test
     public void testEmptyEntryFunctionName() throws BallerinaTestException {
-        String sourceArg = filePath + ":";
+        String sourceArg = (new File(sourceRootPath + "test_entry_function.bal")).getAbsolutePath() + ":";
         LogLeecher errLogLeecher = new LogLeecher("ballerina: expected function name after final ':'",
                 LeecherType.ERROR);
+        balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testWrongEntryFunctionNameInArgWithColons() throws BallerinaTestException {
+        String sourceArg = (new File(sourceRootPath + "test:with_colons:multiple.bal")).getAbsolutePath() +
+                ":colonsInName:WrongFunction";
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: 'colonsInName:WrongFunction' function not found in " +
+                                                          "'test:with_colons:multiple.bal'", LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }
