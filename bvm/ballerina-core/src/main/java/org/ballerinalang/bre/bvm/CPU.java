@@ -798,32 +798,37 @@ public class CPU {
         int cpIndex = operands[1];
         int j = operands[2];
         TypeRefCPEntry typeEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-
-        switch (typeEntry.getType().getTag()) {
-            //TODO: Decimal type to be added
-            case TypeTags.INT_TAG:
-                sf.longRegs[j] = sf.longRegs[i];
-                break;
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.BYTE_TAG:
-                sf.intRegs[j] = sf.intRegs[i];
-                break;
-            case TypeTags.FLOAT_TAG:
-                sf.doubleRegs[j] = sf.doubleRegs[i];
-                break;
-            case TypeTags.STRING_TAG:
-                sf.stringRegs[j] = sf.stringRegs[i];
-                break;
-            case TypeTags.XML_TAG:
-            case TypeTags.MAP_TAG:
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.TABLE_TAG:
-            case TypeTags.UNION_TAG:
-            case TypeTags.TUPLE_TAG:
-            case TypeTags.JSON_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-                sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy();
-                break;
+        if (isAnydata(typeEntry.getType())) {
+            switch (typeEntry.getType().getTag()) {
+                //TODO: Decimal type to be added
+                case TypeTags.INT_TAG:
+                    sf.longRegs[j] = sf.longRegs[i];
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                case TypeTags.BYTE_TAG:
+                    sf.intRegs[j] = sf.intRegs[i];
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sf.doubleRegs[j] = sf.doubleRegs[i];
+                    break;
+                case TypeTags.STRING_TAG:
+                    sf.stringRegs[j] = sf.stringRegs[i];
+                    break;
+                case TypeTags.XML_TAG:
+                case TypeTags.MAP_TAG:
+                case TypeTags.ARRAY_TAG:
+                case TypeTags.TABLE_TAG:
+                case TypeTags.UNION_TAG:
+                case TypeTags.TUPLE_TAG:
+                case TypeTags.JSON_TAG:
+                case TypeTags.RECORD_TYPE_TAG:
+                    sf.refRegs[j] = (BRefType<?>) (sf.refRegs[i]).copy();
+                    break;
+            }
+        } else {
+            ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
+                    .getErrorMessage(RuntimeErrors.INVALID_USAGE_OF_CLONE, typeEntry.getType())));
+            handleError(ctx);
         }
     }
 

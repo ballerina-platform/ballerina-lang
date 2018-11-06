@@ -1823,9 +1823,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case CLONE:
-                if (isValidAnyDataType(iExpr.expr.type, iExpr.expr.pos)) {
+                if (types.isAnydata(iExpr.expr.type)) {
                     handleBuiltInFunctions(iExpr, type);
                     isValidBuiltinFunc = true;
+                } else {
+                    dlog.error(iExpr.expr.pos, DiagnosticCode.INVALID_USAGE_OF_CLONE, iExpr.expr.type);
                 }
                 break;
             default:
@@ -1841,57 +1843,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return isValidBuiltinFunc;
-    }
-
-    private boolean isValidAnyDataType(BType type, DiagnosticPos pos) {
-        boolean isValid = true;
-        switch (type.tag) {
-            //TODO: Decimal to be added
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.BYTE:
-            case TypeTags.BOOLEAN:
-            case TypeTags.STRING:
-            case TypeTags.XML:
-            case TypeTags.TABLE:
-            case TypeTags.JSON:
-            case TypeTags.NIL:
-                break;
-            case TypeTags.UNION:
-                BUnionType unionType = (BUnionType) type;
-                for (BType bType : unionType.memberTypes) {
-                    isValid = isValid && isValidAnyDataType(bType, pos);
-                }
-                break;
-            case TypeTags.ARRAY:
-                BArrayType arrType = (BArrayType) type;
-                isValid = isValidAnyDataType(arrType.eType, pos);
-                break;
-            case TypeTags.MAP:
-                BMapType mapType = (BMapType) type;
-                isValid = isValidAnyDataType(mapType.constraint, pos);
-                break;
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) type;
-                for (BType memberType : tupleType.tupleTypes) {
-                    isValid = isValid && isValidAnyDataType(memberType, pos);
-                }
-                break;
-            case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) type;
-                if (!recordType.sealed) {
-                    isValid = isValidAnyDataType(recordType.restFieldType, pos);
-                }
-                for (BField field : recordType.fields) {
-                    BType fieldType = field.type;
-                    isValid = isValid && isValidAnyDataType(fieldType, pos);
-                }
-                break;
-            default:
-                dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_CLONE, type);
-                isValid = false;
-        }
-        return isValid;
     }
 
     private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function,
