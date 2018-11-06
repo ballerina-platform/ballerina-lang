@@ -304,12 +304,12 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
         if (serviceResponse is Response) {
             return serviceResponse;
         } else if (serviceResponse is error) {
-            if (!lb.failover) {
-                return serviceResponse;
-            } else {
+            if (lb.failover) {
                 loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
                 loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = serviceResponse;
                 loadBalanceTermination = loadBalanceTermination + 1;
+            } else {
+                return serviceResponse;
             }
         }
     }

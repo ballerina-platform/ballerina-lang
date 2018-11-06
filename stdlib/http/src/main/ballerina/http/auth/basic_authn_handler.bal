@@ -60,8 +60,8 @@ function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
     var credentials = extractBasicAuthCredentials(basicAuthHeaderValue);
     if (credentials is (string, string)) {
         var (username, password) = credentials;
-        boolean isAuthenticated = self.authStoreProvider.authenticate(username, password);
-        if (isAuthenticated) {
+        boolean authenticated = self.authStoreProvider.authenticate(username, password);
+        if (authenticated) {
             // set username
             runtime:getInvocationContext().userPrincipal.username = username;
             // read scopes and set to the invocation context
@@ -70,7 +70,7 @@ function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
                 runtime:getInvocationContext().userPrincipal.scopes = scopes;
             }
         }
-        return isAuthenticated;
+        return authenticated;
     } else if (credentials is error) {
         log:printError("Error in decoding basic authentication header", err = credentials);
     }

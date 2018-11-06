@@ -50,7 +50,9 @@ function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     if (headerValue is string) {
         authHeader = headerValue;
     } else if (headerValue is error) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason());
+        log:printDebug(function() returns string {
+            return "Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason();
+        });
         return false;
     }
     if (authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
@@ -67,11 +69,11 @@ function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
 
 function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
-    var isAuthenticated = self.jwtAuthenticator.authenticate(jwtToken);
-    if (isAuthenticated is boolean) {
-        return isAuthenticated;
-    } else if (isAuthenticated is error) {
-        log:printError("Error while validating JWT token ", err = isAuthenticated);
+    var authenticated = self.jwtAuthenticator.authenticate(jwtToken);
+    if (authenticated is boolean) {
+        return authenticated;
+    } else if (authenticated is error) {
+        log:printError("Error while validating JWT token ", err = authenticated);
     }
     return false;
 }

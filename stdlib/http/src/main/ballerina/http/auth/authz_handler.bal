@@ -90,8 +90,10 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
                 return authorized;
             } else {
                 self.cacheAuthzResult(authzCacheKey, false);
-                log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName +
-                        ", method:" + method);
+                log:printDebug(function() returns string {
+                    return "No scopes found for user: " + username + " to access resource: " + resourceName +
+                                ", method:" + method;
+                });
                 return false;
             }
         }
@@ -109,10 +111,13 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
                                                                                                     returns boolean {
     boolean authorized = matchScopes(resourceScopes, userScopes);
     if (authorized) {
-        log:printDebug("Successfully authorized to access resource: " + resourceName + ", method: " +
-                method);
+        log:printDebug(function() returns string {
+            return "Successfully authorized to access resource: " + resourceName + ", method: " + method;
+        });
     } else {
-        log:printDebug("Authorization failure for resource: " + resourceName + ", method: " + method);
+        log:printDebug(function() returns string {
+            return"Authorization failure for resource: " + resourceName + ", method: " + method;
+        });
     }
     return authorized;
 }
@@ -129,16 +134,16 @@ function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boo
     return ();
 }
 
-function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
-    if (isAuthorized) {
+function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean authorized) {
+    if (authorized) {
         var cache = self.positiveAuthzCache;
         if (cache is cache:Cache) {
-            cache.put(authzCacheKey, isAuthorized);
+            cache.put(authzCacheKey, authorized);
         }
     } else {
         var cache = self.negativeAuthzCache;
         if (cache is cache:Cache) {
-            cache.put(authzCacheKey, isAuthorized);
+            cache.put(authzCacheKey, authorized);
         }
     }
 }

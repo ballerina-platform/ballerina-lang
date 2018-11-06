@@ -48,7 +48,9 @@ public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
     if (headerValue is string) {
         return headerValue;
     } else if (headerValue is error) {
-        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason());
+        log:printDebug(function() returns string {
+            return "Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason();
+        });
     }
     return ();
 }

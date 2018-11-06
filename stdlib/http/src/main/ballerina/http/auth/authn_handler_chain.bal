@@ -45,7 +45,9 @@ function AuthnHandlerChain::handle (Request req) returns (boolean) {
     foreach currentAuthProviderType, currentAuthHandler in self.authHandlerRegistry.getAll() {
         var authnHandler = <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
-            log:printDebug("Trying to authenticate with the auth provider: " + currentAuthProviderType);
+            log:printDebug(function() returns string {
+                return "Trying to authenticate with the auth provider: " + currentAuthProviderType;
+            });
             return authnHandler.handle(req);
         }
     }
@@ -57,7 +59,9 @@ function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProvid
         var authnHandler =  self.authHandlerRegistry.get(authProviderId);
         if (authnHandler is HttpAuthnHandler) {
             if (authnHandler.canHandle(req)) {
-                log:printDebug("Trying to authenticate with the auth provider: " + authProviderId);
+                log:printDebug(function() returns string {
+                    return "Trying to authenticate with the auth provider: " + authProviderId;
+                });
                 return authnHandler.handle(req);
             }
         }

@@ -235,7 +235,9 @@ public type HttpCachingClient object {
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
                                                                                                 returns CallerActions {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
-    log:printDebug("Created HTTP caching client: " + io:sprintf("%s", httpCachingClient));
+    log:printDebug(function() returns string {
+        return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
+    });
     return httpCachingClient;
 }
 
@@ -377,7 +379,9 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
     if (cache.hasKey(getCacheKey(httpMethod, path))) {
         Response cachedResponse = cache.get(getCacheKey(httpMethod, path));
         // Based on https://tools.ietf.org/html/rfc7234#section-4
-        log:printDebug("Cached response found for: '" + httpMethod + " " + path + "'");
+        log:printDebug(function() returns string {
+            return "Cached response found for: '" + httpMethod + " " + path + "'";
+        });
 
         updateResponseTimestamps(cachedResponse, currentT.time, currentT.time);
         setAgeHeader(cachedResponse);
@@ -409,7 +413,9 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
             }
         }
 
-        log:printDebug("Validating a stale response for '" + path + "' with the origin server.");
+        log:printDebug(function() returns string {
+            return "Validating a stale response for '" + path + "' with the origin server.";
+        });
         var validatedResponse = getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path,
                                                             httpMethod, false);
         if (validatedResponse is Response) {
@@ -418,10 +424,14 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
         }
         return validatedResponse;
     } else {
-        log:printDebug("Cached response not found for: '" + httpMethod + " " + path + "'");
+        log:printDebug(function() returns string {
+            return "Cached response not found for: '" + httpMethod + " " + path + "'";
+        });
     }
 
-    log:printDebug("Sending new request to: " + path);
+    log:printDebug(function() returns string {
+        return "Sending new request to: " + path;
+    });
     var response = sendNewRequest(httpClient, req, path, httpMethod);
     if (response is Response) {
         if (cache.isAllowedToCache(response)) {
@@ -718,7 +728,9 @@ function retain2xxWarnings(Response cachedResponse) {
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
         foreach warningHeader in warningHeaders {
             if (warningHeader.contains("214") || warningHeader.contains("299")) {
-                log:printDebug("Adding warning header: " + warningHeader);
+                log:printDebug(function() returns string {
+                    return "Adding warning header: " + warningHeader;
+                });
                 cachedResponse.addHeader(WARNING, warningHeader);
                 continue;
             }
