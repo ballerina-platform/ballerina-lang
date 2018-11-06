@@ -787,7 +787,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         // Allowed expression kinds
-        if (expr.getKind() == NodeKind.INVOCATION || expr.getKind() == NodeKind.AWAIT_EXPR) {
+        if (expr.getKind() == NodeKind.INVOCATION || expr.getKind() == NodeKind.WAIT_EXPR) {
             return;
         }
         // For other expressions, error is logged already.

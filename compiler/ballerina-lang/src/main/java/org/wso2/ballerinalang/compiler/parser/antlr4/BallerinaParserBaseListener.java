@@ -1552,13 +1552,25 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWaitForOne(BallerinaParser.WaitForOneContext ctx) { }
+	@Override public void enterWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWaitForOne(BallerinaParser.WaitForOneContext ctx) { }
+	@Override public void exitWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -2140,6 +2152,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterWaitExpression(BallerinaParser.WaitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWaitExpression(BallerinaParser.WaitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTrapExpression(BallerinaParser.TrapExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2339,18 +2363,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWaitExprExpression(BallerinaParser.WaitExprExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWaitExprExpression(BallerinaParser.WaitExprExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

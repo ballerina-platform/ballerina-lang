@@ -219,6 +219,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAnyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -822,5 +824,17 @@ public class TreeBuilder {
 
     public static BLangWorkerSyncSendExpr createWorkerSendSyncExprNode() {
         return new BLangWorkerSyncSendExpr();
+    }
+
+    public static BLangWaitForAnyExpr createWaitForAnyExpressionNode() {
+        return new BLangWaitForAnyExpr();
+    }
+
+    public static BLangWaitForAllExpr createWaitForAllExpressionNode() {
+        return new BLangWaitForAllExpr();
+    }
+
+    public static BLangWaitForAllExpr.BLangWaitKeyValue createWaitKeyValueNode() {
+        return new BLangWaitForAllExpr.BLangWaitKeyValue();
     }
 }

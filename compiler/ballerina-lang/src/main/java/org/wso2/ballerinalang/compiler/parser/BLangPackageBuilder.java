@@ -161,6 +161,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAnyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -278,6 +280,8 @@ public class BLangPackageBuilder {
     private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
 
     private Stack<BLangTableLiteral> tableLiteralNodes = new Stack<>();
+
+    private Stack<BLangWaitForAllExpr> waitCollectionStack = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
 
@@ -1464,14 +1468,6 @@ public class BLangPackageBuilder {
         checkedExpr.addWS(ws);
         checkedExpr.expr = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(checkedExpr);
-    }
-
-    void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangWaitExpr awaitExpr = TreeBuilder.createWaitExpressionNode();
-        awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
-        awaitExpr.pos = pos;
-        awaitExpr.addWS(ws);
-        addExpressionNode(awaitExpr);
     }
 
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -3739,5 +3735,69 @@ public class BLangPackageBuilder {
         typeTestExpr.pos = pos;
         typeTestExpr.addWS(ws);
         addExpressionNode(typeTestExpr);
+    }
+
+    void handleWaitForOneAndAny(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        ExpressionNode expressionNode = this.exprNodeStack.pop();
+        if (expressionNode.getKind() == NodeKind.BINARY_EXPR) { // Wait for any
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expressionNode;
+            // Collect LHS expressions
+            BLangWaitForAnyExpr waitForAnyExpr = TreeBuilder.createWaitForAnyExpressionNode();
+            waitForAnyExpr.exprList = collectAllExprs(binaryExpr, new ArrayList<>());
+            waitForAnyExpr.pos = currentPos;
+            waitForAnyExpr.addWS(ws);
+            addExpressionNode(waitForAnyExpr);
+        } else { // Wait for one
+            BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
+            waitExpr.expr = (BLangExpression) expressionNode;
+            waitExpr.pos = currentPos;
+            waitExpr.addWS(ws);
+            addExpressionNode(waitExpr);
+        }
+    }
+
+    private List<BLangExpression> collectAllExprs(BLangBinaryExpr binaryExpr, List<BLangExpression> exprs) {
+        // LHS
+        if (binaryExpr.lhsExpr.getKind() == NodeKind.BINARY_EXPR) {
+            collectAllExprs((BLangBinaryExpr) binaryExpr.lhsExpr, exprs);
+        } else {
+            exprs.add(binaryExpr.lhsExpr);
+        }
+        // RHS
+        if (binaryExpr.rhsExpr.getKind() == NodeKind.BINARY_EXPR) {
+            collectAllExprs((BLangBinaryExpr) binaryExpr.rhsExpr, exprs);
+        } else {
+            exprs.add(binaryExpr.rhsExpr);
+        }
+        return exprs;
+    }
+
+    void startWaitForAll() {
+        BLangWaitForAllExpr bLangWaitForAll = TreeBuilder.createWaitForAllExpressionNode();
+        waitCollectionStack.push(bLangWaitForAll);
+    }
+
+
+    void addCollectionToWaitForAll(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangWaitForAllExpr waitForAllExpr = waitCollectionStack.pop();
+        waitForAllExpr.pos = pos;
+        waitForAllExpr.addWS(ws);
+        addExpressionNode(waitForAllExpr);
+    }
+
+    void addKeyValueToWaitForAll(Set<Whitespace> ws, String identifier, boolean containsExpr) {
+        BLangWaitForAllExpr.BLangWaitKeyValue keyValue = TreeBuilder.createWaitKeyValueNode();
+        keyValue.addWS(ws);
+        // Add the key as an identifier
+        BLangIdentifier key = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        key.setLiteral(false);
+        key.setValue(identifier);
+        keyValue.key = key;
+        // Add the value. If it is a Identifier:expr pair then add the value by popping the expr from the expression
+        // stack else the value is not assigned.
+        if (containsExpr) {
+            keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
+        }
+        waitCollectionStack.peek().keyValuePairs.add(keyValue);
     }
 }
