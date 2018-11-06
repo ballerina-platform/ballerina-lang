@@ -122,7 +122,7 @@ public class CommandExecutor {
                     result = executeCreateObjectConstructor(context);
                     break;
                 case CommandConstants.CMD_PULL_MODULE:
-                    result = executePullPackage(context);
+                    result = executePullModule(context);
                     break;
                 default:
                     // Do Nothing
@@ -166,22 +166,21 @@ public class CommandExecutor {
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                   LSCustomErrorStrategy.class,
-                                                                   false).getRight();
-            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
+            BLangPackage bLangPackage = lsCompiler
+                    .getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false)
+                    .getRight();
+            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+            BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
-            DiagnosticPos pos;
+            DiagnosticPos pos = null;
 
             // Filter the imports except the runtime import
-            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(bLangPackage, context);
+            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
 
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
                 pos = lastImport.getPosition();
-            } else {
-                pos = null;
             }
 
             int endCol = pos == null ? -1 : pos.getEndColumn() - 1;
@@ -340,11 +339,14 @@ public class CommandExecutor {
         }
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                false, LSCustomErrorStrategy.class, false).getRight();
+        BLangPackage bLangPackage = lsCompiler
+                .getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false).getRight();
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
+
         CommandUtil.DocAttachmentInfo docAttachmentInfo =
-                getDocumentationEditForNodeByPosition(nodeType, bLangPackage, line);
+                getDocumentationEditForNodeByPosition(nodeType, srcOwnerPkg, line);
 
         if (docAttachmentInfo == null) {
             return new Object();
@@ -354,7 +356,7 @@ public class CommandExecutor {
 
         return applySingleTextEdit(docAttachmentInfo.getDocAttachment(), range, textDocumentIdentifier,
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
-        
+
     }
 
     /**
@@ -379,9 +381,13 @@ public class CommandExecutor {
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
                 .getRight();
 
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
+
         List<TextEdit> textEdits = new ArrayList<>();
         String fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        bLangPackage.topLevelNodes.stream()
+        CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
                 .forEach(topLevelNode -> {
                     CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
@@ -429,21 +435,23 @@ public class CommandExecutor {
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 false, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
         int finalLine = line;
         
         /*
         In the ideal situation Command execution exception should never throw. If thrown, create constructor command
         has been executed over a non object type node.
          */
-        TopLevelNode objectNode = bLangPackage.topLevelNodes.stream()
+        TopLevelNode objectNode = CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(topLevelNode -> topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).symbol.kind.equals(SymbolKind.OBJECT)
                         && topLevelNode.getPosition().getStartLine() - 1 == finalLine)
                 .findAny().orElseThrow(() ->
                         new BallerinaCommandExecutionException("Error Executing Create Constructor Command"));
         List<BLangVariable> fields = ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).fields;
-        
+
         DiagnosticPos zeroBasedIndex = CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).getPosition());
         int lastFieldLine = zeroBasedIndex.getEndLine();
         int lastFieldOffset = zeroBasedIndex.getStartColumn();
@@ -455,32 +463,32 @@ public class CommandExecutor {
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
-    private static Object executePullPackage(LSServiceOperationContext context) {
+    private static Object executePullModule(LSServiceOperationContext context) {
         executor.submit(() -> {
             // Derive package name and document uri
-            String packageName = "";
+            String moduleName = "";
             String documentUri = "";
             for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
                 String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
                 String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
                 if (argKey.equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
-                    packageName = argVal;
+                    moduleName = argVal;
                 } else if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
                     documentUri = argVal;
                 }
             }
             // If no package, or no doc uri; then just skip
-            if (packageName.isEmpty() || documentUri.isEmpty()) {
+            if (moduleName.isEmpty() || documentUri.isEmpty()) {
                 return;
             }
             // Execute `ballerina pull` command
             String ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME).resolve("bin").resolve("ballerina").toString();
-            ProcessBuilder processBuilder = new ProcessBuilder(ballerinaHome, "pull", packageName);
+            ProcessBuilder processBuilder = new ProcessBuilder(ballerinaHome, "pull", moduleName);
             LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
             LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
             DiagnosticsHelper diagnosticsHelper = context.get(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY);
             try {
-                notifyClient(client, MessageType.Info, "Pulling '" + packageName + "' from the Ballerina Central...");
+                notifyClient(client, MessageType.Info, "Pulling '" + moduleName + "' from the Ballerina Central...");
                 Process process = processBuilder.start();
                 InputStream inputStream = process.getInputStream();
                 // Consume and skip input-stream
@@ -493,14 +501,14 @@ public class CommandExecutor {
                 String error = IOUtils.toString(errorStream, StandardCharsets.UTF_8);
 
                 if (error == null || error.isEmpty()) {
-                    notifyClient(client, MessageType.Info, "Pulling success for the '" + packageName + "' package!");
+                    notifyClient(client, MessageType.Info, "Pulling success for the '" + moduleName + "' module!");
                     clearDiagnostics(client, lsCompiler, diagnosticsHelper, documentUri);
                 } else {
                     notifyClient(client, MessageType.Error,
-                                 "Pulling failed for the '" + packageName + "' package!\n" + error);
+                                 "Pulling failed for the '" + moduleName + "' module!\n" + error);
                 }
             } catch (IOException e) {
-                notifyClient(client, MessageType.Error, "Pulling failed for the '" + packageName + "' package!");
+                notifyClient(client, MessageType.Error, "Pulling failed for the '" + moduleName + "' module!");
             }
         });
 
@@ -550,7 +558,7 @@ public class CommandExecutor {
      * @param line              position to be compared with
      * @return Document attachment info
      */
-    private static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType, 
+    private static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType,
                                                                                        BLangPackage bLangPkg,
                                                                                        int line) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;

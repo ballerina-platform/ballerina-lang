@@ -54,6 +54,8 @@ public type Client object {
     }
 
     # Returns the connector that the client code uses.
+    #
+    # + return - Actions of the connector
     public function getCallerActions() returns sql:CallerActions {
         return self.h2Client;
     }

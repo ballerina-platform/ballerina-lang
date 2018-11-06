@@ -26,6 +26,7 @@ object LanguageServerDefinition {
     */
   def register(definition: LanguageServerDefinition): Unit = {
     if (definition != null) {
+      allDefinitions.clear()
       allDefinitions.add(definition)
       LOG.info("Added definition for " + definition)
     } else {

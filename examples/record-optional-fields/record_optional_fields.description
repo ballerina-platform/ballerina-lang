@@ -1,0 +1,3 @@
+// Fields of a record can be marked as optional. These fields can be omitted when creating a record.
+// Absence of an optional field during run time will throw a runtime error if it is a field-based access (e.g., p.name) or
+// it will return `()` if it is an index-based access (e.g., p["name"]).

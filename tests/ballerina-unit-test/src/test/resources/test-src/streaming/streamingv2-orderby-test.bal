@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -73,7 +71,7 @@ function startOrderByQuery() returns TeacherOutput[] {
 
 function foo() {
     forever {
-        from inputStream where inputStream.age > 2 window lengthBatchWindow(5)
+        from inputStream where inputStream.age > 2 window lengthBatchWindow([5])
         select inputStream.name, inputStream.age, inputStream.status, sum (inputStream.age) as sumAge, count() as count
         group by inputStream.name order by status ascending, age descending => (TeacherOutput [] o) {
             foreach x in o {

@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -62,15 +60,13 @@ function startUniqueLengthwindowTest3() returns TeacherOutput[] {
             break;
         }
     }
-
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
 function testUniqueLengthwindow() {
 
     forever {
-        from inputStreamUniqueLengthTest3 window uniqueLengthWindow(inputStreamUniqueLengthTest3.age, 4) as input
+        from inputStreamUniqueLengthTest3 window uniqueLengthWindow([inputStreamUniqueLengthTest3.age, 4]) as input
         select input.timestamp, input.name, count() as count
         group by input.school
         => (TeacherOutput [] emp) {

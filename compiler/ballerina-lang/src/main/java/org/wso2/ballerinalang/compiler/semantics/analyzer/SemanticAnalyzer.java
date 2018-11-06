@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -171,6 +172,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SemanticAnalyzer> SYMBOL_ANALYZER_KEY =
             new CompilerContext.Key<>();
+    private static final String AGGREGATOR_OBJECT_NAME = "Aggregator";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -226,9 +228,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
-                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        pkgNode.topLevelNodes.stream()
+                             .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION &&
+                                     ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
+                             .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -239,10 +242,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
 
-        analyzeDef(pkgNode.initFunction, pkgEnv);
-        analyzeDef(pkgNode.startFunction, pkgEnv);
-        analyzeDef(pkgNode.stopFunction, pkgEnv);
-
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
@@ -1254,12 +1254,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangWhere) afterWhereNode).accept(this);
         }
 
-        //Create duplicate symbol for stream alias
-        if (streamingInput.getAlias() != null) {
-            BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
-            BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
-            streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
-            symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+        if (isTableReference(streamingInput.getStreamReference())) {
+            if (streamingInput.getAlias() == null) {
+                dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS, ((BLangInvocation) streamRef)
+                        .name.getValue());
+            }
+            if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+                BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), ((BTableType) functionSymbol
+                        .retType).constraint, names.fromString(streamingInput.getAlias()), env);
+            } else {
+                BType constraint = ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
+                        .constraint;
+                symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
+                        names.fromString(streamingInput.getAlias()), env);
+            }
+        } else {
+            //Create duplicate symbol for stream alias
+            if (streamingInput.getAlias() != null) {
+                BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
+                BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+                streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+                symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+            }
+        }
+    }
+
+    private boolean isTableReference(ExpressionNode streamReference) {
+        if (streamReference.getKind() == NodeKind.INVOCATION) {
+            return ((BLangInvocation) streamReference).type.tsymbol.type == symTable.tableType;
+        } else {
+            return ((BLangVariableReference) streamReference).type.tsymbol.type == symTable.tableType;
         }
     }
 
@@ -1371,8 +1396,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
         if (!isSiddhiRuntimeEnabled) {
-            if (isGroupByAvailable && expressionNode.getKind() == NodeKind.INVOCATION) {
-                ((BLangExpression) expressionNode).accept(this);
+            if (expressionNode.getKind() == NodeKind.INVOCATION) {
+                BLangInvocation invocation = (BLangInvocation) expressionNode;
+                BSymbol invocationSymbol = symResolver.
+                        resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
+                        scope.lookup(new Name(invocation.name.value)).symbol;
+                BSymbol aggregatorSymbol = symResolver.
+                        resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
+                        scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol;
+
+                if (invocationSymbol != null && invocationSymbol.type.getReturnType().tsymbol != aggregatorSymbol) {
+                    this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+                }
             } else {
                 this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
             }

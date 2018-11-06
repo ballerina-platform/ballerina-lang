@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/jdbc;
+import ballerinax/jdbc;
 
 // Client endpoint for MySQL database. This client endpoint can be used with any jdbc
 // supported database by providing the corresponding jdbc url.
@@ -69,7 +69,7 @@ public function main() {
     //Check the data in the database.
     checkData();
 
-    io:println("\nThe update operation - Drop the tables and procedures");
+    io:println("\nThe update operation - Drop the student table");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
 }

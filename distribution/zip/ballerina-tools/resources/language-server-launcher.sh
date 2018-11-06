@@ -31,7 +31,25 @@
 BALLERINA_DEBUG_LOG=false;
 DEBUG_MODE=false;
 DEBUG_PORT=5005;
+CUSTOM_CLASSPATH="";
 # ----------------------------------------------------------------------------
+
+# ---------------------- Command Line Args ---------------------------
+while [ "$1" != "" ]; do
+    if [ "$1" = "--debug" ];
+    then
+       DEBUG_MODE=true;
+    elif [ "$1" = "--classpath" ];
+    then
+       shift
+       CUSTOM_CLASSPATH="$1";
+    fi
+    # Add more if elseif clauses or use a switch case to check $1
+    # if parsing more arguments is required in future.
+    # Shift all the parameters down by one
+    shift
+done
+# ---------------------- Command Line Args ---------------------------
 
 # OS specific support.  $var _must_ be set to either true or false.
 #ulimit -n 100000
@@ -133,8 +151,7 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 if [ $DEBUG_MODE = true ]; then
-  JAVA_DEBUG="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT"
-  echo "Please start the remote debugging client to continue..."
+  JAVA_DEBUG="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT,quiet=y"
 else
   JAVA_DEBUG=""
 fi
@@ -144,6 +161,8 @@ if [ "$JDK_18" = "" ]; then
     echo "Error: Ballerina is supported only on JDK 1.8"
     exit 1
 fi
+
+CLASSPATHS="$CLASSPATHS":"$CUSTOM_CLASSPATH"
 
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/bre/lib/*
 
@@ -170,4 +189,4 @@ $JAVACMD \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.debugLog=$DEBUG_LOG \
 	-cp "$CLASSPATHS" \
-	 org.ballerinalang.langserver.launchers.stdio.Main 
+	 org.ballerinalang.langserver.launchers.stdio.Main

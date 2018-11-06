@@ -18,10 +18,12 @@
  *
  */
 import { ExtensionContext } from 'vscode';
+import { ballerinaExtInstance } from './core';
 import { activate as activateDiagram } from './diagram'; 
 import { activate as activateBBE } from './bbe';
-import { ballerinaExtInstance } from './core';
+import { activate as activateDocs } from './docs';
 import { activateDebugConfigProvider } from './debugger';
+import { activateTestRunner } from './test-runner';
 
 export function activate(context: ExtensionContext): void {
 	ballerinaExtInstance.setContext(context);
@@ -33,4 +35,8 @@ export function activate(context: ExtensionContext): void {
 	activateBBE(ballerinaExtInstance);
 	// Enable Ballerina Debug Config Provider
 	activateDebugConfigProvider(ballerinaExtInstance);
+	// Enable Test Runner
+	activateTestRunner(ballerinaExtInstance);
+  // Enable API Docs Live Preview
+	activateDocs(ballerinaExtInstance);
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -90,6 +91,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -117,6 +119,8 @@ public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
+
+    public static final String FILE_SEPARATOR = File.separator;
 
     public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
 
@@ -379,22 +383,20 @@ public class CommonUtil {
      */
     public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
         Path filePath = new LSDocument(fileUri).getPath();
-        Path fileNamePath = filePath.getFileName();
-        BLangPackage currentPackage = null;
+        String currentModule = LSCompilerUtil.getCurrentModulePath(filePath).getFileName().toString();
         try {
-            found:
             for (BLangPackage bLangPackage : packages) {
-                for (BLangCompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
-                    if (compilationUnit.name.equals(fileNamePath.getFileName().toString())) {
-                        currentPackage = bLangPackage;
-                        break found;
-                    }
+                if (bLangPackage.packageID.sourceFileName != null &&
+                        bLangPackage.packageID.sourceFileName.value.equals(filePath.getFileName().toString())) {
+                    return bLangPackage;
+                } else if (currentModule.equals(bLangPackage.packageID.name.value)) {
+                    return bLangPackage;
                 }
             }
         } catch (NullPointerException e) {
-            currentPackage = packages.get(0);
+            return packages.get(0);
         }
-        return currentPackage;
+        return null;
     }
 
     /**
@@ -676,9 +678,37 @@ public class CommonUtil {
                     + nameComponents[nameComponents.length - 1];
         }
     }
-    
+
+    /**
+     * Get the last item of the List.
+     * 
+     * @param list  List to get the Last Item
+     * @param <T>   List content Type
+     * @return      Extracted last Item
+     */
     public static <T> T getLastItem(List<T> list) {
         return list.get(list.size() - 1);
+    }
+
+    /**
+     * Check whether the source is a test source.
+     *
+     * @param relativeFilePath  source path relative to the package
+     * @return {@link Boolean}  Whether a test source or not
+     */
+    public static boolean isTestSource(String relativeFilePath) {
+        return relativeFilePath.startsWith("tests" + FILE_SEPARATOR);
+    }
+
+    /**
+     * Get the Source's owner BLang package, this can be either the parent package or the testable BLang package.
+     *
+     * @param relativePath          Relative source path
+     * @param parentPkg             parent package
+     * @return {@link BLangPackage} Resolved BLangPackage
+     */
+    public static BLangPackage getSourceOwnerBLangPackage(String relativePath, BLangPackage parentPkg) {
+        return isTestSource(relativePath) ? parentPkg.getTestablePkg() : parentPkg;
     }
 
     static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList, LSContext context) {
@@ -739,7 +769,9 @@ public class CommonUtil {
     public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         return pkg.getImports().stream()
-                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile))
+                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile)
+                        && !(bLangImportPackage.getOrgName().getValue().equals("ballerina") 
+                        && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
                 .collect(Collectors.toList());
     }
 

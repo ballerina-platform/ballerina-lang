@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
@@ -73,7 +72,6 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
         }
     }
 
-    io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
 
@@ -122,7 +120,7 @@ function createStreamingConstruct() {
         }
     );
 
-    streams:Window tmpWindow = streams:timeWindow(1000, nextProcessPointer = select.process);
+    streams:Window tmpWindow = streams:timeWindow([1000], nextProcessPointer = select.process);
     streams:Filter filter = streams:createFilter(tmpWindow.process, function (map m) returns boolean {
             // simplify filter
             return check <int>m["inputStream.age"] > getValue();

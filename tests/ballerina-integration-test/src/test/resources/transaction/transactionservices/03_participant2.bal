@@ -17,23 +17,20 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/sql;
-import ballerina/jdbc;
+import ballerina/h2;
 import ballerina/system;
 
 endpoint http:Listener participant2EP02 {
     port:8890
 };
 
-//endpoint sql:Client testDB {
-//        username: "SA",
-//        password: "",
-//        options: {url:"jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR"}
-//};
-
-endpoint jdbc:Client testDB {
-    url: "jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR",
+endpoint h2:Client testDB {
+    path: "../../../target/tempdb/",
+    name: "TEST_SQL_CONNECTOR",
     username: "SA",
-    poolOptions: {maximumPoolSize:10}
+    password: "",
+    poolOptions: { maximumPoolSize: 10 },
+    dbOptions: { "IFEXISTS": true }
 };
 
 State2 state2 = new;
@@ -128,12 +125,17 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
         }
         string uuid = system:uuid();
 
-        var result = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                                 values ('John', 'Doe', '" + uuid +"', 5000.75, 'USA')");
-        match result {
-            int insertCount => io:println(insertCount);
-            error => io:println("");
+        try {
+            var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                                 values ('John', 'Doe', '" + uuid + "', 5000.75, 'USA')");
+            match result {
+                int insertCount => io:println(insertCount);
+                error => io:println("");
+            }
+        } catch (error e) {
+            io:println("FAILED!!!!!");
         }
+
         res.setTextPayload(uuid);
         var forwardRes = ep -> respond(res);
         match forwardRes {

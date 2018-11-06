@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     int timestamp;
@@ -70,13 +68,12 @@ function startExternalTimeWindowTest() returns (TeacherOutput[]) {
             break;
         }
     }
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
 function testExternalTimeWindow() {
     forever {
-        from inputStreamExternalTimeTest window externalTimeWindow(inputStreamExternalTimeTest.timestamp, 1000)
+        from inputStreamExternalTimeTest window externalTimeWindow([inputStreamExternalTimeTest.timestamp, 1000])
         select inputStreamExternalTimeTest.timestamp, inputStreamExternalTimeTest.name, count() as count
         group by inputStreamExternalTimeTest.school
         => (TeacherOutput [] teachers) {

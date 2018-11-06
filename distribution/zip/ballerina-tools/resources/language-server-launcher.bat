@@ -34,9 +34,7 @@ rem ----------if JAVA_HOME is not set we're not happy -------------------------
 
 
 rem ------------------ Developer Configurations -------------------------------
-set "BALLERINA_DEBUG_LOG="
-set "DEBUG_MODE="
-set DEBUG_PORT=5005;
+set DEBUG_PORT=5005
 rem ---------------------------------------------------------------------------
 
 rem -------------------------- set BALLERINA_HOME -----------------------------
@@ -65,34 +63,33 @@ rem ----- update classpath -----------------------------------------------------
 
 setlocal EnableDelayedExpansion
 set BALLERINA_CLASSPATH=
-
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
-
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\tools\lang-server\lib\*"
 
-rem ----- Process the input command -------------------------------------------
+:loop
+if not "%~1" == "" (
+    if "%~1" == "--debug" (
+        set DEBUG=true
+        SHIFT
+    )
+    SHIFT
+    goto :loop
+    rem "Should check if any other arguements needs to be processed"
+)
 
-rem Slurp the command line arguments. This loop allows for an unlimited number
-rem of arguments (up to the command line limit, anyway).
-
-:setupArgs
-if defined JAVA_DEBUG (goto commandDebug) else (goto doneStart) 
+if "%DEBUG%" == "" goto runServer
+goto commandDebug
 
 rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
-
+if "%DEBUG_PORT%"=="" goto noDebugPort
 if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option.
-set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%
-echo Please start the remote debugging client to continue...
+set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%,quiet=y
 goto runServer
 
 :noDebugPort
-echo Please specify the debug port after the --java.debug option
+echo Please specify the debug port.
 goto end
-
-:doneStart
-if "%OS%"=="Windows_NT" @setlocal
-if "%OS%"=="WINNT" @setlocal
 
 rem find the version of the jdk
 :findJdk
@@ -115,12 +112,11 @@ goto runServer
 rem ----------------- Execute The Requested Command ----------------------------
 
 :runServer
-
 set CMD=%*
 
 rem ---------- Add jars to classpath ----------------
 
-set CMD_LINE_ARGS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\language-server-heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Dballerina.version=0.981.2-SNAPSHOT
+set CMD_LINE_ARGS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\language-server-heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" %JAVA_OPTS% -Dballerina.version=0.981.2-SNAPSHOT
 
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.ballerinalang.langserver.launchers.stdio.Main %CMD%
