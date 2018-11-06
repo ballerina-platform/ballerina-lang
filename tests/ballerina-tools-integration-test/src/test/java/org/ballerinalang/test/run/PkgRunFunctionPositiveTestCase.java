@@ -70,7 +70,7 @@ public class PkgRunFunctionPositiveTestCase extends BaseTest {
     @Test
     public void testArgWithColons() throws BallerinaTestException {
         String arg = "test arg";
-        String sourceArg = "pkg:with:colons:colonsInName:Function";
+        String sourceArg = "pkg_with_colons:colonsInName:Function";
         LogLeecher outLogLeecher = new LogLeecher(arg);
         balClient.runMain(sourceRoot, sourceArg, new String[]{PRINT_RETURN}, new String[]{arg},
                           new LogLeecher[]{outLogLeecher});

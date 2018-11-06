@@ -68,7 +68,7 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
     @Test
     public void testArgWithColons() throws BallerinaTestException {
         String arg = "test arg";
-        sourceArg = (new File("src/test/resources/run/file/test:with_colons:multiple.bal")).getAbsolutePath() +
+        sourceArg = (new File("src/test/resources/run/file/test_entry_function_with_colons.bal")).getAbsolutePath() +
                 ":colonsInName:Function";
         LogLeecher outLogLeecher = new LogLeecher(arg);
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg}, new LogLeecher[]{outLogLeecher});

@@ -101,9 +101,9 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
     @Test
     public void testArgWithColons() throws BallerinaTestException {
         String arg = "test arg";
-        String fileName = "test:with_colons:multiple.bal";
+        String fileName = "test_entry_function_with_colons.bal";
         String[] args = {"-o",
-                tempProjectDirTwo.toString().concat(File.separator).concat("test:with_colons:multiple"),
+                tempProjectDirTwo.toString().concat(File.separator).concat("test_entry_function_with_colons"),
                 (new File("src/test/resources/run/balx/complex")).getAbsolutePath().concat(File.separator)
                         .concat(fileName)};
         balClient.runMain("build", args, null, new String[0], new LogLeecher[0],

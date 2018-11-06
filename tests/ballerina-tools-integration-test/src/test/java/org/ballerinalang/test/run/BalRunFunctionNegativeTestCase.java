@@ -50,10 +50,10 @@ public class BalRunFunctionNegativeTestCase extends BaseTest {
 
     @Test
     public void testWrongEntryFunctionNameInArgWithColons() throws BallerinaTestException {
-        String sourceArg = (new File(sourceRootPath + "test:with_colons:multiple.bal")).getAbsolutePath() +
+        String sourceArg = (new File(sourceRootPath + "test_entry_function_with_colons.bal")).getAbsolutePath() +
                 ":colonsInName:WrongFunction";
         LogLeecher errLogLeecher = new LogLeecher("ballerina: 'colonsInName:WrongFunction' function not found in " +
-                                                          "'test:with_colons:multiple.bal'", LeecherType.ERROR);
+                                                          "'test_entry_function_with_colons.bal'", LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }

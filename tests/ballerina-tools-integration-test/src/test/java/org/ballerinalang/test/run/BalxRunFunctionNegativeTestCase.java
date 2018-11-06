@@ -75,9 +75,9 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
 
     @Test
     public void testWrongEntryFunctionNameInArgWithColons() throws BallerinaTestException {
-        String fileName = "test:with_colons:multiple.bal";
+        String fileName = "test_entry_function_with_colons.bal";
         String[] clientArgs = {"-o",
-                tempProjectDirTwo.toString().concat(File.separator).concat("test:with_colons:multiple"),
+                tempProjectDirTwo.toString().concat(File.separator).concat("test_entry_function_with_colons"),
                 (new File("src/test/resources/run/balx/complex")).getAbsolutePath().concat(File.separator)
                         .concat(fileName)};
         balClient.runMain("build", clientArgs, null, new String[0], new LogLeecher[0],
