@@ -161,7 +161,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
         }
 
         string [] uriParts = resolvedURI.split("/");
-        string pkgVersion = uriParts[lengthof uriParts - 2];
+        string pkgVersion = uriParts[uriParts.length() - 2];
         boolean valid = check pkgVersion.matches(VERSION_REGEX);
 
         if (valid) {

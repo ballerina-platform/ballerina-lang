@@ -210,5 +210,5 @@ type ArrayCustom int[];
 
 function testTypeDefinitionWithArray() returns (int, int) {
     ArrayCustom val = [34, 23];
-    return (lengthof val , val[1]);
+    return (val.length() , val[1]);
 }

@@ -37,7 +37,7 @@ service Chat bind ep5 {
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
         string[] conKeys = consMap.keys();
-        int len = lengthof conKeys;
+        int len = conKeys.length();
         int i = 0;
         while (i < len) {
             con = check <grpc:Listener>consMap[conKeys[i]];
@@ -59,7 +59,7 @@ service Chat bind ep5 {
         io:println(msg);
         var v = consMap.remove(<string>client.id);
         string[] conKeys = consMap.keys();
-        int len = lengthof conKeys;
+        int len = conKeys.length();
         int i = 0;
         while (i < len) {
             con = check <grpc:Listener>consMap[conKeys[i]];

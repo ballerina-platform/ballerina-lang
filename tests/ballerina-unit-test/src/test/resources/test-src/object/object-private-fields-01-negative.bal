@@ -27,7 +27,7 @@ public function testRuntimeObjEqNegative() returns (string) {
     // This is a unsafe cast
     var uB = <userB> uA;
     match uB {
-        error err => return err.message;
+        error err => return err.reason();
         userB usrB  => return usrB.zipcode;
     }
 }

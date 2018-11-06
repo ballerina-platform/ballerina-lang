@@ -332,7 +332,7 @@ public class LengthOperationTest {
 
     @Test(description = "Test length of json when reference point to json that is null.",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: nullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException \\{\\}.*")
     public void testJsonLengthOfNull() {
         BValue[] args = new BValue[0];
         BRunUtil.invoke(result, "accessLengthOfNullJson", args);

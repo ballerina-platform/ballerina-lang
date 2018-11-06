@@ -52,7 +52,7 @@ function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
 
 function createNullTermiatedString(string str) returns byte[] {
     byte[] filenameBytes = str.toByteArray("UTF-8");
-    filenameBytes[lengthof filenameBytes] = 0;
+    filenameBytes[filenameBytes.length()] = 0;
     return filenameBytes;
 }
 
@@ -121,7 +121,7 @@ function genBType(bir:BType bType) returns llvm:LLVMTypeRef {
 }
 
 function appendAllTo(any[] toArr, any[] fromArr) {
-    int i = lengthof toArr;
+    int i = toArr.length();
     foreach bI in fromArr{
         toArr[i] = bI;
         i += 1;

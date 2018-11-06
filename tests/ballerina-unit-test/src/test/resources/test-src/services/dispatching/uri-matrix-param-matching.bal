@@ -53,10 +53,10 @@ service<http:Service> testService bind testEP {
         outJson.person = person;
 
         map personMParams = req.getMatrixParams(string `/hello/t2/{{person}}`);
-        outJson.personParamSize = lengthof personMParams;
+        outJson.personParamSize = personMParams.length();
 
         map fooMParams = req.getMatrixParams(string `/hello/t2/{{person}}/foo`);
-        outJson.fooParamSize = lengthof fooMParams;
+        outJson.fooParamSize = fooMParams.length();
 
         res.setJsonPayload(untaint outJson);
         _ = caller -> respond(res);
