@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/log;
 
 endpoint grpc:Listener ep98 {
     host:"localhost",
@@ -23,7 +23,7 @@ endpoint grpc:Listener ep98 {
 
 service HelloWorld98 bind ep98 {
     hello(endpoint caller, string name) {
-        io:println("name: " + name);
+        log:printInfo("name: " + name);
         string message = "Hello " + name;
         error? err;
         if (name == "invalid") {
@@ -31,28 +31,38 @@ service HelloWorld98 bind ep98 {
         } else {
             err = caller->send(message);
         }
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            log:printError(err.reason(), err = err);
+        }
         _ = caller->complete();
     }
 
     testInt(endpoint caller, string age) {
-        io:println("age: " + age);
+        log:printInfo("age: " + age);
         int displayAge;
-        if (age == null) {
+        if (age == "") {
             displayAge = -1;
         } else {
             displayAge = 1;
         }
         error? err = caller->send(displayAge);
-        io:println(err.message but { () => ("display age : " + displayAge) });
+        if (err is error) {
+            log:printError(err.reason(), err = err);
+        } else {
+            log:printInfo("display age : " + displayAge);
+        }
         _ = caller->complete();
     }
 
     testFloat(endpoint caller, float salary) {
-        io:println("gross salary: " + salary);
+        log:printInfo("gross salary: " + salary);
         string netSalary = <string>(salary * 0.88);
         error? err = caller->send(netSalary);
-        io:println(err.message but { () => ("net salary : " + netSalary) });
+        if (err is error) {
+            log:printError(err.reason(), err = err);
+        } else {
+            log:printInfo("net salary : " + netSalary);
+        }
         _ = caller->complete();
     }
 }

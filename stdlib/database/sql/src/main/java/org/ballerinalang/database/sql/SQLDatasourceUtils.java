@@ -26,11 +26,13 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -39,9 +41,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
@@ -83,8 +82,6 @@ import java.util.StringJoiner;
 import java.util.TimeZone;
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
-
-import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
 
 /**
  * Class contains utility methods for SQL Connector operations.
@@ -1114,16 +1111,14 @@ public class SQLDatasourceUtils {
         return null;
     }
 
-    public static BMap<?, ?> getSQLConnectorError(Context context, Throwable throwable) {
-        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
-        StructureTypeInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
-        BMap<String, BValue> sqlConnectorError = new BMap<>(errorStructInfo.getType());
-        if (throwable.getMessage() == null) {
-            sqlConnectorError.put(ERROR_MESSAGE_FIELD, new BString(Constants.SQL_EXCEPTION_OCCURED));
-        } else {
-            sqlConnectorError.put(ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
-        }
-        return sqlConnectorError;
+    public static BError getSQLConnectorError(Context context, Throwable throwable) {
+        String detailedErrorMessage = 
+            throwable.getMessage() != null ? throwable.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
+                .createBStruct(context, Constants.SQL_PACKAGE_PATH, Constants.DATABASE_ERROR_RECORD_NAME,
+                        detailedErrorMessage);
+        return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.DATABASE_ERROR_CODE,
+                sqlClientErrorDetailRecord);
     }
 
     public static void handleErrorOnTransaction(Context context) {

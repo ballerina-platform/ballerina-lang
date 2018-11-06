@@ -328,7 +328,7 @@ function Request::getFormParams() returns map<string>|error {
     var formData = self.getEntity()!getText();
     map<string> parameters;
     if formData is string {
-        if (formData != null && formData != "") {
+        if (formData != "") {
             string[] entries = formData.split("&");
             int entryIndex = 0;
             while (entryIndex < lengthof entries) {

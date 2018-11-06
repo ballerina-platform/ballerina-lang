@@ -155,10 +155,7 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
         } else if (annotationName == SERVICE_ANN_NAME) {
             HttpServiceConfig serviceConfig = check <HttpServiceConfig>authAnn.value;
             return serviceConfig.authConfig;
-        } else {
-            return ();
         }
-    } else {
-        return ();
     }
+    return ();
 }

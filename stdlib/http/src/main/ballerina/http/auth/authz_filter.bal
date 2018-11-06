@@ -78,9 +78,9 @@ function isAuthzSuccessfull(Listener listener, boolean authorized) returns boole
     if (!authorized) {
         response.statusCode = 403;
         response.setTextPayload("Authorization failure");
-        var value = caller->respond(response);
-        if value is error {
-            panic value;
+        var err = caller->respond(response);
+        if err is error {
+            panic err;
         }
         return false;
     }
