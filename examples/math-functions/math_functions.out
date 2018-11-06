@@ -1,3 +1,5 @@
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run math_functions.bal
 Value of PI : 3.141592653589793
 Value of E  : 2.718281828459045

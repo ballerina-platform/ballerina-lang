@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,8 +38,8 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
             throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance
-                .getServiceURLHttp(servicePort, "echo/test"), headers);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance
+                .getServiceURLHttps(servicePort, "echo/test"), headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
@@ -49,8 +49,8 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
             throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance
-                .getServiceURLHttp(servicePort, "echo/test"), headers);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance
+                .getServiceURLHttps(servicePort, "echo/test"), headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
@@ -60,8 +60,8 @@ public class AuthzConfigInheritanceTest extends AuthBaseTest {
             throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance
-                .getServiceURLHttp(servicePort, "echo/test"), headers);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance
+                .getServiceURLHttps(servicePort, "echo/test"), headers, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }

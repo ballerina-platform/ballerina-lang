@@ -20,6 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import AbstractCompilationUnitNode from './abstract-tree/compilation-unit-node';
 import TreeUtils from '../tree-util';
+import { ASTUtil } from "ast-model";
 
 
 class CompilationUnitNode extends AbstractCompilationUnitNode {
@@ -87,6 +88,17 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
         } else if (pkgDeclIndex !== -1) {
             targetIndex = pkgDeclIndex + 1;
         }
+
+        let startIndex = 0;
+        let insertBefore = this.topLevelNodes[targetIndex];
+        if(insertBefore !== undefined){
+            const wsList = ASTUtil.extractWS(insertBefore);
+            if(wsList.length > 0){
+                startIndex = wsList[0].i;
+            }
+        }
+        
+        ASTUtil.reconcileWS(importNode, this.getTopLevelNodes(), this, startIndex);
         this.addTopLevelNodes(importNode, targetIndex, silent);
     }
 
@@ -151,11 +163,13 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
                 if (TreeUtils.isImport(element)) {
                     this.addImport(element, silent);
                 } else {
+                    ASTUtil.reconcileWS(element, this.getTopLevelNodes(), this.getRoot());
                     this.addTopLevelNodes(element, -1, silent);
                 }
             });
         } else {
             TreeUtils.generateDefaultName(this, node);
+            ASTUtil.reconcileWS(node, this.getTopLevelNodes(), this.getRoot());
             this.addTopLevelNodes(node);
         }
     }

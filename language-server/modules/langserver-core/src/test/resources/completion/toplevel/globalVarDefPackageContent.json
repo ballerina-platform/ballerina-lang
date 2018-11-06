@@ -9,6 +9,7 @@
       "label":"extractBasicAuthHeaderValue(http:Request req)(string?)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Extracts the basic authentication header value from the request.\n",
       "sortText":"120",
       "insertText":"extractBasicAuthHeaderValue(${1:req})",
       "insertTextFormat":"Snippet"
@@ -17,6 +18,7 @@
       "label":"createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)(ballerina/http:CallerActions)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Creates an HTTP client capable of caching HTTP responses.\n",
       "sortText":"120",
       "insertText":"createHttpCachingClient(${1:url}, ${2:config}, ${3:cacheConfig})",
       "insertTextFormat":"Snippet"
@@ -25,6 +27,7 @@
       "label":"parseHeader(string headerValue)((string,map)|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Parses the given header value to extract its value and parameter map.\n",
       "sortText":"120",
       "insertText":"parseHeader(${1:headerValue})",
       "insertTextFormat":"Snippet"
@@ -33,6 +36,7 @@
       "label":"invokeEndpoint(string path, http:Request outRequest, http:HttpOperation requestAction, http:CallerActions httpClient)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP actions provider.",
       "sortText":"120",
       "insertText":"invokeEndpoint(${1:path}, ${2:outRequest}, ${3:requestAction}, ${4:httpClient})",
       "insertTextFormat":"Snippet"
@@ -41,6 +45,7 @@
       "label":"createHttpSecureClient(string url, http:ClientEndpointConfig config)(ballerina/http:CallerActions)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Creates an HTTP client capable of securing HTTP requests with authentication.\n",
       "sortText":"120",
       "insertText":"createHttpSecureClient(${1:url}, ${2:config})",
       "insertTextFormat":"Snippet"
@@ -49,6 +54,7 @@
       "label":"roundRobin(http:LoadBalancerActions lb, http:CallerActions[] loadBalanceConfigArray)(ballerina/http:CallerActions)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Round Robin Algorithm implementation with respect to load balancing endpoints.\n",
       "sortText":"120",
       "insertText":"roundRobin(${1:lb}, ${2:loadBalanceConfigArray})",
       "insertTextFormat":"Snippet"
@@ -57,6 +63,7 @@
       "label":"encode(string url, string charset)(string|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Encodes the given URL.\n",
       "sortText":"120",
       "insertText":"encode(${1:url}, ${2:charset})",
       "insertTextFormat":"Snippet"
@@ -65,560 +72,631 @@
       "label":"decode(string url, string charset)(string|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Decodes the given URL.\n",
       "sortText":"120",
       "insertText":"decode(${1:url}, ${2:charset})",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpServiceConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Contains the configurations for an HTTP service.\n",
       "sortText":"170",
       "insertText":"HttpServiceConfig"
     },
     {
       "label":"CorsConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configurations for CORS support.\n",
       "sortText":"170",
       "insertText":"CorsConfig"
     },
     {
       "label":"Versioning",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configurations for service versioning.\n",
       "sortText":"170",
       "insertText":"Versioning"
     },
     {
       "label":"WSServiceConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configurations for a WebSocket service.\n",
       "sortText":"170",
       "insertText":"WSServiceConfig"
     },
     {
       "label":"HttpResourceConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configuration for an HTTP resource.\n",
       "sortText":"170",
       "insertText":"HttpResourceConfig"
     },
     {
       "label":"WebSocketUpgradeConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configures the HTTP to WebSocket upgrade.\n",
       "sortText":"170",
       "insertText":"WebSocketUpgradeConfig"
     },
     {
       "label":"ListenerAuthConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configures the authentication scheme for a service or a resource.\n",
       "sortText":"170",
       "insertText":"ListenerAuthConfig"
     },
     {
       "label":"Authentication",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Can be used for enabling/disabling authentication in an HTTP service.\n",
       "sortText":"170",
       "insertText":"Authentication"
     },
     {
       "label":"CacheConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides a set of configurations for controlling the caching behaviour of the endpoint.\n",
       "sortText":"170",
       "insertText":"CacheConfig"
     },
     {
       "label":"TargetService",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents a single service and its related configurations.\n",
       "sortText":"170",
       "insertText":"TargetService"
     },
     {
       "label":"ClientEndpointConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n",
       "sortText":"170",
       "insertText":"ClientEndpointConfig"
     },
     {
       "label":"RetryConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides configurations for controlling the retry behaviour in failure scenarios.\n",
       "sortText":"170",
       "insertText":"RetryConfig"
     },
     {
       "label":"SecureSocket",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n",
       "sortText":"170",
       "insertText":"SecureSocket"
     },
     {
       "label":"FollowRedirects",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n",
       "sortText":"170",
       "insertText":"FollowRedirects"
     },
     {
       "label":"ProxyConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Proxy server configurations to be used with the HTTP client endpoint.\n",
       "sortText":"170",
       "insertText":"ProxyConfig"
     },
     {
       "label":"ConnectionThrottling",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides configurations for throttling connections of the endpoint.\n",
       "sortText":"170",
       "insertText":"ConnectionThrottling"
     },
     {
       "label":"AuthConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.\n",
       "sortText":"170",
       "insertText":"AuthConfig"
     },
     {
       "label":"HttpTimeoutError",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Defines a timeout error occurred during service invocation.\n",
       "sortText":"170",
       "insertText":"HttpTimeoutError"
     },
     {
       "label":"TrustStore",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"A record for providing trust store related configurations.\n",
       "sortText":"170",
       "insertText":"TrustStore"
     },
     {
       "label":"KeyStore",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"A record for providing key store related configurations.\n",
       "sortText":"170",
       "insertText":"KeyStore"
     },
     {
       "label":"Protocols",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"A record for configuring SSL/TLS protocol and version to be used.\n",
       "sortText":"170",
       "insertText":"Protocols"
     },
     {
       "label":"ValidateCert",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"A record for providing configurations for certificate revocation status checks.\n",
       "sortText":"170",
       "insertText":"ValidateCert"
     },
     {
       "label":"ServiceOcspStapling",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"A record for providing configurations for certificate revocation status checks.\n",
       "sortText":"170",
       "insertText":"ServiceOcspStapling"
     },
     {
       "label":"CompressionConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"A record for providing configurations for content compression.\n",
       "sortText":"170",
       "insertText":"CompressionConfig"
     },
     {
       "label":"FailoverClientEndpointConfiguration",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides a set of HTTP related configurations and failover related configurations.\n",
       "sortText":"170",
       "insertText":"FailoverClientEndpointConfiguration"
     },
     {
       "label":"FailoverConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides a set of configurations for controlling the failover behaviour of the endpoint.\n",
       "sortText":"170",
       "insertText":"FailoverConfig"
     },
     {
       "label":"FailoverActionError",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Defines an error which occurred during an attempt to failover.\n",
       "sortText":"170",
       "insertText":"FailoverActionError"
     },
     {
       "label":"FailoverInferredConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Inferred failover configurations passed into the failover client.\n",
       "sortText":"170",
       "insertText":"FailoverInferredConfig"
     },
     {
       "label":"CircuitHealth",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Maintains the health of the Circuit Breaker.\n",
       "sortText":"170",
       "insertText":"CircuitHealth"
     },
     {
       "label":"CircuitBreakerConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n",
       "sortText":"170",
       "insertText":"CircuitBreakerConfig"
     },
     {
       "label":"RollingWindow",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents a rolling window in the Circuit Breaker.\n",
       "sortText":"170",
       "insertText":"RollingWindow"
     },
     {
       "label":"Bucket",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents a discrete sub-part of the time window (Bucket).\n",
       "sortText":"170",
       "insertText":"Bucket"
     },
     {
       "label":"CircuitBreakerInferredConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Derived set of configurations from the `CircuitBreakerConfig`.\n",
       "sortText":"170",
       "insertText":"CircuitBreakerInferredConfig"
     },
     {
       "label":"LoadBalanceActionError",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents an error occurred in an action of the Load Balance connector.\n",
       "sortText":"170",
       "insertText":"LoadBalanceActionError"
     },
     {
-      "label":"LoadBalanceClientEndpointConfiguration",
-      "kind":"Reference",
+      "label":"RetryInferredConfig",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Derived set of configurations from the `RetryConfig`.\n",
+      "sortText":"170",
+      "insertText":"RetryInferredConfig"
+    },
+    {
+      "label":"LoadBalanceClientEndpointConfiguration",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"The configurations related to the load balance client endpoint.\n",
       "sortText":"170",
       "insertText":"LoadBalanceClientEndpointConfiguration"
     },
     {
-      "label":"SecureEndpointConfiguration",
-      "kind":"Reference",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"SecureEndpointConfiguration"
-    },
-    {
-      "label":"AuthProvider",
-      "kind":"Reference",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"AuthProvider"
-    },
-    {
       "label":"Remote",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Presents a read-only view of the remote address.\n",
       "sortText":"170",
       "insertText":"Remote"
     },
     {
       "label":"Local",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Presents a read-only view of the local address.\n",
       "sortText":"170",
       "insertText":"Local"
     },
     {
       "label":"RequestLimits",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configures limits for requests. If these limits are violated, the request is rejected.\n",
       "sortText":"170",
       "insertText":"RequestLimits"
     },
     {
       "label":"ServiceEndpointConfiguration",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides a set of configurations for HTTP service endpoints.\n",
       "sortText":"170",
       "insertText":"ServiceEndpointConfiguration"
     },
     {
       "label":"ServiceSecureSocket",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configures the SSL/TLS options to be used for HTTP service.\n",
       "sortText":"170",
       "insertText":"ServiceSecureSocket"
     },
     {
-      "label":"WebSocketClientEndpointConfig",
-      "kind":"Reference",
+      "label":"AuthCacheConfig",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n",
+      "sortText":"170",
+      "insertText":"AuthCacheConfig"
+    },
+    {
+      "label":"AuthProvider",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Configuration for authentication providers.\n",
+      "sortText":"170",
+      "insertText":"AuthProvider"
+    },
+    {
+      "label":"WebSocketClientEndpointConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Configuration struct for WebSocket client endpoint.\n",
       "sortText":"170",
       "insertText":"WebSocketClientEndpointConfig"
     },
     {
-      "label":"APIListenerActions",
-      "kind":"Reference",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"APIListenerActions"
-    },
-    {
       "label":"AuthHandlerRegistry",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of the Http Auth Handler Registry.\n",
       "sortText":"170",
       "insertText":"AuthHandlerRegistry"
     },
     {
       "label":"AuthnFilter",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of the Authentication filter.\n",
       "sortText":"170",
       "insertText":"AuthnFilter"
     },
     {
       "label":"HttpAuthnHandler",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of Authentication handler for HTTP traffic.\n",
       "sortText":"170",
       "insertText":"HttpAuthnHandler"
     },
     {
       "label":"AuthnHandlerChain",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of Authentication handler chain\n",
       "sortText":"170",
       "insertText":"AuthnHandlerChain"
     },
     {
       "label":"AuthzFilter",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of the Authorization filter\n",
       "sortText":"170",
       "insertText":"AuthzFilter"
     },
     {
       "label":"HttpAuthzHandler",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of Authorization Handler for HTTP\n",
       "sortText":"170",
       "insertText":"HttpAuthzHandler"
     },
     {
       "label":"HttpBasicAuthnHandler",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Defines Basic Auth handler for HTTP traffic.\n",
       "sortText":"170",
       "insertText":"HttpBasicAuthnHandler"
     },
     {
       "label":"HttpJwtAuthnHandler",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of JWT Auth handler for HTTP traffic\n",
       "sortText":"170",
       "insertText":"HttpJwtAuthnHandler"
     },
     {
       "label":"RequestCacheControl",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configures cache control directives for a `Request`.\n",
       "sortText":"170",
       "insertText":"RequestCacheControl"
     },
     {
       "label":"ResponseCacheControl",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Configures cache control directives for a `Response`.\n",
       "sortText":"170",
       "insertText":"ResponseCacheControl"
     },
     {
       "label":"HttpCache",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n",
       "sortText":"170",
       "insertText":"HttpCache"
     },
     {
       "label":"HttpCachingClient",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.\n",
       "sortText":"170",
       "insertText":"HttpCachingClient"
     },
     {
       "label":"HttpFuture",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission.",
       "sortText":"170",
       "insertText":"HttpFuture"
     },
     {
       "label":"PushPromise",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents an HTTP/2 `PUSH_PROMISE` frame.\n",
       "sortText":"170",
       "insertText":"PushPromise"
     },
     {
       "label":"Filter",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.",
       "sortText":"170",
       "insertText":"Filter"
     },
     {
       "label":"FilterContext",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Representation of request filter Context.\n",
       "sortText":"170",
       "insertText":"FilterContext"
     },
     {
       "label":"Request",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents an HTTP request.\n",
       "sortText":"170",
       "insertText":"Request"
     },
     {
       "label":"Response",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents an HTTP response.\n",
       "sortText":"170",
       "insertText":"Response"
     },
     {
       "label":"HttpSecureClient",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes\nconfigured in the HTTP client endpoint to secure the HTTP requests.\n",
       "sortText":"170",
       "insertText":"HttpSecureClient"
     },
     {
       "label":"Service",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"A representation of an HTTP service instance.",
       "sortText":"170",
       "insertText":"Service"
     },
     {
       "label":"RedirectClient",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides redirect functionality for HTTP client actions.\n",
       "sortText":"170",
       "insertText":"RedirectClient"
     },
     {
       "label":"CircuitBreakerClient",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"A Circuit Breaker implementation which can be used to gracefully handle network failures.\n",
       "sortText":"170",
       "insertText":"CircuitBreakerClient"
     },
     {
       "label":"RetryClient",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n",
       "sortText":"170",
       "insertText":"RetryClient"
     },
     {
-      "label":"SecureListenerActions",
-      "kind":"Reference",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"SecureListenerActions"
-    },
-    {
       "label":"WebSocketClientService",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents the WebSocket client service.",
       "sortText":"170",
       "insertText":"WebSocketClientService"
     },
     {
       "label":"WebSocketService",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents the WebSocket client service.",
       "sortText":"170",
       "insertText":"WebSocketService"
     },
     {
       "label":"CachingPolicy",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
+      "documentation":"Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows\nthe user to control the caching behaviour.",
       "sortText":"170",
       "insertText":"CachingPolicy"
     },
     {
       "label":"Chunking",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
+      "documentation":"Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\n        otherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response",
       "sortText":"170",
       "insertText":"Chunking"
     },
     {
       "label":"Compression",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
+      "documentation":"Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response",
       "sortText":"170",
       "insertText":"Compression"
     },
     {
       "label":"HttpOperation",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
+      "documentation":"Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`NONE`: No operation should be performed",
       "sortText":"170",
       "insertText":"HttpOperation"
     },
     {
       "label":"RedirectCode",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
+      "documentation":"Defines the HTTP redirect codes as a type.",
       "sortText":"170",
       "insertText":"RedirectCode"
     },
     {
       "label":"AuthScheme",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
       "sortText":"170",
       "insertText":"AuthScheme"
     },
     {
       "label":"CredentialBearer",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
+      "documentation":"Specifies how the authentication credentials should be sent when using the refresh token to refresh the access token",
       "sortText":"170",
       "insertText":"CredentialBearer"
     },
     {
       "label":"CircuitState",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
+      "documentation":"A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.\nIf any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After\nthe specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while\nin the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state.",
       "sortText":"170",
       "insertText":"CircuitState"
     },
     {
       "label":"KeepAlive",
-      "kind":"Reference",
+      "kind":"Enum",
       "detail":"BType",
+      "documentation":"Defines the possible values for the keep-alive configuration in service and client endpoints.",
       "sortText":"170",
       "insertText":"KeepAlive"
     }
