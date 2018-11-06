@@ -16,7 +16,7 @@
 
 package org.ballerinalang.code.generator.model;
 
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -31,12 +31,12 @@ public class ParameterContextHolder {
     private String example;
 
     /**
-     * Build a readable parameter model from a Ballerina <code>VariableNode</code>.
+     * Build a readable parameter model from a Ballerina <code>SimpleVariableNode</code>.
      *
-     * @param parameter {@code VariableNode} with parameter definition
+     * @param parameter {@code SimpleVariableNode} with parameter definition
      * @return built Parameter context model
      */
-    public static ParameterContextHolder buildContext(VariableNode parameter) {
+    public static ParameterContextHolder buildContext(SimpleVariableNode parameter) {
         ParameterContextHolder context = new ParameterContextHolder();
         TypeNode type = parameter.getTypeNode();
 

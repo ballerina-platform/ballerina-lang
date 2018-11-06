@@ -25,8 +25,8 @@ import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -74,7 +74,7 @@ public abstract class AbstractCompilerPlugin implements CompilerPlugin {
     }
 
     @Override
-    public void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
+    public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
     }
 
     @Override

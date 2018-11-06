@@ -25,7 +25,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
 import java.util.List;
 
@@ -41,12 +41,13 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         this.clearItemsIfWorkerExists(ctx, completionItems);
         if (previousNode == null) {
             this.populateWhenCursorBeforeOrAfterEp(completionItems, isSnippet);
-        } else if (previousNode instanceof BLangVariableDef
-                && (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
-                || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY))) {
-            CompletionItem workerItem = this.getWorkerSnippet(isSnippet);
-            workerItem.setSortText(Priority.PRIORITY160.toString());
-            completionItems.add(workerItem);
+        } else if (previousNode instanceof BLangSimpleVariableDef) {
+            if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
+                    || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY)) {
+                CompletionItem workerItem = this.getWorkerSnippet(isSnippet);
+                workerItem.setSortText(Priority.PRIORITY160.toString());
+                completionItems.add(workerItem);
+            }
         } else if (previousNode instanceof BLangWorker) {
             completionItems.add(this.getWorkerSnippet(isSnippet));
         }

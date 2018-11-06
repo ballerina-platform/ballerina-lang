@@ -36,13 +36,13 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testParseSemicolonMissingSerivce() {
         CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-service-negative.bal");
-        BAssertUtil.validateError(result, 0, "missing token ';' before 'return'", 10, 7);
+        BAssertUtil.validateError(result, 0, "invalid token 'return'", 10, 7);
     }
 
     @Test
     public void testParseSemicolonMissingMainFunc() {
         CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-func-negative.bal");
-        BAssertUtil.validateError(result, 0, "missing token ';' before 'return'", 5, 2);
+        BAssertUtil.validateError(result, 0, "invalid token 'return'", 5, 2);
     }
 
     /**
@@ -63,8 +63,9 @@ public class InvalidSyntaxParserTest {
     public void testServiceWithoutResourceName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token 'endpoint'", 6, 4);
-        BAssertUtil.validateError(result, 1, "mismatched input ','. expecting ';'", 6, 19);
-        BAssertUtil.validateError(result, 2, "mismatched input ')'. expecting ';'", 6, 41);
+        BAssertUtil.validateError(result, 1, "extraneous input ','", 6, 19);
+        BAssertUtil.validateError(result, 2, "mismatched input ':'. expecting ';'", 6, 25);
+        BAssertUtil.validateError(result, 3, "mismatched input ')'. expecting ';'", 6, 41);
     }
 
     @Test
