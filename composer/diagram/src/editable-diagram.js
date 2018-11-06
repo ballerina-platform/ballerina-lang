@@ -19,7 +19,7 @@
 import { createElement } from 'react';
 import ReactDOM from 'react-dom';
 import BallerinaDiagramWrapper from './BallerinaDiagramWrapper';
-import '@ballerina/theme/default-theme/index.js/';
+import '@ballerina/theme/default-theme/index';
 import './scss/themes/default.scss';
 import '@ballerina/theme/font-ballerina';
 
