@@ -31,10 +31,10 @@ import ballerina/log;
 @final string DEFAULT_DB_USERNAME = "sa";
 @final string DEFAULT_DB_PASSWORD = "";
 
-@readonly string hubHost = "";
+@readonly string hubHost = DEFAULT_HOST;
 @readonly int hubPort = 0;
-@readonly int hubLeaseSeconds = 0;
-@readonly string hubSignatureMethod;
+@readonly int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
+@readonly string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
 @readonly boolean hubRemotePublishingEnabled = false;
 @readonly RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
 @readonly boolean hubTopicRegistrationRequired = false;
