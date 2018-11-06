@@ -33,6 +33,7 @@ public class LCovBRDA {
     private String taken;
 
     public LCovBRDA(int lineNumber, int blockNumber, int branchNumber, String taken) {
+
         this.lineNumber = lineNumber;
         this.blockNumber = blockNumber;
         this.branchNumber = branchNumber;
@@ -40,20 +41,22 @@ public class LCovBRDA {
     }
 
     /**
-     * Getter for line number for the branch
+     * Getter for line number for the branch.
      *
      * @return line number
      */
     public int getLineNumber() {
+
         return lineNumber;
     }
 
     /**
-     * Setter for line number for the branch
+     * Setter for line number for the branch.
      *
      * @param lineNumber line number
      */
     public void setLineNumber(int lineNumber) {
+
         this.lineNumber = lineNumber;
     }
 
@@ -64,6 +67,7 @@ public class LCovBRDA {
      * @return source code block number
      */
     public int getBlockNumber() {
+
         return blockNumber;
     }
 
@@ -74,6 +78,7 @@ public class LCovBRDA {
      * @param blockNumber source code block number
      */
     public void setBlockNumber(int blockNumber) {
+
         this.blockNumber = blockNumber;
     }
 
@@ -84,6 +89,7 @@ public class LCovBRDA {
      * @return source code branch number
      */
     public int getBranchNumber() {
+
         return branchNumber;
     }
 
@@ -94,6 +100,7 @@ public class LCovBRDA {
      * @param branchNumber source code branch number
      */
     public void setBranchNumber(int branchNumber) {
+
         this.branchNumber = branchNumber;
     }
 
@@ -103,6 +110,7 @@ public class LCovBRDA {
      * @return line executed status
      */
     public String getTaken() {
+
         return taken;
     }
 
@@ -112,6 +120,7 @@ public class LCovBRDA {
      * @param taken line executed status
      */
     public void setTaken(String taken) {
+
         this.taken = taken;
     }
 }

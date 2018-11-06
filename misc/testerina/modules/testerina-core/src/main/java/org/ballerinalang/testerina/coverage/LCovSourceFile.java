@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Lcov formatted source file data
+ * Lcov formatted source file data.
  *
  * @since 0.985
  */
@@ -47,116 +47,129 @@ public class LCovSourceFile {
 
     public LCovSourceFile(String sourceFilePath, int numOfLineExecuted,
                           int numOfInstrumentedLines) {
+
         this.sourceFilePath = sourceFilePath;
         this.numOfLineExecuted = numOfLineExecuted;
         this.numOfInstrumentedLines = numOfInstrumentedLines;
     }
 
     /**
-     * Getter for the source file path
+     * Getter for the source file path.
      *
      * @return source file path
      */
     public String getSourceFilePath() {
+
         return sourceFilePath;
     }
 
     /**
-     * Setter for the source file path
+     * Setter for the source file path.
      *
      * @param sourceFilePath source file path
      */
     public void setSourceFilePath(String sourceFilePath) {
+
         this.sourceFilePath = sourceFilePath;
     }
 
     /**
-     * Getter for lcov formatted function data list
+     * Getter for lcov formatted function data list.
      *
      * @return lcov formatted function data list
      */
     public List<LCovFN> getlCovFNList() {
+
         return lCovFNList;
     }
 
     /**
-     * Getter for lcov formatted function hit count list
+     * Getter for lcov formatted function hit count list.
      *
      * @return lcov formatted function hit count list
      */
     public List<LCovFNDA> getlCovFNDAList() {
+
         return lCovFNDAList;
     }
 
     /**
-     * Getter for lcov formatted function blocks with found and hit count list
+     * Getter for lcov formatted function blocks with found and hit count list.
      *
      * @return lcov formatted function blocks with found and hit count list
      */
     public List<LCovFNFHBlock> getlCovFNFHBlockList() {
+
         return lCovFNFHBlockList;
     }
 
     /**
-     * Getter for lcov formatted branch data list
+     * Getter for lcov formatted branch data list.
      *
      * @return lcov formatted branch data list
      */
     public List<LCovBRDA> getlCovBRDAList() {
+
         return lCovBRDAList;
     }
 
     /**
-     * Getter for lcov formatted branch hit count list
+     * Getter for lcov formatted branch hit count list.
      *
      * @return lcov formatted branch hit count list
      */
     public List<LCovBRFHBlock> getlCovBRFHBlockList() {
+
         return lCovBRFHBlockList;
     }
 
     /**
-     * Getter for lcov formatted line hit count list
+     * Getter for lcov formatted line hit count list.
      *
      * @return lcov formatted line hit count list
      */
     public List<LCovDA> getlCovDAList() {
+
         return lCovDAList;
     }
 
     /**
-     * Getter for lcov formatted number of lines executed in the source file
+     * Getter for lcov formatted number of lines executed in the source file.
      *
      * @return lcov formatted number of lines executed in the source file
      */
     public int getNumOfLineExecuted() {
+
         return numOfLineExecuted;
     }
 
     /**
-     * Setter for lcov formatted number of lines executed in the source file
+     * Setter for lcov formatted number of lines executed in the source file.
      *
      * @param numOfLineExecuted lcov formatted number of lines executed in the source file
      */
     public void setNumOfLineExecuted(int numOfLineExecuted) {
+
         this.numOfLineExecuted = numOfLineExecuted;
     }
 
     /**
-     * Getter for lcov formatted number of instrumented lines in the source file
+     * Getter for lcov formatted number of instrumented lines in the source file.
      *
      * @return lcov formatted number of instrumented lines in the source file
      */
     public int getNumOfInstrumentedLines() {
+
         return numOfInstrumentedLines;
     }
 
     /**
-     * Setter for lcov formatted number of instrumented lines in the source file
+     * Setter for lcov formatted number of instrumented lines in the source file.
      *
      * @param numOfInstrumentedLines lcov formatted number of instrumented lines in the source file
      */
     public void setNumOfInstrumentedLines(int numOfInstrumentedLines) {
+
         this.numOfInstrumentedLines = numOfInstrumentedLines;
     }
 }

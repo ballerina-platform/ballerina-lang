@@ -19,16 +19,12 @@ package org.ballerinalang.testerina.coverage.impl;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.coverage.InstructionHandler;
 import org.ballerinalang.bre.coverage.ExecutedInstruction;
+import org.ballerinalang.bre.coverage.InstructionHandler;
 import org.ballerinalang.testerina.coverage.CoverageManager;
-import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.LineNumberInfoHolder;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +42,7 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
     Map<String, LineNumberInfoHolder> lineNumberInfoHolderForProject;
 
     public CoverageInstructionHandlerImpl() {
+
         CoverageManager coverageManager = CoverageManager.getInstance();
         this.executedInstructionOrderMap = coverageManager.getExecutedInstructionOrderMap();
         this.lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
@@ -62,11 +59,12 @@ public class CoverageInstructionHandlerImpl implements InstructionHandler {
         LineNumberInfoHolder lineNumberInfoHolderForPkg = lineNumberInfoHolderForProject.get(entryPkgPath);
 
         String pkgPath = ctx.callableUnitInfo.getPkgPath();
-        LineNumberInfo lineNumberInfoCurrentPkg = lineNumberInfoHolderForPkg.getPackageInfoMap().get(pkgPath).getLineNumberInfo(ctx.ip);
+        LineNumberInfo lineNumberInfoCurrentPkg = lineNumberInfoHolderForPkg.getPackageInfoMap()
+                .get(pkgPath).getLineNumberInfo(ctx.ip);
 
         ExecutedInstruction executedInstruction = new ExecutedInstruction(ctx.ip, pkgPath,
                 lineNumberInfoCurrentPkg.getFileName(), ctx.callableUnitInfo.getName(), lineNumberInfoCurrentPkg);
-        if(executedInstructionOrderMap.get(entryPkgPath) != null) {
+        if (executedInstructionOrderMap.get(entryPkgPath) != null) {
             executedInstructionOrderMap.get(entryPkgPath).add(executedInstruction);
         } else {
             List<ExecutedInstruction> executedInstructionOrder = new LinkedList<>();

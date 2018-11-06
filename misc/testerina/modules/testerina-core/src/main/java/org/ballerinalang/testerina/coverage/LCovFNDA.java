@@ -18,7 +18,7 @@
 package org.ballerinalang.testerina.coverage;
 
 /**
- * Lcov formatted function execution data
+ * Lcov formatted function execution data.
  *
  * @since 0.985
  */
@@ -29,43 +29,48 @@ public class LCovFNDA {
     private String functionName;
 
     public LCovFNDA(int executionCount, String functionName) {
+
         this.executionCount = executionCount;
         this.functionName = functionName;
     }
 
     /**
-     * Getter for the function hit count
+     * Getter for the function hit count.
      *
      * @return function hit count
      */
     public int getExecutionCount() {
+
         return executionCount;
     }
 
     /**
-     * Setter for the function hit count
+     * Setter for the function hit count.
      *
      * @param executionCount function hit count
      */
     public void setExecutionCount(int executionCount) {
+
         this.executionCount = executionCount;
     }
 
     /**
-     * Getter for the function name
+     * Getter for the function name.
      *
      * @return function name
      */
     public String getFunctionName() {
+
         return functionName;
     }
 
     /**
-     * Setter for the function name
+     * Setter for the function name.
      *
      * @param functionName function name
      */
     public void setFunctionName(String functionName) {
+
         this.functionName = functionName;
     }
 }

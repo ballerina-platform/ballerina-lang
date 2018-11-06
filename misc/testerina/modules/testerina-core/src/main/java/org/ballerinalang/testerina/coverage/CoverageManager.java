@@ -40,20 +40,26 @@ public class CoverageManager {
 
     private static Map<String, LineNumberInfoHolder> lineNumberInfoHolderForProject = new HashMap<>();
 
+    private static CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
+
     private static final CoverageManager coverageManger = new CoverageManager();
 
-    private CoverageManager() {}
+    private CoverageManager() {
+
+    }
 
     public static CoverageManager getInstance() {
+
         return coverageManger;
     }
 
     /**
-     * Setter for the program files for the project
+     * Setter for the program files for the project.
      *
      * @param programFilesForProject Map of program files from each module for the project
      */
     public static void setProgramFilesForProject(Map<String, ProgramFile> programFilesForProject) {
+
         CoverageManager.programFilesForProject = programFilesForProject;
 
         programFilesForProject.forEach((pkgPath, prjctProgramFile) -> {
@@ -64,20 +70,42 @@ public class CoverageManager {
     }
 
     /**
-     * Getter for map of line number info for each module of the project
+     * Getter for map of line number info for each module of the project.
      *
      * @return map of line number info for each module of the project
      */
     public static Map<String, LineNumberInfoHolder> getLineNumberInfoHolderForProject() {
+
         return lineNumberInfoHolderForProject;
     }
 
     /**
-     * Getter for the map of execution data of each Ip from each module of the project
+     * Getter for the map of execution data of each Ip from each module of the project.
      *
      * @return map of execution data of each Ip from each module of the project
      */
     public static Map<String, List<ExecutedInstruction>> getExecutedInstructionOrderMap() {
+
         return executedInstructionOrderMap;
+    }
+
+    /**
+     * Getter for Ip coverage data into lcov coverage data formatter.
+     *
+     * @return Ip coverage data into lcov coverage data formatter
+     */
+    public static CoverageDataFormatter getCoverageDataFormatter() {
+
+        return coverageDataFormatter;
+    }
+
+    /**
+     * Getter for the program files map for each module.
+     *
+     * @return program files map for each module
+     */
+    public static Map<String, ProgramFile> getProgramFilesForProject() {
+
+        return programFilesForProject;
     }
 }

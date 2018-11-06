@@ -18,9 +18,6 @@
 
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.testerina.coverage.CoverageDataFormatter;
-import org.ballerinalang.testerina.coverage.CoverageManager;
-import org.ballerinalang.testerina.coverage.LCovData;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
@@ -33,6 +30,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.testerina.coverage.CoverageDataFormatter;
+import org.ballerinalang.testerina.coverage.CoverageManager;
+import org.ballerinalang.testerina.coverage.LCovData;
 import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
@@ -42,7 +42,15 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -66,32 +74,35 @@ public class BTestRunner {
      * @param groups          List of groups to be included
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
+
         runTest(sourceRoot, sourceFilePaths, groups, true);
     }
 
     /**
      * Executes a given set of ballerina program files.
      *
-     * @param sourceRoot      source root
-     * @param sourceFilePaths List of @{@link Path} of ballerina files
-     * @param groups          List of groups to be included
-     * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
+     * @param sourceRoot          source root
+     * @param sourceFilePaths     List of @{@link Path} of ballerina files
+     * @param groups              List of groups to be included
+     * @param shouldIncludeGroups flag to specify whether to include or exclude provided groups
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
+
         runTest(sourceRoot, sourceFilePaths, groups, shouldIncludeGroups, false);
     }
 
     /**
      * Executes a given set of ballerina program files.
      *
-     * @param sourceRoot      source root
-     * @param sourceFilePaths List of @{@link Path} of ballerina files
-     * @param groups          List of groups to be included/excluded
-     * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
-     * @param buildWithTests flag to specify whether to build with tests or not
+     * @param sourceRoot          source root
+     * @param sourceFilePaths     List of @{@link Path} of ballerina files
+     * @param groups              List of groups to be included/excluded
+     * @param shouldIncludeGroups flag to specify whether to include or exclude provided groups
+     * @param buildWithTests      flag to specify whether to build with tests or not
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups,
                         boolean buildWithTests) {
+
         registry.setGroups(groups);
         registry.setShouldIncludeGroups(shouldIncludeGroups);
         compileAndBuildSuites(sourceRoot, sourceFilePaths, buildWithTests);
@@ -141,10 +152,11 @@ public class BTestRunner {
 
     /**
      * Compiles the source and populate the registry with suites.
-     * @param sourceRoot source root
+     *
+     * @param sourceRoot      source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
-    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
+    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests) {
         // We need a new line to show a clear separation between the outputs of 'Compiling Sources' and
         // 'Compiling tests'
         if (buildWithTests) {
@@ -160,7 +172,7 @@ public class BTestRunner {
             String packageName = Utils.getFullPackageName(sourcePackage.toString());
 
             registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
-                (packageName));
+                    (packageName));
 
             if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
                 registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage.toString());
@@ -168,17 +180,18 @@ public class BTestRunner {
 
             // compile
             CompileResult compileResult = BCompileUtil.compileWithTests(sourceRoot, sourcePackage.toString(),
-                CompilerPhase.CODE_GEN);
+                    CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind().toString().toLowerCase(Locale.ENGLISH) + ":"
-                                          + diagnostic.getPosition() + " " + diagnostic.getMessage());
+                        + diagnostic.getPosition() + " " + diagnostic.getMessage());
             }
             if (compileResult.getErrorCount() > 0) {
                 throw new BLangCompilerException("compilation contains errors");
             }
 
-            //TODO: set test coverage flag on programFile than from the suite in runtime since balx should be self-containing
+            //TODO: set test coverage flag on programFile than from the suite in runtime since balx should be
+            // self-containing
 
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
@@ -204,14 +217,16 @@ public class BTestRunner {
 
     /**
      * Run all tests.
+     *
      * @param buildWithTests build with tests or just execute tests
      */
     private void execute(boolean buildWithTests, String sourceRoot) {
+
         Map<String, TestSuite> testSuites = registry.getTestSuites();
-        if(coverageFlag) {
+        if (coverageFlag) {
             CoverageManager coverageManager = CoverageManager.getInstance();
             Map<String, ProgramFile> programFilesForProject = new HashMap<>();
-            for(ProgramFile programFile : registry.getProgramFiles()) {
+            for (ProgramFile programFile : registry.getProgramFiles()) {
                 programFilesForProject.put(programFile.getEntryPackage().getPkgPath(), programFile);
             }
             coverageManager.setProgramFilesForProject(programFilesForProject);
@@ -242,8 +257,9 @@ public class BTestRunner {
             if (suite.getTests().size() == 0) {
                 outStream.println("\tNo tests found\n");
                 return;
-            } else if(coverageFlag) {
-                //TODO: Add test coverage flag when compile time, since suite is generated with source it cannot be done for now
+            } else if (coverageFlag) {
+                //TODO: Add test coverage flag when compile time, since suite is generated with source it cannot be
+                // done for now
                 suite.getProgramFile().setFlags(suite.getProgramFile().getFlags() | ProgramFile.TEST_COVERAGE_FLAG);
             }
             shouldSkip.set(false);
@@ -276,9 +292,9 @@ public class BTestRunner {
                         } catch (Throwable e) {
                             shouldSkipTest.set(true);
                             errorMsg = String.format("\t[fail] " + beforeEachTest.getName() +
-                                                     " [before each test function for the test %s] :\n\t    %s",
-                                                     test.getTestFunction().getName(),
-                                                     Utils.formatError(e.getMessage()));
+                                            " [before each test function for the test %s] :\n\t    %s",
+                                    test.getTestFunction().getName(),
+                                    Utils.formatError(e.getMessage()));
                             errStream.println(errorMsg);
                         }
                     });
@@ -293,9 +309,9 @@ public class BTestRunner {
                     } catch (Throwable e) {
                         shouldSkipTest.set(true);
                         errorMsg = String.format("\t[fail] " + test.getBeforeTestFunctionObj().getName() +
-                                                 " [before test function for the test %s] :\n\t    %s",
-                                                 test.getTestFunction().getName(),
-                                                 Utils.formatError(e.getMessage()));
+                                        " [before test function for the test %s] :\n\t    %s",
+                                test.getTestFunction().getName(),
+                                Utils.formatError(e.getMessage()));
                         errStream.println(errorMsg);
                     }
                 }
@@ -303,7 +319,7 @@ public class BTestRunner {
                 TesterinaResult functionResult = null;
                 try {
                     if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
-                      shouldSkipTest.set(true);
+                        shouldSkipTest.set(true);
                     }
 
                     // Check whether the this test depends on any failed or skipped functions
@@ -316,7 +332,7 @@ public class BTestRunner {
                             test.getTestFunction().invoke();
                             // report the test result
                             functionResult = new TesterinaResult(test.getTestFunction().getName(), true, shouldSkip
-                                .get(), null);
+                                    .get(), null);
                             tReport.addFunctionResult(packageName, functionResult);
                         } else {
                             List<BValue[]> argList = extractArguments(valueSets);
@@ -339,7 +355,7 @@ public class BTestRunner {
                     failedOrSkippedTests.add(test.getTestFunction().getName());
                     // report the test result
                     functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get(),
-                                                         e.getMessage());
+                            e.getMessage());
                     tReport.addFunctionResult(packageName, functionResult);
                 }
 
@@ -351,9 +367,9 @@ public class BTestRunner {
                     }
                 } catch (Throwable e) {
                     error = String.format("\t[fail] " + test.getAfterTestFunctionObj().getName() +
-                                          " [after test function for the test %s] :\n\t    %s",
-                                          test.getTestFunction().getName(),
-                                          Utils.formatError(e.getMessage()));
+                                    " [after test function for the test %s] :\n\t    %s",
+                            test.getTestFunction().getName(),
+                            Utils.formatError(e.getMessage()));
                     errStream.println(error);
                 }
 
@@ -364,9 +380,9 @@ public class BTestRunner {
                         afterEachTest.invoke();
                     } catch (Throwable e) {
                         errorMsg2 = String.format("\t[fail] " + afterEachTest.getName() +
-                                                  " [after each test function for the test %s] :\n\t    %s",
-                                                  test.getTestFunction().getName(),
-                                                  Utils.formatError(e.getMessage()));
+                                        " [after each test function for the test %s] :\n\t    %s",
+                                test.getTestFunction().getName(),
+                                Utils.formatError(e.getMessage()));
                         errStream.println(errorMsg2);
                     }
                 });
@@ -380,7 +396,7 @@ public class BTestRunner {
                     func.invoke();
                 } catch (Throwable e) {
                     errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
-                                                     "%s", Utils.formatError(e.getMessage()));
+                            "%s", Utils.formatError(e.getMessage()));
                     errStream.println(errorMsg);
                 }
             });
@@ -390,18 +406,18 @@ public class BTestRunner {
         });
 
         // Coverage report handling
-        if(coverageFlag) {
+        if (coverageFlag) {
 
             try {
 
-                CoverageDataFormatter coverageDataFormatter = new CoverageDataFormatter();
                 CoverageManager coverageManager = CoverageManager.getInstance();
+                CoverageDataFormatter coverageDataFormatter = coverageManager.getCoverageDataFormatter();
                 List<LCovData> packageLCovDataList = coverageDataFormatter.getFormattedCoverageData(
                         coverageManager.getExecutedInstructionOrderMap(), testSuites);
                 coverageDataFormatter.writeFormattedCovDataToFile(packageLCovDataList, sourceRoot);
 
-            } catch(Throwable e) {
-                String errorMsg = String.format("\t[fail] [coverage report generation] :\n\t    " +
+            } catch (Throwable e) {
+                String errorMsg = String.format("\t[fail] [coverage report generation] :\t    " +
                         "%s", Utils.formatError(e.getMessage()));
                 errStream.println(errorMsg);
             }
@@ -411,15 +427,18 @@ public class BTestRunner {
     }
 
     private boolean isTestDependsOnFailedFunctions(List<String> failedOrSkippedTests, List<String> dependentTests) {
+
         return failedOrSkippedTests.stream().parallel().anyMatch(dependentTests::contains);
     }
 
     /**
      * Extract function arguments from the values sets.
+     *
      * @param valueSets user provided value sets
      * @return a list of function arguments
      */
     private List<BValue[]> extractArguments(BValue[] valueSets) {
+
         List<BValue[]> argsList = new ArrayList<>();
 
         for (BValue value : valueSets) {
@@ -451,10 +470,12 @@ public class BTestRunner {
      * @return {@link TesterinaReport} object
      */
     public TesterinaReport getTesterinaReport() {
+
         return tReport;
     }
 
     public void setCoverageFlag(boolean coverageFlag) {
+
         this.coverageFlag = coverageFlag;
     }
 }

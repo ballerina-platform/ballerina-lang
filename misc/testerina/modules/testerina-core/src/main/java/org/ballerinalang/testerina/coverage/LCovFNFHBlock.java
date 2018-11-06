@@ -18,7 +18,7 @@
 package org.ballerinalang.testerina.coverage;
 
 /**
- * Lcov formatted function execution data: found and hit count
+ * Lcov formatted function execution data: found and hit count.
  *
  * @since 0.985
  */
@@ -29,43 +29,48 @@ public class LCovFNFHBlock {
     private int numOfFuncHit;
 
     public LCovFNFHBlock(int numOfFuncFound, int numOfFuncHit) {
+
         this.numOfFuncFound = numOfFuncFound;
         this.numOfFuncHit = numOfFuncHit;
     }
 
     /**
-     * Getter for number of functions found
+     * Getter for number of functions found.
      *
      * @return number of functions found
      */
     public int getNumOfFuncFound() {
+
         return numOfFuncFound;
     }
 
     /**
-     * Setter for number of functions found
+     * Setter for number of functions found.
      *
      * @param numOfFuncFound number of functions found
      */
     public void setNumOfFuncFound(int numOfFuncFound) {
+
         this.numOfFuncFound = numOfFuncFound;
     }
 
     /**
-     * Getter for number of functions hit
+     * Getter for number of functions hit.
      *
      * @return number of functions hit
      */
     public int getNumOfFuncHit() {
+
         return numOfFuncHit;
     }
 
     /**
-     * Setter for number of functions hit
+     * Setter for number of functions hit.
      *
      * @param numOfFuncHit number of functions hit
      */
     public void setNumOfFuncHit(int numOfFuncHit) {
+
         this.numOfFuncHit = numOfFuncHit;
     }
 }

@@ -17,18 +17,24 @@
  */
 package org.ballerinalang.testerina.coverage;
 
-import org.ballerinalang.bre.coverage.*;
+import org.ballerinalang.bre.coverage.ExecutedInstruction;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.util.Constants;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.debugger.LineNumberInfoHolder;
 import org.ballerinalang.util.debugger.PackageLineNumberInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.Writer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,16 +49,15 @@ import java.util.Map;
  */
 public class CoverageDataFormatter {
 
-    private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
 
     private Map<String, LineNumberInfoHolder> lineNumberInfoHolderForProject;
 
     private String testName = null;
 
-    private static final String COVERAGE_REPORT_NAME = "coverage.report.name";
+    private static final String COVERAGE_DATA_FILE_NAME = "coverage.data.file.name";
 
-    private static final String COVERAGE_REPORT_PATH = "coverage.report.path";
+    private static final String COVERAGE_DATA_FILE_PATH = "coverage.data.file.path";
 
     private static final String COVERAGE_REPORT_FOLDER = "coverage";
 
@@ -69,6 +74,7 @@ public class CoverageDataFormatter {
     private static final String LCOV_EOR = "end_of_record";
 
     public CoverageDataFormatter() {
+
         CoverageManager coverageManager = CoverageManager.getInstance();
         lineNumberInfoHolderForProject = coverageManager.getLineNumberInfoHolderForProject();
     }
@@ -77,7 +83,7 @@ public class CoverageDataFormatter {
      * Outputs lcov formatted coverage data for the Ip coverage data for each test suite for the project.
      *
      * @param executedInstructionOrderMap Ip coverage data map for each module of the project
-     * @param testSuiteForProject test suites map for each module of the project
+     * @param testSuiteForProject         test suites map for each module of the project
      * @return lcov formatted data list for each test function
      */
     public List<LCovData> getFormattedCoverageData(Map<String, List<ExecutedInstruction>> executedInstructionOrderMap,
@@ -89,7 +95,8 @@ public class CoverageDataFormatter {
 
             String entryPkgPath = suite.getProgramFile().getEntryPackage().pkgPath;
             LineNumberInfoHolder lineNumberInfoHolderForPkg = lineNumberInfoHolderForProject.get(entryPkgPath);
-            PackageLineNumberInfo entryPkgLineNumberInfo = lineNumberInfoHolderForPkg.getPackageInfoMap().get(entryPkgPath);
+            PackageLineNumberInfo entryPkgLineNumberInfo = lineNumberInfoHolderForPkg.getPackageInfoMap()
+                    .get(entryPkgPath);
 
             Map<String, Integer> fileLineCoverage = new HashMap<>();
             entryPkgLineNumberInfo.getLineNumbers().keySet().forEach(key -> {
@@ -101,7 +108,7 @@ public class CoverageDataFormatter {
             executedInstructionOrderMap.forEach((packagePath, executedInstructionOrder) -> {
 
                 // get only current project's module
-                if(packagePath.equals(entryPkgPath)) {
+                if (packagePath.equals(entryPkgPath)) {
 
                     for (ExecutedInstruction executedInstruction : executedInstructionOrder) {
 
@@ -109,13 +116,18 @@ public class CoverageDataFormatter {
                         //TODO: start should be covered later. start has declarions and global configs for services
                         if (!(executedInstruction.getPkgPath().matches("ballerina/.*"))) {
 
-                            if (!(executedInstruction.getFunctionName().matches(".*\\." + Names.INIT_ACTION_SUFFIX) ||
-                                    executedInstruction.getFunctionName().matches(".*\\." + Names.START_ACTION_SUFFIX))) {
+                            if (!(executedInstruction.getFunctionName()
+                                    .matches(".*\\." + Names.INIT_ACTION_SUFFIX) ||
+                                    executedInstruction.getFunctionName()
+                                            .matches(".*\\." + Names.START_ACTION_SUFFIX))) {
 
                                 // filter out the source code Ips
                                 if (skipTestFunctionIps(executedInstruction, suite)) {
                                     continue;
                                 }
+
+                                String sourceFilePath = packagePath + File.separator
+                                        + executedInstruction.getFileName();
 
                                 boolean lCovDataFound = false;
                                 for (LCovData lCovData : packageCoverageList) {
@@ -126,7 +138,7 @@ public class CoverageDataFormatter {
                                         boolean lCovSourceFileFound = false;
                                         for (LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
 
-                                            if (lCovSourceFile.getSourceFilePath().equals(packagePath + File.separator + executedInstruction.getFileName())) {
+                                            if (lCovSourceFile.getSourceFilePath().equals(sourceFilePath)) {
                                                 lCovSourceFileFound = true;
 
                                                 boolean lineNumFound = false;
@@ -136,7 +148,8 @@ public class CoverageDataFormatter {
                                                     if (lineNumberInfo.getLineNumber() == lCovDA.getLineNumber()) {
                                                         lineNumFound = true;
 
-                                                        lCovDA.setLineExecutionCount(lCovDA.getLineExecutionCount() + 1);
+                                                        lCovDA.setLineExecutionCount(
+                                                                lCovDA.getLineExecutionCount() + 1);
 
                                                         break;
                                                     }
@@ -145,7 +158,8 @@ public class CoverageDataFormatter {
                                                     LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
                                                     lCovSourceFile.getlCovDAList().add(lCovDA);
 
-                                                    lCovSourceFile.setNumOfLineExecuted(lCovSourceFile.getNumOfLineExecuted() + 1);
+                                                    lCovSourceFile.setNumOfLineExecuted(
+                                                            lCovSourceFile.getNumOfLineExecuted() + 1);
                                                 }
 
                                                 break;
@@ -157,10 +171,11 @@ public class CoverageDataFormatter {
                                                     .getLineNumberInfo(executedInstruction.getIp());
                                             LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
 
+
                                             LCovSourceFile lCovSourceFile = new LCovSourceFile(
                                                     //TODO: package path should be package folder path
-                                                    packagePath + File.separator + executedInstruction.getFileName(), 1,
-                                                    fileLineCoverage.get(packagePath + File.separator + executedInstruction.getFileName()));
+                                                    sourceFilePath, 1,
+                                                    fileLineCoverage.get(sourceFilePath));
                                             lCovSourceFile.getlCovDAList().add(lCovDA);
 
                                             lCovData.getlCovSourceFileList().add(lCovSourceFile);
@@ -169,7 +184,6 @@ public class CoverageDataFormatter {
 
                                         break;
                                     }
-
 
                                 }
                                 if (!lCovDataFound) {
@@ -180,8 +194,8 @@ public class CoverageDataFormatter {
 
                                     LCovSourceFile lCovSourceFile = new LCovSourceFile(
                                             //TODO: package path should be package folder path
-                                            packagePath + File.separator + executedInstruction.getFileName(), 1,
-                                            fileLineCoverage.get(packagePath + File.separator + executedInstruction.getFileName()));
+                                            sourceFilePath, 1,
+                                            fileLineCoverage.get(sourceFilePath));
                                     lCovSourceFile.getlCovDAList().add(lCovDA);
 
                                     LCovData lCovData = new LCovData(testName);
@@ -211,30 +225,30 @@ public class CoverageDataFormatter {
 
         boolean skipTestFunctionIps = false;
 
-        if(suite.getBeforeSuiteFunctionNames().contains(executedInstruction.getFunctionName())) {
+        if (suite.getBeforeSuiteFunctionNames().contains(executedInstruction.getFunctionName())) {
             skipTestFunctionIps = true;
         }
 
-        for(Test test : suite.getTests()) {
-            if(executedInstruction.getFunctionName().equals(test.getBeforeTestFunction())) {
+        for (Test test : suite.getTests()) {
+            if (executedInstruction.getFunctionName().equals(test.getBeforeTestFunction())) {
                 skipTestFunctionIps = true;
                 break;
             }
 
-            if(executedInstruction.getFunctionName().equals(test.getTestName())) {
+            if (executedInstruction.getFunctionName().equals(test.getTestName())) {
                 testName = executedInstruction.getFunctionName();
                 skipTestFunctionIps = true;
                 break;
             }
 
-            if(executedInstruction.getFunctionName().equals(test.getAfterTestFunction())) {
+            if (executedInstruction.getFunctionName().equals(test.getAfterTestFunction())) {
                 skipTestFunctionIps = true;
                 break;
             }
         }
 
-        if(suite.getAfterSuiteFunctionNames().contains(executedInstruction.getFunctionName())) {
-           skipTestFunctionIps = true;
+        if (suite.getAfterSuiteFunctionNames().contains(executedInstruction.getFunctionName())) {
+            skipTestFunctionIps = true;
         }
 
         return skipTestFunctionIps;
@@ -245,46 +259,48 @@ public class CoverageDataFormatter {
      * can be changed with --config configuration file
      *
      * @param packageLCovDataList lcov formatted coverage data list
-     * @param sourceRoot project source root folder location
+     * @param sourceRoot          project source root folder location
      * @throws IOException throws when output writing to the file fails.
      */
     public void writeFormattedCovDataToFile(List<LCovData> packageLCovDataList, String sourceRoot) throws IOException {
 
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        String customCovReportname = configRegistry.getAsString(COVERAGE_REPORT_NAME);
-        String customCovReportPath = configRegistry.getAsString(COVERAGE_REPORT_PATH);
+        String customCovReportname = configRegistry.getAsString(COVERAGE_DATA_FILE_NAME);
+        String customCovReportPath = configRegistry.getAsString(COVERAGE_DATA_FILE_PATH);
 
         String projectOutputPath = sourceRoot + COVERAGE_REPORT_TARGET_PATH;
         StringBuffer lcovOutputStrBuf = new StringBuffer();
 
         String covReportFilePath;
-        if(customCovReportPath ==  null) {
+        if (customCovReportPath == null) {
             covReportFilePath = Paths.get(projectOutputPath, COVERAGE_REPORT_FOLDER).toString();
         } else {
             covReportFilePath = Paths.get(customCovReportPath, COVERAGE_REPORT_FOLDER).toString();
         }
 
         String covReportFileName;
-        if(customCovReportname ==  null) {
+        if (customCovReportname == null) {
             covReportFileName = COVERAGE_REPORT_FILE;
         } else {
             covReportFileName = customCovReportname;
         }
 
-        for(LCovData lCovData : packageLCovDataList) {
+        for (LCovData lCovData : packageLCovDataList) {
             lcovOutputStrBuf.append(LCOV_TN).append(lCovData.getTestName()).append(Constants.COMMA);
 
-            for(LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
+            for (LCovSourceFile lCovSourceFile : lCovData.getlCovSourceFileList()) {
                 lcovOutputStrBuf.append(LCOV_SF).append(Paths.get(sourceRoot, lCovSourceFile.getSourceFilePath()))
                         .append(Constants.NEWLINE);
-                for(LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
+                for (LCovDA lCovDA : lCovSourceFile.getlCovDAList()) {
                     lcovOutputStrBuf.append(LCOV_DA).append(lCovDA.getLineNumber()).append(Constants.COMMA)
                             .append(lCovDA.getLineExecutionCount()).append(Constants.NEWLINE);
                 }
 
                 lcovOutputStrBuf.append(LCOV_EOR).append(Constants.NEWLINE);
-                float fileCoveragePercentage = (((float) lCovSourceFile.getNumOfLineExecuted()) / ((float) lCovSourceFile.getNumOfInstrumentedLines())) * 100;
-                outStream.println("Coverage for " + lCovSourceFile.getSourceFilePath() + " is " + fileCoveragePercentage + Constants.PERCENTAGE);
+                float fileCoveragePercentage = (((float) lCovSourceFile.getNumOfLineExecuted()) /
+                        ((float) lCovSourceFile.getNumOfInstrumentedLines())) * 100;
+                outStream.println("Coverage for " + lCovSourceFile.getSourceFilePath() + " is " +
+                        fileCoveragePercentage + Constants.PERCENTAGE);
             }
         }
 
@@ -292,25 +308,28 @@ public class CoverageDataFormatter {
         try {
 
             File covReportDir = new File(covReportFilePath);
-            if(covReportDir.exists()) {
-                covReportDir.delete();
+            if (covReportDir.delete()) {
+
+                if (covReportDir.mkdirs()) {
+
+                    File covReportFile = new File(covReportDir, covReportFileName);
+                    Writer covReportFileWriter = new OutputStreamWriter(new FileOutputStream(covReportFile), "UTF-8");
+                    covReportFileBufWriter = new BufferedWriter(covReportFileWriter);
+
+                    covReportFileBufWriter.write(lcovOutputStrBuf.toString());
+
+                    outStream.println("Coverage report is written to " +
+                            covReportFilePath + File.separator + covReportFileName);
+                }
             }
-            covReportDir.mkdirs();
-
-            File covReportFile = new File(covReportDir, covReportFileName);
-            FileWriter covReportFileWriter = new FileWriter(covReportFile);
-            covReportFileBufWriter = new BufferedWriter(covReportFileWriter);
-
-            covReportFileBufWriter.write(lcovOutputStrBuf.toString());
-
-            outStream.println("Coverage report is written to " + covReportFilePath + File.separator + covReportFileName);
 
         } catch (IOException e) {
 
-            e.printStackTrace();
+            throw new BallerinaException("Error in writing coverage report to " +
+                    covReportFilePath + File.separator + covReportFileName);
 
         } finally {
-            if(covReportFileBufWriter != null) {
+            if (covReportFileBufWriter != null) {
                 covReportFileBufWriter.close();
             }
         }
