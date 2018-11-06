@@ -65,10 +65,10 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
     }
 
     @Test
-    public void testEmptyEntryFunctionName() throws BallerinaTestException {
+    public void testInvalidSourceArg() throws BallerinaTestException {
         String sourceArg = balxPath + ":";
-        LogLeecher errLogLeecher = new LogLeecher("ballerina: expected function name after final ':'",
-                LeecherType.ERROR);
+        LogLeecher errLogLeecher = new LogLeecher("error: no ballerina source files found in module " + balxPath +
+                                                          ":", LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }

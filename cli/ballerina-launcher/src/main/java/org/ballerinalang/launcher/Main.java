@@ -323,15 +323,27 @@ public class Main {
          * @return  the index of the colon to split at
          */
         private int getSourceFunctionSplitIndex(Path sourceRootPath, String programArg) {
-            int indexOfColon = programArg.indexOf(COLON);
-            while (indexOfColon != -1) {
-                String potentialPath = programArg.substring(0, indexOfColon);
-                if (Files.exists(sourceRootPath.resolve(potentialPath))) {
-                    return indexOfColon;
-                }
-                indexOfColon = programArg.indexOf(COLON, indexOfColon + 1);
+            String[] programArgConstituents = programArg.split(COLON);
+            int index = programArgConstituents.length - 1;
+
+            String potentialFunction = programArgConstituents[index];
+            String potentialPath = programArg.replace(COLON.concat(potentialFunction), "");
+            if (Files.exists(sourceRootPath.resolve(potentialPath))) {
+                return potentialPath.length();
             }
-            return indexOfColon;
+            index--;
+
+            while (index != -1) {
+                potentialFunction = programArgConstituents[index].concat(COLON).concat(potentialFunction);
+                potentialPath = programArg.replace(COLON.concat(potentialFunction), "");
+
+                if (Files.exists(sourceRootPath.resolve(potentialPath))) {
+                    return potentialPath.length();
+                }
+
+                index--;
+            }
+            return index;
         }
     }
 

@@ -40,10 +40,10 @@ public class PkgRunFunctionNegativeTestCase extends BaseTest {
     private String sourceRoot = (new File("src/test/resources/run/package/")).getAbsolutePath();
 
     @Test
-    public void testEmptyEntryFunctionName() throws BallerinaTestException {
+    public void testInvalidSourceArg() throws BallerinaTestException {
         String sourceArg = "entry:";
-        LogLeecher errLogLeecher = new LogLeecher("ballerina: expected function name after final ':'",
-                LeecherType.ERROR);
+        LogLeecher errLogLeecher = new LogLeecher("error: no ballerina source files found in module " +
+                                                          sourceArg, LeecherType.ERROR);
         balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }
