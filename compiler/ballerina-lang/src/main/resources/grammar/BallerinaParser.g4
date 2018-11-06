@@ -158,7 +158,8 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   PUBLIC? typeName Identifier (ASSIGN expression)? SEMICOLON
+    |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier SEMICOLON
     ;
 
@@ -322,6 +323,7 @@ statement
 variableDefinitionStatement
     :   typeName Identifier SEMICOLON
     |   (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
+    |   FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     ;
 
 recordLiteral

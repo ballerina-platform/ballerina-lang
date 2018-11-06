@@ -706,10 +706,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
-        boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.expression() != null, publicVar);
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isFinal = ctx.FINAL() != null;
+        boolean isTypeAvailable = ctx.typeName() != null || ctx.channelType() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
+        this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
+                isFinal, isTypeAvailable, isExpressionAvailable);
     }
 
     @Override
@@ -1074,15 +1076,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+
+        boolean isFinal = ctx.FINAL() != null;
         boolean isDeclaredWithVar = ctx.VAR() != null;
-        boolean exprAvailable = ctx.ASSIGN() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                    exprAvailable, isDeclaredWithVar);
+                    isFinal, isDeclaredWithVar, isExpressionAvailable);
         } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    ctx.bindingPattern().Identifier().getText(), exprAvailable, isDeclaredWithVar);
+                    ctx.bindingPattern().Identifier().getText(), isFinal, isDeclaredWithVar, isExpressionAvailable);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
         } else {

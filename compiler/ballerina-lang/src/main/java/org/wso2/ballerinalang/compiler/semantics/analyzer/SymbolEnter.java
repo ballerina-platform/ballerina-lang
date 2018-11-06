@@ -820,7 +820,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // assign the type to var type node
         if (varNode.type == null) {
-            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            if (varNode.typeNode != null) {
+                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            } else {
+                varNode.type = symTable.noType;
+            }
         }
 
         Name varName = names.fromIdNode(varNode.name);
@@ -830,6 +834,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        // Todo - Remove.
         //Check annotations attached to the variable
         if (varNode.annAttachments.size() > 0) {
             if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_FINAL.getValue())) {
@@ -840,8 +845,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
-                varNode.type, varName, env);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
         varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varNode.symbol = varSymbol;
     }

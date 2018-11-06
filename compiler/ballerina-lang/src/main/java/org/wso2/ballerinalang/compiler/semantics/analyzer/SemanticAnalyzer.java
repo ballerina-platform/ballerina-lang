@@ -442,6 +442,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BType lhsType = varNode.symbol.type;
+        if (lhsType == symTable.noType && varNode.isDeclaredWithVar) {
+            varNode.symbol.type = lhsType = typeChecker.checkExpr(varNode.expr, env);
+        }
+
         varNode.type = lhsType;
 
         // Analyze the init expression
