@@ -30,7 +30,7 @@ import java.util.Map;
  * Temporary source gen class for formatting.
  */
 public class FormattingSourceGen {
-    private Map<String, JsonObject> anonTypes = new HashMap<>();
+    private static Map<String, JsonObject> anonTypes = new HashMap<>();
 
     /**
      * process the given json before source generation.
@@ -40,7 +40,7 @@ public class FormattingSourceGen {
      * @param parentKind Parent kind
      * @return {@link JsonObject} Processed AST node.
      */
-    public JsonObject build(JsonObject json, JsonObject parent, String parentKind) {
+    public static JsonObject build(JsonObject json, JsonObject parent, String parentKind) {
         String kind = json.get("kind").getAsString();
         for (Map.Entry<String, JsonElement> child : json.entrySet()) {
             if (!child.getKey().equals("position") && !child.getKey().equals("ws")) {
@@ -66,7 +66,6 @@ public class FormattingSourceGen {
             }
         }
         modifyNode(json, parentKind);
-        json.add("parent", parent);
         return json;
     }
 
@@ -76,9 +75,7 @@ public class FormattingSourceGen {
      * @param node Node to generate the ballerina source for
      * @return {@link String} Generated source string.
      */
-    public String getSourceOf(JsonObject node) {
-        String source = "";
-
+    public static String getSourceOf(JsonObject node) {
         List<JsonObject> wsCollection = new ArrayList<>();
         List<JsonObject> mergedWS = new ArrayList<>();
         collectWSFromNode(node, wsCollection);
@@ -86,13 +83,13 @@ public class FormattingSourceGen {
         wsCollection.sort(Comparator.comparingInt(a -> a.get("i").getAsInt()));
 
         JsonObject prevWS = null;
-        for (int i = 0; i < wsCollection.size(); i++) {
+        for (JsonObject wsItem : wsCollection) {
             if (prevWS == null) {
-                prevWS = wsCollection.get(i);
+                prevWS = wsItem;
                 mergedWS.add(prevWS);
-            } else if (prevWS.get("i").getAsInt() != wsCollection.get(i).get("i").getAsInt()) {
-                mergedWS.add(wsCollection.get(i));
-                prevWS = wsCollection.get(i);
+            } else if (prevWS.get("i").getAsInt() != wsItem.get("i").getAsInt()) {
+                mergedWS.add(wsItem);
+                prevWS = wsItem;
             }
         }
 
@@ -103,7 +100,7 @@ public class FormattingSourceGen {
         return sourceBuilder.toString();
     }
 
-    private void collectWSFromNode(JsonObject node, List<JsonObject> wsCollection) {
+    private static void collectWSFromNode(JsonObject node, List<JsonObject> wsCollection) {
         for (Map.Entry<String, JsonElement> child : node.entrySet()) {
             String childName = child.getKey();
             if (!"position".equals(childName) && !"parent".equals(childName)) {
@@ -126,7 +123,7 @@ public class FormattingSourceGen {
         }
     }
 
-    private void modifyNode(JsonObject node, String parentKind) {
+    private static void modifyNode(JsonObject node, String parentKind) {
         String kind = node.get("kind").getAsString();
 
         if ("CompilationUnit".equals(kind)) {
@@ -534,7 +531,7 @@ public class FormattingSourceGen {
 
             if (node.has("name") &&
                     node.getAsJsonObject("name").get("value").getAsString().startsWith("$anonType$")) {
-                this.anonTypes.put(node.getAsJsonObject("name").get("value").getAsString(),
+                anonTypes.put(node.getAsJsonObject("name").get("value").getAsString(),
                         node.getAsJsonObject("typeNode"));
             }
 
@@ -872,8 +869,8 @@ public class FormattingSourceGen {
         }
     }
 
-    private void literalWSAssignForTemplates(int currentWs, int nextWs,
-                                             JsonArray literals, JsonArray ws, int wsStartLocation) {
+    private static void literalWSAssignForTemplates(int currentWs, int nextWs,
+                                                    JsonArray literals, JsonArray ws, int wsStartLocation) {
         if (literals.size() == (ws.size() - wsStartLocation)) {
             for (int i = 0; i < literals.size(); i++) {
                 if (literals.get(i).getAsJsonObject().get("kind").getAsString().equals("Literal")) {
@@ -906,7 +903,8 @@ public class FormattingSourceGen {
         }
     }
 
-    private void stringTemplateSourceFromWS(int currentWs, int nextWs, JsonArray literals, JsonArray ws, int i) {
+    private static void stringTemplateSourceFromWS(int currentWs, int nextWs, JsonArray literals, JsonArray ws,
+                                                   int i) {
         if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("{{")) {
             literals.get(i).getAsJsonObject().get("ws").getAsJsonArray().add(ws.get(currentWs));
             literals.get(i).getAsJsonObject().addProperty("value",
@@ -931,7 +929,7 @@ public class FormattingSourceGen {
         }
     }
 
-    private JsonArray addDataToArray(int index, JsonElement element, JsonArray ws) {
+    private static JsonArray addDataToArray(int index, JsonElement element, JsonArray ws) {
         int length = ws.size() + 1;
         JsonArray array = new JsonArray();
         boolean added = false;

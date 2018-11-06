@@ -16,11 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.securelistener;
+package org.ballerinalang.test.auth;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -31,15 +31,16 @@ import java.util.Map;
 /**
  * Test cases for verifying wrong auth provider for a service.
  */
-@Test(groups = "secure-listener-test")
-public class SecureClientWrongAuthProviderTest extends SecureListenerBaseTest {
+@Test(groups = "auth-test")
+public class SecureClientWrongAuthProviderTest extends AuthBaseTest {
 
     @Test(description = "Authn failure with wrong auth provider")
     public void testAuthSuccess() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9096, "echo/test"), headers);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9194, "echo/test"), headers,
+                serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }

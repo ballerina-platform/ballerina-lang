@@ -1,10 +1,21 @@
 import ballerina/http;
 import ballerina/auth;
 
-http:AuthProvider basicAuthProvider04 = {id: "basic1", scheme:"basic", authStoreProvider:"config"};
-endpoint http:SecureListener listener04 {
-    port:9096,
-    authProviders:[basicAuthProvider04]
+http:AuthProvider basicAuthProvider12 = {
+    id: "basic1",
+    scheme:"basic",
+    authStoreProvider:"config"
+};
+
+endpoint http:Listener listener12 {
+    port:9194,
+    authProviders:[basicAuthProvider12],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
 };
 
 @http:ServiceConfig {
@@ -15,7 +26,7 @@ endpoint http:SecureListener listener04 {
         scopes:["scope2"]
     }
 }
-service<http:Service> echo04 bind listener04 {
+service<http:Service> echo12 bind listener12 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test"

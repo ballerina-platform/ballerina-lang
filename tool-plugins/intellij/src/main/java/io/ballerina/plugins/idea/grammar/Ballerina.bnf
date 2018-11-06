@@ -462,7 +462,7 @@ TableLiteral ::= table LEFT_BRACE TableColumnDefinition? (COMMA TableDataArray)?
 
 TableColumnDefinition ::= LEFT_BRACE (TableColumn (COMMA TableColumn)*)? RIGHT_BRACE
 
-TableColumn ::= primarykey? identifier
+TableColumn ::= identifier identifier | identifier
 
 TableDataArray ::= LEFT_BRACKET TableDataList? RIGHT_BRACKET
 
@@ -905,7 +905,7 @@ SetAssignmentClause ::= VariableReference ASSIGN Expression
 
 StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
 
-JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput on Expression
+JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput (on Expression)?
 
 OutputRateLimit ::= output ((all | last | first) every DECIMAL_INTEGER_LITERAL (TimeScale | events)
     | snapshot every DECIMAL_INTEGER_LITERAL TimeScale){pin(".*")=1}
