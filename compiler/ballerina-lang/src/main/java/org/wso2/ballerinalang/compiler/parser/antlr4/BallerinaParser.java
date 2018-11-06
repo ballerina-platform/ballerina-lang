@@ -6736,7 +6736,7 @@ public class BallerinaParser extends Parser {
 				setState(1335); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ABSTRACT))) != 0) || ((((_la - 69)) & ~0x3f) == 0 && ((1L << (_la - 69)) & ((1L << (TYPE_INT - 69)) | (1L << (TYPE_BYTE - 69)) | (1L << (TYPE_FLOAT - 69)) | (1L << (TYPE_BOOL - 69)) | (1L << (TYPE_STRING - 69)) | (1L << (TYPE_ERROR - 69)) | (1L << (TYPE_MAP - 69)) | (1L << (TYPE_JSON - 69)) | (1L << (TYPE_XML - 69)) | (1L << (TYPE_TABLE - 69)) | (1L << (TYPE_STREAM - 69)) | (1L << (TYPE_ANY - 69)) | (1L << (TYPE_DESC - 69)) | (1L << (TYPE_FUTURE - 69)) | (1L << (TYPE_ANYDATA - 69)) | (1L << (VAR - 69)))) != 0) || ((((_la - 135)) & ~0x3f) == 0 && ((1L << (_la - 135)) & ((1L << (LEFT_PARENTHESIS - 135)) | (1L << (SUB - 135)) | (1L << (DecimalIntegerLiteral - 135)) | (1L << (HexIntegerLiteral - 135)) | (1L << (BinaryIntegerLiteral - 135)) | (1L << (HexadecimalFloatingPointLiteral - 135)) | (1L << (DecimalFloatingPointNumber - 135)) | (1L << (BooleanLiteral - 135)) | (1L << (QuotedStringLiteral - 135)) | (1L << (SymbolicStringLiteral - 135)) | (1L << (Base16BlobLiteral - 135)) | (1L << (Base64BlobLiteral - 135)) | (1L << (NullLiteral - 135)) | (1L << (Identifier - 135)))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ABSTRACT) | (1L << FROM))) != 0) || ((((_la - 69)) & ~0x3f) == 0 && ((1L << (_la - 69)) & ((1L << (TYPE_INT - 69)) | (1L << (TYPE_BYTE - 69)) | (1L << (TYPE_FLOAT - 69)) | (1L << (TYPE_BOOL - 69)) | (1L << (TYPE_STRING - 69)) | (1L << (TYPE_ERROR - 69)) | (1L << (TYPE_MAP - 69)) | (1L << (TYPE_JSON - 69)) | (1L << (TYPE_XML - 69)) | (1L << (TYPE_TABLE - 69)) | (1L << (TYPE_STREAM - 69)) | (1L << (TYPE_ANY - 69)) | (1L << (TYPE_DESC - 69)) | (1L << (TYPE_FUTURE - 69)) | (1L << (TYPE_ANYDATA - 69)) | (1L << (VAR - 69)) | (1L << (NEW - 69)) | (1L << (FOREACH - 69)) | (1L << (CONTINUE - 69)) | (1L << (TRAP - 69)) | (1L << (LENGTHOF - 69)) | (1L << (UNTAINT - 69)) | (1L << (START - 69)) | (1L << (AWAIT - 69)) | (1L << (CHECK - 69)))) != 0) || ((((_la - 133)) & ~0x3f) == 0 && ((1L << (_la - 133)) & ((1L << (LEFT_BRACE - 133)) | (1L << (LEFT_PARENTHESIS - 133)) | (1L << (LEFT_BRACKET - 133)) | (1L << (ADD - 133)) | (1L << (SUB - 133)) | (1L << (NOT - 133)) | (1L << (LT - 133)) | (1L << (BIT_COMPLEMENT - 133)) | (1L << (DecimalIntegerLiteral - 133)) | (1L << (HexIntegerLiteral - 133)) | (1L << (BinaryIntegerLiteral - 133)) | (1L << (HexadecimalFloatingPointLiteral - 133)) | (1L << (DecimalFloatingPointNumber - 133)) | (1L << (BooleanLiteral - 133)) | (1L << (QuotedStringLiteral - 133)) | (1L << (SymbolicStringLiteral - 133)) | (1L << (Base16BlobLiteral - 133)) | (1L << (Base64BlobLiteral - 133)) | (1L << (NullLiteral - 133)) | (1L << (Identifier - 133)) | (1L << (XMLLiteralStart - 133)) | (1L << (StringTemplateLiteralStart - 133)))) != 0) );
 			setState(1337);
 			match(RIGHT_BRACE);
 			}
@@ -6766,8 +6766,8 @@ public class BallerinaParser extends Parser {
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public SimpleLiteralContext simpleLiteral() {
-			return getRuleContext(SimpleLiteralContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public TerminalNode VAR() { return getToken(BallerinaParser.VAR, 0); }
 		public BindingPatternContext bindingPattern() {
@@ -6887,7 +6887,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(1366);
-				simpleLiteral();
+				expression(0);
 				setState(1367);
 				match(EQUAL_GT);
 				setState(1377);
@@ -19155,7 +19155,7 @@ public class BallerinaParser extends Parser {
 		":\2\u054e\u0552\7\u0087\2\2\u054f\u0551\5r:\2\u0550\u054f\3\2\2\2\u0551"+
 		"\u0554\3\2\2\2\u0552\u0550\3\2\2\2\u0552\u0553\3\2\2\2\u0553\u0555\3\2"+
 		"\2\2\u0554\u0552\3\2\2\2\u0555\u0557\7\u0088\2\2\u0556\u054d\3\2\2\2\u0556"+
-		"\u054e\3\2\2\2\u0557\u0574\3\2\2\2\u0558\u0559\5\u0144\u00a3\2\u0559\u0563"+
+		"\u054e\3\2\2\2\u0557\u0574\3\2\2\2\u0558\u0559\5\u011c\u008f\2\u0559\u0563"+
 		"\7\u00a9\2\2\u055a\u0564\5r:\2\u055b\u055f\7\u0087\2\2\u055c\u055e\5r"+
 		":\2\u055d\u055c\3\2\2\2\u055e\u0561\3\2\2\2\u055f\u055d\3\2\2\2\u055f"+
 		"\u0560\3\2\2\2\u0560\u0562\3\2\2\2\u0561\u055f\3\2\2\2\u0562\u0564\7\u0088"+
