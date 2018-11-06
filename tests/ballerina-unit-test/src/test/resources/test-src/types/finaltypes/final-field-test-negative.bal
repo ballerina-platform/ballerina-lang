@@ -52,3 +52,28 @@ function testCompound(int a) returns int {
     a += 10;
     return a;
 }
+
+
+function testLocalFinalValueWithType() {
+    final string name = "Ballerina";
+    name = "ABC";
+}
+
+function testLocalFinalValueWithoutType() {
+    final var name = "Ballerina";
+    name = "ABC";
+}
+
+function testLocalFinalValueWithTypeInitializedFromFunction() {
+    final string name = getName();
+    name = "ABC";
+}
+
+function testLocalFinalValueWithoutTypeInitializedFromFunction() {
+    final var name = getName();
+    name = "ABC";
+}
+
+function getName() returns string {
+    return "Ballerina";
+}

@@ -37,3 +37,28 @@ function bar(int a) returns (int) {
     int i = a;
     return a;
 }
+
+
+function testLocalFinalValueWithType() returns string {
+    final string name = "Ballerina";
+    return name;
+}
+
+function testLocalFinalValueWithoutType() returns string {
+    final var name = "Ballerina";
+    return name;
+}
+
+function testLocalFinalValueWithTypeInitializedFromFunction() returns string {
+    final string name = getName();
+    return name;
+}
+
+function testLocalFinalValueWithoutTypeInitializedFromFunction() returns string {
+    final var name = getName();
+    return name;
+}
+
+function getName() returns string {
+    return "Ballerina";
+}
