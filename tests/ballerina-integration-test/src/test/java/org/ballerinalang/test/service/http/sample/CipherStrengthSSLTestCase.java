@@ -63,7 +63,7 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
 
     @Test(description = "Test ssl with strong cipher service with weak cipher client")
     public void testWithStrongClientWithWeakService() throws Exception {
-        String serverResponse = "Received fatal alert: handshake_failurelocalhost/127.0.0.1:9227";
+        String serverResponse = "Received fatal alert: handshake_failurelocalhost/127.0.0.1:9226";
         validateClientExecution(serverResponse, weakCipherClient, strongCipherServiceUrl);
     }
 
