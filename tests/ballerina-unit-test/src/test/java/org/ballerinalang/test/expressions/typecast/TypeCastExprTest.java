@@ -319,32 +319,28 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting an incompatible JSON to integer",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: " +
-                    "'string' cannot be cast to 'int'.*")
+          expectedExceptionsMessageRegExp = "error: 'string' cannot be cast to 'int'.*")
     public void testIncompatibleJsonToInt() {
         BRunUtil.invoke(result, "testIncompatibleJsonToInt");
     }
 
     @Test(description = "Test casting an incompatible JSON to float",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: " +
-                    "'string' cannot be cast to 'float'.*")
+          expectedExceptionsMessageRegExp = "error: 'string' cannot be cast to 'float'.*")
     public void testIncompatibleJsonToFloat() {
         BRunUtil.invoke(result, "testIncompatibleJsonToFloat");
     }
 
     @Test(description = "Test casting an incompatible JSON to boolean",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: " +
-                    "'string' cannot be cast to 'boolean'.*")
+          expectedExceptionsMessageRegExp = "error: 'string' cannot be cast to 'boolean'.*")
     public void testIncompatibleJsonToBoolean() {
         BRunUtil.invoke(result, "testIncompatibleJsonToBoolean");
     }
 
     @Test(description = "Test casting a boolean in JSON to int",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: 'boolean' " +
-                    "cannot be cast to 'int'.*")
+          expectedExceptionsMessageRegExp = "error: 'boolean' cannot be cast to 'int'.*")
     public void testBooleanInJsonToInt() {
         BRunUtil.invoke(result, "testBooleanInJsonToInt");
     }
