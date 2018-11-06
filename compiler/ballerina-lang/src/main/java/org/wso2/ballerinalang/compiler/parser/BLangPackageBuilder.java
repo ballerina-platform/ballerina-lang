@@ -162,8 +162,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAnyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -205,7 +205,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceiveExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -2557,7 +2556,7 @@ public class BLangPackageBuilder {
     }
 
     void addWorkerReceiveExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
-        BLangWorkerReceiveExpr workerReceiveExpr = TreeBuilder.createWorkerReceiveExpressionNode();
+        BLangWorkerReceive workerReceiveExpr = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
         workerReceiveExpr.setWorkerName(this.createIdentifier(workerName));
         workerReceiveExpr.pos = pos;
         workerReceiveExpr.addWS(ws);
@@ -2571,7 +2570,7 @@ public class BLangPackageBuilder {
 
     void addWorkerFlushExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
         BLangWorkerFlushExpr workerFlushExpr = TreeBuilder.createWorkerFlushExpressionNode();
-        workerFlushExpr.setWorkerName(this.createIdentifier(workerName));
+        workerFlushExpr.workerIdentifier = (BLangIdentifier) createIdentifier(workerName);
         workerFlushExpr.pos = pos;
         workerFlushExpr.addWS(ws);
         addExpressionNode(workerFlushExpr);
@@ -3737,39 +3736,12 @@ public class BLangPackageBuilder {
         addExpressionNode(typeTestExpr);
     }
 
-    void handleWaitForOneAndAny(DiagnosticPos currentPos, Set<Whitespace> ws) {
-        ExpressionNode expressionNode = this.exprNodeStack.pop();
-        if (expressionNode.getKind() == NodeKind.BINARY_EXPR) { // Wait for any
-            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expressionNode;
-            // Collect LHS expressions
-            BLangWaitForAnyExpr waitForAnyExpr = TreeBuilder.createWaitForAnyExpressionNode();
-            waitForAnyExpr.exprList = collectAllExprs(binaryExpr, new ArrayList<>());
-            waitForAnyExpr.pos = currentPos;
-            waitForAnyExpr.addWS(ws);
-            addExpressionNode(waitForAnyExpr);
-        } else { // Wait for one
-            BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
-            waitExpr.expr = (BLangExpression) expressionNode;
-            waitExpr.pos = currentPos;
-            waitExpr.addWS(ws);
-            addExpressionNode(waitExpr);
-        }
-    }
-
-    private List<BLangExpression> collectAllExprs(BLangBinaryExpr binaryExpr, List<BLangExpression> exprs) {
-        // LHS
-        if (binaryExpr.lhsExpr.getKind() == NodeKind.BINARY_EXPR) {
-            collectAllExprs((BLangBinaryExpr) binaryExpr.lhsExpr, exprs);
-        } else {
-            exprs.add(binaryExpr.lhsExpr);
-        }
-        // RHS
-        if (binaryExpr.rhsExpr.getKind() == NodeKind.BINARY_EXPR) {
-            collectAllExprs((BLangBinaryExpr) binaryExpr.rhsExpr, exprs);
-        } else {
-            exprs.add(binaryExpr.rhsExpr);
-        }
-        return exprs;
+    void handleWait(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
+        waitExpr.expr = (BLangExpression) this.exprNodeStack.pop();
+        waitExpr.pos = currentPos;
+        waitExpr.addWS(ws);
+        addExpressionNode(waitExpr);
     }
 
     void startWaitForAll() {
@@ -3778,7 +3750,7 @@ public class BLangPackageBuilder {
     }
 
 
-    void addCollectionToWaitForAll(DiagnosticPos pos, Set<Whitespace> ws) {
+    void handleWaitForAll(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangWaitForAllExpr waitForAllExpr = waitCollectionStack.pop();
         waitForAllExpr.pos = pos;
         waitForAllExpr.addWS(ws);

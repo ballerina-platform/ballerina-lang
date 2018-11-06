@@ -26,6 +26,4 @@ import org.ballerinalang.model.tree.IdentifierNode;
  */
 public interface WorkerFlushExpressionNode extends ExpressionNode {
     IdentifierNode getWorkerName();
-
-    void setWorkerName(IdentifierNode identifierNode);
 }
