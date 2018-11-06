@@ -603,8 +603,13 @@ flushWorker
     :   FLUSH LEFT_BRACKET Identifier RIGHT_BRACKET
     ;
 
-waitExpression
-    :   WAIT expression                    #waitForOne
+waitForCollection
+    :   LEFT_BRACE waitKeyValue (COMMA waitKeyValue)* RIGHT_BRACE
+    ;
+
+waitKeyValue
+    :   Identifier
+    |   Identifier COLON expression
     ;
 
 variableReference
@@ -742,7 +747,7 @@ expression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   expression SYNCRARROW Identifier (COMMA expression)?                # workerSendSyncExpression
-    |   waitExpression                                                      # waitExprExpression
+    |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
     |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
