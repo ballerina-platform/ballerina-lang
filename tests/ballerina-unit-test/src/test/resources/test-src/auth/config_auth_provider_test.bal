@@ -30,10 +30,3 @@ function testReadScopesOfUser() returns (string[]) {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     return configAuthStoreProvider.getScopes("ishara");
 }
-
-function testDefaultAuthStoreProvider() returns http:Filter {
-    endpoint http:SecureListener secureEP {
-        port: 9090
-    };
-    return secureEP.config.filters[1];
-}
