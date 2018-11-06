@@ -133,7 +133,7 @@ public type LdapAuthStoreProvider object {
 
     # Authenticate with username and password
     #
-    # + user - user name
+    # + username - user name
     # + password - password
     # + return - true if authentication is a success, else false
     public extern function doAuthenticate(string username, string password) returns boolean;

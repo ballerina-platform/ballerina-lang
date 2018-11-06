@@ -49,7 +49,7 @@ public type Client object {
     # + return - `CallerActions` The caller actions available for clients
     public function getCallerActions() returns (CallerActions) {
         //TODO: create a single object - move to init
-        CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint, config.followRedirects);
+        CallerActions webSubHubClientConn = new CallerActions(self.config.url, self.httpClientEndpoint, self.config.followRedirects);
         return webSubHubClientConn;
     }
 

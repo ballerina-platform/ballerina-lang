@@ -68,22 +68,22 @@ public type Cache object {
         // We remove empty caches to prevent OOM issues. So in such scenarios, the cache will not be in the `cacheMap`
         // when we are trying to add a new cache entry to that cache. So we need to create a new cache. For that, keep
         // track of the UUID.
-        uuid = system:uuid();
-        cacheMap[uuid] = self;
+        self.uuid = system:uuid();
+        cacheMap[self.uuid] = self;
     }
 
     # Checks whether the given key has an accociated cache value.
     #
     # + return - True if the given key has an associated value, false otherwise.
     public function hasKey(string key) returns (boolean) {
-        return entries.hasKey(key);
+        return self.entries.hasKey(key);
     }
 
     # Returns the size of the cache.
     #
     # + return - The size of the cache
     public function size() returns (int) {
-        return lengthof entries;
+        return lengthof self.entries;
     }
 
     # Adds the given key, value pair to the provided cache.
@@ -93,37 +93,37 @@ public type Cache object {
     public function put(string key, any value) {
         // We need to synchronize this process otherwise concurrecy might cause issues.
         lock {
-            int cacheCapacity = capacity;
-            int cacheSize = lengthof entries;
+            int cacheCapacity = self.capacity;
+            int cacheSize = lengthof self.entries;
 
             // If the current cache is full, evict cache.
             if (cacheCapacity <= cacheSize) {
-                evict();
+                self.evict();
             }
             // Add the new cache entry.
             int time = time:currentTime().time;
             CacheEntry entry = { value: value, lastAccessedTime: time };
-            entries[key] = entry;
+            self.entries[key] = entry;
 
             // If the UUID is not found, that means that cache was removed after being empty. So we need to create a
             // new cache with the current cache object.
-            if (!cacheMap.hasKey(uuid)) {
-                cacheMap[uuid] = self;
+            if (!cacheMap.hasKey(self.uuid)) {
+                cacheMap[self.uuid] = self;
             }
         }
     }
 
     # Evicts the cache when cache is full.
     function evict() {
-        int maxCapacity = capacity;
-        float ef = evictionFactor;
+        int maxCapacity = self.capacity;
+        float ef = self.evictionFactor;
         int numberOfKeysToEvict = <int>(maxCapacity * ef);
         // Get the above number of least recently used cache entry keys from the cache
-        string[] cacheKeys = getLRUCacheKeys(numberOfKeysToEvict);
+        string[] cacheKeys = self.getLRUCacheKeys(numberOfKeysToEvict);
         // Iterate through the map and remove entries.
         foreach c in cacheKeys {
             // These cache values are ignred. So it is not needed to check the return value for the remove function.
-            _ = entries.remove(c);
+            _ = self.entries.remove(c);
         }
     }
 
@@ -134,11 +134,11 @@ public type Cache object {
     # + return - The cached value associated with the given key
     public function get(string key) returns any? {
         // Check whether the requested cache is available.
-        if (!hasKey(key)) {
+        if (!self.hasKey(key)) {
             return ();
         }
         // Get the requested cache entry from the map.
-        CacheEntry? cacheEntry = entries[key];
+        CacheEntry? cacheEntry = self.entries[key];
 
         match cacheEntry {
             CacheEntry entry => {
@@ -146,9 +146,9 @@ public type Cache object {
                 // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
                 // gurentees that the expired cache entries will not be returened.
                 int currentSystemTime = time:currentTime().time;
-                if (currentSystemTime >= entry.lastAccessedTime + expiryTimeMillis) {
+                if (currentSystemTime >= entry.lastAccessedTime + self.expiryTimeMillis) {
                     // If it is expired, remove the cache and return nil.
-                    remove(key);
+                    self.remove(key);
                     return ();
                 }
                 // Modify the last accessed time and return the cache if it is not expired.
@@ -166,14 +166,14 @@ public type Cache object {
     # + key - key of the cache entry which needs to be removed
     public function remove(string key) {
         // Cache might already be removed by the cache clearing task. So no need to check the return value.
-        _ = entries.remove(key);
+        _ = self.entries.remove(key);
     }
 
     # Returns all keys from current cache.
     #
     # + return - all keys
     public function keys() returns string[] {
-        return entries.keys();
+        return self.entries.keys();
     }
 
     # Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is
@@ -187,7 +187,7 @@ public type Cache object {
         string[] keys = self.entries.keys();
         // Iterate through the keys.
         foreach key in keys {
-            CacheEntry? cacheEntry = entries[key];
+            CacheEntry? cacheEntry = self.entries[key];
             match cacheEntry {
                 CacheEntry entry => {
                     // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.

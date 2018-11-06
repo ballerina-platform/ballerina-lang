@@ -31,7 +31,7 @@ public type HttpBasicAuthnHandler object {
     public auth:AuthStoreProvider authStoreProvider;
 
     public new(authStoreProvider) {
-        name = "basic";
+        self.name = "basic";
     }
 
     # Checks if the provided request can be authenticated with basic auth.

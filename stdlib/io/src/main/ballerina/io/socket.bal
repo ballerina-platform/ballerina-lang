@@ -33,7 +33,7 @@ public type Socket object {
     @readonly public string localAddress;
 
     public new() {
-        init();
+        self.init();
     }
 
     # Initializes a socket.
@@ -73,7 +73,7 @@ public type Socket object {
 public type ServerSocket object {
 
     public new() {
-        init();
+        self.init();
     }
 
     # Initializes a server socket.

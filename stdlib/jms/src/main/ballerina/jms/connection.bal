@@ -23,7 +23,7 @@ public type Connection object {
 
     # JMS connection constructor
     public new(config) {
-        createConnection();
+        self.createConnection();
     }
 
     extern function createConnection();

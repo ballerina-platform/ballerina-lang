@@ -41,7 +41,7 @@ public type Request object {
 
     public new() {
         self.dirtyRequest = false;
-        self.entity = createNewEntity();
+        self.entity = self.createNewEntity();
     }
 
     # Create a new `Entity` and link it with the request.

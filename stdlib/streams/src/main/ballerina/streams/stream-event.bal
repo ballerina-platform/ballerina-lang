@@ -23,29 +23,29 @@ public type StreamEvent object {
         match eventData {
             (string, map) t => {
                 foreach k, v in t[1] {
-                    data[t[0] + DELIMITER + k] = v;
+                    self.data[t[0] + DELIMITER + k] = v;
                 }
             }
             map m => {
-                data = m;
+                self.data = m;
             }
         }
     }
 
     public function clone() returns StreamEvent {
-        StreamEvent clone = new(cloneData(), eventType, timestamp);
+        StreamEvent clone = new(self.cloneData(), self.eventType, self.timestamp);
         return clone;
     }
 
     public function addData(map eventData) {
         foreach k, v in eventData {
-            data[k] = v;
+            self.data[k] = v;
         }
     }
 
     function cloneData() returns map {
         map dataClone;
-        foreach k, v in data {
+        foreach k, v in self.data {
             dataClone[k] = v;
         }
         return dataClone;

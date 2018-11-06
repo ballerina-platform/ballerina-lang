@@ -193,7 +193,7 @@ type TwoPhaseCommitTransaction object {
                         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
                         // participant
                         self.removeParticipant(participantId, "Could not remove aborted participant: " + participantId +
-                                " from transaction: " + transactionId);
+                                " from transaction: " + self.transactionId);
                         prepareDecision = PREPARE_DECISION_ABORT;
                     }
                 }

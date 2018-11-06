@@ -38,7 +38,7 @@ public type OutputProcess object {
                 i += 1;
             }
         }
-        outputFunc(events);
+        self.outputFunc(events);
     }
 };
 

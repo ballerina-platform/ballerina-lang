@@ -693,7 +693,7 @@ type PendingSubscriptionChangeRequest object {
     #
     # + return - `boolean` indicating whether the requests are equal or not
     function equals(PendingSubscriptionChangeRequest pendingRequest) returns boolean {
-        return pendingRequest.mode == mode && pendingRequest.topic == topic && pendingRequest.callback == callback;
+        return pendingRequest.mode == self.mode && pendingRequest.topic == self.topic && pendingRequest.callback == self.callback;
     }
 };
 

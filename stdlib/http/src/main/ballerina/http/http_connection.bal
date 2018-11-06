@@ -28,9 +28,9 @@ public type Connection object {
     # + return - Returns an `error` if failed to respond
     public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
         Response response = buildResponse(message);
-        match filterContext {
+        match self.filterContext {
             FilterContext filterCtx => {
-                foreach filter in config.filters {
+                foreach filter in self.config.filters {
                     if (!filter.filterResponse(response, filterCtx)){
                         Response res;
                         res.statusCode = 500;

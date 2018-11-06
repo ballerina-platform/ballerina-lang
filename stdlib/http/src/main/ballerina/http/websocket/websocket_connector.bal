@@ -44,7 +44,7 @@ public type WebSocketConnector object {
         } else if (data is json) {
             text = data.toString();
         }
-        return externPushText(text, final);
+        return self.externPushText(text, final);
     }
 
     extern function externPushText(string text, boolean final) returns error?;
@@ -85,9 +85,9 @@ public type WebSocketConnector object {
                 error err = error("Failed to execute close. Invalid status code: " + statusCode);
                 return err;
             }
-            return externClose(statusCode, reason ?: "", timeoutInSecs);
+            return self.externClose(statusCode, reason ?: "", timeoutInSecs);
         } else {
-            return externClose(-1, "", timeoutInSecs);
+            return self.externClose(-1, "", timeoutInSecs);
         }
     }
 

@@ -44,7 +44,7 @@ public type HttpCache object {
 
         if ((respCacheControl.noStore ?: false) ||
             (requestCacheControl.noStore ?: false) ||
-            ((respCacheControl.isPrivate ?: false)  && isShared)) {
+            ((respCacheControl.isPrivate ?: false)  && self.isShared)) {
             // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
             return;
         }
@@ -53,7 +53,7 @@ public type HttpCache object {
         // TODO: Consider cache control extensions as well here
         if (inboundResponse.hasHeader(EXPIRES) ||
             (respCacheControl.maxAge ?: -1) >= 0 ||
-            ((respCacheControl.sMaxAge ?: -1) >= 0 && isShared) ||
+            ((respCacheControl.sMaxAge ?: -1) >= 0 && self.isShared) ||
             isCacheableStatusCode(inboundResponse.statusCode) ||
             !(respCacheControl.isPrivate ?: false)) {
 
@@ -64,23 +64,23 @@ public type HttpCache object {
                 error => {}
             }
             log:printDebug("Adding new cache entry for: " + key);
-            addEntry(cache, key, inboundResponse);
+            addEntry(self.cache, key, inboundResponse);
         }
     }
 
     function hasKey (string key) returns boolean {
-        return cache.hasKey(key);
+        return self.cache.hasKey(key);
     }
 
     function get (string key) returns Response {
-        match <Response[]>cache.get(key) {
+        match <Response[]> self.cache.get(key) {
             Response[] cacheEntry => return cacheEntry[lengthof cacheEntry - 1];
             error err => panic err;
         }
     }
 
     function getAll (string key) returns Response[]|() {
-        match trap <Response[]>cache.get(key) {
+        match trap <Response[]> self.cache.get(key) {
             Response[] cacheEntry => return cacheEntry;
             error err => return ();
         }
@@ -91,7 +91,7 @@ public type HttpCache object {
         Response[] matchingResponses = [];
         int i = 0;
 
-        match getAll(key) {
+        match self.getAll(key) {
             Response[] responses => cachedResponses = responses;
             () => cachedResponses = [];
         }
@@ -111,7 +111,7 @@ public type HttpCache object {
         Response[] matchingResponses = [];
         int i = 0;
 
-        match getAll(key) {
+        match self.getAll(key) {
             Response[] responses => cachedResponses = responses;
             () => cachedResponses = [];
         }
@@ -127,7 +127,7 @@ public type HttpCache object {
     }
 
     function remove (string key) {
-        cache.remove(key);
+        self.cache.remove(key);
     }
 };
 

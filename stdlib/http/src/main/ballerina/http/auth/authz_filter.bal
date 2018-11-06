@@ -50,8 +50,8 @@ public type AuthzFilter object {
         boolean authorized;
         match scopes {
             string[] scopeNames => {
-                if (authzHandler.canHandle(request)) {
-                    authorized = authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
+                if (self.authzHandler.canHandle(request)) {
+                    authorized = self.authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
                         context.serviceName, context.resourceName, request.method, scopeNames);
                 } else {
                     authorized = false;

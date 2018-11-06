@@ -251,14 +251,14 @@ public type Notification object {
     #
     # + return - String constrained map of query params
     public function getQueryParams() returns map<string> {
-        return request.getQueryParams();
+        return self.request.getQueryParams();
     }
 
     # Retrieves the `Entity` associated with the content delivery request.
     #
     # + return - The `Entity` of the request. An `error` is returned, if entity construction fails
     public function getEntity() returns mime:Entity|error {
-        return request.getEntity();
+        return self.request.getEntity();
     }
 
     # Returns whether the requested header key exists in the header map of the content delivery request.
@@ -266,7 +266,7 @@ public type Notification object {
     # + headerName - The header name
     # + return - Returns true if the specified header key exists
     public function hasHeader(string headerName) returns boolean {
-        return request.hasHeader(headerName);
+        return self.request.hasHeader(headerName);
     }
 
     # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
@@ -276,7 +276,7 @@ public type Notification object {
     # + return - The first header value for the specified header name. An exception is thrown if no header is found.
     #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
     public function getHeader(string headerName) returns string {
-        return request.getHeader(headerName);
+        return self.request.getHeader(headerName);
     }
 
     # Retrieves all the header values to which the specified header key maps to.
@@ -285,35 +285,35 @@ public type Notification object {
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found.
     #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
     public function getHeaders(string headerName) returns string[] {
-        return request.getHeaders(headerName);
+        return self.request.getHeaders(headerName);
     }
 
     # Retrieves all the names of the headers present in the content delivery request.
     #
     # + return - An array of all the header names
     public function getHeaderNames() returns string[] {
-        return request.getHeaderNames();
+        return self.request.getHeaderNames();
     }
 
     # Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
     #
     # + return - Returns the `content-type` header value as a string
     public function getContentType() returns string {
-        return request.getContentType();
+        return self.request.getContentType();
     }
 
     # Extracts `json` payload from the content delivery request.
     #
     # + return - The `json` payload or `error` in case of errors. If the content type is not JSON, an `error` is returned.
     public function getJsonPayload() returns json|error {
-        return request.getJsonPayload();
+        return self.request.getJsonPayload();
     }
 
     # Extracts `xml` payload from the content delivery request.
     #
     # + return - The `xml` payload or `error` in case of errors. If the content type is not XML, an `error` is returned.
     public function getXmlPayload() returns xml|error {
-        return request.getXmlPayload();
+        return self.request.getXmlPayload();
     }
 
     # Extracts `text` payload from the content delivery request.
@@ -321,7 +321,7 @@ public type Notification object {
     # + return - The `text` payload or `error` in case of errors.
     #            If the content type is not of type text, an `error` is returned.
     public function getTextPayload() returns string|error {
-        return request.getTextPayload();
+        return self.request.getTextPayload();
     }
 
     # Retrieves the content delivery request payload as a `string`. Content type is not checked during payload
@@ -329,28 +329,28 @@ public type Notification object {
     #
     # + return - The string representation of the message payload or `error` in case of errors
     public function getPayloadAsString() returns string|error {
-        return request.getPayloadAsString();
+        return self.request.getPayloadAsString();
     }
 
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
     public function getByteChannel() returns io:ReadableByteChannel|error {
-        return request.getByteChannel();
+        return self.request.getByteChannel();
     }
 
     # Retrieves the request payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns byte[]|error {
-        return request.getBinaryPayload();
+        return self.request.getBinaryPayload();
     }
 
     # Retrieves the form parameters from the content delivery request as a `map`.
     #
     # + return - The map of form params or `error` in case of errors
     public function getFormParams() returns map<string>|error {
-        return request.getFormParams();
+        return self.request.getFormParams();
     }
 };
 
