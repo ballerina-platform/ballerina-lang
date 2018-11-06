@@ -23,7 +23,7 @@ import ballerina/sql;
 import ballerina/system;
 import ballerina/time;
 
-map<PendingSubscriptionChangeRequest> pendingRequests;
+map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
 @http:ServiceConfig {
     basePath:BASE_PATH
@@ -50,7 +50,7 @@ service<http:Service> hubService {
         string mode;
         string topic;
 
-        map<string> params;
+        map<string> params = {};
         match (request.getFormParams()) {
             map<string> reqFormParamMap => { params = reqFormParamMap; }
             error => {}
@@ -165,7 +165,7 @@ service<http:Service> hubService {
                 if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
                     byte[]|error binaryPayload;
                     string stringPayload;
-                    string contentType;
+                    string contentType = "";
                     if (hubRemotePublishMode == PUBLISH_MODE_FETCH) {
                         match (fetchTopicUpdate(topic)) {
                             http:Response fetchResp => {

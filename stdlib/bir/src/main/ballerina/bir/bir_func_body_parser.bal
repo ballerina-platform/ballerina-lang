@@ -9,8 +9,8 @@ public type FuncBodyParser object {
     public function parseBB() returns BasicBlock {
         var id = reader.readStringCpRef();
         var numInstruction = reader.readInt32() - 1;
-        Instruction[] instructions;
-        int i;
+        Instruction[] instructions = [];
+        int i = 0;
         while (i < numInstruction) {
             instructions[i] = parseInstruction();
             i += 1;

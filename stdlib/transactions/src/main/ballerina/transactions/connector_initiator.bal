@@ -47,7 +47,7 @@ type InitiatorClientEP object {
 };
 
 type InitiatorClient object {
-    InitiatorClientEP clientEP;
+    InitiatorClientEP clientEP = new;
 
     new() {
 
