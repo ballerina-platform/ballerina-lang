@@ -57,8 +57,40 @@ public class BuiltInUtils {
         return new BString(value);
     }
 
-    public static BError createConversionError(Context context, String msg) {
-        return BLangVMErrors.createError(context, msg);
+    /**
+     * Get builtin conversion error.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error description
+     * @return conversion error
+     */
+    public static BError createConversionError(Context context, String errMsg) {
+        return createError(context, errMsg, "{ballerina/builtin}ConversionError");
+    }
+
+    /**
+     * Get builtin string error.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error description
+     * @return conversion error
+     */
+    public static BError createStringError(Context context, String errMsg) {
+        return createError(context, errMsg, "{ballerina/builtin}StringError");
+    }
+
+    /**
+     * Get builtin conversion error.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error description
+     * @param reason The reason of the error
+     * @return conversion error
+     */
+    public static BError createError(Context context, String errMsg, String reason) {
+        BMap<String, BValue> errorMap = new BMap<>();
+        errorMap.put("message", new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, reason, errorMap);
     }
 
     private static BMap<String, BValue> createBase64Error(Context context, String msg,
@@ -127,7 +159,7 @@ public class BuiltInUtils {
             }
             context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+            context.setReturnValues(createStringError(context, e.getMessage()));
         }
     }
 
@@ -174,7 +206,10 @@ public class BuiltInUtils {
             }
             context.setReturnValues(new BString(new String(decodedValue, charset)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+            context.setReturnValues(BuiltInUtils.createStringError(context, e.getMessage()));
         }
+    }
+
+    private BuiltInUtils() {
     }
 }

@@ -745,7 +745,7 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
                 resetBucketStats(circuitHealth, index);
                 index -= 1;
             }
-            int lastIndex = (lengthof circuitHealth.totalBuckets) - 1;
+            int lastIndex = (circuitHealth.totalBuckets.length()) - 1;
             while (lastIndex > currentBucketId) {
                 resetBucketStats(circuitHealth, lastIndex);
                 lastIndex -= 1;
@@ -767,7 +767,7 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
 function reInitializeBuckets(CircuitHealth circuitHealth) {
     Bucket[] bucketArray = [];
     int bucketIndex = 0;
-    while (bucketIndex < lengthof circuitHealth.totalBuckets) {
+    while (bucketIndex < circuitHealth.totalBuckets.length()) {
         bucketArray[bucketIndex] = {};
         bucketIndex += 1;
     }

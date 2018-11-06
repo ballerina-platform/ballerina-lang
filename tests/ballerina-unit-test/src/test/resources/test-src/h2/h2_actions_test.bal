@@ -73,7 +73,7 @@ function testCall() returns (string) {
     } else if (ret is ()) {
         return "nil";
     } else if (ret is error) {
-        return ret.detail();
+        return <string> ret.detail().message;
     }
 
     string name;
@@ -105,7 +105,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         (a, b) = x;
         returnVal = b[0];
     } else if (x is error) {
-        returnVal = x.detail();
+        returnVal = <string> x.detail().message;
     }
 
     testDB.stop();

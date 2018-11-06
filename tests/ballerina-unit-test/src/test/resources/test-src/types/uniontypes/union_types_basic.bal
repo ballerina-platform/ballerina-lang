@@ -73,14 +73,14 @@ function testUnionTypeArrays() returns int {
     ParamAny para2 = { value: 10 };
     ParamAny[] paramAnyArray = [para1, para2];
     GlobalParam[] globalParamArray = paramAnyArray;
-    return lengthof globalParamArray;
+    return globalParamArray.length();
 }
 
 
 function testUnionTypeArrayWithValueTypeArrayAssignment() returns int {
     int[] intArray = [10, 20, 30];
     GlobalParam[] globalParamArray = intArray;
-    return lengthof globalParamArray;
+    return globalParamArray.length();
 }
 
 public type Person object {

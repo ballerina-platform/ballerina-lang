@@ -297,6 +297,14 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(refValueArray2.get(1).stringValue(), "FooUpdated");
     }
 
+    @Test(description = "Test tuple var ref with index and field based var refs")
+    public void testFieldAndIndexBasedVarRefs() {
+        BValue[] returns = BRunUtil.invoke(result, "testFieldAndIndexBasedVarRefs");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2002);
+        Assert.assertEquals(returns[1].stringValue(), "S1");
+    }
+
     @Test
     public void testNegativeTupleVariablesReferences() {
         Assert.assertEquals(resultNegative.getErrorCount(), 20);

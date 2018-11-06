@@ -49,7 +49,7 @@ type BbTermGenrator object {
 
     function mapOverGenVarLoad(bir:Operand[] ops) returns llvm:LLVMValueRef[] {
         llvm:LLVMValueRef[] loaddedVars = [];
-        var argsCount = lengthof ops;
+        var argsCount = ops.length();
         int i = 0;
         while (i < argsCount) {
             loaddedVars[i] = parent.genLoadLocalToTempVar(ops[i]);
@@ -59,17 +59,17 @@ type BbTermGenrator object {
     }
 
     function genCallToPrintf(llvm:LLVMValueRef[] args, string suffix) {
-        var argsCount = lengthof args;
+        var argsCount = args.length();
         var printfPatten = stringMul("%ld", argsCount) + suffix;
         var printLnIntPatten = llvm:LLVMBuildGlobalStringPtr(builder, printfPatten, "");
         llvm:LLVMValueRef[] printArgs = [printLnIntPatten];
         appendAllTo(printArgs, args);
-        llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, printfRef, printArgs, lengthof printArgs, "");
+        llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, printfRef, printArgs, printArgs.length(), "");
     }
 
     function genCallToSamePkgFunc(map<FuncGenrator> funcGenrators, bir:Call callIns, llvm:LLVMValueRef[] args) {
         llvm:LLVMValueRef calleFuncRef = findFuncRefByName(funcGenrators, callIns.name);
-        llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, calleFuncRef, args, lengthof args, "");
+        llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, calleFuncRef, args, args.length(), "");
         match callIns.lhsOp {
             bir:VarRef lhsOp => {
                 llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(lhsOp.variableDcl.name.value);

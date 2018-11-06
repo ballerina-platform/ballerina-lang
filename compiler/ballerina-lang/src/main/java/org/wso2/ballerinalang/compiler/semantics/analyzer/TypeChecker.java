@@ -753,12 +753,6 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = iExpr.iContext.operations.getLast().resultType;
             return;
         }
-        BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
-        //Returns if the function is a builtin function
-        if (BLangBuiltInMethod.UNDEFINED != builtInFunction && checkBuiltinFunctionInvocation(iExpr, builtInFunction,
-                                                                                              exprType)) {
-            return;
-        }
 
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
@@ -767,6 +761,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType varRefType = iExpr.expr.type;
         varRefType = getSafeType(varRefType, iExpr);
+
+        BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
+        // Returns if the function is a builtin function
+        if (BLangBuiltInMethod.UNDEFINED != builtInFunction && checkBuiltinFunctionInvocation(iExpr, builtInFunction,
+                varRefType)) {
+            return;
+        }
+
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
@@ -1536,6 +1538,15 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
             return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
         }
+        if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangFieldBasedAccess) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangIndexBasedAccess) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangXMLAttributeAccess) varRef).symbol;
+        }
 
         dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
         return null;
@@ -1824,82 +1835,23 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
-        boolean isValidBuiltinFunc = false;
-        switch (function) {
-            case REASON:
-            case DETAIL:
-                //            case STACKTRACE: TODO : Add this.
-                if (type.tag == TypeTags.ERROR) {
-                    handleErrorRelatedBuiltInFunctions(iExpr, function, (BErrorType) type);
-                } else {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
-                    resultType = symTable.semanticError;
-                }
-                isValidBuiltinFunc = true;
-                break;
-            case IS_NAN:
-            case IS_INFINITE:
-            case IS_FINITE:
-                if (type.tag == TypeTags.FLOAT) {
-                    handleBuiltInFunctions(iExpr, symTable.booleanType);
-                } else {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
-                    resultType = symTable.semanticError;
-                }
-                isValidBuiltinFunc = true;
-                break;
-            case LENGTH:
-                if (isValidTypeForLength(type.tag)) {
-                    handleBuiltInFunctions(iExpr, symTable.intType);
-                    isValidBuiltinFunc = true;
-                }
-                break;
-            default:
-                dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
-                isValidBuiltinFunc = true;
-        }
-        if (isValidBuiltinFunc) {
-            iExpr.builtinMethodInvocation = true;
-            iExpr.builtInMethod = function;
-            if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
-                types.setImplicitCastExpr(iExpr, resultType, expType);
-            }
-        }
-        return isValidBuiltinFunc;
-    }
+    private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
+        Name funcName = names.fromString(iExpr.name.value);
+        BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
 
-    private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function,
-            BErrorType type) {
-        if (iExpr.argExprs.size() > 0) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
+        if (funcSymbol == symTable.notFoundSymbol) {
+            return false;
         }
-        if (function == BLangBuiltInMethod.REASON) {
-            resultType = type.reasonType;
-        } else if (function == BLangBuiltInMethod.DETAIL) {
-            resultType = type.detailType;
-        }
-    }
 
-    private void handleBuiltInFunctions(BLangInvocation iExpr, BType actualType) {
-        if (iExpr.argExprs.size() > 0) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name);
-        }
-        resultType = types.checkType(iExpr, actualType, expType);
-    }
+        iExpr.builtinMethodInvocation = true;
+        iExpr.builtInMethod = function;
+        iExpr.symbol = funcSymbol;
 
-    private boolean isValidTypeForLength(int typeTag) {
-        switch (typeTag) {
-            case TypeTags.ARRAY:
-            case TypeTags.JSON:
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-            case TypeTags.TABLE:
-            case TypeTags.TUPLE:
-            case TypeTags.XML:
-                return true;
+        checkInvocationParamAndReturnType(iExpr);
+        if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
+            types.setImplicitCastExpr(iExpr, resultType, expType);
         }
-        return false;
+        return true;
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {

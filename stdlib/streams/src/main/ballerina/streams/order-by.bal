@@ -34,7 +34,7 @@ public type OrderBy object {
 
     function topDownMergeSort(StreamEvent[] a, string[] tmpSortTypes) {
         int index = 0;
-        int n = lengthof a;
+        int n = a.length();
         StreamEvent[] b;
         while (index < n) {
             b[index] = a[index];
@@ -106,8 +106,8 @@ public type OrderBy object {
         byte[] v1 = x.toByteArray("UTF-8");
         byte[] v2 = y.toByteArray("UTF-8");
 
-        int len1 = lengthof v1;
-        int len2 = lengthof v2;
+        int len1 = v1.length();
+        int len2 = v2.length();
         int lim = len1 < len2 ? len1 : len2;
         int k = 0;
         while (k < lim) {
@@ -174,7 +174,7 @@ public type OrderBy object {
 
     function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex) returns int {
         int result = c;
-        if (result == 0 && (lengthof sortFieldMetadata > fieldIndex)) {
+        if (result == 0 && (sortFieldMetadata.length() > fieldIndex)) {
             result = sortFunc(x, y, sortFieldMetadata, fieldIndex);
         }
         return result;

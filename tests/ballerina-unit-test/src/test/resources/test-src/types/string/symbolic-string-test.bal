@@ -223,10 +223,11 @@ function testObject() returns (json) {
 
 function testRecords() returns (string) {
     Student stu = { name: 'AdamPage, age: 17};
-    match stu['name] {
-        string value => return value;
-        () => return "empty";
+    var value = stu['name];
+    if (value is string) {
+        return value;
     }
+    return "empty";
 }
 
 function testGlobalVars() returns (string) {

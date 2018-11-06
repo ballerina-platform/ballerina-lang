@@ -4,7 +4,7 @@ function arrayLengthAccessTestAssignmentCase (int x, int y) returns (int) {
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     int length;
-    length = (lengthof arr);
+    length = (arr.length());
     return length;
 }
 
@@ -14,7 +14,7 @@ function arrayLengthAccessTestFunctionInvocationCase (int x, int y) returns (int
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     int length;
-    length = arrayLength(lengthof arr);
+    length = arrayLength(arr.length());
     return length;
 }
 
@@ -27,7 +27,7 @@ function arrayLengthAccessTestVariableDefinitionCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length = arrayLength(lengthof arr);
+    int length = arrayLength(arr.length());
     return length;
 }
 
@@ -36,7 +36,7 @@ function arrayLengthAccessTestArrayInitializerCase (int x, int y) returns (int) 
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int[] tempArr = [(lengthof arr),(x+y)];
+    int[] tempArr = [(arr.length()),(x+y)];
     return tempArr[0];
 }
 
@@ -45,7 +45,7 @@ function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    map tempMap = {"length":(lengthof arr)};
+    map tempMap = {"length":(arr.length())};
     int length;
     length =check <int> tempMap.length;
     return length;
@@ -56,7 +56,7 @@ function arrayLengthAccessTestReturnStatementCase (int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    return (lengthof arr);
+    return (arr.length());
 }
 
 function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) returns (int,int,int) {
@@ -69,7 +69,7 @@ function arrayLengthAccessTestMultiReturnStatementCase (int x, int y) returns (i
     int[] crr = [];
     crr[0] = 1;
     crr[1] = x + y;
-    return ((lengthof arr), (lengthof brr), (lengthof crr));
+    return ((arr.length()), (brr.length()), (crr.length()));
 }
 
 function arrayLengthAccessTestTypeCastExpressionCase (int x, int y) returns (int) {
@@ -77,7 +77,7 @@ function arrayLengthAccessTestTypeCastExpressionCase (int x, int y) returns (int
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    int length = <int> (lengthof arr);
+    int length = <int> (arr.length());
     return length;
 }
 
@@ -86,7 +86,7 @@ function arrayLengthAccessTestIfConditionCase (int x, int y) returns (int) {
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    if ((lengthof arr) == 3) {
+    if ((arr.length()) == 3) {
        return 3;
     } else{
        return 0;
@@ -98,7 +98,7 @@ function arrayLengthAccessTestBinaryExpressionCase (int x, int y) returns (int) 
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    if ((lengthof arr) == (lengthof arr)) {
+    if ((arr.length()) == (arr.length())) {
        return 3;
     } else {
        return 0;
@@ -112,7 +112,7 @@ function arrayLengthAccessTestStructFieldAccessCase (int x, int y) returns (int)
     arr[2] = arr[0] + arr[1];
     Person jack = {name:"Jack", days:arr};
 
-    if ((lengthof jack.days) == 3) {
+    if ((jack.days.length()) == 3) {
         return 3;
     } else {
         return 0;
@@ -127,48 +127,50 @@ type Person record {
 function arrayLengthAccessTestJSONArrayCase (int x, int y) returns (int) {
     json arr = [x,y,5,5,6,6];
     int length;
-    length = (lengthof arr);
+    length = (arr.length());
     return length;
 }
 
 function lengthOfMap (int x, int y) returns (int) {
     map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    int length = lengthof namesMap;
+    int length = namesMap.length();
     return length;
 }
 
 function lengthOfMapEmpty (int x, int y) returns (int) {
     map namesMap;
-    int length = lengthof namesMap;
+    int length = namesMap.length();
     return length;
 }
 
 function lengthOfString() returns (int, int, int) {
     string foo = "hello world";
-    int l1 = lengthof foo;
-    int l2 = lengthof "John";
-    int l3 = lengthof string `Hello {{"John"}}`;
+    int l1 = foo.length();
+    string s1 = "John";
+    int l2 = s1.length();
+    string s2 =string `Hello {{"John"}}`;
+    int l3 = s2.length();
     return (l1, l2, l3);
 }
 
 function lengthOfBlob() returns (int, int) {
     string s1 = "Hello";
 	byte[] b1 = s1.toByteArray("UTF-8");
-    int l1 = lengthof b1;
+    int l1 = b1.length();
     
     string s2 = "";
     byte[] b2 = s2.toByteArray("UTF-8");
-    int l2 = lengthof b2;
+    int l2 = b2.length();
     
     return (l1, l2);
 }
 
 function lengthOfNullString() returns (int) {
     string foo;
-    return lengthof foo;
+    return foo.length();
 }
 
 function lengthOfJSONObject() returns (int) {
     json j = {"a":"A", "b":"B"};
-    return lengthof j;
+    return j.length();
 }
