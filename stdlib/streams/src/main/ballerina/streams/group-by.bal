@@ -23,15 +23,15 @@ public type GroupBy object {
     }
 
     public function process(StreamEvent[] streamEvents) {
-        if (lengthof self.groupByFields > 0) {
+        if (self.groupByFields.length() > 0) {
             foreach streamEvent in streamEvents {
                 string key = self.generateGroupByKey(streamEvent);
                 if (!self.groupedStreamEvents.hasKey(key)) {
                     StreamEvent[] events = [];
                     self.groupedStreamEvents[key] = events;
                 }
-                StreamEvent[] groupedEvents = check <StreamEvent[]>self.groupedStreamEvents[key];
-                groupedEvents[lengthof groupedEvents] = streamEvent;
+                StreamEvent[] groupedEvents = check <StreamEvent[]> self.groupedStreamEvents[key];
+                groupedEvents[groupedEvents.length()] = streamEvent;
             }
 
             foreach arr in self.groupedStreamEvents.values() {

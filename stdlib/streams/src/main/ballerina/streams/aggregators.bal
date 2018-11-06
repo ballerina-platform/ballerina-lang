@@ -186,7 +186,7 @@ public type DistinctCount object {
         } else if (eventType == "RESET"){
             self.distinctValues.clear();
         }
-        return lengthof self.distinctValues;
+        return self.distinctValues.length();
     }
 
     public function clone() returns Aggregator {

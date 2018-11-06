@@ -163,7 +163,7 @@ function Connection::redirect(Response response, RedirectCode code, string[] loc
     foreach location in locations {
         locationsStr = locationsStr + location + ",";
     }
-    locationsStr = locationsStr.substring(0, (lengthof locationsStr) - 1);
+    locationsStr = locationsStr.substring(0, (locationsStr.length()) - 1);
 
     response.setHeader(LOCATION, locationsStr);
     return self.respond(response);

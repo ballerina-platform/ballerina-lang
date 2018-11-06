@@ -71,7 +71,7 @@ function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
                 runtime:getInvocationContext().userPrincipal.username = username;
                 // read scopes and set to the invocation context
                 string[] scopes = self.authStoreProvider.getScopes(username);
-                if (lengthof scopes > 0) {
+                if (scopes.length() > 0) {
                     runtime:getInvocationContext().userPrincipal.scopes = scopes;
                 }
             }
@@ -101,7 +101,7 @@ function extractBasicAuthCredentials(string authHeader) returns (string, string)
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader = check authHeader.substring(5, authHeader.length()).trim().base64Decode();
     string[] decodedCredentials = decodedBasicAuthHeader.split(":");
-    if (lengthof decodedCredentials != 2) {
+    if (decodedCredentials.length() != 2) {
         return handleError("Incorrect basic authentication header format");
     } else {
         return (decodedCredentials[0], decodedCredentials[1]);

@@ -249,7 +249,7 @@ function Request::parseCacheControlHeader () {
 }
 
 function appendFields (string[] fields) returns string {
-    if (lengthof fields > 0) {
+    if (fields.length() > 0) {
         return "=\"" + buildCommaSeparatedString(fields) + "\"";
     }
     return "";
@@ -259,7 +259,7 @@ function buildCommaSeparatedString (string[] values) returns string {
     string delimitedValues = values[0];
 
     int i = 1;
-    while (i < lengthof values) {
+    while (i < values.length()) {
         delimitedValues = delimitedValues + ", " + values[i];
         i = i + 1;
     }
@@ -271,7 +271,7 @@ function getExpirationDirectiveValue (string directive) returns int {
     string[] directiveParts = directive.split("=");
 
     // Disregarding the directive if a value isn't provided
-    if (lengthof directiveParts != 2) {
+    if (directiveParts.length() != 2) {
         return -1;
     }
 

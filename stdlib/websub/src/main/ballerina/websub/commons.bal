@@ -364,7 +364,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
         linkHeaders = response.getHeaders("Link");
     }
 
-    if (lengthof linkHeaders == 0) {
+    if (linkHeaders.length() == 0) {
         map errorDetail = { message : "Link header unavailable in discovery response" };
         error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return websubError;
@@ -374,7 +374,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
     string[] hubs;
     string topic;
     string[] linkHeaderConstituents = [];
-    if (lengthof linkHeaders == 1) {
+    if (linkHeaders.length() == 1) {
         linkHeaderConstituents = linkHeaders[0].split(",");
     } else {
         linkHeaderConstituents = linkHeaders;
@@ -401,7 +401,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
         }
     }
 
-    if (lengthof hubs > 0 && topic != "") {
+    if (hubs.length() > 0 && topic != "") {
         return (topic, hubs);
     }
 

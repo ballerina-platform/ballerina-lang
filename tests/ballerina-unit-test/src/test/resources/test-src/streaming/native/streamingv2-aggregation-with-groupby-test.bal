@@ -69,7 +69,7 @@ function startAggregationQuery() returns (OutputRecord[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof outputDataArray) == 5 || count == 10) {
+        if((outputDataArray.length()) == 5 || count == 10) {
             break;
         }
     }

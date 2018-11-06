@@ -83,7 +83,7 @@ public type Cache object {
     #
     # + return - The size of the cache
     public function size() returns (int) {
-        return lengthof self.entries;
+        return self.entries.length();
     }
 
     # Adds the given key, value pair to the provided cache.
@@ -94,7 +94,7 @@ public type Cache object {
         // We need to synchronize this process otherwise concurrecy might cause issues.
         lock {
             int cacheCapacity = self.capacity;
-            int cacheSize = lengthof self.entries;
+            int cacheSize = self.entries.length();
 
             // If the current cache is full, evict cache.
             if (cacheCapacity <= cacheSize) {
@@ -244,7 +244,7 @@ function runCacheExpiry() returns error? {
         }
 
         // If there are no entries, we add that cache key to the `emptyCacheKeys`.
-        int size = lengthof currentCache.entries;
+        int size = currentCache.entries.length();
         if (size == 0) {
             emptyCacheKeys[emptyCacheCount] = currentCacheKey;
             emptyCacheCount += 1;
@@ -268,7 +268,7 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
     foreach index in 0..<numberOfKeysToEvict {
         // If we have encountered the end of the array, that means we can add the new values to the end of the
         // array since we haven’t reached the numberOfKeysToEvict limit.
-        if (lengthof cacheKeys == index) {
+        if (cacheKeys.length() == index) {
             cacheKeys[index] = myKey;
             timestamps[index] = myLastAccessTime;
             // Break the loop since we don't have any more elements to compare since we are at the end

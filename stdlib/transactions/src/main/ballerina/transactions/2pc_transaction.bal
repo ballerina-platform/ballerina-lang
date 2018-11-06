@@ -162,7 +162,7 @@ type TwoPhaseCommitTransaction object {
         foreach _, participant in self.participants {
             string participantId = participant.participantId;
             future<((PrepareResult|error)?, Participant)> f = start participant.prepare(protocol);
-            results[lengthof results] = f;
+            results[results.length()] = f;
         }
         foreach f in results {
             ((PrepareResult|error)?, Participant) r = await f;
@@ -214,7 +214,7 @@ type TwoPhaseCommitTransaction object {
         future<(NotifyResult|error)?>[] results;
         foreach _, participant in self.participants {
             future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
-            results[lengthof results] = f;
+            results[results.length()] = f;
 
         }
         foreach f in results {

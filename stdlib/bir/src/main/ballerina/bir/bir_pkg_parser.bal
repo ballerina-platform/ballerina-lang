@@ -96,7 +96,7 @@ public type PackageParser object {
     public function parseSig(string sig) returns BInvokableType {
         BType returnType = "int";
         //TODO: add boolean
-        if (sig.lastIndexOf("(N)") == (lengthof sig - 3)){
+        if (sig.lastIndexOf("(N)") == (sig.length() - 3)){
             returnType = "()";
         }
         return {
