@@ -490,7 +490,7 @@ function addTopicRegistrationsOnStartup() {
                         match(registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true)) {
                             error e => {
                                 string errCause = <string> e.detail().message;
-                                log:printError("Error registering topic details retrieved from the database: "+ errCause);
+                                log:printError("Error registering topic details retrieved from the database: " + errCause);
                             }
                             () => {}
                         }
