@@ -15,7 +15,7 @@ type Tst record {
 annotation Test Tst;
 
 # Documentation for testConst constant
-@final string testConst = "TestConstantDocumentation";
+final string testConst = "TestConstantDocumentation";
 
 # Documentation for Test struct
 # + a - struct `field a` documentation
@@ -98,4 +98,4 @@ service<http:Service> PizzaService {
 # Documentation for testConst constant
 # + testConstd - abc description
 # + return - description
-@final string testConsts = "TestConstantDocumentation";
+final string testConsts = "TestConstantDocumentation";

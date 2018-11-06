@@ -17,7 +17,7 @@ annotation Test Tst;
 # Documentation for testConst constant
 #
 # + testConstd - abc description
-@final string testConsts = "TestConstantDocumentation";
+final string testConsts = "TestConstantDocumentation";
 
 # Documentation for Test struct
 #
