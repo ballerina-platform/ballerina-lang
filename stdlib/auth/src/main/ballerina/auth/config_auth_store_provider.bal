@@ -69,7 +69,7 @@ public type ConfigAuthStoreProvider object {
     # + return - array of groups, nil if the groups string is empty/nil
     public function getArray(string groupString) returns (string[]) {
         string[] groupsArr = [];
-        if (lengthof groupString == 0) {
+        if (groupString.length() == 0) {
             return groupsArr;
         }
         return groupString.split(",");

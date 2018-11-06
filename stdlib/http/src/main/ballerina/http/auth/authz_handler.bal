@@ -76,7 +76,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
             // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
             // match against those.
             string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
-            if (lengthof authCtxtScopes > 0) {
+            if (authCtxtScopes.length() > 0) {
                 boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
                 // cache authz result
                 self.cacheAuthzResult(authzCacheKey, authorized);
@@ -84,7 +84,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
             } else {
                 // no scopes found for user, try to retrieve using the auth provider
                 string[] scopesFromAuthProvider = self.authStoreProvider.getScopes(username);
-                if (lengthof scopesFromAuthProvider > 0) {
+                if (scopesFromAuthProvider.length() > 0) {
                     boolean authorized = checkForScopeMatch(scopes, scopesFromAuthProvider, resourceName, method);
                     // cache authz result
                     self.cacheAuthzResult(authzCacheKey, authorized);

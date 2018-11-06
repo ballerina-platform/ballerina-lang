@@ -28,7 +28,7 @@ public type Select object {
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputStreamEvents = [];
-        if (lengthof aggregatorArr > 0) {
+        if (aggregatorArr.length() > 0) {
             map<StreamEvent> groupedEvents;
             foreach event in streamEvents {
 
@@ -60,7 +60,7 @@ public type Select object {
             foreach key in groupedEvents.keys() {
                 match groupedEvents[key] {
                     StreamEvent e => {
-                        outputStreamEvents[lengthof outputStreamEvents] = e;
+                        outputStreamEvents[outputStreamEvents.length()] = e;
                     }
                     () => {}
                 }
@@ -68,10 +68,10 @@ public type Select object {
         } else {
             foreach event in streamEvents {
                 StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorArr)), event.eventType, event.timestamp);
-                outputStreamEvents[lengthof outputStreamEvents] = e;
+                outputStreamEvents[outputStreamEvents.length()] = e;
             }
         }
-        if (lengthof outputStreamEvents > 0) {
+        if (outputStreamEvents.length() > 0) {
             nextProcessorPointer(outputStreamEvents);
         }
     }

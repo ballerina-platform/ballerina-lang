@@ -163,7 +163,7 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
             int a;
             string[] b;
             (a, b) = y;
-            returnVal = lengthof b;
+            returnVal = b.length();
         }
         error err1 => {
             returnVal = err1.reason();
