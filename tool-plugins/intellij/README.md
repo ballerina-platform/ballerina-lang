@@ -47,23 +47,26 @@ Ballerina plugin provides Ballerina Language support in IntelliJ IDEA.
 
 ## How To Install
 
-### From Jetbrains plugin repository
+### From Jetbrains Plugin Repository
 1. Go to **Settings** (**Preferences** in **MacOS**)-> **Plugins**. 
 2. Select **Browse Repositories** button at the bottom. 
 3. Search for **Ballerina** using the search box. Ballerina plugin will show up. Then you can install the plugin using the Install button.
 4. Restart IDEA.
 
-### To install a plugin from disk
+### Installing the Plugin from Disk
 If you have a plugin file available on your computer, you can install it from disk. A plugin file is an archive file (ZIP or a JAR) and you do not need to decompress it before installation
 1. Navigate to the plugin source directory using terminal and run `./gradlew buildPlugin`. 
 **ballerina-intellij-idea-plugin-[VERSION].zip** is created in the **build/distributions** directory.
-   >**Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
+  >**NOTE:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
 2. Open IntelliJ IDEA and go to **File -> Settings** (**IntelliJ IDEA -> Preferences** in **macOS**) and select 
 **Plugins**.
 3. Click **Install plugin from disc** button and select the **plugin ZIP** file. Please make sure to install 
 the ZIP file, not the extracted JAR files. This ZIP contains an additional library as well. Without this library, the 
 plugin will not work properly.
 4. Restart IDEA.
+
+  >**IMPORTANT:** After completing the above steps, please follow the instructions to [Set Up Ballerina SDK](getting-started/setting-up-ballerina-sdk/README.md)
+  for your ballerina projects, in order to activate all the plugin capabilities. 
 
 
 ## Release Versions Schema
