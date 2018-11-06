@@ -6,58 +6,59 @@
   "source": "toplevel/source/endpointTypeCompletion2.bal",
   "items": [
     {
-      "label":"SecureListener",
+      "label":"Client",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs.",
+      "sortText":"170",
+      "insertText":"Client"
+    },
+    {
+      "label":"NonListener",
+      "kind":"Class",
       "detail":"BType",
       "sortText":"170",
-      "insertText":"SecureListener"
+      "insertText":"NonListener"
+    },
+    {
+      "label":"FailoverClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"An HTTP client endpoint which provides failover support over multiple HTTP clients.\n",
+      "sortText":"170",
+      "insertText":"FailoverClient"
+    },
+    {
+      "label":"LoadBalanceClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.\n",
+      "sortText":"170",
+      "insertText":"LoadBalanceClient"
     },
     {
       "label":"Listener",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"This is used for creating HTTP service endpoints. An HTTP service endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations and\nproviding the actions for communicating with the caller.\n",
       "sortText":"170",
       "insertText":"Listener"
     },
     {
       "label":"WebSocketListener",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents a WebSocket service endpoint.\n",
       "sortText":"170",
       "insertText":"WebSocketListener"
     },
     {
-      "label":"APIListener",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"APIListener"
-    },
-    {
-      "label":"FailoverClient",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"FailoverClient"
-    },
-    {
-      "label":"Client",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"Client"
-    },
-    {
-      "label":"LoadBalanceClient",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"LoadBalanceClient"
-    },
-    {
       "label":"WebSocketClient",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"Represents a WebSocket client endpoint.\n",
       "sortText":"170",
       "insertText":"WebSocketClient"
-    },
-    {
-      "label":"NonListener",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"NonListener"
     }
   ]
 }

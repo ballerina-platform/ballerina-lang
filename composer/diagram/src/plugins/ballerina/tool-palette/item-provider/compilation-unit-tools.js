@@ -59,14 +59,14 @@ const tools = [
         nodeFactoryMethod: DefaultNodeFactory.createFunction,
         description: 'Single operation that is intended to be a unit of reusable functionality',
     },
-    {
+    /*{
         id: 'record',
         name: 'Record',
         icon: 'struct',
         title: 'Record',
         nodeFactoryMethod: DefaultNodeFactory.createRecord,
         description: 'User-defined record type',
-    },
+    },*/
     /* Disable transformer for now
     {
         id: 'transformer',

@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -382,22 +383,20 @@ public class CommonUtil {
      */
     public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
         Path filePath = new LSDocument(fileUri).getPath();
-        Path fileNamePath = filePath.getFileName();
-        BLangPackage currentPackage = null;
+        String currentModule = LSCompilerUtil.getCurrentModulePath(filePath).getFileName().toString();
         try {
-            found:
             for (BLangPackage bLangPackage : packages) {
-                for (BLangCompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
-                    if (compilationUnit.name.equals(fileNamePath.getFileName().toString())) {
-                        currentPackage = bLangPackage;
-                        break found;
-                    }
+                if (bLangPackage.packageID.sourceFileName != null &&
+                        bLangPackage.packageID.sourceFileName.value.equals(filePath.getFileName().toString())) {
+                    return bLangPackage;
+                } else if (currentModule.equals(bLangPackage.packageID.name.value)) {
+                    return bLangPackage;
                 }
             }
         } catch (NullPointerException e) {
-            currentPackage = packages.get(0);
+            return packages.get(0);
         }
-        return currentPackage;
+        return null;
     }
 
     /**
@@ -698,7 +697,7 @@ public class CommonUtil {
      * @return {@link Boolean}  Whether a test source or not
      */
     public static boolean isTestSource(String relativeFilePath) {
-        return relativeFilePath.split(FILE_SEPARATOR)[0].equals("tests");
+        return relativeFilePath.startsWith("tests" + FILE_SEPARATOR);
     }
 
     /**
