@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -123,7 +124,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -821,27 +821,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(workerSendNode.expr);
     }
 
-
-    private void validateWorkerReceive(DiagnosticPos pos, BLangNode bLangNode) {
-        BLangNode parent = bLangNode.parent;
-        while (parent != null) {
-            final NodeKind kind = parent.getKind();
-            // Allowed node types.
-            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.VARIABLE) {
-                return;
-            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.TRAP_EXPR) {
-                parent = parent.parent;
-                continue;
-            }
-            break;
-        }
-        dlog.error(pos, DiagnosticCode.INVALID_WORKER_RECEIVE_AS_EXPR);
-    }
-
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         /// Validate worker receive
-        validateWorkerReceive(workerReceiveNode.pos, workerReceiveNode);
+        validateActionInvocation(workerReceiveNode.pos, workerReceiveNode);
+
         if (workerReceiveNode.isChannel) {
             if (workerReceiveNode.keyExpr != null) {
                 analyzeExpr(workerReceiveNode.keyExpr);

@@ -1258,25 +1258,25 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitReturnStatement(BallerinaParser.ReturnStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#workerInteractionStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#workerSendAsyncStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx);
+	void enterWorkerSendAsyncStatement(BallerinaParser.WorkerSendAsyncStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#workerInteractionStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#workerSendAsyncStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx);
+	void exitWorkerSendAsyncStatement(BallerinaParser.WorkerSendAsyncStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#workerSendAsync}.
+	 * Enter a parse tree produced by {@link BallerinaParser#flushWorker}.
 	 * @param ctx the parse tree
 	 */
-	void enterWorkerSendAsync(BallerinaParser.WorkerSendAsyncContext ctx);
+	void enterFlushWorker(BallerinaParser.FlushWorkerContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#workerSendAsync}.
+	 * Exit a parse tree produced by {@link BallerinaParser#flushWorker}.
 	 * @param ctx the parse tree
 	 */
-	void exitWorkerSendAsync(BallerinaParser.WorkerSendAsyncContext ctx);
+	void exitFlushWorker(BallerinaParser.FlushWorkerContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code invokeFork}
 	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
@@ -1289,26 +1289,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitInvokeFork(BallerinaParser.InvokeForkContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#workerReply}.
-	 * @param ctx the parse tree
-	 */
-	void enterWorkerReply(BallerinaParser.WorkerReplyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#workerReply}.
-	 * @param ctx the parse tree
-	 */
-	void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#flushWorker}.
-	 * @param ctx the parse tree
-	 */
-	void enterFlushWorker(BallerinaParser.FlushWorkerContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#flushWorker}.
-	 * @param ctx the parse tree
-	 */
-	void exitFlushWorker(BallerinaParser.FlushWorkerContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#waitForCollection}.
 	 * @param ctx the parse tree
