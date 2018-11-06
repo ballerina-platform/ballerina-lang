@@ -122,15 +122,6 @@ public class ConfigAuthProviderTest {
         Assert.assertEquals(groups.get(0), "scope1");
     }
 
-    @Test(description = "Test case for identify default auth store provider")
-    public void testDefaultAuthStoreProvider() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultAuthStoreProvider");
-        Assert.assertTrue(returns != null);
-        String defaultAuthStore = ((BMap) ((BMap) returns[0]).get("authzHandler")).get("authStoreProvider").getType()
-                .getName();
-        Assert.assertEquals(defaultAuthStore, "ConfigAuthStoreProvider");
-    }
-
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(secretCopyPath);
