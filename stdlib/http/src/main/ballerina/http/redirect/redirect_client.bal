@@ -233,21 +233,18 @@ function performRedirectIfEligible(RedirectClient redirectClient, string path, R
 }
 
 //Inspect the response for redirect eligibility.
-function checkRedirectEligibility(Response|error result, string resolvedRequestedURI, HttpOperation httpVerb, Request
+function checkRedirectEligibility(Response|error response, string resolvedRequestedURI, HttpOperation httpVerb, Request
     request, RedirectClient redirectClient) returns @untainted Response|error {
-    match result {
-        Response response => {
-            if (isRedirectResponse(response.statusCode)) {
-                return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
-            } else {
-                setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
-                return response;
-            }
+    if response is Response {
+        if (isRedirectResponse(response.statusCode)) {
+            return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
+        } else {
+            setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
+            return response;
         }
-        error err => {
-            redirectClient.currentRedirectCount = 0;
-            return err;
-        }
+    } else {
+        redirectClient.currentRedirectCount = 0;
+        return response;
     }
 }
 
@@ -266,42 +263,36 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
     if (currentCount >= maxCount) {
         log:printDebug("Maximum redirect count reached!");
         setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
-        return response;
     } else {
         currentCount += 1;
         log:printDebug("Redirect count : " + currentCount);
         redirectClient.currentRedirectCount = currentCount;
-        match getRedirectMethod(httpVerb, response) {
-            () => {
-                setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
-                return response;
-            }
-            HttpOperation redirectMethod => {
-                if (response.hasHeader(LOCATION)) {
-                    string location = response.getHeader(LOCATION);
-                    log:printDebug("Location header value: " + location);
-                    if (!isAbsolute(location)) {
-                        match resolve(resolvedRequestedURI, location) {
-                            string resolvedURI => {
-                                return performRedirection(resolvedURI, redirectClient, redirectMethod, request,
-                                    response);
-                            }
-                            error err => {
-                                redirectClient.currentRedirectCount = 0;
-                                return err;
-                            }
-                        }
-                    } else {
-                        return performRedirection(location, redirectClient, redirectMethod, request, response);
+        var redirectMethod = getRedirectMethod(httpVerb, response);
+        if redirectMethod is HttpOperation {
+            if (response.hasHeader(LOCATION)) {
+                string location = response.getHeader(LOCATION);
+                log:printDebug("Location header value: " + location);
+                if (!isAbsolute(location)) {
+                    var resolvedURI = resolve(resolvedRequestedURI, location);
+                    if resolvedURI is string {
+                        return performRedirection(resolvedURI, redirectClient, redirectMethod, request, response);
+                    } else if resolvedURI is error {
+                        redirectClient.currentRedirectCount = 0;
+                        return resolvedURI;
                     }
                 } else {
-                    redirectClient.currentRedirectCount = 0;
-                    error err = error("Location header not available!");
-                    return err;
+                    return performRedirection(location, redirectClient, redirectMethod, request, response);
                 }
+            } else {
+                redirectClient.currentRedirectCount = 0;
+                error err = error("Location header not available!");
+                return err;
             }
+        } else {
+            setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
         }
     }
+    return response;
 }
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,

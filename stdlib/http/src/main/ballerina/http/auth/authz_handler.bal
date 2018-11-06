@@ -68,33 +68,31 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
     // since different resources can have different scopes
     string authzCacheKey = runtime:getInvocationContext().userPrincipal.username +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
-    match self.authorizeFromCache(authzCacheKey) {
-        boolean isAuthorized => {
-            return isAuthorized;
-        }
-        () => {
-            // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
-            // match against those.
-            string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
-            if (lengthof authCtxtScopes > 0) {
-                boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
+    var isAuthorized =  self.authorizeFromCache(authzCacheKey);
+    if isAuthorized is boolean {
+        return isAuthorized;
+    } else {
+        // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
+        // match against those.
+        string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
+        if (lengthof authCtxtScopes > 0) {
+            boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
+            // cache authz result
+            self.cacheAuthzResult(authzCacheKey, authorized);
+            return authorized;
+        } else {
+            // no scopes found for user, try to retrieve using the auth provider
+            string[] scopesFromAuthProvider = self.authStoreProvider.getScopes(username);
+            if (lengthof scopesFromAuthProvider > 0) {
+                boolean authorized = checkForScopeMatch(scopes, scopesFromAuthProvider, resourceName, method);
                 // cache authz result
                 self.cacheAuthzResult(authzCacheKey, authorized);
                 return authorized;
             } else {
-                // no scopes found for user, try to retrieve using the auth provider
-                string[] scopesFromAuthProvider = self.authStoreProvider.getScopes(username);
-                if (lengthof scopesFromAuthProvider > 0) {
-                    boolean authorized = checkForScopeMatch(scopes, scopesFromAuthProvider, resourceName, method);
-                    // cache authz result
-                    self.cacheAuthzResult(authzCacheKey, authorized);
-                    return authorized;
-                } else {
-                    self.cacheAuthzResult(authzCacheKey, false);
-                    log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName +
-                            ", method:" + method);
-                    return false;
-                }
+                self.cacheAuthzResult(authzCacheKey, false);
+                log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName +
+                        ", method:" + method);
+                return false;
             }
         }
     }
@@ -120,39 +118,27 @@ function checkForScopeMatch (string[] resourceScopes, string[] userScopes, strin
 }
 
 function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
-    match trap self.positiveAuthzCache {
-        cache:Cache cache => {
-            return check <boolean> cache.get(authzCacheKey);
-        }
-        error|() => {}
+    var positiveCache = trap self.positiveAuthzCache;
+    if positiveCache is cache:Cache {
+        return check <boolean> positiveCache.get(authzCacheKey);
     }
-    match trap self.negativeAuthzCache {
-        cache:Cache cache => {
-            return check <boolean> cache.get(authzCacheKey);
-        }
-        error|() => {}
+    var negativeCache =  trap self.negativeAuthzCache;
+    if negativeCache is cache:Cache {
+        return check <boolean> negativeCache.get(authzCacheKey);
     }
     return ();
 }
 
 function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
     if (isAuthorized) {
-        match self.positiveAuthzCache {
-            cache:Cache cache => {
-                cache.put(authzCacheKey, isAuthorized);
-            }
-            () => {
-                return;
-            }
+        var cache = self.positiveAuthzCache;
+        if cache is cache:Cache {
+            cache.put(authzCacheKey, isAuthorized);
         }
     } else {
-        match self.negativeAuthzCache {
-            cache:Cache cache => {
-                cache.put(authzCacheKey, isAuthorized);
-            }
-            () => {
-                return;
-            }
+        var cache = self.negativeAuthzCache;
+        if cache is cache:Cache {
+            cache.put(authzCacheKey, isAuthorized);
         }
     }
 }

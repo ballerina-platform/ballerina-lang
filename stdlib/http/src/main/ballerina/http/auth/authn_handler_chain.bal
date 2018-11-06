@@ -52,18 +52,13 @@ function AuthnHandlerChain::handle (Request req) returns (boolean) {
     return false;
 }
 
-function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req)
-                                                                                                    returns (boolean) {
+function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean) {
     foreach authProviderId in authProviderIds {
-        match self.authHandlerRegistry.get(authProviderId) {
-            HttpAuthnHandler authnHandler => {
-                if (authnHandler.canHandle(req)) {
-                    log:printDebug("Trying to authenticate with the auth provider: " + authProviderId);
-                    return authnHandler.handle(req);
-                }
-            }
-            () => {
-                // nothing to do
+        var authnHandler =  self.authHandlerRegistry.get(authProviderId);
+        if authnHandler is HttpAuthnHandler {
+            if (authnHandler.canHandle(req)) {
+                log:printDebug("Trying to authenticate with the auth provider: " + authProviderId);
+                return authnHandler.handle(req);
             }
         }
     }
