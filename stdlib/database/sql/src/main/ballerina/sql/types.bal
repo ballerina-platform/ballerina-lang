@@ -147,4 +147,5 @@ type Param string|int|boolean|float|byte[]|Parameter;
 
 public type DatabaseErrorData record {
     string message;
+    !...
 };
