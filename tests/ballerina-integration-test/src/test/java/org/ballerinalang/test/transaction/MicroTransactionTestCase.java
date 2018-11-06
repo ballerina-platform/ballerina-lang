@@ -282,7 +282,7 @@ public class MicroTransactionTestCase extends BaseTest {
         assertTrue(participant2State.localParticipantCommittedFunctionCalled);
     }
 
-    @Test(dependsOnMethods = {"testSaveToDatabaseSuccessfulInParticipant"})
+    @Test(dependsOnMethods = {"testSaveToDatabaseSuccessfulInParticipant"}, enabled = false)
     public void testSaveToDatabaseFailedInParticipant() throws IOException {
         HttpResponse response =
                 HttpClientRequest.doGet(serverInstance.getServiceURLHttp(initiatorServicePort,
