@@ -1579,6 +1579,15 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
             return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
         }
+        if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangFieldBasedAccess) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangIndexBasedAccess) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangXMLAttributeAccess) varRef).symbol;
+        }
 
         dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
         return null;

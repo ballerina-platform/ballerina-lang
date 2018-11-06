@@ -842,10 +842,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRefExpr;
                 checkTupleVarRefEquivalency(pos, tupleVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
             } else {
-                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
-                Name varName = names.fromIdNode(simpleVarRef.variableName);
-                if (varName == Names.IGNORE) {
-                    continue;
+                if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
+                    Name varName = names.fromIdNode(simpleVarRef.variableName);
+                    if (varName == Names.IGNORE) {
+                        continue;
+                    }
                 }
                 if (!types.isAssignable(((BTupleType) rhsType).tupleTypes.get(i), varRefExpr.type)) {
                     dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, rhsType);
