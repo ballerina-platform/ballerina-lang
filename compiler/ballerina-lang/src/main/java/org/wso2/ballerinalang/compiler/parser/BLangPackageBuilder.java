@@ -2451,7 +2451,6 @@ public class BLangPackageBuilder {
             returnTypeNode = nillTypeNode;
         }
         resourceNode.setReturnTypeNode(returnTypeNode);
-
         serviceNodeStack.peek().addResource(resourceNode);
     }
 
