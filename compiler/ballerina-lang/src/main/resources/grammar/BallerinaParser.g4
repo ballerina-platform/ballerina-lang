@@ -218,7 +218,7 @@ typeName
     ;
 
 recordFieldDefinitionList
-    :   fieldDefinition* recordRestFieldDefinition?
+    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name
