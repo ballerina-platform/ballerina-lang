@@ -7,15 +7,15 @@
 // usernames, passwords for authentication, and scopes for authorization.
 // Here scopes are equivalent to LDAP groups.
 // Ballerina uses the concept of scopes for authorization. A resource
-// declared in a service can be bound to one/more scope(s). In the ldap
-// auth provider, scopes are mapped to users by querying the ldap server.
+// declared in a service can be bound to one/more scope(s). In the LDAP
+// auth provider, scopes are mapped to users by querying the LDAP server.
 // In the authorization phase, the scopes of the resource are compared against
-// the scopes mapped to the user in the ldap auth provider.
+// the scopes mapped to the user in the LDAP auth provider.
 
 // LDAP server is initialized with three users namely admin, user1 and user2.
 // Each user has a password and assigned scopes. Prior to starting the
-// Ballerina service, Make sure to download embedded ldap server from below
-// git location and start the server with provided command.
+// Ballerina service, Make sure to download embedded LDAP server from below
+// git location and start the server with the provided command.
 // https://github.com/ballerina-platform/ballerina-lang/tree/master/examples/
 // service-with-ldap-user-store/embedded-ldap-server-1.0.0-jar-with-dependencies.jar
 // java -jar <PATH_TO_JAR_FILE>/embedded-ldap-server-1.0.0-jar-with-dependencies.jar

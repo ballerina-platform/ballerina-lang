@@ -2,12 +2,12 @@
 $ curl -kv https://localhost:9090/ldapAuth/resourceOne -H "Authorization: Basic YWRtaW46YmFsbGVyaW5h"
 Hello, World!
 
-# Since the password for the `admin` is not correct. Authentication will not be successful.
+# Authentication will not be successful as the credentials passed
+# in the curl request are not correct.
 $ curl -kv https://localhost:9090/ldapAuth/resourceOne -H "Authorization: Basic dmlqaXRoYTpiYWxsZXJpbmE"
 Authentication failure
 
-# Since resource configuration has overridden the required scopes to denote that
-# `test` is required to invoke `resourceTwo` resource. Hence authorization will
-# not successful.
+# Resource configuration has overridden the required scopes to denote that test is required
+# to invoke resourceTwo resource. Hence, authorization will not be successful.
 $ curl -kv https://localhost:9090/ldapAuth/resourceTwo -H "Authorization: Basic YWRtaW46YmFsbGVyaW5h"
 Authorization failure
