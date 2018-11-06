@@ -18,24 +18,32 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.WaitExpressionNode;
+import org.ballerinalang.model.tree.expressions.WaitForAnyExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * This represents the await expression implementation.
- * 
- * @since 0.965
+ * This represents the wait for any expression implementation.
+ *
+ * @since 0.985
  */
-public class BLangWaitExpr extends BLangExpression implements WaitExpressionNode {
+public class BLangWaitForAnyExpr extends BLangExpression implements WaitForAnyExpressionNode {
 
     private static final String WAIT_KEYWORD = "wait";
-    
-    public BLangExpression expr;
+
+    public List<BLangExpression> exprList = new ArrayList<>();
+
+    public List<BLangExpression> getExpressionList() {
+        return exprList;
+    }
 
     @Override
-    public NodeKind getKind() {
-        return NodeKind.WAIT_EXPR;
+    public String toString() {
+        return WAIT_KEYWORD + " " + String.join("|", exprList.stream().map(Object::toString)
+                                                             .collect(Collectors.toList()));
     }
 
     @Override
@@ -44,12 +52,8 @@ public class BLangWaitExpr extends BLangExpression implements WaitExpressionNode
     }
 
     @Override
-    public String toString() {
-        return WAIT_KEYWORD + " " + String.valueOf(expr);
+    public NodeKind getKind() {
+        return NodeKind.WAIT_EXPR;
     }
 
-    @Override
-    public ExpressionNode getExpression() {
-        return expr;
-    }
 }
