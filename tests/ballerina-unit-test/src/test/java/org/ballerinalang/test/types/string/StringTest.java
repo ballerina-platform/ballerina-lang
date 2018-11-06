@@ -36,6 +36,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Test Native functions in ballerina.model.string.
@@ -62,7 +63,7 @@ public class StringTest {
     @Test
     public void testContains() {
         BValue[] args = {new BString(s1), new BString("WSO2")};
-        BValue[] returns = BRunUtil.invoke(result, "contains", args);
+        BRunUtil.invoke(result, "contains", args);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -274,8 +275,7 @@ public class StringTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ERROR_NULL_REFERENCE_EXCEPTION)
+    @Test(expectedExceptions = {BLangRuntimeException.class}, expectedExceptionsMessageRegExp = "error: \\{\\}.*")
     public void testLengthofNull() {
         BValue[] args = {new BString(null)};
         BRunUtil.invoke(result, "lengthOfStr", args);
@@ -496,9 +496,9 @@ public class StringTest {
     }
 
     @Test
-    public void testToByteArray() throws UnsupportedEncodingException {
+    public void testToByteArray() {
         String content = "Sample Ballerina Byte Array Content";
-        byte[] bytes = content.getBytes("UTF-8");
+        byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         BValue[] args = {new BString(content), new BString("UTF-8")};
         BValue[] returns = BRunUtil.invoke(result, "toByteArray", args);
         BByteArray bByteArray = (BByteArray) returns[0];
@@ -539,7 +539,7 @@ public class StringTest {
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
-        Assert.assertFalse(returnValues[0] == null, "Invalid return value");
+        Assert.assertNotNull(returnValues[0], "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 
