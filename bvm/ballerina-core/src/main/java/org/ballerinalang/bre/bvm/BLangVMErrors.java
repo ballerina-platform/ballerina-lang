@@ -50,7 +50,6 @@ public class BLangVMErrors {
     private static final String STRUCT_NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String STRUCT_CALL_STACK_ELEMENT = "CallStackElement";
     public static final String STRUCT_CALL_FAILED_EXCEPTION = "CallFailedException";
-    public static final String TRANSACTION_ERROR = "TransactionError";
     public static final String ERROR_MESSAGE_FIELD = "message";
     public static final String ERROR_CAUSE_FIELD = "cause";
     public static final String ERROR_CAUSE_ARRAY_FIELD = "causes";
@@ -317,6 +316,11 @@ public class BLangVMErrors {
             sb.append(getCasueStackTrace((BMap<String, BValue>) cause.get(i)) + "\n");
         }
         return sb.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static BMap<String, BValue> getCause(BMap<String, BValue> outerError) {
+        return (BMap<String, BValue>) outerError.getMap().get(ERROR_CAUSE_FIELD);
     }
 
     public static String getCasueStackTrace(BMap<String, BValue> error) {

@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for committed aborted handlers TransactionStatement.
+ * Test cases for committed aborted clauses in TransactionStatement.
  */
 public class TransactionBlockTest {
 
@@ -57,7 +57,7 @@ public class TransactionBlockTest {
     }
 
     @Test
-    public void testTransactionStmtWithnoAbortSingleFailure() {
+    public void testTransactionStmtWithNoAbortSingleFailure() {
         BValue[] returns = runFunctionWithTxConfig(1, false);
         Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx endTrx committed end");
     }
@@ -65,7 +65,7 @@ public class TransactionBlockTest {
     @Test
     public void testTransactionStmtWithnoAbortFailureFailure() {
         BValue[] returns = runFunctionWithTxConfig(2, false);
-        Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx retry end");
+        Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx retry aborted [TransactionError] end");
     }
 
     @Test

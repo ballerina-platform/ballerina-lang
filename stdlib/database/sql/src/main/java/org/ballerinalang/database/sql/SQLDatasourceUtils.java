@@ -1132,13 +1132,14 @@ public class SQLDatasourceUtils {
             return;
         }
         SQLDatasourceUtils.notifyTxMarkForAbort(context, localTransactionInfo);
-        throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
     }
 
     private static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
+        int parentIp = context.getParentWorkerExecutionContext().ip;
+        localTransactionInfo.markFailure(parentIp);
         if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
             return;
         }

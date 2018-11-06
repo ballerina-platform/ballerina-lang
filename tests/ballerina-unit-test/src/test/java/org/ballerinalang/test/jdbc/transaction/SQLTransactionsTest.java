@@ -19,6 +19,7 @@ package org.ballerinalang.test.jdbc.transaction;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
@@ -52,10 +53,12 @@ public class SQLTransactionsTest {
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testLocalTransacton() {
+    public void testLocalTransaction() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransacton");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true, "'committed' block did not get executed");
+        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), false, "'aborted' block executed");
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -63,6 +66,9 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testTransactonRollback");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 42,
+                "Statements after Tx failing statements did not invoked");
+
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -107,6 +113,8 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionRollbackBatchUpdate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true,
+                "Exception generate with 'check' expr did not catch");
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -159,7 +167,7 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionFailed");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld "
-                + "afterTrx");
+                + "trxAborted afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
     }
 
@@ -167,7 +175,7 @@ public class SQLTransactionsTest {
     public void testLocalTransactonSuccessWithFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonSuccessWithFailed");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx afterTrx");
+        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx retry inTrx retry inTrx committed afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
     }
 

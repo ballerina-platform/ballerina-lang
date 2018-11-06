@@ -7,7 +7,7 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testLocalTransacton() returns (int, int) {
+function testLocalTransacton() returns (int, int, boolean, boolean) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -18,6 +18,8 @@ function testLocalTransacton() returns (int, int) {
 
     int returnVal = 0;
     int count;
+    boolean commited_ = false;
+    boolean aborted_ = false;
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')");
@@ -25,6 +27,10 @@ function testLocalTransacton() returns (int, int) {
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
+    } committed {
+        commited_ = true;
+    } aborted {
+        aborted_ = true;
     }
     //check whether update action is performed
     table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount
@@ -34,10 +40,10 @@ function testLocalTransacton() returns (int, int) {
         count = rs.COUNTVAL;
     }
     testDB.stop();
-    return (returnVal, count);
+    return (returnVal, count, commited_, aborted_);
 }
 
-function testTransactonRollback() returns (int, int) {
+function testTransactonRollback() returns (int, int, int) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -48,12 +54,14 @@ function testTransactonRollback() returns (int, int) {
 
     int returnVal = 0;
     int count;
+    int x;
 
     transaction {
         _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
         _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
+        x = 42;
 
     } onretry {
         returnVal = -1;
@@ -67,7 +75,7 @@ function testTransactonRollback() returns (int, int) {
         count = rs.COUNTVAL;
     }
     testDB.stop();
-    return (returnVal, count);
+    return (returnVal, count, x);
 }
 
 function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
@@ -252,7 +260,7 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     return (returnVal, count);
 }
 
-function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
+function testLocalTransactionRollbackBatchUpdate() returns (int, int, boolean) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -263,6 +271,7 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
 
     int returnVal = 0;
     int count;
+    boolean catched = false;
 
     //Batch 1
     sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -280,13 +289,18 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
-    transaction {
-        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers2
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-    } onretry {
-        returnVal = -1;
+    try {
+        transaction {
+            int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
+                        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+            int[] updateCount2 = check testDB->batchUpdate("Insert into Customers2
+                        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        } onretry {
+            returnVal = -1;
+        }
+    } catch (error e) {
+        // catch exception thrown from 'check' expr.
+        catched = true;
     }
     //check whether update action is performed
     table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount
@@ -296,7 +310,7 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
         count = rs.COUNTVAL;
     }
     testDB.stop();
-    return (returnVal, count);
+    return (returnVal, count, catched);
 }
 
 function testTransactonAbort() returns (int, int) {
@@ -529,6 +543,10 @@ function testLocalTransactionFailed() returns (string, int) {
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
         } onretry {
             a = a + " inFld";
+        } committed {
+            a = a + " trxCommited";
+        } aborted {
+            a = a + " trxAborted";
         }
     } catch (error e) {
         io:println(e);
@@ -571,8 +589,12 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
                             values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
             }
         } onretry {
-            a = a + " inFld";
+            a = a + " retry";
             i = i + 1;
+        } committed {
+            a = a + " committed";
+        } aborted {
+            a = a + " aborted";
         }
     } catch (error e) {
         a = a + " inCatch";

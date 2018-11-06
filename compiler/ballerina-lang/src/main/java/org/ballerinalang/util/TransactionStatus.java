@@ -24,7 +24,7 @@ package org.ballerinalang.util;
  * @since 0.95.5
  */
 public enum TransactionStatus {
-    SUCCESS(0),
+    BLOCK_END(0),
     FAILED(-1),
     ABORTED(-2),
     END(1);

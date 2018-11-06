@@ -431,7 +431,8 @@ public class CPU {
                     case InstructionCodes.TR_END:
                         i = operands[0];
                         j = operands[1];
-                        endTransaction(ctx, i, j);
+                        k = operands[2];
+                        endTransaction(ctx, i, j, k);
                         break;
                     case InstructionCodes.WRKSEND:
                         InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -2632,28 +2633,36 @@ public class CPU {
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
                                          int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
-            if (ctx.getError() == null) {
-                ctx.ip = startOfNoThrowEndIP;
-            } else {
-                String errorMsg = ctx.getError().get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-                if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
-                    ctx.ip = startOfNoThrowEndIP;
-                } else {
-                    ctx.ip = startOfAbortIP;
-                }
-            }
+        LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getAndClearFailure();
+        if (localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
+            localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
+            ctx.setError(null);
+            return;
         }
-        localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
+
+        BMap<String, BValue> error = ctx.getError();
+        if (failure == null && error == null) {
+            ctx.ip = startOfNoThrowEndIP;
+        } else {
+            ctx.ip = startOfAbortIP;
+        }
     }
 
-    private static void endTransaction(WorkerExecutionContext ctx, int transactionBlockId, int status) {
+    private static void endTransaction(WorkerExecutionContext ctx, int transactionBlockId, int status, int statusReg) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
         boolean notifyCoordinator;
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
+                // Invoking tr_end with transaction status of FAILED means tx has failed for some reason.
+                // This could be a transaction failure from a native/std library. Or due to an an
+                // error/exception.
+                // If transaction is not already marked as failed do so now for future references.
+                LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getFailure();
+                if (failure == null) {
+                    localTransactionInfo.markFailure(0);
+                }
                 notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
                 if (notifyCoordinator) {
                     if (isGlobalTransactionEnabled) {
@@ -2672,14 +2681,23 @@ public class CPU {
                     TransactionResourceManager.getInstance()
                             .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
                 }
-            } else if (status == TransactionStatus.SUCCESS.value()) {
-                //We dont' need to notify the coordinator in this case. If it does not receive abort from the tx
-                //it will commit at the end message
-                if (!isGlobalTransactionEnabled) {
-                    TransactionResourceManager.getInstance()
-                            .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-                    TransactionResourceManager.getInstance()
-                            .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+            } else if (status == TransactionStatus.BLOCK_END.value()) {
+                // Tx reached end of block, it may or may not successfully finished.
+                LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getFailure();
+                if (failure == null) {
+                    // Skip branching to retry block.
+                    ctx.workerLocal.intRegs[statusReg] = 0;
+
+                    // Handle transaction success.
+                    if (!isGlobalTransactionEnabled) {
+                        TransactionResourceManager.getInstance()
+                                .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                        TransactionResourceManager.getInstance()
+                                .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                    }
+                } else {
+                    // Tx failed, branch to retry block.
+                    ctx.workerLocal.intRegs[statusReg] = 1;
                 }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
                 boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
@@ -2690,6 +2708,18 @@ public class CPU {
                 if (isOuterTx) {
                     BLangVMUtils.removeTransactionInfo(ctx);
                 }
+                if (ctx.getError() != null) {
+                    BMap<String, BValue> cause = BLangVMErrors.getCause(ctx.getError());
+                    if (cause != null) {
+                        ctx.setError(cause);
+                    }
+                    // Next 2 instructions re-throw this error.
+                    ctx.workerLocal.intRegs[statusReg] = 1;
+                    return;
+                }
+                // Skip rethrow instruction, since there is no error.
+                ctx.workerLocal.intRegs[statusReg] = 0;
+
             }
         } catch (Throwable e) {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));

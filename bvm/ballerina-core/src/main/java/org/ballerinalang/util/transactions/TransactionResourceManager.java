@@ -157,6 +157,7 @@ public class TransactionResourceManager {
                 }
             }
         }
+        // TODO: 10/31/18 remove; there is nor commited function just a committed block
         invokeCommittedFunction(transactionId, transactionBlockId);
         removeContextsFromRegistry(combinedId);
         return commitSuccess;

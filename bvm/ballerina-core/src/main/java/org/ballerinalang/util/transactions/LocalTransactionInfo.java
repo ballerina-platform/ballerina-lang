@@ -18,6 +18,8 @@
 package org.ballerinalang.util.transactions;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +41,7 @@ public class LocalTransactionInfo {
     private Map<Integer, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
     private Stack<Integer> transactionBlockIdStack;
+    private Stack<TransactionFailure> transactionFailure;
 
     public LocalTransactionInfo(String globalTransactionId, String url, String protocol) {
         this.globalTransactionId = globalTransactionId;
@@ -49,6 +52,7 @@ public class LocalTransactionInfo {
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
         transactionBlockIdStack = new Stack<>();
+        transactionFailure = new Stack<>();
     }
 
     public String getGlobalTransactionId() {
@@ -151,5 +155,45 @@ public class LocalTransactionInfo {
         allowedTransactionRetryCounts.clear();
         currentTransactionRetryCounts.clear();
         transactionContextStore.clear();
+    }
+
+    public void markFailure(int offendingIp) {
+        transactionFailure.push(TransactionFailure.at(offendingIp));
+    }
+
+    public void clearFailure() {
+        transactionFailure.clear();
+    }
+
+    public TransactionFailure getAndClearFailure() {
+        if (transactionFailure.empty()) {
+            return null;
+        }
+        TransactionFailure failure = transactionFailure.pop();
+        clearFailure();
+        return failure;
+    }
+
+    public TransactionFailure getFailure() {
+        if (transactionFailure.empty()) {
+            return null;
+        }
+        return transactionFailure.peek();
+    }
+
+    public static class TransactionFailure {
+        private final int offendingIp;
+
+        private TransactionFailure(int offendingIp) {
+            this.offendingIp = offendingIp;
+        }
+
+        private static TransactionFailure at(int offendingIp) {
+            return new TransactionFailure(offendingIp);
+        }
+
+        public int getOffendingIp() {
+            return offendingIp;
+        }
     }
 }
