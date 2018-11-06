@@ -776,6 +776,22 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina-privacy -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-privacy</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-privacy</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
             <!-- End STD lib dependencies -->
 
             <dependency>
@@ -1646,6 +1662,7 @@
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
+                <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1729,6 +1746,7 @@
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
+                <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1808,6 +1826,7 @@
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
+                <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2200,7 +2219,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.242</transport.http.version>
+        <transport.http.version>6.0.243</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

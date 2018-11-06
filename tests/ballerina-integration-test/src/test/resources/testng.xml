@@ -56,6 +56,7 @@
             <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
         </classes>
     </test>
 
@@ -95,6 +96,12 @@
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
             <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
             <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
+            <class name="org.ballerinalang.test.auth.AuthnWithMultipleProvidersTest" />
+            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
+            <class name="org.ballerinalang.test.auth.NoTokenPropagationTest"/>
+            <class name="org.ballerinalang.test.auth.SecureClientWrongAuthProviderTest"/>
+            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
         </classes>
     </test>
 
@@ -110,22 +117,6 @@
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-secure-listener-tests" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.securelistener.SecureListenerBaseTest"/>
-            <class name="org.ballerinalang.test.securelistener.NoTokenPropagationTest"/>
-            <class name="org.ballerinalang.test.securelistener.SecureClientWrongAuthProviderTest"/>
-            <class name="org.ballerinalang.test.securelistener.SecureListenerNonSpecificHandlerTest"/>
-            <class name="org.ballerinalang.test.securelistener.SecureListenerSpecificHandlerTest"/>
-            <class name="org.ballerinalang.test.securelistener.TokenPropagationTest"/>
         </classes>
     </test>
 

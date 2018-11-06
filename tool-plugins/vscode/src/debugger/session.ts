@@ -18,6 +18,7 @@
 import { InitializedEvent, StoppedEvent, OutputEvent, TerminatedEvent, 
     ContinuedEvent, LoggingDebugSession, StackFrame, Scope
 } from 'vscode-debugadapter';
+import { execute } from 'ms-wmic';
 import { DebugManager } from './manager';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -28,6 +29,8 @@ import { lookup, kill } from 'ps-node';
 import * as toml from 'toml';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { Thread, Frame, VariableRef, ProjectConfig, AttachRequestArguments, RunningInfo, LaunchRequestArguments } from './model';
+
+const IS_WIN = process.platform === 'win32';
 
 export class BallerinaDebugSession extends LoggingDebugSession {
     
@@ -48,6 +51,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     private _debugPort: string | undefined;
     private _debugTests: boolean = false;
     private _noDebug: boolean | undefined;
+    private _executableArgs: Array<string> = [];
 
     constructor(){
         super('ballerina-debug.txt');
@@ -236,7 +240,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             if (Array.isArray(scriptArguments) && scriptArguments.length) {
                 executableArgs = executableArgs.concat(scriptArguments);
             }
-
+            this._executableArgs = executableArgs;
             let debugServer = this._debugServer = spawn(
                 executable,
                 executableArgs,
@@ -402,21 +406,27 @@ export class BallerinaDebugSession extends LoggingDebugSession {
 
     disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments) {
         if (this._debugServer) {
-            this._debugManager.kill();
-            this._debugServer.kill();
-            function callBack(err: Error, resultList = [] ) {
-                resultList.forEach(( process: ChildProcess ) => {
-                    kill(process.pid);
+            if (IS_WIN) {
+                execute("process where \"Commandline like '%org.ballerinalang.launcher.Main%'\" CALL TERMINATE", ()=>{
+                    this._debugManager!.kill();
+                    this._debugServer!.kill();
                 });
-            };
-            lookup(
-                {
-                    arguments: ['org.ballerinalang.launcher.Main', this._debugTests ? 'test' : 'run',
-                        '--debug', this._debugPort, this._debugTarget],
-                }, 
-                callBack
-            );
+            } else {
+                lookup(
+                    {
+                        arguments: ['org.ballerinalang.launcher.Main', ...this._executableArgs],
+                    }, 
+                    (err:Error, resultList: any) =>{
+                        resultList.forEach(( process: ChildProcess ) => {
+                            kill(process.pid);
+                        });
+                        this._debugManager!.kill();
+                        this._debugServer!.kill();
+                    }
+                );
+            }
         }
+
         this.sendResponse(response);
     }
 

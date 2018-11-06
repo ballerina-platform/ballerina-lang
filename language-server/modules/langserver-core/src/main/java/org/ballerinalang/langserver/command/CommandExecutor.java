@@ -356,7 +356,7 @@ public class CommandExecutor {
 
         return applySingleTextEdit(docAttachmentInfo.getDocAttachment(), range, textDocumentIdentifier,
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
-        
+
     }
 
     /**
@@ -451,7 +451,7 @@ public class CommandExecutor {
                 .findAny().orElseThrow(() ->
                         new BallerinaCommandExecutionException("Error Executing Create Constructor Command"));
         List<BLangVariable> fields = ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).fields;
-        
+
         DiagnosticPos zeroBasedIndex = CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).getPosition());
         int lastFieldLine = zeroBasedIndex.getEndLine();
         int lastFieldOffset = zeroBasedIndex.getStartColumn();
@@ -558,7 +558,7 @@ public class CommandExecutor {
      * @param line              position to be compared with
      * @return Document attachment info
      */
-    private static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType, 
+    private static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType,
                                                                                        BLangPackage bLangPkg,
                                                                                        int line) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
