@@ -24,7 +24,8 @@ function testArrayAccessAsIndexOfMapt() returns (string) {
     map namesMap = {fname:"Supun",lname:"Setunga"};
     string[] keys = ["fname","lname"];
     string key;
-    key = namesMap[keys[0]] but { () => "", any a => <string> a};
+    var a = namesMap[keys[0]];
+    key =  a is string ? a : "";
     return key;
 }
 
@@ -43,7 +44,8 @@ function constructString(map m) returns (string) {
     string returnStr = "";
     while (i < len) {
         string key = keys[i];
-        string val =  m[key] but { () => "", any a => <string> a};
+        var a = m[key];
+        string val = a is string ? a : "";
         returnStr = returnStr + key + ":" + val + ", ";
         i = i + 1;
     }
@@ -176,15 +178,11 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         }
     }
     worker w3 {
-        try { 
-            int i = 0;
-            int length;
-            while (i < n) {
-                length = intMap.keys().length();
-                i += 1;
-            }
-        } catch (error e) {
-            return e;
+        int i = 0;
+        int length;
+        while (i < n) {
+            length = intMap.keys().length();
+            i += 1;
         }
         return ();
     }
