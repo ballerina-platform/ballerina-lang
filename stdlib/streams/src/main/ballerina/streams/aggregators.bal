@@ -186,7 +186,7 @@ public type DistinctCount object {
         } else if (eventType == "RESET"){
             distinctValues.clear();
         }
-        return lengthof distinctValues;
+        return distinctValues.length();
     }
 
     public function clone() returns Aggregator {

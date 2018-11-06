@@ -50,7 +50,7 @@ function testArrayNull () returns (string[]?, Person[]?, int) {
 function testArrayNotNull () returns (int) {
     Person[] p = [];
     int a = 0;
-    if (lengthof p == 0) {
+    if (p.length() == 0) {
         a = 9;
     }
     return a;

@@ -73,5 +73,5 @@ function testArrayGrowth () returns (int) {
         value = value * 1.7;
         count = count + 1;
     }
-    return lengthof ar;
+    return ar.length();
 }
