@@ -16,7 +16,6 @@
 
 package org.ballerinalang.test.nativeimpl.functions.regex;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
