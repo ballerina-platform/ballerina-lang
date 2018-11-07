@@ -210,6 +210,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -465,7 +466,7 @@ public class BLangPackageBuilder {
     }
 
     private BLangRecordTypeNode populateRecordTypeNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous) {
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeNodeStack.pop();
         recordTypeNode.pos = pos;
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
@@ -1681,6 +1682,12 @@ public class BLangPackageBuilder {
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
+    }
+
+    void startRecordType() {
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        typeNodeStack.push(recordTypeNode);
+        startVarList();
     }
 
     void startObjectType() {
@@ -3632,8 +3639,8 @@ public class BLangPackageBuilder {
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TypeNode typeRef = typeNodeStack.pop();
         typeRef.addWS(ws);
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNodeStack.peek();
-        objectTypeNode.addTypeReference(typeRef);
+        BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeNodeStack.peek();
+        structureTypeNode.addTypeReference(typeRef);
     }
 
     public void createTypeTestExpression(DiagnosticPos pos, Set<Whitespace> ws) {
