@@ -8,7 +8,7 @@
     "compile": "tsc -p ./",
     "build": "npm run compile",
     "watch": "tsc -watch -p ./",
-    "test": "cross-env TZ=utc jest",
+    "test": "cross-env TZ=utc jest --coverage && codecov",
     "test-coverage": "npm run test -- --coverage"
   },
   "author": "ballerina.io",
@@ -26,6 +26,7 @@
     "@types/storybook__react": "^3.0.9",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.4",
+    "codecov": "^3.1.0",
     "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
     "jest": "^23.6.0",
