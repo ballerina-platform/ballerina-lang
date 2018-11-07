@@ -128,6 +128,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -1883,7 +1884,10 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
 
         if (funcSymbol == symTable.notFoundSymbol) {
-            return false;
+            funcSymbol = getSymbolForBuiltinMethodWithDynamicRetType(iExpr, function);
+            if (funcSymbol == symTable.notFoundSymbol) {
+                return false;
+            }
         }
 
         iExpr.builtinMethodInvocation = true;
@@ -2559,5 +2563,107 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
         return typeGuards;
+    }
+
+    private BSymbol getSymbolForBuiltinMethodWithDynamicRetType(BLangInvocation iExpr, BLangBuiltInMethod function) {
+        switch (function) {
+            case FREEZE:
+                return getSymbolForFreezeBuiltinMethod(iExpr);
+            case IS_FROZEN:
+                return getSymbolForIsFrozenBuiltinMethod(iExpr);
+            default:
+                return symTable.notFoundSymbol;
+        }
+    }
+
+    private BSymbol getSymbolForFreezeBuiltinMethod(BLangInvocation iExpr) {
+        BType type = iExpr.expr.type;
+        if (!isValidFreezeFunction(type)) {
+            return symTable.notFoundSymbol;
+        }
+
+        BType retType;
+        if (types.isAnydata(type)) {
+            retType = type;
+        } else {
+            if (type.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) type;
+                if (unionType.getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.ERROR)) {
+                    retType = type;
+                } else {
+                    Set<BType> unionTypeMemTypes = new LinkedHashSet<>(unionType.memberTypes.size() + 1);
+                    unionTypeMemTypes.addAll(unionType.memberTypes);
+                    unionTypeMemTypes.add(symTable.errorType);
+                    retType = new BUnionType(null, unionTypeMemTypes, false);
+                }
+            } else {
+                retType = new BUnionType(null, new LinkedHashSet<BType>() {{ add(type); add(symTable.errorType); }},
+                                            false);
+            }
+        }
+        return defineBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType, InstructionCodes.FREEZE);
+    }
+
+    private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
+        BType type = iExpr.expr.type;
+        if (!isIsFrozenAllowedType(type)) {
+            return symTable.notFoundSymbol;
+        }
+        return defineBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
+                                         InstructionCodes.IS_FROZEN);
+    }
+
+    private boolean isValidFreezeFunction(BType type) {
+        if (type.tag == TypeTags.NIL || (!types.isAnydata(type) && !isNonAnyDataFreezeAllowedType(type))) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isNonAnyDataFreezeAllowedType(BType type) {
+        int typeTag = type.tag;
+        if (typeTag == TypeTags.ANY) {
+            return true;
+        }
+
+        if (types.isAnydata(type)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.MAP && isNonAnyDataFreezeAllowedType(((BMapType) type).constraint)) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) type;
+            return recordType.fields.stream().noneMatch(field ->
+                                                                !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                                                                        !(isNonAnyDataFreezeAllowedType(field.type))) &&
+                    recordType.fields.stream().anyMatch(field -> isNonAnyDataFreezeAllowedType(field.type));
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return unionType.memberTypes.stream().anyMatch(this::isNonAnyDataFreezeAllowedType);
+        }
+
+        if (type.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) type;
+            return !tupleType.getTupleTypes().stream().anyMatch(tupType -> !(isNonAnyDataFreezeAllowedType(tupType)));
+        }
+
+        return type.tag == TypeTags.ARRAY && isNonAnyDataFreezeAllowedType(((BArrayType) type).eType);
+    }
+
+    private boolean isIsFrozenAllowedType(BType type) {
+        return type.tag != TypeTags.NIL && !types.isValueType(type) &&
+                (types.isAnydata(type) || isNonAnyDataFreezeAllowedType(type));
+    }
+
+    private BOperatorSymbol defineBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType,
+                                                      int opcode) {
+        List<BType> paramTypes = Lists.of(type);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(names.fromString(method.getName()), null, opType, null, opcode);
     }
 }
