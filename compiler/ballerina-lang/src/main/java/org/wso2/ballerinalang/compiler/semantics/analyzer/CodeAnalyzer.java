@@ -526,6 +526,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * This method is used to check the isLike test in a static match pattern.
+     * @param matchStmt the match statment containing static match patterns.
+     */
     private void analyzeStaticMatchPatterns(BLangMatch matchStmt) {
         if (matchStmt.exprTypes.isEmpty()) {
             return;
@@ -574,6 +578,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * This method will check if two patterns are similar to each other.
+     * Having similar patterns in the match block will result in unreachable pattern.
+     * @param precedingPattern pattern taken to compare similarity.
+     * @param pattern the pattern that the precedingPattern is checked for similarity.
+     * @return true if both patterns are similar..
+     */
     private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
         if (precedingPattern.type.tag == TypeTags.MAP && pattern.type.tag == TypeTags.MAP) {
             BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
@@ -626,6 +637,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
+    /**
+     * This method will check if the static match pattern is valid based on the matching type.
+     * @param matchType type of the expression being matched.
+     * @param literal the static match pattern.
+     * @return true if the pattern is valid, else false.
+     */
     private boolean isValidMatchPattern(BType matchType, BLangExpression literal) {
         // note: literalType can only be simple type, map type & tuple type
         if (matchType.tag == TypeTags.ARRAY || matchType.tag == TypeTags.ANY) {
