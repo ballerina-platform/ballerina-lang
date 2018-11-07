@@ -817,7 +817,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.inWorker()) {
             return;
         }
-        this.workerActionSystemStack.peek().addWorkerSendAction(workerSendNode);
+        this.workerActionSystemStack.peek().addWorkerAction(workerSendNode);
         analyzeExpr(workerSendNode.expr);
     }
 
@@ -835,7 +835,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.inWorker()) {
             return;
         }
-        this.workerActionSystemStack.peek().addWorkerReceiveAction(workerReceiveNode);
+        this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
     }
 
     public void visit(BLangLiteral literalExpr) {
@@ -1296,16 +1296,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.validateWorkerInteractions(was);
     }
 
-    private static boolean isWorkerSend(BLangStatement action) {
+    private static boolean isWorkerSend(BLangNode action) {
         return action.getKind() == NodeKind.WORKER_SEND;
     }
 
-    private static boolean isWorkerForkSend(BLangStatement action) {
+    private static boolean isWorkerForkSend(BLangNode action) {
         return ((BLangWorkerSend) action).isForkJoinSend;
     }
 
     private String extractWorkerId(BLangNode action) {
-        if (isWorkerSend((BLangStatement) action)) {
+        if (isWorkerSend(action)) {
             return ((BLangWorkerSend) action).workerIdentifier.value;
         } else {
             return ((BLangWorkerReceive) action).workerIdentifier.value;
@@ -1326,23 +1326,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (currentSM.done()) {
                     continue;
                 }
-
-                if (currentSM.sendActions.size() == 0) {
-                    continue;
-                }
-                currentAction = currentSM.currentSendAction();
-                if (isWorkerForkSend((BLangStatement) currentAction)) {
-                    currentSM.sendActions.remove(currentAction);
-                    systemRunning = true;
-                } else {
-                    WorkerActionStateMachine otherSM = workerActionSystem.get(this.extractWorkerId(currentAction));
-                    if (otherSM.currentIsReceive(currentWorkerId)) {
-                        BLangExpression receiveExpr = otherSM.currentReceiveAction();
-                        this.validateWorkerActionParameters((BLangWorkerSend) currentAction,
-                                                            (BLangWorkerReceive) receiveExpr);
-                        currentSM.sendActions.remove(currentAction);
-                        otherSM.receiveActions.remove(receiveExpr);
+                currentAction = currentSM.currentAction();
+                if (isWorkerSend(currentAction)) {
+                    if (isWorkerForkSend(currentAction)) {
+                        currentSM.next();
                         systemRunning = true;
+                    } else {
+                        WorkerActionStateMachine otherSM = workerActionSystem.get(this.extractWorkerId(currentAction));
+                        if (otherSM.currentIsReceive(currentWorkerId)) {
+                            this.validateWorkerActionParameters((BLangWorkerSend) currentAction,
+                                                                (BLangWorkerReceive) otherSM.currentAction());
+                            otherSM.next();
+                            currentSM.next();
+                            systemRunning = true;
+                        }
                     }
                 }
             }
@@ -1360,8 +1357,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateForkJoinSendsToFork(WorkerActionStateMachine sm) {
         boolean sentToFork = false;
-        for (BLangStatement action : sm.sendActions) {
-            if (isWorkerForkSend(action)) {
+        for (BLangNode action : sm.actions) {
+            if (isWorkerSend(action) && isWorkerForkSend(action)) {
                 if (sentToFork) {
                     this.dlog.error(action.pos, DiagnosticCode.INVALID_MULTIPLE_FORK_JOIN_SEND);
                 } else {
@@ -1419,27 +1416,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      */
     private static class WorkerActionSystem {
 
-        Map<String, WorkerActionStateMachine> workerActionStateMachines = new LinkedHashMap<>();
+        public Map<String, WorkerActionStateMachine> workerActionStateMachines = new LinkedHashMap<>();
 
         private WorkerActionStateMachine currentSM;
 
         private String currentWorkerId;
 
-        void startWorkerActionStateMachine(String workerId, DiagnosticPos pos) {
+        public void startWorkerActionStateMachine(String workerId, DiagnosticPos pos) {
             this.currentWorkerId = workerId;
             this.currentSM = new WorkerActionStateMachine(pos);
         }
 
-        void endWorkerActionStateMachine() {
+        public void endWorkerActionStateMachine() {
             this.workerActionStateMachines.put(this.currentWorkerId, this.currentSM);
         }
 
-        void addWorkerSendAction(BLangStatement action) {
-            this.currentSM.sendActions.add(action);
-        }
-
-        void addWorkerReceiveAction(BLangExpression action) {
-            this.currentSM.receiveActions.add(action);
+        public void addWorkerAction(BLangNode action) {
+            this.currentSM.actions.add(action);
         }
 
         public WorkerActionStateMachine get(String workerId) {
@@ -1450,11 +1443,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return this.workerActionStateMachines.entrySet();
         }
 
-        boolean everyoneDone() {
+        public boolean everyoneDone() {
             return this.workerActionStateMachines.values().stream().allMatch(WorkerActionStateMachine::done);
         }
 
-        DiagnosticPos getRootPosition() {
+        public DiagnosticPos getRootPosition() {
             return this.workerActionStateMachines.values().iterator().next().pos;
         }
 
@@ -1473,34 +1466,34 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         private static final String WORKER_SM_FINISHED = "FINISHED";
 
-        List<BLangStatement> sendActions = new ArrayList<>();
+        public int currentState;
 
-        List<BLangExpression> receiveActions = new ArrayList<>();
+        public List<BLangNode> actions = new ArrayList<>();
 
         public DiagnosticPos pos;
 
-        WorkerActionStateMachine(DiagnosticPos pos) {
+        public WorkerActionStateMachine(DiagnosticPos pos) {
             this.pos = pos;
         }
 
         public boolean done() {
-            return this.sendActions.size() == 0 && this.receiveActions.size() == 0;
+            return this.actions.size() == this.currentState;
         }
 
-        BLangStatement currentSendAction() {
-            return this.sendActions.get(0);
+        public BLangNode currentAction() {
+            return this.actions.get(this.currentState);
         }
 
-        BLangExpression currentReceiveAction() {
-            return this.receiveActions.get(0);
-        }
-
-        boolean currentIsReceive(String sourceWorkerId) {
-            if (this.receiveActions.size() == 0) {
+        public boolean currentIsReceive(String sourceWorkerId) {
+            if (this.done()) {
                 return false;
             }
-            BLangExpression action = this.currentReceiveAction();
-            return ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
+            BLangNode action = this.currentAction();
+            return !isWorkerSend(action) && ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
+        }
+
+        public void next() {
+            this.currentState++;
         }
 
         @Override
@@ -1508,12 +1501,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (this.done()) {
                 return WORKER_SM_FINISHED;
             } else {
-                if (this.sendActions.size() > 0) {
-                    return ((BLangWorkerSend) this.currentSendAction()).toActionString();
-                } else if (this.receiveActions.size() > 0) {
-                    return ((BLangWorkerReceive) this.currentReceiveAction()).toActionString();
+                BLangNode action = this.currentAction();
+                if (isWorkerSend(action)) {
+                    return ((BLangWorkerSend) action).toActionString();
                 } else {
-                    return "";
+                    return ((BLangWorkerReceive) action).toActionString();
                 }
             }
         }
