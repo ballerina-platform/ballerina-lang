@@ -13,7 +13,7 @@ function testTransactionStmtWithCommitedAndAbortedBlocks(int failureCutOff, bool
     a = (a + "start");
     int count = 0;
     try {
-        transaction with retries=2, onabort=onAbort, oncommit=onCommit {
+        transaction with retries=2 {
             a = a + " inTrx";
             count = count + 1;
             int i = 0;
@@ -44,17 +44,6 @@ function testTransactionStmtWithCommitedAndAbortedBlocks(int failureCutOff, bool
     a = (a + " end");
     return a;
 }
-
-function onAbort (string trxId) {
-    io:println("onAbort");
-    int i = 5;
-}
-
-function onCommit(string trxId) {
-    io:println("onCommit");
-    float f = 2.2;
-}
-
 
 function blowUp()  returns int {
     if (5 == 5) {

@@ -41,11 +41,19 @@ service<http:Service> participant1 bind participant1EP01 {
 
     testRemoteParticipantAbort(endpoint ep, http:Request req) {
 
-        transaction with oncommit=onCommit1, onabort=onAbort1 {
-            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 { // local participant
+        transaction {
+            transaction { // local participant
+            } committed {
+                state1.localParticipantCommittedFunctionCalled = true;
+            } aborted {
+                state1.localParticipantAbortedFunctionCalled = true;
             }
             state1.abortedByParticipant = true;
             abort;
+        } committed {
+            state1.committedFunctionCalled = true;
+        } aborted {
+            state1.abortedFunctionCalled = true;
         }
         http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
@@ -53,9 +61,17 @@ service<http:Service> participant1 bind participant1EP01 {
 
     noOp(endpoint ep, http:Request req) {
 
-        transaction with oncommit=onCommit1, onabort=onAbort1 {
-            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 { // local participant
+        transaction {
+            transaction { // local participant
+            } committed {
+                state1.localParticipantCommittedFunctionCalled = true;
+            } aborted {
+                state1.localParticipantAbortedFunctionCalled = true;
             }
+        } committed {
+            state1.committedFunctionCalled = true;
+        } aborted {
+            state1.abortedFunctionCalled = true;
         }
         http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
@@ -66,10 +82,18 @@ service<http:Service> participant1 bind participant1EP01 {
     }
     nonInfectable(endpoint ep, http:Request req) {
 
-        transaction with oncommit=onCommit1, onabort=onAbort1 {
-            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 { // local participant
+        transaction {
+            transaction { // local participant
                 abort;
+            } committed {
+                state1.localParticipantCommittedFunctionCalled = true;
+            } aborted {
+                state1.localParticipantAbortedFunctionCalled = true;
             }
+        } committed {
+            state1.committedFunctionCalled = true;
+        } aborted {
+            state1.abortedFunctionCalled = true;
         }
         http:Response res = new;  res.statusCode = 200;
         res.setTextPayload("Non infectable resource call successful");
@@ -81,10 +105,18 @@ service<http:Service> participant1 bind participant1EP01 {
     }
     infectable(endpoint ep, http:Request req) {
 
-        transaction with oncommit=onCommit1, onabort=onAbort1 {
-            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 { // local participant
+        transaction {
+            transaction { // local participant
                 abort;
+            } committed {
+                state1.localParticipantCommittedFunctionCalled = true;
+            } aborted {
+                state1.localParticipantAbortedFunctionCalled = true;
             }
+        } committed {
+            state1.committedFunctionCalled = true;
+        } aborted {
+            state1.abortedFunctionCalled = true;
         }
         http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
@@ -148,8 +180,12 @@ service<http:Service> participant1 bind participant1EP01 {
 
     testSaveToDatabaseFailedInParticipant(endpoint ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
-        transaction with oncommit=onCommit1, onabort=onAbort1 {
-            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 {
+        transaction {
+            transaction {
+            } committed {
+                state1.localParticipantCommittedFunctionCalled = true;
+            } aborted {
+                state1.localParticipantAbortedFunctionCalled = true;
             }
             http:Request newReq = new;
             var result = participant2EP01 -> get("/testSaveToDatabaseFailedInParticipant", message = newReq);
@@ -161,6 +197,10 @@ service<http:Service> participant1 bind participant1EP01 {
                     res.statusCode = 500;
                 }
             }
+        } committed {
+            state1.committedFunctionCalled = true;
+        } aborted {
+            state1.abortedFunctionCalled = true;
         }
         _ = ep -> respond(res);
     }
@@ -177,22 +217,6 @@ function sendErrorResponseToInitiator(http:Listener conn) {
         }
         () => return;
     }
-}
-
-function onAbort1(string transactionid) {
-    state1.abortedFunctionCalled = true;
-}
-
-function onCommit1(string transactionid) {
-    state1.committedFunctionCalled = true;
-}
-
-function onLocalParticipantAbort1(string transactionid) {
-    state1.localParticipantAbortedFunctionCalled = true;
-}
-
-function onLocalParticipantCommit1(string transactionid) {
-    state1.localParticipantCommittedFunctionCalled = true;
 }
 
 type State1 object {

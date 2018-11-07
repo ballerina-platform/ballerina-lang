@@ -120,8 +120,12 @@ type Registration record {
 function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbort) {
     endpoint http:Listener ep = conn;
     http:Response res = new;  res.statusCode = 200;
-    transaction with oncommit=onCommit2, onabort=onAbort2 {
-        transaction with oncommit=onLocalParticipantCommit2, onabort=onLocalParticipantAbort2 {
+    transaction {
+        transaction {
+        } committed {
+            state2.localParticipantCommittedFunctionCalled = true;
+        } aborted {
+            state2.localParticipantAbortedFunctionCalled = true;
         }
         string uuid = system:uuid();
 
@@ -148,7 +152,11 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
         if(shouldAbort) {
             abort;
         }
-    }
+        } committed {
+            state2.committedFunctionCalled = true;
+        } aborted {
+            state2.abortedFunctionCalled = true;
+        }
 }
 
 function onAbort2(string transactionid) {
