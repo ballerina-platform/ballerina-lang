@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -219,11 +220,7 @@ public class ModuleBuildTestCase extends BaseTest {
     @Test(description = "Test building a project with a module only with tests")
     public void testBuildOnlyWithTest() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("testModuleBuild");
-        initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
-
-        // Delete the source files in the module
-        Files.deleteIfExists(projectPath.resolve("foo").resolve("main.bal"));
-
+        createTestSources(projectPath);
         String msg = "Compiling source\n" +
                     "    integrationtests/foo:0.0.1\n" +
                     "\n" +
@@ -242,10 +239,10 @@ public class ModuleBuildTestCase extends BaseTest {
                     "\n" +
                     "Generating executable\n" +
                     "    ./target/foo.balx";
-        LogLeecher clientLeecher = new LogLeecher(msg);
 
-        balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
-                          projectPath.toString());
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("build", new String[] {"foo"}, envVariables, new String[0],
+                          new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
     }
 
@@ -257,11 +254,7 @@ public class ModuleBuildTestCase extends BaseTest {
     @Test(description = "Test executing tests in a project with a module only with tests")
     public void testExecOnlyWithTest() throws BallerinaTestException, IOException {
         Path projectPath = tempProjectDirectory.resolve("testModule");
-        initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
-
-        // Delete the source files in the module
-        Files.deleteIfExists(projectPath.resolve("foo").resolve("main.bal"));
-
+        createTestSources(projectPath);
         String msg = "Compiling tests\n" +
                 "    integrationtests/foo:0.0.1\n" +
                 "\n" +
@@ -277,10 +270,10 @@ public class ModuleBuildTestCase extends BaseTest {
                 "\t1 passing\n" +
                 "\t0 failing\n" +
                 "\t0 skipped\n";
-        LogLeecher clientLeecher = new LogLeecher(msg);
 
-        balClient.runMain("test", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
-                          projectPath.toString());
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[] {"foo"}, envVariables, new String[0],
+                          new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(3000);
     }
     /**
@@ -316,6 +309,44 @@ public class ModuleBuildTestCase extends BaseTest {
     private void createDirWithTextFile(Path path) throws IOException {
         Files.createDirectories(path.resolve("otherpkg"));
         Files.createFile(path.resolve("otherpkg").resolve("hello.txt"));
+    }
+
+    /**
+     * Create test sources.
+     *
+     * @param path project path
+     * @throws IOException if an I/O exception occurs when creating directories
+     */
+    private void createTestSources(Path path) throws IOException {
+        Files.createDirectories(path.resolve("foo"));
+        Files.createDirectories(path.resolve("foo").resolve("tests"));
+        Files.createDirectories(path.resolve(".ballerina"));
+        String testSrc = "import ballerina/test;\n" +
+                        "import ballerina/io;\n" +
+                        "# Before test function\n" +
+                        "\n" +
+                        "function beforeFunc () {\n" +
+                        "    io:println(\"I'm the before function!\");\n" +
+                        "}\n" +
+                        "\n" +
+                        "# Test function\n" +
+                        "\n" +
+                        "@test:Config{\n" +
+                        "    before:\"beforeFunc\",\n" +
+                        "    after:\"afterFunc\"\n" +
+                        "}\n" +
+                        "function testFunction () {\n" +
+                        "    io:println(\"I'm in test function!\");\n" +
+                        "    test:assertTrue(true , msg = \"Failed!\");\n" +
+                        "}\n" +
+                        "\n" +
+                        "# After test function\n" +
+                        "\n" +
+                        "function afterFunc () {\n" +
+                        "    io:println(\"I'm the after function!\");\n" +
+                        "}";
+        Files.write(path.resolve("foo").resolve("tests").resolve("main_test.bal"), testSrc.getBytes(),
+                    StandardOpenOption.CREATE);
     }
 
     @AfterClass
