@@ -590,3 +590,19 @@ service<http:Service> testService bind testEP {
         int b = a;
     }
 }
+
+function testDataflowWithThrow() returns string {
+    error e = error("some error");
+    string msg;
+    if (true) {
+        if (true) {
+            msg = "1";
+        } else {
+            panic e;
+        }
+    } else {
+        msg = "n/a";
+    }
+    
+    return msg;
+}

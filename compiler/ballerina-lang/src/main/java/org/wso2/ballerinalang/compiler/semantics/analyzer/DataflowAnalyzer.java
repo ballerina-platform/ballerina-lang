@@ -183,6 +183,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private Names names;
     private Map<BSymbol, InitStatus> uninitializedVars;
+    private boolean flowTerminated = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
 
@@ -228,8 +229,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        analyzeBlock(funcNode.body, funcEnv);
-        funcNode.workers.forEach(worker -> analyzeBlock(worker, funcEnv));
+        analyzeBranch(funcNode.body, funcEnv);
+        funcNode.workers.forEach(worker -> analyzeBranch(worker, funcEnv));
     }
 
     @Override
@@ -249,14 +250,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangService service) {
         service.vars.forEach(var -> analyzeNode(var, env));
-        service.resources.forEach(res -> analyzeBlock(res, env));
+        service.resources.forEach(res -> analyzeBranch(res, env));
     }
 
     @Override
     public void visit(BLangResource resource) {
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resource, resource.symbol.scope, env);
-        analyzeBlock(resource.body, resourceEnv);
-        resource.workers.forEach(worker -> analyzeBlock(worker, resourceEnv));
+        analyzeBranch(resource.body, resourceEnv);
+        resource.workers.forEach(worker -> analyzeBranch(worker, resourceEnv));
     }
 
     @Override
@@ -285,7 +286,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker worker) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(worker, this.env);
-        analyzeBlock(worker.body, workerEnv);
+        analyzeBranch(worker.body, workerEnv);
     }
 
     @Override
@@ -334,14 +335,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         analyzeNode(returnNode.expr, env);
 
-        // return statement will exit from the function. There will be no uninitialized 
-        // variables left after the return statement.
-        this.uninitializedVars.clear();
+        // return statement will exit from the function.
+        terminateFlow();
     }
 
     @Override
     public void visit(BLangThrow throwNode) {
         analyzeNode(throwNode.expr, env);
+
+        // throw statement will terminate the flow.
+        terminateFlow();
     }
 
     @Override
@@ -352,9 +355,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         analyzeNode(ifNode.expr, env);
-        Map<BSymbol, InitStatus> unInitVarsInIf = analyzeBlock(ifNode.body, env);
-        Map<BSymbol, InitStatus> unInitVarsInElse = analyzeBlock(ifNode.elseStmt, env);
-        this.uninitializedVars = mergeUninitializedVars(unInitVarsInIf, unInitVarsInElse);
+        BranchResult ifResult = analyzeBranch(ifNode.body, env);
+        BranchResult elseResult = analyzeBranch(ifNode.elseStmt, env);
+
+        // If the flow was terminated within 'if' block, then after the if-else block,
+        // only the results of the 'else' block matters.
+        if (ifResult.flowTerminated) {
+            this.uninitializedVars = elseResult.uninitializedVars;
+            return;
+        }
+
+        // If the flow was terminated within 'else' block, then after the if-else block,
+        // only the results of the 'if' block matters.
+        if (elseResult.flowTerminated) {
+            this.uninitializedVars = ifResult.uninitializedVars;
+            return;
+        }
+
+        this.uninitializedVars = mergeUninitializedVars(ifResult.uninitializedVars, elseResult.uninitializedVars);
     }
 
     @Override
@@ -362,7 +380,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(match.expr, env);
         Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
         for (BLangMatchStmtPatternClause patternClause : match.patternClauses) {
-            uninitVars = mergeUninitializedVars(uninitVars, analyzeBlock(patternClause, env));
+            BranchResult result = analyzeBranch(patternClause, env);
+            // If the flow was terminated within the block, then that branch should not be considered for
+            // analyzing the data-flow for the downstream code.
+            if (result.flowTerminated) {
+                continue;
+            }
+            uninitVars = mergeUninitializedVars(uninitVars, result.uninitializedVars);
         }
 
         this.uninitializedVars = uninitVars;
@@ -646,7 +670,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDone doneNode) {
-        // 'done' statement will exit from the worker. There will be no uninitialized 
+        // 'done' statement will exit from the worker. There will be no uninitialized
         // variables left after the 'done' statement.
         this.uninitializedVars.clear();
     }
@@ -804,13 +828,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             // Body should be visited after the params
             objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, env));
 
-            objectTypeNode.fields.stream()
-                    .filter(field -> !Symbols.isPrivate(field.symbol))
-                    .forEach(field -> {
-                        if (this.uninitializedVars.containsKey(field.symbol)) {
-                            this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
-                        }
-                    });
+            objectTypeNode.fields.stream().filter(field -> !Symbols.isPrivate(field.symbol)).forEach(field -> {
+                if (this.uninitializedVars.containsKey(field.symbol)) {
+                    this.dlog.error(field.pos, DiagnosticCode.OBJECT_UNINITIALIZED_FIELD, field.name);
+                }
+            });
         }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
@@ -868,6 +890,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangPanic panicNode) {
         analyzeNode(panicNode.expr, env);
+
+        // panic statement will terminate the flow. There will be no uninitialized
+        // variables left after the panic statement.
+        terminateFlow();
     }
 
     @Override
@@ -903,14 +929,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     /**
-     * Analyze a block and returns the set of uninitialized variables for that block.
+     * Analyze a branch and returns the set of uninitialized variables for that branch.
      * This method will not update the current uninitialized variables set.
      * 
      * @param node Branch node to be analyzed
      * @param env Symbol environment
-     * @return Set of uninitialized variables for that branch.
+     * @return Result of the branch.
      */
-    private Map<BSymbol, InitStatus> analyzeBlock(BLangNode node, SymbolEnv env) {
+    private BranchResult analyzeBranch(BLangNode node, SymbolEnv env) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
 
         // Get a snapshot of the current uninitialized vars before visiting the node.
@@ -919,12 +945,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.uninitializedVars = copyUninitializedVars();
 
         analyzeNode(node, env);
-        Map<BSymbol, InitStatus> uninitVarsOfBranch = this.uninitializedVars;
+        BranchResult brachResult = new BranchResult(this.uninitializedVars, this.flowTerminated);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
+        this.flowTerminated = false;
 
-        return uninitVarsOfBranch;
+        return brachResult;
     }
 
     private Map<BSymbol, InitStatus> copyUninitializedVars() {
@@ -956,8 +983,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         intersection.retainAll(secondUninitVars.keySet());
 
         return Stream.concat(firstUninitVars.entrySet().stream(), secondUninitVars.entrySet().stream())
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey(),
+                .collect(Collectors.toMap(entry -> entry.getKey(),
                         // If only one branch have uninitialized the var, then its a partial initialization
                         entry -> intersection.contains(entry.getKey()) ? entry.getValue() : InitStatus.PARTIAL_INIT,
                         (a, b) -> {
@@ -971,7 +997,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         }));
     }
 
+    private void terminateFlow() {
+        this.flowTerminated = true;
+    }
+
     private enum InitStatus {
         UN_INIT, PARTIAL_INIT
+    }
+
+    private class BranchResult {
+
+        Map<BSymbol, InitStatus> uninitializedVars;
+        boolean flowTerminated;
+
+        BranchResult(Map<BSymbol, InitStatus> uninitializedVars, boolean flowTerminated) {
+            this.uninitializedVars = uninitializedVars;
+            this.flowTerminated = flowTerminated;
+        }
     }
 }

@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public class DataflowAnalysisTest {
 
-    @Test
+    @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 43);
