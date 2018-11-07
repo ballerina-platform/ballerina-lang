@@ -426,7 +426,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      */
     public VarLock getFieldLock(String fieldName) {
         if (lockMap.get(fieldName) == null) {
-            synchronized (map.get(fieldName)) {
+            synchronized (map) {
                 if (lockMap.get(fieldName) == null) {
                     lockMap.put(fieldName, new VarLock());
                 }

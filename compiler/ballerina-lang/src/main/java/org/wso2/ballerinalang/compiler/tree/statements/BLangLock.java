@@ -41,6 +41,8 @@ public class BLangLock extends BLangStatement implements LockNode {
 
     public Map<BVarSymbol, Set<String>> fieldVariables = new HashMap<>();
 
+    public Set<BVarSymbol> selfVariables = new HashSet<>();
+
     public BLangLock() {
     }
 
@@ -71,6 +73,10 @@ public class BLangLock extends BLangStatement implements LockNode {
     public void addFieldVariable(BVarSymbol symbol, String field) {
         fieldVariables.putIfAbsent(symbol, new HashSet<>());
         fieldVariables.get(symbol).add(field);
+    }
+
+    public void addSelfVariable(BVarSymbol symbol) {
+        selfVariables.add(symbol);
     }
 
     @Override

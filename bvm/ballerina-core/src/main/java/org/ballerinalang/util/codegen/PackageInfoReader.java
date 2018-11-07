@@ -1443,16 +1443,12 @@ public class PackageInfoReader {
                 case InstructionCodes.LOCK:
                 case InstructionCodes.UNLOCK:
                     int varCount = codeStream.readInt();
-                    BType[] varTypes = new BType[varCount];
-                    int[] pkgRefs = new int[varCount];
-                    int[] varRegs = new int[varCount];
-                    String[] fieldNames = new String[varCount];
+                    int fieldCount = codeStream.readInt();
+                    BType[] varTypes = new BType[varCount + fieldCount];
+                    int[] pkgRefs = new int[varCount + fieldCount];
+                    int[] varRegs = new int[varCount + fieldCount];
+                    String[] fieldNames = new String[fieldCount];
                     for (int m = 0; m < varCount; m++) {
-                        boolean isFiled = (codeStream.readInt() == 1) ? true : false;
-                        if (isFiled) {
-                            int fieldNameIndex = codeStream.readInt();
-                            fieldNames[m] = ((UTF8CPEntry) packageInfo.getCPEntry(fieldNameIndex)).getValue();
-                        }
                         int varSigCPIndex = codeStream.readInt();
                         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
                         varTypes[m] = typeRefCPEntry.getType();
@@ -1463,7 +1459,23 @@ public class PackageInfoReader {
                         pkgRefs[m] = pkgRefCPEntry.getPackageInfo().pkgIndex;
                         varRegs[m] = codeStream.readInt();
                     }
-                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs, fieldNames));
+
+                    for (int n = 0; n < fieldCount; n++) {
+                        int varSigCPIndex = codeStream.readInt();
+                        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(varSigCPIndex);
+                        varTypes[varCount + n] = typeRefCPEntry.getType();
+
+                        pkgRefCPIndex = codeStream.readInt();
+                        pkgRefCPEntry = (PackageRefCPEntry) packageInfo.getCPEntry(pkgRefCPIndex);
+
+                        pkgRefs[varCount + n] = pkgRefCPEntry.getPackageInfo().pkgIndex;
+                        varRegs[varCount + n] = codeStream.readInt();
+
+                        int fieldNameIndex = codeStream.readInt();
+                        fieldNames[n] = ((UTF8CPEntry) packageInfo.getCPEntry(fieldNameIndex)).getValue();
+                    }
+                    packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs, fieldNames,
+                            varCount));
                     break;
                 case COMPENSATE:
                     int nameIndex = codeStream.readInt();

@@ -300,13 +300,15 @@ public class Instruction {
         public int[] pkgRefs;
         public int[] varRegs;
         public String[] fieldNames;
+        public int varCount;
 
-        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs, String[] fieldNames) {
+        InstructionLock(int opcode, BType[] types, int[] pkgRefs, int[] varRegs, String[] fieldNames, int varCount) {
             super(opcode);
             this.types = types;
             this.pkgRefs = pkgRefs;
             this.varRegs = varRegs;
             this.fieldNames = fieldNames;
+            this.varCount = varCount;
         }
 
         @Override

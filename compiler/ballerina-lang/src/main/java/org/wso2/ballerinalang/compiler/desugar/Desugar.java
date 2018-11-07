@@ -1046,14 +1046,18 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // Local variable in a function/resource/action/worker
             genVarRefExpr = new BLangLocalVarRef((BVarSymbol) varRefExpr.symbol);
+            if (!enclLocks.isEmpty() && varRefExpr.variableName != null &&
+                    varRefExpr.variableName.value.equals(Names.SELF.value)) {
+                enclLocks.peek().addSelfVariable((BVarSymbol) varRefExpr.symbol);
+            }
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STRUCT) == SymTag.STRUCT) {
             genVarRefExpr = new BLangFieldVarRef((BVarSymbol) varRefExpr.symbol);
-           //add locking for field variables as well
+           //Add locking for field variables as well
             if (!enclLocks.isEmpty()) {
-                enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
+                enclLocks.peek().addSelfVariable((BVarSymbol) varRefExpr.symbol);
             }
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
@@ -1061,7 +1065,7 @@ public class Desugar extends BLangNodeVisitor {
             // We consider both of them as package level variables
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
 
-            //Only locking service level and package level variables
+            //Add locking for service level and package level variables
             if (!enclLocks.isEmpty()) {
                 enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
             }
@@ -1092,8 +1096,10 @@ public class Desugar extends BLangNodeVisitor {
                                                               (BVarSymbol) fieldAccessExpr.symbol, false);
 
                 //field refs to objects in other packages are skipped
-                if (!enclLocks.isEmpty() && !(fieldAccessExpr.expr instanceof BLangLocalVarRef) &&
-                        fieldAccessExpr.expr.symbol.pkgID.equals(this.env.enclPkg.packageID)) {
+                if (!enclLocks.isEmpty() &&
+                        !(fieldAccessExpr.expr instanceof BLangLocalVarRef) &&
+                        (fieldAccessExpr.expr.symbol != null) &&
+                        (fieldAccessExpr.expr.symbol.pkgID == env.enclPkg.packageID)) {
                     enclLocks.peek().addFieldVariable((BVarSymbol) fieldAccessExpr.expr.symbol,
                             fieldAccessExpr.field.value);
                 }

@@ -89,6 +89,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -96,15 +97,23 @@ import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -719,14 +728,16 @@ public class CPU {
                     case InstructionCodes.LOCK:
                         InstructionLock instructionLock = (InstructionLock) instruction;
                         if (!handleVariableLock(ctx, instructionLock.types,
-                                instructionLock.pkgRefs, instructionLock.varRegs, instructionLock.fieldNames)) {
+                                instructionLock.pkgRefs, instructionLock.varRegs, instructionLock.fieldNames,
+                                instructionLock.varCount)) {
                             return;
                         }
                         break;
                     case InstructionCodes.UNLOCK:
                         InstructionLock instructionUnLock = (InstructionLock) instruction;
                         handleVariableUnlock(ctx, instructionUnLock.types,
-                                instructionUnLock.pkgRefs, instructionUnLock.varRegs, instructionUnLock.fieldNames);
+                                instructionUnLock.pkgRefs, instructionUnLock.varRegs, instructionUnLock.fieldNames,
+                                instructionUnLock.varCount);
                         break;
                     case InstructionCodes.AWAIT:
                         ctx = execAwait(ctx, operands);
@@ -2374,70 +2385,78 @@ public class CPU {
     }
 
     private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types,
-                                              int[] pkgRegs, int[] varRegs, String[] fieldNames) {
+                                              int[] pkgRegs, int[] varRegs, String[] fieldNames, int varCount) {
+
         boolean lockAcquired = true;
-        for (int i = 0; i < varRegs.length && lockAcquired; i++) {
+        for (int i = 0; i < varCount && lockAcquired; i++) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
-            if (fieldNames[i] != null) {
-                //lock on field
-                lockAcquired = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(fieldNames[i]).lock(ctx);
-            } else {
-                switch (paramType.getTag()) {
-                    case TypeTags.INT_TAG:
-                        lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
-                        break;
-                    case TypeTags.BYTE_TAG:
-                        lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
-                        break;
-                    case TypeTags.STRING_TAG:
-                        lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
-                        break;
-                    default:
-                        lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
-                }
+
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
+                    break;
+                case TypeTags.STRING_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+                    break;
+                default:
+                    lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
             }
+
         }
+
+        for (int i = 0; (i < varRegs.length - varCount) && lockAcquired; i++) {
+            int regIndex = varRegs[varCount + i];
+            lockAcquired = ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(fieldNames[i]).lock(ctx);
+        }
+
         return lockAcquired;
     }
 
     private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types,
-                                             int[] pkgRegs, int[] varRegs, String[] fieldNames) {
-        for (int i = varRegs.length - 1; i > -1; i--) {
+                                             int[] pkgRegs, int[] varRegs, String[] fieldNames, int varCount) {
+
+        int regLength = varRegs.length;
+        for (int i = regLength - 1; i >= varCount; i--) {
+            int regIndex = varRegs[i];
+            ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(fieldNames[i - varCount]).unlock();
+        }
+
+        for (int i = varCount - 1; i > -1; i--) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
-            if (fieldNames[i] != null) {
-                //lock on field
-                ((BMap) ctx.workerLocal.refRegs[regIndex]).getFieldLock(fieldNames[i]).unlock();
-            } else {
-                switch (paramType.getTag()) {
-                    case TypeTags.INT_TAG:
-                        ctx.programFile.globalMemArea.unlockIntField(pkgIndex, regIndex);
-                        break;
-                    case TypeTags.BYTE_TAG:
-                        ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        ctx.programFile.globalMemArea.unlockFloatField(pkgIndex, regIndex);
-                        break;
-                    case TypeTags.STRING_TAG:
-                        ctx.programFile.globalMemArea.unlockStringField(pkgIndex, regIndex);
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
-                        break;
-                    default:
-                        ctx.programFile.globalMemArea.unlockRefField(pkgIndex, regIndex);
-                }
+
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    ctx.programFile.globalMemArea.unlockIntField(pkgIndex, regIndex);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    ctx.programFile.globalMemArea.unlockFloatField(pkgIndex, regIndex);
+                    break;
+                case TypeTags.STRING_TAG:
+                    ctx.programFile.globalMemArea.unlockStringField(pkgIndex, regIndex);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
+                    break;
+                default:
+                    ctx.programFile.globalMemArea.unlockRefField(pkgIndex, regIndex);
             }
+
         }
     }
 
