@@ -3169,18 +3169,15 @@ public class Desugar extends BLangNodeVisitor {
         BType patternType;
 
         switch (patternClause.getKind()) {
-            case MATCH_TYPED_PATTERN_CLAUSE:
-                BLangMatchStmtTypedBindingPatternClause simplePattern =
-                        (BLangMatchStmtTypedBindingPatternClause) patternClause;
-                patternType = simplePattern.variable.type;
-                break;
             case MATCH_STATIC_PATTERN_CLAUSE:
                 BLangMatchStmtStaticBindingPatternClause staticPattern =
                         (BLangMatchStmtStaticBindingPatternClause) patternClause;
                 patternType = staticPattern.literal.type;
                 break;
             default:
-                throw new UnsupportedOperationException("Unsupported match pattern");
+                BLangMatchStmtTypedBindingPatternClause simplePattern =
+                        (BLangMatchStmtTypedBindingPatternClause) patternClause;
+                patternType = simplePattern.variable.type;
         }
 
         BLangExpression binaryExpr;
