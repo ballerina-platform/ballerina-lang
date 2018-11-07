@@ -560,7 +560,7 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause? committedClause? abortedClause?
+    :   transactionClause onretryClause? (committedClause | abortedClause)*
     ;
 
 transactionClause

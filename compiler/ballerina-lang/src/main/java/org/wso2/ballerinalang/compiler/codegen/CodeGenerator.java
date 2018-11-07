@@ -2917,8 +2917,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 trStatusReg);
         // If transaction in failed state, goto retry.
         this.emit(InstructionCodes.BR_TRUE, trStatusReg, transStmtFailEndAddr);
-        if (transactionNode.committedBody != null) {
-            this.genNode(transactionNode.committedBody, this.env);
+        if (!transactionNode.committedBodyList.isEmpty()) {
+            this.genNode(transactionNode.committedBodyList.get(0), this.env);
         }
 
         abortInstructions.pop();
@@ -2946,8 +2946,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         transStmtAbortEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.ABORTED.value()),
                 trStatusReg);
-        if (transactionNode.abortedBody != null) {
-            this.genNode(transactionNode.abortedBody, this.env);
+        if (!transactionNode.abortedBodyList.isEmpty()) {
+            this.genNode(transactionNode.abortedBodyList.get(0), this.env);
         }
 
         // Conclude transaction handling.

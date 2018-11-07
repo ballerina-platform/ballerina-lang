@@ -394,6 +394,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetLastStatement();
             this.withinRetryBlock = false;
         }
+
+        List<BLangBlockStmt> committedBodyList = transactionNode.committedBodyList;
+        if (!committedBodyList.isEmpty()) {
+            if (committedBodyList.size() > 1) {
+                this.dlog.error(committedBodyList.get(1).pos,
+                        DiagnosticCode.ONLY_SINGLE_COMMITTED_BLOCK_ALLOWED);
+            }
+            analyzeNode(committedBodyList.get(0), env);
+        }
+        List<BLangBlockStmt> abortedBodyList = transactionNode.abortedBodyList;
+        if (!abortedBodyList.isEmpty()) {
+            if (abortedBodyList.size() > 1) {
+                this.dlog.error(abortedBodyList.get(1).pos,
+                        DiagnosticCode.ONLY_SINGLE_ABORTED_BLOCK_ALLOWED);
+            }
+            analyzeNode(abortedBodyList.get(0), env);
+        }
+
         this.returnWithintransactionCheckStack.pop();
         this.loopWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();

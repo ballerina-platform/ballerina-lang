@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -33,10 +34,12 @@ import org.testng.annotations.Test;
 public class TransactionBlockTest {
 
     private CompileResult programFile;
+    private CompileResult negativeProgramFile;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_block_test.bal");
+        negativeProgramFile = BCompileUtil.compile("test-src/statements/transaction/transaction_block_negative.bal");
     }
 
     private BValue[] runFunctionWithTxConfig(int txFailures, boolean abort) {
@@ -72,5 +75,14 @@ public class TransactionBlockTest {
     public void testTransactionStmtWithFailureAndAbort() {
         BValue[] returns = runFunctionWithTxConfig(1, true);
         Assert.assertEquals(returns[0].stringValue(), "start inTrx retry inTrx aborted end");
+    }
+
+    @Test
+    public void testMultipleCommittedAbortedBlocks() {
+        Assert.assertEquals(negativeProgramFile.getErrorCount(), 2);
+        BAssertUtil.validateError(negativeProgramFile, 0,
+                "only one aborted block is allowed per transaction statement", 21, 7);
+        BAssertUtil.validateError(negativeProgramFile, 1,
+                "only one committed block is allowed per transaction statement", 34, 7);
     }
 }
