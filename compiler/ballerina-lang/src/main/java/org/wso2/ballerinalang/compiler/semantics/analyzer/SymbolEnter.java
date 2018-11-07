@@ -769,22 +769,28 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        // Note - This is checked and error is logged in semantic analyzer.
-        if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL) {
-            return;
-        }
-
-        // Visit the associated type definition. This will set the types to it.
-        defineNode(constant.associatedTypeDefinition, env);
-
-        // Get the type. This is a finite type.
-        BType type = constant.associatedTypeDefinition.symbol.type;
-
         // Create a new constant symbol.
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, type,
-                env.scope.owner);
+
+        BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
+                symTable.noType, env.scope.owner);
+        constantSymbol.finiteType = symTable.errType;
+
+        // Note - This is checked and error is logged in semantic analyzer.
+        if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL) {
+            if (symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
+                env.scope.define(constantSymbol.name, constantSymbol);
+            }
+            return;
+        }
+
+        // Visit the associated type definition. This will set the type of the type definition.
+        defineNode(constant.associatedTypeDefinition, env);
+
+        // Get the type of the associated type definition and set it as the type of the symbol. This is needed to
+        // resolve the types of any type definition which uses the constant in type node.
+        constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
         constantSymbol.value = (BLangLiteral) constant.value;
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
@@ -794,7 +800,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add the symbol to the enclosing scope.
         if (!symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
-            constantSymbol.type = symTable.errType;
+            return;
         }
 
         // Add the symbol to the enclosing scope.
@@ -802,8 +808,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Update the symbol of the node.
         constant.symbol = constantSymbol;
-        // Set the type to the node.
-        constant.type = type;
     }
 
     @Override
@@ -940,12 +944,17 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (constant.symbol == null) {
                 continue;
             }
+
+            constant.symbol.finiteType = constant.symbol.type;
+
             if (constant.typeNode != null) {
-                BType type = symResolver.resolveTypeNode(constant.typeNode, env);
-                constant.typeNode.type = type;
-                constant.symbol.typeNodeType = type;
+                constant.symbol.type = symResolver.resolveTypeNode(constant.typeNode, env);
             } else {
-                constant.symbol.typeNodeType = symTable.getTypeFromTag(constant.symbol.value.typeTag);
+                constant.symbol.type = symTable.getTypeFromTag(constant.symbol.value.typeTag);
+            }
+
+            if (constant.symbol.type == constant.symbol.finiteType) {
+                dlog.error(constant.pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, constant.name);
             }
         }
     }

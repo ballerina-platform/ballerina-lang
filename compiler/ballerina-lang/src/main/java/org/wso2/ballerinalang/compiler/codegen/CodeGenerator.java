@@ -2018,8 +2018,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
         int actualTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
         int typeNodeTypeCPIndex = -1;
-        if (constantSymbol.typeNodeType != null) {
-            typeNodeTypeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.typeNodeType.getDesc());
+        if (constantSymbol.finiteType != null) {
+            typeNodeTypeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.finiteType.getDesc());
         }
         ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, actualTypeSigCPIndex, typeNodeTypeCPIndex,
                 constantSymbol.flags);

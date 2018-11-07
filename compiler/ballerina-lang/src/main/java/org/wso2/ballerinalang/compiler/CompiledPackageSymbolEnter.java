@@ -663,7 +663,7 @@ public class CompiledPackageSymbolEnter {
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
                 this.env.pkgSymbol.pkgID, null, enclScope.owner);
         constantSymbol.type = actualType;
-        constantSymbol.typeNodeType = typeNodeType;
+        constantSymbol.finiteType = typeNodeType;
 
         enclScope.define(constantSymbol.name, constantSymbol);
 

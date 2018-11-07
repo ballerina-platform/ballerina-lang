@@ -170,3 +170,9 @@ const J = "J";
 type STU S|T|U;
 
 const S = "S";
+
+// -----------------------------------------------------------
+
+function testInvalidConstUsage() {
+    string wxy = name2;
+}
