@@ -35,7 +35,7 @@ public class UriTemplateDispatcherNegativeTest {
     private CompileResult compileResult;
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*two resources have the same addressable URI, echo2 and echo1.*")
+          expectedExceptionsMessageRegExp = ".*Two resources have the same addressable URI, echo2 and echo1.*")
     public void testTwoResourcesWithSamePathWithPathParam() {
         compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/dispatching/uri-template-matching-negative-1.bal").getPath()).getAbsolutePath());

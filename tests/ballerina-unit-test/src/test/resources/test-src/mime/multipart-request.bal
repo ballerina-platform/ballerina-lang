@@ -104,7 +104,7 @@ service<http:Service> test bind mockEP {
         if (bodyParts is mime:Entity[]) {
             string content = "";
             int i = 0;
-            while (i < lengthof bodyParts) {
+            while (i < bodyParts.length()) {
                 mime:Entity part = bodyParts[i];
                 content = content + " -- " + handleContent(part);
                 i = i + 1;
@@ -141,7 +141,7 @@ service<http:Service> test bind mockEP {
         if (bodyParts is mime:Entity[]) {
             string payload = "";
             int i = 0;
-            while (i < lengthof bodyParts) {
+            while (i < bodyParts.length()) {
                 mime:Entity part = bodyParts[i];
                 payload = handleNestedParts(part);
                 i = i + 1;
@@ -159,7 +159,7 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             int i = 0;
-            while (i < lengthof childParts) {
+            while (i < childParts.length()) {
                 mime:Entity childPart = childParts[i];
                 content = content + handleContent(childPart);
                 i = i + 1;

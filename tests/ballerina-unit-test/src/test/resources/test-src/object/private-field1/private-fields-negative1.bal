@@ -17,6 +17,6 @@ function textPrivateObjAccess4() {
 }
 
 function textPrivateObjAccess5() {
-    baz:privatePerson p = new (21, "Mad");
+    baz:PrivatePerson p = new (21, "Mad");
     string name = p.getPrivatePersonName();
 }

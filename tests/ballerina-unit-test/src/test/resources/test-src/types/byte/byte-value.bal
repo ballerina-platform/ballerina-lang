@@ -83,24 +83,24 @@ function testByteArrayAssignment(byte[] cArrayIn) returns byte[] {
 
 function testByteArrayZeroLength() returns int {
     byte[] a = [];
-    return (lengthof a);
+    return (a.length());
 }
 
 function testByteArrayLength() returns int {
     byte[] a = [4, 6, 27, 75];
-    return (lengthof a);
+    return (a.length());
 }
 
 function testByteArrayIncreaseSize() returns int {
     byte[] a = [4, 6, 27, 75];
     a[9] = 56;
-    return (lengthof a);
+    return (a.length());
 }
 
 function testByteArrayOfArray() returns (int, int) {
     byte[][] aa = [[4, 6, 27, 75], [3, 7, 1], [5, 32, 98]];
-    int a = (lengthof aa);
-    int b = (lengthof aa[0]);
+    int a = (aa.length());
+    int b = (aa[0].length());
     return (a, b);
 }
 

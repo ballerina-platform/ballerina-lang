@@ -41,7 +41,7 @@ import io.swagger.models.properties.StringProperty;
 import org.ballerinalang.ballerina.swagger.convertor.ConverterUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -335,7 +335,7 @@ public class SwaggerResourceMapper {
         }
     
         for (int i = 2; i < resource.getParameters().size(); i++) {
-            VariableNode parameterDef = resource.getParameters().get(i);
+            SimpleVariableNode parameterDef = resource.getParameters().get(i);
             String typeName = parameterDef.getTypeNode().toString().toLowerCase(Locale.getDefault());
             PathParameter pathParameter = new PathParameter();
             // Set in value

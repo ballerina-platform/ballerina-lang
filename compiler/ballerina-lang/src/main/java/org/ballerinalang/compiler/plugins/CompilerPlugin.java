@@ -23,12 +23,13 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
@@ -64,7 +65,16 @@ public interface CompilerPlugin {
      *
      * @param packageNode package node
      */
-    void process(PackageNode packageNode);
+    void process(BLangPackage packageNode);
+
+    /**
+     * Processes a testable package node.
+     * <p>
+     * Ballerina compiler invokes this method for each and every testable package node in the AST.
+     *
+     * @param testablePackageNode package node
+     */
+    void process(BLangTestablePackage testablePackageNode);
 
     /**
      * Processes a list of annotations attached to a service node.
@@ -112,7 +122,7 @@ public interface CompilerPlugin {
      * @param variableNode the variable node being annotated
      * @param annotations  a list of annotations attached to the variable node
      */
-    void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations);
+    void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Processes a list of annotations attached to an annotation node.

@@ -19,13 +19,13 @@ package org.ballerinalang.test.types.json;
 
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -171,8 +171,8 @@ public class JSONTest {
     public void testParseMalformedString() {
         BValue[] args = {new BString("some words without quotes")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "Failed to parse json string: unrecognized token 'some' at line: 1 column: 6");
     }
 
@@ -450,8 +450,8 @@ public class JSONTest {
         BValue[] args = {JsonParser.parse(jsonToXML13)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
 
-        Assert.assertTrue(returns[0] instanceof BMap);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                 "failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
     }

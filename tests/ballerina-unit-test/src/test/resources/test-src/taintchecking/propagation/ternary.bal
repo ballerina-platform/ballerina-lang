@@ -1,5 +1,5 @@
 public function main (string... args) {
-    string data = lengthof args > 0 ? "example" : "example";
+    string data = args.length() > 0 ? "example" : "example";
     secureFunction(data, data);
 }
 

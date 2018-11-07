@@ -296,7 +296,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
         match invokedEndpoint {
             Response backendResponse => {
                 int responseStatusCode = backendResponse.statusCode;
-                if (lengthof statusCodeIndex > responseStatusCode && (statusCodeIndex[responseStatusCode] == true)
+                if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode] == true)
                                                                   && currentRetryCount < (retryCount)) {
                     (interval, currentRetryCount) =
                                     calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
