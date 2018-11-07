@@ -36,7 +36,9 @@ public class ExecutedInstruction {
 
     private LineNumberInfo lineNumberInfo;
 
-    public ExecutedInstruction(int ip, String pkgPath, String fileName, String functionName, LineNumberInfo lineNumberInfo) {
+    public ExecutedInstruction(int ip, String pkgPath, String fileName, String functionName,
+                               LineNumberInfo lineNumberInfo) {
+
         this.ip = ip;
         this.pkgPath = pkgPath;
         this.fileName = fileName;
@@ -50,6 +52,7 @@ public class ExecutedInstruction {
      * @return the executed Ip
      */
     public int getIp() {
+
         return ip;
     }
 
@@ -59,6 +62,7 @@ public class ExecutedInstruction {
      * @param ip the executed Ip
      */
     public void setIp(int ip) {
+
         this.ip = ip;
     }
 
@@ -68,6 +72,7 @@ public class ExecutedInstruction {
      * @return the executed Ip's full package path
      */
     public String getPkgPath() {
+
         return pkgPath;
     }
 
@@ -77,6 +82,7 @@ public class ExecutedInstruction {
      * @param pkgPath the executed Ip's full package path
      */
     public void setPkgPath(String pkgPath) {
+
         this.pkgPath = pkgPath;
     }
 
@@ -86,6 +92,7 @@ public class ExecutedInstruction {
      * @return the executed Ip's file name
      */
     public String getFileName() {
+
         return fileName;
     }
 
@@ -95,6 +102,7 @@ public class ExecutedInstruction {
      * @param fileName the executed Ip's file name
      */
     public void setFileName(String fileName) {
+
         this.fileName = fileName;
     }
 
@@ -104,6 +112,7 @@ public class ExecutedInstruction {
      * @return the executed Ip's function name
      */
     public String getFunctionName() {
+
         return functionName;
     }
 
@@ -113,6 +122,7 @@ public class ExecutedInstruction {
      * @param functionName the executed Ip's function name
      */
     public void setFunctionName(String functionName) {
+
         this.functionName = functionName;
     }
 
@@ -122,6 +132,7 @@ public class ExecutedInstruction {
      * @return the executed Ip's line number info object
      */
     public LineNumberInfo getLineNumberInfo() {
+
         return lineNumberInfo;
     }
 
@@ -131,6 +142,7 @@ public class ExecutedInstruction {
      * @param lineNumberInfo the executed Ip's line number info object
      */
     public void setLineNumberInfo(LineNumberInfo lineNumberInfo) {
+
         this.lineNumberInfo = lineNumberInfo;
     }
 }

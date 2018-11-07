@@ -5,10 +5,18 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 
-import java.io.File;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Initializes and holds line number info for each module for the project
+ *
+ * @since 0.985
+ *
+ */
 public class LineNumberInfoHolder {
 
     private Map<String, PackageLineNumberInfo> packageInfoMap = new HashMap<>();
@@ -16,10 +24,11 @@ public class LineNumberInfoHolder {
     /**
      * Process and build information required for debugging the package.
      *
-     * @param packageInfos   To extract relevant information.
+     * @param packageInfos To extract relevant information.
      */
     public void processPkgInfo(PackageInfo[] packageInfos) {
-        for(PackageInfo packageInfo : packageInfos) {
+
+        for (PackageInfo packageInfo : packageInfos) {
             PackageLineNumberInfo packageLineNumberInfo = new PackageLineNumberInfo(packageInfo.getInstructionCount());
 
             LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) packageInfo
@@ -34,7 +43,8 @@ public class LineNumberInfoHolder {
                     currentLineNoInfo = lineNoInfo;
                     continue;
                 }
-                packageLineNumberInfo.populateLineNumbers(currentLineNoInfo.getIp(), lineNoInfo.getIp(), currentLineNoInfo);
+                packageLineNumberInfo.populateLineNumbers(currentLineNoInfo.getIp(),
+                        lineNoInfo.getIp(), currentLineNoInfo);
                 currentLineNoInfo = lineNoInfo;
             }
             if (currentLineNoInfo != null) {
@@ -46,6 +56,7 @@ public class LineNumberInfoHolder {
     }
 
     public Map<String, PackageLineNumberInfo> getPackageInfoMap() {
+
         return packageInfoMap;
     }
 }

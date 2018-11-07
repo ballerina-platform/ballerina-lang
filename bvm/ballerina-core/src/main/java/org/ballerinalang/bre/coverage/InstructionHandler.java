@@ -18,7 +18,6 @@
 package org.ballerinalang.bre.coverage;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.codegen.Instruction;
 
 /**
  * This is CPU Ip interceptor API for debugger and coverage data collection.
