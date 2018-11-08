@@ -41,6 +41,8 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
         return keyValuePairs;
     }
 
+    public BLangExpression keyExpr;
+
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);

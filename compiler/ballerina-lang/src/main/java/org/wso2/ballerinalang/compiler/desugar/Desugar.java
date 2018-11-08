@@ -144,6 +144,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -1978,8 +1979,33 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
-        awaitExpr.expr = rewriteExpr(awaitExpr.expr);
-        result = awaitExpr;
+        // Wait for any
+        if (awaitExpr.expr.getKind() == NodeKind.BINARY_EXPR) {
+            List<BLangExpression> exprList = collectAllBinaryExprs((BLangBinaryExpr) awaitExpr.expr,
+                                                                   new ArrayList<>());
+        } else { // Wait for one
+            awaitExpr.expr = rewriteExpr(awaitExpr.expr);
+            result = awaitExpr;
+        }
+    }
+
+    private List<BLangExpression> collectAllBinaryExprs(BLangBinaryExpr binaryExpr, List<BLangExpression> exprs) {
+        visitBinaryExprOfWait(binaryExpr.lhsExpr, exprs);
+        visitBinaryExprOfWait(binaryExpr.rhsExpr, exprs);
+        return exprs;
+    }
+
+    private void visitBinaryExprOfWait(BLangExpression expr, List<BLangExpression> exprs) {
+        if (expr.getKind() == NodeKind.BINARY_EXPR) {
+            collectAllBinaryExprs((BLangBinaryExpr) expr, exprs);
+        } else {
+            exprs.add(expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr awaitExpr) {
+        // ToDo
     }
 
     @Override

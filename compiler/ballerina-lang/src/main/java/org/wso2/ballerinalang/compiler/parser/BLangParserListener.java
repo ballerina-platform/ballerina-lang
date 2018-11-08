@@ -1817,7 +1817,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         boolean containsExpr = ctx.expression() != null;
-        this.pkgBuilder.addKeyValueToWaitForAll(getWS(ctx), ctx.Identifier().getText(), containsExpr);
+        this.pkgBuilder.addKeyValueToWaitForAll(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                                                containsExpr);
     }
 
     /**
