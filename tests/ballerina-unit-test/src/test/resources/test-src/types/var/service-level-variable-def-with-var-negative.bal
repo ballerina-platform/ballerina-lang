@@ -1,22 +1,13 @@
 import ballerina/http;
-import ballerina/http.request;
-import ballerina/http.response;
 
-
-@http:configuration {basePath:"/dummy-path"}
-service<http> DummyService {
+service<http:Service> DummyService bind { port:9090} {
     int counter = 100;
     var dummy = "dummy-string";
 
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"/dummy-context-path"
-    }
-    resource dummyResource (http:Request req, http:Response res) {
+    dummyResource (endpoint caller, http:Request req) {
         json responseJson = {"dummy":"dummy"};
-        response:setJsonPayload(res, responseJson);
-        response:send(res);
+        http:Response res = new;
+        res.setJsonPayload(responseJson);
+        _ = caller->respond(res);
     }
-
 }
-

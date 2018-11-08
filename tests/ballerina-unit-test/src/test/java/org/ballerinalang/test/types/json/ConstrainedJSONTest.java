@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -179,11 +179,11 @@ public class ConstrainedJSONTest {
     public void testJSONToConstraintJsonUnsafeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        String errorMsg = ((BError) returns[0]).getReason();
         Assert.assertEquals(errorMsg, "'json' cannot be cast to 'json<Person>'");
     }
 
-    @Test(description = "Test JSON to Constaint unsafe cast positive.")
+    @Test(description = "Test JSON to Constraint unsafe cast positive.")
     public void testJSONToConstraintJsonUnsafeCastPositive() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCastPositive");
         Assert.assertTrue(returns[0] instanceof BString);
@@ -217,7 +217,7 @@ public class ConstrainedJSONTest {
     public void testConstraintJSONToConstraintJsonUnsafeNegativeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafeNegativeCast");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        String errorMsg = ((BError) returns[0]).getReason();
         Assert.assertEquals(errorMsg, "'json<Employee>' cannot be cast to 'json<Student>'");
     }
 
@@ -233,7 +233,7 @@ public class ConstrainedJSONTest {
     public void testJSONArrayToConstraintJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        String errorMsg = ((BError) returns[0]).getReason();
         Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json<Student>[]'");
     }
 
@@ -249,7 +249,7 @@ public class ConstrainedJSONTest {
     public void testJSONArrayToCJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        String errorMsg = ((BError) returns[0]).getReason();
         Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json<Student>[]'");
     }
 
@@ -265,7 +265,7 @@ public class ConstrainedJSONTest {
     public void testMixedTypeJSONArrayToCJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMixedTypeJSONArrayToCJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        String errorMsg = ((BError) returns[0]).getReason();
         Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json<Student>[]'");
     }
 

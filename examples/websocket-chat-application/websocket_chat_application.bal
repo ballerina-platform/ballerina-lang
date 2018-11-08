@@ -21,9 +21,10 @@ service<http:Service> chatAppUpgrader bind { port: 9090 } {
         map<string> queryParams = req.getQueryParams();
         // Cancel handshake by sending a 400 status code if the age parameter is missing in the request.
         if (!queryParams.hasKey("age")){
-            caller->cancelWebSocketUpgrade(400, "Age is required") but {
-                error e => log:printError("Error cancelling handshake", err = e)
-            };
+            var err = caller->cancelWebSocketUpgrade(400, "Age is required");
+            if (err is error) {
+                log:printError("Error cancelling handshake", err = err);
+            }
             done;
         }
         map<string> headers;
@@ -32,9 +33,10 @@ service<http:Service> chatAppUpgrader bind { port: 9090 } {
         wsEp.attributes[AGE] = queryParams["age"];
         string msg =
             "Hi " + name + "! You have succesfully connected to the chat";
-        wsEp->pushText(msg) but {
-            error e => log:printError("Error sending message", err = e)
-        };
+        var err = wsEp->pushText(msg);
+        if (err is error) {
+            log:printError("Error sending message", err = err);
+        }
     }
 }
 
@@ -72,9 +74,10 @@ function broadcast(string text) {
     endpoint http:WebSocketListener ep;
     foreach id, con in connectionsMap {
         ep = con;
-        ep->pushText(text) but {
-            error e => log:printError("Error sending message", err = e)
-        };
+        var err = ep->pushText(text);
+        if (err is error) {
+            log:printError("Error sending message", err = err);
+        }
     }
 }
 

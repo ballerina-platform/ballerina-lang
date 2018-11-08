@@ -14,23 +14,20 @@ service<http:Service> httpService bind { port: 9090 } {
     httpResource(endpoint caller, http:Request req) {
         http:Response resp = new;
         var payload = req.getTextPayload();
-        match payload {
-            error err => {
-                log:printError("Error sending message", err = err);
-                resp.setPayload(untaint err.message);
-                resp.statusCode = 500;
-            }
-            string val => {
-                io:println(val);
-                resp.setPayload(string `HTTP POST received: {{untaint val}}\n`);
-            }
+        if (payload is error) {
+            log:printError("Error sending message", err = payload);
+            resp.setPayload("Error in payload");
+            resp.statusCode = 500;
+        } else if (payload is string) {
+            io:println(payload);
+            resp.setPayload(string `HTTP POST received: {{untaint payload}}\n`);
         }
 
-        caller->respond(resp) but {
-            error e => log:printError("Error in responding", err = e)
-        };
+        var err = caller->respond(resp);
+        if (err is error) {
+            log:printError("Error in responding", err = err);
+        }
     }
-
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -61,9 +58,10 @@ service<http:WebSocketService> wsService {
 
     onText(endpoint caller, string text) {
         io:println(text);
-        caller->pushText(text) but {
-            error e => log:printError("Error sending message", err = e)
-        };
+        var err = caller->pushText(text);
+        if (err is error) {
+            log:printError("Error sending message", err = err);
+        }
     }
 
     onIdleTimeout(endpoint caller) {

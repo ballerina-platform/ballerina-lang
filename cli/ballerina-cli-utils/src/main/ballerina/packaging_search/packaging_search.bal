@@ -33,8 +33,8 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     } else {
         jsonResponse = check (httpResponse.getJsonPayload());
         json[] artifacts = check <json[]> jsonResponse.artifacts;
-        if (artifacts == null || lengthof artifacts > 0) {
-            int artifactsLength = lengthof artifacts;
+        if (artifacts.length() > 0) {
+            int artifactsLength = artifacts.length();
             printTitle("Ballerina Central");
             
             int rightMargin = 3;
@@ -92,8 +92,8 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     printInCLI(summary, descColWidth - authorsColWidth);
                     string authors = "";
                     json authorsArr = jsonElement.authors;
-                    foreach authorIndex in 0 ..< lengthof authorsArr {
-                        if (authorIndex == lengthof authorsArr - 1) {
+                    foreach authorIndex in 0 ..< authorsArr.length() {
+                        if (authorIndex == authorsArr.length() - 1) {
                             authors = authors + authorsArr[authorIndex].toString();
                         } else {
                             authors = authors + " , " + authorsArr[authorIndex].toString();

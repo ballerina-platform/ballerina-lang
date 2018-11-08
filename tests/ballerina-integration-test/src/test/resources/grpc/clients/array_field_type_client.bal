@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 endpoint HelloWorldBlockingClient HelloWorldBlockingEp {
     url:"http://localhost:9092"
@@ -34,8 +34,8 @@ function testIntArrayInput(TestInt req) returns (int|string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -54,8 +54,8 @@ function testStringArrayInput(TestString req) returns (string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -74,8 +74,8 @@ function testFloatArrayInput(TestFloat req) returns (float|string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -94,8 +94,8 @@ function testBooleanArrayInput(TestBoolean req) returns (boolean|string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -114,8 +114,8 @@ function testStructArrayInput(TestStruct req) returns (string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -133,8 +133,8 @@ function testIntArrayOutput() returns (TestInt|string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -152,8 +152,8 @@ function testStringArrayOutput() returns (TestString|string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -171,8 +171,8 @@ function testFloatArrayOutput() returns (TestFloat|string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -190,8 +190,8 @@ function testBooleanArrayOutput() returns (TestBoolean|string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -209,8 +209,8 @@ function testStructArrayOutput() returns (TestStruct|string) {
             return result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }

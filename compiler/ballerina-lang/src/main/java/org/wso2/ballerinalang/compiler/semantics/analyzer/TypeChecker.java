@@ -63,7 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
@@ -95,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -102,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -141,7 +143,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -393,7 +394,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Change the expected type to map,
             expType = symTable.mapType;
         }
-        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.OBJECT) {
+        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.ANYDATA || expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.semanticError;
             return;
@@ -403,8 +404,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (matchedTypeList.isEmpty()) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+            recordLiteral.keyValuePairs
+                    .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, symTable.errorType));
         } else if (matchedTypeList.size() > 1) {
             dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            recordLiteral.keyValuePairs
+                    .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, symTable.errorType));
         } else {
             recordLiteral.keyValuePairs
                     .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
@@ -573,6 +578,61 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
+    @Override
+    public void visit(BLangRecordVarRef varRefExpr) {
+        List<BField> fields = new ArrayList<>();
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
+                null, env.scope.owner);
+        boolean unresolvedReference = false;
+        for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
+            checkExpr(recordRefField.variableReference, env);
+            BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(recordRefField.variableReference);
+            if (bVarSymbol == null) {
+                unresolvedReference = true;
+                continue;
+            }
+            fields.add(new BField(names.fromIdNode(recordRefField.variableName),
+                    new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
+                            env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol), false));
+        }
+
+        if (varRefExpr.restParam != null) {
+            BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
+            checkExpr(restParam, env);
+            BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(restParam);
+            unresolvedReference = (bVarSymbol == null);
+        }
+
+        if (unresolvedReference) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        BRecordType bRecordType = new BRecordType(recordSymbol);
+        bRecordType.fields = fields;
+        recordSymbol.type = bRecordType;
+        varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
+
+        if (varRefExpr.isClosed) {
+            bRecordType.sealed = true;
+        } else {
+            bRecordType.restFieldType = symTable.mapType;
+        }
+
+        resultType = bRecordType;
+    }
+
+    @Override
+    public void visit(BLangTupleVarRef varRefExpr) {
+        List<BType> results = new ArrayList<>();
+        for (int i = 0; i < varRefExpr.expressions.size(); i++) {
+            ((BLangVariableReference) varRefExpr.expressions.get(i)).lhsVar = true;
+            results.add(checkExpr(varRefExpr.expressions.get(i), env, symTable.noType));
+        }
+        BType actualType = new BTupleType(results);
+        resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
     /**
      * This method will recursively check if a multidimensional array has at least one open sealed dimension.
      *
@@ -605,7 +665,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return env;
     }
 
-    private boolean isFunctionArgument(BSymbol symbol, List<BLangVariable> params) {
+    private boolean isFunctionArgument(BSymbol symbol, List<BLangSimpleVariable> params) {
         return params.stream().anyMatch(param -> (param.symbol.name.equals(symbol.name) &&
                 param.type.tag == symbol.type.tag));
     }
@@ -693,11 +753,7 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = iExpr.iContext.operations.getLast().resultType;
             return;
         }
-        BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
-        if (BLangBuiltInMethod.UNDEFINED != builtInFunction) {
-            checkBuiltinFunctionInvocation(iExpr, builtInFunction, exprType);
-            return;
-        }
+
         if (iExpr.actionInvocation) {
             checkActionInvocationExpr(iExpr, exprType);
             return;
@@ -705,6 +761,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType varRefType = iExpr.expr.type;
         varRefType = getSafeType(varRefType, iExpr);
+
+        BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
+        // Returns if the function is a builtin function
+        if (BLangBuiltInMethod.UNDEFINED != builtInFunction && checkBuiltinFunctionInvocation(iExpr, builtInFunction,
+                varRefType)) {
+            return;
+        }
+
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
@@ -875,6 +939,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(trapExpr, actualType, expType);
+        if (resultType != null && resultType != symTable.semanticError) {
+            types.setImplicitCastExpr(trapExpr.expr, trapExpr.expr.type, resultType);
+        }
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -889,8 +956,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
-                        binaryExpr);
+                opSymbol = getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
             }
 
             if (opSymbol == symTable.notFoundSymbol) {
@@ -905,23 +971,47 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
-    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType,
-                                                 BType rhsType, BLangBinaryExpr binaryExpr) {
-        if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
-            return symTable.notFoundSymbol;
+    private BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
+                                                 BLangBinaryExpr binaryExpr) {
+        boolean validEqualityIntersectionExists;
+        switch (opKind) {
+            case EQUAL:
+            case NOT_EQUAL:
+                validEqualityIntersectionExists = types.validEqualityIntersectionExists(lhsType, rhsType);
+                break;
+            case REF_EQUAL:
+            case REF_NOT_EQUAL:
+                validEqualityIntersectionExists =
+                        types.isAssignable(lhsType, rhsType) || types.isAssignable(rhsType, lhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
         }
-        if (types.isIntersectionExist(lhsType, rhsType)) {
+
+
+        if (validEqualityIntersectionExists) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
                     (types.isValueType(lhsType) && types.isValueType(rhsType))) {
-                return symResolver.createReferenceEqualityOperator(opKind, lhsType, rhsType);
+                return symResolver.createEqualityOperator(opKind, lhsType, rhsType);
             } else {
                 types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
                 types.setImplicitCastExpr(binaryExpr.lhsExpr, lhsType, symTable.anyType);
-                return symResolver.createReferenceEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+
+                switch (opKind) {
+                    case REF_EQUAL:
+                        // if one is a value type, consider === the same as ==
+                        return symResolver.createEqualityOperator(OperatorKind.EQUAL, symTable.anyType,
+                                                                  symTable.anyType);
+                    case REF_NOT_EQUAL:
+                        // if one is a value type, consider !== the same as !=
+                        return symResolver.createEqualityOperator(OperatorKind.NOT_EQUAL, symTable.anyType,
+                                                                  symTable.anyType);
+                    default:
+                        return symResolver.createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
+                }
             }
-        } else {
-            return symTable.notFoundSymbol;
         }
+        return symTable.notFoundSymbol;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
@@ -1018,7 +1108,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // This is a tuple.
             BType actualType = new BTupleType(results);
 
-            if (expType.tag == TypeTags.ANY) {
+            if (expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
                 dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
                 resultType = symTable.semanticError;
                 return;
@@ -1481,6 +1571,30 @@ public class TypeChecker extends BLangNodeVisitor {
 
     // Private methods
 
+    private BVarSymbol getVarSymbolForRecordVariableReference(BLangExpression varRef) {
+        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangSimpleVarRef) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangRecordVarRef) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
+            return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangFieldBasedAccess) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangIndexBasedAccess) varRef).symbol;
+        }
+        if (varRef.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+            return (BVarSymbol) ((BLangXMLAttributeAccess) varRef).symbol;
+        }
+
+        dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
+        return null;
+    }
+
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
         SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
         bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
@@ -1497,7 +1611,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         for (int i = 0; i < bLangArrowFunction.params.size(); i++) {
-            BLangVariable paramIdentifier = bLangArrowFunction.params.get(i);
+            BLangSimpleVariable paramIdentifier = bLangArrowFunction.params.get(i);
             BType bType = paramTypes.get(i);
             BLangValueType valueTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
             valueTypeNode.setTypeKind(bType.getKind());
@@ -1764,39 +1878,23 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType type) {
-        switch (function) {
-            case REASON:
-            case DETAIL:
-                //            case STACKTRACE: TODO : Add this.
-                if (type.tag == TypeTags.ERROR) {
-                    handleErrorRelatedBuiltInFunctions(iExpr, function, (BErrorType) type);
-                } else {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNSUPPORTED_BUILTIN_METHOD, function.getName());
-                    resultType = symTable.semanticError;
-                }
-                break;
-            default:
-                dlog.error(iExpr.pos, DiagnosticCode.UNKNOWN_BUILTIN_FUNCTION, function.getName());
-                return;
+    private boolean checkBuiltinFunctionInvocation(BLangInvocation iExpr, BLangBuiltInMethod function, BType... args) {
+        Name funcName = names.fromString(iExpr.name.value);
+        BSymbol funcSymbol = symResolver.resolveBuiltinOperator(funcName, args);
+
+        if (funcSymbol == symTable.notFoundSymbol) {
+            return false;
         }
+
         iExpr.builtinMethodInvocation = true;
         iExpr.builtInMethod = function;
-        if (resultType != null && resultType != symTable.semanticError) {
+        iExpr.symbol = funcSymbol;
+
+        checkInvocationParamAndReturnType(iExpr);
+        if (resultType != null && resultType != symTable.semanticError && iExpr.impConversionExpr == null) {
             types.setImplicitCastExpr(iExpr, resultType, expType);
         }
-    }
-
-    private void handleErrorRelatedBuiltInFunctions(BLangInvocation iExpr, BLangBuiltInMethod function,
-            BErrorType type) {
-        if (iExpr.argExprs.size() > 0) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, function.getName());
-        }
-        if (function == BLangBuiltInMethod.REASON) {
-            resultType = type.reasonType;
-        } else if (function == BLangBuiltInMethod.DETAIL) {
-            resultType = type.detailType;
-        }
+        return true;
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
@@ -1875,6 +1973,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 resultType = valueExpr.type;
                 return;
+            case TypeTags.ERROR:
+                checkExpr(valueExpr, this.env, fieldType);
         }
 
         checkExpr(valueExpr, this.env, fieldType);

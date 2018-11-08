@@ -213,10 +213,9 @@ public class IdentifierLiteralTest {
     public void testIdentifierLiteralWithWrongCharacter() {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
                 "/identifier-literal-wrong-character-negative.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 3);
-        BAssertUtil.validateError(resultNeg, 0, "missing token ';' before 'var'", 3, 23);
+        Assert.assertEquals(resultNeg.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNeg, 0, "invalid token 'var'", 3, 23);
         BAssertUtil.validateError(resultNeg, 1, "token recognition error at: '\";\\n}\\n\\n\\n'", 4, 25);
-        BAssertUtil.validateError(resultNeg, 2, "missing token ';' before 'ar'", 4, 23);
     }
 
     @Test

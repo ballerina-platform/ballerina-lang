@@ -279,7 +279,7 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                                                 FailoverActions failoverActions) returns Response|error {
     FailoverInferredConfig failoverInferredConfig = failoverActions.failoverInferredConfig;
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
-    int noOfEndpoints = lengthof (failoverInferredConfig.failoverClientsArray);
+    int noOfEndpoints = (failoverInferredConfig.failoverClientsArray.length());
     // currentIndex and initialIndex are need to set to last succeeded endpoint index to start failover with
     // the endpoint which gave the expected results.
     int currentIndex = failoverActions.succeededEndpointIndex;

@@ -40,6 +40,7 @@ public class TreeUtils {
         stringTypeKindMap.put("table", TypeKind.TABLE);
         stringTypeKindMap.put("stream", TypeKind.STREAM);
         stringTypeKindMap.put("any", TypeKind.ANY);
+        stringTypeKindMap.put("anydata", TypeKind.ANYDATA);
         stringTypeKindMap.put("map", TypeKind.MAP);
         stringTypeKindMap.put("future", TypeKind.FUTURE);
         stringTypeKindMap.put("typedesc", TypeKind.TYPEDESC);

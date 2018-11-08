@@ -1,6 +1,6 @@
 public function main (string... args) {
     string path = "";
-    if (lengthof args > 0) {
+    if (args.length() > 0) {
         path = args[0];
     } else {
         path = "/home";
@@ -8,7 +8,7 @@ public function main (string... args) {
     secureFunction(path, path);
 
     string path1 = "";
-    if (lengthof args > 0) {
+    if (args.length() > 0) {
         path1 = "/home";
     } else {
         path1 = args[0];
@@ -16,7 +16,7 @@ public function main (string... args) {
     secureFunction(path1, path1);
 
     string path2 = args[0];
-    if (lengthof args > 0) {
+    if (args.length() > 0) {
         path2 = "/home";
     } else {
         // Empty
@@ -24,7 +24,7 @@ public function main (string... args) {
     secureFunction(path2, path2);
 
     string path3 = args[0];
-    if (lengthof args > 0) {
+    if (args.length() > 0) {
         // Empty
     } else {
         path3 = "/home";

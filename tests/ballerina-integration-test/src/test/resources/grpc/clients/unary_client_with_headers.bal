@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 // Client endpoint configuration
 endpoint HelloWorldBlockingClient helloWorldBlockingEp {
@@ -41,8 +41,8 @@ function testUnaryBlockingClient(string name) returns (string) {
             return "Client got response: " + result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -64,8 +64,8 @@ function testBlockingHeader(string name) returns (string) {
             return "Header: " + headerValue;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error: " + err.reason();
         }
     }
 }

@@ -28,7 +28,7 @@ function testServerStreaming(string name) returns int {
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
     match result {
         error payloadError => {
-            io:println("Error occured while sending event " + payloadError.message);
+            io:println("Error occured while sending event " + payloadError.reason());
             return total;
         }
         () => {
@@ -61,9 +61,7 @@ service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server error messages
     onError(error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+        io:println("Error reported from server: " + err.reason());
     }
 
     // Resource registered to receive server completed message.
