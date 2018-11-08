@@ -88,6 +88,7 @@ under the License.
             <package name="org.ballerinalang.test.compression.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*" />
             <package name="org.ballerinalang.test.channels.*" />
+            <package name="org.ballerinalang.test.privacy.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->

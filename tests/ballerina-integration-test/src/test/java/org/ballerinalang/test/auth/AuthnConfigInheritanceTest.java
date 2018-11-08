@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,8 +38,8 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
             throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo/test"),
-                headersMap);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
@@ -49,8 +49,8 @@ public class AuthnConfigInheritanceTest extends AuthBaseTest {
             throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo/test"),
-                headersMap);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }

@@ -46,7 +46,13 @@ function AuthnHandlerChain::handle (Request req) returns (boolean) {
         var authnHandler = <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
             log:printDebug("Trying to authenticate with the auth provider: " + currentAuthProviderType);
-            return authnHandler.handle(req);
+            boolean authnSuccessful = authnHandler.handle(req);
+            if (authnSuccessful) {
+                // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                // required to look through other providers. The authenticator chain is using "OR" combination of
+                // provider results.
+                return true;
+            }
         }
     }
     return false;
@@ -59,7 +65,13 @@ function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProvid
             HttpAuthnHandler authnHandler => {
                 if (authnHandler.canHandle(req)) {
                     log:printDebug("Trying to authenticate with the auth provider: " + authProviderId);
-                    return authnHandler.handle(req);
+                    boolean authnSuccessful = authnHandler.handle(req);
+                    if (authnSuccessful) {
+                        // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                        // required to look through other providers. The authenticator chain is using "OR" combination of
+                        // provider results.
+                        return true;
+                    }
                 }
             }
             () => {

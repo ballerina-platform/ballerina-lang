@@ -1,6 +1,6 @@
 import ballerina/io;
-import ballerinax/jdbc;
 import ballerina/sql;
+import ballerinax/jdbc;
 
 // Client endpoint for MySQL database. This client endpoint can be used with any jdbc
 // supported database by providing the corresponding jdbc url.

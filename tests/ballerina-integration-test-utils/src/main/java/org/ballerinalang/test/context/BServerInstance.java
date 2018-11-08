@@ -254,16 +254,37 @@ public class BServerInstance implements BServer {
     }
 
     /**
-     * A utility method to construct and return the service URL by using the given port.
+     * A utility method to construct and return the HTTP service URL by using the given port.
      *
      * @param port        - the port to be used to create the service url.
      * @param servicePath -  http url of the given service.
-     * @return The service URL.
+     * @return The HTTP service URL.
      */
     public String getServiceURLHttp(int port, String servicePath) {
-        return "http://localhost:" + port + "/" + servicePath;
+        return "http://" + getServiceUrl(port, servicePath);
     }
 
+    /**
+     * A utility method to construct and return the HTTPS service URL by using the given port.
+     *
+     * @param port        - the port to be used to create the service url.
+     * @param servicePath -  http url of the given service.
+     * @return The HTTPS service URL.
+     */
+    public String getServiceURLHttps(int port, String servicePath) {
+        return "https://" + getServiceUrl(port, servicePath);
+    }
+
+    /**
+     * A utility method to construct and return the service URL without scheme by using the given port.
+     *
+     * @param port        - the port to be used to create the service url.
+     * @param servicePath -  http url of the given service.
+     * @return The service URL without scheme.
+     */
+    private String getServiceUrl(int port, String servicePath) {
+        return "localhost:" + port + "/" + servicePath;
+    }
 
     /**
      * Add a Leecher which is going to listen to an expected text.

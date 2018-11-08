@@ -76,7 +76,7 @@
                 <executions>
                     <execution>
                     <id>vscode-test-skip</id>
-                    <phase>initialize</phase>
+                    <phase>test</phase>
                     <goals>
                         <goal>bsh-property</goal>
                     </goals>
