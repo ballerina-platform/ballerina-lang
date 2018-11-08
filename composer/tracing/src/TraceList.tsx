@@ -18,8 +18,7 @@
 
 import * as React from "react";
 import * as _ from 'lodash';
-import moment from 'moment';
-import { Table, Icon } from 'semantic-ui-react';
+import { Table, Icon, Label } from 'semantic-ui-react';
 
 const directionToIcon = {
     INBOUND: {
@@ -68,13 +67,11 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                             <Table.HeaderCell>Path</Table.HeaderCell>
                             <Table.HeaderCell>Method</Table.HeaderCell>
                             <Table.HeaderCell>Direction</Table.HeaderCell>
-                            <Table.HeaderCell>Time</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
 
                     <Table.Body>
                         {this.props.traces.map((record: any) => {
-                            const timeString = moment(parseInt(record.millis)).format('HH:mm:ss.SSS');
                             return (
                                 <Table.Row
                                     className={ this.props.selected === record.id ? 'active clickable' : 'clickable'}
@@ -85,13 +82,20 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                                         <Icon
                                             name={this.getDirectionIcon(record.logger,
                                                 record.message.direction)}
-                                            title={record.message.direction}
+                                            title={`${record.logger} - ${record.message.direction}`}
                                         />
                                     </Table.Cell>
                                     <Table.Cell>{record.message.path}</Table.Cell>
-                                    <Table.Cell>{record.message.httpMethod}</Table.Cell>
+                                    <Table.Cell>
+                                        {
+                                            record.message.httpMethod &&
+                                            <Label horizontal>
+                                                {record.message.httpMethod}
+                                            </Label>
+                                        }
+                                        
+                                    </Table.Cell>
                                     <Table.Cell>{record.message.direction}</Table.Cell>
-                                    <Table.Cell>{timeString}</Table.Cell>
                                 </Table.Row>
                             );
                         })}

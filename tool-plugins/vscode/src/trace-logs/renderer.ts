@@ -52,7 +52,15 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             drawTraces();
             drawTraces();
             `;
-    const body = `<div id="traces" />`;
+    const body = `<div id="traces"> <br/> 
+        <div class="ui segment">
+            <div class="ui active transition visible dimmer" style="display: flex !important;">
+                <div class="content">
+                    <div class="ui text loader">Loading</div>
+                </div>
+            </div>
+        </div>
+    </div>`;
 
     const styles = `
         body.vscode-dark, body.vscode-light {
@@ -65,11 +73,34 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
         .inverted .ui.dropdown .menu .item .text {
             color: #1e1e1e!important;
         }
+        .ui.menu {
+            background-color: #1e1e1e!important;
+        }
         .icon.inbound {
             color: #00bcd4;
         }
+        .ui.label{
+            background: #cecece!important;
+        }
         .icon.outbound {
             color: #f1772a;
+        }
+        .ui.table tr.active.clickable, .ui.table td.active.clickable{
+            background: #565656 !important;
+            color: rgba(255, 255, 255, 0.9)!important;
+        }
+        table td{
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;        
+            padding: 0.6em!important;
+        }
+        .ui.inverted.segment{
+            background: #1e1e1e!important;
+        }
+        .ui.active.transition.visible.dimmer{
+            background: #1e1e1e!important;
         }
     `;
     return getLibraryWebViewContent(context, body, script, styles);
@@ -99,7 +130,7 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
             color: #ffffe6;
         }
         .ui.inverted.segment{
-            background: inherit!important;
+            background: #1e1e1e!important;
         }
         code {
             background: none!important;
@@ -108,6 +139,9 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
         }
         pre {
             margin: 0!important;
+        }
+        .ui.active.transition.visible.dimmer{
+            background: #1e1e1e!important;
         }
         `;
     const script = `
