@@ -119,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -1388,6 +1389,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(awaitExpr.expr, this.env);
         Operand futureRegIndex = awaitExpr.expr.regIndex;
         this.emit(InstructionCodes.WAIT, futureRegIndex, valueRegIndex);
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr awaitExpr) {
+        // ToDo
     }
 
     @Override
