@@ -148,10 +148,10 @@ public class PackagingTestCase extends BaseTest {
                           balServer.getServerHome());
 
         clientLeecherOne.waitForText(3000);
-        clientLeecherTwo.waitForText(3000);
-        clientLeecherThree.waitForText(3000);
-        clientLeecherFour.waitForText(3000);
-        clientLeecherFive.waitForText(3000);
+        clientLeecherTwo.waitForText(1000);
+        clientLeecherThree.waitForText(1000);
+        clientLeecherFour.waitForText(1000);
+        clientLeecherFive.waitForText(1000);
     }
 
     @Test(description = "Test push all packages in project to central")
