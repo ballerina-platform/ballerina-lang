@@ -34,6 +34,7 @@ public class SealInbuiltFunctionNegativeTest {
     private CompileResult compileResult;
     private CompileResult recordNegativeTestCompileResult;
     private CompileResult jsonNegativeTestCompileResult;
+    private CompileResult xmlNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -42,6 +43,8 @@ public class SealInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/seal/negative/record-seal-expr-negative-test.bal");
         jsonNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/seal/negative/json-seal-expr-negative-test.bal");
+        xmlNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/xml-seal-expr-negative-test.bal");
     }
 
 
@@ -147,6 +150,42 @@ public class SealInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(jsonNegativeTestCompileResult, 4,
                 "Incompatible seal type: variable 'jsonValue' with type 'json' cannot be sealed as " +
                         "type '(string,string)'", 27, 5);
+    }
+
+    @Test
+    public void testXMLSealNegativeTest() {
+
+        Assert.assertEquals(xmlNegativeTestCompileResult.getErrorCount(), 12);
+
+        //Negative test case to confirm xml cannot be sealed as record.
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 0,
+                "Incompatible seal type: type 'xml' cannot be sealed as type 'BookRecord'",
+                13, 30);
+
+        //Negative test case to confirm xml cannot be sealed as json.
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 2,
+                "Incompatible seal type: type 'xml' cannot be sealed as type 'json'",
+                21, 22);
+
+        //Negative test case to confirm xml cannot be sealed as Object.
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 4,
+                "Incompatible seal type: type 'xml' cannot be sealed as type 'BookObject'",
+                29, 30);
+
+        //Negative test case to confirm xml cannot be sealed as map.
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 6,
+                "Incompatible seal type: type 'xml' cannot be sealed as type 'map'",
+                37, 20);
+
+        //Negative test case to confirm xml cannot be sealed as array.
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 8,
+                "Incompatible seal type: type 'xml' cannot be sealed as type 'BookRecord[]'",
+                45, 31);
+
+        //Negative test case to confirm xml cannot be sealed as tuple.
+        BAssertUtil.validateError(xmlNegativeTestCompileResult, 10,
+                "Incompatible seal type: type 'xml' cannot be sealed as type '(string,string)'",
+                53, 35);
     }
 }
 
