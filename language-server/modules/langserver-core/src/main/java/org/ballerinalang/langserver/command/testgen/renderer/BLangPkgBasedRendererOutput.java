@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.langserver.command.test.renderer;
+package org.ballerinalang.langserver.command.testgen.renderer;
 
-import org.ballerinalang.langserver.command.test.template.PlaceHolder;
+import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;

@@ -1,4 +1,4 @@
-package org.ballerinalang.langserver.command.test.template;
+package org.ballerinalang.langserver.command.testgen.template;
 
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;

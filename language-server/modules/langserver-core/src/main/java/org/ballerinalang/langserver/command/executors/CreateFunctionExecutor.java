@@ -66,8 +66,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         String funcArgs = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
-        int argLine = -1;
-        int argColumn = -1;
+        int line = -1;
+        int column = -1;
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
             String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
@@ -79,23 +79,23 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                     context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
                     break;
                 case CommandConstants.ARG_KEY_NODE_LINE:
-                    argLine = Integer.parseInt(argVal);
+                    line = Integer.parseInt(argVal);
                     break;
                 case CommandConstants.ARG_KEY_NODE_COLUMN:
-                    argColumn = Integer.parseInt(argVal);
+                    column = Integer.parseInt(argVal);
                     break;
                 default:
             }
         }
 
-        if (argLine == -1 || argColumn == -1 || documentUri == null) {
+        if (line == -1 || column == -1 || documentUri == null) {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
 
-        BLangInvocation functionNode = getFunctionNode(argLine, argColumn, documentUri, documentManager, lsCompiler);
+        BLangInvocation functionNode = getFunctionNode(line, column, documentUri, documentManager, lsCompiler, context);
         String functionName = functionNode.name.getValue();
 
         BLangNode parent = functionNode.parent;

@@ -30,13 +30,15 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEdit;
@@ -88,9 +90,10 @@ public class CreateVariableExecutor implements LSCommandExecutor {
 
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 
-        BLangInvocation functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler);
-        String variableName = CommonUtil.generateName(1, getAllEntries(functionNode));
+        BLangInvocation functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
+        String variableName = CommonUtil.generateName(1, getAllEntries(functionNode, compilerContext));
         String variableType = CommonUtil.FunctionGenerator.getFuncReturnSignature(functionNode.type);
 
         String editText = createVariableDeclaration(variableName, variableType);
@@ -100,7 +103,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         return applySingleTextEdit(editText, new Range(position, position), textDocumentIdentifier, client);
     }
 
-    private static Set<String> getAllEntries(BLangInvocation functionNode) {
+    private static Set<String> getAllEntries(BLangInvocation functionNode, CompilerContext context) {
         Set<String> strings = new HashSet<>();
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
         if (packageNode != null) {
@@ -109,8 +112,19 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             packageNode.getServices().forEach(service -> strings.add(service.name.value));
             packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
         }
-        Map<Name, Scope.ScopeEntry> entries = functionNode.symbol.scope.entries;
-        entries.forEach((name, scopeEntry) -> strings.add(name.value));
+        BLangNode bLangNode = functionNode.parent;
+        while (bLangNode != null && !(bLangNode instanceof BLangBlockStmt)) {
+            bLangNode = bLangNode.parent;
+        }
+        if(bLangNode != null) {
+            SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
+            SymbolTable symbolTable = SymbolTable.getInstance(context);
+            BLangBlockStmt blockStmt = (BLangBlockStmt) bLangNode;
+//            symbolTable.pkgEnvMap.get()
+//            SymbolEnv.createBlockEnv(blockStmt, blockStmt.);
+//            Map<Name, Scope.ScopeEntry> entries = symbolResolver.getAllVisibleInScopeSymbols();
+//            entries.forEach((name, scopeEntry) -> strings.add(name.value));
+        }
         return strings;
     }
 

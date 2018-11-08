@@ -94,6 +94,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
@@ -231,7 +232,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
                 return signatureHelp;
-            } catch (Exception | AssertionError e) {
+            } catch (Exception| ZipError | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     logger.error("Error while retrieving signature help" + ((msg != null) ? ": " + msg : ""), e);

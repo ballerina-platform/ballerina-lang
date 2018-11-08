@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.langserver.command.test.template.type;
+package org.ballerinalang.langserver.command.testgen.template.type;
 
-import org.ballerinalang.langserver.command.test.TestGeneratorException;
-import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
-import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
-import org.ballerinalang.langserver.command.test.template.AbstractTestTemplate;
-import org.ballerinalang.langserver.command.test.template.PlaceHolder;
+import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
+import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
+import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplate;
+import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
-import static org.ballerinalang.langserver.command.test.ValueSpaceGenerator.createTemplateArray;
-import static org.ballerinalang.langserver.command.test.ValueSpaceGenerator.getValueSpaceByNode;
+import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.createTemplateArray;
+import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.getValueSpaceByNode;
 
 /**
  * To represent a function template.

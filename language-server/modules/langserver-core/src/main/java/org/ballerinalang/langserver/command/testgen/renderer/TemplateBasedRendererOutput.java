@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.langserver.command.test.renderer;
+package org.ballerinalang.langserver.command.testgen.renderer;
 
 import org.apache.commons.io.IOUtils;
-import org.ballerinalang.langserver.command.test.TestGeneratorException;
-import org.ballerinalang.langserver.command.test.template.PlaceHolder;
+import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
+import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -51,7 +51,7 @@ public class TemplateBasedRendererOutput implements RendererOutput {
      */
     public TemplateBasedRendererOutput(String templateFileName) throws TestGeneratorException {
         InputStream resource = TemplateBasedRendererOutput.class.getClassLoader().getResourceAsStream(
-                "test" + File.separator + "template" + File.separator + templateFileName
+                "testgen" + File.separator + "template" + File.separator + templateFileName
         );
         try {
             this.content = IOUtils.toString(resource, StandardCharsets.UTF_8);

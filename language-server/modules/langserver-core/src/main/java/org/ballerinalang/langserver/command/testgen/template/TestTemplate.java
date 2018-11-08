@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.langserver.command.test.template;
+package org.ballerinalang.langserver.command.testgen.template;
 
-import org.ballerinalang.langserver.command.test.TestGeneratorException;
-import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
-import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
+import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
+import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
 
 /**
  * Represents a test template in ballerina.

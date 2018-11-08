@@ -13,15 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.langserver.command.test.template;
+package org.ballerinalang.langserver.command.testgen.template;
 
-import org.ballerinalang.langserver.command.test.TestGeneratorException;
-import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
-import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
-import org.ballerinalang.langserver.command.test.template.type.FunctionTemplate;
-import org.ballerinalang.langserver.command.test.template.type.HttpServiceTemplate;
-import org.ballerinalang.langserver.command.test.template.type.WSClientServiceTemplate;
-import org.ballerinalang.langserver.command.test.template.type.WSServiceTemplate;
+import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
+import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
+import org.ballerinalang.langserver.command.testgen.template.type.FunctionTemplate;
+import org.ballerinalang.langserver.command.testgen.template.type.HttpServiceTemplate;
+import org.ballerinalang.langserver.command.testgen.template.type.WSClientServiceTemplate;
+import org.ballerinalang.langserver.command.testgen.template.type.WSServiceTemplate;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;

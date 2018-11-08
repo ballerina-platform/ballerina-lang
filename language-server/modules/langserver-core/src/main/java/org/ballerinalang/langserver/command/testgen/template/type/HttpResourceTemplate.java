@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.langserver.command.test.template.type;
+package org.ballerinalang.langserver.command.testgen.template.type;
 
-import org.ballerinalang.langserver.command.test.TestGeneratorException;
-import org.ballerinalang.langserver.command.test.renderer.RendererOutput;
-import org.ballerinalang.langserver.command.test.renderer.TemplateBasedRendererOutput;
-import org.ballerinalang.langserver.command.test.template.AbstractTestTemplate;
-import org.ballerinalang.langserver.command.test.template.PlaceHolder;
+import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
+import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
+import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
+import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplate;
+import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.searchArrayField;
-import static org.ballerinalang.langserver.command.test.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchArrayField;
+import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
 
 /**
  * To represent a Resource template.

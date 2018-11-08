@@ -21,7 +21,7 @@ import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -102,11 +102,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     private Position position;
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
-    private LSServiceOperationContext context;
+    private LSContext context;
     private Object previousNode;
     private Stack<BLangNode> nodeStack;
 
-    public PositionTreeVisitor(LSServiceOperationContext context) {
+    public PositionTreeVisitor(LSContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         this.fileName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);

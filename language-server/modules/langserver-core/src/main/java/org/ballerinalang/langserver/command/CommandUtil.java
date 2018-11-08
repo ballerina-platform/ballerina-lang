@@ -25,8 +25,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -279,15 +279,14 @@ public class CommandUtil {
     }
 
     public static BLangInvocation getFunctionNode(int line, int column, String uri,
-                                                  WorkspaceDocumentManager documentManager,
-                                                  LSCompiler lsCompiler) {
-        return (BLangInvocation) getBLangNode(line, column, uri, documentManager, lsCompiler).getLeft();
+                                                  WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
+                                                  LSContext context) {
+        return (BLangInvocation) getBLangNode(line, column, uri, documentManager, lsCompiler, context).getLeft();
     }
 
     public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
-                                                       WorkspaceDocumentManager documentManager,
-                                                       LSCompiler lsCompiler) {
-        LSServiceOperationContext context = new LSServiceOperationContext();
+                                                       WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
+                                                       LSContext context) {
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);
