@@ -25,8 +25,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -39,7 +40,7 @@ import java.util.Set;
  */
 public class BLangArrowFunction extends BLangExpression implements ArrowFunctionNode {
 
-    public List<BLangVariable> params;
+    public List<BLangSimpleVariable> params = new ArrayList<>();
     public BLangExpression expression;
     public BType funcType;
     public IdentifierNode functionName;
@@ -47,7 +48,7 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     public Set<BVarSymbol> closureVarSymbols = new HashSet<>();
 
     @Override
-    public List<BLangVariable> getParameters() {
+    public List<BLangSimpleVariable> getParameters() {
         return params;
     }
 

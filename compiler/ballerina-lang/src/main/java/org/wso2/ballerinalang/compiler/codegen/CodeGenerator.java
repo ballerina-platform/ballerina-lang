@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -145,10 +146,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -546,7 +547,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
@@ -569,7 +570,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // Statements
 
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         genNode(varDefNode.var, this.env);
     }
 
@@ -1116,9 +1117,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else if (OperatorKind.OR.equals(binaryExpr.opKind)) {
             visitOrExpression(binaryExpr);
         } else if (binaryExpr.opSymbol.opcode == InstructionCodes.REQ_NULL ||
-                binaryExpr.opSymbol.opcode == InstructionCodes.RNE_NULL ||
-                binaryExpr.opSymbol.opcode == InstructionCodes.SEQ_NULL ||
-                binaryExpr.opSymbol.opcode == InstructionCodes.SNE_NULL) {
+                binaryExpr.opSymbol.opcode == InstructionCodes.RNE_NULL) {
             BLangExpression expr = (binaryExpr.lhsExpr.type.tag == TypeTags.NIL) ?
                     binaryExpr.rhsExpr : binaryExpr.lhsExpr;
             genNode(expr, this.env);
@@ -1258,6 +1257,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
         } else if (iExpr.builtInMethod == BLangBuiltInMethod.DETAIL) {
             emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
+        } else if (iExpr.builtInMethod == BLangBuiltInMethod.LENGTH) {
+            Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
+            emit(InstructionCodes.LENGTHOF, iExpr.expr.regIndex, typeCPIndex, regIndex);
         }
     }
 
@@ -1381,8 +1383,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int fromIP = nextIP();
         genNode(trapExpr.expr, env);
-        int toIP = nextIP();
         RegIndex regIndex = calcAndGetExprRegIndex(trapExpr);
+        emit(InstructionCodes.RMOVE, trapExpr.expr.regIndex, regIndex);
+        int toIP = nextIP();
         errorTable.addErrorTableEntry(new ErrorTableEntry(fromIP, toIP, toIP, regIndex));
     }
 
@@ -2057,7 +2060,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // Create info entries
 
-    private void createPackageVarInfo(BLangVariable varNode) {
+    private void createPackageVarInfo(BLangSimpleVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;
         varSymbol.varIndex = getPVIndex(varSymbol.type.tag);
 
@@ -2141,8 +2144,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
 
-        List<BLangVariable> objFields = objectTypeNode.fields;
-        for (BLangVariable objField : objFields) {
+        List<BLangSimpleVariable> objFields = objectTypeNode.fields;
+        for (BLangSimpleVariable objField : objFields) {
             // Create StructFieldInfo Entry
             int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, objField.name.value);
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo, objField.type.getDesc());
@@ -2223,8 +2226,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
 
-        List<BLangVariable> recordFields = recordTypeNode.fields;
-        for (BLangVariable recordField : recordFields) {
+        List<BLangSimpleVariable> recordFields = recordTypeNode.fields;
+        for (BLangSimpleVariable recordField : recordFields) {
             // Create StructFieldInfo Entry
             int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.name.value);
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.type.getDesc());
@@ -2417,7 +2420,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int paramCount = resourceNode.requiredParams.size();
         resourceInfo.paramNameCPIndexes = new int[paramCount];
         for (int i = 0; i < paramCount; i++) {
-            BLangVariable paramVar = resourceNode.requiredParams.get(i);
+            BLangSimpleVariable paramVar = resourceNode.requiredParams.get(i);
             String paramName = null;
             boolean isAnnotated = false;
             for (BLangAnnotationAttachment annotationAttachment : paramVar.annAttachments) {
@@ -2651,7 +2654,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.processTimeoutBlock(forkJoin, forkJoinEnv, timeoutVarRegIndex, timeoutBlockAddr);
     }
 
-    private void visitForkJoinParameterDefs(BLangVariable parameterDef, SymbolEnv forkJoinEnv) {
+    private void visitForkJoinParameterDefs(BLangSimpleVariable parameterDef, SymbolEnv forkJoinEnv) {
         LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
         parameterDef.symbol.varIndex = getLVIndex(parameterDef.type.tag);
         this.genNode(parameterDef, forkJoinEnv);

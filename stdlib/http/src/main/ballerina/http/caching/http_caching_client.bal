@@ -589,11 +589,11 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
     if (cachedResponse.hasHeader(EXPIRES)) {
         string[] expiresHeader = cachedResponse.getHeaders(EXPIRES);
 
-        if (lengthof expiresHeader == 1) {
+        if (expiresHeader.length() == 1) {
             if (cachedResponse.hasHeader(DATE)) {
                 string[] dateHeader = cachedResponse.getHeaders(DATE);
 
-                if (lengthof dateHeader == 1) {
+                if (dateHeader.length() == 1) {
                     // TODO: See if time parsing errors need to be handled
                     int freshnessLifetime = (time:parse(expiresHeader[0], time:TIME_FORMAT_RFC_1123).time
                             - time:parse(dateHeader[0], time:TIME_FORMAT_RFC_1123).time) / 1000;

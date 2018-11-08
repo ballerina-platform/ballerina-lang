@@ -132,47 +132,46 @@ public interface InstructionCodes {
     int BEQ = 97;
     int DEQ = 98;
     int REQ = 99;
+    int REF_EQ = 100;
 
-    int INE = 100;
-    int FNE = 101;
-    int SNE = 102;
-    int BNE = 103;
-    int DNE = 104;
-    int RNE = 105;
+    int INE = 101;
+    int FNE = 102;
+    int SNE = 103;
+    int BNE = 104;
+    int DNE = 105;
+    int RNE = 106;
+    int REF_NEQ = 107;
 
-    int IGT = 106;
-    int FGT = 107;
-    int DGT = 108;
+    int IGT = 108;
+    int FGT = 109;
+    int DGT = 110;
 
-    int IGE = 109;
-    int FGE = 110;
-    int DGE = 111;
+    int IGE = 111;
+    int FGE = 112;
+    int DGE = 113;
 
-    int ILT = 112;
-    int FLT = 113;
-    int DLT = 114;
+    int ILT = 114;
+    int FLT = 115;
+    int DLT = 116;
 
-    int ILE = 115;
-    int FLE = 116;
-    int DLE = 117;
+    int ILE = 117;
+    int FLE = 118;
+    int DLE = 119;
 
-    int REQ_NULL = 118;
-    int RNE_NULL = 119;
+    int REQ_NULL = 120;
+    int RNE_NULL = 121;
 
-    int BR_TRUE = 120;
-    int BR_FALSE = 121;
+    int BR_TRUE = 122;
+    int BR_FALSE = 123;
 
-    int GOTO = 122;
-    int HALT = 123;
-    int TR_RETRY = 124;
-    int CALL = 125;
-    int VCALL = 126;
-    int FPCALL = 127;
-    int FPLOAD = 128;
-    int VFPLOAD = 129;
-
-    int SEQ_NULL = 130;
-    int SNE_NULL = 131;
+    int GOTO = 124;
+    int HALT = 125;
+    int TR_RETRY = 126;
+    int CALL = 127;
+    int VCALL = 128;
+    int FPCALL = 129;
+    int FPLOAD = 130;
+    int VFPLOAD = 131;
 
     // Type Conversion related instructions
     int I2F = 132;

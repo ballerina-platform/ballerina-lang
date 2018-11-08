@@ -380,10 +380,10 @@ function Request::getFormParams() returns map<string>|error {
                 error txtErr => return txtErr; // TODO: Check if this is ok
 
                 string formData => {
-                    if (formData != null && formData != "") {
+                    if (formData != "") {
                         string[] entries = formData.split("&");
                         int entryIndex = 0;
-                        while (entryIndex < lengthof entries) {
+                        while (entryIndex < entries.length()) {
                             int index = entries[entryIndex].indexOf("=");
                             if (index != -1) {
                                 string name = entries[entryIndex].substring(0, index).trim();

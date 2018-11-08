@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.model.util;
 
+import org.apache.axiom.c14n.Canonicalizer;
+import org.apache.axiom.c14n.exceptions.AlgorithmAlreadyRegisteredException;
+import org.apache.axiom.c14n.exceptions.CanonicalizationException;
+import org.apache.axiom.c14n.exceptions.InvalidCanonicalizerException;
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
@@ -52,6 +56,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -69,9 +74,27 @@ public class XMLUtils {
     private static final String XML_NAMESPACE_PREFIX = "xmlns:";
     private static final String XML_VALUE_TAG = "#text";
     private static final String XML_DCLR_START = "<?xml";
+    private static Canonicalizer canonicalizer = null;
 
     private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
+
+    static {
+        Canonicalizer.init();
+        try {
+            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
+                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
+            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments",
+                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
+            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#",
+                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
+            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#WithComments",
+                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
+            canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
+        } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
+            throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
+        }
+    }
 
     /**
      * Create a XML item from string literal.
@@ -363,6 +386,69 @@ public class XMLUtils {
 
         }
         return json;
+    }
+
+    /**
+     * Compares if two xml values are equal.
+     *
+     * Equality is computed as follows
+     * - for XML elements: compares the canonicalized versions, including comments
+     * - for non-elements (standalone text, PI, comments): a string comparison
+     *
+     * @param xmlOne    the first XML value
+     * @param xmlTwo    the second XML value
+     * @return  true if the two are equal, false if not equal or an exception is thrown while checking equality
+     */
+    public static boolean isEqual(BXML<?> xmlOne, BXML<?> xmlTwo) {
+        XMLNodeType xmlOneNodeType = xmlOne.getNodeType();
+        XMLNodeType xmlTwoNodeType = xmlTwo.getNodeType();
+
+        try {
+            if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlTwoNodeType == XMLNodeType.SEQUENCE) {
+                return isXmlSequenceEqual((BXMLSequence) xmlOne, (BXMLSequence) xmlTwo);
+            } else if (xmlOneNodeType != XMLNodeType.SEQUENCE && xmlTwoNodeType != XMLNodeType.SEQUENCE) {
+                return isXmlItemEqual((BXMLItem) xmlOne, (BXMLItem) xmlTwo);
+            } else {
+                if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlOne.isSingleton().booleanValue()) {
+                    return Arrays.equals(canonicalize((BXMLItem) ((BXMLSequence) xmlOne).getItem(0)),
+                                         canonicalize((BXMLItem) xmlTwo));
+                }
+
+                if (xmlTwoNodeType == XMLNodeType.SEQUENCE && xmlTwo.isSingleton().booleanValue()) {
+                    return Arrays.equals(canonicalize((BXMLItem) xmlOne),
+                                         canonicalize((BXMLItem) ((BXMLSequence) xmlTwo).getItem(0)));
+                }
+            }
+        } catch (Exception e) {
+            // ignore and return false
+        }
+        return false;
+    }
+
+    private static boolean isXmlSequenceEqual(BXMLSequence xmlSequenceOne, BXMLSequence xmlSequenceTwo) {
+        if (xmlSequenceOne.length() != xmlSequenceTwo.length()) {
+            return false;
+        }
+
+        for (int i = 0; i < xmlSequenceOne.length(); i++) {
+            if (!isEqual((BXML<?>) xmlSequenceOne.value().get(i), (BXML<?>) xmlSequenceTwo.value().get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isXmlItemEqual(BXMLItem xmlItemOne, BXMLItem xmlItemTwo) throws CanonicalizationException {
+        switch (xmlItemOne.getNodeType()) {
+            case ELEMENT:
+                return Arrays.equals(canonicalize(xmlItemOne), canonicalize(xmlItemTwo));
+            default:
+                return xmlItemOne.stringValue().equals(xmlItemTwo.stringValue());
+        }
+    }
+
+    private static byte[] canonicalize(BXMLItem bxmlItem) throws CanonicalizationException {
+        return canonicalizer.canonicalize((bxmlItem).value().toString().getBytes());
     }
 
     /**

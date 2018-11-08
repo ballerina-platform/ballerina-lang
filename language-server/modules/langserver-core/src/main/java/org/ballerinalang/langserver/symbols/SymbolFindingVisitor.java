@@ -34,12 +34,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
 import java.util.List;
@@ -100,7 +100,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariable variableNode) {
+    public void visit(BLangSimpleVariable variableNode) {
         SymbolKind kind;
         String btype = variableNode.getTypeNode().toString();
         switch (btype) {
@@ -140,7 +140,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         varDefNode.getVariable().accept(this);
     }
 

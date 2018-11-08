@@ -53,11 +53,11 @@ function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
             return false;
         }
     }
-    if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
+    if (authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
-        if (lengthof authHeaderComponents == 2) {
+        if (authHeaderComponents.length() == 2) {
             string[] jwtComponents = authHeaderComponents[1].split("\\.");
-            if (lengthof jwtComponents == 3) {
+            if (jwtComponents.length() == 3) {
                 return true;
             }
         }

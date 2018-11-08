@@ -30,18 +30,14 @@ public class ErrorTableEntry {
 
     private int ipFrom;
     private int ipTo;
-    private int ipTarget;
-    private int regIndex;
+    public int ipTarget;
+    public int regIndex;
 
     ErrorTableEntry(int ipFrom, int ipTo, int ipTarget, int regIndex) {
         this.ipFrom = ipFrom;
         this.ipTo = ipTo;
         this.ipTarget = ipTarget;
         this.regIndex = regIndex;
-    }
-
-    public int getIpTarget() {
-        return ipTarget;
     }
 
     private boolean matchRange(int currentIP) {

@@ -170,12 +170,12 @@ function testVarArgs(foo:ParamTest... p1) returns foo:ParamTest {
 
 function testTypeDefinitionWithArray() returns (int, int) {
     foo:ArrayCustom val = [34, 23];
-    return (lengthof val , val[1]);
+    return (val.length() , val[1]);
 }
 
 function testTypeDefinitionWithByteArray() returns (int, byte) {
     foo:ByteArrayType val = [34, 23];
-    return (lengthof val , val[1]);
+    return (val.length() , val[1]);
 }
 
 function testFiniteAssignmentByteType() returns foo:ByteType {

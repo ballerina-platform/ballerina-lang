@@ -39,7 +39,7 @@ function readAllCharacters() returns string|error? {
                 result = result + value;
             }
             error err => {
-                if (err.reason() == "io.EOF"){
+                if (err.detail()["message"] == "io.EOF"){
                     isDone = true;
                 } else {
                     return err;

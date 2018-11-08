@@ -33,17 +33,15 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-
 /**
  * Test cases for user defined object types in ballerina.
  */
 public class ObjectInBaloTest {
 
-    CompileResult result;
+    private CompileResult result;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
     }
@@ -410,7 +408,7 @@ public class ObjectInBaloTest {
         BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'other'", 13, 19);
         BAssertUtil.validateError(result, 3, "invalid variable definition; can not infer the assignment type.",
                 13, 19);
-        BAssertUtil.validateError(result, 4, "invalid usage of 'new' with type 'error'", 14, 21);
+        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'error'", 14, 21);
     }
 
 //    @Test (description = "Negative test to test returning different type without type name")

@@ -194,7 +194,7 @@ function isBellow25 (person p) returns boolean {
 function testIgnoredValue () returns (string) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
-    _ = s.filter(function (string ss) returns boolean {return lengthof ss == 3;})
+    _ = s.filter(function (string ss) returns boolean {return ss.length() == 3;})
     .map(function (string ss) returns string {
             output = output + " " + ss;
             return (ss + ss);
@@ -211,7 +211,7 @@ function testInExpression () returns (string, int) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
     float[] r = [1.1, -2.2, 3.3, 4.4];
-    appendAny("total count " + s.filter(function (string ss) returns (boolean) {return lengthof ss == 3;}).count());
+    appendAny("total count " + s.filter(function (string ss) returns (boolean) {return ss.length() == 3;}).count());
     int i = s.count() + r.count();
     return (output, i);
 }
@@ -219,7 +219,7 @@ function testInExpression () returns (string, int) {
 function testInFunctionInvocation () returns int {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
     return doubleInt(m.filter(function (string a) returns boolean {
-                                  int i = lengthof a;
+                                  int i = a.length();
                                   return i == 3;})
                      .count());
 }
@@ -231,7 +231,7 @@ function doubleInt (int i) returns (int) {
 function testInStatement () returns int {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
     if (5 > m.filter(function (string a) returns (boolean) {
-                         return lengthof a == 3;})
+                         return a.length() == 3;})
             .count()) {
         return 10;
     }

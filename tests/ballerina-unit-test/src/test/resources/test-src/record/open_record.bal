@@ -150,15 +150,15 @@ function testAdditionOfARestField() returns Person {
     return p;
 }
 
-function testAnyRestFieldRHSAccess() returns any {
+function testAnydataRestFieldRHSAccess() returns anydata {
     Person p = {};
-    any name = p.firstName;
+    anydata name = p.firstName;
     return name;
 }
 
-function testAnyRestFieldRHSIndexAccess() returns any {
+function testAnydataRestFieldRHSIndexAccess() returns anydata {
     Person p = {};
-    any name = p["firstName"];
+    anydata name = p["firstName"];
     return name;
 }
 
@@ -390,6 +390,31 @@ function testTupleRestFieldRHSIndexAccess() returns ((float, string, Animal)?, (
     Person11 p = {tup:(4.5, "foo", new Animal("Miaw", "Cat"))};
     (float, string, Animal)? tupType = p["invTup"];
     return (p["tup"], tupType);
+}
+
+type Person12 record {
+    string name;
+    int age;
+    any...
+};
+
+function testAnyRestField() returns Person12 {
+    Animal[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
+    Person12 p = {name:"Foo", age:25, pets:pets};
+    return p;
+}
+
+function testAnyRestFieldRHSAccess() returns any {
+    Person12 p = {};
+    any a = p.anyField;
+    return a;
+}
+
+function testAnyRestFieldRHSIndexAccess() returns (any, any) {
+    Animal[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
+    Person12 p = {pets:pets};
+    any a = p["anyField"];
+    return (p["pets"], a);
 }
 
 type PersonA record {

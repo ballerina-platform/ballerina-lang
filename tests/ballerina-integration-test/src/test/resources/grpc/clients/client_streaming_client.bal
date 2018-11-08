@@ -29,8 +29,8 @@ function testClientStreaming(string[] args) returns (string) {
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     match res {
-        grpc:error err => {
-            io:print("error");
+        error err => {
+            io:println("Error from Connector: " + err.reason());
         }
         grpc:Client con => {
             ep = con;
@@ -41,8 +41,10 @@ function testClientStreaming(string[] args) returns (string) {
 
     foreach greet in args {
         io:print("send greeting: " + greet);
-        error? connErr = ep->send(greet);
-        io:println(connErr.message but { () => ("send greeting: " + greet) });
+        error? err = ep->send(greet);
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
     }
     _ = ep->complete();
 
@@ -71,9 +73,7 @@ service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server error messages
     onError(error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+        io:println("Error reported from server: " + err.reason());
     }
 
     // Resource registered to receive server completed message.

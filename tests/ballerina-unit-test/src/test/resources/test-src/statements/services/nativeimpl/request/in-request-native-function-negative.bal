@@ -26,7 +26,7 @@ function testGetMethod(http:Request req) returns string {
 
 function testGetRequestURL(http:Request req) returns string {
     string url = req.rawPath;
-    if (url == null || url == "") {
+    if (url == "") {
         url = "no url";
     }
     return url;

@@ -285,6 +285,34 @@ public class SymbolResolver extends BLangNodeVisitor {
         return bSymbol;
     }
 
+    public BSymbol resolveBuiltinOperator(Name name, BType... args) {
+        BType type = args[0];
+        switch (type.tag) {
+            case TypeTags.RECORD:
+                type = symTable.recordType;
+                break;
+            case TypeTags.ARRAY:
+                type = symTable.arrayType;
+                break;
+            case TypeTags.TUPLE:
+                type = symTable.tupleType;
+                break;
+            case TypeTags.ERROR:
+                type = symTable.errorType;
+                break;
+            case TypeTags.MAP:
+                type = symTable.mapType;
+                break;
+        }
+
+        List<BType> argsList = Lists.of(type);
+        for (int i = 1; i < args.length; i++) {
+            argsList.add(args[i]);
+        }
+        BSymbol bSymbol = resolveOperator(name, argsList);
+        return bSymbol;
+    }
+
     private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
                                              BType rhsType) {
         if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
@@ -313,9 +341,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol createReferenceEqualityOperator(OperatorKind opKind, BType lhsType,
-                                                   BType rhsType) {
-        int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
+    BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+        int opcode;
+        if (opKind == OperatorKind.REF_EQUAL) {
+            opcode = InstructionCodes.REF_EQ;
+        } else if (opKind == OperatorKind.REF_NOT_EQUAL) {
+            opcode = InstructionCodes.REF_NEQ;
+        } else if (opKind == OperatorKind.EQUAL) {
+            opcode = InstructionCodes.REQ;
+        } else {
+            // OperatorKind.NOT_EQUAL
+            opcode = InstructionCodes.RNE;
+        }
+
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);

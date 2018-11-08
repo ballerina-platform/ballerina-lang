@@ -130,10 +130,12 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -365,6 +367,7 @@ public class CPU {
                     case InstructionCodes.BEQ:
                     case InstructionCodes.DEQ:
                     case InstructionCodes.REQ:
+                    case InstructionCodes.REF_EQ:
                     case InstructionCodes.TEQ:
                     case InstructionCodes.INE:
                     case InstructionCodes.FNE:
@@ -372,6 +375,7 @@ public class CPU {
                     case InstructionCodes.BNE:
                     case InstructionCodes.DNE:
                     case InstructionCodes.RNE:
+                    case InstructionCodes.REF_NEQ:
                     case InstructionCodes.TNE:
                     case InstructionCodes.IAND:
                     case InstructionCodes.BIAND:
@@ -420,8 +424,6 @@ public class CPU {
                     case InstructionCodes.BR_TRUE:
                     case InstructionCodes.BR_FALSE:
                     case InstructionCodes.GOTO:
-                    case InstructionCodes.SEQ_NULL:
-                    case InstructionCodes.SNE_NULL:
                         execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
                         break;
                     case InstructionCodes.INT_RANGE:
@@ -1260,24 +1262,6 @@ public class CPU {
                     sf.intRegs[j] = 0;
                 }
                 break;
-            case InstructionCodes.SEQ_NULL:
-                i = operands[0];
-                j = operands[1];
-                if (sf.stringRegs[i] == null) {
-                    sf.intRegs[j] = 1;
-                } else {
-                    sf.intRegs[j] = 0;
-                }
-                break;
-            case InstructionCodes.SNE_NULL:
-                i = operands[0];
-                j = operands[1];
-                if (sf.stringRegs[i] != null) {
-                    sf.intRegs[j] = 1;
-                } else {
-                    sf.intRegs[j] = 0;
-                }
-                break;
             case InstructionCodes.BR_TRUE:
                 i = operands[0];
                 j = operands[1];
@@ -1762,12 +1746,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
                 sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
                 break;
             case InstructionCodes.DDIV:
@@ -1882,8 +1860,14 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
                 }
+                break;
+            case InstructionCodes.REF_EQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.TEQ:
                 i = operands[0];
@@ -1934,8 +1918,14 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
+                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j])) ? 1 : 0;
                 }
+                break;
+            case InstructionCodes.REF_NEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.TNE:
                 i = operands[0];
@@ -3174,6 +3164,10 @@ public class CPU {
             return checkFunctionCast(rhsType, (BFunctionType) lhsType);
         }
 
+        if (lhsType.getTag() == TypeTags.ANYDATA_TAG && isAnydata(rhsType)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -3237,6 +3231,40 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    private static boolean isAnydata(BType type) {
+        if (type.getTag() <= TypeTags.ANYDATA_TAG) {
+            return true;
+        }
+
+        switch (type.getTag()) {
+            case TypeTags.MAP_TAG:
+                return isAnydata(((BMapType) type).getConstrainedType());
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes = Arrays.stream(recordType.getFields())
+                                                .map(BField::getFieldType)
+                                                .collect(Collectors.toList());
+                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+            case TypeTags.UNION_TAG:
+                return isAnydata(((BUnionType) type).getMemberTypes());
+            case TypeTags.TUPLE_TAG:
+                return isAnydata(((BTupleType) type).getTupleTypes());
+            case TypeTags.ARRAY_TAG:
+                return isAnydata(((BArrayType) type).getElementType());
+            case TypeTags.FINITE_TYPE_TAG:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                                                                        .map(BValue::getType)
+                                                                        .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean isAnydata(Collection<BType> types) {
+        return types.stream().allMatch(CPU::isAnydata);
     }
 
     private static BType getElementType(BType type) {
@@ -3572,6 +3600,7 @@ public class CPU {
                 }
                 return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
+            case TypeTags.ANYDATA_TAG:
                 return true;
             default:
                 return false;
@@ -3699,7 +3728,7 @@ public class CPU {
     private static BMap<String, BValue> convertMapToStruct(WorkerExecutionContext ctx,
                                                            BMap<String, BValue> bMap, BStructureType structType) {
         BMap<String, BValue> bStruct = new BMap<>(structType);
-        StructureTypeInfo structInfo = ctx.callableUnitInfo.getPackageInfo().getStructInfo(structType.getName());
+        StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
 
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             String key = fieldInfo.getName();
@@ -3815,7 +3844,9 @@ public class CPU {
         ip--;
         ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip);
         if (match != null) {
-            ctx.ip = match.getIpTarget();
+            ctx.ip = match.ipTarget;
+            ctx.workerLocal.refRegs[match.regIndex] = ctx.getError();
+            ctx.setError(null);
         } else {
             BLangScheduler.workerExcepted(ctx);
             throw new HandleErrorException(
@@ -3852,6 +3883,11 @@ public class CPU {
 
         if (typeTag == TypeTags.XML_TAG) {
             sf.longRegs[j] = ((BXML) entity).length();
+            return;
+        } else if (typeTag == TypeTags.TABLE_TAG) {
+            BTable bTable = (BTable) entity;
+            int tableLength = bTable.length();
+            sf.longRegs[j] = tableLength;
             return;
         } else if (entity instanceof BMap) {
             sf.longRegs[j] = ((BMap) entity).size();
@@ -4062,6 +4098,7 @@ public class CPU {
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
                 return true;
+            case TypeTags.ANYDATA_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
                 return isAssignable(sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -4227,6 +4264,110 @@ public class CPU {
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+    }
+
+    /**
+     * Deep value equality check for anydata.
+     *
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
+     * @return True if values are equal, else false.
+     */
+    private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
+        if (lhsValue == rhsValue) {
+            return true;
+        }
+
+        if (null == lhsValue || null == rhsValue) {
+            return false;
+        }
+
+        int lhsValTypeTag = lhsValue.getType().getTag();
+        int rhsValTypeTag = rhsValue.getType().getTag();
+
+        switch (lhsValTypeTag) {
+            case TypeTags.STRING_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+                return lhsValue.equals(rhsValue);
+            case TypeTags.INT_TAG:
+                if (rhsValTypeTag == TypeTags.BYTE_TAG) {
+                    return ((BInteger) lhsValue).intValue() == (((BByte) rhsValue).intValue());
+                }
+                return lhsValue.equals(rhsValue);
+            case TypeTags.BYTE_TAG:
+                if (rhsValTypeTag == TypeTags.INT_TAG) {
+                    return ((BByte) lhsValue).intValue() == (((BInteger) rhsValue).intValue());
+                }
+                return lhsValue.equals(rhsValue);
+            case TypeTags.XML_TAG:
+                return XMLUtils.isEqual((BXML) lhsValue, (BXML) rhsValue);
+            case TypeTags.TABLE_TAG:
+                // TODO: 10/8/18
+                break;
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue);
+            case TypeTags.TUPLE_TAG:
+            case TypeTags.ARRAY_TAG:
+                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
+        }
+        return false;
+    }
+
+    private static boolean isListType(int typeTag) {
+        return typeTag == TypeTags.ARRAY_TAG || typeTag == TypeTags.TUPLE_TAG;
+    }
+
+    private static boolean isMappingType(int typeTag) {
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
+    }
+
+    /**
+     * Deep equality check for an array/tuple.
+     *
+     * @param lhsList   The array/tuple on the left hand side
+     * @param rhsList   The array/tuple on the right hand side
+     * @return True if the array/tuple values are equal, else false.
+     */
+    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList) {
+        if (lhsList.size() != rhsList.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsList.size(); i++) {
+            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Deep equality check for a map.
+     *
+     * @param lhsMap    Map on the left hand side
+     * @param rhsMap    Map on the right hand side
+     * @return True if the map values are equal, else false.
+     */
+    private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
+        if (lhsMap.size() != rhsMap.size()) {
+            return false;
+        }
+
+        if (!lhsMap.getMap().keySet().containsAll(rhsMap.getMap().keySet())) {
+            return false;
+        }
+
+        Iterator<Map.Entry<String, BValue>> mapIterator = lhsMap.getMap().entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<String, BValue> lhsMapEntry = mapIterator.next();
+            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

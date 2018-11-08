@@ -127,6 +127,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BEQ] = "beq";
         mnemonics[InstructionCodes.REQ] = "req";
         mnemonics[InstructionCodes.DEQ] = "deq";
+        mnemonics[InstructionCodes.REF_EQ] = "ref_eq";
         mnemonics[InstructionCodes.TEQ] = "teq";
         mnemonics[InstructionCodes.INE] = "ine";
         mnemonics[InstructionCodes.FNE] = "fne";
@@ -134,6 +135,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BNE] = "bne";
         mnemonics[InstructionCodes.RNE] = "rne";
         mnemonics[InstructionCodes.DNE] = "dne";
+        mnemonics[InstructionCodes.REF_NEQ] = "ref_neq";
         mnemonics[InstructionCodes.TNE] = "tne";
 
         mnemonics[InstructionCodes.IGT] = "igt";
@@ -149,8 +151,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FLE] = "fle";
         mnemonics[InstructionCodes.DLE] = "dle";
 
-        mnemonics[InstructionCodes.SEQ_NULL] = "seq_null";
-        mnemonics[InstructionCodes.SNE_NULL] = "sne_null";
         mnemonics[InstructionCodes.REQ_NULL] = "reg_null";
         mnemonics[InstructionCodes.RNE_NULL] = "rne_null";
         mnemonics[InstructionCodes.BR_TRUE] = "br_true";

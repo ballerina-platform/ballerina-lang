@@ -13,8 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
+
 
 endpoint HelloWorldBlockingClient helloWorldBlockingEp {
     url:"http://localhost:9100"
@@ -31,8 +32,8 @@ function testUnaryBlockingClient(string name) returns (string) {
             return "Client got response: " + result;
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
-            return "Error from Connector: " + err.message;
+            io:println("Error from Connector: " + err.reason());
+            return "Error from Connector: " + err.reason();
         }
     }
 }
@@ -41,7 +42,7 @@ function testUnaryBlockingIntClient(int age) returns (int) {
     (int, grpc:Headers)|error unionResp = helloWorldBlockingEp->testInt(age);
     match unionResp {
         error err => {
-            io:println(err);
+            io:println(err.reason());
             return -1;
         }
         (int, grpc:Headers) payload => {
@@ -58,7 +59,7 @@ function testUnaryBlockingFloatClient(float salary) returns (float) {
     (float, grpc:Headers)|error unionResp = helloWorldBlockingEp->testFloat(salary);
     match unionResp {
         error err => {
-            io:println("Error from Connector: " + err.message);
+            io:println("Error from Connector: " + err.reason());
             return -1.0;
         }
         (float, grpc:Headers) payload => {
@@ -75,7 +76,7 @@ function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
     (boolean, grpc:Headers)|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
     match unionResp {
         error err => {
-            io:println("Error from Connector: " + err.message);
+            io:println("Error from Connector: " + err.reason());
             return false;
         }
         (boolean, grpc:Headers) payload => {
@@ -92,7 +93,7 @@ function testResponseInsideMatch(string msg) returns Response {
     (Response, grpc:Headers)|error unionResp = helloWorldBlockingEp->testResponseInsideMatch(msg);
     match unionResp {
         error err => {
-            io:println("Error from Connector: " + err.message);
+            io:println("Error from Connector: " + err.reason());
             return {};
         }
         (Response, grpc:Headers) payload => {
@@ -110,7 +111,7 @@ function testUnaryBlockingStructClient(Request req) returns (Response) {
     (Response, grpc:Headers)|error unionResp = helloWorldBlockingEp->testStruct(req);
     match unionResp {
         error err => {
-            io:println("Error from Connector: " + err.message);
+            io:println("Error from Connector: " + err.reason());
             return {};
         }
         (Response, grpc:Headers) payload => {

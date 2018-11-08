@@ -1,6 +1,6 @@
 public function main (string... args) {
     string path = "";
-    if (lengthof args > 0) {
+    if (args.length() > 0) {
         path = "/home";
     } else {
         path = "/test";
