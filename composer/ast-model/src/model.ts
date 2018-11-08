@@ -12,4 +12,5 @@ export interface BallerinaEndpoint {
 export interface BallerinaSourceFragment {
     source: string;
     expectedNodeType: string;
+    enclosingScope?: string;
 }
