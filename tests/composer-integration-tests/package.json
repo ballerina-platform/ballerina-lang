@@ -12,8 +12,10 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@ballerina/ast-model": "file:../../composer/ast-model",
     "@ballerina/diagram": "file:../../composer/diagram",
     "@ballerina/theme": "file:../../composer/theme",
+    "@ballerina/lang-service": "file:../../composer/lang-service",
     "@types/fs-extra": "^5.0.4",
     "@types/glob": "^7.1.1",
     "@types/jest": "^23.3.5",
@@ -31,7 +33,6 @@
     "jest-config": "^23.6.0",
     "jest-css-modules-transform": "^2.1.1",
     "less": "^3.8.1",
-    "monaco-languageclient": "^0.9.0",
     "node-sass": "^4.9.4",
     "react": "^16.6.0",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
@@ -41,8 +42,6 @@
     "ts-jest": "^23.10.4",
     "ts-loader": "^5.2.1",
     "typescript": "^3.0.1",
-    "vscode-jsonrpc": "^3.6.2",
-    "vscode-languageserver-protocol": "^3.13.0",
     "vscode-uri": "^1.0.6"
   }
 }
