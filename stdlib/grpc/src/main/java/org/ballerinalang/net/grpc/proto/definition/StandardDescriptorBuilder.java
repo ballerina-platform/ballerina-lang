@@ -70,7 +70,9 @@ public class StandardDescriptorBuilder {
     public static Descriptors.FileDescriptor[] getFileDescriptors(Object[] libList) {
         Descriptors.FileDescriptor[] fileDescriptors = new Descriptors.FileDescriptor[libList.length];
         for (int i = 0; i < libList.length; i++) {
-            fileDescriptors[i] = getFileDescriptor((String) libList[i]);
+            if (standardLibDescriptor.containsKey(libList[i])) {
+                fileDescriptors[i] = getFileDescriptor((String) libList[i]);
+            }
         }
         return fileDescriptors;
     }
