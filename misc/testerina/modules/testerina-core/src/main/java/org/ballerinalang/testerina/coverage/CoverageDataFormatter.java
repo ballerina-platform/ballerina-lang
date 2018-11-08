@@ -43,7 +43,7 @@ import java.util.Map;
 
 /**
  * This is for converting the Ip coverage information to output format.
- * Formats: lcov for now
+ * Formats: lcov
  *
  * @since 0.985
  */
@@ -170,7 +170,6 @@ public class CoverageDataFormatter {
                                             LineNumberInfo lineNumberInfo = entryPkgLineNumberInfo
                                                     .getLineNumberInfo(executedInstruction.getIp());
                                             LCovDA lCovDA = new LCovDA(lineNumberInfo.getLineNumber(), 1, 0);
-
 
                                             LCovSourceFile lCovSourceFile = new LCovSourceFile(
                                                     //TODO: package path should be package folder path
@@ -304,24 +303,35 @@ public class CoverageDataFormatter {
             }
         }
 
+        // writing lcov coverage data file to file
+        File covReportDir = new File(covReportFilePath);
+
+        if (!covReportDir.exists()) {
+            if (covReportDir.mkdirs()) {
+
+                outStream.println("Coverage folder is created " + covReportFilePath);
+                writeCoverageDataFile(covReportFilePath, covReportDir, covReportFileName, lcovOutputStrBuf.toString());
+            }
+        } else {
+            writeCoverageDataFile(covReportFilePath, covReportDir, covReportFileName, lcovOutputStrBuf.toString());
+        }
+    }
+
+    private void writeCoverageDataFile(String covReportFilePath, File covReportDir, String covReportFileName,
+                                       String lcovOutput)
+            throws IOException {
+
         BufferedWriter covReportFileBufWriter = null;
         try {
 
-            File covReportDir = new File(covReportFilePath);
-            if (covReportDir.delete()) {
+            File covReportFile = new File(covReportDir, covReportFileName);
+            Writer covReportFileWriter = new OutputStreamWriter(new FileOutputStream(covReportFile), "UTF-8");
+            covReportFileBufWriter = new BufferedWriter(covReportFileWriter);
 
-                if (covReportDir.mkdirs()) {
+            covReportFileBufWriter.write(lcovOutput);
 
-                    File covReportFile = new File(covReportDir, covReportFileName);
-                    Writer covReportFileWriter = new OutputStreamWriter(new FileOutputStream(covReportFile), "UTF-8");
-                    covReportFileBufWriter = new BufferedWriter(covReportFileWriter);
-
-                    covReportFileBufWriter.write(lcovOutputStrBuf.toString());
-
-                    outStream.println("Coverage report is written to " +
-                            covReportFilePath + File.separator + covReportFileName);
-                }
-            }
+            outStream.println("Coverage report is written to " +
+                    covReportFilePath + File.separator + covReportFileName);
 
         } catch (IOException e) {
 

@@ -12,7 +12,11 @@ function beforeFunc2() {
 function testFunction2() {
     io:println("I'm in test function2!");
 
-    sourceFunc2();
+    boolean[] booleanValues = [true, false];
+
+    foreach boolVal in booleanValues {
+        sourceFunc2(boolVal);
+    }
 
     test:assertTrue(true, msg = "Failed2!");
 }

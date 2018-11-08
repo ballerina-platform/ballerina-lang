@@ -65,7 +65,8 @@ public class CoverageDataFormatterTest {
         Map<String, TestSuite> testSuiteForProject = registry.getTestSuites();
         List<LCovData> lCovDataList = coverageDataFormatter
                 .getFormattedCoverageData(executedInstructionOrderMap, testSuiteForProject);
-        Assert.assertNotNull(lCovDataList);
+        Assert.assertEquals(lCovDataList.get(0).getlCovSourceFileList().get(0).getSourceFilePath(),
+                "project/examples:0.0.1/hello_world.bal");
     }
 
     @AfterMethod
