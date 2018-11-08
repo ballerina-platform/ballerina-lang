@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -37,9 +38,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -88,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
@@ -95,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -126,17 +132,22 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtStaticBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -267,7 +278,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariable variable) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
+        BLangVariable var = varDefNode.var;
+        if (var.expr == null) {
+            addUninitializedVar(var);
+            return;
+        }
+
+        analyzeNode(var, env);
+    }
+
+    @Override
+    public void visit(BLangSimpleVariable variable) {
         if (variable.expr != null) {
             analyzeNode(variable.expr, env);
             this.uninitializedVars.remove(variable.symbol);
@@ -292,17 +314,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangEndpoint endpoint) {
         analyzeNode(endpoint.configurationExpr, env);
-    }
-
-    @Override
-    public void visit(BLangVariableDef varDefNode) {
-        BLangVariable var = varDefNode.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-            return;
-        }
-
-        analyzeNode(var, env);
     }
 
     @Override
@@ -379,7 +390,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch match) {
         analyzeNode(match.expr, env);
         Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
-        for (BLangMatchStmtPatternClause patternClause : match.patternClauses) {
+        for (BLangMatchStmtBindingPatternClause patternClause : match.patternClauses) {
             BranchResult result = analyzeBranch(patternClause, env);
             // If the flow was terminated within the block, then that branch should not be considered for
             // analyzing the data-flow for the downstream code.
@@ -390,11 +401,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.uninitializedVars = uninitVars;
-    }
-
-    @Override
-    public void visit(BLangMatchStmtPatternClause patternClauseNode) {
-        analyzeNode(patternClauseNode.body, env);
     }
 
     @Override
@@ -922,6 +928,50 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorType errorType) {
     }
 
+
+    @Override
+    public void visit(BLangAction actionNode) {
+    }
+
+    @Override
+    public void visit(BLangMatchStmtTypedBindingPatternClause patternClauseNode) {
+        analyzeNode(patternClauseNode.body, env);
+    }
+
+    @Override
+    public void visit(BLangRecordDestructure recordDestructure) {
+        analyzeNode(recordDestructure.expr, env);
+    }
+
+    @Override
+    public void visit(BLangTupleVarRef tupleVarRefExpr) {
+        tupleVarRefExpr.expressions.forEach(expr -> analyzeNode(expr, env));
+    }
+
+    @Override
+    public void visit(BLangRecordVarRef varRefExpr) {
+    }
+
+    @Override
+    public void visit(BLangTupleVariable bLangTupleVariable) {
+    }
+
+    @Override
+    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+    }
+
+    @Override
+    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+    }
+
+    @Override
+    public void visit(BLangMatchStmtStaticBindingPatternClause bLangMatchStmtLiteralBindingPatternClause) {
+    }
+
     private void addUninitializedVar(BLangVariable variable) {
         if (!this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
@@ -969,7 +1019,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
-    private void analyzeParam(BLangObjectTypeNode objectTypeNode, BLangVariable param) {
+    private void analyzeParam(BLangObjectTypeNode objectTypeNode, BLangSimpleVariable param) {
         if (param.type == symTable.noType || param.type == symTable.semanticError) {
             return;
         }
