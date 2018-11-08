@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnyType;
+import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStringType;
@@ -58,13 +59,13 @@ public class RecordSealInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("age").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(employee0.get("age").getType().getClass(), BAnydataType.class);
         Assert.assertEquals(employee0.get("age").stringValue(), "25");
 
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnydataType.class);
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
     }
 
@@ -95,7 +96,7 @@ public class RecordSealInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnydataType.class);
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
     }
 
@@ -212,8 +213,8 @@ public class RecordSealInbuiltFunctionTest {
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: incompatible seal operation: 'Teacher' value " +
-                    "cannot be sealed as 'map'.*")
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'Teacher' value " +
+                    "cannot be sealed as 'map<string>'.*")
     public void testSealOpenRecordToMap() {
         BRunUtil.invoke(compileResult, "sealOpenRecordToMap");
     }

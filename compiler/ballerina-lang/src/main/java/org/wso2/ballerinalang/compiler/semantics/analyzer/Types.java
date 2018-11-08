@@ -275,10 +275,6 @@ public class Types {
             if (source.tag == TypeTags.UNION) {
                 return true;
             }
-        } else if (target.tag == TypeTags.TUPLE) {
-            if (source.tag == TypeTags.TUPLE) {
-                return true;
-            }
         }
 
         return false;

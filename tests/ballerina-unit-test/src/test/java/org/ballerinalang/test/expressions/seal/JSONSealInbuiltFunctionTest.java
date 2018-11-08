@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnyType;
+import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
@@ -91,7 +92,7 @@ public class JSONSealInbuiltFunctionTest {
         Assert.assertEquals((mapValue0.getMap()).size(), 4);
         Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
         Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("school")).getType().getClass(),
-                BAnyType.class);
+                BAnydataType.class);
 
     }
 
@@ -290,15 +291,15 @@ public class JSONSealInbuiltFunctionTest {
     //----------------------------------- Negative Test cases ----------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: incompatible seal operation: 'json' value " +
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'json' value " +
                     "cannot be sealed as 'Student'.*")
     public void testSealJSONToRecordNegative() {
         BRunUtil.invoke(compileResult, "sealJSONToRecordNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: incompatible seal operation: 'json' value " +
-                    "cannot be sealed as 'map'.*")
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'json' value " +
+                    "cannot be sealed as 'map<string>'.*")
     public void testSealJSONToMapNegative() {
         BRunUtil.invoke(compileResult, "sealJSONToMapNegative");
     }

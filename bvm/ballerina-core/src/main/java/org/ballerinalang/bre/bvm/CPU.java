@@ -862,13 +862,13 @@ public class CPU {
             } catch (BallerinaException e) {
                 ctx.setError(BLangVMErrors.createError(ctx,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SEAL_OPERATION,
-                                sealValue.getType(), sealType.getName())));
+                                sealValue.getType(), sealType)));
                 handleError(ctx);
             }
         } else {
             ctx.setError(BLangVMErrors.createError(ctx,
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SEAL_OPERATION, sealValue.getType(),
-                            sealType.getName())));
+                            sealType)));
             handleError(ctx);
         }
     }

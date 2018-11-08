@@ -35,6 +35,7 @@ public class SealInbuiltFunctionNegativeTest {
     private CompileResult recordNegativeTestCompileResult;
     private CompileResult jsonNegativeTestCompileResult;
     private CompileResult xmlNegativeTestCompileResult;
+    private CompileResult mapNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -45,6 +46,8 @@ public class SealInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/seal/negative/json-seal-expr-negative-test.bal");
         xmlNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/seal/negative/xml-seal-expr-negative-test.bal");
+        mapNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/map-seal-expr-negative-test.bal");
     }
 
 
@@ -187,5 +190,32 @@ public class SealInbuiltFunctionNegativeTest {
                 "Incompatible seal type: type 'xml' cannot be sealed as type '(string,string)'",
                 53, 35);
     }
+
+    @Test
+    public void testMapSealNegativeTest() {
+
+        Assert.assertEquals(mapNegativeTestCompileResult.getErrorCount(), 8);
+
+        //Negative test case to confirm map cannot be sealed as xml.
+        BAssertUtil.validateError(mapNegativeTestCompileResult, 0,
+                "Incompatible seal type: type 'map' cannot be sealed as type 'xml'",
+                11, 20);
+
+        //Negative test case to confirm map cannot be sealed as array.
+        BAssertUtil.validateError(mapNegativeTestCompileResult, 2,
+                "Incompatible seal type: type 'map' cannot be sealed as type 'string[]'",
+                18, 27);
+
+        //Negative test case to confirm map cannot be sealed as tuple.
+        BAssertUtil.validateError(mapNegativeTestCompileResult, 4,
+                "Incompatible seal type: type 'map' cannot be sealed as type '(string,string)'",
+                25, 34);
+
+        //Negative test case to confirm map cannot be sealed as object.
+        BAssertUtil.validateError(mapNegativeTestCompileResult, 6,
+                "Incompatible seal type: type 'map' cannot be sealed as type 'IntObject'",
+                32, 29);
+    }
+
 }
 

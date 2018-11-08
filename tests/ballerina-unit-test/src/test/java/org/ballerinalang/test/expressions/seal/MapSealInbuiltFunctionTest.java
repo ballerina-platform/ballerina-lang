@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -483,6 +484,22 @@ public class MapSealInbuiltFunctionTest {
                 getMap().get("aa")).getType().getClass(), BAnyType.class);
         Assert.assertEquals(((BValue) ((BMap) ((BMap) mapVaue.getMap().get("a")).getMap().get("aa")).
                 getMap().get("aa")).stringValue(), "11");
+    }
+
+    //---------------------------------- Negative Test cases ----------------------------------------------
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'map<int>' value cannot be sealed " +
+                    "as 'map<string>'.*")
+    public void testSealIntMapToStringMap() {
+        BRunUtil.invoke(compileResult, "sealIntMapToStringMap");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'map<string>' value cannot be " +
+                    "sealed as 'EmployeeClosedRecord'.*")
+    public void testSealMapToRecordNegative() {
+        BRunUtil.invoke(compileResult, "sealMapToRecordNegative");
     }
 
 }

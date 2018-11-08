@@ -200,3 +200,27 @@ function sealIntToAnyMultiDimensionMap() returns map<map<map<any>>> {
 
     return m;
 }
+
+//---------------------------------- Negative Test cases -----------------------------------------------------------
+
+
+type EmployeeClosedRecord record {
+    string name;
+    string status;
+    string batch;
+    !...
+};
+
+function sealIntMapToStringMap() returns map<string> {
+    map<int> m = { "a": 1, "b": 2 };
+    map<string> mapValue = m.seal(map<string>);
+
+    return mapValue;
+}
+
+function sealMapToRecordNegative() returns EmployeeClosedRecord {
+    map<string> m = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
+    EmployeeClosedRecord employee = m.seal(EmployeeClosedRecord);
+
+    return employee;
+}
