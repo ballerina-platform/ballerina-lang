@@ -3,27 +3,20 @@ import { BallerinaAST } from "@ballerina/ast-model";
 import { storiesOf } from "@storybook/react";
 import * as React from "react";
 import bbeASTs from "../resources/bbe-asts.json";
-// import { DiagramEditor } from "./../src-ts/DiagramEditor";
+import { Diagram } from "./../src-ts/";
+import { MockLangClient } from "./../tests/utils";
 
 const storybook = storiesOf("Ballerina Diagram", module);
 
-const bbeASTsArray = bbeASTs as Array<{ bbe: string, ast: BallerinaAST }>;
+const bbeASTsArray = bbeASTs as Array<{ bbe: string, ast: BallerinaAST, title: string }>;
 
 bbeASTsArray.forEach((bbeAST) => {
-    storybook.add(JSON.stringify(bbeAST.bbe), () => (
-          <div
-            children={JSON.stringify(bbeAST.ast)} />
+    storybook.add(bbeAST.title, () => (
+        <Diagram
+          docUri={bbeAST.bbe}
+          height={1000}
+          width={1000}
+          langClient={new MockLangClient(bbeAST.ast)}
+        />
       ));
 });
-
-// bbes.forEach((sampleCat) => {
-//   sampleCat.samples.forEach((sample) => {
-//     storybook.add(sample.title, () => (
-//         <DiagramEditor
-//           docUri={sample.url}
-//           height={1000}
-//           width={1000}
-//           langClient={client} />
-//     ));
-//   });
-// });
