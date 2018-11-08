@@ -611,7 +611,6 @@ public class TreeBuilder {
         return new BLangService();
     }
 
-
     public static ResourceNode createResourceNode() {
         return new BLangResource();
     }

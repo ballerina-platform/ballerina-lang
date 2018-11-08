@@ -725,7 +725,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {
-
         if (matchStmt.exprTypes.isEmpty()) {
             return;
         }

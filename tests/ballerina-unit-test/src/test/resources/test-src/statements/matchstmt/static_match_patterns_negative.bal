@@ -80,7 +80,6 @@ function simpleTypes() returns string {
     return "Fail";
 }
 
-
 type Rec1 record {
     int | float a;
     !...
