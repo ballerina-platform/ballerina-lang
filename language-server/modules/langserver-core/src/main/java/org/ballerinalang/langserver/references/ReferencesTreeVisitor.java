@@ -104,8 +104,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangPackage pkgNode) {
         List<TopLevelNode> topLevelNodes = new ArrayList<>(pkgNode.topLevelNodes);
-        if (!pkgNode.testablePkgs.isEmpty()) {
-            topLevelNodes.addAll(pkgNode.testablePkgs.get(0).topLevelNodes);
+        if (pkgNode.containsTestablePkg()) {
+            topLevelNodes.addAll(pkgNode.getTestablePkg().topLevelNodes);
         }
         if (topLevelNodes.isEmpty()) {
             terminateVisitor = true;
