@@ -303,7 +303,8 @@ public class CloneOperationTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 19, 13);
         BAssertUtil.validateError(negativeResult, 1, "Cannot clone a value of a type other than anyData " +
-                "(boolean|int|float|decimal|string|xml|table|anydata[]|map<anydata>), but found 'typedesc'", 24, 18);
+                "(boolean|int|byte|float|decimal|string|xml|table|anydata[]|map<anydata>|records (with only `anydata`" +
+                " fields)|()), but found 'typedesc'", 24, 18);
         BAssertUtil.validateError(negativeResult, 2, "function invocation on type 'typedesc' is not supported", 24, 18);
     }
 
@@ -324,8 +325,8 @@ public class CloneOperationTest {
     }
 
     @Test
-    public void testCloneNil() {
-        BValue[] results = BRunUtil.invoke(result, "cloneNil");
+    public void testCloneNilableInt() {
+        BValue[] results = BRunUtil.invoke(result, "cloneNilableInt");
         Assert.assertNotNull(results);
         Assert.assertEquals(((BInteger) results[0]).intValue(), 4);
         Assert.assertEquals(((BInteger) results[1]).intValue(), 10);
@@ -379,5 +380,14 @@ public class CloneOperationTest {
         Assert.assertEquals(((BInteger) bMap.get("id")).intValue(), id);
         Assert.assertEquals(bMap.get("name").stringValue(), name);
         Assert.assertEquals(((BFloat) bMap.get("salary")).floatValue(), salary);
+    }
+
+    @Test
+    public void testCloneNil() {
+        BValue[] results = BRunUtil.invoke(result, "cloneNil");
+        Assert.assertNotNull(results);
+        testCloneRecordValues((BMap) results[0], 100, "Charlos", 300.5);
+        testCloneRecordValues((BMap) results[1], 100, "Alex", 300.5);
+        testCloneRecordValues((BMap) results[2], 100, "Alex", 400.5);
     }
 }

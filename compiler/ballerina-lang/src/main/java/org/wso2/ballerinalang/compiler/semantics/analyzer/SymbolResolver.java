@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -83,6 +84,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -306,10 +308,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         List<BType> argsList = Lists.of(type);
-        for (int i = 1; i < args.length; i++) {
-            argsList.add(args[i]);
-        }
+        argsList.addAll(Arrays.asList(args).subList(1, args.length));
         BSymbol bSymbol = resolveOperator(name, argsList);
+        if (bSymbol == symTable.notFoundSymbol &&
+            BLangBuiltInMethod.getFromString(name.value) == BLangBuiltInMethod.CLONE) {
+            BInvokableType opType = new BInvokableType(argsList.subList(1, argsList.size()), args[0], null);
+            return new BOperatorSymbol(names.fromString(name.value), null, opType, null,
+                    InstructionCodes.CLONE);
+        }
         return bSymbol;
     }
 
