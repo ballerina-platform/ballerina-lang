@@ -710,10 +710,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangVariableDef createGroupByFuncArrayVarDef(BLangSelectClause selectClause,
-                                                          BVarSymbol groupByFuncArrayVarSymbol, BLangArrayLiteral groupByFuncArrExpr) {
+                                                          BVarSymbol groupByFuncArrayVarSymbol,
+                                                          BLangArrayLiteral groupByFuncArrExpr) {
         BLangVariable groupByFuncArrVariable = ASTBuilderUtil.
-                createVariable(selectClause.pos, getVariableName(GROUP_BY_FUNC_ARRAY_REFERENCE), groupByFuncArrExpr.type,
-                               groupByFuncArrExpr, groupByFuncArrayVarSymbol);
+                createVariable(selectClause.pos, getVariableName(GROUP_BY_FUNC_ARRAY_REFERENCE),
+                               groupByFuncArrExpr.type, groupByFuncArrExpr, groupByFuncArrayVarSymbol);
 
         groupByFuncArrVariable.typeNode = ASTBuilderUtil.createTypeNode(groupByFuncArrExpr.type);
         return ASTBuilderUtil.createVariableDef(selectClause.pos, groupByFuncArrVariable);
@@ -895,7 +896,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     getVariableName(SELECT_LAMBDA_PARAM_REFERENCE), selectClause.pos, env);
             // (streams:StreamEvent e) => string { .. }
             BLangLambdaFunction groupingLambda = createLambdaWithVarArg(selectClause.pos, new BLangVariable[]{
-                    varGroupByStreamEvent}, TypeKind.STRING);
+                    varGroupByStreamEvent}, symTable.stringType);
             BLangBlockStmt groupByLambda = groupingLambda.function.body;
 
             //e.data; / getOrderByField(...);
@@ -920,7 +921,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return groupByFunctionArray;
     }
 
-    private BLangInvocation refactorInvocationInGroupBy(BLangInvocation invocation, BLangVariable varGroupByStreamEvent) {
+    private BLangInvocation refactorInvocationInGroupBy(BLangInvocation invocation,
+                                                        BLangVariable varGroupByStreamEvent) {
         if (invocation.requiredArgs.size() > 0) {
             List<BLangExpression> expressionList = new ArrayList<>();
             List<BLangExpression> functionArgsList = invocation.requiredArgs;
@@ -944,11 +946,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
                     expressionList.add(refactoredVarRef);
                 } else if (expression.getKind() == NodeKind.INVOCATION) {
-                    expressionList.add(refactorInvocationInGroupBy((BLangInvocation) expression, varGroupByStreamEvent));
+                    expressionList.add(refactorInvocationInGroupBy((BLangInvocation) expression,
+                                                                   varGroupByStreamEvent));
                 } else {
                     expressionList.add(expression);
                 }
-                count ++;
+                count += 1;
             }
             invocation.argExprs = expressionList;
             invocation.requiredArgs = expressionList;
