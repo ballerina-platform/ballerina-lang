@@ -44,7 +44,6 @@ function testDecimalObject() returns (string, int, decimal, decimal) {
     return (s.name, s.age, s.weight, s.height);
 }
 
-
 // Record with decimal fields
 type Animal record {
     decimal weight;
