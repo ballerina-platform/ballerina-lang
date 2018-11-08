@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { sync as globSync } from 'glob';
-import { startBallerinaLangServer, MinimalLangClient, balToolsPath, BallerinaAST } from './server';
+import { balToolsPath } from './server';
 import URI from 'vscode-uri';
 import * as React from 'react';
 import { BallerinaDiagramWrapper } from '@ballerina/diagram';
@@ -8,13 +8,15 @@ import SizingUtil from '@ballerina/diagram/lib/plugins/ballerina/diagram/views/d
 import EditableText from '@ballerina/diagram/lib/plugins/ballerina/diagram/views/default/components/decorators/editable-text';
 import DiagramMenu from '@ballerina/diagram/lib/plugins/ballerina/views/diagram-menu';
 import { create } from 'react-test-renderer';
+import { BallerinaLangClient, startBallerinaLangServer } from '@ballerina/lang-service';
+import { BallerinaAST } from '@ballerina/ast-model';
 
-let langClient : MinimalLangClient;
+let langClient: BallerinaLangClient;
 
 const bbeDir = path.join(balToolsPath, 'examples');
 
 beforeAll((done) => {
-    startBallerinaLangServer()
+    startBallerinaLangServer(balToolsPath)
     .then((languageClient) => {
         if (languageClient) {
             langClient = languageClient;
