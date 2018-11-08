@@ -181,8 +181,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN;
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT;
 
 /**
  * @since 0.94
@@ -945,9 +943,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch matchNode) {
 
         //first fail if both static and typed patterns have been defined in the match stmt
-        if (matchNode.getTypedPatternClauses().size() > 0 &&
-                matchNode.patternClauses.size() != matchNode.getTypedPatternClauses().size()) {
-            dlog.error(matchNode.pos, INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
+        if (matchNode.getTypedPatternClauses().size() > 0 && matchNode.getStaticPatternClauses().size() > 0) {
+            dlog.error(matchNode.pos, DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
             return;
         }
 
@@ -1028,7 +1025,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        dlog.error(expression.pos, INVALID_LITERAL_FOR_MATCH_PATTERN);
+        dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
         expression.type = symTable.errorType;
         return expression.type;
     }
