@@ -102,6 +102,7 @@ type Rec5 record {
     !...
 };
 
+
 function recordTypes() returns string {
     Rec1 r1 = {a: 200};
     match r1 {
