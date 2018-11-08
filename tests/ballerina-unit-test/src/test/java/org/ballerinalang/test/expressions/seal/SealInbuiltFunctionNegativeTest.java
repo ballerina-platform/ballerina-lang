@@ -36,6 +36,7 @@ public class SealInbuiltFunctionNegativeTest {
     private CompileResult jsonNegativeTestCompileResult;
     private CompileResult xmlNegativeTestCompileResult;
     private CompileResult mapNegativeTestCompileResult;
+    private CompileResult objectNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -48,6 +49,8 @@ public class SealInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/seal/negative/xml-seal-expr-negative-test.bal");
         mapNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/seal/negative/map-seal-expr-negative-test.bal");
+        objectNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/object-seal-expr-negative-test.bal");
     }
 
 
@@ -217,5 +220,40 @@ public class SealInbuiltFunctionNegativeTest {
                 32, 29);
     }
 
+    @Test
+    public void testObjectSealNegativeTest() {
+
+        Assert.assertEquals(objectNegativeTestCompileResult.getErrorCount(), 12);
+
+        //Negative test case to confirm object cannot be sealed as record.
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 0,
+                "Incompatible seal type: type 'PersonObj' cannot be sealed as type 'Employee'",
+                26, 25);
+
+        //Negative test case to confirm object cannot be sealed as json.
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 2,
+                "Incompatible seal type: type 'PersonObj' cannot be sealed as type 'json'",
+                34, 22);
+
+        //Negative test case to confirm object cannot be sealed as xml.
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 4,
+                "Incompatible seal type: type 'PersonObj' cannot be sealed as type 'xml'",
+                41, 20);
+
+        //Negative test case to confirm object cannot be sealed as map.
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 6,
+                "Incompatible seal type: type 'PersonObj' cannot be sealed as type 'map'",
+                48, 20);
+
+        //Negative test case to confirm object cannot be sealed as array.
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 8,
+                "Incompatible seal type: type 'PersonObj' cannot be sealed as type 'any[]'",
+                55, 22);
+
+        //Negative test case to confirm object cannot be sealed as tuple.
+        BAssertUtil.validateError(objectNegativeTestCompileResult, 10,
+                "Incompatible seal type: type 'PersonObj' cannot be sealed as type '(int,string)'",
+                62, 32);
+    }
 }
 
