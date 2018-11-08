@@ -18,12 +18,12 @@ package org.ballerinalang.langserver.command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 /**
  * Loads and provides the Command Executor Providers.
@@ -62,12 +62,7 @@ public class LSCommandExecutorProvider {
      * @return {@link Optional}     Mapped command executor
      */
     public Optional<LSCommandExecutor> getCommandExecutor(String command) {
-        Optional<LSCommandExecutor> executor = Optional.ofNullable(this.executors.get(command));
-        if (!executor.isPresent()) {
-            logger.error("Command executor for command " + command + " not found");
-        }
-        
-        return executor;
+        return Optional.ofNullable(this.executors.get(command));
     }
 
     /**
@@ -76,6 +71,6 @@ public class LSCommandExecutorProvider {
      * @return {@link List} Command List
      */
     public List<String> getCommandsList() {
-        return this.executors.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
+        return new ArrayList<>(this.executors.keySet());
     }
 }

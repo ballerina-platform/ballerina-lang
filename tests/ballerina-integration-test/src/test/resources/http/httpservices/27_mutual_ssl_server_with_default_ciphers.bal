@@ -48,6 +48,7 @@ service<http:Service> strongService bind strongCipher {
         io:println("successful");
     }
 }
+
 endpoint http:Listener weakCipher {
     port: 9227,
     secureSocket: {
@@ -59,7 +60,7 @@ endpoint http:Listener weakCipher {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-        ciphers: ["TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA"]
+        ciphers: ["TLS_RSA_WITH_AES_256_CBC_SHA"]
     }
 };
 

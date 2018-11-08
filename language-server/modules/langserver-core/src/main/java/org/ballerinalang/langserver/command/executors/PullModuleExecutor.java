@@ -47,7 +47,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.notifyClient;
  * @since 0.983.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
-public class PullPackageExecutor implements LSCommandExecutor {
+public class PullModuleExecutor implements LSCommandExecutor {
 
     // A newCachedThreadPool with a limited max-threads
     private static ExecutorService executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L,
@@ -61,7 +61,7 @@ public class PullPackageExecutor implements LSCommandExecutor {
     @Override
     public Object execute(LSContext context) throws LSCommandExecutorException {
         executor.submit(() -> {
-            // Derive package name and document uri
+            // Derive module name and document uri
             String moduleName = "";
             String documentUri = "";
             for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {

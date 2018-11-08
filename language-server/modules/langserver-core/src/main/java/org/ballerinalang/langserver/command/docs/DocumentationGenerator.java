@@ -36,8 +36,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -169,8 +171,17 @@ public class DocumentationGenerator {
         Position docStart = getDocumentationStartPosition(bLangFunction.getPosition(), annotations);
         int offset = functionPos.getStartColumn();
 
-        bLangFunction.getParameters()
-                .forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangVariable) param, offset)));
+        List<BLangVariable> params = new ArrayList<>(bLangFunction.getParameters());
+        if (bLangFunction.getRestParameters() != null) {
+            params.add((BLangVariable) bLangFunction.getRestParameters());
+        }
+        params.addAll(bLangFunction.getDefaultableParameters()
+                              .stream()
+                              .map(bLangVariableDef -> bLangVariableDef.var)
+                              .collect(Collectors.toList()));
+        params.sort(new FunctionArgsComparator());
+
+        params.forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangVariable) param, offset)));
         if (bLangFunction.symbol.retType.getKind() != TypeKind.NIL) {
             attributes.add(getReturnFieldDescription(offset));
         }
@@ -336,5 +347,15 @@ public class DocumentationGenerator {
         }
 
         return new Position(startPos.getStartLine(), startPos.getStartColumn());
+    }
+
+    private static class FunctionArgsComparator implements Serializable, Comparator<BLangVariable> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public int compare(BLangVariable arg1, BLangVariable arg2) {
+            return arg1.getPosition().getStartColumn() - arg2.getPosition().getStartColumn();
+        }
     }
 }
