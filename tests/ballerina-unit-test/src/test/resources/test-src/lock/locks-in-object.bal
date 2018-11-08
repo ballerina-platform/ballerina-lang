@@ -1,5 +1,4 @@
 import ballerina/runtime;
-import ballerina/io;
 
 
 type person object {
@@ -52,9 +51,37 @@ function workerFunc() {
 }
 
 function increment() {
-    lock {
+   lock {
        foreach i in 1 ... 1000 {
            student.score = student.score + i;
+       }
+    }
+}
+
+function objectParamLock() returns int {
+        Student stParam = new;
+        workerFuncParam(stParam);
+        return stParam.score;
+}
+
+function workerFuncParam(Student param) {
+
+    worker w1 {
+        incrementParam(param);
+    }
+
+    worker w2 {
+        incrementParam(param);
+    }
+
+}
+
+function incrementParam(Student param) {
+   lock {
+        Student inLockObj = new;
+        inLockObj.score = 10;
+       foreach i in 1 ... 1000 {
+           param.score = param.score + i;
        }
     }
 }

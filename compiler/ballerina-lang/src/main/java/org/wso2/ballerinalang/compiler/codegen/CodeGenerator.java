@@ -2782,6 +2782,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.genNode(lockNode.body, this.env);
             return;
         }
+
+        //remove objects initialized within lock
+        lockNode.fieldVariables.keySet().removeIf(symbol -> symbol.varIndex == null);
+
         Operand gotoLockEndAddr = getOperand(-1);
         Instruction instructGotoLockEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoLockEndAddr);
         Operand[] operands = getOperands(lockNode);

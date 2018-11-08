@@ -1097,7 +1097,6 @@ public class Desugar extends BLangNodeVisitor {
 
                 //field refs to objects in other packages are skipped
                 if (!enclLocks.isEmpty() &&
-                        !(fieldAccessExpr.expr instanceof BLangLocalVarRef) &&
                         (fieldAccessExpr.expr.symbol != null) &&
                         (fieldAccessExpr.expr.symbol.pkgID == env.enclPkg.packageID)) {
                     enclLocks.peek().addFieldVariable((BVarSymbol) fieldAccessExpr.expr.symbol,
