@@ -28,7 +28,8 @@
     "monaco-languageclient": "^0.9.0",
     "tree-kill": "^1.2.1",
     "vscode-jsonrpc": "^3.6.0",
-    "vscode-languageserver-protocol": "^3.13.0"
+    "vscode-languageserver-protocol": "^3.13.0",
+    "vscode-uri": "^1.0.6"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",

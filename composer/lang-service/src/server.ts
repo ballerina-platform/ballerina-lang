@@ -1,10 +1,11 @@
 import { ChildProcess, execSync, spawn } from 'child_process';
 import * as fs from 'fs';
+import { sync as globSync } from 'glob';
 // tslint:disable-next-line:no-submodule-imports
 import { ConnectionCloseHandler, ConnectionErrorHandler, createConnection, IConnection } from 'monaco-languageclient/lib/connection';
-import { createMessageConnection, StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc';
-
 import * as path from 'path';
+import { createMessageConnection, StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc';
+import URI from 'vscode-uri';
 import { BallerinaLangClient } from './client';
 
 const LS_DEBUG = process.env.LS_DEBUG === "true";
@@ -56,6 +57,11 @@ interface LangServerProcessConnection {
     lsConnection: IConnection;
 }
 
+export function getBBEs(ballerinaHome: string): string[] {
+    const bbeFiles = globSync(path.join(ballerinaHome, 'examples'
+        , '**', '*.bal'), {});
+    return bbeFiles.map((file) => URI.file(file).toString());
+}
 
 export function detectBallerinaHome(): string {
     // try to ditect the environment.
