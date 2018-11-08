@@ -54,8 +54,8 @@ public class ToXML extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context ctx) {
-        BXML<?> xml = null;
-        BError error = null;
+        BXML<?> xml;
+        BError error;
         try {
             // Accessing Parameters
             BValue json = ctx.getNullableRefArgument(0);
@@ -71,7 +71,7 @@ public class ToXML extends BlockingNativeCallableUnit {
             //Converting to xml.
             xml = JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
             ctx.setReturnValues(xml);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             error = BuiltInUtils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage());
             ctx.setReturnValues(error);
         }

@@ -330,7 +330,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[0].stringValue(), "("
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
                 + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "{message:\"Trying to perform hasNext operation over a closed table\", cause:null})");
+                + "Trying to perform hasNext operation over a closed table {})");
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test re-init endpoint")

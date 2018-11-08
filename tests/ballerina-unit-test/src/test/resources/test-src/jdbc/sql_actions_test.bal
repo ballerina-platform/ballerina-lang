@@ -123,23 +123,19 @@ function testGeneratedKeyOnInsert() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string returnVal;
+    string returnVal = "";
 
     var x = testDB->updateWithGeneratedKeys("insert into Customers (firstName,lastName,
             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
 
-    match x {
-        (int, string[]) y => {
-            int a;
-            string[] b;
-            (a, b) = y;
-            returnVal = b[0];
-        }
-        error err1 => {
-            returnVal = err1.reason();
-        }
+    if (x is (int, string[])) {
+        int a;
+        string[] b;
+        (a, b) = x;
+        returnVal = b[0];
+    } else  if (x is error) {
+        returnVal = x.reason();
     }
-
     testDB.stop();
     return returnVal;
 }
@@ -153,23 +149,19 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int|string returnVal;
+    int|string returnVal = "";
 
     var x = testDB->updateWithGeneratedKeys("insert into CustomersNoKey (firstName,lastName,
             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
 
-    match x {
-        (int, string[]) y => {
-            int a;
-            string[] b;
-            (a, b) = y;
-            returnVal = b.length();
-        }
-        error err1 => {
-            returnVal = err1.reason();
-        }
+    if (x is (int, string[])) {
+        int a;
+        string[] b;
+        (a, b) = x;
+        returnVal = b.length();
+    } else if (x is error) {
+        returnVal = x.reason();
     }
-
     testDB.stop();
     return returnVal;
 }
@@ -194,18 +186,15 @@ function testGeneratedKeyWithColumn() returns (string) {
         'Williams', 4, 5000.75, 'USA')";
 
     var x = testDB->updateWithGeneratedKeys(queryString, keyColumns);
-    match x {
-        (int, string[]) y => {
-            int a;
-            string[] b;
-            (a, b) = y;
-            returnVal = b[0];
-        }
-        error err1 => {
-            returnVal = err1.reason();
-        }
-    }
 
+    if (x is (int, string[])) {
+        int a;
+        string[] b;
+        (a, b) = x;
+        returnVal = b[0];
+    } else if (x is error){
+        returnVal = x.reason();
+    }
     testDB.stop();
     return returnVal;
 }
@@ -265,15 +254,18 @@ function testCallProcedure() returns (string, string) {
         poolOptions: { maximumPoolSize: 2 }
     };
 
-    string returnValue;
+    string returnValue = "";
     var ret = testDB->call("{call InsertPersonData(100,'James')}", ());
-    match ret {
-        table[] dt => returnValue = "table";
-        () => returnValue = "nil";
-        error => returnValue = "error";
+
+    if (ret is table[]) {
+        returnValue = "table";
+    } else if (ret is ()) {
+        returnValue = "nil";
+    } else if (ret is error) {
+        returnValue = "error";
     }
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
-    string firstName;
+    string firstName = "";
     while (dt.hasNext()) {
         ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
@@ -291,17 +283,17 @@ function testCallProcedureWithResultSet() returns (string) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string firstName;
+    string firstName = "";
     var ret = check testDB->call("{call SelectPersonData()}", [ResultCustomers]);
-    table[] dts;
-    match ret {
-        table[] dtsRet => dts = dtsRet;
-        () => firstName = "error";
-    }
+    table[] dts = [];
 
-    while (dts[0].hasNext()) {
-        ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
-        firstName = rs.FIRSTNAME;
+    if (ret is table[]) {
+        while (ret[0].hasNext()) {
+            ResultCustomers rs = check <ResultCustomers>ret[0].getNext();
+            firstName = rs.FIRSTNAME;
+        }
+    } else if (ret is ()) {
+        firstName = "error";
     }
     testDB.stop();
     return firstName;
@@ -342,28 +334,23 @@ function testCallProcedureWithMultipleResultSets() returns (string,
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string firstName1;
-    string firstName2;
-    string lastName;
+    string firstName1 = "";
+    string firstName2 = "";
+    string lastName = "";
 
     var ret = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, CustomerFullName]);
-    table[] dts;
-    match ret {
-        table[] dtsRet => dts = dtsRet;
-        () => firstName1 = "error";
-    }
+    if (ret is table[]) {
+        while (ret[0].hasNext()) {
+            ResultCustomers rs = check <ResultCustomers>ret[0].getNext();
+            firstName1 = rs.FIRSTNAME;
+        }
 
-    while (dts[0].hasNext()) {
-        ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
-        firstName1 = rs.FIRSTNAME;
+        while (ret[1].hasNext()) {
+            CustomerFullName rs = check <CustomerFullName>ret[1].getNext();
+            firstName2 = rs.FIRSTNAME;
+            lastName = rs.LASTNAME;
+        }
     }
-
-    while (dts[1].hasNext()) {
-        CustomerFullName rs = check <CustomerFullName>dts[1].getNext();
-        firstName2 = rs.FIRSTNAME;
-        lastName = rs.LASTNAME;
-    }
-
     testDB.stop();
     return (firstName1, firstName2, lastName);
 }
@@ -1492,7 +1479,7 @@ function testSelectLoadToMemory() returns (CustomerFullName[],
 }
 
 function testLoadToMemorySelectAfterTableClose() returns (
-            CustomerFullName[], CustomerFullName[], error) {
+            CustomerFullName[], CustomerFullName[], error?) {
     endpoint h2:Client testDB {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_H2",
@@ -1506,7 +1493,7 @@ function testLoadToMemorySelectAfterTableClose() returns (
 
     CustomerFullName[] fullNameArray1;
     CustomerFullName[] fullNameArray2;
-    CustomerFullName[] fullNameArray3;
+    CustomerFullName[] fullNameArray3 = [];
 
     fullNameArray1 = iterateTableAndReturnResultArray(dt);
     fullNameArray2 = iterateTableAndReturnResultArray(dt);
@@ -1514,9 +1501,11 @@ function testLoadToMemorySelectAfterTableClose() returns (
 
     error? e;
     var ret = trap iterateTableAndReturnResultArray(dt);
-    match ret {
-        CustomerFullName[] fullNameArray => fullNameArray3 = fullNameArray;
-        error err => e = err;
+
+    if (ret is CustomerFullName[]) {
+        fullNameArray3 = ret;
+    } else if (ret is error) {
+        e = ret;
     }
     testDB.stop();
     return (fullNameArray1, fullNameArray2, e);

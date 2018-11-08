@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.nativeimpl.functions;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -53,8 +53,8 @@ public class UtilTest {
         String jsonString = "{\"name\":\"apple\",\"color\":\"red\",\"price\":25} sample invalid json";
         BValue[] args = new BValue[]{new BString(jsonString)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParseJson", args);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue()
-                .contains("Failed to parse json string:"));
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
+        Assert.assertTrue(errorMsg.contains("Failed to parse json string:"));
     }
 }
