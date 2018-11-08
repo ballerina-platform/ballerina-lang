@@ -938,18 +938,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      */
     private BranchResult analyzeBranch(BLangNode node, SymbolEnv env) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
+        boolean prevFlowTerminated = this.flowTerminated;
 
         // Get a snapshot of the current uninitialized vars before visiting the node.
         // This is done so that the original set of uninitialized vars will not be
         // updated/marked as initialized.
         this.uninitializedVars = copyUninitializedVars();
+        this.flowTerminated = false;
 
         analyzeNode(node, env);
         BranchResult brachResult = new BranchResult(this.uninitializedVars, this.flowTerminated);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
-        this.flowTerminated = false;
+        this.flowTerminated = prevFlowTerminated;
 
         return brachResult;
     }

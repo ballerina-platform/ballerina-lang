@@ -33,7 +33,7 @@ public class DataflowAnalysisTest {
     @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 43);
+        Assert.assertEquals(result.getErrorCount(), 46);
         int i = 0;
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 53, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 70, 12);
@@ -78,5 +78,8 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 552, 5);
         BAssertUtil.validateError(result, i++, "variable 'publicGlobalVar_1' is not initialized", 558, 1);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 590, 17);
+        BAssertUtil.validateError(result, i++, "unreachable code", 615, 9);
+        BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 624, 12);
+        BAssertUtil.validateError(result, i++, "unreachable code", 432, 9);
     }
 }
