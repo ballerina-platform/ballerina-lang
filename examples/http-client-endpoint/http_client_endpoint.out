@@ -16,5 +16,5 @@ PATCH request:
 DELETE request:
 {"args":{},"data":"DELETE: Hello World","files":{},"form":{},"headers":{"host":"postman-echo.com","content-length":"19","content-type":"text/plain","user-agent":"ballerina/0.92.1-SNAPSHOT","x-forwarded-port":"443","x-forwarded-proto":"https"},"json":null,"url":"https://postman-echo.com/delete"}
 
-Content-Type: application/json; charset=utf-8
-Status code: 200
+INFO  [] - Content-Type: application/json; charset=utf-8
+INFO  [] - Status code: 200

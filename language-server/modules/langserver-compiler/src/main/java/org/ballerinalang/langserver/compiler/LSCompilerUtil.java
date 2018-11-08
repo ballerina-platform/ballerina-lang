@@ -243,6 +243,36 @@ public class LSCompilerUtil {
     }
 
     /**
+     * Returns top-level module path of a given file path.
+     *
+     * @param filePath file path
+     * @return top-level module path
+     */
+    public static Path getCurrentModulePath(Path filePath) {
+        Path projectRoot = Paths.get(LSCompilerUtil.getSourceRoot(filePath));
+        Path currentModulePath = projectRoot;
+        Path prevSourceRoot = filePath.getParent();
+        try {
+            if (prevSourceRoot == null || Files.isSameFile(prevSourceRoot, projectRoot)) {
+                return currentModulePath;
+            }
+            while (true) {
+                Path newSourceRoot = prevSourceRoot.getParent();
+                currentModulePath = prevSourceRoot;
+                if (newSourceRoot == null || newSourceRoot.toString().isEmpty() ||
+                        "/".equals(newSourceRoot.toString()) || Files.isSameFile(newSourceRoot, projectRoot)) {
+                    // We have reached the project root
+                    break;
+                }
+                prevSourceRoot = newSourceRoot;
+            }
+        } catch (IOException e) {
+            // do nothing
+        }
+        return currentModulePath;
+    }
+
+    /**
      * Check whether given directory is a project dir.
      *
      * @param root root path
