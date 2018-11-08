@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -211,7 +210,6 @@ import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
-import org.wso2.ballerinalang.programfile.cpentries.DecimalCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
@@ -243,7 +241,6 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.DECIMAL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.INT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.REF_OFFSET;
@@ -652,9 +649,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
 
             case TypeTags.DECIMAL:
-                Decimal decimalVal = (Decimal) literalExpr.value;
-                int decimalCPEntryIndex = currentPkgInfo.addCPEntry(new DecimalCPEntry(decimalVal));
-                emit(InstructionCodes.DCONST, getOperand(decimalCPEntryIndex), regIndex);
+                String decimalVal = (String) literalExpr.value;
+                int decimalEntryIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(decimalVal));
+                emit(InstructionCodes.DCONST, getOperand(decimalEntryIndex), regIndex);
                 break;
 
             case TypeTags.STRING:
@@ -1538,9 +1535,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
                 break;
-            case TypeTags.DECIMAL:
-                index = ++indexes.tDecimal;
-                break;
             case TypeTags.STRING:
                 index = ++indexes.tString;
                 break;
@@ -1570,9 +1564,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
-                break;
-            case TypeTags.DECIMAL:
-                opcode = baseOpcode + DECIMAL_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1604,9 +1595,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
-                break;
-            case TypeTags.DECIMAL:
-                opcode = baseOpcode + DECIMAL_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1820,7 +1808,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         VariableIndex vIndexes = new VariableIndex(that.kind);
         vIndexes.tInt = that.tInt;
         vIndexes.tFloat = that.tFloat;
-        vIndexes.tDecimal = that.tDecimal;
         vIndexes.tString = that.tString;
         vIndexes.tBoolean = that.tBoolean;
         vIndexes.tRef = that.tRef;
@@ -1836,14 +1823,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         codeAttributeInfo.maxDoubleLocalVars = lvIndexes.tFloat + 1;
         codeAttributeInfo.maxStringLocalVars = lvIndexes.tString + 1;
         codeAttributeInfo.maxIntLocalVars = lvIndexes.tBoolean + 1;
-        codeAttributeInfo.maxDecimalLocalVars = lvIndexes.tDecimal + 1;
         codeAttributeInfo.maxRefLocalVars = lvIndexes.tRef + 1;
 
         codeAttributeInfo.maxLongRegs = codeAttributeInfo.maxLongLocalVars + maxRegIndexes.tInt + 1;
         codeAttributeInfo.maxDoubleRegs = codeAttributeInfo.maxDoubleLocalVars + maxRegIndexes.tFloat + 1;
         codeAttributeInfo.maxStringRegs = codeAttributeInfo.maxStringLocalVars + maxRegIndexes.tString + 1;
         codeAttributeInfo.maxIntRegs = codeAttributeInfo.maxIntLocalVars + maxRegIndexes.tBoolean + 1;
-        codeAttributeInfo.maxDecimalRegs = codeAttributeInfo.maxDecimalLocalVars + maxRegIndexes.tDecimal + 1;
         codeAttributeInfo.maxRefRegs = codeAttributeInfo.maxRefLocalVars + maxRegIndexes.tRef + 1;
 
         // Update register indexes.
@@ -1857,9 +1842,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     break;
                 case TypeTags.FLOAT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
-                    break;
-                case TypeTags.DECIMAL:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxDecimalLocalVars;
                     break;
                 case TypeTags.STRING:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxStringLocalVars;
@@ -1884,7 +1866,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         max.tFloat = (max.tFloat > current.tFloat) ? max.tFloat : current.tFloat;
         max.tString = (max.tString > current.tString) ? max.tString : current.tString;
         max.tBoolean = (max.tBoolean > current.tBoolean) ? max.tBoolean : current.tBoolean;
-        max.tDecimal = (max.tDecimal > current.tDecimal) ? max.tDecimal : current.tDecimal;
         max.tRef = (max.tRef > current.tRef) ? max.tRef : current.tRef;
     }
 
@@ -1893,7 +1874,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         indexes.tFloat++;
         indexes.tString++;
         indexes.tBoolean++;
-        indexes.tDecimal++;
         indexes.tRef++;
     }
 
@@ -1922,7 +1902,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount.tFloat);
         varCountAttribInfo.setMaxStringVars(fieldCount.tString);
         varCountAttribInfo.setMaxIntVars(fieldCount.tBoolean);
-        varCountAttribInfo.setMaxDecimalVars(fieldCount.tDecimal);
         varCountAttribInfo.setMaxRefVars(fieldCount.tRef);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -2003,7 +1982,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount[FLOAT_OFFSET]);
         varCountAttribInfo.setMaxStringVars(fieldCount[STRING_OFFSET]);
         varCountAttribInfo.setMaxIntVars(fieldCount[BOOL_OFFSET]);
-        varCountAttribInfo.setMaxDecimalVars(fieldCount[DECIMAL_OFFSET]);
         varCountAttribInfo.setMaxRefVars(fieldCount[REF_OFFSET]);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -2051,8 +2029,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.booleanValue = (Boolean) value;
                 break;
             case TypeTags.DECIMAL:
-                defaultValue.decimalValue = (Decimal) value;
-                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new DecimalCPEntry(defaultValue.decimalValue));
+                defaultValue.decimalValue = (String) value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(defaultValue.decimalValue));
                 break;
             case TypeTags.NIL:
                 break;
@@ -2189,8 +2167,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tDecimal, fieldIndexes.tRef};
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat, fieldIndexes.tString,
+                fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
@@ -2272,8 +2250,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tDecimal, fieldIndexes.tRef};
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat, fieldIndexes.tString,
+                fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
         typeDefInfo.typeInfo = recordInfo;
@@ -2512,7 +2490,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int tFloat = -1;
         int tString = -1;
         int tBoolean = -1;
-        int tDecimal = -1;
         int tRef = -1;
         Kind kind;
 
@@ -2521,13 +2498,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         public int[] toArray() {
-            int[] result = new int[6];
+            int[] result = new int[5];
             result[0] = this.tInt;
             result[1] = this.tFloat;
             result[2] = this.tString;
             result[3] = this.tBoolean;
-            result[4] = this.tDecimal;
-            result[5] = this.tRef;
+            result[4] = this.tRef;
             return result;
         }
 
@@ -3812,9 +3788,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.FLOAT:
                 opcode = InstructionCodes.F2ANY;
-                break;
-            case TypeTags.DECIMAL:
-                opcode = InstructionCodes.D2ANY;
                 break;
             case TypeTags.STRING:
                 opcode = InstructionCodes.S2ANY;

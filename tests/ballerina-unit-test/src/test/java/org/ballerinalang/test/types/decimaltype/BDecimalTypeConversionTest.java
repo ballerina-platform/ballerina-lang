@@ -30,7 +30,9 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * This class is used to test the decimal to other types and other types to decimal conversion operations.
@@ -49,6 +51,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
  * boolean --> decimal
  * any --> decimal (checked)
  * json --> decimal (checked)
+ *
+ * @since 0.985.0
  **/
 public class BDecimalTypeConversionTest {
     private CompileResult result;
@@ -80,8 +84,10 @@ public class BDecimalTypeConversionTest {
         Assert.assertEquals(floatVal.floatValue(), 23.456, "Invalid float value returned.");
         Assert.assertEquals(stringVal.stringValue(), "23.456", "Invalid string value returned.");
         Assert.assertTrue(boolVal.booleanValue(), "Invalid boolean value returned.");
-        Assert.assertEquals(anyVal.decimalValue(), new Decimal("23.456"), "Invalid value returned.");
-        Assert.assertEquals(jsonVal.decimalValue(), new Decimal("23.456"), "Invalid value returned.");
+        Assert.assertTrue(anyVal.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)) == 0,
+                "Invalid value returned.");
+        Assert.assertTrue(jsonVal.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)) == 0,
+                "Invalid value returned.");
     }
 
     @Test(description = "Test other types to decimal conversion")
@@ -99,11 +105,17 @@ public class BDecimalTypeConversionTest {
         BDecimal val5 = (BDecimal) returns[4];
         BDecimal val6 = (BDecimal) returns[5];
 
-        Assert.assertEquals(val1.decimalValue(), new Decimal("12"), "Invalid decimal value returned.");
-        Assert.assertEquals(val2.decimalValue(), new Decimal("-12.34"), "Invalid decimal value returned.");
-        Assert.assertEquals(val3.decimalValue(), new Decimal("23.456"), "Invalid decimal value returned.");
-        Assert.assertEquals(val4.decimalValue(), new Decimal("1.0"), "Invalid decimal value returned.");
-        Assert.assertEquals(val5.decimalValue(), new Decimal("12.3"), "Invalid decimal value returned.");
-        Assert.assertEquals(val6.decimalValue(), new Decimal("23.4"), "Invalid decimal value returned.");
+        Assert.assertTrue(val1.decimalValue().compareTo(new BigDecimal("12", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(val2.decimalValue().compareTo(new BigDecimal("-12.34", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(val3.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(val4.decimalValue().compareTo(new BigDecimal("1.0", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(val5.decimalValue().compareTo(new BigDecimal("12.3", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(val6.decimalValue().compareTo(new BigDecimal("23.4", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
     }
 }

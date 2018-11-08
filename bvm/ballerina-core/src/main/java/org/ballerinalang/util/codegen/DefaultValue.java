@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+import java.math.BigDecimal;
 
 /**
  * {@code AnnotationAttributeValue} contains the default value of a Ballerina struct field.
@@ -32,7 +32,7 @@ public class DefaultValue {
     private long intValue;
     private byte byteValue;
     private double floatValue;
-    private Decimal decimalValue;
+    private BigDecimal decimalValue;
     private String stringValue;
     private boolean booleanValue;
 
@@ -73,11 +73,11 @@ public class DefaultValue {
         this.floatValue = floatValue;
     }
 
-    public Decimal getDecimalValue() {
+    public BigDecimal getDecimalValue() {
         return decimalValue;
     }
 
-    public void setDecimalValue(Decimal decimalValue) {
+    public void setDecimalValue(BigDecimal decimalValue) {
         this.decimalValue = decimalValue;
     }
 

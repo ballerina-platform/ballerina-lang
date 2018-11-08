@@ -20,7 +20,8 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BValue;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
+import java.math.BigDecimal;
 
 /**
  * {@code BDecimalType} represents decimal type in Ballerina.
@@ -42,13 +43,13 @@ class BDecimalType extends BType {
     @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getZeroValue() {
-        return (V) new BDecimal(Decimal.ZERO);
+        return (V) new BDecimal(BigDecimal.ZERO);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BDecimal(Decimal.ZERO);
+        return (V) new BDecimal(BigDecimal.ZERO);
     }
 
     @Override

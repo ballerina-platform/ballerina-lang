@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.program.WorkerDataIndex;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 /**
  * This represents the local variables that are available to a worker. 
@@ -36,8 +35,6 @@ public class WorkerData {
     public String[] stringRegs;
     
     public int[] intRegs;
-
-    public Decimal[] decimalRegs;
 
     public BRefType<?>[] refRegs;
 
@@ -56,9 +53,6 @@ public class WorkerData {
         if (ci.maxIntRegs > 0) {
             this.intRegs = new int[ci.maxIntRegs];
         }
-        if (ci.maxDecimalRegs > 0) {
-            this.decimalRegs = new Decimal[ci.maxDecimalRegs];
-        }
         if (ci.maxBValueRegs > 0) {
             this.refRegs = new BRefType[ci.maxBValueRegs];
         }
@@ -76,9 +70,6 @@ public class WorkerData {
         }
         if (wdi.intRegCount > 0) {
             this.intRegs = new int[wdi.intRegCount];
-        }
-        if (wdi.decimalRegCount > 0) {
-            this.decimalRegs = new Decimal[wdi.decimalRegCount];
         }
         if (wdi.refRegCount > 0) {
             this.refRegs = new BRefType[wdi.refRegCount];
@@ -101,10 +92,6 @@ public class WorkerData {
         count = wdi1.intRegCount + wdi2.intRegCount;
         if (count > 0) {
             this.intRegs = new int[count];
-        }
-        count = wdi1.decimalRegCount + wdi2.decimalRegCount;
-        if (count > 0) {
-            this.decimalRegs = new Decimal[count];
         }
         count = wdi1.refRegCount + wdi2.refRegCount;
         if (count > 0) {

@@ -46,13 +46,12 @@ public class BLangConstants {
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
 
     // int, float, string, boolean, decimal, reference type
-    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
+    public static final int NO_OF_VAR_TYPE_CATEGORIES = 5;
     public static final int INT_OFFSET = 0;
     public static final int FLOAT_OFFSET = 1;
     public static final int STRING_OFFSET = 2;
     public static final int BOOL_OFFSET = 3;
-    public static final int DECIMAL_OFFSET = 4;
-    public static final int REF_OFFSET = 5;
+    public static final int REF_OFFSET = 4;
 
     public static final String USER_REPO_ENV_KEY = "BALLERINA_REPOSITORY";
     public static final String USER_REPO_DEFAULT_DIRNAME = ".ballerina";

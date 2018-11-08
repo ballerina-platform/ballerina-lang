@@ -50,21 +50,18 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SMOVE] = "smove";
         mnemonics[InstructionCodes.BMOVE] = "bmove";
         mnemonics[InstructionCodes.RMOVE] = "rmove";
-        mnemonics[InstructionCodes.DMOVE] = "dmove";
         mnemonics[InstructionCodes.BIALOAD] = "biaload";
         mnemonics[InstructionCodes.IALOAD] = "iaload";
         mnemonics[InstructionCodes.FALOAD] = "faload";
         mnemonics[InstructionCodes.SALOAD] = "saload";
         mnemonics[InstructionCodes.BALOAD] = "baload";
         mnemonics[InstructionCodes.RALOAD] = "raload";
-        mnemonics[InstructionCodes.DALOAD] = "daload";
         mnemonics[InstructionCodes.JSONALOAD] = "jsonaload";
         mnemonics[InstructionCodes.IGLOAD] = "igload";
         mnemonics[InstructionCodes.FGLOAD] = "fgload";
         mnemonics[InstructionCodes.SGLOAD] = "sgload";
         mnemonics[InstructionCodes.BGLOAD] = "bgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
-        mnemonics[InstructionCodes.DGLOAD] = "dgload";
 
         mnemonics[InstructionCodes.BIASTORE] = "biastore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
@@ -72,14 +69,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SASTORE] = "sastore";
         mnemonics[InstructionCodes.BASTORE] = "bastore";
         mnemonics[InstructionCodes.RASTORE] = "rastore";
-        mnemonics[InstructionCodes.DASTORE] = "dastore";
         mnemonics[InstructionCodes.JSONASTORE] = "jsonastore";
         mnemonics[InstructionCodes.IGSTORE] = "igstore";
         mnemonics[InstructionCodes.FGSTORE] = "fgstore";
         mnemonics[InstructionCodes.SGSTORE] = "sgstore";
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
-        mnemonics[InstructionCodes.DGSTORE] = "dgstore";
 
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";
@@ -198,7 +193,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.D2F] = "d2f";
         mnemonics[InstructionCodes.D2S] = "d2s";
         mnemonics[InstructionCodes.D2B] = "d2b";
-        mnemonics[InstructionCodes.D2ANY] = "d2any";
         mnemonics[InstructionCodes.T2JSON] = "t2json";
         mnemonics[InstructionCodes.JSON2T] = "json2t";
         mnemonics[InstructionCodes.JSON2MAP] = "json2map";

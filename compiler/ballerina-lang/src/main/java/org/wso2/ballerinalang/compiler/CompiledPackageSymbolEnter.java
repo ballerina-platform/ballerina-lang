@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -75,7 +74,6 @@ import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
-import org.wso2.ballerinalang.programfile.cpentries.DecimalCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
@@ -288,8 +286,6 @@ public class CompiledPackageSymbolEnter {
                 return new ByteCPEntry(dataInStream.readByte());
             case CP_ENTRY_FLOAT:
                 return new FloatCPEntry(dataInStream.readDouble());
-            case CP_ENTRY_DECIMAL:
-                return new DecimalCPEntry(new Decimal(dataInStream.readUTF()));
             case CP_ENTRY_STRING:
                 cpIndex = dataInStream.readInt();
                 utf8CPEntry = (UTF8CPEntry) constantPool[cpIndex];
@@ -569,8 +565,8 @@ public class CompiledPackageSymbolEnter {
                 break;
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
-                DecimalCPEntry decimalCPEntry = (DecimalCPEntry) this.env.constantPool[valueCPIndex];
-                litExpr.value = decimalCPEntry.getValue();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                litExpr.value = decimalEntry.getValue();
                 litExpr.typeTag = TypeTags.DECIMAL;
                 break;
             case TypeDescriptor.SIG_STRING:
@@ -797,8 +793,8 @@ public class CompiledPackageSymbolEnter {
                 return floatCPEntry.getValue();
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
-                DecimalCPEntry decimalCPEntry = (DecimalCPEntry) this.env.constantPool[valueCPIndex];
-                return decimalCPEntry.getValue();
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                return decimalEntry.getValue();
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];

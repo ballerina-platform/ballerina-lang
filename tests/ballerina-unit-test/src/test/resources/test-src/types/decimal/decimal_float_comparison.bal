@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 // Test that compares the representations of a very large number in float type (64 bits) and decimal type (128 bits).
 function testLargeFloatingPointNumber() returns (float, decimal) {
     float f =

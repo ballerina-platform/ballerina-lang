@@ -21,7 +21,6 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.BLangConstants;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 import java.util.Arrays;
 
@@ -40,8 +39,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     private VarLock[] stringLocks;
     private int[] intFields;
     private VarLock[] intLocks;
-    private Decimal[] decimalFields;
-    private VarLock[] decimalLocks;
     private BRefType[] refFields;
     private VarLock[] refLocks;
 
@@ -60,8 +57,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
         doubleFields = new double[fieldCount[1]];
         stringFields = new String[fieldCount[2]];
         intFields = new int[fieldCount[3]];
-        decimalFields = new Decimal[fieldCount[4]];
-        refFields = new BRefType[fieldCount[5]];
+        refFields = new BRefType[fieldCount[4]];
 
         Arrays.fill(stringFields, BLangConstants.STRING_EMPTY_VALUE);
     }
@@ -125,16 +121,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     @Override
     public void setBooleanField(int index, int value) {
         intFields[index] = value;
-    }
-
-    @Override
-    public Decimal getDecimalField(int index) {
-        return decimalFields[index];
-    }
-
-    @Override
-    public void setDecimalField(int index, Decimal value) {
-        decimalFields[index] = value;
     }
 
     @Override
@@ -267,36 +253,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     @Override
     public void unlockBooleanField(int index) {
         intLocks[index].unlock();
-    }
-
-    @Override
-    public boolean lockDecimalField(WorkerExecutionContext ctx, int index) {
-        /*
-        TODO below synchronization is done on non final variable(which is getting changed in copy method)
-        This is ok for the time being as below synchronizations are only valid for global memory block which is
-        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
-        copying, but look into that when implementing locking support for struct fields and connector variables.
-         */
-        if (decimalLocks == null) {
-            synchronized (decimalFields) {
-                if (decimalLocks == null) {
-                    decimalLocks = new VarLock[decimalFields.length];
-                }
-            }
-        }
-        if (decimalLocks[index] == null) {
-            synchronized (decimalFields) {
-                if (decimalLocks[index] == null) {
-                    decimalLocks[index] = new VarLock();
-                }
-            }
-        }
-        return decimalLocks[index].lock(ctx);
-    }
-
-    @Override
-    public void unlockDecimalField(int index) {
-        decimalLocks[index].unlock();
     }
 
     @Override

@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
@@ -37,7 +36,6 @@ import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
-import org.wso2.ballerinalang.programfile.cpentries.DecimalCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
@@ -97,10 +95,6 @@ public class PackageInfoWriter {
                 case CP_ENTRY_FLOAT:
                     double doubleVal = ((FloatCPEntry) cpEntry).getValue();
                     dataOutStream.writeDouble(doubleVal);
-                    break;
-                case CP_ENTRY_DECIMAL:
-                    Decimal decimalVal = ((DecimalCPEntry) cpEntry).getValue();
-                    dataOutStream.writeUTF(decimalVal.toString());
                     break;
                 case CP_ENTRY_STRING:
                     nameCPIndex = ((StringCPEntry) cpEntry).getStringCPIndex();
@@ -483,14 +477,12 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxStringLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxIntLocalVars);
-                attrDataOutStream.writeShort(codeAttributeInfo.maxDecimalLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxRefLocalVars);
 
                 attrDataOutStream.writeShort(codeAttributeInfo.maxLongRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxStringRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxIntRegs);
-                attrDataOutStream.writeShort(codeAttributeInfo.maxDecimalRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxRefRegs);
                 break;
 
@@ -500,7 +492,6 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxDoubleVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxStringVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxIntVars());
-                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxDecimalVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxRefVars());
                 break;
 

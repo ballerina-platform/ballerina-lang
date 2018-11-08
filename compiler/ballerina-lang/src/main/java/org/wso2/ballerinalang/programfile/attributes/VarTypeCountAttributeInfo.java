@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.programfile.attributes;
 
 
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.DECIMAL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.INT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.NO_OF_VAR_TYPE_CATEGORIES;
@@ -72,14 +71,6 @@ public class VarTypeCountAttributeInfo implements AttributeInfo {
 
     public void setMaxIntVars(int maxIntVars) {
         this.varTypeCount[BOOL_OFFSET] = maxIntVars;
-    }
-
-    public int getMaxDecimalVars() {
-        return this.varTypeCount[DECIMAL_OFFSET];
-    }
-
-    public void setMaxDecimalVars(int maxDecimalVars) {
-        this.varTypeCount[DECIMAL_OFFSET] = maxDecimalVars;
     }
 
     public int getMaxRefVars() {

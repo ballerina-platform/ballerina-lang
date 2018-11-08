@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -250,7 +249,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalExpr.value = ((Long) literalValue).doubleValue();
             } else if (TypeTags.DECIMAL == expType.tag) {
                 literalType = symTable.decimalType;
-                literalExpr.value = new Decimal(String.valueOf(literalValue));
+                literalExpr.value = String.valueOf(literalValue);
             } else if (TypeTags.BYTE == expType.tag) {
                 if (!isByteLiteralValue((Long) literalValue)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
@@ -267,12 +266,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check whether this belongs to decimal type or float type
-        if (TypeTags.FLOAT == literalType.tag && literalValue instanceof String) {
+        if (TypeTags.FLOAT == literalType.tag) {
             if (TypeTags.DECIMAL == expType.tag) {
                 literalType = symTable.decimalType;
-                literalExpr.value = new Decimal((String) literalValue);
+                literalExpr.value = String.valueOf(literalValue);
             } else if (TypeTags.FLOAT == expType.tag) {
-                literalExpr.value = Double.parseDouble((String) literalValue);
+                literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
             }
         }
 

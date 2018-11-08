@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 // Simple decimal literal - positive.
 function testDecimalValue() returns (decimal) {
     decimal d;

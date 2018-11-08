@@ -26,13 +26,13 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BValue;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.Map.Entry;
 
@@ -245,7 +245,7 @@ public class JsonGenerator {
         this.writer.write(Double.toString(value));
     }
 
-    public void writeNumber(Decimal value) throws IOException {
+    public void writeNumber(BigDecimal value) throws IOException {
         this.processValueInit();
         this.writer.write(value.toString());
     }

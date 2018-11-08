@@ -415,8 +415,8 @@ public class SymbolTable {
         defineImplicitConversionOperator(byteType, anyType, true, InstructionCodes.BI2ANY);
         defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2ANY);
         defineImplicitConversionOperator(floatType, anyType, true, InstructionCodes.F2ANY);
-        defineImplicitConversionOperator(decimalType, jsonType, true, InstructionCodes.D2ANY);
-        defineImplicitConversionOperator(decimalType, anyType, true, InstructionCodes.D2ANY);
+        defineImplicitConversionOperator(decimalType, jsonType, true, InstructionCodes.NOP);
+        defineImplicitConversionOperator(decimalType, anyType, true, InstructionCodes.NOP);
         defineImplicitConversionOperator(stringType, jsonType, true, InstructionCodes.S2ANY);
         defineImplicitConversionOperator(stringType, anyType, true, InstructionCodes.S2ANY);
         defineImplicitConversionOperator(booleanType, jsonType, true, InstructionCodes.B2ANY);

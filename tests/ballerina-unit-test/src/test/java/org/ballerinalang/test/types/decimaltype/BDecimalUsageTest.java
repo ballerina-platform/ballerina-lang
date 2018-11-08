@@ -31,7 +31,9 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * This test class will test the below usages of decimal type.
@@ -39,6 +41,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
  * 2) Decimal map
  * 3) Record with decimal type fields
  * 4) Object with decimal type fields
+ *
+ * @since 0.985.0
  */
 public class BDecimalUsageTest {
     private CompileResult result;
@@ -65,10 +69,12 @@ public class BDecimalUsageTest {
         Assert.assertEquals(length.intValue(), 4, "Invalid value returned.");
 
         BDecimal element0 = (BDecimal) returns[2];
-        Assert.assertEquals(element0.decimalValue(), new Decimal("12.3"), "Invalid value returned.");
+        Assert.assertEquals(element0.decimalValue(), new BigDecimal("12.3", MathContext.DECIMAL128),
+                "Invalid value returned.");
 
         BDecimal element1 = (BDecimal) returns[3];
-        Assert.assertEquals(element1.decimalValue(), new Decimal("23.2"), "Invalid value returned.");
+        Assert.assertEquals(element1.decimalValue(), new BigDecimal("23.2", MathContext.DECIMAL128),
+                "Invalid value returned.");
     }
 
     @Test(description = "Test decimal map")
@@ -92,7 +98,8 @@ public class BDecimalUsageTest {
         Assert.assertEquals(keys, expectedKeys, "Invalid map keys returned.");
 
         BDecimal element0 = (BDecimal) returns[3];
-        Assert.assertEquals(element0.decimalValue(), new Decimal("12.45"), "Invalid value returned.");
+        Assert.assertEquals(element0.decimalValue(), new BigDecimal("12.45", MathContext.DECIMAL128),
+                "Invalid value returned.");
     }
 
     @Test(description = "Test record with decimal fields")
@@ -105,8 +112,10 @@ public class BDecimalUsageTest {
         BDecimal weight = (BDecimal) returns[0];
         BDecimal height = (BDecimal) returns[1];
 
-        Assert.assertEquals(weight.decimalValue(), new Decimal("23.45"), "Invalid decimal value returned.");
-        Assert.assertEquals(height.decimalValue(), new Decimal("120.43"), "Invalid decimal value returned.");
+        Assert.assertEquals(weight.decimalValue(), new BigDecimal("23.45", MathContext.DECIMAL128),
+                "Invalid decimal value returned.");
+        Assert.assertEquals(height.decimalValue(), new BigDecimal("120.43", MathContext.DECIMAL128),
+                "Invalid decimal value returned.");
     }
 
     @Test(description = "Test object with decimal fields")
@@ -125,7 +134,9 @@ public class BDecimalUsageTest {
 
         Assert.assertEquals(name.stringValue(), "Bob", "Invalid string value returned.");
         Assert.assertEquals(age.intValue(), 25, "Invalid integer value returned.");
-        Assert.assertEquals(weight.decimalValue(), new Decimal("57.25"), "Invalid decimal value returned.");
-        Assert.assertEquals(height.decimalValue(), new Decimal("168.67"), "Invalid decimal value returned.");
+        Assert.assertEquals(weight.decimalValue(), new BigDecimal("57.25", MathContext.DECIMAL128),
+                "Invalid decimal value returned.");
+        Assert.assertEquals(height.decimalValue(), new BigDecimal("168.67", MathContext.DECIMAL128),
+                "Invalid decimal value returned.");
     }
 }

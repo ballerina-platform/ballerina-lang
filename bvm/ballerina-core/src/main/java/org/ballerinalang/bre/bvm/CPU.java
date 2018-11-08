@@ -103,7 +103,6 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
-import org.ballerinalang.util.codegen.cpentries.DecimalCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -111,6 +110,7 @@ import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -123,10 +123,11 @@ import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.PrintStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -219,7 +220,8 @@ public class CPU {
                     case InstructionCodes.DCONST:
                         cpIndex = operands[0];
                         i = operands[1];
-                        sf.decimalRegs[i] = ((DecimalCPEntry) ctx.constPool[cpIndex]).getValue();
+                        String decimalVal = ((UTF8CPEntry) ctx.constPool[cpIndex]).getValue();
+                        sf.refRegs[i] = new BDecimal(new BigDecimal(decimalVal, MathContext.DECIMAL128));
                         break;
                     case InstructionCodes.SCONST:
                         cpIndex = operands[0];
@@ -301,21 +303,18 @@ public class CPU {
                     case InstructionCodes.FMOVE:
                     case InstructionCodes.SMOVE:
                     case InstructionCodes.BMOVE:
-                    case InstructionCodes.DMOVE:
                     case InstructionCodes.RMOVE:
                     case InstructionCodes.IALOAD:
                     case InstructionCodes.BIALOAD:
                     case InstructionCodes.FALOAD:
                     case InstructionCodes.SALOAD:
                     case InstructionCodes.BALOAD:
-                    case InstructionCodes.DALOAD:
                     case InstructionCodes.RALOAD:
                     case InstructionCodes.JSONALOAD:
                     case InstructionCodes.IGLOAD:
                     case InstructionCodes.FGLOAD:
                     case InstructionCodes.SGLOAD:
                     case InstructionCodes.BGLOAD:
-                    case InstructionCodes.DGLOAD:
                     case InstructionCodes.RGLOAD:
                     case InstructionCodes.MAPLOAD:
                     case InstructionCodes.JSONLOAD:
@@ -327,14 +326,12 @@ public class CPU {
                     case InstructionCodes.FASTORE:
                     case InstructionCodes.SASTORE:
                     case InstructionCodes.BASTORE:
-                    case InstructionCodes.DASTORE:
                     case InstructionCodes.RASTORE:
                     case InstructionCodes.JSONASTORE:
                     case InstructionCodes.IGSTORE:
                     case InstructionCodes.FGSTORE:
                     case InstructionCodes.SGSTORE:
                     case InstructionCodes.BGSTORE:
-                    case InstructionCodes.DGSTORE:
                     case InstructionCodes.RGSTORE:
                     case InstructionCodes.MAPSTORE:
                     case InstructionCodes.JSONSTORE:
@@ -568,7 +565,6 @@ public class CPU {
                     case InstructionCodes.F2ANY:
                     case InstructionCodes.S2ANY:
                     case InstructionCodes.B2ANY:
-                    case InstructionCodes.D2ANY:
                     case InstructionCodes.ANY2I:
                     case InstructionCodes.ANY2BI:
                     case InstructionCodes.ANY2F:
@@ -728,13 +724,6 @@ public class CPU {
                         callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
                         break;
                     case InstructionCodes.DRET:
-                        i = operands[0];
-                        j = operands[1];
-                        currentSF = ctx.workerLocal;
-                        callersSF = ctx.workerResult;
-                        callersRetRegIndex = ctx.retRegIndexes[i];
-                        callersSF.decimalRegs[callersRetRegIndex] = currentSF.decimalRegs[j];
-                        break;
                     case InstructionCodes.RRET:
                         i = operands[0];
                         j = operands[1];
@@ -941,7 +930,6 @@ public class CPU {
         int doubleIndex = expandDoubleRegs(sf, fp);
         int intIndex = expandIntRegs(sf, fp);
         int stringIndex = expandStringRegs(sf, fp);
-        int decimalIndex = expandDecimalRegs(sf, fp);
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
@@ -959,11 +947,6 @@ public class CPU {
                 case TypeTags.FLOAT_TAG: {
                     sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
                     newArgRegs[argRegIndex++] = doubleIndex++;
-                    break;
-                }
-                case TypeTags.DECIMAL_TAG: {
-                    sf.decimalRegs[decimalIndex] = ((BDecimal) closure.value()).decimalValue();
-                    newArgRegs[argRegIndex++] = decimalIndex++;
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
@@ -1000,7 +983,6 @@ public class CPU {
         int doubleIndex = expandDoubleRegs(sf, fp);
         int intIndex = expandIntRegs(sf, fp);
         int stringIndex = expandStringRegs(sf, fp);
-        int decimalIndex = expandDecimalRegs(sf, fp);
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
@@ -1018,11 +1000,6 @@ public class CPU {
                 case TypeTags.FLOAT_TAG: {
                     sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
                     newArgRegs[argRegIndex++] = doubleIndex++;
-                    break;
-                }
-                case TypeTags.DECIMAL_TAG: {
-                    sf.decimalRegs[decimalIndex] = ((BDecimal) closure.value()).decimalValue();
-                    newArgRegs[argRegIndex++] = decimalIndex++;
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
@@ -1104,21 +1081,6 @@ public class CPU {
         return stringIndex;
     }
 
-    private static int expandDecimalRegs(WorkerData sf, BFunctionPointer fp) {
-        int decimalIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeDecimal.getTag()) > 0) {
-            if (sf.decimalRegs == null) {
-                sf.decimalRegs = new Decimal[0];
-            }
-            Decimal[] newDecimalRegs = new Decimal[sf.decimalRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeDecimal.getTag())];
-            System.arraycopy(sf.decimalRegs, 0, newDecimalRegs, 0, sf.decimalRegs.length);
-            decimalIndex = sf.decimalRegs.length;
-            sf.decimalRegs = newDecimalRegs;
-        }
-        return decimalIndex;
-    }
-
     private static int expandRefRegs(WorkerData sf, BFunctionPointer fp) {
         int refIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeAny.getTag()) > 0) {
@@ -1166,7 +1128,7 @@ public class CPU {
                     break;
                 }
                 case TypeTags.DECIMAL_TAG: {
-                    fp.addClosureVar(new BClosure(new BDecimal(ctx.workerLocal.decimalRegs[index]), BTypes.typeDecimal),
+                    fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index], BTypes.typeDecimal),
                             TypeTags.DECIMAL_TAG);
                     break;
                 }
@@ -1192,6 +1154,9 @@ public class CPU {
         int i;
         int j;
         int k;
+        BigDecimal operand1;
+        BigDecimal operand2;
+
         switch (opcode) {
             case InstructionCodes.IGT:
                 i = operands[0];
@@ -1209,7 +1174,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) > 0 ? 1 : 0;
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = operand1.compareTo(operand2) > 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.IGE:
@@ -1228,7 +1195,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) >= 0 ? 1 : 0;
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = operand1.compareTo(operand2) >= 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.ILT:
@@ -1247,7 +1216,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) < 0 ? 1 : 0;
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = operand1.compareTo(operand2) < 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.ILE:
@@ -1266,7 +1237,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) <= 0 ? 1 : 0;
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = operand1.compareTo(operand2) <= 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.REQ_NULL:
@@ -1347,7 +1320,6 @@ public class CPU {
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
-        BDecimalArray bDecimalArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1370,11 +1342,6 @@ public class CPU {
                 lvIndex = operands[0];
                 i = operands[1];
                 sf.intRegs[i] = sf.intRegs[lvIndex];
-                break;
-            case InstructionCodes.DMOVE:
-                lvIndex = operands[0];
-                i = operands[1];
-                sf.decimalRegs[i] = sf.decimalRegs[lvIndex];
                 break;
             case InstructionCodes.RMOVE:
                 lvIndex = operands[0];
@@ -1441,18 +1408,6 @@ public class CPU {
                     handleError(ctx);
                 }
                 break;
-            case InstructionCodes.DALOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bDecimalArray = Optional.of((BDecimalArray) sf.refRegs[i]).get();
-                try {
-                    sf.decimalRegs[k] = bDecimalArray.get(sf.longRegs[j]);
-                } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    handleError(ctx);
-                }
-                break;
             case InstructionCodes.RALOAD:
                 i = operands[0];
                 j = operands[1];
@@ -1504,12 +1459,6 @@ public class CPU {
                 j = operands[2];
                 sf.intRegs[j] = ctx.programFile.globalMemArea.getBooleanField(pkgIndex, i);
                 break;
-            case InstructionCodes.DGLOAD:
-                pkgIndex = operands[0];
-                i = operands[1];
-                j = operands[2];
-                sf.decimalRegs[j] = ctx.programFile.globalMemArea.getDecimalField(pkgIndex, i);
-                break;
             case InstructionCodes.RGLOAD:
                 pkgIndex = operands[0];
                 i = operands[1];
@@ -1554,7 +1503,6 @@ public class CPU {
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
-        BDecimalArray bDecimalArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1618,18 +1566,6 @@ public class CPU {
                     handleError(ctx);
                 }
                 break;
-            case InstructionCodes.DASTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bDecimalArray = Optional.of((BDecimalArray) sf.refRegs[i]).get();
-                try {
-                    bDecimalArray.add(sf.longRegs[j], sf.decimalRegs[k]);
-                } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    handleError(ctx);
-                }
-                break;
             case InstructionCodes.RASTORE:
                 i = operands[0];
                 j = operands[1];
@@ -1687,12 +1623,6 @@ public class CPU {
                 j = operands[2];
                 ctx.programFile.globalMemArea.setBooleanField(pkgIndex, j, sf.intRegs[i]);
                 break;
-            case InstructionCodes.DGSTORE:
-                pkgIndex = operands[0];
-                i = operands[1];
-                j = operands[2];
-                ctx.programFile.globalMemArea.setDecimalField(pkgIndex, j, sf.decimalRegs[i]);
-                break;
             case InstructionCodes.RGSTORE:
                 pkgIndex = operands[0];
                 i = operands[1];
@@ -1736,6 +1666,9 @@ public class CPU {
         int i;
         int j;
         int k;
+        BigDecimal operand1;
+        BigDecimal operand2;
+
         switch (opcode) {
             case InstructionCodes.IADD:
                 i = operands[0];
@@ -1759,7 +1692,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.decimalRegs[k] = sf.decimalRegs[i].add(sf.decimalRegs[j]);
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(operand1.add(operand2, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.XMLADD:
                 i = operands[0];
@@ -1787,7 +1722,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.decimalRegs[k] = sf.decimalRegs[i].subtract(sf.decimalRegs[j]);
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(operand1.subtract(operand2, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.IMUL:
                 i = operands[0];
@@ -1805,7 +1742,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.decimalRegs[k] = sf.decimalRegs[i].multiply(sf.decimalRegs[j]);
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(operand1.multiply(operand2, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.IDIV:
                 i = operands[0];
@@ -1835,13 +1774,15 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.decimalRegs[j].compareTo(Decimal.ZERO) == 0) {
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                if (operand2.compareTo(BigDecimal.ZERO) == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
 
-                sf.decimalRegs[k] = sf.decimalRegs[i].divide(sf.decimalRegs[j]);
+                sf.refRegs[k] = new BDecimal(operand1.divide(operand2, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.IMOD:
                 i = operands[0];
@@ -1871,13 +1812,15 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.decimalRegs[j].compareTo(Decimal.ZERO) == 0) {
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                if (operand2.compareTo(BigDecimal.ZERO) == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
 
-                sf.decimalRegs[k] = sf.decimalRegs[i].reminder(sf.decimalRegs[j]);
+                sf.refRegs[k] = new BDecimal(operand1.remainder(operand2, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.INEG:
                 i = operands[0];
@@ -1892,7 +1835,8 @@ public class CPU {
             case InstructionCodes.DNEG:
                 i = operands[0];
                 j = operands[1];
-                sf.decimalRegs[j] = sf.decimalRegs[i].negate();
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                sf.refRegs[j] = new BDecimal(operand1.negate());
                 break;
             case InstructionCodes.BNOT:
                 i = operands[0];
@@ -1927,7 +1871,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) == 0 ? 1 : 0;
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = operand1.compareTo(operand2) == 0 ? 1 : 0;
                 break;
             case InstructionCodes.REQ:
                 i = operands[0];
@@ -1977,7 +1923,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.decimalRegs[i].compareTo(sf.decimalRegs[j]) != 0 ? 1 : 0;
+                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
+                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = operand1.compareTo(operand2) != 0 ? 1 : 0;
                 break;
             case InstructionCodes.RNE:
                 i = operands[0];
@@ -2217,11 +2165,6 @@ public class CPU {
                 j = operands[1];
                 sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
                 break;
-            case InstructionCodes.D2ANY:
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = new BDecimal(sf.decimalRegs[i]);
-                break;
             case InstructionCodes.ANY2I:
                 i = operands[0];
                 j = operands[1];
@@ -2250,7 +2193,7 @@ public class CPU {
             case InstructionCodes.ANY2D:
                 i = operands[0];
                 j = operands[1];
-                sf.decimalRegs[j] = ((BValueType) sf.refRegs[i]).decimalValue();
+                sf.refRegs[j] = new BDecimal(((BValueType) sf.refRegs[i]).decimalValue());
                 break;
             case InstructionCodes.ANY2JSON:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeJSON);
@@ -2345,7 +2288,7 @@ public class CPU {
             case InstructionCodes.I2D:
                 i = operands[0];
                 j = operands[1];
-                sf.decimalRegs[j] = new BInteger(sf.longRegs[i]).decimalValue();
+                sf.refRegs[j] = new BDecimal(new BInteger(sf.longRegs[i]).decimalValue());
                 break;
             case InstructionCodes.I2BI:
                 i = operands[0];
@@ -2379,7 +2322,7 @@ public class CPU {
             case InstructionCodes.F2D:
                 i = operands[0];
                 j = operands[1];
-                sf.decimalRegs[j] = new BFloat(sf.doubleRegs[i]).decimalValue();
+                sf.refRegs[j] = new BDecimal(new BFloat(sf.doubleRegs[i]).decimalValue());
                 break;
             case InstructionCodes.S2I:
                 i = operands[0];
@@ -2414,7 +2357,7 @@ public class CPU {
 
                 str = sf.stringRegs[i];
                 try {
-                    sf.refRegs[j] = new BDecimal(new Decimal(str));
+                    sf.refRegs[j] = new BDecimal(new BigDecimal(str, MathContext.DECIMAL128));
                 } catch (NumberFormatException e) {
                     handleTypeConversionError(ctx, sf, j, TypeConstants.STRING_TNAME, TypeConstants.DECIMAL_TNAME);
                 }
@@ -2437,27 +2380,27 @@ public class CPU {
             case InstructionCodes.B2D:
                 i = operands[0];
                 j = operands[1];
-                sf.decimalRegs[j] = sf.intRegs[i] == 1 ? Decimal.ONE : Decimal.ZERO;
+                sf.refRegs[j] = sf.intRegs[i] == 1 ? new BDecimal(BigDecimal.ONE) : new BDecimal(BigDecimal.ZERO);
                 break;
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = new BDecimal(sf.decimalRegs[i]).intValue();
+                sf.longRegs[j] = ((BDecimal) sf.refRegs[i]).intValue();
                 break;
             case InstructionCodes.D2F:
                 i = operands[0];
                 j = operands[1];
-                sf.doubleRegs[j] = new BDecimal(sf.decimalRegs[i]).floatValue();
+                sf.doubleRegs[j] = ((BDecimal) sf.refRegs[i]).floatValue();
                 break;
             case InstructionCodes.D2S:
                 i = operands[0];
                 j = operands[1];
-                sf.stringRegs[j] = sf.decimalRegs[i].toString();
+                sf.stringRegs[j] = sf.refRegs[i].stringValue();
                 break;
             case InstructionCodes.D2B:
                 i = operands[0];
                 j = operands[1];
-                sf.intRegs[j] = sf.decimalRegs[i].compareTo(Decimal.ZERO) != 0 ? 1 : 0;
+                sf.intRegs[j] = ((BDecimal) sf.refRegs[i]).decimalValue().compareTo(BigDecimal.ZERO) != 0 ? 1 : 0;
                 break;
             case InstructionCodes.DT2XML:
                 i = operands[0];
@@ -2602,9 +2545,6 @@ public class CPU {
                 case TypeTags.FLOAT_TAG:
                     sf.doubleRegs[target] = ((BFloat) source).floatValue();
                     break;
-                case TypeTags.DECIMAL_TAG:
-                    sf.decimalRegs[target] = ((BDecimal) source).decimalValue();
-                    break;
                 case TypeTags.STRING_TAG:
                     sf.stringRegs[target] = source.stringValue();
                     break;
@@ -2693,9 +2633,6 @@ public class CPU {
                 case TypeTags.FLOAT_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
                     break;
-                case TypeTags.DECIMAL_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockDecimalField(ctx, pkgIndex, regIndex);
-                    break;
                 case TypeTags.STRING_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockStringField(ctx, pkgIndex, regIndex);
                     break;
@@ -2724,9 +2661,6 @@ public class CPU {
                     break;
                 case TypeTags.FLOAT_TAG:
                     ctx.programFile.globalMemArea.unlockFloatField(pkgIndex, regIndex);
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    ctx.programFile.globalMemArea.unlockDecimalField(pkgIndex, regIndex);
                     break;
                 case TypeTags.STRING_TAG:
                     ctx.programFile.globalMemArea.unlockStringField(pkgIndex, regIndex);
@@ -3038,9 +2972,6 @@ public class CPU {
             case TypeTags.FLOAT_TAG:
                 result = new BFloat(data.doubleRegs[reg]);
                 break;
-            case TypeTags.DECIMAL_TAG:
-                result = new BDecimal(data.decimalRegs[reg]);
-                break;
             case TypeTags.STRING_TAG:
                 result = new BString(data.stringRegs[reg]);
                 break;
@@ -3083,9 +3014,6 @@ public class CPU {
                 break;
             case TypeTags.FLOAT_TAG:
                 currentSF.doubleRegs[regIndex] = ((BFloat) passedInValue).floatValue();
-                break;
-            case TypeTags.DECIMAL_TAG:
-                currentSF.decimalRegs[regIndex] = ((BDecimal) passedInValue).decimalValue();
                 break;
             case TypeTags.STRING_TAG:
                 currentSF.stringRegs[regIndex] = (passedInValue).stringValue();
@@ -4108,6 +4036,7 @@ public class CPU {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.BYTE_TAG:
@@ -4174,6 +4103,7 @@ public class CPU {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
                 return true;

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 // Test invalid decimal value scenarios.
 function testInvlaidDecimalValue() {
     // This is to test a syntax issue.

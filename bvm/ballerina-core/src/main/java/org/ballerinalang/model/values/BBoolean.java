@@ -19,7 +19,8 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
+import java.math.BigDecimal;
 
 /**
  * The {@code BBoolean} represents a boolean value in Ballerina.
@@ -62,8 +63,8 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     }
 
     @Override
-    public Decimal decimalValue() {
-        return Decimal.ZERO;
+    public BigDecimal decimalValue() {
+        return BigDecimal.ZERO;
     }
 
     @Override

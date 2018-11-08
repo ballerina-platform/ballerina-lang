@@ -21,8 +21,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
@@ -33,16 +33,16 @@ import java.util.StringJoiner;
  */
 public class BDecimalArray extends BNewArray {
 
-    private Decimal[] values;
+    private BigDecimal[] values;
 
-    public BDecimalArray(Decimal[] values) {
+    public BDecimalArray(BigDecimal[] values) {
         this.values = values;
         this.size = values.length;
         super.arrayType = new BArrayType(BTypes.typeDecimal);
     }
 
     public BDecimalArray() {
-        values = (Decimal[]) newArrayInstance(Decimal.class);
+        values = (BigDecimal[]) newArrayInstance(BigDecimal.class);
         super.arrayType = new BArrayType(BTypes.typeDecimal);
     }
 
@@ -50,16 +50,16 @@ public class BDecimalArray extends BNewArray {
         if (size != -1) {
             this.size = maxArraySize = size;
         }
-        values = (Decimal[]) newArrayInstance(Decimal.class);
+        values = (BigDecimal[]) newArrayInstance(BigDecimal.class);
         super.arrayType = new BArrayType(BTypes.typeDecimal, size);
     }
 
-    public void add(long index, Decimal value) {
+    public void add(long index, BigDecimal value) {
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
 
-    public Decimal get(long index) {
+    public BigDecimal get(long index) {
         rangeCheckForGet(index, size);
         return values[(int) index];
     }

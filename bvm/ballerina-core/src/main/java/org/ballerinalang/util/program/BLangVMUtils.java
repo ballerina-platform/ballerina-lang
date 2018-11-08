@@ -39,9 +39,9 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
 import java.io.PrintStream;
+import java.math.BigDecimal;
 
 /**
  * Utilities related to the Ballerina VM.
@@ -59,7 +59,6 @@ public class BLangVMUtils {
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
-        int decimalRegIndex = -1;
         int refRegIndex = -1;
 
         for (int i = 0; i < argRegs.length; i++) {
@@ -74,9 +73,6 @@ public class BLangVMUtils {
                     break;
                 case TypeTags.FLOAT_TAG:
                     callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    callee.decimalRegs[++decimalRegIndex] = caller.decimalRegs[argReg];
                     break;
                 case TypeTags.STRING_TAG:
                     callee.stringRegs[++stringRegIndex] = caller.stringRegs[argReg];
@@ -95,8 +91,7 @@ public class BLangVMUtils {
         int doubleLocalVals = argRegs[1];
         int stringLocalVals = argRegs[2];
         int booleanLocalVals = argRegs[3];
-        int decimalLocalVals = argRegs[4];
-        int refLocalVals = argRegs[5];
+        int refLocalVals = argRegs[4];
 
         for (int i = 0; i <= longLocalVals; i++) {
             callee.longRegs[i] = caller.longRegs[i];
@@ -112,10 +107,6 @@ public class BLangVMUtils {
 
         for (int i = 0; i <= booleanLocalVals; i++) {
             callee.intRegs[i] = caller.intRegs[i];
-        }
-
-        for (int i = 0; i <= decimalLocalVals; i++) {
-            callee.decimalRegs[i] = caller.decimalRegs[i];
         }
 
         for (int i = 0; i <= refLocalVals; i++) {
@@ -173,10 +164,10 @@ public class BLangVMUtils {
                     break;
                 case TypeTags.DECIMAL_TAG:
                     if (vals[i] == null) {
-                        data.decimalRegs[callersRetRegIndex] = Decimal.ZERO;
+                        data.refRegs[callersRetRegIndex] = new BDecimal(BigDecimal.ZERO);
                         break;
                     }
-                    data.decimalRegs[callersRetRegIndex] = ((BDecimal) vals[i]).decimalValue();
+                    data.refRegs[callersRetRegIndex] = (BDecimal) vals[i];
                     break;
                 case TypeTags.STRING_TAG:
                     if (vals[i] == null) {
@@ -207,7 +198,6 @@ public class BLangVMUtils {
         int doubleRegCount = 0;
         int stringRegCount = 0;
         int intRegCount = 0;
-        int decimalRegCount = 0;
         int refRegCount = 0;
 
         for (int i = 0; i < vals.length; i++) {
@@ -236,10 +226,10 @@ public class BLangVMUtils {
                     break;
                 case TypeTags.DECIMAL_TAG:
                     if (vals[i] == null) {
-                        result.decimalRegs[decimalRegCount++] = Decimal.ZERO;
+                        result.refRegs[refRegCount++] = new BDecimal(BigDecimal.ZERO);
                         break;
                     }
-                    result.decimalRegs[decimalRegCount++] = ((BDecimal) vals[i]).decimalValue();
+                    result.refRegs[refRegCount++] = ((BDecimal) vals[i]);
                     break;
                 case TypeTags.STRING_TAG:
                     if (vals[i] == null) {
@@ -278,9 +268,6 @@ public class BLangVMUtils {
                 case TypeTags.FLOAT_TAG:
                     returnValues[i] = new BFloat(data.doubleRegs[retRegs[i]]);
                     break;
-                case TypeTags.DECIMAL_TAG:
-                    returnValues[i] = new BDecimal(data.decimalRegs[retRegs[i]]);
-                    break;
                 case TypeTags.STRING_TAG:
                     returnValues[i] = new BString(data.stringRegs[retRegs[i]]);
                     break;
@@ -311,9 +298,6 @@ public class BLangVMUtils {
                 case TypeTags.FLOAT_TAG:
                     result[i] += paramWDI.doubleRegCount;
                     break;
-                case TypeTags.DECIMAL_TAG:
-                    result[i] += paramWDI.decimalRegCount;
-                    break;
                 case TypeTags.STRING_TAG:
                     result[i] += paramWDI.stringRegCount;
                     break;
@@ -335,8 +319,7 @@ public class BLangVMUtils {
         WorkerDataIndex wdi2 = callableUnitInfo.retWorkerIndex;
         WorkerData local = createWorkerData(wdi1, wdi2);
         BType[] types = callableUnitInfo.getParamTypes();
-        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0,
-                decimalParamCount = 0, refParamCount = 0;
+        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, refParamCount = 0;
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
                 case TypeTags.INT_TAG:
@@ -347,9 +330,6 @@ public class BLangVMUtils {
                     break;
                 case TypeTags.FLOAT_TAG:
                     local.doubleRegs[doubleParamCount++] = ((BValueType) args[i]).floatValue();
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    local.decimalRegs[decimalParamCount++] = ((BValueType) args[i]).decimalValue();
                     break;
                 case TypeTags.STRING_TAG:
                     local.stringRegs[stringParamCount++] = args[i].stringValue();
@@ -387,7 +367,6 @@ public class BLangVMUtils {
         int doubleRegCount = 0;
         int stringRegCount = 0;
         int intRegCount = 0;
-        int decimalRegCount = 0;
         int refRegCount = 0;
 
         for (int i = 0; i < types.length; i++) {
@@ -402,9 +381,6 @@ public class BLangVMUtils {
                     break;
                 case TypeTags.FLOAT_TAG:
                     targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
-                    break;
-                case TypeTags.DECIMAL_TAG:
-                    targetData.decimalRegs[callersRetRegIndex] = sourceData.decimalRegs[decimalRegCount++];
                     break;
                 case TypeTags.STRING_TAG:
                     targetData.stringRegs[callersRetRegIndex] = sourceData.stringRegs[stringRegCount++];
@@ -432,9 +408,6 @@ public class BLangVMUtils {
         }
         for (int i = 0; i < initWorkerCAI.getMaxStringLocalVars(); i++) {
             targetData.stringRegs[i] = sourceData.stringRegs[i];
-        }
-        for (int i = 0; i < initWorkerCAI.getMaxDecimalLocalVars(); i++) {
-            targetData.decimalRegs[i] = sourceData.decimalRegs[i];
         }
         for (int i = 0; i < initWorkerCAI.getMaxRefLocalVars(); i++) {
             targetData.refRegs[i] = sourceData.refRegs[i];

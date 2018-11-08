@@ -54,7 +54,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -2483,7 +2482,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.FLOAT:
                 return getFloatLiteral(0);
             case TypeTags.DECIMAL:
-                return getDecimalLiteral(Decimal.ZERO);
+                return getDecimalLiteral("0.0");
             case TypeTags.BOOLEAN:
                 return getBooleanLiteral(false);
             case TypeTags.STRING:
@@ -3019,7 +3018,7 @@ public class Desugar extends BLangNodeVisitor {
                 case TypeTags.FLOAT:
                     return getFloatLiteral(((Long) value).doubleValue());
                 case TypeTags.DECIMAL:
-                    return getDecimalLiteral(new Decimal(String.valueOf(value)));
+                    return getDecimalLiteral(String.valueOf(value));
                 default:
                     return getIntLiteral((Long) value);
             }
@@ -3029,7 +3028,7 @@ public class Desugar extends BLangNodeVisitor {
                 case TypeTags.FLOAT:
                     return getFloatLiteral(Double.parseDouble((String) value));
                 case TypeTags.DECIMAL:
-                    return getDecimalLiteral(new Decimal((String) value));
+                    return getDecimalLiteral(String.valueOf(value));
                 default:
                     return getStringLiteral((String) value);
             }
@@ -3064,7 +3063,7 @@ public class Desugar extends BLangNodeVisitor {
         return literal;
     }
 
-    private BLangLiteral getDecimalLiteral(Decimal value) {
+    private BLangLiteral getDecimalLiteral(String value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
         literal.typeTag = TypeTags.DECIMAL;

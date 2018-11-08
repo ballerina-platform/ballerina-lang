@@ -20,7 +20,9 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * The {@code BString} represents a string in Ballerina.
@@ -69,10 +71,10 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
-    public Decimal decimalValue() {
-        Decimal result;
+    public BigDecimal decimalValue() {
+        BigDecimal result;
         try {
-            result = new Decimal(this.value);
+            result = new BigDecimal(this.value, MathContext.DECIMAL128);
         } catch (NumberFormatException e) {
             throw new BallerinaException("input value " + this.value + " cannot be cast to decimal");
         }

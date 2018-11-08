@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 // Decimal array.
 function testDecimalArray() returns (decimal[], int, decimal, decimal) {
     decimal[] dArr = [12.3, 23.2, 34.534, 5.4];

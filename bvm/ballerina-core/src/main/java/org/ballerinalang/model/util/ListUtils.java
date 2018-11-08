@@ -36,7 +36,8 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
+import java.math.BigDecimal;
 
 /**
  * Common utility methods used for List manipulation.
@@ -99,7 +100,7 @@ public class ListUtils {
                 return;
             case TypeTags.DECIMAL_TAG:
                 BDecimalArray bDecimalArray = (BDecimalArray) array;
-                bDecimalArray.add(index, (Decimal) refType.value());
+                bDecimalArray.add(index, (BigDecimal) refType.value());
                 return;
             case TypeTags.INT_TAG:
                 BIntArray bIntArray = (BIntArray) array;

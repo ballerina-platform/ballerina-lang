@@ -73,7 +73,6 @@ import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
-import org.ballerinalang.util.codegen.cpentries.DecimalCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -90,12 +89,13 @@ import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 import org.wso2.ballerinalang.compiler.TypeCreater;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -179,10 +179,6 @@ public class PackageInfoReader {
             case CP_ENTRY_FLOAT:
                 double doubleVal = dataInStream.readDouble();
                 return new FloatCPEntry(doubleVal);
-
-            case CP_ENTRY_DECIMAL:
-                String decimalVal = dataInStream.readUTF();
-                return new DecimalCPEntry(new Decimal(decimalVal));
 
             case CP_ENTRY_STRING:
                 cpIndex = dataInStream.readInt();
@@ -937,14 +933,12 @@ public class PackageInfoReader {
                 codeAttributeInfo.setMaxDoubleLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxStringLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxIntLocalVars(dataInStream.readShort());
-                codeAttributeInfo.setMaxDecimalLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxRefLocalVars(dataInStream.readShort());
 
                 codeAttributeInfo.setMaxLongRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxDoubleRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxStringRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxIntRegs(dataInStream.readShort());
-                codeAttributeInfo.setMaxDecimalRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxRefRegs(dataInStream.readShort());
                 return codeAttributeInfo;
 
@@ -955,7 +949,6 @@ public class PackageInfoReader {
                 varCountAttributeInfo.setMaxDoubleVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxStringVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxIntVars(dataInStream.readShort());
-                varCountAttributeInfo.setMaxDecimalVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxRefVars(dataInStream.readShort());
                 return varCountAttributeInfo;
 
@@ -1155,7 +1148,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:
                 case InstructionCodes.BMOVE:
-                case InstructionCodes.DMOVE:
                 case InstructionCodes.RMOVE:
                 case InstructionCodes.INEG:
                 case InstructionCodes.FNEG:
@@ -1188,7 +1180,6 @@ public class PackageInfoReader {
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
                 case InstructionCodes.B2ANY:
-                case InstructionCodes.D2ANY:
                 case InstructionCodes.ANY2I:
                 case InstructionCodes.ANY2BI:
                 case InstructionCodes.ANY2F:
@@ -1243,7 +1234,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
                 case InstructionCodes.BALOAD:
-                case InstructionCodes.DALOAD:
                 case InstructionCodes.RALOAD:
                 case InstructionCodes.JSONALOAD:
                 case InstructionCodes.IASTORE:
@@ -1251,7 +1241,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FASTORE:
                 case InstructionCodes.SASTORE:
                 case InstructionCodes.BASTORE:
-                case InstructionCodes.DASTORE:
                 case InstructionCodes.RASTORE:
                 case InstructionCodes.JSONASTORE:
                 case InstructionCodes.MAPSTORE:
@@ -1370,13 +1359,11 @@ public class PackageInfoReader {
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
                 case InstructionCodes.BGLOAD:
-                case InstructionCodes.DGLOAD:
                 case InstructionCodes.RGLOAD:
                 case InstructionCodes.IGSTORE:
                 case InstructionCodes.FGSTORE:
                 case InstructionCodes.SGSTORE:
                 case InstructionCodes.BGSTORE:
-                case InstructionCodes.DGSTORE:
                 case InstructionCodes.RGSTORE:
                     int pkgRefCPIndex = codeStream.readInt();
                     i = codeStream.readInt();
@@ -1703,8 +1690,8 @@ public class PackageInfoReader {
                 break;
             case TypeSignature.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
-                DecimalCPEntry decimalCPEntry = (DecimalCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue.setDecimalValue(decimalCPEntry.getValue());
+                UTF8CPEntry decimalEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setDecimalValue(new BigDecimal(decimalEntry.getValue(), MathContext.DECIMAL128));
                 break;
             case TypeSignature.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
@@ -1742,7 +1729,7 @@ public class PackageInfoReader {
                 value = new BFloat(floatValue);
                 break;
             case TypeSignature.SIG_DECIMAL:
-                Decimal decimalValue = defaultValue.getDecimalValue();
+                BigDecimal decimalValue = defaultValue.getDecimalValue();
                 value = new BDecimal(decimalValue);
                 break;
             case TypeSignature.SIG_STRING:

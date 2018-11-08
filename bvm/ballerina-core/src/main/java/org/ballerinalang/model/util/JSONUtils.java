@@ -60,8 +60,8 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,7 +136,7 @@ public class JSONUtils {
     private static BRefValueArray convertArrayToJSON(BDecimalArray decimalArray) {
         BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < decimalArray.size(); i++) {
-            Decimal value = decimalArray.get(i);
+            BigDecimal value = decimalArray.get(i);
             json.append(new BDecimal(value));
         }
         return json;

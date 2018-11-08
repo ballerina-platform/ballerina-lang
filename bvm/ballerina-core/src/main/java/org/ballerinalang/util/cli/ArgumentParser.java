@@ -55,8 +55,9 @@ import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -331,9 +332,9 @@ public class ArgumentParser {
         }
     }
 
-    private static Decimal getDecimalValue(String argument) {
+    private static BigDecimal getDecimalValue(String argument) {
         try {
-            return new Decimal(argument);
+            return new BigDecimal(argument, MathContext.DECIMAL128);
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected decimal value");
         }

@@ -50,23 +50,20 @@ public interface InstructionCodes {
     int FMOVE = 23;
     int SMOVE = 24;
     int BMOVE = 25;
-    int DMOVE = 26;
-    int RMOVE = 27;
+    int RMOVE = 26;
     int BIALOAD = 28;
     int IALOAD = 29;
     int FALOAD = 30;
     int SALOAD = 31;
     int BALOAD = 32;
-    int DALOAD = 33;
-    int RALOAD = 34;
-    int JSONALOAD = 35;
+    int RALOAD = 33;
+    int JSONALOAD = 34;
 
     int IGLOAD = 36;
     int FGLOAD = 37;
     int SGLOAD = 38;
     int BGLOAD = 39;
-    int DGLOAD = 40;
-    int RGLOAD = 41;
+    int RGLOAD = 40;
 
     int CHNRECEIVE = 42;
     int CHNSEND = 43;
@@ -81,9 +78,8 @@ public interface InstructionCodes {
     int FASTORE = 49;
     int SASTORE = 50;
     int BASTORE = 51;
-    int DASTORE = 52;
-    int RASTORE = 53;
-    int JSONASTORE = 54;
+    int RASTORE = 52;
+    int JSONASTORE = 53;
 
     int BIAND = 55;
     int IAND = 56;
@@ -94,8 +90,7 @@ public interface InstructionCodes {
     int FGSTORE = 60;
     int SGSTORE = 61;
     int BGSTORE = 62;
-    int DGSTORE = 63;
-    int RGSTORE = 64;
+    int RGSTORE = 63;
 
     int ERROR = 65;
     int PANIC = 66;
@@ -218,7 +213,6 @@ public interface InstructionCodes {
     int F2ANY = 164;
     int S2ANY = 165;
     int B2ANY = 166;
-    int D2ANY = 167;
     int ANY2I = 168;
     int ANY2F = 169;
     int ANY2S = 170;

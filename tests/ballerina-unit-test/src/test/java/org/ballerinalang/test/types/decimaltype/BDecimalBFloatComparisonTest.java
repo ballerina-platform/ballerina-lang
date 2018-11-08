@@ -28,13 +28,17 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.types.util.Decimal;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * This class is used to test the behaviours of BDecimal and BFloat types by comparing them.
  * This class contains tests,
  * 1) demonstrating how very large numbers can be represented using BDecimal type.
  * 2) demonstrating how BDecimal type solves the floating point error problem that exists in the BFloat type.
+ *
+ * @since 0.985.0
  */
 public class BDecimalBFloatComparisonTest {
     private CompileResult result;
@@ -55,8 +59,9 @@ public class BDecimalBFloatComparisonTest {
 
         Assert.assertSame(returns[1].getClass(), BDecimal.class);
         BDecimal bDecimalVal = (BDecimal) returns[1];
-        Decimal actualDecimalVal = bDecimalVal.decimalValue();
-        Decimal expectedDecimalVal = new Decimal("4.354224522222222222222222222222889E+384");
+        BigDecimal actualDecimalVal = bDecimalVal.decimalValue();
+        BigDecimal expectedDecimalVal = new BigDecimal("4.354224522222222222222222222222889E+384",
+                MathContext.DECIMAL128);
         Assert.assertTrue(actualDecimalVal.compareTo(expectedDecimalVal) == 0, "Invalid decimal value returned.");
     }
 

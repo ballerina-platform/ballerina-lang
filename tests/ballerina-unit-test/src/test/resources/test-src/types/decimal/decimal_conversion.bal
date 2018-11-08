@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 // Decimal to other types (int, float, string, boolean, any, json) conversion.
 function testDecimalToOtherTypesConversion() returns (int, float, string, boolean, any, json) {
     decimal d = 23.456;
