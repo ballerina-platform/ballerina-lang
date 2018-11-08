@@ -22,11 +22,11 @@ import { render } from 'react-dom';
 
 export function renderTraceLogs(target: HTMLElement, traces: Array<Object>,  onSelected: Function, clearLogs: Function) {
     const filters = {
-        "message.id": "Activity Id",
-        "logger": "Logger",
         "message.path": "Path",
         "message.direction": "Inbound/Outbound",
-        "message.httpMethod": "Method"
+        "message.httpMethod": "Method",
+        "logger": "Logger",
+        "message.id": "Activity Id",
     };
     const props = {
         traces,

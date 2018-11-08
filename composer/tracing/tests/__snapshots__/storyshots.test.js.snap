@@ -699,11 +699,6 @@ exports[`Storyshots trace list list traces 1`] = `
         >
           Direction
         </th>
-        <th
-          className=""
-        >
-          Time
-        </th>
       </tr>
     </thead>
     <tbody
@@ -719,7 +714,7 @@ exports[`Storyshots trace list list traces 1`] = `
           <i
             aria-hidden="true"
             className="icon"
-            title="direction"
+            title="http.tracelog.downstream - direction"
           />
         </td>
         <td
@@ -730,17 +725,17 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
-          GET
+          <div
+            className="ui horizontal label"
+            onClick={[Function]}
+          >
+            GET
+          </div>
         </td>
         <td
           className=""
         >
           direction
-        </td>
-        <td
-          className=""
-        >
-          13:21:35.575
         </td>
       </tr>
       <tr
@@ -753,7 +748,7 @@ exports[`Storyshots trace list list traces 1`] = `
           <i
             aria-hidden="true"
             className="icon"
-            title="direction"
+            title="http.tracelog.downstream - direction"
           />
         </td>
         <td
@@ -764,17 +759,17 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
-          POST
+          <div
+            className="ui horizontal label"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
         >
           direction
-        </td>
-        <td
-          className=""
-        >
-          13:21:35.575
         </td>
       </tr>
       <tr
@@ -787,7 +782,7 @@ exports[`Storyshots trace list list traces 1`] = `
           <i
             aria-hidden="true"
             className="icon"
-            title="direction"
+            title="http.tracelog.downstream - direction"
           />
         </td>
         <td
@@ -798,17 +793,17 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
-          POST
+          <div
+            className="ui horizontal label"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
         >
           direction
-        </td>
-        <td
-          className=""
-        >
-          13:21:35.575
         </td>
       </tr>
       <tr
@@ -821,7 +816,7 @@ exports[`Storyshots trace list list traces 1`] = `
           <i
             aria-hidden="true"
             className="icon"
-            title="direction"
+            title="http.tracelog.downstream - direction"
           />
         </td>
         <td
@@ -832,17 +827,17 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
-          POST
+          <div
+            className="ui horizontal label"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
         >
           direction
-        </td>
-        <td
-          className=""
-        >
-          13:21:35.575
         </td>
       </tr>
     </tbody>
@@ -881,11 +876,6 @@ exports[`Storyshots trace list list traces selected 1`] = `
         >
           Direction
         </th>
-        <th
-          className=""
-        >
-          Time
-        </th>
       </tr>
     </thead>
     <tbody
@@ -901,7 +891,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
           <i
             aria-hidden="true"
             className="icon"
-            title="direction"
+            title="http.tracelog.downstream - direction"
           />
         </td>
         <td
@@ -912,17 +902,17 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
-          GET
+          <div
+            className="ui horizontal label"
+            onClick={[Function]}
+          >
+            GET
+          </div>
         </td>
         <td
           className=""
         >
           direction
-        </td>
-        <td
-          className=""
-        >
-          13:21:35.575
         </td>
       </tr>
       <tr
@@ -935,7 +925,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
           <i
             aria-hidden="true"
             className="icon"
-            title="direction"
+            title="http.tracelog.downstream - direction"
           />
         </td>
         <td
@@ -946,17 +936,17 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
-          POST
+          <div
+            className="ui horizontal label"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
         >
           direction
-        </td>
-        <td
-          className=""
-        >
-          13:21:35.575
         </td>
       </tr>
       <tr
@@ -969,7 +959,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
           <i
             aria-hidden="true"
             className="icon"
-            title="direction"
+            title="http.tracelog.downstream - direction"
           />
         </td>
         <td
@@ -980,17 +970,17 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
-          POST
+          <div
+            className="ui horizontal label"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
         >
           direction
-        </td>
-        <td
-          className=""
-        >
-          13:21:35.575
         </td>
       </tr>
       <tr
@@ -1003,7 +993,7 @@ exports[`Storyshots trace list list traces selected 1`] = `
           <i
             aria-hidden="true"
             className="icon"
-            title="direction"
+            title="http.tracelog.downstream - direction"
           />
         </td>
         <td
@@ -1014,17 +1004,17 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
-          POST
+          <div
+            className="ui horizontal label"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
         >
           direction
-        </td>
-        <td
-          className=""
-        >
-          13:21:35.575
         </td>
       </tr>
     </tbody>
@@ -1409,11 +1399,6 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             >
               Direction
             </th>
-            <th
-              className=""
-            >
-              Time
-            </th>
           </tr>
         </thead>
         <tbody
@@ -1429,7 +1414,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               <i
                 aria-hidden="true"
                 className="icon"
-                title=""
+                title="http.tracelog.downstream - "
               />
             </td>
             <td
@@ -1446,11 +1431,6 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               className=""
             >
               
-            </td>
-            <td
-              className=""
-            >
-              14:15:38.205
             </td>
           </tr>
           <tr
@@ -1463,7 +1443,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               <i
                 aria-hidden="true"
                 className="icon"
-                title=""
+                title="http.tracelog.downstream - "
               />
             </td>
             <td
@@ -1480,11 +1460,6 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               className=""
             >
               
-            </td>
-            <td
-              className=""
-            >
-              14:15:38.205
             </td>
           </tr>
           <tr
@@ -1497,7 +1472,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               <i
                 aria-hidden="true"
                 className="icon"
-                title=""
+                title="http.tracelog.downstream - "
               />
             </td>
             <td
@@ -1514,11 +1489,6 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               className=""
             >
               
-            </td>
-            <td
-              className=""
-            >
-              14:15:38.205
             </td>
           </tr>
           <tr
@@ -1531,7 +1501,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               <i
                 aria-hidden="true"
                 className="icon"
-                title=""
+                title="http.tracelog.downstream - "
               />
             </td>
             <td
@@ -1548,11 +1518,6 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               className=""
             >
               
-            </td>
-            <td
-              className=""
-            >
-              14:15:38.205
             </td>
           </tr>
           <tr
@@ -1565,7 +1530,7 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               <i
                 aria-hidden="true"
                 className="icon"
-                title=""
+                title="http.tracelog.downstream - "
               />
             </td>
             <td
@@ -1582,11 +1547,6 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
               className=""
             >
               
-            </td>
-            <td
-              className=""
-            >
-              14:15:38.205
             </td>
           </tr>
         </tbody>

@@ -118,24 +118,23 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	status.command = 'ballerina.showTraces';
     context.subscriptions.push(status);
     updateStatus();
+    ballerinaExtInstance.onReady().then(() => {
+        langClient.onNotification('window/traceLogs', (trace: Object) => {
+            addNewTrace(trace);
+            updateStatus();
+            if (traceLogsPanel && traceLogsPanel.webview) {
+                traceLogsPanel.webview.postMessage({
+                    command: 'updateTraces',
+                });
+            }
+        });
+    })
+    .catch((e) => {
+        window.showErrorMessage('Could not start network logs feature',e.message);
+    });
 
     const traceRenderer = commands.registerCommand('ballerina.showTraces', () => {
-        ballerinaExtInstance.onReady()
-        .then(() => {
-            showTraces(context, langClient);
-            langClient.onNotification('window/traceLogs', (trace: Object) => {
-                addNewTrace(trace);
-                updateStatus();
-                if (traceLogsPanel && traceLogsPanel.webview) {
-                    traceLogsPanel.webview.postMessage({
-                        command: 'updateTraces',
-                    });
-                }
-            });
-        })
-		.catch((e) => {
-            window.showErrorMessage('Could not start network logs feature',e.message);
-		});
+        showTraces(context, langClient);
     });
     
     context.subscriptions.push(traceRenderer);
@@ -150,12 +149,9 @@ function updateStatus() {
     if (!status) {
         return;
     }
-    if (traces.length > 0) {
-        status.text = '$(megaphone) ' + traces.length;
-        status.show();
-    } else {
-        status.hide();
-    }
+    const count = traces.length;
+    status!.text = `$(mirror) ${count} Ballerina network logs`;
+    status!.show();
 }
 
 function mergeRelatedMessages(traces: Array<any>) {
@@ -171,7 +167,7 @@ function mergeRelatedMessages(traces: Array<any>) {
             && record1.thread === record2.thread
             && (record2.message.headerType.startsWith('DefaultLastHttpContent')
                 || record2.message.headerType.startsWith('EmptyLastHttpContent'))) {
-
+            record2.message.payload = record2.message.payload ? record2.message.payload : record2.message.headers;
             record1.message.payload = record2.message.payload;
             newTraces.push(record1);
         } else if (record1.message.headerType.startsWith('DefaultLastHttpContent') ||
