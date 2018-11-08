@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -1048,6 +1049,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
         awaitExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr awaitExpr) {
+        // ToDo
     }
 
     @Override

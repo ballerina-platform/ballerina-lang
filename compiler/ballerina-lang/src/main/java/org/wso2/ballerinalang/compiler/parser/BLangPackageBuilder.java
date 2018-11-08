@@ -3757,9 +3757,10 @@ public class BLangPackageBuilder {
         addExpressionNode(waitForAllExpr);
     }
 
-    void addKeyValueToWaitForAll(Set<Whitespace> ws, String identifier, boolean containsExpr) {
+    void addKeyValueToWaitForAll(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean containsExpr) {
         BLangWaitForAllExpr.BLangWaitKeyValue keyValue = TreeBuilder.createWaitKeyValueNode();
         keyValue.addWS(ws);
+        keyValue.pos = pos;
         // Add the key as an identifier
         BLangIdentifier key = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         key.setLiteral(false);
