@@ -52,6 +52,7 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
+        // set up for testInvalidSourceArg
         tempProjectDir = Files.createTempDirectory("temp-entry-func-test");
         String fileName = "test_entry_function.bal";
         String[] clientArgs = {"-o", tempProjectDir.toString().concat(File.separator).concat("entry"),
@@ -60,11 +61,11 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
                 new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
         balxPath = generatedBalx.toString();
-
+        // create a temp directory for testWrongEntryFunctionNameWithColons
         tempProjectDirTwo = Files.createTempDirectory("temp-entry-func-test-complex");
     }
 
-    @Test
+    @Test(description = "test an invalid source argument, ending with a colon, e.g., ballerina run <FILE_NAME>:")
     public void testInvalidSourceArg() throws BallerinaTestException {
         String sourceArg = balxPath + ":";
         LogLeecher errLogLeecher = new LogLeecher("error: no ballerina source files found in module " + balxPath +
@@ -73,8 +74,8 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
         errLogLeecher.waitForText(2000);
     }
 
-    @Test
-    public void testWrongEntryFunctionNameInArgWithColons() throws BallerinaTestException {
+    @Test(description = "test an invalid function name with ballerina run, where the function name includes colons")
+    public void testWrongEntryFunctionNameWithColons() throws BallerinaTestException {
         String fileName = "test_entry_function_with_colons.bal";
         String[] clientArgs = {"-o",
                 tempProjectDirTwo.toString().concat(File.separator).concat("test_entry_function_with_colons"),

@@ -54,6 +54,7 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
+        // set up for testMainWithNoReturn, testNoArg, testMultipleParams
         tempProjectDir = Files.createTempDirectory("temp-entry-func-test");
         String fileName = "test_entry_function.bal";
         String[] clientArgs = {"-o", tempProjectDir.toString().concat(File.separator).concat("entry"),
@@ -62,7 +63,7 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
                 new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
         balxPath = generatedBalx.toString();
-
+        // create a temp directory for testFunctionNameWithColons
         tempProjectDirTwo = Files.createTempDirectory("temp-entry-func-test-complex");
     }
 
@@ -85,7 +86,7 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
     }
 
     @Test
-    public void testMultipleParam() throws BallerinaTestException {
+    public void testMultipleParams() throws BallerinaTestException {
         String functionName = "combinedTypeEntry";
         sourceArg = balxPath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, "
@@ -98,16 +99,16 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         outLogLeecher.waitForText(2000);
     }
 
-    @Test
-    public void testArgWithColons() throws BallerinaTestException {
+    @Test(description = "test running a function where the function name has colons. " +
+            "e.g., ballerina run <SOURCE>:functionWithColons:inName")
+    public void testFunctionNameWithColons() throws BallerinaTestException {
         String arg = "test arg";
         String fileName = "test_entry_function_with_colons.bal";
         String[] args = {"-o",
                 tempProjectDirTwo.toString().concat(File.separator).concat("test_entry_function_with_colons"),
                 (new File("src/test/resources/run/balx/complex")).getAbsolutePath().concat(File.separator)
                         .concat(fileName)};
-        balClient.runMain("build", args, null, new String[0], new LogLeecher[0],
-                          tempProjectDirTwo.toString());
+        balClient.runMain("build", args, null, new String[0], new LogLeecher[0], tempProjectDirTwo.toString());
         Path generatedBalx = tempProjectDirTwo.resolve(fileName.replace("bal", "balx"));
         String sourceArg = generatedBalx.toString() + ":colonsInName:Function";
         LogLeecher outLogLeecher = new LogLeecher(arg);
