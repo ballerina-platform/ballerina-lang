@@ -10,12 +10,16 @@
   "repository": "ballerina-platform/ballerina-lang",
   "main": "lib/index.js",
   "scripts": {
+    "clean": "rimraf lib && rimraf coverage",
+    "prebuild": "npm run clean && npm run lint",
     "compile": "tsc -p ./",
     "build": "npm run compile",
     "watch": "tsc -watch -p ./",
     "test": "jest",
     "test-coverage": "npm run test -- --coverage",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "storybook": "start-storybook -p 9001 -c .storybook",
+    "lint": "tslint -t stylish --project .",
+    "gen-bbe-asts": "npm run compile && node lib-ts/tools/update-bbe-asts.js"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",
@@ -35,25 +39,29 @@
     "jest": "^23.6.0",
     "react": "^16.2.0",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
-    "react-dom": "^16.2.0",
-    "react-test-renderer": "^16.6.1",
+    "react-dom": "^16.6.1",
     "require-context": "^1.1.0",
     "ts-jest": "^23.10.4",
     "ts-loader": "^5.3.0",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.6"
+    "typescript": "^3.1.6",
+    "vscode-uri": "^1.0.6"
   },
   "dependencies": {
+    "@ballerina/ast-model": "file:../ast-model",
+    "@ballerina/lang-service": "file:../lang-service",
     "@ballerina/theme": "file:../theme",
-    "ast-model": "file:../ast-model",
+    "@types/react-dom": "^16.0.9",
     "axios": "^0.16.2",
     "jquery": "^3.3.1",
     "jsplumb": "2.3.5",
     "log4javascript": "^1.4.15",
     "react-autosuggest": "^9.0.1",
     "react-custom-scrollbars": "^4.1.2",
+    "react-test-renderer": "^16.6.1",
     "react-transition-group": "^1.1.2",
     "semantic-ui-react": "^0.81.3",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "winston": "^3.1.0"
   }
 }

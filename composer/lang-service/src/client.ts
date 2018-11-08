@@ -91,6 +91,10 @@ export class BallerinaLangClient {
         return this.lsConnection.sendRequest("ballerinaDocument/project", params);
     }
 
+    public goToSource(line: number, column: number): void {
+        // TODO
+    }
+
     public kill(): void {
         this.lsConnection.shutdown();
         treeKill(this.childProcess.pid);

@@ -1,16 +1,30 @@
+import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "@ballerina/ast-model";
+import { BallerinaLangClient } from "@ballerina/lang-service";
 import React from "react";
 
 export interface DiagramEditorProps {
-    width?: number;
+    docUri: string;
+    langClient: BallerinaLangClient;
+    height: number;
+    width: number;
 }
 
-interface DiagramEditorState {
-
+export interface DiagramEditorState {
+    currentAST: BallerinaAST;
+    editMode: boolean;
+    diagramMode: "action" | "default";
 }
 
 export class DiagramEditor extends React.Component<DiagramEditorProps, DiagramEditorState> {
-    
-    render() {
-        return <div>{'Diagram Editor'}</div>
+    public render() {
+        return <React.Fragment>
+            <div>{"Diagram Editor"}</div>
+        </React.Fragment>;
     }
 }
+
+export const DiagramEditor2 = (props: DiagramEditorProps) => {
+    return <React.Fragment>
+            <div>{"Diagram Editor"}</div>
+        </React.Fragment>;
+};
