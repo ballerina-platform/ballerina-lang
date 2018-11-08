@@ -102,6 +102,11 @@ public class BRefValueArray extends BNewArray implements Serializable {
                     arrayValues[i].seal(((BTupleType) type).getTupleTypes().get(i));
                 }
 
+            } else if (type.getTag() == TypeTags.JSON_TAG) {
+                BRefType<?>[] arrayValues = this.getValues();
+                for (int i = 0; i < this.size(); i++) {
+                    arrayValues[i].seal(type);
+                }
             } else {
                 BType arrayElementType = ((BArrayType) type).getElementType();
                 BRefType<?>[] arrayValues = this.getValues();

@@ -37,6 +37,7 @@ public class SealInbuiltFunctionNegativeTest {
     private CompileResult xmlNegativeTestCompileResult;
     private CompileResult mapNegativeTestCompileResult;
     private CompileResult objectNegativeTestCompileResult;
+    private CompileResult arrayNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -51,6 +52,8 @@ public class SealInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/seal/negative/map-seal-expr-negative-test.bal");
         objectNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/seal/negative/object-seal-expr-negative-test.bal");
+        arrayNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/array-seal-expr-negative-test.bal");
     }
 
 
@@ -254,6 +257,37 @@ public class SealInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(objectNegativeTestCompileResult, 10,
                 "Incompatible seal type: type 'PersonObj' cannot be sealed as type '(int,string)'",
                 62, 32);
+    }
+
+    @Test
+    public void testArraySealNegativeTest() {
+
+        Assert.assertEquals(arrayNegativeTestCompileResult.getErrorCount(), 10);
+
+        //Negative test case to confirm array cannot be sealed as record.
+        BAssertUtil.validateError(arrayNegativeTestCompileResult, 0,
+                "Incompatible seal type: type 'any[]' cannot be sealed as type 'Employee'",
+                19, 25);
+
+        //Negative test case to confirm array cannot be sealed as xml.
+        BAssertUtil.validateError(arrayNegativeTestCompileResult, 2,
+                "Incompatible seal type: type 'any[]' cannot be sealed as type 'xml'",
+                27, 20);
+
+        //Negative test case to confirm array cannot be sealed as object.
+        BAssertUtil.validateError(arrayNegativeTestCompileResult, 4,
+                "Incompatible seal type: type 'any[]' cannot be sealed as type 'EmployeeObject'",
+                35, 34);
+
+        //Negative test case to confirm array cannot be sealed as map.
+        BAssertUtil.validateError(arrayNegativeTestCompileResult, 6,
+                "Incompatible seal type: type 'any[]' cannot be sealed as type 'map'",
+                43, 20);
+
+        //Negative test case to confirm array cannot be sealed as tuple.
+        BAssertUtil.validateError(arrayNegativeTestCompileResult, 8,
+                "Incompatible seal type: type 'any[]' cannot be sealed as type '(string,string,string)'",
+                51, 43);
     }
 }
 
