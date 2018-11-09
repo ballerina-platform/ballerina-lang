@@ -35,7 +35,7 @@ public type StreamJoinProcessor object {
     }
 
     public function process(StreamEvent[] streamEvents) {
-        StreamEvent?[] joinedEvents;
+        StreamEvent?[] joinedEvents = [];
         int i = 0;
         foreach event in streamEvents {
             string originStream = event.data.keys()[0].split("\\.")[0];
@@ -55,7 +55,7 @@ public type StreamJoinProcessor object {
             }
 
             if (triggerJoin) {
-                (StreamEvent?, StreamEvent?)[] candidateEvents;
+                (StreamEvent?, StreamEvent?)[] candidateEvents = [];
                 // join events according to the triggered side
                 if (self.lhsStream.equalsIgnoreCase(originStream) ?: false) {
                     // triggered from LHS
@@ -102,7 +102,7 @@ public type StreamJoinProcessor object {
             }
         }
 
-        StreamEvent[] outputEvents;
+        StreamEvent[] outputEvents = [];
         i = 0;
         foreach e in joinedEvents {
             match e {
