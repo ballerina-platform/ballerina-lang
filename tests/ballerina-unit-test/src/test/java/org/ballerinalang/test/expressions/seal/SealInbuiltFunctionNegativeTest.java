@@ -71,33 +71,43 @@ public class SealInbuiltFunctionNegativeTest {
     @Test
     public void testSealNegativeTest() {
 
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 14);
 
         //Negative test case to verify the unsupported type for seal operation.
-        BAssertUtil.validateError(compileResult, 1,
+        BAssertUtil.validateError(compileResult, 0,
                 "function 'seal' defined on not supported type 'stream<Employee>'",
-                18, 5);
+                18, 35);
 
         //Negative test case to verify the no of arguments get passed to seal function.
         BAssertUtil.validateError(compileResult, 2,
                 "too many arguments in call to 'seal()'",
-                24, 5);
-
-        //Negative test case to confirm primitive types are not supported for seal operation.
-        BAssertUtil.validateError(compileResult, 3,
-                "function 'seal' defined on not supported type 'string'",
-                31, 5);
+                25, 24);
 
         //Negative test case to confirm primitive types are not supported for seal operation.
         BAssertUtil.validateError(compileResult, 4,
+                "function 'seal' defined on not supported type 'string'",
+                32, 22);
+
+        //Negative test case to confirm primitive types are not supported for seal operation.
+        BAssertUtil.validateError(compileResult, 6,
                 "function 'seal' defined on not supported type 'string[]'",
-                38, 5);
+                39, 20);
 
         //Negative test case to confirm values cannot be sealed as union type.
-        BAssertUtil.validateError(compileResult, 5,
-                "Incompatible seal type: variable 'jsonVar' with type 'json' cannot be sealed as type " +
+        BAssertUtil.validateError(compileResult, 8,
+                "Incompatible seal type: type 'json' cannot be sealed as type " +
                         "'int|float|json'",
-                46, 5);
+                47, 33);
+
+        //Negative test case to confirm values cannot be sealed as primitive type.
+        BAssertUtil.validateError(compileResult, 10,
+                "Incompatible seal type: type 'any' cannot be sealed as type 'string'",
+                53, 27);
+
+        //Negative test case to confirm values cannot be sealed as primitive type arrays.
+        BAssertUtil.validateError(compileResult, 12,
+                "Incompatible seal type: type 'json' cannot be sealed as type 'int[]'",
+                62, 26);
     }
 
     @Test
@@ -107,15 +117,15 @@ public class SealInbuiltFunctionNegativeTest {
 
         //Negative test case to confirm record cannot be sealed as xml.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 0,
-                "Incompatible seal type: variable 'employeeRecord' with type 'Employee' cannot be " +
+                "Incompatible seal type: type 'Employee' cannot be " +
                         "sealed as type 'xml'",
-                42, 5);
+                42, 20);
 
         //Negative test case to confirm open record to closed record seal conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 2,
-                "Incompatible seal type: variable 'teacher' with type 'Teacher' cannot be sealed as " +
+                "Incompatible seal type: type 'Teacher' cannot be sealed as " +
                         "type 'Employee'",
-                49, 5);
+                49, 25);
 
         //TODO enable test case once respective source is fixed in Ballerina core
         //Negative test case to confirm closed record to closed record seal conversion.
@@ -125,27 +135,27 @@ public class SealInbuiltFunctionNegativeTest {
 
         //Negative test case to confirm closed record to object seal conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 4,
-                "Incompatible seal type: variable 'teacher' with type 'Teacher' cannot be sealed as " +
+                "Incompatible seal type: type 'Teacher' cannot be sealed as " +
                         "type 'TeacherObj'",
-                65, 5);
+                65, 30);
 
         //Negative test case to confirm closed record to map seal conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 6,
-                "Incompatible seal type: variable 'person' with type 'Person' cannot be sealed as " +
+                "Incompatible seal type: type 'Person' cannot be sealed as " +
                         "type 'map<string>'",
-                73, 5);
+                73, 28);
 
         //Negative test case to confirm closed record to array seal conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 8,
-                "Incompatible seal type: variable 'e1' with type 'Employee' cannot be sealed as type" +
+                "Incompatible seal type: type 'Employee' cannot be sealed as type" +
                         " 'string[]'",
-                80, 5);
+                80, 28);
 
         //Negative test case to confirm closed record to tuple seal conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 10,
-                "Incompatible seal type: variable 'e1' with type 'Employee' cannot be sealed as type" +
+                "Incompatible seal type: type 'Employee' cannot be sealed as type" +
                         " '(string,string)'",
-                88, 5);
+                88, 35);
 
         //Negative test case to confirm record(with  object) to anydata seal conversion.
         BAssertUtil.validateError(recordNegativeTestCompileResult, 12,
@@ -161,18 +171,18 @@ public class SealInbuiltFunctionNegativeTest {
 
         //Negative test case to confirm record cannot be sealed as xml.
         BAssertUtil.validateError(jsonNegativeTestCompileResult, 0,
-                "Incompatible seal type: variable 'jsonValue' with type 'json' " +
-                        "cannot be sealed as type 'xml'", 12, 5);
+                "Incompatible seal type: type 'json' cannot be sealed as type " +
+                        "'xml'", 12, 20);
 
         //Negative test case to confirm record cannot be sealed as xml.
         BAssertUtil.validateError(jsonNegativeTestCompileResult, 2,
-                "Incompatible seal type: variable 'employee' with type 'json' cannot be sealed as " +
-                        "type 'EmployeeObj'", 19, 5);
+                "Incompatible seal type: type 'json' cannot be sealed as " +
+                        "type 'EmployeeObj'", 19, 31);
 
         //Negative test case to confirm record cannot be sealed as tuple.
         BAssertUtil.validateError(jsonNegativeTestCompileResult, 4,
-                "Incompatible seal type: variable 'jsonValue' with type 'json' cannot be sealed as " +
-                        "type '(string,string)'", 27, 5);
+                "Incompatible seal type: type 'json' cannot be sealed as " +
+                        "type '(string,string)'", 27, 35);
     }
 
     @Test

@@ -34,58 +34,58 @@ type Teacher record {
 function sealJSONToAny() returns any {
 
     json jsonValue = 3;
-    jsonValue.seal(any);
+    any anyValue = jsonValue.seal(any);
 
-    return jsonValue;
+    return anyValue;
 }
 
 function sealJSONToAnyV2() returns any {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    jsonValue.seal(any);
+    any anyValue = jsonValue.seal(any);
 
-    return jsonValue;
+    return anyValue;
 }
 
 function sealJSONToRecord() returns Employee {
 
     json employee = { name: "John", status: "single", batch: "LK2014" };
-    employee.seal(Employee);
+    Employee employeeValue = employee.seal(Employee);
 
-    return employee;
+    return employeeValue;
 }
 
 function sealJSONToRecordV2() returns Employee {
 
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    employee.seal(Employee);
+    Employee employeeValue = employee.seal(Employee);
 
-    return employee;
+    return employeeValue;
 }
 
 function sealJSONToJSON() returns json {
 
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    employee.seal(json);
+    json jsonValue = employee.seal(json);
 
-    return employee;
+    return jsonValue;
 }
 
 function sealJSONToMap() returns map {
 
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    employee.seal(map);
+    map mapValue = employee.seal(map);
 
-    return employee;
+    return mapValue;
 }
 
 function sealJSONToMapV2() returns map {
 
     json teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
         emp : { name: "John", status: "single", batch: "LK2014"} };
-    teacher.seal(map);
+    map mapValue = teacher.seal(map);
 
-    return teacher;
+    return mapValue;
 }
 
 function sealConstraintJSONToAny() returns any {
@@ -95,9 +95,9 @@ function sealConstraintJSONToAny() returns any {
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    student.seal(any);
+    any anyValue = student.seal(any);
 
-    return student;
+    return anyValue;
 }
 
 function sealConstraintJSONToJSON() returns json {
@@ -107,9 +107,9 @@ function sealConstraintJSONToJSON() returns json {
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    student.seal(json);
+    json jsonValue  = student.seal(json);
 
-    return student;
+    return jsonValue;
 }
 
 function sealConstraintJSONToConstraintJSON() returns json<Person> {
@@ -119,9 +119,9 @@ function sealConstraintJSONToConstraintJSON() returns json<Person> {
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    student.seal(json<Person>);
+    json<Person> jsonValue = student.seal(json<Person>);
 
-    return student;
+    return jsonValue;
 }
 
 function sealConstraintJSONToConstraintMapV2() returns map {
@@ -131,34 +131,26 @@ function sealConstraintJSONToConstraintMapV2() returns map {
     student.batch = "LK2014";
     student.school = "Hindu College";
 
-    student.seal(map);
+    map mapValue = student.seal(map);
 
-    return student;
+    return mapValue;
 }
 
 function sealJSONArrayToConstraintArray() returns Student []{
 
     json employeeArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
                             { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
-    employeeArray.seal(Student []);
+    Student [] studentArray = employeeArray.seal(Student []);
 
-    return employeeArray;
-}
-
-function sealJSONArrayToPrimitiveTypeArray() returns int []{
-
-    json intArray = [1, 2, 3, 4];
-    intArray.seal(int []);
-
-    return intArray;
+    return studentArray;
 }
 
 function sealJSONArrayToAnyTypeArray() returns any []{
 
     json jsonArray =  [1, false, "foo", { first: "John", last: "Pala" }];
-    jsonArray.seal(any []);
+    any[] anyArray = jsonArray.seal(any []);
 
-    return jsonArray;
+    return anyArray;
 }
 
 function sealJSONToAnydata() returns anydata {
@@ -174,17 +166,17 @@ function sealJSONToAnydata() returns anydata {
 function sealJSONToRecordNegative() returns Student {
 
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    employee.seal(Student);
+    Student student = employee.seal(Student);
 
-    return employee;
+    return student;
 
 }
 
 function sealJSONToMapNegative() returns map<string> {
 
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    employee.seal(map<string>);
+    map<string> mapValue = employee.seal(map<string>);
 
-    return employee;
+    return mapValue;
 
 }

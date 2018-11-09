@@ -259,21 +259,6 @@ public class JSONSealInbuiltFunctionTest {
     }
 
     @Test
-    public void testSealJSONArrayToPrimitiveTypeArray() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "sealJSONArrayToPrimitiveTypeArray");
-        Assert.assertEquals(results.length, 4);
-        Assert.assertEquals(results[0].stringValue(), "1");
-        Assert.assertEquals(results[0].getType().getName(), "int");
-        Assert.assertEquals(results[1].stringValue(), "2");
-        Assert.assertEquals(results[1].getType().getName(), "int");
-        Assert.assertEquals(results[2].stringValue(), "3");
-        Assert.assertEquals(results[2].getType().getName(), "int");
-        Assert.assertEquals(results[3].stringValue(), "4");
-        Assert.assertEquals(results[3].getType().getName(), "int");
-    }
-
-    @Test
     public void testSealJSONArrayToAnyTypeArray() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "sealJSONArrayToAnyTypeArray");
