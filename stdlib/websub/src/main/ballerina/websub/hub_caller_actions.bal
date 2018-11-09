@@ -81,7 +81,7 @@ public type CallerActions object {
     public function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
 };
 
-function CallerActions::subscribe(SubscriptionChangeRequest subscriptionRequest)
+function CallerActions.subscribe(SubscriptionChangeRequest subscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -92,7 +92,7 @@ function CallerActions::subscribe(SubscriptionChangeRequest subscriptionRequest)
                               redirectCount);
 }
 
-function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
+function CallerActions.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -103,7 +103,7 @@ function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequ
                               redirectCount);
 }
 
-function CallerActions::registerTopic(string topic) returns error? {
+function CallerActions.registerTopic(string topic) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
     var registrationResponse = httpClientEndpoint->post("", request);
@@ -126,7 +126,7 @@ function CallerActions::registerTopic(string topic) returns error? {
     }
 }
 
-function CallerActions::unregisterTopic(string topic) returns error? {
+function CallerActions.unregisterTopic(string topic) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
     var unregistrationResponse = httpClientEndpoint->post("", request);
@@ -149,7 +149,7 @@ function CallerActions::unregisterTopic(string topic) returns error? {
     }
 }
 
-function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
+function CallerActions.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                       string? contentType = (), map<string>? headers = ()) returns error? {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -190,7 +190,7 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:Re
     }
 }
 
-function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) returns error? {
+function CallerActions.notifyUpdate(string topic, map<string>? headers = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;

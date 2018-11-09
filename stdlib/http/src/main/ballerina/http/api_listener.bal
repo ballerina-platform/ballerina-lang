@@ -50,24 +50,24 @@ public type APIListener object {
     public function stop();
 };
 
-function APIListener::init(SecureEndpointConfiguration c) {
+function APIListener.init(SecureEndpointConfiguration c) {
     self.secureListener.init(c);
 }
 
-function APIListener::register(typedesc serviceType) {
+function APIListener.register(typedesc serviceType) {
     self.secureListener.register(serviceType);
 }
 
-function APIListener::start() {
+function APIListener.start() {
     self.secureListener.start();
 }
 
-function APIListener::getCallerActions() returns (APIListenerActions) {
+function APIListener.getCallerActions() returns (APIListenerActions) {
     APIListenerActions apiListenerActions = new (self.secureListener.getCallerActions());
     return apiListenerActions;
 }
 
-function APIListener::stop() {
+function APIListener.stop() {
     self.secureListener.stop();
 }
 

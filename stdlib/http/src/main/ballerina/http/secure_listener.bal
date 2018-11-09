@@ -145,7 +145,7 @@ public type AuthProvider record {
     !...
 };
 
-function SecureListener::init(SecureEndpointConfiguration c) {
+function SecureListener.init(SecureEndpointConfiguration c) {
     addAuthFiltersForSecureListener(c, self.instanceId);
     self.httpListener.init(c);
 }
@@ -299,24 +299,24 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
     }
 }
 
-function SecureListener::register(typedesc serviceType) {
+function SecureListener.register(typedesc serviceType) {
     self.httpListener.register(serviceType);
 }
 
-function SecureListener::initEndpoint() returns (error?) {
+function SecureListener.initEndpoint() returns (error?) {
     return self.httpListener.initEndpoint();
 }
 
-function SecureListener::start() {
+function SecureListener.start() {
     self.httpListener.start();
 }
 
-function SecureListener::getCallerActions() returns (SecureListenerActions) {
+function SecureListener.getCallerActions() returns (SecureListenerActions) {
     SecureListenerActions secureListenerActions = new (self.httpListener.getCallerActions());
     return secureListenerActions;
 }
 
-function SecureListener::stop() {
+function SecureListener.stop() {
     self.httpListener.stop();
 }
 

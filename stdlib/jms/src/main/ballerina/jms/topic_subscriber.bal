@@ -117,7 +117,7 @@ public type TopicSubscriberActions object {
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function TopicSubscriberActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+function TopicSubscriberActions.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
     match (self.topicSubscriber) {
         TopicSubscriber topicSubscriber => {

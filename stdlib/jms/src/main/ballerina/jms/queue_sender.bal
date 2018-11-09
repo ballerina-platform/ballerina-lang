@@ -108,7 +108,7 @@ public type QueueSenderActions object {
     public function sendTo(Destination destination, Message message) returns error?;
 };
 
-function QueueSenderActions::sendTo(Destination destination, Message message) returns error? {
+function QueueSenderActions.sendTo(Destination destination, Message message) returns error? {
     match (self.queueSender) {
         QueueSender queueSender => {
             match (queueSender.config.session) {

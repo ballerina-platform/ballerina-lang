@@ -28,7 +28,7 @@ public type NonListener object {
     public extern function stop ();
 };
 
-function NonListener::init (ServiceEndpointConfiguration c) {
+function NonListener.init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
     if (err is error) {

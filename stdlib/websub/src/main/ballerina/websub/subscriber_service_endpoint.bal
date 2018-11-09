@@ -80,7 +80,7 @@ public type Listener object {
 
 };
 
-function Listener::init(SubscriberServiceEndpointConfiguration c) {
+function Listener.init(SubscriberServiceEndpointConfiguration c) {
     self.config = c;
     http:ServiceEndpointConfiguration serviceConfig = {
         host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket
@@ -90,24 +90,24 @@ function Listener::init(SubscriberServiceEndpointConfiguration c) {
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-function Listener::register(typedesc serviceType) {
+function Listener.register(typedesc serviceType) {
     self.registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 
-function Listener::start() {
+function Listener.start() {
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
 }
 
-function Listener::getCallerActions() returns http:Connection {
+function Listener.getCallerActions() returns http:Connection {
     return self.serviceEndpoint.getCallerActions();
 }
 
-function Listener::stop() {
+function Listener.stop() {
     self.serviceEndpoint.stop();
 }
 
-function Listener::sendSubscriptionRequests() {
+function Listener.sendSubscriptionRequests() {
     map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
