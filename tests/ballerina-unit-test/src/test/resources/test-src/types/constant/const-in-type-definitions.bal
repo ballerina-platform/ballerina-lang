@@ -1,14 +1,14 @@
 
 type ACTION GET|POST;
 
-const ACTION GET = "GET";
-const ACTION POST = "POST";
+const GET = "GET";
+const POST = "POST";
 
 function testTypeConstants() returns ACTION {
     return GET;
 }
 
-const ACTION constActionWithType = "GET";
+const constActionWithType = "GET";
 
 function testConstWithTypeAssignmentToType() returns ACTION {
     ACTION action = constActionWithType;

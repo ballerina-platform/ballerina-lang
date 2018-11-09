@@ -952,7 +952,24 @@ public class SymbolEnter extends BLangNodeVisitor {
             } else {
                 constant.symbol.type = symTable.getTypeFromTag(constant.symbol.value.typeTag);
             }
+
+            if (!isAllowedConstantType(constant.symbol)) {
+                dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
+            }
         }
+    }
+
+    private boolean isAllowedConstantType(BConstantSymbol symbol) {
+        switch (symbol.type.tag) {
+            // Todo - Add decimal type.
+            case TypeTags.BOOLEAN:
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.STRING:
+                return true;
+        }
+        return false;
     }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {

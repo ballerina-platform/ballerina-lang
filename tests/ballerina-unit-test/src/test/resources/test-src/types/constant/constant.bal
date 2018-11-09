@@ -78,14 +78,14 @@ function testConstWithoutTypeConcat() returns string {
 
 type ACTION "GET"|"POST";
 
-const ACTION GET = "GET";
-const ACTION POST = "POST";
+const GET = "GET";
+const POST = "POST";
 
 function testTypeConstants() returns ACTION {
     return GET;
 }
 
-const ACTION constActionWithType = "GET";
+const constActionWithType = "GET";
 
 function testConstWithTypeAssignmentToType() returns ACTION {
     ACTION action = constActionWithType;
@@ -294,7 +294,7 @@ type G D|E|F;
 
 type H D|E;
 
-const H h = "D";
+const h = "D";
 
 function testProperSubset() returns G {
     G g = h;

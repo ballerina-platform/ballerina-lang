@@ -10,9 +10,9 @@ public AB A = "A";
 
 public type CD C|D;
 
-public const CD C = "C";
+public const C = "C";
 
-public const CD D = "D";
+public const D = "D";
 
 
 public const string KEY = "key";

@@ -7,4 +7,4 @@ const string address = "Colombo";
 
 public type AB "A"|"B";
 
-public const AB A = "A";
+public const A = "A";
