@@ -38,6 +38,7 @@ public class SealInbuiltFunctionNegativeTest {
     private CompileResult mapNegativeTestCompileResult;
     private CompileResult objectNegativeTestCompileResult;
     private CompileResult arrayNegativeTestCompileResult;
+    private CompileResult tupleNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -54,6 +55,8 @@ public class SealInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/seal/negative/object-seal-expr-negative-test.bal");
         arrayNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/seal/negative/array-seal-expr-negative-test.bal");
+        tupleNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/tuple-seal-expr-negative-test.bal");
     }
 
 
@@ -288,6 +291,42 @@ public class SealInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(arrayNegativeTestCompileResult, 8,
                 "Incompatible seal type: type 'any[]' cannot be sealed as type '(string,string,string)'",
                 51, 43);
+    }
+
+    @Test
+    public void testTupleSealNegativeTest() {
+
+        Assert.assertEquals(tupleNegativeTestCompileResult.getErrorCount(), 12);
+
+        //Negative test case to confirm tuple cannot be sealed as record.
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 0,
+                "Incompatible seal type: type '(string,string,string)' cannot be sealed as type 'Employee'",
+                26, 28);
+
+        //Negative test case to confirm tuple cannot be sealed as json.
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 2,
+                "Incompatible seal type: type '(string,string,string)' cannot be sealed as type 'json'",
+                33, 22);
+
+        //Negative test case to confirm tuple cannot be sealed as xml.
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 4,
+                "Incompatible seal type: type '(string,string,string)' cannot be sealed as type 'xml'",
+                40, 20);
+
+        //Negative test case to confirm tuple cannot be sealed as object.
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 6,
+                "Incompatible seal type: type '(string,int)' cannot be sealed as type 'EmployeeObj'",
+                47, 31);
+
+        //Negative test case to confirm tuple cannot be sealed as map.
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 8,
+                "Incompatible seal type: type '(string,string,string)' cannot be sealed as type 'map'",
+                54, 20);
+
+        //Negative test case to confirm tuple cannot be sealed as object.
+        BAssertUtil.validateError(tupleNegativeTestCompileResult, 10,
+                "Incompatible seal type: type '(string,string,string)' cannot be sealed as type 'string[]'",
+                61, 27);
     }
 }
 
