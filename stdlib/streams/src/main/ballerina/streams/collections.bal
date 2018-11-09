@@ -428,7 +428,7 @@ public type LinkedList object {
     public function asArray() returns any[] {
         any[] arr = [size - 1];
         Node? temp;
-        int i;
+        int i = 0;
         if (!isEmpty()) {
             match first {
                 Node value => {
