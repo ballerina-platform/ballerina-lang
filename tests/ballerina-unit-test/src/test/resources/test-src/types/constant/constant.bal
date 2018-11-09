@@ -326,6 +326,15 @@ function testBuiltinFunctionInvocationOnField() returns boolean {
     TestRecord tr = { field: SHA1 };
     return tr.field.equalsIgnoreCase("SHA1");
 }
+// -----------------------------------------------------------
+
+type STRING_LABEL string;
+
+const STRING_LABEL labeledString = "Ballerina";
+
+function testLabeling() returns string {
+    return labeledString;
+}
 
 // -----------------------------------------------------------
 

@@ -366,4 +366,11 @@ public class ConstantTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testLabeling() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testLabeling");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+    }
 }
