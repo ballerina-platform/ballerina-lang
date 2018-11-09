@@ -54,7 +54,7 @@ type ACTION "GET";
 
 type XYZ "XYZ";
 
-const XYZ xyz = "XYZ";
+const xyz = "XYZ";
 
 function testInvalidTypes() returns ACTION {
     ACTION action = xyz;
@@ -110,7 +110,7 @@ type G E|F;
 
 type H D|E;
 
-const H h = "D";
+const h = "D";
 
 function testImproperSubset() returns G {
     G g = h;

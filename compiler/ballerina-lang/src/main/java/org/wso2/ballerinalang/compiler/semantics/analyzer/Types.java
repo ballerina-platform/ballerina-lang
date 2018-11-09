@@ -204,6 +204,26 @@ public class Types {
         return isAssignable(source, target, new ArrayList<>());
     }
 
+    /**
+     * Recursively checks whether the given literal can be assigned to the given type.
+     *
+     * @param target  target type
+     * @param literal literal to check
+     * @return true if the literal can be assigned to the type, false otherwise.
+     */
+    public boolean isAssignable(BType target, BLangLiteral literal) {
+        if (target.tag == TypeTags.FINITE) {
+            return isAssignableToFiniteType(target, literal);
+        } else if (target.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) target).memberTypes) {
+                if (isAssignable(memberType, literal)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
         if (isSameType(source, target)) {
             return true;

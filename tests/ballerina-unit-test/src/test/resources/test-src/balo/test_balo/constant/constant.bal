@@ -114,6 +114,14 @@ function testStringConstInTuple() returns string {
 
 // -----------------------------------------------------------
 
+foo:CD test = "C";
+
+function testTypeFromAnotherPackage() returns foo:CD {
+    return test;
+}
+
+// -----------------------------------------------------------
+
 // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11183.
 //type M record { string f; }|Z;
 //

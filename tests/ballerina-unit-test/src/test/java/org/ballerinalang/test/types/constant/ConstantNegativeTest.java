@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 46);
+        Assert.assertEquals(compileResult.getErrorCount(), 45);
 
         int index = 0;
         int offset = 1;
@@ -62,13 +62,11 @@ public class ConstantNegativeTest {
                 offset += 2, 18);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", offset += 5, 1);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", offset += 6, 5);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'string'",
                 offset += 11, 21);
-        BAssertUtil.validateError(compileResult, index++, "function invocation on type 'XYZ' is not supported",
-                offset += 6, 24);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
-                offset += 32, 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'D|E'",
+                offset += 38, 12);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'string'",
                 offset += 18, 11);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", offset += 7, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", offset += 5, 18);
