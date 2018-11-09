@@ -64,7 +64,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
         BMap<String, BValue> teacher2 = (BMap<String, BValue>) outputTeacherEvents[2];
         BMap<String, BValue> teacher3 = (BMap<String, BValue>) outputTeacherEvents[3];
 
-
         Assert.assertEquals(teacher0.get("name").stringValue(), "Mohan");
         Assert.assertEquals(((BInteger) teacher0.get("sumAge")).intValue(), 30);
         Assert.assertEquals(((BInteger) teacher0.get("count")).intValue(), 1);
@@ -93,7 +92,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
         BMap<String, BValue> teacher1 = (BMap<String, BValue>) outputTeacherEvents[1];
         BMap<String, BValue> teacher2 = (BMap<String, BValue>) outputTeacherEvents[2];
         BMap<String, BValue> teacher3 = (BMap<String, BValue>) outputTeacherEvents[3];
-
 
         Assert.assertEquals(teacher0.get("name").stringValue(), "Mohan");
         Assert.assertEquals(((BInteger) teacher0.get("sumAge")).intValue(), 30);
@@ -125,7 +123,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
         BMap<String, BValue> teacher2 = (BMap<String, BValue>) outputTeacherEvents[2];
         BMap<String, BValue> teacher3 = (BMap<String, BValue>) outputTeacherEvents[3];
 
-
         Assert.assertEquals(teacher0.get("name").stringValue(), "Mohan");
         Assert.assertEquals(((BInteger) teacher0.get("count")).intValue(), 1);
 
@@ -150,7 +147,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
         BMap<String, BValue> teacher1 = (BMap<String, BValue>) outputTeacherEvents[1];
         BMap<String, BValue> teacher2 = (BMap<String, BValue>) outputTeacherEvents[2];
         BMap<String, BValue> teacher3 = (BMap<String, BValue>) outputTeacherEvents[3];
-
 
         Assert.assertEquals(teacher0.get("name").stringValue(), "Mohan");
         Assert.assertEquals(((BInteger) teacher0.get("count")).intValue(), 1);
