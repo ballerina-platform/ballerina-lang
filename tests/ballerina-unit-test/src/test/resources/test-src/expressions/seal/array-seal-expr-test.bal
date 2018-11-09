@@ -77,4 +77,25 @@ function sealConstraintArrayToJSONArray() returns json{
     return jsonArray;
 }
 
+function sealRecordToAnydata() returns anydata {
+
+    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    Teacher[] teacherArray = [p1, p2];
+    anydata anydataArray = teacherArray.seal(anydata);
+
+    return anydataArray;
+}
+
+function sealRecordToAnydataArray() returns anydata[] {
+
+    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    Teacher[] teacherArray = [p1, p2];
+    anydata[] anydataArray = teacherArray.seal(anydata[]);
+
+    return anydataArray;
+}
 

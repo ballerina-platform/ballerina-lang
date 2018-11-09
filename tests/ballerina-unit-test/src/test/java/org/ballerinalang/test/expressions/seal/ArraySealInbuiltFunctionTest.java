@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -134,5 +135,30 @@ public class ArraySealInbuiltFunctionTest {
 
     }
 
+    @Test
+    public void testSealRecordToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealRecordToAnydata");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+        BMap<String, BValue> mapValue1 = (BMap<String, BValue>) results[1];
+
+        Assert.assertEquals(results.length, 2);
+
+        Assert.assertEquals((mapValue0).getType().getClass(), BRecordType.class);
+        Assert.assertEquals((mapValue1).getType().getClass(), BRecordType.class);
+    }
+
+    @Test
+    public void testSealRecordToAnydataArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealRecordToAnydataArray");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+        BMap<String, BValue> mapValue1 = (BMap<String, BValue>) results[1];
+
+        Assert.assertEquals(results.length, 2);
+
+        Assert.assertEquals((mapValue0).getType().getClass(), BAnydataType.class);
+        Assert.assertEquals((mapValue1).getType().getClass(), BAnydataType.class);
+    }
 }
 
