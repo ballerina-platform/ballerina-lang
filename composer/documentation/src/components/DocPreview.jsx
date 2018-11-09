@@ -84,7 +84,7 @@ export default class DocPreview extends React.Component {
         if(node.restParameters) {
             parameters[node.restParameters.name.value] = {
                 name: node.restParameters.name.value,
-                type: node.restParameters.typeNode.elementType.typeKind,
+                type: `${node.restParameters.typeNode.elementType.typeKind}...`,
             }
         }
 
