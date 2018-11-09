@@ -447,7 +447,6 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                 })
               })
             }
-            if (kind == CompletionItemKind.Keyword) lookupElementBuilder = lookupElementBuilder.withBoldness(true)
             lookupElementBuilder.withPresentableText(presentableText).withTypeText(tailText, true).withIcon(icon).withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT)
           }
 
