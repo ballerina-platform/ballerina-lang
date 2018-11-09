@@ -17,10 +17,13 @@
  */
 package org.ballerinalang.net.grpc.proto;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -40,7 +43,6 @@ import org.ballerinalang.net.grpc.proto.definition.Message;
 import org.ballerinalang.net.grpc.proto.definition.MessageKind;
 import org.ballerinalang.net.grpc.proto.definition.Method;
 import org.ballerinalang.net.grpc.proto.definition.Service;
-import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedEnumMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
@@ -66,10 +68,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
@@ -641,14 +645,29 @@ public class ServiceProtoUtils {
                 throw new GrpcServerException("Couldn't find the service descriptor.");
             }
             String descriptorData = descriptorStruct.getStringField("descriptor");
-            byte[] descriptor = hexStringToByteArray(descriptorData);
-            DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
-            return Descriptors.FileDescriptor.buildFrom(proto,
-                    StandardDescriptorBuilder.getFileDescriptors(proto.getDependencyList().toArray()));
+            Map<String, Value> descMap = descriptorStruct.getMapField("descMap");
+            return getFileDescriptor(descriptorData, descMap);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new GrpcServerException("Error while reading the service proto descriptor. check the service " +
                     "implementation. ", e);
         }
+    }
+
+    private static Descriptors.FileDescriptor getFileDescriptor(String descriptorData, Map<String, Value> descMap)
+            throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException {
+        byte[] descriptor = hexStringToByteArray(descriptorData);
+        DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
+                (descriptor);
+        Descriptors.FileDescriptor[] fileDescriptors = new Descriptors.FileDescriptor[descriptorProto
+                .getDependencyList().size()];
+        int i = 0;
+        for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
+            if (descMap.containsKey(dependency.toString(Charset.forName("UTF8")))) {
+                fileDescriptors[i++] = getFileDescriptor(descMap.get(dependency.toString(Charset.forName("UTF8")))
+                        .getStringValue(), descMap);
+            }
+        }
+        return Descriptors.FileDescriptor.buildFrom(descriptorProto, fileDescriptors);
     }
 
     /**

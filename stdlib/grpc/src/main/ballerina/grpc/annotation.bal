@@ -64,7 +64,6 @@ public annotation<resource> ResourceConfig GrpcResourceConfig;
 public type ServiceDescriptorData record {
     string descriptor;
     map descMap;
-    map descMap1;
     !...
 };
 

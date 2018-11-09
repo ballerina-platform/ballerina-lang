@@ -151,6 +151,12 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     }
 
     private void addDescriptorAnnotation(ServiceNode serviceNode, String rootDescriptor) {
+        for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
+            if ("ServiceDescriptor".equals(annonNodes.getAnnotationName().getValue())) {
+                //serviceNode.getAnnotationAttachments().remove(annonNodes);
+                return;
+            }
+        }
         BLangService service = (BLangService) serviceNode;
         DiagnosticPos pos = service.pos;
         // Create Annotation Attachment.
@@ -193,20 +199,20 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         mapKeyLiteral.value = "descMap";
         mapKeyLiteral.typeTag = TypeTags.MAP;
         mapKeyLiteral.type = symTable.mapType;
+        mapKeyLiteral.pos = pos;
 
         BSymbol mapVarSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DESCRIPTOR_MAP), SymTag.VARIABLE);
-        if (mapVarSymbol instanceof BVarSymbol) {
-            BLangSimpleVarRef mapVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-            //mapVarRef.varSymbol = (BVarSymbol) mapVarSymbol;
-            mapVarRef.symbol = mapVarSymbol;
-            mapVarRef.type = symTable.mapType;
-            BLangIdentifier descriptorMapNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-            descriptorMapNode.setValue(DESCRIPTOR_MAP);
-            mapVarRef.variableName = descriptorMapNode;
-            mapVarRef.pkgSymbol = pkgEnv.scope.owner;
-            mapKeyValue.key = new BLangRecordLiteral.BLangRecordKey(mapKeyLiteral);
-            mapKeyValue.valueExpr = mapVarRef;
-        }
+        BLangSimpleVarRef mapVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        //mapVarRef.varSymbol = (BVarSymbol) mapVarSymbol;
+        mapVarRef.symbol = mapVarSymbol;
+        mapVarRef.type = symTable.mapType;
+        BLangIdentifier descriptorMapNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        descriptorMapNode.setValue(DESCRIPTOR_MAP);
+        mapVarRef.variableName = descriptorMapNode;
+        mapVarRef.pkgSymbol = pkgEnv.scope.owner;
+        mapKeyValue.key = new BLangRecordLiteral.BLangRecordKey(mapKeyLiteral);
+        mapKeyValue.valueExpr = mapVarRef;
+        mapKeyValue.pos = pos;
 
         //Add Root Descriptor
         BLangRecordLiteral.BLangRecordKeyValue descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
