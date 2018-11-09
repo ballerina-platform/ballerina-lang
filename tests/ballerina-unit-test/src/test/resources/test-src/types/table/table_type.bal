@@ -347,16 +347,20 @@ function testToXmlWithinTransaction() returns (string, int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int returnValue = 0;
-    string resultXml;
+    int returnValue = -1;
+    string resultXml = "";
     transaction {
         table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
 
-        var result = check <xml>dt;
-        resultXml = io:sprintf("%s", result);
+        var result = <xml>dt;
+        if (result is xml) {
+            resultXml = io:sprintf("%s", result);
+            returnValue = 0;
+        } else if (result is error) {
+            resultXml = "<fail>error</fail>";
+        }
     }
     testDB.stop();
-
     return (resultXml, returnValue);
 }
 
@@ -369,13 +373,17 @@ function testToJsonWithinTransaction() returns (string, int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int returnValue = 0;
-    string result;
+    int returnValue = -1;
+    string result = "";
     transaction {
         table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
-
-        var j = check <json>dt;
-        result = io:sprintf("%s", j);
+        var j = <json>dt;
+        if (j is json) {
+            result = io:sprintf("%s", j);
+            returnValue = 0;
+        } else if (j is error) {
+            result = "<fail>error</fail>";
+        }
     }
     testDB.stop();
     return (result, returnValue);
