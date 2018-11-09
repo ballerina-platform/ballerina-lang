@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.expressions.conversion;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
@@ -118,10 +118,10 @@ public class NativeConversionTest {
         BMap<String, BValue> parentStruct = (BMap<String, BValue>) parent;
         Assert.assertEquals(parentStruct.get("name").stringValue(), "Parent");
         Assert.assertEquals(((BInteger) parentStruct.get("age")).intValue(), 50);
-        Assert.assertEquals(parentStruct.get("parent"), null);
-        Assert.assertEquals(parentStruct.get("info"), null);
-        Assert.assertEquals(parentStruct.get("address"), null);
-        Assert.assertEquals(parentStruct.get("marks"), null);
+        Assert.assertNull(parentStruct.get("parent"));
+        Assert.assertNull(parentStruct.get("info"));
+        Assert.assertNull(parentStruct.get("address"));
+        Assert.assertNull(parentStruct.get("marks"));
 
         BValue info = struct.get("info");
         Assert.assertTrue(info instanceof BMap);
@@ -158,10 +158,10 @@ public class NativeConversionTest {
         BMap<String, BValue> parentStruct = (BMap<String, BValue>) parent;
         Assert.assertEquals(parentStruct.get("name").stringValue(), "Parent");
         Assert.assertEquals(((BInteger) parentStruct.get("age")).intValue(), 50);
-        Assert.assertEquals(parentStruct.get("parent"), null);
-        Assert.assertEquals(parentStruct.get("info"), null);
-        Assert.assertEquals(parentStruct.get("address"), null);
-        Assert.assertEquals(parentStruct.get("marks"), null);
+        Assert.assertNull(parentStruct.get("parent"));
+        Assert.assertNull(parentStruct.get("info"));
+        Assert.assertNull(parentStruct.get("address"));
+        Assert.assertNull(parentStruct.get("marks"));
 
         BValue info = struct.get("info");
         Assert.assertTrue(info instanceof BMap);
@@ -355,10 +355,10 @@ public class NativeConversionTest {
         Assert.assertEquals(((BInteger) array.get(0)).intValue(), 4);
         Assert.assertEquals(array.get(1).stringValue(), "Supun");
         Assert.assertEquals(((BFloat) array.get(2)).floatValue(), 5.36);
-        Assert.assertEquals(((BBoolean) array.get(3)).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) array.get(3)).booleanValue());
         Assert.assertEquals(array.get(4).stringValue(), "{\"lname\":\"Setunga\"}");
         Assert.assertEquals(array.get(5).stringValue(), "[4, 3, 7]");
-        Assert.assertEquals(array.get(6), null);
+        Assert.assertNull(array.get(6));
     }
 
     @Test(description = "Test converting a JSON array to int array")
@@ -410,10 +410,10 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be converted to 'StringArray'.*")
+            expectedExceptionsMessageRegExp = "error: 'null' cannot be converted to 'StringArray'.*")
     public void testNullJsonToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test converting a JSON null to string array")
@@ -423,7 +423,7 @@ public class NativeConversionTest {
         BMap<String, BValue> anyArrayStruct = (BMap<String, BValue>) returns[0];
         BStringArray array = (BStringArray) anyArrayStruct.get("a");
 
-        Assert.assertEquals(array, null);
+        Assert.assertNull(array);
     }
 
     @Test(description = "Test converting a JSON string to string array",
@@ -435,7 +435,7 @@ public class NativeConversionTest {
     }
 
     @Test(description = "Test converting a null JSON to struct", expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be converted to 'Person'.*")
+            expectedExceptionsMessageRegExp = "error: 'null' cannot be converted to 'Person'.*")
     public void testNullJsonToStruct() {
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }
@@ -454,12 +454,11 @@ public class NativeConversionTest {
                                              new BValue[]{});
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-        //TODO fix the error message checking; 
-        //Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'Person': error while mapping" +
-        //        " 'parent': incompatible types: expected 'json-object', found 'string'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BError) returns[0]).getReason();
+        Assert.assertEquals(errorMsg,
+                            "cannot convert 'json' to type 'Person': error while mapping 'parent': incompatible " +
+                                    "types: expected 'json-object', found 'string'");
     }
 
     @Test
@@ -505,9 +504,9 @@ public class NativeConversionTest {
         Assert.assertEquals(bValue.get("s").stringValue(), "string value");
         Assert.assertEquals(((BInteger) bValue.get("a")).intValue(), 45);
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 5.3);
-        Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), true);
-        Assert.assertEquals(bValue.get("j"), null);
-        Assert.assertEquals(bValue.get("blb"), null);
+        Assert.assertTrue(((BBoolean) bValue.get("b")).booleanValue());
+        Assert.assertNull(bValue.get("j"));
+        Assert.assertNull(bValue.get("blb"));
     }
 
     @Test
@@ -519,8 +518,8 @@ public class NativeConversionTest {
         Assert.assertEquals(bValue.get("s").stringValue(), "");
         Assert.assertEquals(((BInteger) bValue.get("a")).intValue(), 0);
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 0.0);
-        Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), false);
-        Assert.assertEquals(bValue.get("j"), null);
+        Assert.assertFalse(((BBoolean) bValue.get("b")).booleanValue());
+        Assert.assertNull(bValue.get("j"));
         Assert.assertEquals(((BByteArray) bValue.get("blb")).size(), 0);
     }
 
@@ -564,8 +563,28 @@ public class NativeConversionTest {
     }
 
     @Test
-    public void testJsonToStructInPackage() {
-        BValue[] returns = BRunUtil.invoke(packageResult, "testJsonToStruct");
+    public void testJsonToRecordInPackage() {
+        BValue[] returns = BRunUtil.invoke(packageResult, "testJsonToRecord");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
+
+        String name = struct.get("name").stringValue();
+        Assert.assertEquals(name, "John");
+
+        long age = ((BInteger) struct.get("age")).intValue();
+        Assert.assertEquals(age, 30);
+
+        BValue address = struct.get("adrs");
+        Assert.assertTrue(address instanceof BMap);
+        BMap<String, BValue> addressStruct = (BMap<String, BValue>) address;
+        Assert.assertEquals(addressStruct.get("street").stringValue(), "20 Palm Grove");
+        Assert.assertEquals(addressStruct.get("city").stringValue(), "Colombo 03");
+        Assert.assertEquals(addressStruct.get("country").stringValue(), "Sri Lanka");
+    }
+
+    @Test
+    public void testMapToRecordInPackage() {
+        BValue[] returns = BRunUtil.invoke(packageResult, "testMapToRecord");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
 

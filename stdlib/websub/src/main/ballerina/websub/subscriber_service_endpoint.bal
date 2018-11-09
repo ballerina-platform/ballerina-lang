@@ -111,7 +111,7 @@ function Listener::sendSubscriptionRequests() {
     map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
-        if (lengthof subscriptionDetails.keys() == 0) {
+        if (subscriptionDetails.keys().length() == 0) {
             continue;
         }
 

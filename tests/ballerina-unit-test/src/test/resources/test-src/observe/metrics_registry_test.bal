@@ -3,7 +3,7 @@ import ballerina/observe;
 
 function getAllMetricsSize() returns (int) {
     observe:Metric[] metrics = observe:getAllMetrics();
-    return (lengthof metrics);
+    return (metrics.length());
 }
 
 function registerAngGetMetrics() returns (int) {

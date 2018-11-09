@@ -56,8 +56,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -81,10 +81,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -284,7 +284,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (cpr.isCursorBeforeNode(varNode.getPosition(), varNode, this, this.lsContext) || varNode.expr == null) {
             return;
@@ -328,7 +328,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (cpr.isCursorBeforeNode(varDefNode.getPosition(), varDefNode, this, this.lsContext)) {
             return;
@@ -667,7 +667,7 @@ public class TreeVisitor extends LSNodeVisitor {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(matchNode.getPosition(), matchNode, this, this.lsContext)) {
             this.blockOwnerStack.push(matchNode);
-            matchNode.getPatternClauses().forEach(patternClause -> {
+            matchNode.patternClauses.forEach(patternClause -> {
                 cursorPositionResolver = MatchStatementScopeResolver.class;
                 acceptNode(patternClause, symbolEnv);
             });
@@ -676,7 +676,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClause) {
+    public void visit(BLangMatch.BLangMatchStmtTypedBindingPatternClause patternClause) {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(patternClause.getPosition(), patternClause, this, this.lsContext)) {
             blockOwnerStack.push(patternClause);
@@ -960,8 +960,8 @@ public class TreeVisitor extends LSNodeVisitor {
         return isWithinParams;
     }
 
-    private BLangVariableDef createVarDef(BLangVariable var) {
-        BLangVariableDef varDefNode = new BLangVariableDef();
+    private BLangSimpleVariableDef createVarDef(BLangSimpleVariable var) {
+        BLangSimpleVariableDef varDefNode = new BLangSimpleVariableDef();
         varDefNode.var = var;
         varDefNode.pos = var.pos;
         return varDefNode;

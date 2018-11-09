@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -71,7 +71,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
     protected boolean isWithinScopeAfterLastChildNode(Node node, TreeVisitor treeVisitor, int curLine, int curCol) {
         BLangService bLangService = (BLangService) treeVisitor.getBlockOwnerStack().peek();
         List<BLangResource> resources = bLangService.resources;
-        List<BLangVariableDef> variableDefs = bLangService.vars;
+        List<BLangSimpleVariableDef> variableDefs = bLangService.vars;
         int serviceEndLine = bLangService.pos.getEndLine();
         int serviceEndCol = bLangService.pos.getEndColumn();
         int nodeEndLine = node.getPosition().getEndLine();

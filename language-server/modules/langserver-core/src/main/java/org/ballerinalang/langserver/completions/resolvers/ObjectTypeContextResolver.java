@@ -34,7 +34,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -61,7 +61,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                 .map(Token::getText)
                 .collect(Collectors.toList());
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objectNode;
-        List<BLangVariable> fields = objectTypeNode.fields;
+        List<BLangSimpleVariable> fields = objectTypeNode.fields;
         List<BLangFunction> functions = objectTypeNode.functions;
         BLangFunction initFunction = objectTypeNode.initFunction;
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();

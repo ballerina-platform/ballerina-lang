@@ -36,7 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -44,7 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -135,7 +135,7 @@ public class EndpointDesugar {
     }
 
     void defineGlobalEndpoint(BLangEndpoint ep, SymbolEnv env) {
-        final BLangVariable epVariable = ASTBuilderUtil.createVariable(ep.pos, ep.name.value, ep.symbol.type);
+        final BLangSimpleVariable epVariable = ASTBuilderUtil.createVariable(ep.pos, ep.name.value, ep.symbol.type);
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(ep.pos, env.enclPkg.symbol.scope, env,
                 names.fromIdNode(ep.name), SymTag.VARIABLE);
         env.enclPkg.globalVars.add(epVariable);
@@ -157,7 +157,7 @@ public class EndpointDesugar {
         ep.symbol = varSymbol;
         env.enclPkg.symbol.scope.define(varSymbol.name, varSymbol);
 
-        final BLangVariable epVariable = ASTBuilderUtil.createVariable(ep.pos, ep.name.value, ep.symbol.type);
+        final BLangSimpleVariable epVariable = ASTBuilderUtil.createVariable(ep.pos, ep.name.value, ep.symbol.type);
         epVariable.symbol = varSymbol;
         env.enclPkg.globalEndpoints.add(ep);
         service.boundEndpoints.add(ASTBuilderUtil.createVariableRef(anonymousEndpointBind.pos, varSymbol));
@@ -216,7 +216,7 @@ public class EndpointDesugar {
         final DiagnosticPos pos = endpoint.pos;
         BLangBlockStmt temp = new BLangBlockStmt();
 
-        final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
+        final BLangSimpleVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(pos, encSymbol.scope, env,
                 names.fromString(epName), SymTag.VARIABLE);
 
@@ -236,14 +236,14 @@ public class EndpointDesugar {
         // EPType ep_name = {};
         if (env.enclInvokable != null) {
             // In callable unit, endpoint is same scope variable.
-            final BLangVariableDef epNewStmt = ASTBuilderUtil.createVariableDefStmt(pos, temp);
+            final BLangSimpleVariableDef epNewStmt = ASTBuilderUtil.createVariableDefStmt(pos, temp);
             epNewStmt.var = epVariable;
             epNewStmt.var.expr = newExpr;
         } else {
             // This is an init function. ep variable is defined in outside.
             if (env.enclService != null) {
                 // Add to endpoint variable to relevant location
-                final BLangVariableDef epVarDef = ASTBuilderUtil.createVariableDef(pos);
+                final BLangSimpleVariableDef epVarDef = ASTBuilderUtil.createVariableDef(pos);
                 epVarDef.var = epVariable;
                 env.enclService.vars.add(epVarDef);
             }
@@ -265,17 +265,17 @@ public class EndpointDesugar {
         }
         final String epName = endpoint.name.value;
         final DiagnosticPos pos = endpoint.pos;
-        final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
+        final BLangSimpleVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(pos, encSymbol.scope, env,
                 names.fromString(epName), SymTag.VARIABLE);
 
         // EPConfigType ep_nameConf = { ep-config-expr };
-        final BLangVariableDef epConfigNewStmt = ASTBuilderUtil.createVariableDefStmt(pos, temp);
+        final BLangSimpleVariableDef epConfigNewStmt = ASTBuilderUtil.createVariableDefStmt(pos, temp);
         epConfigNewStmt.var = ASTBuilderUtil.createVariable(pos, epName + "Conf",
                 endpoint.configurationExpr.type);
         epConfigNewStmt.var.expr = endpoint.configurationExpr;
         ASTBuilderUtil.defineVariable(epConfigNewStmt.var, varEncSymbol, names);
-        List<BLangVariable> args = Lists.of(epConfigNewStmt.var);
+        List<BLangSimpleVariable> args = Lists.of(epConfigNewStmt.var);
         if (endpoint.symbol.initFunction != null && endpoint.symbol.initFunction.params.size() == 2) {
             // Endpoint is already desugared. Fix this correctly.
             args.add(0, epVariable);
@@ -306,11 +306,11 @@ public class EndpointDesugar {
         final DiagnosticPos pos = endpoint.pos;
         final String epName = endpoint.name.value;
 
-        final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
+        final BLangSimpleVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
         final Name name = names.fromIdNode(endpoint.name);
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(pos, encSymbol.scope, env, name,
                 SymTag.VARIABLE);
-        List<BLangVariable> args = new ArrayList<>();
+        List<BLangSimpleVariable> args = new ArrayList<>();
         if (funSymbol.params.size() == 1) {
             // Endpoint is already desugared. Fix this correctly.
             args.add(0, epVariable);
@@ -333,18 +333,18 @@ public class EndpointDesugar {
         final String epName = endpoint.name.value;
         BLangBlockStmt temp = new BLangBlockStmt();
 
-        final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.type);
+        final BLangSimpleVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.type);
         final Name name = endpoint.name;
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(pos, encSymbol.scope, env, name,
                 SymTag.VARIABLE);
 
-        final BLangVariableDef serviceTypeDef = ASTBuilderUtil.createVariableDefStmt(pos, temp);
+        final BLangSimpleVariableDef serviceTypeDef = ASTBuilderUtil.createVariableDefStmt(pos, temp);
         serviceTypeDef.var = ASTBuilderUtil.createVariable(pos, service.name + "type", symTable.typeDesc);
         ASTBuilderUtil.defineVariable(serviceTypeDef.var, varEncSymbol, names);
 
         serviceTypeDef.var.expr = getTypeAccessExpression(pos, service.symbol.type);
 
-        List<BLangVariable> args = Lists.of(serviceTypeDef.var);
+        List<BLangSimpleVariable> args = Lists.of(serviceTypeDef.var);
         if (endpoint.registerFunction != null && endpoint.registerFunction.params.size() == 2) {
             // Endpoint is already desugared. Fix this correctly.
             args.add(0, epVariable);

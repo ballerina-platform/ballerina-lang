@@ -36,7 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
@@ -52,7 +52,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     public BLangIdentifier name;
     public BLangUserDefinedType serviceTypeStruct;
-    public List<BLangVariableDef> vars;
+    public List<BLangSimpleVariableDef> vars;
     public List<BLangResource> resources;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -99,13 +99,13 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public List<BLangVariableDef> getVariables() {
+    public List<BLangSimpleVariableDef> getVariables() {
         return vars;
     }
 
     @Override
     public void addVariable(VariableDefinitionNode var) {
-        this.getVariables().add((BLangVariableDef) var);
+        this.getVariables().add((BLangSimpleVariableDef) var);
     }
 
     @Override

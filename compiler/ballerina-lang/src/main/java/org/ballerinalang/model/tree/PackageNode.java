@@ -38,9 +38,9 @@ public interface PackageNode extends Node {
 
     List<? extends EndpointNode> getGlobalEndpoints();
 
-    List<? extends VariableNode> getGlobalVariables();
+    List<? extends SimpleVariableNode> getGlobalVariables();
 
-    void addGlobalVariable(VariableNode globalVar);
+    void addGlobalVariable(SimpleVariableNode globalVar);
 
     List<? extends ServiceNode> getServices();
 

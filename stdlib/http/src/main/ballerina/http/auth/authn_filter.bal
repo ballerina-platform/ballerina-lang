@@ -39,7 +39,7 @@ public type AuthnFilter object {
         var (isSecured, authProviders) = getResourceAuthConfig(context);
         if (isSecured) {
             // if auth providers are there, use those to authenticate
-            if (lengthof authProviders > 0) {
+            if (authProviders.length() > 0) {
                 authenticated = self.authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, request);
             } else {
                 // if not, try to authenticate using any of available authn handlers
@@ -149,7 +149,7 @@ function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAut
 # + return - ListenerAuthConfig instance if its defined, else nil
 function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns (
             ListenerAuthConfig?) {
-    if (lengthof annData == 0) {
+    if (annData.length() == 0) {
         return ();
     }
     reflect:annotationData|() authAnn;

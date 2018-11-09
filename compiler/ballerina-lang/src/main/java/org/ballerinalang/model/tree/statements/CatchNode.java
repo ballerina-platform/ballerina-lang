@@ -18,7 +18,7 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 
 /**
  * @since 0.94
@@ -26,7 +26,7 @@ import org.ballerinalang.model.tree.VariableNode;
  * @deprecated since 0.983.0, use trap instead.
  */
 public interface CatchNode extends Node {
-    VariableNode getParameter();
+    SimpleVariableNode getParameter();
 
     BlockNode getBody();
 }
