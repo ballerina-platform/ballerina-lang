@@ -1,7 +1,7 @@
 
 import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "@ballerina/ast-model";
 import { ASTDidChangeParams, ASTDidChangeResponse, GetASTParams, GetASTResponse } from "@ballerina/lang-service";
-import { DiagramLangClient } from "./../src-ts/";
+import { DiagramLangClient, DiagramMode } from "./../src-ts/";
 
 export class MockLangClient implements DiagramLangClient {
     constructor(
@@ -23,3 +23,10 @@ export class MockLangClient implements DiagramLangClient {
       // do nothing
     }
 }
+
+export const commonProps = {
+  height: 1000,
+  mode: DiagramMode.ACTION,
+  width: 1000,
+  zoom: 1,
+};
