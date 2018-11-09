@@ -58,8 +58,8 @@ public type HttpAuthzHandler object {
     # Cached the authorization result
     #
     # + authzCacheKey - Cache key
-    # + isAuthorized - boolean flag to indicate the authorization decision
-    function cacheAuthzResult (string authzCacheKey, boolean isAuthorized);
+    # + authorized - boolean flag to indicate the authorization decision
+    function cacheAuthzResult (string authzCacheKey, boolean authorized);
 };
 
 function HttpAuthzHandler::handle (string username, string serviceName, string resourceName, string method,

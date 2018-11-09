@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/cache;
 
 # Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
