@@ -648,20 +648,12 @@ public class CompiledPackageSymbolEnter {
         String actualTypeSig = getUTF8CPEntryValue(dataInStream);
         BType actualType = getBTypeFromDescriptor(actualTypeSig);
 
-        boolean typeNodeTypeAvailable = dataInStream.readBoolean();
-
-        BType typeNodeType = null;
-        if (typeNodeTypeAvailable) {
-            String typeNodeTypeSig = getUTF8CPEntryValue(dataInStream);
-            typeNodeType = getBTypeFromDescriptor(typeNodeTypeSig);
-        }
-
         int flags = dataInStream.readInt();
 
         // Create constant symbol.
         Scope enclScope = this.env.pkgSymbol.scope;
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, actualType, enclScope.owner, typeNodeType);
+                this.env.pkgSymbol.pkgID, actualType, enclScope.owner);
 
         enclScope.define(constantSymbol.name, constantSymbol);
 

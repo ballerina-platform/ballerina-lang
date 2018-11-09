@@ -2016,13 +2016,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void createConstantInfo(BLangConstant constant) {
         BConstantSymbol constantSymbol = constant.symbol;
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
-        int actualTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
-        int typeNodeTypeCPIndex = -1;
-        if (constantSymbol.finiteType != null) {
-            typeNodeTypeCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.finiteType.getDesc());
-        }
-        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, actualTypeSigCPIndex, typeNodeTypeCPIndex,
-                constantSymbol.flags);
+        int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
+
+        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, typeSigCPIndex, constantSymbol.flags);
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
         DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(constantSymbol.value);

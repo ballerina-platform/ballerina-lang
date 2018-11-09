@@ -33,41 +33,28 @@ public class ConstantInfo implements AttributeInfoPool {
 
     private int nameCPIndex;
     private String name;
-    private int actualTypeCPIndex;
-    private BType actualType;
-    private int typeNodeTypeCPIndex;
-    private BType typeNodeType;
+    private int typeCPIndex;
+    private BType type;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, String name, int actualTypeCPIndex, BType actualType,
-                        int typeNodeTypeCPIndex, BType typeNodeType) {
+    public ConstantInfo(int nameCPIndex, String name, int typeCPIndex, BType type) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
-        this.actualTypeCPIndex = actualTypeCPIndex;
-        this.actualType = actualType;
-        this.typeNodeTypeCPIndex = typeNodeTypeCPIndex;
-        this.typeNodeType = typeNodeType;
+        this.typeCPIndex = typeCPIndex;
+        this.type = type;
     }
 
     public int getNameCPIndex() {
         return nameCPIndex;
     }
 
-    public int getActualTypeCPIndex() {
-        return actualTypeCPIndex;
+    public int getTypeCPIndex() {
+        return typeCPIndex;
     }
 
-    public BType getActualType() {
-        return actualType;
-    }
-
-    public int getTypeNodeTypeCPIndex() {
-        return typeNodeTypeCPIndex;
-    }
-
-    public BType getTypeNodeType() {
-        return typeNodeType;
+    public BType getType() {
+        return type;
     }
 
     public String getName() {

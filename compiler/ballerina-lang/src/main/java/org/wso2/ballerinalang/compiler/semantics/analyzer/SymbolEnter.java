@@ -774,7 +774,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
 
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                symTable.errType, env.scope.owner, symTable.errType);
+                symTable.errType, env.scope.owner);
 
         // Update the symbol of the node.
         constant.symbol = constantSymbol;
@@ -944,8 +944,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (constant.symbol.type == symTable.errType) {
                 continue;
             }
-
-            constant.symbol.finiteType = constant.symbol.type;
 
             if (constant.typeNode != null) {
                 constant.symbol.type = symResolver.resolveTypeNode(constant.typeNode, env);

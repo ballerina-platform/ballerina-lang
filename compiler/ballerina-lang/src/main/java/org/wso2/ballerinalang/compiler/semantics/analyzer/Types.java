@@ -214,7 +214,8 @@ public class Types {
     public boolean isAssignable(BType target, BLangLiteral literal) {
         if (target.tag == TypeTags.FINITE) {
             return isAssignableToFiniteType(target, literal);
-        } else if (target.tag == TypeTags.UNION) {
+        }
+        if (target.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) target).memberTypes) {
                 if (isAssignable(memberType, literal)) {
                     return true;
