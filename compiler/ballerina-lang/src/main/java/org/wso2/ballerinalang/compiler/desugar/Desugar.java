@@ -1519,16 +1519,16 @@ public class Desugar extends BLangNodeVisitor {
         //  This will be desugared as below :
         //
         //  string | int | boolean _$$_matchexpr = expr;
-        //  if ( _$$_matchexpr isassignable int && (<int>_$$_matchexpr) == 12){
+        //  if ((<int>_$$_matchexpr) == 12){
         //      io:println("Matched Int Value 12");
         //
-        //  } else if (_$$_matchexpr isassignable int && (<int>_$$_matchexpr) == 35) {
+        //  } else if ((<int>_$$_matchexpr) == 35) {
         //      io:println("Matched Int Value 35");
         //
-        //  } else if (_$$_matchexpr isassignable boolean && (<boolean>_$$_matchexpr) == true) {
+        //  } else if ((<boolean>_$$_matchexpr) == true) {
         //      io:println("Matched Boolean Value true");
         //
-        //  } else if (_$$_matchexpr isassignable string && (<string>_$$_matchexpr) == "Hello") {
+        //  } else if ((<string>_$$_matchexpr) == "Hello") {
         //      io:println("Matched String Value Hello");
         //
         //  }
@@ -3214,23 +3214,17 @@ public class Desugar extends BLangNodeVisitor {
                                                          BVarSymbol varSymbol, BType patternType) {
         DiagnosticPos pos = patternClause.pos;
         if (NodeKind.MATCH_STATIC_PATTERN_CLAUSE == patternClause.getKind()) {
-
             BLangMatchStmtStaticBindingPatternClause pattern = (BLangMatchStmtStaticBindingPatternClause) patternClause;
-
             BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
-
             BLangExpression binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, varRef, pattern.literal,
                     symTable.booleanType, OperatorKind.EQUAL, null);
 
             BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.EQUAL, varRef.type, pattern.literal.type);
-
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = types.getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anyType,
                         pattern.literal.type, (BLangBinaryExpr) binaryExpr);
             }
-
             ((BLangBinaryExpr) binaryExpr).opSymbol = (BOperatorSymbol) opSymbol;
-
             return binaryExpr;
         }
 

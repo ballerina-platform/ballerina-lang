@@ -697,10 +697,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     ));
 
             for (BLangRecordKeyValue literalKeyValue : mapLiteral.keyValuePairs) {
-                if (recordFields.containsKey(((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value)) {
-                    if (!isValidMatchPattern(
-                            recordFields.get(((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value),
-                            literalKeyValue.valueExpr)) {
+                if (literalKeyValue.key.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                    return false;
+                }
+                String literalKeyName = ((BLangSimpleVarRef) literalKeyValue.key.expr).variableName.value;
+                if (recordFields.containsKey(literalKeyName)) {
+                    if (!isValidMatchPattern(recordFields.get(literalKeyName), literalKeyValue.valueExpr)) {
                         return false;
                     }
                 } else if (recordMatchType.sealed) {

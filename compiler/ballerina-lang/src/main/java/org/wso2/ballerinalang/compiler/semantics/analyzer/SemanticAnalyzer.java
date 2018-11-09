@@ -984,28 +984,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         NodeKind literalNode = expression.getKind();
 
         if (NodeKind.LITERAL == literalNode) {
-            BType exprType = typeChecker.checkExpr(expression, this.env);
-            if (types.isAnydata(expression.type)) {
-                return exprType;
-            } else {
-                dlog.error(expression.pos, DiagnosticCode.STATIC_MATCH_ONLY_SUPPORTS_ANYDATA);
-                return symTable.errorType;
-            }
+            return typeChecker.checkExpr(expression, this.env);
         }
 
         if (NodeKind.RECORD_LITERAL_EXPR == literalNode) {
             BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
             for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
-                if (recLiteralKeyValue.key.expr.getKind() != NodeKind.VARIABLE) {
-                    recLiteralKeyValue.key.expr.type = symTable.stringType;
-                } else {
-                    dlog.error(recLiteralKeyValue.key.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
+                if (recLiteralKeyValue.key.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                    recLiteralKeyValue.key.expr.type = symTable.errorType;
+                    dlog.error(recLiteralKeyValue.key.expr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
                 }
 
                 BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                 types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
             }
-            recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
             return recordLiteral.type;
 
         } else if (NodeKind.BRACED_TUPLE_EXPR == literalNode) {
