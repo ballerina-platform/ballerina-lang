@@ -18,7 +18,8 @@
 import _ from 'lodash';
 import AbstractBlockNode from './abstract-tree/block-node';
 import TreeUtil from './../tree-util';
-
+import { ASTUtil } from "ast-model";
+import Tree from 'plugins/ballerina/diagram/views/default/components/transformer/tree';
 class BlockNode extends AbstractBlockNode {
 
     /**
@@ -58,13 +59,38 @@ class BlockNode extends AbstractBlockNode {
             variables.forEach((variable, i) => {
                 variable.getVariableName().setValue(TreeUtil.generateVariableName(this, 'var', i));
             });
+            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot(), this.getBlockStartWs());
             this.addStatements(node, index);
         } else if (TreeUtil.isVariableDef(node)) {
             node.getVariable().getName().setValue(TreeUtil.generateVariableName(this, 'var'));
+            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot(), this.getBlockStartWs());
             this.addStatements(node, index);
         } else {
+            ASTUtil.reconcileWS(node, this.getStatements(), this.getRoot(), this.getBlockStartWs());
             this.addStatements(node, index);
         }
+    }
+
+
+    getBlockStartWs() {
+        if (this.getStatements().length > 0) {
+            return -1;
+        }
+        // If parent is a function or a resource and has endpoints
+        if (TreeUtil.isFunction(this.parent) || TreeUtil.isResource(this.parent)) {
+            const epCount = this.parent.endpointNodes.length;
+            if (epCount > 0) {
+                const lastEp = this.parent.endpointNodes[epCount - 1];
+                const endpointWSList = ASTUtil.extractWS(lastEp);
+                return endpointWSList.pop().i + 1;
+            }
+        }
+
+        const wsList = ASTUtil.extractWS(this.parent);
+        const startWs = _.find(wsList, (element) => {
+            return (element.text === "{");
+        });
+        return startWs.i + 1;
     }
 }
 

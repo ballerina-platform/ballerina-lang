@@ -114,6 +114,21 @@
             }
         ]
     },
+    {
+        "title": "Record",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Record",
+                "url": "records"
+            },
+            {
+                "name": "Optional Fields",
+                "url": "record-optional-fields"
+            }
+        ]
+    },
  	{
         "title": "Values and Types",
         "column": 1,
@@ -452,10 +467,6 @@
             {
                 "name": "JDBC Client Call Procedures",
                 "url": "jdbc-client-call-procedures"
-            },
-            {
-                "name": "JDBC Client Proxy Tables",
-                "url": "jdbc-client-proxy-tables"
             }
         ]
     },
@@ -624,6 +635,10 @@
             {
                 "name": "HTTP Streaming",
                 "url": "http-streaming"
+            },
+            {
+                "name": "HTTP Compression",
+                "url": "http-compression"
             }
         ]
     },

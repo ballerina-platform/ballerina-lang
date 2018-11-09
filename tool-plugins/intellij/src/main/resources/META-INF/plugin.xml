@@ -39,13 +39,11 @@
 
         <!--LSP Plugin Extensions-->
         <applicationConfigurable instance="com.github.gtache.lsp.settings.MiscSettings" id="MiscSettings"
-                                 groupId="language" displayName="Language Server Protocol"/>
+                                 parentId="Ballerina" displayName="Language Server"/>
         <applicationConfigurable parentId="MiscSettings" id="ServerSettings" displayName="Server Definitions"
                                  instance="com.github.gtache.lsp.settings.ServersSettings"/>
         <applicationConfigurable parentId="MiscSettings" id="TimeoutSettings" displayName="Timeouts"
                                  instance="com.github.gtache.lsp.settings.TimeoutSettings"/>
-        <applicationConfigurable parentId="MiscSettings" id="CoursierSettings" displayName="Coursier"
-                                 instance="com.github.gtache.lsp.settings.CoursierSettings"/>
 
         <applicationService id="LSPState"
                             serviceInterface="com.github.gtache.lsp.settings.BallerinaLSPState"
@@ -58,8 +56,8 @@
         <typedHandler implementation="com.github.gtache.lsp.editor.listeners.LSPTypedHandler" id="LSPTypedHandler"/>
         <completion.contributor implementationClass="com.github.gtache.lsp.contributors.LSPCompletionContributor"
                                 id="LSPCompletionContributor" language="any"/>
-        <!--<inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"-->
-                                <!--id="LSPInspectionProvider"/>-->
+        <inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"
+                                id="LSPInspectionProvider"/>
         <fileDocumentSynchronizationVetoer
                 implementation="com.github.gtache.lsp.editor.listeners.LSPFileDocumentSynchronizationVetoer"
                 id="LSPFileDocumentSynchronizationVetoer"/>
@@ -107,9 +105,6 @@
 
         <codeInsight.parameterInfo language="Ballerina"
                                    implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>
-
-        <externalAnnotator language="Ballerina"
-                           implementationClass="io.ballerina.plugins.idea.BallerinaExternalAnnotator"/>
 
         <!--<spellchecker.support language="Ballerina"-->
         <!--implementationClass="org.ballerinalang.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>-->
@@ -174,6 +169,9 @@
 
         <editorNotificationProvider
                 implementation="io.ballerina.plugins.idea.inspections.WrongSdkConfigurationNotificationProvider"/>
+
+        <editorNotificationProvider
+                implementation="io.ballerina.plugins.idea.inspections.VersionMismatchNotificationProvider"/>
 
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="io.ballerina.plugins.idea.BallerinaModuleType"/>
@@ -241,8 +239,8 @@
                          implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
         <preloadingActivity
-                implementation="io.ballerina.plugins.idea.preloading.LanguageServerPreloadingActivity"
-                id="io.ballerina.plugins.idea.preloading.LanguageServerPreloadingActivity"/>
+                implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
+                id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>
     </extensions>
 
     <actions>
@@ -253,14 +251,14 @@
         </action>
 
         <!-- LSP Plugin Actions -->
-        <action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>
-        <action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>
-        <action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>
-        <action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
-        </action>
-        <action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction">
-            <keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/>
-        </action>
+        <!--<action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>-->
+        <!--</action>-->
+        <!--<action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction">-->
+            <!--<keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/>-->
+        <!--</action>-->
     </actions>
 
     <application-components>

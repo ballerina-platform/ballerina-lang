@@ -20,9 +20,9 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileAdapter;
 import com.intellij.openapi.vfs.VirtualFileCopyEvent;
 import com.intellij.openapi.vfs.VirtualFileEvent;
+import com.intellij.openapi.vfs.VirtualFileListener;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileMoveEvent;
 import com.intellij.util.SystemProperties;
@@ -51,13 +51,13 @@ import java.util.zip.ZipInputStream;
 public class BallerinaPathModificationTracker {
 
     // Paths which we should track.
-    private final Set<String> pathsToTrack = ContainerUtil.newHashSet();
+    private static final Set<String> pathsToTrack = ContainerUtil.newHashSet();
     // Paths which will be used to find sources.
-    private final Collection<VirtualFile> ballerinaPathRoots = ContainerUtil.newLinkedHashSet();
+    private static final Collection<VirtualFile> ballerinaPathRoots = ContainerUtil.newLinkedHashSet();
     // List which will be used to store organizations.
-    private final List<VirtualFile> organizationNames = ContainerUtil.newArrayList();
+    private static final List<VirtualFile> organizationNames = ContainerUtil.newArrayList();
     // Map which will contain packages correspond to organizations. Key - organization, value - package list.
-    private final Map<String, List<VirtualFile>> packageMap = ContainerUtil.newHashMap();
+    private static final Map<String, List<VirtualFile>> packageMap = ContainerUtil.newHashMap();
 
     public BallerinaPathModificationTracker() {
         String ballerinaRepository = BallerinaEnvironmentUtil.retrieveRepositoryPathFromEnvironment();
@@ -69,16 +69,16 @@ public class BallerinaPathModificationTracker {
                 if (s.contains("$HOME")) {
                     s = s.replaceAll("\\$HOME", home);
                 }
-                pathsToTrack.add(s);
+                addPath(s);
             }
         } else {
             Path caches = Paths.get(SystemProperties.getUserHome(), ".ballerina", "caches", "central.ballerina.io");
-            pathsToTrack.add(caches.toString());
+            addPath(caches.toString());
         }
 
         recalculateFiles();
 
-        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileAdapter() {
+        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
             @Override
             public void fileCreated(@NotNull VirtualFileEvent event) {
                 handleEvent(event);
@@ -109,7 +109,17 @@ public class BallerinaPathModificationTracker {
         });
     }
 
-    private void recalculateFiles() {
+    public static synchronized void addPath(String path) {
+        pathsToTrack.add(path);
+        recalculateFiles();
+    }
+
+    public static synchronized void removePath(String path) {
+        pathsToTrack.remove(path);
+        recalculateFiles();
+    }
+
+    private static void recalculateFiles() {
         organizationNames.clear();
         packageMap.clear();
         Collection<VirtualFile> result = ContainerUtil.newLinkedHashSet();
@@ -125,7 +135,10 @@ public class BallerinaPathModificationTracker {
                     // Get the organization name.
                     String organizationName = organization.getName();
                     // If the organization is not a directory or its name is "$anon", we skip it.
-                    if (!organization.isDirectory() || "$anon".equals(organizationName)) {
+                    // Skips the "ballerina" organization since already added from "src".
+                    // Todo - Include "ballerina" after refactoring
+                    if (!organization.isDirectory() || "$anon".equals(organizationName)
+                            || "ballerina".equals(organizationName)) {
                         continue;
                     }
                     // Add the organization to the list. This list is later used for code completion.
@@ -165,7 +178,7 @@ public class BallerinaPathModificationTracker {
                                     String destinationDirectory = latestVersion.getPath() + File.separator +
                                             packageName;
                                     unzip(file.getPath(), destinationDirectory);
-                                } catch (IOException e) {
+                                } catch (IOException ignored) {
 
                                 }
                             }
@@ -182,7 +195,7 @@ public class BallerinaPathModificationTracker {
     }
 
     @Nullable
-    private VirtualFile getLatestVersion(@Nullable VirtualFile[] files) {
+    private static VirtualFile getLatestVersion(@Nullable VirtualFile[] files) {
         if (files == null || files.length == 0) {
             return null;
         }
@@ -195,7 +208,7 @@ public class BallerinaPathModificationTracker {
         return null;
     }
 
-    private void unzip(String fileZipPath, String destinationDirectory) throws IOException {
+    private static void unzip(String fileZipPath, String destinationDirectory) throws IOException {
 
         byte[] buffer = new byte[1024 * 4];
         // Get the zip file content.
@@ -239,7 +252,7 @@ public class BallerinaPathModificationTracker {
         zipInputStream.close();
     }
 
-    private synchronized void updateBallerinaPathRoots(Collection<VirtualFile> newRoots) {
+    private static synchronized void updateBallerinaPathRoots(Collection<VirtualFile> newRoots) {
         ballerinaPathRoots.clear();
         ballerinaPathRoots.addAll(newRoots);
     }

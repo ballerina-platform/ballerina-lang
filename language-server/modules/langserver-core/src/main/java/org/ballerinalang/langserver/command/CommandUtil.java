@@ -30,16 +30,27 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -57,9 +68,14 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.Serializable;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -70,6 +86,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.generateName;
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Utilities for the command related operations.
@@ -230,7 +247,7 @@ public class CommandUtil {
      * @param baseOffset        Offset of snippet                         
      * @return {@link String}   Constructor snippet as String
      */
-    static String getObjectConstructorSnippet(List<BLangVariable> fields, int baseOffset) {
+    public static String getObjectConstructorSnippet(List<BLangVariable> fields, int baseOffset) {
         List<String> fieldNames = fields.stream()
                 .filter(bField -> ((bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC))
                 .map(bField -> bField.getName().getValue())
@@ -239,6 +256,31 @@ public class CommandUtil {
 
         return offsetStr + "new(" + String.join(", ", fieldNames) + ") {" + CommonUtil.LINE_SEPARATOR
                 + CommonUtil.LINE_SEPARATOR + offsetStr + "}" + CommonUtil.LINE_SEPARATOR;
+    }
+
+    /**
+     * Sends a message to the language server client.
+     *
+     * @param client      Language Server client
+     * @param messageType message type
+     * @param message     message
+     */
+    public static void notifyClient(LanguageClient client, MessageType messageType, String message) {
+        client.showMessage(new MessageParams(messageType, message));
+    }
+
+    /**
+     * Clears diagnostics of the client by sending an text edit event.
+     * @param client            Language Server client
+     * @param lsCompiler        Language Server Compiler instance
+     * @param diagnosticsHelper diagnostics helper
+     * @param documentUri       Current text document URI
+     */
+    public static void clearDiagnostics(LanguageClient client, LSCompiler lsCompiler,
+                                         DiagnosticsHelper diagnosticsHelper, String documentUri) {
+        Path filePath = Paths.get(URI.create(documentUri));
+        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+        diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, filePath, compilationPath);
     }
 
     private static Set<String> getAllEntries(BLangInvocation functionNode) {
@@ -269,7 +311,7 @@ public class CommandUtil {
      * @param line              Start line of the function in the source
      * @return {@link DocAttachmentInfo}   Documentation attachment for the function
      */
-    static DocAttachmentInfo getFunctionDocumentationByPosition(BLangPackage bLangPackage, int line) {
+    public static DocAttachmentInfo getFunctionDocumentationByPosition(BLangPackage bLangPackage, int line) {
         List<BLangFunction> filteredFunctions = new ArrayList<>();
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
             
@@ -293,15 +335,24 @@ public class CommandUtil {
         return null;
     }
 
-    static DocAttachmentInfo getFunctionNodeDocumentation(BLangFunction bLangFunction) {
+    private static DocAttachmentInfo getFunctionNodeDocumentation(BLangFunction bLangFunction) {
         List<String> attributes = new ArrayList<>();
         DiagnosticPos functionPos =  CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
         List<BLangAnnotationAttachment> annotations = bLangFunction.getAnnotationAttachments();
         Position docStart = getDocumentationStartPosition(bLangFunction.getPosition(), annotations);
         int offset = functionPos.getStartColumn();
+        
+        List<BLangVariable> params = new ArrayList<>(bLangFunction.getParameters());
+        if (bLangFunction.getRestParameters() != null) {
+            params.add((BLangVariable) bLangFunction.getRestParameters());
+        }
+        params.addAll(bLangFunction.getDefaultableParameters()
+                .stream()
+                .map(bLangVariableDef -> bLangVariableDef.var)
+                .collect(Collectors.toList()));
+        params.sort(new FunctionArgsComparator());
 
-        bLangFunction.getParameters()
-                .forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangVariable) param, offset)));
+        params.forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangVariable) param, offset)));
         if (bLangFunction.symbol.retType.getKind() != TypeKind.NIL) {
             attributes.add(getReturnFieldDescription(offset));
         }
@@ -333,7 +384,7 @@ public class CommandUtil {
      * @param line              Start line of the enum in the source
      * @return {@link DocAttachmentInfo}   Documentation attachment for the enum
      */
-    static DocAttachmentInfo getEndpointDocumentationByPosition(BLangPackage bLangPackage, int line) {
+    public static DocAttachmentInfo getEndpointDocumentationByPosition(BLangPackage bLangPackage, int line) {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
             if (topLevelNode instanceof BLangEndpoint) {
                 BLangEndpoint endpointNode = (BLangEndpoint) topLevelNode;
@@ -372,7 +423,7 @@ public class CommandUtil {
      * @param line              Start line of the service in the source
      * @return {@link DocAttachmentInfo}   Documentation attachment for the service
      */
-    static DocAttachmentInfo getServiceDocumentationByPosition(BLangPackage bLangPackage, int line) {
+    public static DocAttachmentInfo getServiceDocumentationByPosition(BLangPackage bLangPackage, int line) {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
             if (topLevelNode instanceof BLangService && topLevelNode.getPosition().getStartLine() - 1 == line) {
                 BLangService serviceNode = (BLangService) topLevelNode;
@@ -396,7 +447,7 @@ public class CommandUtil {
      * @param line              Start line of the type node in the source
      * @return {@link DocAttachmentInfo}   Documentation attachment for the type node
      */
-    static DocAttachmentInfo getTypeNodeDocumentationByPosition(BLangPackage bLangPackage, int line) {
+    public static DocAttachmentInfo getTypeNodeDocumentationByPosition(BLangPackage bLangPackage, int line) {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
             if (!(topLevelNode instanceof BLangTypeDefinition)) {
                 continue;
@@ -410,6 +461,124 @@ public class CommandUtil {
         }
         
         return null;
+    }
+
+    /**
+     * Get Documentation edit for node at a given position.
+     *
+     * @param topLevelNodeType  top level node type
+     * @param bLangPkg          BLang package
+     * @param line              position to be compared with
+     * @return Document attachment info
+     */
+    public static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType,
+                                                                                      BLangPackage bLangPkg,
+                                                                                      int line) {
+        CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
+        switch (topLevelNodeType) {
+            case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
+                docAttachmentInfo = CommandUtil.getFunctionDocumentationByPosition(bLangPkg, line);
+                break;
+            case UtilSymbolKeys.ENDPOINT_KEYWORD_KEY:
+                docAttachmentInfo = CommandUtil.getEndpointDocumentationByPosition(bLangPkg, line);
+                break;
+            case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
+                docAttachmentInfo = CommandUtil.getServiceDocumentationByPosition(bLangPkg, line);
+                break;
+            case UtilSymbolKeys.RECORD_KEYWORD_KEY:
+            case UtilSymbolKeys.OBJECT_KEYWORD_KEY:
+                docAttachmentInfo = CommandUtil.getTypeNodeDocumentationByPosition(bLangPkg, line);
+                break;
+            default:
+                break;
+        }
+
+        return docAttachmentInfo;
+    }
+
+    /**
+     * Get the documentation edit attachment info for a given particular node.
+     *
+     * @param node Node given
+     * @return Doc Attachment Info
+     */
+    public static CommandUtil.DocAttachmentInfo getDocumentationEditForNode(Node node) {
+        CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
+        switch (node.getKind()) {
+            case FUNCTION:
+                if (((BLangFunction) node).markdownDocumentationAttachment == null) {
+                    docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node);
+                }
+                break;
+            case TYPE_DEFINITION:
+                if (((BLangTypeDefinition) node).markdownDocumentationAttachment == null
+                        && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
+                        || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
+                    docAttachmentInfo = CommandUtil.getRecordOrObjectDocumentation((BLangTypeDefinition) node);
+                }
+                break;
+            case ENDPOINT:
+                docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node);
+                break;
+            case RESOURCE:
+                if (((BLangResource) node).markdownDocumentationAttachment == null) {
+                    BLangResource bLangResource = (BLangResource) node;
+                    docAttachmentInfo = CommandUtil.getResourceNodeDocumentation(bLangResource);
+                }
+                break;
+            case SERVICE:
+                if (((BLangService) node).markdownDocumentationAttachment == null) {
+                    BLangService bLangService = (BLangService) node;
+                    docAttachmentInfo = CommandUtil.getServiceNodeDocumentation(bLangService);
+                }
+                break;
+            default:
+                break;
+        }
+
+        return docAttachmentInfo;
+    }
+
+    /**
+     * Apply a given single text edit.
+     *
+     * @param editText      Edit text to be inserted
+     * @param range         Line Range to be processed
+     * @param identifier    Document identifier
+     * @param client        Language Client
+     * @return {@link ApplyWorkspaceEditParams}     Workspace edit params
+     */
+    public static ApplyWorkspaceEditParams applySingleTextEdit(String editText, Range range,
+                                                                VersionedTextDocumentIdentifier identifier,
+                                                                LanguageClient client) {
+        WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+        ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
+        TextEdit textEdit = new TextEdit(range, editText);
+        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier,
+                Collections.singletonList(textEdit));
+        workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+        applyWorkspaceEditParams.setEdit(workspaceEdit);
+        if (client != null) {
+            client.applyEdit(applyWorkspaceEditParams);
+        }
+        return applyWorkspaceEditParams;
+    }
+
+    /**
+     * Apply a workspace edit for the current instance.
+     *
+     * @param textDocumentEdits     List of document edits for current session
+     * @param client                Language Client
+     * @return {@link Object}       workspace edit parameters
+     */
+    public static Object applyWorkspaceEdit(List<TextDocumentEdit> textDocumentEdits, LanguageClient client) {
+        WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+        workspaceEdit.setDocumentChanges(textDocumentEdits);
+        ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams(workspaceEdit);
+        if (client != null) {
+            client.applyEdit(applyWorkspaceEditParams);
+        }
+        return applyWorkspaceEditParams;
     }
     
     static DocAttachmentInfo getTypeNodeDocumentation(BLangTypeDefinition typeNode) {
@@ -480,7 +649,6 @@ public class CommandUtil {
         return (BLangInvocation) context.get(NodeContextKeys.NODE_KEY);
     }
 
-
     /**
      * Inner class for the command argument holding argument key and argument value.
      */
@@ -538,7 +706,7 @@ public class CommandUtil {
     /**
      * Holds the meta information required for the documentation attachment.
      */
-    static class DocAttachmentInfo {
+    public static class DocAttachmentInfo {
 
         private String docAttachment;
 
@@ -549,12 +717,22 @@ public class CommandUtil {
             this.docStartPos = docStartPos;
         }
 
-        String getDocAttachment() {
+        public String getDocAttachment() {
             return docAttachment;
         }
 
-        Position getDocStartPos() {
+        public Position getDocStartPos() {
             return docStartPos;
+        }
+    }
+    
+    private static class FunctionArgsComparator implements Serializable, Comparator<BLangVariable> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public int compare(BLangVariable arg1, BLangVariable arg2) {
+            return arg1.getPosition().getStartColumn() - arg2.getPosition().getStartColumn();
         }
     }
 }

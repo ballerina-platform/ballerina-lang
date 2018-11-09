@@ -181,10 +181,12 @@ config) returns (boolean|error) {
         "Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
         return err;
     }
-    if (!validateSignature(encodedJWTComponents, jwtHeader, config)) {
-        error err = {message:"Invalid signature"};
-        return err;
+    var signatureValidationResult = validateSignature(encodedJWTComponents, jwtHeader, config);
+    match signatureValidationResult {
+        error err => return err;
+        () => {}
     }
+
     if (!validateIssuer(jwtPayload, config)) {
         error err = {message:"JWT contained invalid issuer name : " + jwtPayload.iss};
         return err;
@@ -213,8 +215,8 @@ function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
     return true;
 }
 
-function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config) returns (
-        boolean) {
+function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config)
+    returns error? {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
     TrustStore trustStore = {};
