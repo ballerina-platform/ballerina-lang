@@ -102,6 +102,16 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
         .ui.active.transition.visible.dimmer{
             background: #1e1e1e!important;
         }
+        .ui.horizontal.label.post {background-color: #49cc90!important; color: white; }
+        .ui.horizontal.label.put {background-color: #fca130!important; color: white; }
+        .ui.horizontal.label.get {background-color: #61affe!important; color: white; }
+        .ui.horizontal.label.delete {background-color: #f93e3e!important; color: white; }
+        .ui.horizontal.label.patch {background-color: #50e3c2!important; color: white; }
+        .ui.horizontal.label.head {background-color: #9012fe!important; color: white; }
+        .ui.horizontal.label.options {background-color: #0d5aa7!important; color: white; }
+        #logs-console table thead{
+            display: table-header-group!important;
+        }
     `;
     return getLibraryWebViewContent(context, body, script, styles);
 }

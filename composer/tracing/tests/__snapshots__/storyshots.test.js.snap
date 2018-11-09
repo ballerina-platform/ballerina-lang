@@ -687,12 +687,12 @@ exports[`Storyshots trace list list traces 1`] = `
         <th
           className=""
         >
-          Path
+          Method
         </th>
         <th
           className=""
         >
-          Method
+          Path
         </th>
         <th
           className=""
@@ -720,17 +720,17 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
-          /path
-        </td>
-        <td
-          className=""
-        >
           <div
-            className="ui horizontal label"
+            className="ui horizontal label get"
             onClick={[Function]}
           >
             GET
           </div>
+        </td>
+        <td
+          className=""
+        >
+          /path
         </td>
         <td
           className=""
@@ -750,6 +750,16 @@ exports[`Storyshots trace list list traces 1`] = `
             className="icon"
             title="http.tracelog.downstream - direction"
           />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
@@ -759,16 +769,6 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
-          <div
-            className="ui horizontal label"
-            onClick={[Function]}
-          >
-            POST
-          </div>
-        </td>
-        <td
-          className=""
-        >
           direction
         </td>
       </tr>
@@ -784,6 +784,16 @@ exports[`Storyshots trace list list traces 1`] = `
             className="icon"
             title="http.tracelog.downstream - direction"
           />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
@@ -793,16 +803,6 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
-          <div
-            className="ui horizontal label"
-            onClick={[Function]}
-          >
-            POST
-          </div>
-        </td>
-        <td
-          className=""
-        >
           direction
         </td>
       </tr>
@@ -822,17 +822,17 @@ exports[`Storyshots trace list list traces 1`] = `
         <td
           className=""
         >
-          /path4
-        </td>
-        <td
-          className=""
-        >
           <div
-            className="ui horizontal label"
+            className="ui horizontal label post"
             onClick={[Function]}
           >
             POST
           </div>
+        </td>
+        <td
+          className=""
+        >
+          /path4
         </td>
         <td
           className=""
@@ -864,12 +864,12 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <th
           className=""
         >
-          Path
+          Method
         </th>
         <th
           className=""
         >
-          Method
+          Path
         </th>
         <th
           className=""
@@ -897,17 +897,17 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
-          /path
-        </td>
-        <td
-          className=""
-        >
           <div
-            className="ui horizontal label"
+            className="ui horizontal label get"
             onClick={[Function]}
           >
             GET
           </div>
+        </td>
+        <td
+          className=""
+        >
+          /path
         </td>
         <td
           className=""
@@ -927,6 +927,16 @@ exports[`Storyshots trace list list traces selected 1`] = `
             className="icon"
             title="http.tracelog.downstream - direction"
           />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
@@ -936,16 +946,6 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
-          <div
-            className="ui horizontal label"
-            onClick={[Function]}
-          >
-            POST
-          </div>
-        </td>
-        <td
-          className=""
-        >
           direction
         </td>
       </tr>
@@ -961,6 +961,16 @@ exports[`Storyshots trace list list traces selected 1`] = `
             className="icon"
             title="http.tracelog.downstream - direction"
           />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
         </td>
         <td
           className=""
@@ -970,16 +980,6 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
-          <div
-            className="ui horizontal label"
-            onClick={[Function]}
-          >
-            POST
-          </div>
-        </td>
-        <td
-          className=""
-        >
           direction
         </td>
       </tr>
@@ -999,17 +999,17 @@ exports[`Storyshots trace list list traces selected 1`] = `
         <td
           className=""
         >
-          /path4
-        </td>
-        <td
-          className=""
-        >
           <div
-            className="ui horizontal label"
+            className="ui horizontal label post"
             onClick={[Function]}
           >
             POST
           </div>
+        </td>
+        <td
+          className=""
+        >
+          /path4
         </td>
         <td
           className=""
@@ -1387,12 +1387,12 @@ exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
             <th
               className=""
             >
-              Path
+              Method
             </th>
             <th
               className=""
             >
-              Method
+              Path
             </th>
             <th
               className=""

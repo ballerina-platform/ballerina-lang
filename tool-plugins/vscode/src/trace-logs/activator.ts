@@ -167,8 +167,8 @@ function mergeRelatedMessages(traces: Array<any>) {
             && record1.thread === record2.thread
             && (record2.message.headerType.startsWith('DefaultLastHttpContent')
                 || record2.message.headerType.startsWith('EmptyLastHttpContent'))) {
-            record2.message.payload = record2.message.payload ? record2.message.payload : record2.message.headers;
             record1.message.payload = record2.message.payload;
+            record1.message.payload = record1.message.payload ? record1.message.payload : record2.message.headers;
             newTraces.push(record1);
         } else if (record1.message.headerType.startsWith('DefaultLastHttpContent') ||
             record1.message.headerType.startsWith('EmptyLastHttpContent')) {

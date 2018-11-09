@@ -64,8 +64,8 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                     <Table.Header>
                         <Table.Row>
                             <Table.HeaderCell></Table.HeaderCell>
-                            <Table.HeaderCell>Path</Table.HeaderCell>
                             <Table.HeaderCell>Method</Table.HeaderCell>
+                            <Table.HeaderCell>Path</Table.HeaderCell>
                             <Table.HeaderCell>Direction</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
@@ -85,16 +85,16 @@ class TraceList extends React.Component<TraceListProps, TraceListState> {
                                             title={`${record.logger} - ${record.message.direction}`}
                                         />
                                     </Table.Cell>
-                                    <Table.Cell>{record.message.path}</Table.Cell>
                                     <Table.Cell>
                                         {
                                             record.message.httpMethod &&
-                                            <Label horizontal>
+                                            <Label horizontal className={record.message.httpMethod.toLowerCase()}>
                                                 {record.message.httpMethod}
                                             </Label>
                                         }
                                         
                                     </Table.Cell>
+                                    <Table.Cell>{record.message.path}</Table.Cell>
                                     <Table.Cell>{record.message.direction}</Table.Cell>
                                 </Table.Row>
                             );
