@@ -486,10 +486,6 @@ public class BLangPackageBuilder {
         if (isOptional) {
             field.flagSet.add(Flag.OPTIONAL);
         }
-
-        if (exprAvailable) {
-            field.flagSet.add(Flag.DEFAULTABLE);
-        }
     }
 
     void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,

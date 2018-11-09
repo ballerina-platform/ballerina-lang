@@ -477,9 +477,7 @@ public class TypeChecker extends BLangNodeVisitor {
                             .equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
 
             // If a required field is missing and it's not defaultable, it's a compile error
-            if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                    (!types.defaultValueExists(pos, field.type) &&
-                            !Symbols.isFlagOn(field.symbol.flags, Flags.DEFAULTABLE))) {
+            if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
                 dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
             }
         });
@@ -593,7 +591,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             fields.add(new BField(names.fromIdNode(recordRefField.variableName),
                     new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
-                            env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol), false));
+                            env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol)));
         }
 
         if (varRefExpr.restParam != null) {

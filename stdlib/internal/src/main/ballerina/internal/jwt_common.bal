@@ -37,10 +37,10 @@
 # + customClaims - Map of custom claims
 public type JwtHeader record {
     string alg;
-    string typ;
-    string cty;
-    string kid;
-    map customClaims;
+    string typ?;
+    string cty?;
+    string kid?;
+    map customClaims?;
     !...
 };
 
@@ -57,10 +57,10 @@ public type JwtPayload record {
     string iss;
     string sub;
     string[] aud;
-    string jti;
+    string jti?;
     int exp;
-    int nbf;
-    int iat;
-    map customClaims;
+    int nbf?;
+    int iat?;
+    map customClaims?;
     !...
 };

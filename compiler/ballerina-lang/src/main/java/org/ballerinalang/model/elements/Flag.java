@@ -72,14 +72,6 @@ public enum Flag {
      */
     INTERFACE,
     /**
-     * Indicates Flagged type is checked for default values.
-     */
-    DEFAULTABLE_CHECKED,
-    /**
-     * Indicates Flagged type is a defaultable type.
-     */
-    DEFAULTABLE,
-    /**
      * Temporary indicator for records.
      */
     RECORD,

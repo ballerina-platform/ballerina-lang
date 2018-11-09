@@ -27,21 +27,19 @@ import java.util.Set;
  */
 public class Flags {
     public static final int PUBLIC = 1;
-    public static final int NATIVE = 2;
-    public static final int FINAL = 4;
-    public static final int ATTACHED = 8;
-    public static final int DEPRECATED = 16;
-    public static final int READONLY = 32;
-    public static final int FUNCTION_FINAL = 64;
-    public static final int INTERFACE = 128;
-    public static final int DEFAULTABLE_CHECKED = 256;
-    public static final int DEFAULTABLE = 512;
-    public static final int RECORD = 1024;
-    public static final int PRIVATE = 2048;
-    public static final int COMPENSATE = 4096;
-    public static final int ABSTRACT = 8192;
-    public static final int OPTIONAL = 16384;
-    public static final int TESTABLE = 32768;
+    public static final int NATIVE = PUBLIC << 1;
+    public static final int FINAL = NATIVE << 1;
+    public static final int ATTACHED = FINAL << 1;
+    public static final int DEPRECATED = ATTACHED << 1;
+    public static final int READONLY = DEPRECATED << 1;
+    public static final int FUNCTION_FINAL = READONLY << 1;
+    public static final int INTERFACE = FUNCTION_FINAL << 1;
+    public static final int RECORD = INTERFACE << 1;
+    public static final int PRIVATE = RECORD << 1;
+    public static final int COMPENSATE = PRIVATE << 1;
+    public static final int ABSTRACT = COMPENSATE << 1;
+    public static final int OPTIONAL = ABSTRACT << 1;
+    public static final int TESTABLE = OPTIONAL << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -73,12 +71,6 @@ public class Flags {
                     break;
                 case INTERFACE:
                     mask |= INTERFACE;
-                    break;
-                case DEFAULTABLE_CHECKED:
-                    mask |= DEFAULTABLE_CHECKED;
-                    break;
-                case DEFAULTABLE:
-                    mask |= DEFAULTABLE;
                     break;
                 case RECORD:
                     mask |= RECORD;
@@ -131,12 +123,6 @@ public class Flags {
                     break;
                 case INTERFACE:
                     flagVal = INTERFACE;
-                    break;
-                case DEFAULTABLE_CHECKED:
-                    flagVal = DEFAULTABLE_CHECKED;
-                    break;
-                case DEFAULTABLE:
-                    flagVal = DEFAULTABLE;
                     break;
                 case RECORD:
                     flagVal = RECORD;

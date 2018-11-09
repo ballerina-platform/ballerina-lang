@@ -78,9 +78,7 @@ public type JWTAuthProvider object {
     }
 
     function addToAuthenticationCache(string jwtToken, int exp, internal:JwtPayload payload) {
-        CachedJWTAuthContext cachedContext = {};
-        cachedContext.jwtPayload = payload;
-        cachedContext.expiryTime = exp;
+        CachedJWTAuthContext cachedContext = {jwtPayload : payload, expiryTime : exp};
         self.authCache.put(jwtToken, cachedContext);
         log:printDebug("Add authenticated user :" + payload.sub + " to the cache");
     }

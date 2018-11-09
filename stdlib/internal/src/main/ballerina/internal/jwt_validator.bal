@@ -47,8 +47,8 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
         error e => return e;
     }
 
-    JwtHeader header = {};
-    JwtPayload payload = {};
+    JwtHeader header;
+    JwtPayload payload;
     match parseJWT(encodedJWTComponents) {
         error e => return e;
         (JwtHeader, JwtPayload) result => {
@@ -216,10 +216,11 @@ function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, J
         boolean) {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
-    TrustStore trustStore = {};
-    trustStore.certificateAlias = config.certificateAlias;
-    trustStore.trustStoreFilePath = config.trustStoreFilePath;
-    trustStore.trustStorePassword = config.trustStorePassword;
+    TrustStore trustStore = {
+        certificateAlias : config.certificateAlias,
+        trustStoreFilePath : config.trustStoreFilePath,
+        trustStorePassword : config.trustStorePassword
+    };
     return verifySignature(assertion, signPart, jwtHeader.alg, trustStore);
 }
 
