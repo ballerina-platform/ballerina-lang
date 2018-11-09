@@ -89,3 +89,24 @@ function sealRecordToTuple() returns (string,string) {
 
     return e1;
 }
+
+type ExtendedEmployee record {
+    string name;
+    string status;
+    string batch;
+    Address address;
+};
+
+type Address object {
+    public int no = 10;
+    public string streetName = "Palm Grove";
+    public string city = "colombo";
+};
+
+function sealExtendedRecordToAnydata() returns anydata {
+    Address addressObj = new Address();
+    ExtendedEmployee employee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
+    anydata anydataValue = employee.seal(anydata);
+
+    return anydataValue;
+}

@@ -29,6 +29,19 @@ type Teacher record {
     string school;
 };
 
+type ExtendedEmployee record {
+    string name;
+    string status;
+    string batch;
+    Address address;
+};
+
+type Address object {
+    public int no = 10;
+    public string streetName = "Palm Grove";
+    public string city = "colombo";
+};
+
 //-----------------------Record Seal -------------------------------------------------------------------
 
 function testSealWithOpenRecords() returns Employee {
@@ -90,6 +103,21 @@ function sealRecordToMapV3() returns map {
     teacher.seal(map);
 
     return teacher;
+}
+
+function sealRecordToAnydata() returns anydata {
+    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    anydata anydataValue = teacher.seal(anydata);
+
+    return anydataValue;
+}
+
+function sealExtendedRecordToAny() returns any {
+    Address addressObj = new Address();
+    ExtendedEmployee employee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
+    any anyValue = employee.seal(any);
+
+    return anyValue;
 }
 
 //-------------------------------- Negative Test cases ------------------------------------------------------------

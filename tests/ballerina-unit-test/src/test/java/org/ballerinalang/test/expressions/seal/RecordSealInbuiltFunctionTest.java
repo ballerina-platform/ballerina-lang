@@ -209,6 +209,30 @@ public class RecordSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.get("emp").getType().getClass(), BAnyType.class);
     }
 
+    @Test
+    public void testSealRecordToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealRecordToAnydata");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 5);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
+    }
+
+    @Test
+    public void testSealExtendedRecordToAny() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealExtendedRecordToAny");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 4);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BAnyType.class);
+    }
+
 
     //---------------------------------- Negative Test cases ----------------------------------------------
 
