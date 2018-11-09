@@ -476,8 +476,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     .anyMatch(keyVal -> field.name.value
                             .equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
 
-            // If a required field is missing and it's not defaultable, it's a compile error
-            if (!hasField && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
+            // If a required field is missing, it's a compile error
+            if (!hasField && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
             }
         });

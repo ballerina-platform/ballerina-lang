@@ -72,6 +72,10 @@ public enum Flag {
      */
     INTERFACE,
     /**
+     * Indicates Flagged record field is a required field.
+     */
+    REQUIRED,
+    /**
      * Temporary indicator for records.
      */
     RECORD,

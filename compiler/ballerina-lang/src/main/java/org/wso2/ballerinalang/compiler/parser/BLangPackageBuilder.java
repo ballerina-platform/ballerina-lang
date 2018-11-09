@@ -485,6 +485,8 @@ public class BLangPackageBuilder {
 
         if (isOptional) {
             field.flagSet.add(Flag.OPTIONAL);
+        } else if (!exprAvailable) {
+            field.flagSet.add(Flag.REQUIRED);
         }
     }
 

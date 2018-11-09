@@ -34,7 +34,8 @@ public class Flags {
     public static final int READONLY = DEPRECATED << 1;
     public static final int FUNCTION_FINAL = READONLY << 1;
     public static final int INTERFACE = FUNCTION_FINAL << 1;
-    public static final int RECORD = INTERFACE << 1;
+    public static final int REQUIRED = INTERFACE << 1;
+    public static final int RECORD = REQUIRED << 1;
     public static final int PRIVATE = RECORD << 1;
     public static final int COMPENSATE = PRIVATE << 1;
     public static final int ABSTRACT = COMPENSATE << 1;
@@ -71,6 +72,9 @@ public class Flags {
                     break;
                 case INTERFACE:
                     mask |= INTERFACE;
+                    break;
+                case REQUIRED:
+                    mask |= REQUIRED;
                     break;
                 case RECORD:
                     mask |= RECORD;
@@ -123,6 +127,9 @@ public class Flags {
                     break;
                 case INTERFACE:
                     flagVal = INTERFACE;
+                    break;
+                case REQUIRED:
+                    flagVal = REQUIRED;
                     break;
                 case RECORD:
                     flagVal = RECORD;
