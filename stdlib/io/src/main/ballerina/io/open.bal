@@ -21,10 +21,10 @@
 //# READ/WRITE - open the file either to read or write
 //# APPEND - append to existing file instead of replacing
 public type Mode READ|WRITE|RW|APPEND;
-public const Mode READ = "r";
-public const Mode WRITE = "w";
-public const Mode RW = "rw";
-public const Mode APPEND = "a";
+public const READ = "r";
+public const WRITE = "w";
+public const RW = "rw";
+public const APPEND = "a";
 
 # Retrieves a ReadableByteChannel from a given file path.
 #

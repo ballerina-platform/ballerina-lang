@@ -34,7 +34,7 @@ public const string CHARSET = "charset";
 public const string DEFAULT_CHARSET = "UTF-8";
 
 # Permission to be used with opening a byte channel for overflow data.
-const io:Mode READ_PERMISSION = "r";
+const READ_PERMISSION = "r";
 
 # Represents `content-id` header name.
 public const string CONTENT_ID = "content-id";

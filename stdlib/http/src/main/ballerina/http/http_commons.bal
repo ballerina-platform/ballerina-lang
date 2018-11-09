@@ -33,31 +33,31 @@ const int MAX_PIPELINED_REQUESTS = 10;
 public const string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 
 # Constant for the HTTP FORWARD method
-public const HttpOperation HTTP_FORWARD = "FORWARD";
+public const HTTP_FORWARD = "FORWARD";
 
 # Constant for the HTTP GET method
-public const HttpOperation HTTP_GET = "GET";
+public const HTTP_GET = "GET";
 
 # Constant for the HTTP POST method
-public const HttpOperation HTTP_POST = "POST";
+public const HTTP_POST = "POST";
 
 # Constant for the HTTP DELETE method
-public const HttpOperation HTTP_DELETE = "DELETE";
+public const HTTP_DELETE = "DELETE";
 
 # Constant for the HTTP OPTIONS method
-public const HttpOperation HTTP_OPTIONS = "OPTIONS";
+public const HTTP_OPTIONS = "OPTIONS";
 
 # Constant for the HTTP PUT method
-public const HttpOperation HTTP_PUT = "PUT";
+public const HTTP_PUT = "PUT";
 
 # Constant for the HTTP PATCH method
-public const HttpOperation HTTP_PATCH = "PATCH";
+public const HTTP_PATCH = "PATCH";
 
 # Constant for the HTTP HEAD method
-public const HttpOperation HTTP_HEAD = "HEAD";
+public const HTTP_HEAD = "HEAD";
 
 # Constant for the identify not an HTTP Operation
-public const HttpOperation HTTP_NONE = "NONE";
+public const HTTP_NONE = "NONE";
 
 # Defines the possible values for the chunking configuration in HTTP services and clients.
 #
@@ -69,13 +69,13 @@ public type Chunking CHUNKING_AUTO|CHUNKING_ALWAYS|CHUNKING_NEVER;
 
 # If the payload is less than 8KB, content-length header is set in the outbound request/response,
 # otherwise chunking header is set in the outbound request/response.}
-public const Chunking CHUNKING_AUTO = "AUTO";
+public const CHUNKING_AUTO = "AUTO";
 
 # Always set chunking header in the response.
-public const Chunking CHUNKING_ALWAYS = "ALWAYS";
+public const CHUNKING_ALWAYS = "ALWAYS";
 
 # Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.
-public const Chunking CHUNKING_NEVER = "NEVER";
+public const CHUNKING_NEVER = "NEVER";
 
 # Options to compress using gzip or deflate.
 #
@@ -87,13 +87,13 @@ public type Compression COMPRESSION_AUTO|COMPRESSION_ALWAYS|COMPRESSION_NEVER;
 
 # When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
 # outbound request/response accept-encoding/content-encoding option.
-public const Compression COMPRESSION_AUTO = "AUTO";
+public const COMPRESSION_AUTO = "AUTO";
 
 # Always set accept-encoding/content-encoding in outbound request/response.
-public const Compression COMPRESSION_ALWAYS = "ALWAYS";
+public const COMPRESSION_ALWAYS = "ALWAYS";
 
 # Never set accept-encoding/content-encoding header in outbound request/response.
-public const Compression COMPRESSION_NEVER = "NEVER";
+public const COMPRESSION_NEVER = "NEVER";
 
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
 #

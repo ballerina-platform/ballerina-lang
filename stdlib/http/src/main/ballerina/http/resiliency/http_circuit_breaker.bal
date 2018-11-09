@@ -26,17 +26,17 @@ public type CircuitState CB_OPEN_STATE|CB_HALF_OPEN_STATE|CB_CLOSED_STATE;
 
 # Represents the open state of the circuit. When the Circuit Breaker is in `OPEN` state, requests will fail
 # immediately.
-public const CircuitState CB_OPEN_STATE = "OPEN";
+public const CB_OPEN_STATE = "OPEN";
 
 # Represents the half-open state of the circuit. When the Circuit Breaker is in `HALF_OPEN` state, a trial request
 # will be sent to the upstream service. If it fails, the circuit will trip again and move to the `OPEN` state. If not,
 # it will move to the `CLOSED` state.
-public const CircuitState CB_HALF_OPEN_STATE = "HALF_OPEN";
+public const CB_HALF_OPEN_STATE = "HALF_OPEN";
 
 # Represents the closed state of the circuit. When the Circuit Breaker is in `CLOSED` state, all requests will be
 # allowed to go through to the upstream service. If the failures exceed the configured threhold values, the circuit
 # will trip and move to the `OPEN` state.
-public const CircuitState CB_CLOSED_STATE = "CLOSED";
+public const CB_CLOSED_STATE = "CLOSED";
 
 # Maintains the health of the Circuit Breaker.
 #

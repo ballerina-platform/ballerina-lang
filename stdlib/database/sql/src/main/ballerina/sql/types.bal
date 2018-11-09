@@ -85,36 +85,36 @@ TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TY
 TYPE_DOUBLE|TYPE_BINARY|TYPE_BLOB|TYPE_LONGVARBINARY|TYPE_VARBINARY|TYPE_CLOB|TYPE_NCLOB|TYPE_DATE|TYPE_TIME|
 TYPE_DATETIME|TYPE_TIMESTAMP|TYPE_ARRAY|TYPE_STRUCT|TYPE_REFCURSOR;
 
-public const SQLType TYPE_VARCHAR = "VARCHAR";
-public const SQLType TYPE_CHAR = "CHAR";
-public const SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
-public const SQLType TYPE_NCHAR = "NCHAR";
-public const SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
-public const SQLType TYPE_NVARCHAR = "NVARCHAR";
-public const SQLType TYPE_BIT = "BIT";
-public const SQLType TYPE_BOOLEAN = "BOOLEAN";
-public const SQLType TYPE_TINYINT = "TINYINT";
-public const SQLType TYPE_SMALLINT = "SMALLINT";
-public const SQLType TYPE_INTEGER = "INTEGER";
-public const SQLType TYPE_BIGINT = "BIGINT";
-public const SQLType TYPE_NUMERIC = "NUMERIC";
-public const SQLType TYPE_DECIMAL = "DECIMAL";
-public const SQLType TYPE_REAL = "REAL";
-public const SQLType TYPE_FLOAT = "FLOAT";
-public const SQLType TYPE_DOUBLE = "DOUBLE";
-public const SQLType TYPE_BINARY = "BINARY";
-public const SQLType TYPE_BLOB = "BLOB";
-public const SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
-public const SQLType TYPE_VARBINARY = "VARBINARY";
-public const SQLType TYPE_CLOB = "CLOB";
-public const SQLType TYPE_NCLOB = "NCLOB";
-public const SQLType TYPE_DATE = "DATE";
-public const SQLType TYPE_TIME = "TIME";
-public const SQLType TYPE_DATETIME = "DATETIME";
-public const SQLType TYPE_TIMESTAMP = "TIMESTAMP";
-public const SQLType TYPE_ARRAY = "ARRAY";
-public const SQLType TYPE_STRUCT = "STRUCT";
-public const SQLType TYPE_REFCURSOR = "REFCURSOR";
+public const TYPE_VARCHAR = "VARCHAR";
+public const TYPE_CHAR = "CHAR";
+public const TYPE_LONGVARCHAR = "LONGVARCHAR";
+public const TYPE_NCHAR = "NCHAR";
+public const TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+public const TYPE_NVARCHAR = "NVARCHAR";
+public const TYPE_BIT = "BIT";
+public const TYPE_BOOLEAN = "BOOLEAN";
+public const TYPE_TINYINT = "TINYINT";
+public const TYPE_SMALLINT = "SMALLINT";
+public const TYPE_INTEGER = "INTEGER";
+public const TYPE_BIGINT = "BIGINT";
+public const TYPE_NUMERIC = "NUMERIC";
+public const TYPE_DECIMAL = "DECIMAL";
+public const TYPE_REAL = "REAL";
+public const TYPE_FLOAT = "FLOAT";
+public const TYPE_DOUBLE = "DOUBLE";
+public const TYPE_BINARY = "BINARY";
+public const TYPE_BLOB = "BLOB";
+public const TYPE_LONGVARBINARY = "LONGVARBINARY";
+public const TYPE_VARBINARY = "VARBINARY";
+public const TYPE_CLOB = "CLOB";
+public const TYPE_NCLOB = "NCLOB";
+public const TYPE_DATE = "DATE";
+public const TYPE_TIME = "TIME";
+public const TYPE_DATETIME = "DATETIME";
+public const TYPE_TIMESTAMP = "TIMESTAMP";
+public const TYPE_ARRAY = "ARRAY";
+public const TYPE_STRUCT = "STRUCT";
+public const TYPE_REFCURSOR = "REFCURSOR";
 
 # The direction of the parameter.
 #
@@ -123,9 +123,9 @@ public const SQLType TYPE_REFCURSOR = "REFCURSOR";
 # INOUT - INOUT parameters are used to send values and get values from stored procedures
 public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
 
-public const Direction DIRECTION_IN = "IN";
-public const Direction DIRECTION_OUT = "OUT";
-public const Direction DIRECTION_INOUT = "INOUT";
+public const DIRECTION_IN = "IN";
+public const DIRECTION_OUT = "OUT";
+public const DIRECTION_INOUT = "INOUT";
 
 # Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
 #

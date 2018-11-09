@@ -43,10 +43,10 @@ public type CachingPolicy CACHE_CONTROL_AND_VALIDATORS|RFC_7234;
 
 # This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances
 # where the `cache-control` header and either the `etag` or `last-modified` header are present.
-public const CachingPolicy CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
+public const CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
 
 # Caching behaviour is as specified by the RFC 7234 specification.
-public const CachingPolicy RFC_7234 = "RFC_7234";
+public const RFC_7234 = "RFC_7234";
 
 # Provides a set of configurations for controlling the caching behaviour of the endpoint.
 #

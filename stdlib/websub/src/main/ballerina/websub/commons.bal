@@ -79,25 +79,25 @@ public type RemotePublishMode PUBLISH_MODE_DIRECT|PUBLISH_MODE_FETCH;
 
 # `RemotePublishMode` indicating direct update content notification (fat-ping). The payload of the update
 # notification request from the publisher to the hub would include be the update content.
-public const RemotePublishMode PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
+public const PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
 
 # `RemotePublishMode` indicating that once the publisher notifies the hub that an update is available, the hub
 # needs to fetch the topic URL to identify the update content.
-public const RemotePublishMode PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
+public const PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
 
 ///////////////////////////////// Custom Webhook/Extension specific constants /////////////////////////////////
 # The identifier to be used to identify the topic for dispatching with custom subscriber services.
 public type TopicIdentifier TOPIC_ID_HEADER|TOPIC_ID_PAYLOAD_KEY|TOPIC_ID_HEADER_AND_PAYLOAD;
 
 # `TopicIdentifier` indicating dispatching based solely on a header of the request.
-public const TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
+public const TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
 
 # `TopicIdentifier` indicating dispatching based solely on a value for a key in the JSON payload of the request.
-public const TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
+public const TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
 
 # `TopicIdentifier` indicating dispatching based on a combination of header and values specified for a key/key(s) in
 # the JSON payload of the request.
-public const TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
+public const TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Commons ////////////////////

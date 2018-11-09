@@ -120,21 +120,21 @@ public type RedirectCode REDIRECT_MULTIPLE_CHOICES_300|REDIRECT_MOVED_PERMANENTL
 REDIRECT_NOT_MODIFIED_304|REDIRECT_USE_PROXY_305|REDIRECT_TEMPORARY_REDIRECT_307|REDIRECT_PERMANENT_REDIRECT_308;
 
 # Represents the HTTP redirect status code `300 - Multiple Choices`.
-public const RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
+public const REDIRECT_MULTIPLE_CHOICES_300 = 300;
 # Represents the HTTP redirect status code `301 - Moved Permanently`.
-public const RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
+public const REDIRECT_MOVED_PERMANENTLY_301 = 301;
 # Represents the HTTP redirect status code `302 - Found`.
-public const RedirectCode REDIRECT_FOUND_302 = 302;
+public const REDIRECT_FOUND_302 = 302;
 # Represents the HTTP redirect status code `303 - See Other`.
-public const RedirectCode REDIRECT_SEE_OTHER_303 = 303;
+public const REDIRECT_SEE_OTHER_303 = 303;
 # Represents the HTTP redirect status code `304 - Not Modified`.
-public const RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
+public const REDIRECT_NOT_MODIFIED_304 = 304;
 # Represents the HTTP redirect status code `305 - Use Proxy`.
-public const RedirectCode REDIRECT_USE_PROXY_305 = 305;
+public const REDIRECT_USE_PROXY_305 = 305;
 # Represents the HTTP redirect status code `307 - Temporary Redirect`.
-public const RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
+public const REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 # Represents the HTTP redirect status code `308 - Permanent Redirect`.
-public const RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
+public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
 function Connection::continue() returns error? {
     Response res = new;
