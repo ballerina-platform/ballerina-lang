@@ -2588,14 +2588,10 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             if (type.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) type;
-                if (unionType.getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.ERROR)) {
-                    retType = type;
-                } else {
-                    Set<BType> unionTypeMemTypes = new LinkedHashSet<>(unionType.memberTypes.size() + 1);
-                    unionTypeMemTypes.addAll(unionType.memberTypes);
-                    unionTypeMemTypes.add(symTable.errorType);
-                    retType = new BUnionType(null, unionTypeMemTypes, false);
+                if (unionType.getMemberTypes().stream().noneMatch(memType -> memType.tag == TypeTags.ERROR)) {
+                    unionType.memberTypes.add(symTable.errorType);
                 }
+                retType = unionType;
             } else {
                 retType = new BUnionType(null, new LinkedHashSet<BType>() {{ add(type); add(symTable.errorType); }},
                                             false);
@@ -2626,6 +2622,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return true;
         }
 
+        // check for anydata element/member types as part of recursive calls with structured/union types
         if (types.isAnydata(type)) {
             return true;
         }
@@ -2649,7 +2646,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (type.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) type;
-            return !tupleType.getTupleTypes().stream().anyMatch(tupType -> !(isNonAnyDataFreezeAllowedType(tupType)));
+            return tupleType.getTupleTypes().stream().allMatch(this::isNonAnyDataFreezeAllowedType);
         }
 
         return type.tag == TypeTags.ARRAY && isNonAnyDataFreezeAllowedType(((BArrayType) type).eType);

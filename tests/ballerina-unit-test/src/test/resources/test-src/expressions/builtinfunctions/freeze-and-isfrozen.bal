@@ -388,6 +388,20 @@ function testInvalidComplexUnionFreeze() returns (string, boolean) {
     return (errorOrSuccessMsg, u1.isFrozen());
 }
 
+function testInvalidSelfReferencingValueFreeze() returns (string, boolean) {
+    map m = { one: 1 };
+    map m2 = { two: 2 };
+    m.m2 = m2;
+    m2.m = m;
+
+    PersonObj p = new("Em");
+    m2.p = p;
+
+    map|error res = m.freeze();
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
+}
+
 function testValidComplexMapFreeze() returns (string, boolean) {
     map<string|PersonObj> m1;
 
@@ -433,6 +447,45 @@ function testValidComplexUnionFreeze() returns (string, boolean) {
     int|Dept|PersonObj|error res = u1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, u1.isFrozen());
+}
+
+function testValidSelfReferencingValueFreeze() returns (string, boolean) {
+    map m = { one: 1 };
+    map m2 = { two: 2 };
+    m.m2 = m2;
+    m2.m = m;
+
+    map|error res = m.freeze();
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
+}
+
+function testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() returns (string, boolean, boolean) {
+    map m = { one: 1 };
+    map m2 = { two: 2 };
+    _ = m.freeze();
+
+    m2.m = m;
+    PersonObj p = new("Em");
+    m2.p = p;
+
+    map|error res = m2.freeze();
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, m2.isFrozen(), m.isFrozen());
+}
+
+function testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze() returns (string, boolean, boolean) {
+    string[] a = ["hello world", "from Ballerina"];
+    json[] a1 = ["hello", "world", true];
+    any[] a2 = [1, a1, a, 11.2];
+    _ = a.freeze();
+
+    PersonObj p = new("Em");
+    a2[4] = p;
+
+    any[]|error res = a2.freeze();
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (errorOrSuccessMsg, a2.isFrozen(), a.isFrozen());
 }
 
 function isIdTwo(Employee e) returns boolean {

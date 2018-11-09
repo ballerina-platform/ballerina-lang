@@ -33,7 +33,7 @@ import java.lang.reflect.Array;
 public abstract class BNewArray implements BRefType, BCollection {
 
     protected BType arrayType;
-    protected CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus();
+    protected CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(false);
 
     /**
      * The maximum size of arrays to allocate.

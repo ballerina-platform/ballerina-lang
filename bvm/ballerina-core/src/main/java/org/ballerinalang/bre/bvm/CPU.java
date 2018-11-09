@@ -824,20 +824,26 @@ public class CPU {
         BRefType value = sf.refRegs[i];
         switch (opcode) {
             case InstructionCodes.FREEZE:
+                if (value == null) {
+                    // assuming we reach here because the value is nil (()), the frozen value would also be nil.
+                    sf.refRegs[j] = null;
+                    break;
+                }
+
+                FreezeStatus freezeStatus = new FreezeStatus(true);
                 try {
-                    FreezeStatus freezeStatus = new FreezeStatus();
                     value.attemptFreeze(freezeStatus);
 
-                    // if freeze is successful, set the frozen status of the value and its constituents to true, and
-                    // set the value itself as the return value
-                    freezeStatus.setFrozen();
+                    // if freeze is successful, set the value itself as the return value
                     sf.refRegs[j] = value;
                 } catch (BLangFreezeException e) {
+                    // if freeze is unsuccessful, set the frozen status of the value and its constituents to false
+                    freezeStatus.setFreezeFailed();
                     sf.refRegs[j] = BLangVMErrors.createError(ctx, e.getMessage());
                 }
                 break;
             case InstructionCodes.IS_FROZEN:
-                sf.intRegs[j] = value.isFrozen() ? 1 : 0;
+                sf.intRegs[j] = (value == null || value.isFrozen())  ? 1 : 0;
                 break;
         }
     }
@@ -4215,10 +4221,14 @@ public class CPU {
      * @since 0.985.0
      */
     public static class FreezeStatus {
-        boolean frozen = false;
+        private boolean frozen = false;
 
-        private void setFrozen() {
-            this.frozen = true;
+        public FreezeStatus(boolean frozen) {
+            this.frozen = frozen;
+        }
+
+        private void setFreezeFailed() {
+            this.frozen = false;
         }
 
         public boolean isFrozen() {

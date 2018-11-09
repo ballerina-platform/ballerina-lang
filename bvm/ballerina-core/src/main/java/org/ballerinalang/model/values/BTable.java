@@ -50,7 +50,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean tableClosed;
-    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus();
+    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(false);
 
     public BTable() {
         this.iterator = null;

@@ -61,7 +61,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private final Lock writeLock = lock.writeLock();
     private BType type = BTypes.typeMap;
     private HashMap<String, Object> nativeData = new HashMap<>();
-    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus();
+    private CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(false);
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -436,7 +436,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         writeLock.lock();
         try {
             if (this.type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
+                throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
             }
 
             if (this.isFrozen()) {

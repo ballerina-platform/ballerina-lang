@@ -41,7 +41,7 @@ import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 public class FreezeAndIsFrozenTest {
 
     private static final String FREEZE_ERROR_OCCURRED_ERR_MSG =
-            "error occurred on freeze: freeze not allowed on 'PersonObj'";
+            "error occurred on freeze: 'freeze()' not allowed on 'PersonObj'";
     private static final String FREEZE_SUCCESSFUL = "freeze successful";
 
     private CompileResult result;
@@ -364,6 +364,17 @@ public class FreezeAndIsFrozenTest {
                 "was encountered");
     }
 
+    @Test
+    public void testInvalidSelfReferencingValueFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidSelfReferencingValueFreeze", new BValue[0]);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
+                "was encountered");
+    }
+
     @Test(description = "test a map of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexMapFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testValidComplexMapFreeze", new BValue[0]);
@@ -416,6 +427,49 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+                "was encountered");
+    }
+
+    @Test
+    public void testValidSelfReferencingValueFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testValidSelfReferencingValueFreeze", new BValue[0]);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+                "was encountered");
+    }
+
+    @Test(description = "test if a frozen map remains to be frozen after a failed attempt at freezing an " +
+            "outer map containing it")
+    public void testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testPreservingInnerMapFrozenStatusOnFailedOuterFreeze",
+                                           new BValue[0]);
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
+                "was encountered");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue(), "Expected value to be frozen since no error " +
+                "was encountered");
+    }
+
+    @Test(description = "test if a frozen array remains to be frozen after a failed attempt at freezing an " +
+            "outer array containing it")
+    public void testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze",
+                                           new BValue[0]);
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
+                "was encountered");
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue(), "Expected value to be frozen since no error " +
                 "was encountered");
     }
 

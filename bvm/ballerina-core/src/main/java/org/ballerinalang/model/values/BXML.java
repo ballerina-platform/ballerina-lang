@@ -65,7 +65,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      */
     public static final String PI_END = "?>";
 
-    protected CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus();
+    protected CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(false);
 
     /**
      * Check whether the XML sequence is empty.
