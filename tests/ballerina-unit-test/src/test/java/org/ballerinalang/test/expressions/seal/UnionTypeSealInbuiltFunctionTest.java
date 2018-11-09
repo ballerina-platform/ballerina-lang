@@ -29,6 +29,7 @@ import org.ballerinalang.model.types.BXMLType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -163,6 +164,29 @@ public class UnionTypeSealInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(sealedValue.getType().getClass(), BAnyType.class);
+    }
+
+    @Test
+    public void testSealUnionToTuple() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealUnionToTuple");
+        BValue sealedValue0 = results[0];
+        BValue sealedValue1 = results[1];
+
+        Assert.assertEquals(sealedValue0.stringValue(), "mohan");
+        Assert.assertEquals(sealedValue0.getType().getClass(), BStringType.class);
+
+        Assert.assertEquals(sealedValue1.stringValue(), "LK2014");
+        Assert.assertEquals(sealedValue1.getType().getClass(), BStringType.class);
+    }
+
+    //---------------------------------- Negative Test cases ----------------------------------------------
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'map<Teacher>' value cannot be " +
+                    "sealed as 'map<Person>'.*")
+    public void testSealOpenRecordToMap() {
+        BRunUtil.invoke(compileResult, "sealNegativeUnionToConstraintMap");
     }
 
 }

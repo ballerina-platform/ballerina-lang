@@ -39,6 +39,7 @@ public class SealInbuiltFunctionNegativeTest {
     private CompileResult objectNegativeTestCompileResult;
     private CompileResult arrayNegativeTestCompileResult;
     private CompileResult tupleNegativeTestCompileResult;
+    private CompileResult unionNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -57,6 +58,8 @@ public class SealInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/seal/negative/array-seal-expr-negative-test.bal");
         tupleNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/seal/negative/tuple-seal-expr-negative-test.bal");
+        unionNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/union-seal-expr-negative-test.bal");
     }
 
 
@@ -327,6 +330,23 @@ public class SealInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 10,
                 "Incompatible seal type: type '(string,string,string)' cannot be sealed as type 'string[]'",
                 61, 27);
+    }
+
+    @Test
+    public void testUnionSealNegativeTest() {
+
+        Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 4);
+
+        //Negative test case to validate invalid seal conversion from union to json.
+        BAssertUtil.validateError(unionNegativeTestCompileResult, 0,
+                "Incompatible seal type: type 'int|float|Employee' cannot be sealed as type 'json'",
+                12, 21);
+
+        //Negative test case to confirm tuple cannot be sealed as json.
+        BAssertUtil.validateError(unionNegativeTestCompileResult, 2,
+                "Incompatible seal type: type 'int|float|xml' cannot be sealed as type 'Employee'",
+                19, 30);
+
     }
 }
 
