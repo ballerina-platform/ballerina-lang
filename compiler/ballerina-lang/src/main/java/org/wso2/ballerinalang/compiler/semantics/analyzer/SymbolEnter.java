@@ -774,8 +774,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
 
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                symTable.noType, env.scope.owner);
-        constantSymbol.finiteType = symTable.errType;
+                symTable.errType, env.scope.owner, symTable.errType);
 
         // Note - This is checked and error is logged in semantic analyzer.
         if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL) {

@@ -661,9 +661,7 @@ public class CompiledPackageSymbolEnter {
         // Create constant symbol.
         Scope enclScope = this.env.pkgSymbol.scope;
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, null, enclScope.owner);
-        constantSymbol.type = actualType;
-        constantSymbol.finiteType = typeNodeType;
+                this.env.pkgSymbol.pkgID, actualType, enclScope.owner, typeNodeType);
 
         enclScope.define(constantSymbol.name, constantSymbol);
 
