@@ -40,6 +40,7 @@ public class SealInbuiltFunctionNegativeTest {
     private CompileResult arrayNegativeTestCompileResult;
     private CompileResult tupleNegativeTestCompileResult;
     private CompileResult unionNegativeTestCompileResult;
+    private CompileResult anydataNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -60,6 +61,8 @@ public class SealInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/seal/negative/tuple-seal-expr-negative-test.bal");
         unionNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/seal/negative/union-seal-expr-negative-test.bal");
+        anydataNegativeTestCompileResult = BCompileUtil.
+                compile("test-src/expressions/seal/negative/anydata-seal-expr-negative-test.bal");
     }
 
 
@@ -346,6 +349,23 @@ public class SealInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(unionNegativeTestCompileResult, 2,
                 "Incompatible seal type: type 'int|float|xml' cannot be sealed as type 'Employee'",
                 19, 30);
+
+    }
+
+    @Test
+    public void testAnydataSealNegativeTest() {
+
+        Assert.assertEquals(anydataNegativeTestCompileResult.getErrorCount(), 3);
+
+        //Negative test case to validate invalid seal conversion from anydata to object.
+
+        BAssertUtil.validateError(anydataNegativeTestCompileResult, 0,
+                "incompatible types: expected 'anydata', found 'PersonObj'",
+                14, 24);
+
+        BAssertUtil.validateError(anydataNegativeTestCompileResult, 1,
+                "Incompatible seal type: type 'anydata' cannot be sealed as type 'PersonObj'",
+                15, 28);
 
     }
 }

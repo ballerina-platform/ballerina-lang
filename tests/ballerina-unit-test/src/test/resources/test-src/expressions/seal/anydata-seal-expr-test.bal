@@ -12,15 +12,6 @@ type Teacher record {
     string school;
 };
 
-type PersonObj object {
-    public int age = 10;
-    public string name = "mohan";
-
-    public int year = 2014;
-    public string month = "february";
-};
-
-
 function sealAnydataToJSON() returns json? {
 
     anydata anydataValue = 3;
@@ -51,14 +42,6 @@ function sealAnydataToXML() returns xml? {
     xml? xmlValue = anydataValue.seal(xml);
     return xmlValue;
 }
-
-//function sealAnyToObject() returns PersonObj? {
-//
-//    anydata anyValue = new PersonObj();
-//    PersonObj? personObj = anyValue.seal(PersonObj);
-//
-//    return personObj;
-//}
 
 function sealAnydataToMap() returns map<Employee>? {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
@@ -92,4 +75,18 @@ function sealAnydataToTuple() returns (string,Teacher)? {
     (string,Teacher)? returnValue = anydataValue.seal((string, Teacher));
 
     return returnValue;
+}
+
+function sealAnydataMapToAny() returns any {
+    map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    any anyValue = anydataMap.seal(any);
+    return anyValue;
+}
+
+function sealAnydataMapToAnyMap() returns map {
+    map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+
+    map mapValue = anydataMap.seal(map);
+    return mapValue;
 }

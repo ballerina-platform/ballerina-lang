@@ -20,8 +20,10 @@ package org.ballerinalang.test.expressions.seal;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.BXMLType;
@@ -106,25 +108,6 @@ public class AnydataSealInbuiltFunctionTest {
         Assert.assertEquals(anydataValue.getType().getClass(), BXMLType.class);
     }
 
-//    @Test
-//    public void testSealAnydataToObject() {
-//
-//        BValue[] results = BRunUtil.invoke(compileResult, "sealAnydataToObject");
-//        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
-//
-//        Assert.assertEquals(results.length, 1);
-//        Assert.assertEquals(mapValue.getType().getClass(), BObjectType.class);
-//
-//        Assert.assertEquals(mapValue.getMap().get("age").getType().getName(), "int");
-//        Assert.assertEquals(mapValue.get("age").stringValue(), "10");
-//
-//        Assert.assertEquals(mapValue.get("year").getType().getName(), "int");
-//        Assert.assertEquals(mapValue.get("year").stringValue(), "2014");
-//
-//        Assert.assertEquals(mapValue.get("month").getType().getClass(), BStringType.class);
-//        Assert.assertEquals(mapValue.get("month").stringValue(), "february");
-//    }
-
     @Test
     public void testSealAnydataToMap() {
 
@@ -189,6 +172,51 @@ public class AnydataSealInbuiltFunctionTest {
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
                 BStringType.class);
+    }
+
+    @Test
+    public void testSealAnydataMapToAny() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealAnydataMapToAny");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 5);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BAnyType.class);
+
+        Assert.assertEquals(mapValue.get("name").stringValue(), "Raja");
+        Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
+
+        Assert.assertEquals(mapValue.get("age").stringValue(), "25");
+        Assert.assertEquals(mapValue.get("age").getType().getName(), "int");
+
+        Assert.assertEquals(mapValue.get("status").stringValue(), "single");
+        Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
+
+    }
+
+    @Test
+    public void testSealAnydataMapToAnyMap() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealAnydataMapToAnyMap");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.size(), 5);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnyType.class);
+
+        Assert.assertEquals(mapValue.get("name").stringValue(), "Raja");
+        Assert.assertEquals(mapValue.get("name").getType().getClass(), BAnyType.class);
+
+        Assert.assertEquals(mapValue.get("age").stringValue(), "25");
+        Assert.assertEquals(mapValue.get("age").getType().getClass(), BAnyType.class);
+
+        Assert.assertEquals(mapValue.get("status").stringValue(), "single");
+        Assert.assertEquals(mapValue.get("status").getType().getClass(), BAnyType.class);
+
     }
 }
 

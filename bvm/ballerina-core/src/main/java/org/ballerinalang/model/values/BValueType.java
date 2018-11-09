@@ -92,6 +92,8 @@ public abstract class BValueType implements BValue {
     public void seal(BType type) {
         if (type.getTag() == TypeTags.ANY_TAG) {
             this.setType(BTypes.typeAny);
+        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            this.setType(BTypes.typeAnydata);
         } else if (type.getTag() == TypeTags.JSON_TAG) {
             this.setType(BTypes.typeJSON);
         } else if (this.getType().getTag() != type.getTag()) {

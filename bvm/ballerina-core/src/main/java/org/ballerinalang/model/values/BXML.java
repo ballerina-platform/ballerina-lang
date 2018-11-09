@@ -267,6 +267,8 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
     public void seal(BType type) {
         if (type.getTag() == TypeTags.ANY_TAG) {
             this.type = BTypes.typeAny;
+        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            this.type = BTypes.typeAnydata;
         } else if (this.type.getTag() != type.getTag()) {
             throw new BallerinaException("Error in sealing the value type: " + this.getType() +
                     " cannot sealed as " + type);
