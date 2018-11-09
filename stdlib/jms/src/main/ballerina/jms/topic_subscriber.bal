@@ -22,7 +22,7 @@ import ballerina/log;
 # + config - Topic subscriber endpoint configuration
 public type TopicSubscriber object {
 
-    public TopicSubscriberActions consumerActions;
+    public TopicSubscriberActions consumerActions = new;
     public TopicSubscriberEndpointConfiguration config;
 
     # Initialize topic subscriber endpoint
