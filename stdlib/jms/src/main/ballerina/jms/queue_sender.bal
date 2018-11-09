@@ -22,8 +22,8 @@ import ballerina/log;
 # + config - Used to store configurations related to a JMS Queue sender
 public type QueueSender object {
 
-    public QueueSenderActions producerActions;
-    public QueueSenderEndpointConfiguration config;
+    public QueueSenderActions producerActions = new;
+    public QueueSenderEndpointConfiguration config = {};
 
     # Default constructor of the endpoint
     public new() {

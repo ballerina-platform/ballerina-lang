@@ -26,8 +26,8 @@ public type SimpleQueueSender object {
     public SimpleQueueSenderEndpointConfiguration config;
 
     private Connection? connection;
-    private Session? session;
-    private QueueSender? sender;
+    private Session? session = ();
+    private QueueSender? sender = ();
 
     # Initialize the SimpleQueueSender endpoint
     #
