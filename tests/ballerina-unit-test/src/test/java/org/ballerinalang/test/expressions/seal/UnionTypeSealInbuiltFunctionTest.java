@@ -180,6 +180,16 @@ public class UnionTypeSealInbuiltFunctionTest {
         Assert.assertEquals(sealedValue1.getType().getClass(), BStringType.class);
     }
 
+    @Test
+    public void testSealUnionToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealUnionToAnydata");
+        BValue sealedValue = results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(sealedValue.getType().getClass(), BAnydataType.class);
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,

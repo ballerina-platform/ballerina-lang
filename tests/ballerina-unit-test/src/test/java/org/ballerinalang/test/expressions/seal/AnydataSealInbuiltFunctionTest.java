@@ -218,5 +218,15 @@ public class AnydataSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("status").getType().getClass(), BAnyType.class);
 
     }
+
+    @Test
+    public void testSealAnydataToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealAnydataToAnydata");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
+    }
 }
 

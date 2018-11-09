@@ -59,3 +59,11 @@ function sealTupleToAny() returns any {
     tupleValue.seal(any);
     return tupleValue;
 }
+
+function sealTupleToAnydata() returns anydata {
+    (string, Teacher) tupleValue = ("Mohan", { name: "Raja", age: 25, status: "single", batch: "LK2014", school:
+    "Hindu College" });
+
+    anydata anydataValue = tupleValue.seal(anydata);
+    return anydataValue;
+}

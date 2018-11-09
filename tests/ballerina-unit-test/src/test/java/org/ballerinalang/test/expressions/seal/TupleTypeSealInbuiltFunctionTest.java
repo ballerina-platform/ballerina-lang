@@ -141,5 +141,20 @@ public class TupleTypeSealInbuiltFunctionTest {
         Assert.assertEquals(tupleValue2.getType().getName(), "Teacher");
     }
 
+    @Test
+    public void testSealTupleToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealTupleToAnydata");
+        Assert.assertEquals(results.length, 2);
+
+        BValue tupleValue1 = results[0];
+        BValue tupleValue2 = results[1];
+
+        Assert.assertEquals(tupleValue1.stringValue(), "Mohan");
+        Assert.assertEquals(tupleValue1.getType().getClass(), BStringType.class);
+
+        Assert.assertEquals(tupleValue2.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(tupleValue2.getType().getName(), "Teacher");
+    }
 }
 

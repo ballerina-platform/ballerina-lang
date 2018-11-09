@@ -100,6 +100,14 @@ function sealUnionToTuple() returns (string, string) {
     return tupleValue;
 }
 
+function sealUnionToAnydata() returns anydata {
+
+    int|float|string|boolean unionValue = "mohan";
+    anydata anydataValue = unionValue.seal(anydata);
+
+    return anydataValue;
+}
+
 //-------------------- Negative Test cases ---------------------------------------------------
 
 function sealNegativeUnionToConstraintMap() returns map<Person> {

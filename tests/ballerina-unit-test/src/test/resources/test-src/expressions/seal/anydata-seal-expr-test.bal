@@ -90,3 +90,11 @@ function sealAnydataMapToAnyMap() returns map {
     map mapValue = anydataMap.seal(map);
     return mapValue;
 }
+
+function sealAnydataToAnydata() returns anydata {
+    json jsonValue = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    anydata anydataValue = jsonValue;
+    anydata returnValue = anydataValue.seal(anydata);
+
+    return returnValue;
+}
