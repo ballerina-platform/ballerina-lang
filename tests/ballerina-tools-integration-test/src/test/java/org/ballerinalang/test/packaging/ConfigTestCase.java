@@ -82,19 +82,7 @@ public class ConfigTestCase extends BaseTest {
     @Test(description = "Execute tests in a ballerina module by specifying the config file path")
     public void testModuleWithConfig() throws Exception {
         String[] clientArgs = {"--config", "sample.conf"};
-        String msg = "Compiling tests\n" +
-                    "    foo:0.0.0\n" +
-                    "\n" +
-                    "Running tests\n" +
-                    "    foo:0.0.0\n" +
-                    "#######################\n" +
-                    "http://localhost:9090/sample/hello\n" +
-                    "#######################\n" +
-                    "\t[pass] testFunction\n" +
-                    "\n" +
-                    "\t1 passing\n" +
-                    "\t0 failing\n" +
-                    "\t0 skipped\n";
+        String msg = "http://localhost:9090/sample/hello";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           tempProjectDirectory.toString());
@@ -103,19 +91,7 @@ public class ConfigTestCase extends BaseTest {
 
     @Test(description = "Execute tests in a ballerina module with the default config file")
     public void testModuleWithDefaultConfig() throws Exception {
-        String msg = "Compiling tests\n" +
-                    "    foo:0.0.0\n" +
-                    "\n" +
-                    "Running tests\n" +
-                    "    foo:0.0.0\n" +
-                    "#######################\n" +
-                    "http://localhost:9090/default/hello\n" +
-                    "#######################\n" +
-                    "\t[pass] testFunction\n" +
-                    "\n" +
-                    "\t1 passing\n" +
-                    "\t0 failing\n" +
-                    "\t0 skipped\n";
+        String msg = "http://localhost:9090/default/hello";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           tempProjectDirectory.toString());

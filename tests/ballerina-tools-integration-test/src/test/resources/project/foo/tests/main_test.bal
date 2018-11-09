@@ -25,8 +25,6 @@ function testFunction () {
   int port = config:getAsInt("port");
   string basePath = config:getAsString("basePath");
   string url = "http://" + host + ":" + port + basePath;
-  io:println("#######################");
   io:println(url);
-  io:println("#######################");
 }
 
