@@ -163,7 +163,7 @@ public function count() returns Aggregator {
 
 public type DistinctCount object {
 
-    public map<int> distinctValues;
+    public map<int> distinctValues = {};
 
     public new() {
 
@@ -203,8 +203,8 @@ public function distinctCount() returns Aggregator {
 
 public type Max object {
 
-    public LinkedList iMaxQueue;
-    public LinkedList fMaxQueue;
+    public LinkedList iMaxQueue = new;
+    public LinkedList fMaxQueue = new;
     public int? iMax = ();
     public float? fMax = ();
 
@@ -312,8 +312,8 @@ public function max() returns Aggregator {
 
 public type Min object {
 
-    public LinkedList iMinQueue;
-    public LinkedList fMinQueue;
+    public LinkedList iMinQueue = new;
+    public LinkedList fMinQueue = new;
     public int? iMin = ();
     public float? fMin = ();
 
