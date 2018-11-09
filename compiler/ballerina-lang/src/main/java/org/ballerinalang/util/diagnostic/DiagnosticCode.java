@@ -311,6 +311,7 @@ public enum DiagnosticCode {
     TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),
+    UNABLE_TO_PERFORM_TAINT_CHECKING_FOR_BUILTIN_METHOD("unable.to.perform.taint.checking.for.builtin.method"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),

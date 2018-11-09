@@ -50,11 +50,14 @@ public class CloneOperationTest {
 
     private CompileResult result;
     private CompileResult negativeResult;
+    private CompileResult taintCheckResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/builtinoperations/clone-operation.bal");
         negativeResult = BCompileUtil.compile("test-src/expressions/builtinoperations/clone-operation-negative.bal");
+        taintCheckResult =
+                BCompileUtil.compile("test-src/expressions/builtinoperations/clone-operation-taint-negative.bal");
     }
 
     @Test
@@ -310,6 +313,9 @@ public class CloneOperationTest {
                 "(boolean|int|byte|float|decimal|string|xml|table|anydata[]|map<anydata>|records (with only `anydata`" +
                 " fields)|()), but found '()'", 29, 12);
         BAssertUtil.validateError(negativeResult, 4, "function invocation on type '()' is not supported", 29, 12);
+
+        Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
+        BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to sensitive parameter 'intArg'", 12, 22);
 
     }
 
