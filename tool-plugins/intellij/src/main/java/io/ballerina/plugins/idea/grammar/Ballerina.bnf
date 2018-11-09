@@ -65,6 +65,8 @@
         NOT                 = '!' ;
         EQUAL               = '==' ;
         NOT_EQUAL           = '!=' ;
+        REF_EQUAL           = '===' ;
+        REF_NOT_EQUAL       = '!==' ;
         GT                  = '>' ;
         LT                  = '<' ;
         GT_EQUAL            = '>=' ;
@@ -345,11 +347,14 @@ TypeName ::= TupleTypeName
 
 SimpleTypeName ::= NULL_LITERAL
                    | AnyTypeName
+                   | AnyDataTypeName
                    | TypeDescTypeName
                    | ValueTypeName
                    | ReferenceTypeName
                    | EmptyTupleLiteral
+
 AnyTypeName ::= any
+AnyDataTypeName ::= anydata
 TypeDescTypeName ::= typedesc
 
 //AnnotatedTypeName ::= AnnotationAttachment+ SimpleTypeName
@@ -382,16 +387,17 @@ BuiltInReferenceTypeName ::= MapTypeName
                              | JsonTypeName
                              | StreamTypeName
                              | TableTypeName
+                             | ErrorTypeName
                              | FunctionTypeName
+
 MapTypeName ::= map (LT TypeName GT)? {pin=1}
 FutureTypeName ::= future (LT TypeName GT)? {pin=1}
 XmlTypeName ::= xml (LT (LEFT_BRACE XmlNamespaceName RIGHT_BRACE)? XmlLocalName GT)? {pin=1}
 JsonTypeName ::= json (LT NameReference GT)? {pin=1}
 TableTypeName ::= table (LT NameReference GT)? {pin=1}
+ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 StreamTypeName ::= stream (LT TypeName GT)? {pin=1}
-
 FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
-
 XmlNamespaceName ::= QUOTED_STRING_LITERAL
 
 XmlLocalName ::= identifier
@@ -412,6 +418,7 @@ Statement ::=
     |   matchStatement
     |   BreakStatement
     |   ThrowStatement
+    |   PanicStatement
     |   ReturnStatement
     |   AbortStatement
     |   RetryStatement
@@ -422,6 +429,7 @@ Statement ::=
     |   TryCatchStatement
     |   ForkJoinStatement
     |   tupleDestructuringStatement
+    |   RecordDestructuringStatement
     |   WorkerInteractionStatement
     |   AssignmentStatement
     |   VariableDefinitionStatement
@@ -433,19 +441,20 @@ Statement ::=
     |   CompensateStatement
 {recoverWhile = StatementRecover}
 
-// Todo - Add more tokens
+// Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|panic|from|worker|done|identifier)
 
 //private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | continue |try |*/ int )
 
 // Note - VariableDefinitionStatementInService
-VariableDefinitionStatement ::= TypeName identifier VariableAssignment? SEMICOLON {
+//TODO - change pin
+VariableDefinitionStatement ::= TypeName identifier SEMICOLON |  (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON
+{
     pin=2
     // Note - Resource definition cannot be identified correctly with this pin.
     methods=[getType]
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaVariableDefinitionStatementStub"
 }
 
 private VariableAssignment ::= ASSIGN Expression {pin=1}
@@ -472,15 +481,11 @@ TableData ::= LEFT_BRACE ExpressionList RIGHT_BRACE
 
 ArrayLiteral ::= LEFT_BRACKET ExpressionList? RIGHT_BRACKET
 
-TypeInitExpr ::= new (UserDefineTypeName (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS) | (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?) {pin(".*")=1}
+AssignmentStatement ::= VariableReference ASSIGN Expression SEMICOLON {pin=2}
 
-AssignmentStatement ::= withVar | withoutVar
+tupleDestructuringStatement ::= TupleRefBindingPattern ASSIGN Expression SEMICOLON {pin=2}
 
-private withVar ::= var VariableReference ASSIGN Expression SEMICOLON {pin=1}
-private withoutVar ::= VariableReference ASSIGN Expression SEMICOLON {pin=2}
-
-tupleDestructuringStatement ::= var? LEFT_PARENTHESIS VariableReferenceList RIGHT_PARENTHESIS ASSIGN Expression SEMICOLON
-                                | LEFT_PARENTHESIS ParameterList RIGHT_PARENTHESIS ASSIGN Expression SEMICOLON
+RecordDestructuringStatement ::= var? RecordRefBindingPattern ASSIGN Expression SEMICOLON {pin=3}
 
 CompoundAssignmentStatement ::= VariableReference CompoundOperator Expression SEMICOLON
 
@@ -510,9 +515,40 @@ matchStatement ::= match Expression matchStatementBody {pin=1}
 matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE {pin=1}
 
 // Todo - Add fake rule
-matchPatternClause ::= namedPattern | unnamedPattern
+matchPatternClause ::= namedPattern | unnamedPattern | simpleLiteralPattern | bindingPatternPattern
+
 unnamedPattern ::= TypeName EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
 namedPattern ::= TypeName identifier EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=3}
+simpleLiteralPattern ::=  SimpleLiteral EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
+bindingPatternPattern ::= var BindingPattern EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=3}
+
+BindingPattern ::= identifier StructuredBindingPattern {pin=1}
+
+StructuredBindingPattern ::= TupleBindingPattern | RecordBindingPattern
+
+TupleBindingPattern ::= LEFT_PARENTHESIS BindingPattern (COMMA BindingPattern)+ RIGHT_PARENTHESIS {pin=1}
+
+RecordBindingPattern ::= LEFT_BRACE EntryBindingPattern RIGHT_BRACE {pin=1}
+
+EntryBindingPattern ::=  FieldBindingPattern (COMMA FieldBindingPattern)* (COMMA RestBindingPattern)? | RestBindingPattern
+
+FieldBindingPattern ::= identifier (COLON BindingPattern)? {pin=1}
+
+RestBindingPattern ::= ELLIPSIS identifier | SealedLiteral
+
+BindingRefPattern ::= VariableReference | StructuredRefBindingPattern
+
+StructuredRefBindingPattern ::= TupleRefBindingPattern | RecordRefBindingPattern
+
+TupleRefBindingPattern ::= LEFT_PARENTHESIS BindingRefPattern (COMMA BindingRefPattern)+ RIGHT_PARENTHESIS {pin=1}
+
+RecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE {pin=1}
+
+EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern
+
+FieldRefBindingPattern ::= identifier (COLON BindingRefPattern)? {pin=1}
+
+RestRefBindingPattern ::= ELLIPSIS VariableReference | SealedLiteral
 
 ForeachStatement ::= foreach (LEFT_PARENTHESIS? VariableReferenceList in Expression RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
@@ -558,15 +594,22 @@ TimeoutClause ::= timeout (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_P
 
 TimeoutClauseBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
+// Depricated since 0.983.0, use trap expressoin. Todo - Remove this.
 TryCatchStatement ::= try (LEFT_BRACE Block RIGHT_BRACE CatchClauses) {pin(".*")=1}
 
+// Depricated since 0.983.0, use trap expressoin. Todo - Remove this.
 CatchClauses ::= CatchClause+ FinallyClause? | FinallyClause
 
+// Todo - Remove this.
 CatchClause ::= catch (LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
+// Todo - Remove this.
 FinallyClause ::= finally {LEFT_BRACE Block RIGHT_BRACE} {pin(".*")=1}
 
+// Depricated since 0.983.0, use panic instead. Todo - Remove this.
 ThrowStatement ::= throw Expression SEMICOLON {pin=1}
+
+PanicStatement ::= panic Expression SEMICOLON {pin=1}
 
 ReturnStatement ::= return Expression? SEMICOLON {pin=1}
 
@@ -686,13 +729,21 @@ Expression
     |   CheckedExpression
     |   ElvisExpression
     |   AwaitExpression
-    |   typeAccessExpression
+    |   TypeAccessExpression
     |   IntegerRangeExpression
     |   BitwiseExpression
     |   BitwiseShiftExpression
+    |   ErrorConstructorExpression
+    |   TypeTestExpression
+    |   BinaryRefEqualExpression
+    |   TrapExpression
     {recoverWhile=ExpressionRecover}
 
-typeAccessExpression ::= TypeName
+TypeAccessExpression ::= TypeName
+
+TypeTestExpression ::= Expression is TypeName  {pin=2}
+
+BinaryRefEqualExpression ::= Expression (REF_EQUAL | REF_NOT_EQUAL) Expression
 
 ActionInvocationExpression::= ActionInvocation
 
@@ -718,7 +769,6 @@ ValueTypeTypeExpression ::= ValueTypeName DOT identifier
 BuiltInReferenceTypeTypeExpression ::= BuiltInReferenceTypeName DOT identifier
 VariableReferenceExpression ::= start? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
-TypeInitExpression ::= TypeInitExpr
 TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}
 UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | lengthof | untaint) Expression {pin=1}
 BracedOrTupleExpression ::= LEFT_PARENTHESIS Expression (COMMA Expression)* RIGHT_PARENTHESIS
@@ -737,6 +787,14 @@ BitwiseExpression ::= Expression (BITAND | PIPE | BITXOR) Expression
 BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
 matchExpression ::= but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE) {pin(".*")=1}
 ArrowFunctionExpression ::= ArrowFunction
+
+TypeInitExpression ::= initWithoutType | initWithType
+initWithoutType ::= new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)? {pin=1}
+initWithType ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=1}
+
+ErrorConstructorExpression ::= error LEFT_PARENTHESIS Expression (COMMA Expression)? RIGHT_PARENTHESIS {pin=1}
+
+TrapExpression ::= trap Expression {pin=1}
 
 ShiftExpression ::= GT <<shiftExprPredicate>> GT
     | LT <<shiftExprPredicate>> LT
