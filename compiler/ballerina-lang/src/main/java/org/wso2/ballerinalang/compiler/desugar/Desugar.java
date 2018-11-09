@@ -2035,15 +2035,15 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.DECIMAL) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+        if (lhsExprTypeTag == TypeTags.DECIMAL) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                                                          binaryExpr.lhsExpr.type);
             return;
         }
 
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.DECIMAL) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+        if (rhsExprTypeTag == TypeTags.DECIMAL) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                                                          binaryExpr.rhsExpr.type);
             return;
         }
 
@@ -3752,6 +3752,8 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    // TODO: Allowing decimal defaultable args may break some cases of the union type defaultable args.
+    // TODO: We need to preserve the literal type to resolve this.
     private BLangExpression getDefaultValueLiteral(Object value, int typeTag) {
         if (value == null) {
             return getNullLiteral();

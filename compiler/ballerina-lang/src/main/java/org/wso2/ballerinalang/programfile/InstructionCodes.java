@@ -134,13 +134,13 @@ public interface InstructionCodes {
     int REQ = 99;
     int REF_EQ = 100;
 
-    int INE = 100;
-    int FNE = 101;
-    int SNE = 102;
-    int BNE = 103;
-    int DNE = 104;
-    int RNE = 105;
-    int REF_NEQ = 106;
+    int INE = 101;
+    int FNE = 102;
+    int SNE = 103;
+    int BNE = 104;
+    int DNE = 105;
+    int RNE = 106;
+    int REF_NEQ = 107;
 
     int IGT = 108;
     int FGT = 109;
@@ -259,8 +259,7 @@ public interface InstructionCodes {
     int FNEWARRAY = 202;
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
-    int DNEWARRAY = 205;
-    int RNEWARRAY = 206;
+    int RNEWARRAY = 205;
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;

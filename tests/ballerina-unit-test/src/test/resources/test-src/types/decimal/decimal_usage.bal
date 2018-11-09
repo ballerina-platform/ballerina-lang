@@ -17,7 +17,7 @@
 // Decimal array.
 function testDecimalArray() returns (decimal[], int, decimal, decimal) {
     decimal[] dArr = [12.3, 23.2, 34.534, 5.4];
-    int length = lengthof dArr;
+    int length = dArr.length();
     decimal element0 = dArr[0];
     decimal element1 = dArr[1];
     return (dArr, length, element0, element1);
@@ -26,7 +26,7 @@ function testDecimalArray() returns (decimal[], int, decimal, decimal) {
 // Decimal map.
 function testDecimalMap() returns (map<decimal>, int, string[], decimal) {
     map<decimal> dMap = {element0: 12.45, element1: 34.3, element2: 2314.31};
-    int length = lengthof dMap;
+    int length = dMap.length();
     string[] keys = dMap.keys();
     decimal element0 = dMap.element0;
     return (dMap, length, keys, element0);

@@ -1327,7 +1327,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FNEWARRAY:
                 case InstructionCodes.SNEWARRAY:
                 case InstructionCodes.BNEWARRAY:
-                case InstructionCodes.DNEWARRAY:
                 case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.O2JSON:
                 case InstructionCodes.TYPE_TEST:

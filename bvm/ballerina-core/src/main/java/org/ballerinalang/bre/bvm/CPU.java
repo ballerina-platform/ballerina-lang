@@ -50,7 +50,6 @@ import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
@@ -649,11 +648,6 @@ public class CPU {
                         i = operands[0];
                         j = operands[2];
                         sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
-                        break;
-                    case InstructionCodes.DNEWARRAY:
-                        i = operands[0];
-                        j = operands[2];
-                        sf.refRegs[i] = new BDecimalArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];
@@ -4288,6 +4282,7 @@ public class CPU {
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:

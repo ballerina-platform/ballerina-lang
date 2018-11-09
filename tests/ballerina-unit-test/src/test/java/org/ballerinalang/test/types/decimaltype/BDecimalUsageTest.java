@@ -22,9 +22,9 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -56,7 +56,7 @@ public class BDecimalUsageTest {
     public void testDecimalArray() {
         BValue[] returns = BRunUtil.invoke(result, "testDecimalArray", new BValue[]{});
         Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BDecimalArray.class);
+        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
         Assert.assertSame(returns[2].getClass(), BDecimal.class);
         Assert.assertSame(returns[3].getClass(), BDecimal.class);

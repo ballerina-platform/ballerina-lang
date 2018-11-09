@@ -231,7 +231,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
-        mnemonics[InstructionCodes.DNEWARRAY] = "dnewarray";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";

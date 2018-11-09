@@ -259,8 +259,7 @@ public interface InstructionCodes {
     int FNEWARRAY = 202;
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
-    int DNEWARRAY = 205;
-    int RNEWARRAY = 206;
+    int RNEWARRAY = 205;
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
