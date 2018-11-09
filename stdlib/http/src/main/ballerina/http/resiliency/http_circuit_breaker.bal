@@ -299,16 +299,8 @@ function CircuitBreakerClient::post(string path, Request|string|xml|json|byte[]|
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.post(path, req) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.post(path, req);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -323,16 +315,8 @@ function CircuitBreakerClient::head(string path, Request|string|xml|json|byte[]|
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.head(path, message = request) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.head(path, message = request);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -347,16 +331,8 @@ function CircuitBreakerClient::put(string path, Request|string|xml|json|byte[]|i
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.put(path, request) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.put(path, request);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -371,16 +347,8 @@ function CircuitBreakerClient::execute(string httpVerb, string path, Request|str
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.execute(httpVerb, path, request) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.execute(httpVerb, path, request);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -395,16 +363,8 @@ function CircuitBreakerClient::patch(string path, Request|string|xml|json|byte[]
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.patch(path, request) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.patch(path, request);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -419,16 +379,8 @@ function CircuitBreakerClient::delete(string path, Request|string|xml|json|byte[
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.delete(path, request) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.delete(path, request);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -443,16 +395,8 @@ function CircuitBreakerClient::get(string path, Request|string|xml|json|byte[]|i
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.get(path, message = request) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.get(path, message = request);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -467,16 +411,8 @@ function CircuitBreakerClient::options(string path, Request|string|xml|json|byte
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.options(path, message = request) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.options(path, message = request);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -489,16 +425,8 @@ function CircuitBreakerClient::forward(string path, Request request) returns Res
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        match httpClient.forward(path, request) {
-            Response service_response => {
-                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                return service_response;
-            }
-            error serviceError => {
-                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                return serviceError;
-            }
-        }
+        var serviceResponse = httpClient.forward(path, request);
+        return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
@@ -589,6 +517,16 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
         circuitHealth.totalBuckets[currentBucketId].totalCount += 1;
         return currentState;
     }
+}
+
+function updataCircuitHealthAndRespond(Response|error serviceResponse, CircuitHealth circuitHealth,
+                                   CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|error {
+    if (serviceResponse is Response) {
+        updateCircuitHealthSuccess(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
+    } else if (serviceResponse is error) {
+        updateCircuitHealthFailure(circuitHealth, serviceResponse, circuitBreakerInferredConfig);
+    }
+    return serviceResponse;
 }
 
 function updateCircuitHealthFailure(CircuitHealth circuitHealth,
