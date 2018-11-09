@@ -4,5 +4,10 @@
     ],
     "rules": {
         "interface-name":false
+    },
+    "linterOptions": {
+        "exclude": [
+            "**/*.json"
+        ]
     }
 }
