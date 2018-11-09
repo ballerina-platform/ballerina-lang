@@ -776,6 +776,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         BConstantSymbol constantSymbol = new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
                 symTable.errType, env.scope.owner, symTable.errType);
 
+        // Update the symbol of the node.
+        constant.symbol = constantSymbol;
+
         // Note - This is checked and error is logged in semantic analyzer.
         if (((BLangExpression) constant.value).getKind() != NodeKind.LITERAL) {
             if (symResolver.checkForUniqueSymbol(constant.pos, env, constantSymbol, SymTag.VARIABLE_NAME)) {
@@ -804,9 +807,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Add the symbol to the enclosing scope.
         env.scope.define(constantSymbol.name, constantSymbol);
-
-        // Update the symbol of the node.
-        constant.symbol = constantSymbol;
     }
 
     @Override
@@ -940,7 +940,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void resolveConstantTypeNode(List<BLangConstant> constants, SymbolEnv env) {
         // Resolve the type node and update the type of the typeNode.
         for (BLangConstant constant : constants) {
-            if (constant.symbol == null) {
+            // Constant symbol type will be an error type if the RHS of the constant definition node is invalid.
+            if (constant.symbol.type == symTable.errType) {
                 continue;
             }
 
@@ -950,10 +951,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constant.symbol.type = symResolver.resolveTypeNode(constant.typeNode, env);
             } else {
                 constant.symbol.type = symTable.getTypeFromTag(constant.symbol.value.typeTag);
-            }
-
-            if (constant.symbol.type == constant.symbol.finiteType) {
-                dlog.error(constant.pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, constant.name);
             }
         }
     }
