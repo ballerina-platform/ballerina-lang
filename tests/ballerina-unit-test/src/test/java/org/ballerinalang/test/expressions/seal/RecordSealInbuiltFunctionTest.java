@@ -233,7 +233,6 @@ public class RecordSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.getType().getClass(), BAnyType.class);
     }
 
-
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -241,6 +240,13 @@ public class RecordSealInbuiltFunctionTest {
                     "cannot be sealed as 'map<string>'.*")
     public void testSealOpenRecordToMap() {
         BRunUtil.invoke(compileResult, "sealOpenRecordToMap");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'ExtendedEmployee' value cannot " +
+                    "be sealed as 'Employee'.*")
+    public void testSealExtendedRecordToOpenRecord() {
+        BRunUtil.invoke(compileResult, "sealExtendedRecordToOpenRecord");
     }
 }
 

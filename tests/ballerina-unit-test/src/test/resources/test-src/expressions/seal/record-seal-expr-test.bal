@@ -120,6 +120,14 @@ function sealExtendedRecordToAny() returns any {
     return anyValue;
 }
 
+function sealExtendedRecordToOpenRecord() returns Employee {
+    Address addressObj = new Address();
+    ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
+    Employee employee = extendedEmployee.seal(Employee);
+
+    return employee;
+}
+
 //-------------------------------- Negative Test cases ------------------------------------------------------------
 function sealOpenRecordToMap() returns map<string> {
 
@@ -128,4 +136,6 @@ function sealOpenRecordToMap() returns map<string> {
 
     return teacher;
 }
+
+
 

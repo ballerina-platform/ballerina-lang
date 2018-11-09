@@ -20,10 +20,13 @@ package org.ballerinalang.model.values;
 
 import java.math.BigDecimal;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.ArrayList;
 
 /**
  * The {@code BValueType} represents a value type value in Ballerina.
@@ -93,7 +96,12 @@ public abstract class BValueType implements BValue {
         if (type.getTag() == TypeTags.ANY_TAG) {
             this.setType(BTypes.typeAny);
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            this.setType(BTypes.typeAnydata);
+            if (CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
+                this.setType(BTypes.typeAnydata);
+            } else {
+                throw new BallerinaException("Error in sealing the value type: " + this.getType() +
+                        " cannot sealed as " + type);
+            }
         } else if (type.getTag() == TypeTags.JSON_TAG) {
             this.setType(BTypes.typeJSON);
         } else if (this.getType().getTag() != type.getTag()) {

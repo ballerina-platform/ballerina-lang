@@ -18,12 +18,14 @@ package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.namespace.QName;
@@ -268,7 +270,12 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
         if (type.getTag() == TypeTags.ANY_TAG) {
             this.type = BTypes.typeAny;
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            this.type = BTypes.typeAnydata;
+            if (CPU.isAssignable(this.getType(), type, new ArrayList<>())) {
+                this.type = BTypes.typeAnydata;
+            } else {
+                throw new BallerinaException("Error in sealing the value type: " + this.getType() +
+                        " cannot sealed as " + type);
+            }
         } else if (this.type.getTag() != type.getTag()) {
             throw new BallerinaException("Error in sealing the value type: " + this.getType() +
                     " cannot sealed as " + type);
