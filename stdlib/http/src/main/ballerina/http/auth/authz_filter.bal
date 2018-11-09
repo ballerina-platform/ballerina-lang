@@ -48,19 +48,16 @@ public type AuthzFilter object {
 
         string[]? scopes = getScopesForResource(resourceLevelAuthAnn, serviceLevelAuthAnn);
         boolean authorized;
-        match scopes {
-            string[] scopeNames => {
-                if (authzHandler.canHandle(request)) {
-                    authorized = authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
-                        context.serviceName, context.resourceName, request.method, scopeNames);
-                } else {
-                    authorized = false;
-                }
+        if (scopes is string[]) {
+            if (authzHandler.canHandle(request)) {
+                authorized = authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
+                    context.serviceName, context.resourceName, request.method, scopes);
+            } else {
+                authorized = false;
             }
-            () => {
-                // scopes are not defined, no need to authorize
-                authorized = true;
-            }
+        } else {
+            // scopes are not defined, no need to authorize
+            authorized = true;
         }
         return isAuthzSuccessfull(listener, authorized);
     }
@@ -81,10 +78,9 @@ function isAuthzSuccessfull(Listener listener, boolean authorized) returns boole
     if (!authorized) {
         response.statusCode = 403;
         response.setTextPayload("Authorization failure");
-        var value = caller->respond(response);
-        match value {
-            error err => panic err;
-            () => {}
+        var err = caller->respond(response);
+        if (err is error) {
+            panic err;
         }
         return false;
     }
@@ -98,19 +94,12 @@ function isAuthzSuccessfull(Listener listener, boolean authorized) returns boole
 # + return - Array of scopes for the given resource or nil of no scopes are defined
 function getScopesForResource (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
                                                                                             returns (string[]|()) {
-    match resourceLevelAuthAnn.scopes {
-        string[] scopes => {
-            return scopes;
+    if (resourceLevelAuthAnn.scopes is string[]) {
+        return resourceLevelAuthAnn.scopes;
+    } else {
+        if (serviceLevelAuthAnn.scopes is string[]) {
+            return serviceLevelAuthAnn.scopes;
         }
-        () => {
-            match serviceLevelAuthAnn.scopes {
-                string[] scopes => {
-                    return scopes;
-                }
-                () => {
-                    return ();
-                }
-            }
-        }
+        return ();
     }
 }
