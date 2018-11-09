@@ -38,7 +38,7 @@ public type TableJoinProcessor object {
                 candidateEvents[i] = (event, resultEvent);
             }
             // with right/left/full joins, we need to emit an event even there're no candidate events in table.
-            if (lengthof candidateEvents == 0 && (joinType != "JOIN")) {
+            if (candidateEvents.length() == 0 && (joinType != "JOIN")) {
                 candidateEvents[0] = (event, ());
             }
 

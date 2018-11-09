@@ -33,8 +33,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Objects;
-
 /**
  * Class to test stream type.
  */
@@ -72,7 +70,7 @@ public class BStreamValueTest {
 
     @Test(description = "Test publishing records of invalid type to a stream",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*message: incompatible types: value of type:Job cannot be added to "
+            expectedExceptionsMessageRegExp = ".*error: incompatible types: value of type:Job cannot be added to "
                     + "a stream of type:Employee.*")
     public void testInvalidRecordPublishingToStream() {
         BRunUtil.invoke(result, "testInvalidRecordPublishingToStream");
@@ -80,7 +78,7 @@ public class BStreamValueTest {
 
     @Test(description = "Test subscribing with a function accepting a different kind of record",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
+            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
                     + "function accepting:Employee.*")
     public void testSubscriptionFunctionWithIncorrectRecordParameter() {
         BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectRecordParameter");
@@ -88,7 +86,7 @@ public class BStreamValueTest {
 
     @Test(description = "Test publishing objects of invalid type to a stream",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*message: incompatible types: value of type:Coach cannot be added to "
+            expectedExceptionsMessageRegExp = ".*error: incompatible types: value of type:Coach cannot be added to "
                     + "a stream of type:Captain.*")
     public void testInvalidObjectPublishingToStream() {
         BRunUtil.invoke(result, "testInvalidObjectPublishingToStream");
@@ -96,7 +94,7 @@ public class BStreamValueTest {
 
     @Test(description = "Test subscribing with a function accepting a different kind of object",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
+            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
                     + "function accepting:Captain.*")
     public void testSubscriptionFunctionWithIncorrectObjectParameter() {
         BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectObjectParameter");
@@ -105,7 +103,7 @@ public class BStreamValueTest {
     @Test(description = "Test subscribing to a union type constrained stream with a function of whose parameter union"
             + " type does not contain all possible types or assignable types",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
+            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
                     + "function accepting:.*")
     public void testSubscriptionFunctionWithUnassignableUnionParameter() {
         BRunUtil.invoke(result, "testSubscriptionFunctionWithUnassignableUnionParameter");
@@ -114,7 +112,7 @@ public class BStreamValueTest {
     @Test(description = "Test subscribing to a tuple type constrained stream with a function where the elements of "
             + "the constraint tuple type are not assignable to those of the parameter of the subscription function",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
+            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
                     + "function accepting:.*")
     public void testSubscriptionFunctionWithUnassignableTupleTypeParameter() {
         BRunUtil.invoke(result, "testSubscriptionFunctionWithUnassignableTupleTypeParameter");
@@ -129,8 +127,7 @@ public class BStreamValueTest {
         BMap<String, BValue> modifiedOrigEmployee = (BMap<String, BValue>) returns[2];
         Assert.assertEquals(((BInteger) origEmployee.get("id")).intValue(), 0);
         Assert.assertTrue(origEmployee.get("name").stringValue().isEmpty());
-        Assert.assertTrue(Objects.equals(modifiedOrigEmployee.getType().getName(),
-                                         publishedEmployee.getType().getName()));
+        Assert.assertEquals(modifiedOrigEmployee.getType().getName(), publishedEmployee.getType().getName());
         Assert.assertEquals(((BInteger) modifiedOrigEmployee.get("id")).intValue(),
                 ((BInteger) publishedEmployee.get("id")).intValue(),
                 "Record field \"id\" of received event does not match that of published event");
@@ -147,8 +144,7 @@ public class BStreamValueTest {
         BMap<String, BValue> modifiedOrigEmployee = (BMap<String, BValue>) returns[2];
         Assert.assertEquals(((BInteger) origEmployee.get("id")).intValue(), 0);
         Assert.assertTrue(origEmployee.get("name").stringValue().isEmpty());
-        Assert.assertTrue(Objects.equals(publishedEmployee.getType().getName(),
-                                         modifiedOrigEmployee.getType().getName()));
+        Assert.assertEquals(publishedEmployee.getType().getName(), modifiedOrigEmployee.getType().getName());
         Assert.assertEquals(((BInteger) modifiedOrigEmployee.get("id")).intValue(),
                 ((BInteger) publishedEmployee.get("id")).intValue(),
                 "Record field \"id\" of received event does not match that of published event");
@@ -170,8 +166,7 @@ public class BStreamValueTest {
         for (int i = 0; i < publishedEmployeeEvents.size(); i++) {
             BMap<String, BValue> publishedEmployeeEvent = (BMap<String, BValue>) publishedEmployeeEvents.get(i);
             BMap<String, BValue> receivedEmployeeEvent = (BMap<String, BValue>) receivedEmployeeEvents.get(i);
-            Assert.assertTrue(Objects.equals(publishedEmployeeEvent.getType().getName(),
-                                             receivedEmployeeEvent.getType().getName()));
+            Assert.assertEquals(publishedEmployeeEvent.getType().getName(), receivedEmployeeEvent.getType().getName());
             Assert.assertEquals(((BInteger) receivedEmployeeEvent.get("id")).intValue(),
                     ((BInteger) publishedEmployeeEvent.get("id")).intValue(),
                     "Record field \"id\" of received event does not match that of published event");

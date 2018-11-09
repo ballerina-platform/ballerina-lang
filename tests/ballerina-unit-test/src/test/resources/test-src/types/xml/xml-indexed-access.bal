@@ -22,7 +22,7 @@ function testLengthOfXMLSequence() returns (int, int, int, int) {
     xml x2 = x1[0].*;
 
     xml[] x3 = [x1, x2];
-    return (lengthof x1, lengthof x2, lengthof x2[2], lengthof x3);
+    return (x1.length(), x2.length(), x2[2].length(), x3.length());
 }
 
 function testFieldBasedAccess() returns (xml, xml, xml, xml, xml, xml) {

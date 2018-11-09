@@ -27,7 +27,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +69,7 @@ public class WebSubSubscriberServiceValidator {
     }
 
     private static void validateOnIntentVerificationResource(BLangResource resource, DiagnosticLog dlog) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (isValidParamNumber(resource, paramDetails, 2, resource.getName().getValue(), dlog)) {
             validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE, SERVICE_ENDPOINT,
                                "first", dlog);
@@ -79,7 +79,7 @@ public class WebSubSubscriberServiceValidator {
     }
 
     private static void validateOnNotificationResource(BLangResource resource, DiagnosticLog dlog) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (isValidParamNumber(resource, paramDetails, 1, resource.getName().getValue(), dlog)) {
             validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
                                STRUCT_WEBSUB_NOTIFICATION_REQUEST, "first", dlog);
@@ -121,7 +121,7 @@ public class WebSubSubscriberServiceValidator {
         return invalidResourceNames;
     }
 
-    private static boolean isValidParamNumber(BLangResource resource, List<BLangVariable> paramDetails,
+    private static boolean isValidParamNumber(BLangResource resource, List<BLangSimpleVariable> paramDetails,
                                               int expectedSize, String resourceName, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "invalid param count for WebSub Resource '"
@@ -139,7 +139,7 @@ public class WebSubSubscriberServiceValidator {
         }
     }
 
-    private static void validateStructType(String resourceName, BLangVariable paramDetail, String packageName,
+    private static void validateStructType(String resourceName, BLangSimpleVariable paramDetail, String packageName,
                                            String structuralTypeName, String paramPosition, DiagnosticLog dlog) {
         if (!(packageName.concat(":").concat(structuralTypeName)).equals((paramDetail.type).toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, paramDetail.pos, "invalid resource signature for '" + resourceName
