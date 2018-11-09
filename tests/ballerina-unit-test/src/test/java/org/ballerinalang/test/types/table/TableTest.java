@@ -584,11 +584,11 @@ public class TableTest {
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
-        String expectedJson, expectedXML;
+        String expectedJson, expectedXML1, expectedXML2;
         expectedJson = "[{\"ROW_ID\":100, \"BLOB_TYPE\":\"U2FtcGxlIFRleHQ=\", \"CLOB_TYPE\":\"Sample Text\", "
                 + "\"BINARY_TYPE\":\"U2FtcGxlIFRleHQ=\"}, {\"ROW_ID\":200, \"BLOB_TYPE\":null, "
                 + "\"CLOB_TYPE\":null, \"BINARY_TYPE\":null}]";
-        expectedXML = "<results><result><ROW_ID>100</ROW_ID>"
+        expectedXML1 = "<results><result><ROW_ID>100</ROW_ID>"
                 + "<BLOB_TYPE>U2FtcGxlIFRleHQ=</BLOB_TYPE><CLOB_TYPE>Sample Text</CLOB_TYPE>"
                 + "<BINARY_TYPE>U2FtcGxlIFRleHQ=</BINARY_TYPE></result>"
                 + "<result><ROW_ID>200</ROW_ID>"
@@ -596,8 +596,17 @@ public class TableTest {
                 + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></CLOB_TYPE>"
                 + "<BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\">"
                 + "</BINARY_TYPE></result></results>";
+        expectedXML2 = "<results><result><ROW_ID>100</ROW_ID>"
+                + "<BLOB_TYPE>U2FtcGxlIFRleHQ=</BLOB_TYPE><CLOB_TYPE>Sample Text</CLOB_TYPE>"
+                + "<BINARY_TYPE>U2FtcGxlIFRleHQ=</BINARY_TYPE></result>"
+                + "<result><ROW_ID>200</ROW_ID>"
+                + "<BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                + "<BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                + "</result></results>";
         Assert.assertEquals((returns[2]).stringValue(), expectedJson);
-        Assert.assertEquals((returns[3]).stringValue(), expectedXML);
+        Assert.assertTrue(
+                (expectedXML1.equals(returns[3].stringValue()) || expectedXML2.equals(returns[3].stringValue())));
         Assert.assertEquals((returns[4]).stringValue(), "100|nonNil|Sample Text|200|nil|nil|");
     }
 

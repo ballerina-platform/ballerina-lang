@@ -1172,17 +1172,13 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string,
     dt = check testDB->select(selectSQL, ResultComplexTypes);
 
     str = "";
-    byte[][] expected;
+    byte[][] expected = [];
     int i = 0;
     while (dt.hasNext()) {
         var result = check <ResultComplexTypes>dt.getNext();
         string blobType;
-        if (result.BLOB_TYPE is byte[]) {
-            expected[i] = result.BLOB_TYPE;
-            blobType = "nonNil";
-        } else if (result.BLOB_TYPE is ()) {
-            blobType = "nil";
-        }
+        expected[i] = result.BLOB_TYPE ?: [];
+        blobType = result.BLOB_TYPE is () ? "nil" : "nonNil";
         str = str + result.ROW_ID + "|" + blobType + "|" + (result.CLOB_TYPE but { () => "nil" }) + "|";
         i += 1;
     }
