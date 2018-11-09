@@ -40,11 +40,11 @@ function createObjectFile(string targetObjectFilePath, llvm:LLVMModuleRef mod) {
     match val {
         llvm:LLVMTargetMachineRef targetMachine => {
             var filenameBytes = createNullTermiatedString(targetObjectFilePath);
-            byte[] errorMsg;
+            byte[] errorMsg = [];
             int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
         }
         error => {
-            llvm:LLVMTargetMachineRef targetMachine;
+            llvm:LLVMTargetMachineRef targetMachine = {};
             llvm:LLVMDisposeTargetMachine(targetMachine);
         }
     }
@@ -62,8 +62,8 @@ function createTargetMachine() returns llvm:LLVMTargetMachineRef {
 
     llvm:BytePointer targetTripleBP = llvm:LLVMGetDefaultTargetTriple();
     llvm:LLVMTargetRef targetRef = llvm:LLVMGetFirstTarget();
-    llvm:BytePointer cpu;
-    llvm:BytePointer features;
+    llvm:BytePointer cpu = {};
+    llvm:BytePointer features = {};
 
     return llvm:LLVMCreateTargetMachine(targetRef, targetTripleBP, cpu, features, 0, 0, 0);
 }
@@ -78,7 +78,7 @@ function initAllTargets() {
 
 function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function[] funcs)
              returns map<FuncGenrator> {
-    map<FuncGenrator> genrators;
+    map<FuncGenrator> genrators = {};
     foreach func in funcs {
         FuncGenrator funcGen = new(mod, builder, func);
         genrators[func.name.value] = funcGen;
