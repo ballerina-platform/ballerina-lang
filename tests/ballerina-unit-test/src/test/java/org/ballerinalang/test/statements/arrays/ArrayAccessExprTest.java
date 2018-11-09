@@ -46,7 +46,7 @@ public class ArrayAccessExprTest {
     //TODO try to validate all the lines in the exception message
     @Test(description = "Test access an non-initialized arrays",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error:.*, message: array index out of range: index: 5, size: 0.*")
+            expectedExceptionsMessageRegExp = "error: array index out of range: index: 5, size: 0.*")
     public void testNonInitArrayAccess() {
 //        CompileResult compileResult = BTestUtils.compile("test-src/statements/arrays/array-access-expr.bal");
         BRunUtil.invoke(compileResult, "testNonInitArrayAccess");
