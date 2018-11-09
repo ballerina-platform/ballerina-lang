@@ -345,4 +345,25 @@ public class ConstantTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "D");
     }
+
+    @Test
+    public void testBuiltinFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBuiltinFunctionInvocation");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testBuiltinFunctionInvocationOnArrayElement() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBuiltinFunctionInvocationOnArrayElement");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testBuiltinFunctionInvocationOnField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBuiltinFunctionInvocationOnField");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }

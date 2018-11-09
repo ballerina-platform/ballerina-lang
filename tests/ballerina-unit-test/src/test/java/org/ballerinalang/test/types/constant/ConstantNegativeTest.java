@@ -68,10 +68,8 @@ public class ConstantNegativeTest {
                 offset += 6, 24);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 offset += 32, 12);
-//        BAssertUtil.validateError(compileResult, index++, "function invocation on type 'SHA1' is not supported",
-//                offset += 8, 17);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'D|E'",
-                offset += 26, 11);
+                offset += 18, 11);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", offset += 7, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", offset += 5, 18);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[IJK, IJK]'", offset, 1);

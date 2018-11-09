@@ -100,14 +100,6 @@ function testByteWithoutType() returns byte {
 
 // -----------------------------------------------------------
 
-const string SHA1 = "SHA1";
-
-function testFunctionInvocation(){
-    boolean b = SHA1.equalsIgnoreCase("ABC");
-}
-
-// -----------------------------------------------------------
-
 const D = "D";
 
 const E = "E";

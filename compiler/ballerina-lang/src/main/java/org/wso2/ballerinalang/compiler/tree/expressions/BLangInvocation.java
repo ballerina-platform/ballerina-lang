@@ -75,7 +75,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     }
 
     @Override
-    public BLangVariableReference getExpression() {
+    public BLangExpression getExpression() {
         return expr;
     }
 

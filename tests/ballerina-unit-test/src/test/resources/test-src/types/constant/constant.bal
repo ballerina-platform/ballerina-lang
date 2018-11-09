@@ -303,6 +303,32 @@ function testProperSubset() returns G {
 
 // -----------------------------------------------------------
 
+const string SHA1 = "SHA1";
+
+function testBuiltinFunctionInvocation() returns boolean {
+    return SHA1.equalsIgnoreCase("SHA1");
+}
+
+// -----------------------------------------------------------
+
+function testBuiltinFunctionInvocationOnArrayElement() returns boolean {
+    string[] arr = [SHA1];
+    return arr[0].equalsIgnoreCase("SHA1");
+}
+
+// -----------------------------------------------------------
+
+type TestRecord record {
+    string field;
+};
+
+function testBuiltinFunctionInvocationOnField() returns boolean {
+    TestRecord tr = { field: SHA1 };
+    return tr.field.equalsIgnoreCase("SHA1");
+}
+
+// -----------------------------------------------------------
+
 // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11183.
 //type M record { string f; }|Z;
 //

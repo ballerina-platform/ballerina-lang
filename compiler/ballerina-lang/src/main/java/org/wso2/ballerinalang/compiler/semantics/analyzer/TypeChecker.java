@@ -616,7 +616,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         // First analyze the variable reference expression.
-        fieldAccessExpr.expr.lhsVar = fieldAccessExpr.lhsVar;
+        ((BLangVariableReference) fieldAccessExpr.expr).lhsVar = fieldAccessExpr.lhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
         // Accessing all fields using * is only supported for XML.
@@ -652,7 +652,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
         // First analyze the variable reference expression.
-        indexBasedAccessExpr.expr.lhsVar = indexBasedAccessExpr.lhsVar;
+        ((BLangVariableReference) indexBasedAccessExpr.expr).lhsVar = indexBasedAccessExpr.lhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
         BType varRefType = indexBasedAccessExpr.expr.type;
@@ -689,37 +689,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        // Find the variable reference expression type. We need to check whether the `iExpr.expr` is a reference to a
-        // constant. If it is a reference to a constant and the type node of the constant is a value type,
-        // `checkExpr()` will return the value type which is correct (example below). Also, if the value type is
-        // returned, that would be identical to invoking a function on a literal which is not allowed at the moment.
-        // This will cause issues in desugar when rewriting the tree as well. Eg -
-        //
-        // const string ABC = "ABC";
-        // boolean b = ABC.equalsIgnoreCase("ABC"); // Same as `boolean b = "ABC".equalsIgnoreCase("ABC");`.
-        //
-        // This is incorrect since the constants does not support widening. If the constant's type node is not a
-        // value type, this will be failed as expected. Also if we use `checkExpr()` to check the type, it would
-        // return the type node's type as the `exprType` which is correct. Eg -
-        //
-        // string s = "ABC" + ABC;
-        //
-        // In here, the type of SHA1 will be `string` since this will be replaced by "ABC" in the desugar.
-        BType exprType;
-        if (iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) iExpr.expr;
-            BSymbol symbol = symResolver.lookupSymbolInPackage(varRef.pos, env, names.fromIdNode(varRef.pkgAlias),
-                    names.fromIdNode(varRef.variableName), SymTag.VARIABLE_NAME);
-            if (symbol != symTable.notFoundSymbol && symbol.tag == SymTag.CONSTANT) {
-                exprType = symbol.type;
-                iExpr.expr.type = symbol.type;
-            } else {
-                exprType = checkExpr(iExpr.expr, this.env, symTable.noType);
-            }
-        } else {
-            exprType = checkExpr(iExpr.expr, this.env, symTable.noType);
-        }
-
+        // Find the variable reference expression type
+        final BType exprType = checkExpr(iExpr.expr, this.env, symTable.noType);
         if (isIterableOperationInvocation(iExpr)) {
             iExpr.iterableOperationInvocation = true;
             iterableAnalyzer.handlerIterableOperation(iExpr, expType, env);
@@ -1718,13 +1689,13 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
         BType actualType = symTable.errType;
         if (conType == symTable.errType || conType.tag != TypeTags.OBJECT
-                || iExpr.expr.symbol.tag != SymTag.ENDPOINT) {
+                || ((BLangVariableReference) iExpr.expr).symbol.tag != SymTag.ENDPOINT) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
         }
 
-        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
+        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) ((BLangVariableReference) iExpr.expr).symbol;
         if (!epSymbol.interactable) {
             dlog.error(iExpr.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_INTERACTIONS, epSymbol.name);
             resultType = actualType;
