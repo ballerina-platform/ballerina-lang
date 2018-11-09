@@ -300,12 +300,17 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
         BAssertUtil.validateError(negativeResult, 0, "too many arguments in call to 'clone()'", 19, 13);
-        BAssertUtil.validateError(negativeResult, 1, "Cannot clone a value of a type other than anyData " +
+        BAssertUtil.validateError(negativeResult, 1, "Cannot clone a value of a type other than anydata " +
                 "(boolean|int|byte|float|decimal|string|xml|table|anydata[]|map<anydata>|records (with only `anydata`" +
                 " fields)|()), but found 'typedesc'", 24, 18);
         BAssertUtil.validateError(negativeResult, 2, "function invocation on type 'typedesc' is not supported", 24, 18);
+        BAssertUtil.validateError(negativeResult, 3, "Cannot clone a value of a type other than anydata " +
+                "(boolean|int|byte|float|decimal|string|xml|table|anydata[]|map<anydata>|records (with only `anydata`" +
+                " fields)|()), but found '()'", 29, 12);
+        BAssertUtil.validateError(negativeResult, 4, "function invocation on type '()' is not supported", 29, 12);
+
     }
 
     private void testCloneOnMaps(BValue val, String name, int id, int age) {
@@ -331,6 +336,9 @@ public class CloneOperationTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 4);
         Assert.assertEquals(((BInteger) results[1]).intValue(), 10);
         Assert.assertEquals(((BInteger) results[2]).intValue(), 5);
+        Assert.assertEquals(((BInteger) results[3]).intValue(), 4);
+        Assert.assertNull(results[4]);
+        Assert.assertEquals(((BInteger) results[5]).intValue(), 5);
     }
 
     @Test
@@ -380,14 +388,5 @@ public class CloneOperationTest {
         Assert.assertEquals(((BInteger) bMap.get("id")).intValue(), id);
         Assert.assertEquals(bMap.get("name").stringValue(), name);
         Assert.assertEquals(((BFloat) bMap.get("salary")).floatValue(), salary);
-    }
-
-    @Test
-    public void testCloneNil() {
-        BValue[] results = BRunUtil.invoke(result, "cloneNil");
-        Assert.assertNotNull(results);
-        testCloneRecordValues((BMap) results[0], 100, "Charlos", 300.5);
-        testCloneRecordValues((BMap) results[1], 100, "Alex", 300.5);
-        testCloneRecordValues((BMap) results[2], 100, "Alex", 400.5);
     }
 }

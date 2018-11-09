@@ -287,7 +287,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return bSymbol;
     }
 
-    public BSymbol resolveBuiltinOperator(Name name, BType... args) {
+    public BSymbol resolveBuiltinOperator(DiagnosticPos pos, BLangBuiltInMethod method, BType... args) {
         BType type = args[0];
         switch (type.tag) {
             case TypeTags.RECORD:
@@ -308,13 +308,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         List<BType> argsList = Lists.of(type);
-        argsList.addAll(Arrays.asList(args).subList(1, args.length));
+        List<BType> paramTypes = Arrays.asList(args).subList(1, args.length);
+        argsList.addAll(paramTypes);
+        Name name = names.fromString(method.getName());
         BSymbol bSymbol = resolveOperator(name, argsList);
-        if (bSymbol == symTable.notFoundSymbol &&
-            BLangBuiltInMethod.getFromString(name.value) == BLangBuiltInMethod.CLONE) {
-            BInvokableType opType = new BInvokableType(argsList.subList(1, argsList.size()), args[0], null);
-            return new BOperatorSymbol(names.fromString(name.value), null, opType, null,
-                    InstructionCodes.CLONE);
+
+        if (bSymbol == symTable.notFoundSymbol && method == BLangBuiltInMethod.CLONE) {
+            BType cloneType = args[0];
+            if (types.isAnydata(cloneType) && cloneType != symTable.nilType) {
+                BInvokableType opType = new BInvokableType(paramTypes, cloneType, null);
+                return new BOperatorSymbol(name, null, opType, null, InstructionCodes.CLONE);
+            } else {
+                dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_CLONE, cloneType);
+            }
         }
         return bSymbol;
     }

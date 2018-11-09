@@ -210,13 +210,18 @@ public function cloneConstrainedJSON() returns (json, json, json) {
     return (a, x, y);
 }
 
-public function cloneNilableInt() returns (any, any, any) {
+public function cloneNilableInt() returns (any, any, any, any, any, any) {
     int? a = 10;
+    int? b = ();
     int? x = a.clone();
     int? y = a.clone();
+    int? xx = b.clone();
+    int? yy = b.clone();
     a = 4;
     y = 5;
-    return (a, x, y);
+    b = 4;
+    yy = 5;
+    return (a, x, y, b, xx, yy);
 }
 
 public function cloneTuple() returns ((map, int[]), (map, int[]), (map, int[])) {
@@ -261,12 +266,5 @@ public function cloneAnydataRecord() returns (Person, Person, Person) {
     Person y = a.clone();
     a.name = "Charlos";
     y.salary = 400.5;
-    return (a, x, y);
-}
-
-public function cloneNil() returns ((), (), ()) {
-    () a = ();
-    () x = a.clone();
-    () y = a.clone();
     return (a, x, y);
 }

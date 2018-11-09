@@ -455,7 +455,6 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType, InstructionCodes.CLONE);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType, InstructionCodes.CLONE);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, xmlType, xmlType, InstructionCodes.CLONE);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, nilType, nilType, InstructionCodes.CLONE);
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType, int opcode) {
