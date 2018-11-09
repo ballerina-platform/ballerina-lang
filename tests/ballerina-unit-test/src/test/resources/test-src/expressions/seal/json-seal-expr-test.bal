@@ -161,6 +161,14 @@ function sealJSONArrayToAnyTypeArray() returns any []{
     return jsonArray;
 }
 
+function sealJSONToAnydata() returns anydata {
+
+    json jsonValue = { name: "John", status: "single", batch: "LK2014" };
+    anydata anydataValue = jsonValue.seal(anydata);
+
+    return anydataValue;
+}
+
 //----------------------------- Negative Test cases ---------------------------------------------------------------
 
 function sealJSONToRecordNegative() returns Student {

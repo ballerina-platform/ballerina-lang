@@ -486,6 +486,22 @@ public class MapSealInbuiltFunctionTest {
                 getMap().get("aa")).stringValue(), "11");
     }
 
+    @Test
+    public void testSealConstraintMapToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealConstraintMapToAnydata");
+        BMap<String, BValue> mapVaue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapVaue.size(), 2);
+
+        Assert.assertEquals(mapVaue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapVaue.getMap().get("a").getType().getName(), "Teacher");
+        Assert.assertEquals(mapVaue.getMap().get("a").getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapVaue.getMap().get("b").getType().getName(), "Teacher");
+        Assert.assertEquals(mapVaue.getMap().get("b").getType().getClass(), BRecordType.class);
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,

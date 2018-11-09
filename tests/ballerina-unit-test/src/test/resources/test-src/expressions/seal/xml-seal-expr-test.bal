@@ -15,3 +15,11 @@ function sealXMLToXML() returns xml {
     xml returnValue = xmlValue.seal(xml);
     return returnValue;
 }
+
+function sealXMLToAnydata() returns anydata {
+
+    xml xmlValue = xml `<book>The Lost World</book>`;
+
+    anydata anydataValue = xmlValue.seal(anydata);
+    return anydataValue;
+}

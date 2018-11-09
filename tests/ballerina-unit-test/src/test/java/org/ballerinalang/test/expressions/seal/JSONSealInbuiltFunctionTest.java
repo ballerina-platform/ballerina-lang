@@ -288,6 +288,14 @@ public class JSONSealInbuiltFunctionTest {
         Assert.assertEquals(results[3].getType().getClass(), BAnyType.class);
     }
 
+    @Test
+    public void testSealJSONToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealJSONToAnydata");
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(results[0].getType().getClass(), BAnydataType.class);
+    }
+
     //----------------------------------- Negative Test cases ----------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,

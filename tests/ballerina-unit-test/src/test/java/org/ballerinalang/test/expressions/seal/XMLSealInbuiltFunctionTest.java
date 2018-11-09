@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnyType;
+import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BXMLType;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -65,5 +66,15 @@ public class XMLSealInbuiltFunctionTest {
         Assert.assertEquals(anyValue.getType().getClass(), BXMLType.class);
     }
 
+    @Test
+    public void testSealXMLToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealXMLToAnydata");
+        BValue anyValue = results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(anyValue.stringValue(), "<book>The Lost World</book>");
+        Assert.assertEquals(anyValue.getType().getClass(), BAnydataType.class);
+    }
 }
 
