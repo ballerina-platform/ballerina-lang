@@ -48,7 +48,7 @@ import java.math.MathContext;
  */
 public class BDecimalValueTest {
 
-    private static final BigDecimal DELTA = new BigDecimal("0.000000001", MathContext.DECIMAL128);
+    private static final BigDecimal DELTA = new BigDecimal("1e-10", MathContext.DECIMAL128);
     private CompileResult result;
 
     @BeforeClass(alwaysRun = true)

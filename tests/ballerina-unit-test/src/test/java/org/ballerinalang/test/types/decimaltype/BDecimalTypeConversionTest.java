@@ -55,6 +55,8 @@ import java.math.MathContext;
  * @since 0.985.0
  **/
 public class BDecimalTypeConversionTest {
+
+    private static final BigDecimal DELTA = new BigDecimal("1e-10", MathContext.DECIMAL128);
     private CompileResult result;
 
     @BeforeClass(alwaysRun = true)
@@ -107,8 +109,8 @@ public class BDecimalTypeConversionTest {
 
         Assert.assertTrue(val1.decimalValue().compareTo(new BigDecimal("12", MathContext.DECIMAL128)) == 0,
                 "Invalid decimal value returned.");
-        Assert.assertTrue(val2.decimalValue().compareTo(new BigDecimal("-12.34", MathContext.DECIMAL128)) == 0,
-                "Invalid decimal value returned.");
+        Assert.assertTrue(val2.decimalValue().subtract(new BigDecimal("-12.34", MathContext.DECIMAL128)).
+                        compareTo(DELTA) < 0, "Invalid decimal value returned.");
         Assert.assertTrue(val3.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)) == 0,
                 "Invalid decimal value returned.");
         Assert.assertTrue(val4.decimalValue().compareTo(new BigDecimal("1.0", MathContext.DECIMAL128)) == 0,

@@ -3811,7 +3811,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangLiteral getDecimalLiteral(String value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
-        literal.typeTag = TypeTags.DECIMAL;
+        literal.typeTag = TypeTags.FLOAT;
         literal.type = symTable.decimalType;
         return literal;
     }

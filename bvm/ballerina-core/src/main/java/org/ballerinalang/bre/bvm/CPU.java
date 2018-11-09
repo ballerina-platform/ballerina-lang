@@ -1150,8 +1150,8 @@ public class CPU {
         int i;
         int j;
         int k;
-        BigDecimal operand1;
-        BigDecimal operand2;
+        BigDecimal lhsValue;
+        BigDecimal rhsValue;
 
         switch (opcode) {
             case InstructionCodes.IGT:
@@ -1170,9 +1170,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = operand1.compareTo(operand2) > 0 ? 1 : 0;
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) > 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.IGE:
@@ -1191,9 +1191,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = operand1.compareTo(operand2) >= 0 ? 1 : 0;
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) >= 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.ILT:
@@ -1212,9 +1212,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = operand1.compareTo(operand2) < 0 ? 1 : 0;
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) < 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.ILE:
@@ -1233,9 +1233,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = operand1.compareTo(operand2) <= 0 ? 1 : 0;
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) <= 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.REQ_NULL:
@@ -1644,8 +1644,8 @@ public class CPU {
         int i;
         int j;
         int k;
-        BigDecimal operand1;
-        BigDecimal operand2;
+        BigDecimal lhsValue;
+        BigDecimal rhsValue;
 
         switch (opcode) {
             case InstructionCodes.IADD:
@@ -1670,9 +1670,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.refRegs[k] = new BDecimal(operand1.add(operand2, MathContext.DECIMAL128));
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(lhsValue.add(rhsValue, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.XMLADD:
                 i = operands[0];
@@ -1700,9 +1700,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.refRegs[k] = new BDecimal(operand1.subtract(operand2, MathContext.DECIMAL128));
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(lhsValue.subtract(rhsValue, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.IMUL:
                 i = operands[0];
@@ -1720,9 +1720,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.refRegs[k] = new BDecimal(operand1.multiply(operand2, MathContext.DECIMAL128));
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(lhsValue.multiply(rhsValue, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.IDIV:
                 i = operands[0];
@@ -1746,15 +1746,15 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                if (operand2.compareTo(BigDecimal.ZERO) == 0) {
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
 
-                sf.refRegs[k] = new BDecimal(operand1.divide(operand2, MathContext.DECIMAL128));
+                sf.refRegs[k] = new BDecimal(lhsValue.divide(rhsValue, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.IMOD:
                 i = operands[0];
@@ -1784,15 +1784,15 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                if (operand2.compareTo(BigDecimal.ZERO) == 0) {
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
 
-                sf.refRegs[k] = new BDecimal(operand1.remainder(operand2, MathContext.DECIMAL128));
+                sf.refRegs[k] = new BDecimal(lhsValue.remainder(rhsValue, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.INEG:
                 i = operands[0];
@@ -1807,8 +1807,8 @@ public class CPU {
             case InstructionCodes.DNEG:
                 i = operands[0];
                 j = operands[1];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                sf.refRegs[j] = new BDecimal(operand1.negate());
+                BigDecimal value = ((BDecimal) sf.refRegs[i]).decimalValue();
+                sf.refRegs[j] = new BDecimal(value.negate());
                 break;
             case InstructionCodes.BNOT:
                 i = operands[0];
@@ -1843,9 +1843,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = operand1.compareTo(operand2) == 0 ? 1 : 0;
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) == 0 ? 1 : 0;
                 break;
             case InstructionCodes.REQ:
                 i = operands[0];
@@ -1901,9 +1901,9 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                operand1 = ((BDecimal) sf.refRegs[i]).decimalValue();
-                operand2 = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = operand1.compareTo(operand2) != 0 ? 1 : 0;
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) != 0 ? 1 : 0;
                 break;
             case InstructionCodes.RNE:
                 i = operands[0];
@@ -2272,7 +2272,7 @@ public class CPU {
             case InstructionCodes.I2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BDecimal(new BInteger(sf.longRegs[i]).decimalValue());
+                sf.refRegs[j] = new BDecimal(new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128));
                 break;
             case InstructionCodes.I2BI:
                 i = operands[0];
@@ -2306,7 +2306,7 @@ public class CPU {
             case InstructionCodes.F2D:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BDecimal(new BFloat(sf.doubleRegs[i]).decimalValue());
+                sf.refRegs[j] = new BDecimal(new BigDecimal(sf.doubleRegs[i], MathContext.DECIMAL128));
                 break;
             case InstructionCodes.S2I:
                 i = operands[0];
