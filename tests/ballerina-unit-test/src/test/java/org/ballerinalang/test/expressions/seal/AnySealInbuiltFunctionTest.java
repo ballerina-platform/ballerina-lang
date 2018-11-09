@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.seal;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BAnyType;
+import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.BXMLType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -70,13 +71,13 @@ public class AnySealInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("age").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(employee0.get("age").getType().getClass(), BAnydataType.class);
         Assert.assertEquals(employee0.get("age").stringValue(), "25");
 
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnyType.class);
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnydataType.class);
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
     }
 
@@ -190,6 +191,36 @@ public class AnySealInbuiltFunctionTest {
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
                 BStringType.class);
+    }
+
+    @Test
+    public void testSealAnyToAnydata() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealAnyToAnydata");
+        BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.getMap().size(), 5);
+
+        Assert.assertEquals(mapValue.get("age").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("age").stringValue(), "25");
+
+        Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(mapValue.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(mapValue.get("school").stringValue(), "Hindu College");
+    }
+
+    //---------------------------------- Negative Test cases ----------------------------------------------
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'PersonObj' value cannot be " +
+                    "sealed as 'anydata'.*")
+    public void testSealAnyObjectToAnydata() {
+        BRunUtil.invoke(compileResult, "sealAnyObjectToAnydata");
     }
 }
 

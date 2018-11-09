@@ -94,3 +94,18 @@ function sealAnyToTuple() returns (string,Teacher) {
 
     return anyValue;
 }
+
+function sealAnyToAnydata() returns anydata {
+    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    any anyValue = t1;
+    anydata anydataValue = anyValue.seal(anydata);
+    return anydataValue;
+}
+
+function sealAnyObjectToAnydata() returns anydata {
+
+    any anyValue = new PersonObj();
+    anydata anydataValue = anyValue.seal(anydata);
+
+    return anydataValue;
+}
