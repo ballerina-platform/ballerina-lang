@@ -217,6 +217,9 @@ public class Symbols {
             case TypeTags.STRING:
                 opcode = InstructionCodes.ANY2S;
                 break;
+            case TypeTags.DECIMAL:
+                opcode = InstructionCodes.ANY2D;
+                break;
             default:
                 opcode = InstructionCodes.ANY2B;
                 break;
