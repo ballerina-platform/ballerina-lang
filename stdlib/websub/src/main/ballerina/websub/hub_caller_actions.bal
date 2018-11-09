@@ -109,7 +109,8 @@ function CallerActions::registerTopic(string topic) returns error? {
     var registrationResponse = httpClientEndpoint->post("", request);
     if (registrationResponse is http:Response) {
         if (registrationResponse.statusCode != http:ACCEPTED_202) {
-            string payload = registrationResponse.getTextPayload() but { error => "" };
+            var result = registrationResponse.getTextPayload();
+            string payload = result is string ? result : "";
             map errorDetail = { message : "Error occured during topic registration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
@@ -120,6 +121,7 @@ function CallerActions::registerTopic(string topic) returns error? {
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
+    return;
 }
 
 function CallerActions::unregisterTopic(string topic) returns error? {
@@ -128,7 +130,8 @@ function CallerActions::unregisterTopic(string topic) returns error? {
     var unregistrationResponse = httpClientEndpoint->post("", request);
     if (unregistrationResponse is http:Response) {
         if (unregistrationResponse.statusCode != http:ACCEPTED_202) {
-            string payload = unregistrationResponse.getTextPayload() but { error => "" };
+            var result = unregistrationResponse.getTextPayload();
+            string payload = result is string ? result : "";
             map errorDetail = { message : "Error occured during topic unregistration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
@@ -139,6 +142,7 @@ function CallerActions::unregisterTopic(string topic) returns error? {
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
+    return;
 }
 
 function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
@@ -149,9 +153,8 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:Re
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
     request.setPayload(payload);
 
-    match(contentType) {
-        string specifiedContentType => request.setContentType(specifiedContentType);
-        () => {}
+    if (contentType is string) {
+        request.setContentType(contentType);
     }
 
     if (headers is map<string>) {
@@ -163,7 +166,8 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:Re
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
     if (response is http:Response) {
         if (!isSuccessStatusCode(response.statusCode)) {
-            string textPayload = response.getTextPayload() but { error => "" };
+            var result = response.getTextPayload();
+            string textPayload = result is string ? result : "";
             map errorDetail = { message : "Error occured publishing update: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
@@ -173,6 +177,7 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:Re
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
+    return;
 }
 
 function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) returns error? {
@@ -187,20 +192,20 @@ function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) re
     }
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
-    match (response) {
-        if (response is http:Response) {
-            if (!isSuccessStatusCode(response.statusCode)) {
-                string textPayload = response.getTextPayload() but { error => "" };
-                map errorDetail = { message : "Error occured notifying update availability: " + textPayload };
-                error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-                return webSubError;
-            }
-        } else if (response is error) {
-            map errorDetail = { message : "Update availability notification failed for topic [" + topic + "]" };
+    if (response is http:Response) {
+        if (!isSuccessStatusCode(response.statusCode)) {
+            var result = response.getTextPayload();
+            string textPayload = result is string ? result : "";
+            map errorDetail = { message : "Error occured notifying update availability: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
+    } else if (response is error) {
+        map errorDetail = { message : "Update availability notification failed for topic [" + topic + "]" };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
     }
+    return;
 }
 
 # Builds the topic registration change request to register or unregister a topic at the hub.
@@ -252,53 +257,51 @@ function buildSubscriptionChangeRequest(@sensitive string mode,
 function processHubResponse(@sensitive string hub, @sensitive string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
                             http:Response|error response, http:Client httpClientEndpoint,
-                            int remainingRedirects)
-    returns @tainted SubscriptionChangeResponse|error {
+                            int remainingRedirects) returns @tainted SubscriptionChangeResponse|error {
 
     string topic = subscriptionChangeRequest.topic;
-    match response {
-        error httpConnectorError => {
-            string errCause = <string> httpConnectorError.detail().message;
-            map errorDetail = { message : "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - " +
-                                    errCause };
-            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-            return webSubError;
-        }
-        http:Response httpResponse => {
-            int responseStatusCode = httpResponse.statusCode;
-            if (responseStatusCode == http:TEMPORARY_REDIRECT_307
-                    || responseStatusCode == http:PERMANENT_REDIRECT_308) {
-                if (remainingRedirects > 0) {
-                    string redirected_hub = httpResponse.getHeader("Location");
-                    return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
-                                                                httpClientEndpoint.config.auth, remainingRedirects - 1);
-                }
-                map errorDetail = { message : "Redirection response received for subscription change request"
-                                        + " made with followRedirects disabled or after maxCount exceeded: Hub ["
-                                        + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
-                error subscriptionError = error(WEBSUB_ERROR_CODE, errorDetail);
-                return subscriptionError;
-            } else if (!isSuccessStatusCode(responseStatusCode)) {
-                var responsePayload = httpResponse.getTextPayload();
-                string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
-                match (responsePayload) {
-                    string responseErrorPayload => { errorMessage = errorMessage + " - " + responseErrorPayload; }
-                    error payloadError => {
-                        string errCause = <string> payloadError.detail().message;
-                        errorMessage = errorMessage + " - Error occurred identifying cause: " + errCause;
-                    }
-                }
-                error webSubError = error(WEBSUB_ERROR_CODE, { message : errorMessage });
-                return webSubError;
-            } else {
-                if (responseStatusCode != http:ACCEPTED_202) {
-                    log:printDebug("Subscription request considered successful for non 202 status code: "
-                                    + responseStatusCode);
-                }
-                SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:httpResponse};
-                return subscriptionChangeResponse;
+    if (response is error) {
+        string errCause = <string> response.detail().message;
+        map errorDetail = { message : "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - " +
+                                errCause };
+        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        return webSubError;
+    } else if (response is http:Response) {
+        int responseStatusCode = response.statusCode;
+        if (responseStatusCode == http:TEMPORARY_REDIRECT_307
+                || responseStatusCode == http:PERMANENT_REDIRECT_308) {
+            if (remainingRedirects > 0) {
+                string redirected_hub = response.getHeader("Location");
+                return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
+                                                            httpClientEndpoint.config.auth, remainingRedirects - 1);
             }
+            map errorDetail = { message : "Redirection response received for subscription change request"
+                                    + " made with followRedirects disabled or after maxCount exceeded: Hub ["
+                                    + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
+            error subscriptionError = error(WEBSUB_ERROR_CODE, errorDetail);
+            return subscriptionError;
+        } else if (!isSuccessStatusCode(responseStatusCode)) {
+            var responsePayload = response.getTextPayload();
+            string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
+            if (responsePayload is string) {
+                errorMessage = errorMessage + " - " + responsePayload;
+            } else if responsePayload is error {
+                string errCause = <string> responsePayload.detail().message;
+                errorMessage = errorMessage + " - Error occurred identifying cause: " + errCause;
+            }
+            error webSubError = error(WEBSUB_ERROR_CODE, { message : errorMessage });
+            return webSubError;
+        } else {
+            if (responseStatusCode != http:ACCEPTED_202) {
+                log:printDebug("Subscription request considered successful for non 202 status code: "
+                                + responseStatusCode);
+            }
+            SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:response};
+            return subscriptionChangeResponse;
         }
+    } else {
+        error webSubError = error(WEBSUB_ERROR_CODE);
+        return webSubError;
     }
 }
 
@@ -346,13 +349,10 @@ function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubsc
 }
 
 function getRedirectionMaxCount(http:FollowRedirects? followRedirects) returns int {
-    match(followRedirects) {
-        http:FollowRedirects newFollowRedirects => {
-            if (newFollowRedirects.enabled) {
-                return newFollowRedirects.maxCount;
-            }
+    if (followRedirects is http:FollowRedirects) {
+        if (followRedirects.enabled) {
+            return followRedirects.maxCount;
         }
-        () => {}
     }
     return 0;
 }

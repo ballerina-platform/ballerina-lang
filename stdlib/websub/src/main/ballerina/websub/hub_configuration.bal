@@ -71,10 +71,8 @@ function startHubService() returns http:Listener {
 #
 # + return - The WebSub Hub's URL
 function getHubUrl() returns string {
-    match (hubServiceSecureSocket) {
-        http:ServiceSecureSocket => { return "https://localhost:" + hubPort + BASE_PATH + HUB_PATH; }
-        () => { return "http://localhost:" + hubPort + BASE_PATH + HUB_PATH; }
-    }
+    return hubServiceSecureSocket is http:ServiceSecureSocket ? ("https://localhost:" + hubPort + BASE_PATH + HUB_PATH)
+                : ("http://localhost:" + hubPort + BASE_PATH + HUB_PATH);
 }
 
 # Function to retrieve if persistence is enabled for the Hub.
@@ -101,12 +99,11 @@ function getServiceSecureSocketConfig(http:ServiceSecureSocket? currentServiceSe
     string keyStorePassword = config:getAsString("b7a.websub.hub.ssl.key_store.password");
 
     if (keyStoreFilePath == "") {
-        match (currentServiceSecureSocket) {
-            http:ServiceSecureSocket serviceSecureSocketAsParam => return serviceSecureSocketAsParam;
-            () => {
-                keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12";
-                keyStorePassword = "ballerina";
-            }
+        if (currentServiceSecureSocket is http:ServiceSecureSocket) {
+            return currentServiceSecureSocket;
+        } else {
+            keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12";
+            keyStorePassword = "ballerina";
         }
     }
 
@@ -142,12 +139,11 @@ function getSecureSocketConfig(http:SecureSocket? currentSecureSocket) returns h
     trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password");
 
     if (trustStoreFilePath == "") {
-        match (currentSecureSocket) {
-            http:SecureSocket secureSocketAsParam => return secureSocketAsParam;
-            () => {
-                trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12";
-                trustStorePassword = "ballerina";
-            }
+        if (currentSecureSocket is http:SecureSocket) {
+            return currentSecureSocket;
+        } else {
+            trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12";
+            trustStorePassword = "ballerina";
         }
     }
 

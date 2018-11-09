@@ -157,7 +157,8 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    string reqTopic = http:decode(intentVerificationRequest.topic, "UTF-8") but { error => topic };
+    var decodedTopic = http:decode(intentVerificationRequest.topic, "UTF-8");
+    string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
     string challenge = intentVerificationRequest.challenge;
@@ -177,7 +178,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + serviceType - The type of the service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
-    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret but { () => "" };
+    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
@@ -197,9 +198,9 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
 
     string stringPayload;
     var payload = request.getPayloadAsString();
-    if payload is string {
+    if (payload is string) {
         stringPayload = payload;
-    } else if payload is error {
+    } else if (payload is error) {
         string errCause = <string> payload.detail().message;
         map errorDetail = { message : "Error extracting notification payload as string " +
                                         "for signature validation: " + errCause };
@@ -465,18 +466,18 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
                          boolean? topicRegistrationRequired = (), string? publicUrl = (),
                          boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
                          http:SecureSocket? clientSecureSocket = ()) returns WebSubHub|HubStartedUpError {
-    hubHost = config:getAsString("b7a.websub.hub.host", default = host but { () => DEFAULT_HOST });
+    hubHost = config:getAsString("b7a.websub.hub.host", default = host ?: DEFAULT_HOST);
     hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
+                                      default = leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
     hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
-                                            default = signatureMethod but { () => DEFAULT_SIGNATURE_METHOD });
+                                   default = signatureMethod ?: DEFAULT_SIGNATURE_METHOD);
     hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-                                                     default = remotePublishingEnabled but { () => false });
+                                     default = remotePublishingEnabled ?: false);
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
     if (remotePublishModeAsConfig == "") {
-        hubRemotePublishMode = remotePublishMode but { () => PUBLISH_MODE_DIRECT };
+        hubRemotePublishMode = remotePublishMode ?: PUBLISH_MODE_DIRECT;
     } else {
         if (REMOTE_PUBLISHING_MODE_FETCH.equalsIgnoreCase(remotePublishModeAsConfig)) {
             hubRemotePublishMode = PUBLISH_MODE_FETCH;
@@ -486,15 +487,15 @@ public function startHub(string? host = (), int port, int? leaseSeconds = (), st
     }
 
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                                       default = topicRegistrationRequired but { () => true });
-    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled but { () => true });
+                                    default = topicRegistrationRequired ?: true);
+    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled ?: true);
     //set serviceSecureSocket after hubSslEnabled is set
     if (hubSslEnabled) {
         hubServiceSecureSocket = getServiceSecureSocketConfig(serviceSecureSocket);
     }
     hubClientSecureSocket = getSecureSocketConfig(clientSecureSocket);
     //reset the hubUrl once the other parameters are set
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl but { () => getHubUrl() });
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl ?: getHubUrl());
     return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
 }
 
@@ -562,7 +563,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:Readab
 
     WebSubContent content = {};
 
-    if payload is io:ReadableByteChannel {
+    if (payload is io:ReadableByteChannel) {
         content.payload = constructByteArray(payload);
     } else {
         content.payload = payload;
