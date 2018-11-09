@@ -20,13 +20,9 @@ package org.ballerinalang.test.expressions.seal;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BAnyType;
-import org.ballerinalang.model.types.BJSONType;
-import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
-import org.ballerinalang.model.types.BXMLType;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -67,23 +63,23 @@ public class TupleTypeSealInbuiltFunctionTest {
 
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("name")).stringValue(), "Raja");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("name")).getType().getClass(),
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).stringValue(), "Raja");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).getType().getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("age")).getType().getName(), "int");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getName(), "int");
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("batch")).stringValue(), "LK2014");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("batch")).getType().getClass(),
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).stringValue(), "LK2014");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).getType().getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
                 BStringType.class);
     }
 
@@ -104,25 +100,25 @@ public class TupleTypeSealInbuiltFunctionTest {
 
         Assert.assertEquals(((BMap) tupleValue2).size(), 5);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("name")).stringValue(), "Raja");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("name")).getType().getClass(),
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).stringValue(), "Raja");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("name")).getType().getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("age")).getType().getClass(),
-                BAnyType.class);
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getClass(),
+                BAnydataType.class);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("batch")).stringValue(), "LK2014");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("batch")).getType().getClass(),
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).stringValue(), "LK2014");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("batch")).getType().getClass(),
                 BStringType.class);
 
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
-        Assert.assertEquals(((BValue)((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
-                BAnyType.class);
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).stringValue(), "Hindu College");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("school")).getType().getClass(),
+                BAnydataType.class);
     }
 
     @Test
