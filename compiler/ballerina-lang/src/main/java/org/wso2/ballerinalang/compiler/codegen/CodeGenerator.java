@@ -2927,8 +2927,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.GOTO, txConclusionEndAddr);
 
         // CodeGen for error handling.
-        int errorTargetIP = nextIP();
-        transStmtFailEndAddr.value = errorTargetIP;
+        transStmtFailEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()),
                 trStatusReg);
         if (transactionNode.onRetryBody != null) {
@@ -2939,7 +2938,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Steal error handling within transaction block to tx error handling section.
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(retryInstructionAddress.value, transBlockEndAddr,
-                errorTargetIP, 0, -1);
+                transStmtFailEndAddr.value, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
 
         // Aborted block.
