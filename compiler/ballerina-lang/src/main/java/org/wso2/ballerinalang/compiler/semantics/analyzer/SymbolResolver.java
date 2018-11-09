@@ -915,4 +915,32 @@ public class SymbolResolver extends BLangNodeVisitor {
                 && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
                 || isMemberAllowed(env.enclEnv, symbol));
     }
+
+    /**
+     * Returns the eligibility to use 'seal' inbuilt function against the respective expression.
+     *
+     * @param type expression that 'seal' function is used
+     * @return eligibility to use 'seal' funtion
+     */
+    private boolean canHaveSealInvocation(BType type) {
+        switch (type.tag) {
+            case TypeTags.ARRAY:
+                // Primitive type array does not support seal because primitive arrays are not using ref registry.
+                int arrayConstraintTypeTag = ((BArrayType) type).eType.tag;
+                return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
+                        arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
+                        arrayConstraintTypeTag == TypeTags.STRING);
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.UNION:
+            case TypeTags.TUPLE:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+                return true;
+        }
+        return false;
+    }
 }
