@@ -24,8 +24,8 @@ public type SimpleTopicSubscriber object {
     public SimpleTopicSubscriberEndpointConfiguration config;
 
     private Connection? connection;
-    private Session? session;
-    private TopicSubscriber? subscriber;
+    private Session? session = ();
+    private TopicSubscriber? subscriber = ();
 
     # Initialize simple topic subscirber endpoint
     #
