@@ -367,6 +367,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
     "any"                                       { return ANY; }
+    "anydata"                                   { return ANYDATA; }
     "as"                                        { return AS; }
     "ascending"                                 { return ASCENDING; }
     "await"                                     { return AWAIT; }
@@ -390,6 +391,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "else"                                      { return ELSE; }
     "endpoint"                                  { return ENDPOINT; }
+    "error"                                     { return ERROR; }
     "extern"                                    { return EXTERN; }
 
     "finally"                                   { return FINALLY; }
@@ -403,6 +405,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "import"                                    { return IMPORT; }
     "in"                                        { return IN; }
     "int"                                       { return INT; }
+    "is"                                        { return IS; }
 
     "join"                                      { return JOIN; }
     "json"                                      { return JSON; }
@@ -421,6 +424,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "oncommit"                                  { return ONCOMMIT; }
     "onretry"                                   { return ONRETRY; }
 
+    "panic"                                     { return PANIC; }
     "parameter"                                 { return TYPE_PARAMETER; }
     "private"                                   { return PRIVATE; }
     "public"                                    { return PUBLIC; }
@@ -442,6 +446,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "table"                                     { return TABLE; }
     "timeout"                                   { return TIMEOUT; }
     "transaction"                               { return TRANSACTION; }
+    "trap"                                      { return TRAP; }
     "try"                                       { return TRY; }
     "type"                                      { return TYPE; }
     "typedesc"                                  { return TYPEDESC; }
@@ -482,6 +487,8 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "!"                                         { return NOT; }
     "=="                                        { return EQUAL; }
     "!="                                        { return NOT_EQUAL; }
+    "==="                                       { return REF_EQUAL; }
+    "!=="                                       { return REF_NOT_EQUAL; }
     ">"                                         { return GT; }
     "<"                                         { return LT; }
     ">="                                        { return GT_EQUAL; }
