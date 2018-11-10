@@ -39,7 +39,7 @@ type Manager1 object {
     }
 };
 
-function Manager1::getSalary() returns float {
+function Manager1.getSalary() returns float {
     return self.salary;
 }
 
@@ -65,7 +65,7 @@ type Manager2 object {
     }
 };
 
-function Manager2::getSalary() returns float {
+function Manager2.getSalary() returns float {
     return self.salary;
 }
 
@@ -91,11 +91,11 @@ type Employee2 abstract object {
     public function getSalary() returns float; 
 };
 
-function Manager3::getName() returns string {
+function Manager3.getName() returns string {
     return self.name + " from outer function";
 }
 
-function Manager3::getSalary() returns float {
+function Manager3.getSalary() returns float {
     return self.salary;
 }
 
@@ -120,7 +120,7 @@ type Manager4 object {
     }
 };
 
-function Manager4::getName(string greeting = "Hello") returns string {
+function Manager4.getName(string greeting = "Hello") returns string {
     return greeting + " " + self.name;
 }
 
