@@ -1379,16 +1379,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         endJumpAddr.value = nextIP();
     }
 
-    public void visit(BLangWaitExpr awaitExpr) {
+    public void visit(BLangWaitExpr waitExpr) {
         Operand valueRegIndex;
-        if (awaitExpr.type != null) {
-            valueRegIndex = calcAndGetExprRegIndex(awaitExpr);
+        if (waitExpr.type != null) {
+            valueRegIndex = calcAndGetExprRegIndex(waitExpr);
         } else {
             valueRegIndex = this.getOperand(-1);
         }
-        genNode(awaitExpr.expr, this.env);
-        Operand futureRegIndex = awaitExpr.expr.regIndex;
-        this.emit(InstructionCodes.WAIT, futureRegIndex, valueRegIndex);
+
+        Operand [] operands = new Operand[waitExpr.exprList.size() + 1];
+        int index = 0;
+        for (BLangExpression expr : waitExpr.exprList) {
+            genNode(expr, this.env);
+            operands[index] = expr.regIndex;
+            index++;
+        }
+        // Add reg index of wait
+        operands[index] = valueRegIndex;
+        this.emit(InstructionCodes.WAIT, operands);
     }
 
     @Override

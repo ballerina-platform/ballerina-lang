@@ -967,68 +967,86 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        // Only records are handled for now: RecordType r = wait {f1, f2} or record {int f1; string f2} = wait {f1, f2}
+        // Handle records: RecordType r = wait {f1, f2} or record {int f1; string f2} = wait {f1, f2}
         if (expType.tag == TypeTags.RECORD) {
             checkTypesForRecords(waitForAllExpr);
+        } else if (expType.tag == TypeTags.MAP) { // Map with or without a constraint type (default constraint is any)
+            waitForAllExpr.keyValuePairs.forEach(keyVal -> checkWaitKeyValExpr(keyVal,
+                                                                               ((BMapType) expType).constraint));
+            resultType = expType;
         } else if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.ANY) { // Change the expected type to map
-            expType = symTable.mapType;
+            waitForAllExpr.keyValuePairs.forEach(keyVal -> checkWaitKeyValExpr(keyVal, expType));
+            BFutureType futureType = new BFutureType(TypeTags.FUTURE, symTable.anyType, null);
+            resultType = new BMapType(TypeTags.MAP, futureType, symTable.mapType.tsymbol);
         } else {
             dlog.error(waitForAllExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
             resultType = symTable.semanticError;
         }
+        waitForAllExpr.type = resultType;
     }
 
-    private void checkTypesForRecords(BLangWaitForAllExpr waitForAllExpr) {
-        List<BField> lhsRecordFields = ((BRecordType) expType).getFields();
-        List<BLangWaitForAllExpr.BLangWaitKeyValue> keyValPairs = waitForAllExpr.getKeyValuePairs();
+    private void checkTypesForRecords(BLangWaitForAllExpr waitExpr) {
+        List<BField> lhsFields = ((BRecordType) expType).getFields();
+        List<BLangWaitForAllExpr.BLangWaitKeyValue> rhsFields = waitExpr.getKeyValuePairs();
 
-        // fields in wait collection is more or less than the fields expected by the rhs record
-        if (keyValPairs.size() > lhsRecordFields.size() || keyValPairs.size() < lhsRecordFields.size()) {
-            dlog.error(waitForAllExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+        // fields in wait collection is more or less than the fields expected by the lhs record
+        if (rhsFields.size() != lhsFields.size()) {
+            dlog.error(waitExpr.pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, expType);
             resultType = symTable.semanticError;
             return;
         }
         // Add all key identifiers to a list
         List<BLangIdentifier> keyList = new ArrayList<>();
-        keyValPairs.forEach(keyValue -> keyList.add(keyValue.getKey()));
+        rhsFields.forEach(keyValue -> keyList.add(keyValue.getKey()));
 
         // It will reach here only if the fields in rhs and lhs are equal
-        for (BLangWaitForAllExpr.BLangWaitKeyValue literalKeyValuePair : keyValPairs) {
-            for (BField field : lhsRecordFields) {
-                BLangIdentifier key = literalKeyValuePair.getKey();
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : rhsFields) {
+            for (BField field : lhsFields) {
+                BLangIdentifier key = keyVal.getKey();
                 // Match the name of the field to the key of the wait collection
                 if (!key.value.equals(field.getName().getValue())) {
                     continue;
                 }
+                // Since the key is matched with a record field remove from the list
                 keyList.remove(key);
-                BLangExpression exp;
-                // Match the type of the field
-                if (literalKeyValuePair.getValue() != null) {
-                    exp = literalKeyValuePair.getValue();
-                } else { // The expression is null
-                    BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(key), SymTag.VARIABLE);
-                    BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                    varRef.pos = literalKeyValuePair.pos;
-                    varRef.variableName = key;
-                    varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-                    varRef.symbol = symbol;
-                    varRef.type = symbol.type;
-                    waitForAllExpr.keyExpr = varRef;
-                    exp = varRef;
-                }
-                BFutureType futureType = new BFutureType(TypeTags.FUTURE, field.type, null);
-                checkExpr(exp, env, futureType);
+                checkWaitKeyValExpr(keyVal, field.type);
                 break;
             }
         }
 
         // Check if the previously added list is empty i.e. if it contains any unmatched fields
         if (keyList.size() > 0) {
-            keyList.forEach(identifier -> dlog.error(waitForAllExpr.pos,
-                                                     DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL,
+            keyList.forEach(identifier -> dlog.error(waitExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL,
                                                      identifier.value));
             resultType = symTable.semanticError;
+        } else {
+            resultType = expType;
         }
+    }
+
+    private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
+        BLangExpression exp = getWaitExpr(keyVal);
+        BFutureType futureType = new BFutureType(TypeTags.FUTURE, type, null);
+        checkExpr(exp, env, futureType);
+    }
+
+    private BLangExpression getWaitExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal) {
+        BLangExpression exp;
+        if (keyVal.getValue() != null) {
+            exp = keyVal.getValue();
+        } else { // The expression is null
+            BLangIdentifier key = keyVal.getKey();
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(key), SymTag.VARIABLE);
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            varRef.pos = keyVal.pos;
+            varRef.variableName = key;
+            varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            varRef.symbol = symbol;
+            varRef.type = symbol.type;
+            keyVal.keyExpr = varRef;
+            exp = varRef;
+        }
+        return exp;
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
@@ -1068,7 +1086,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangWaitExpr waitExpr) {
         expType = new BFutureType(TypeTags.FUTURE, expType, null);
-        checkExpr(waitExpr.expr, env, expType);
+        checkExpr(waitExpr.getExpression(), env, expType);
         if (resultType.tag == TypeTags.UNION) {
             HashSet<BType> memberTypes = collectMemberTypes((BUnionType) resultType, new HashSet<>());
             resultType = new BUnionType(null, memberTypes, false);
@@ -1077,6 +1095,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             resultType = ((BFutureType) resultType).constraint;
         }
+        waitExpr.type = resultType;
     }
 
     private HashSet<BType> collectMemberTypes(BUnionType unionType, HashSet<BType> memberTypes) {
@@ -1120,6 +1139,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BType rhsResultType = checkExpr(binaryExpr.rhsExpr, env, expType);
             // Return if both or atleast one of lhs and rhs types are errors
             if (lhsResultType == symTable.semanticError || rhsResultType == symTable.semanticError) {
+                resultType = symTable.semanticError;
                 return;
             }
             resultType = new BUnionType(null, new HashSet<>(Arrays.asList(lhsResultType, rhsResultType)), false);

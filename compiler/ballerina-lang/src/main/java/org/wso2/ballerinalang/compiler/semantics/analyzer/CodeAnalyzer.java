@@ -969,7 +969,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWaitExpr awaitExpr) {
-        analyzeExpr(awaitExpr.expr);
+        analyzeExpr(awaitExpr.getExpression());
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
