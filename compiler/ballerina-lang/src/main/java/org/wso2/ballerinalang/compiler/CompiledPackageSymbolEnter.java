@@ -645,15 +645,17 @@ public class CompiledPackageSymbolEnter {
 
     private void defineConstants(DataInputStream dataInStream) throws IOException {
         String constantName = getUTF8CPEntryValue(dataInStream);
-        String actualTypeSig = getUTF8CPEntryValue(dataInStream);
-        BType actualType = getBTypeFromDescriptor(actualTypeSig);
+        String finiteTypeSig = getUTF8CPEntryValue(dataInStream);
+        BType finiteType = getBTypeFromDescriptor(finiteTypeSig);
+        String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+        BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
         int flags = dataInStream.readInt();
 
         // Create constant symbol.
         Scope enclScope = this.env.pkgSymbol.scope;
         BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
-                this.env.pkgSymbol.pkgID, actualType, enclScope.owner);
+                this.env.pkgSymbol.pkgID, finiteType, valueType, enclScope.owner);
 
         enclScope.define(constantSymbol.name, constantSymbol);
 

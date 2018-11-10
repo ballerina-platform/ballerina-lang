@@ -1514,8 +1514,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BLangLiteral value = (BLangLiteral) constant.value;
 
         if (constant.typeNode != null) {
-            // Check the type of the value and typeNode's type.
-            typeChecker.checkExpr(value, env, constant.typeNode.type);
+            // Check the type of the value.
+            typeChecker.checkExpr(value, env, constant.symbol.valueType);
         } else {
             // We don't have any expected type in this case since the type node is not available. So we just visit
             // the value to set the proper type to it.

@@ -626,19 +626,24 @@ public class PackageInfoReader {
         int nameCPIndex = dataInStream.readInt();
         UTF8CPEntry nameUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
 
-        // Read actual type.
-        int typeSigCPIndex = dataInStream.readInt();
-        UTF8CPEntry typeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
+        // Read finite type.
+        int finiteTypeSigCPIndex = dataInStream.readInt();
+        UTF8CPEntry finiteTypeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(finiteTypeSigCPIndex);
+
+        // Read value type.
+        int valueTypeSigCPIndex = dataInStream.readInt();
+        UTF8CPEntry valueTypeSigUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueTypeSigCPIndex);
 
         // Read and ignore flags.
         dataInStream.readInt();
 
         // Get the actual type.
-        BType actualType = getBTypeFromDescriptor(packageInfo, typeSigUTF8CPEntry.getValue());
+        BType finiteType = getBTypeFromDescriptor(packageInfo, finiteTypeSigUTF8CPEntry.getValue());
+        BType valueType = getBTypeFromDescriptor(packageInfo, valueTypeSigUTF8CPEntry.getValue());
 
         // Create a new constant info.
-        ConstantInfo constantInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue(), typeSigCPIndex,
-                actualType);
+        ConstantInfo constantInfo = new ConstantInfo(nameCPIndex, nameUTF8CPEntry.getValue(), finiteTypeSigCPIndex,
+                finiteType, valueTypeSigCPIndex, valueType);
 
         // Read attributes.
         readAttributeInfoEntries(packageInfo, constantPool, constantInfo);

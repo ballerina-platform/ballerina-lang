@@ -32,9 +32,12 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
 
     // Value of the constant.
     public BLangLiteral value;
+    // Type of the value.
+    public BType valueType;
 
-    public BConstantSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(CONSTANT, flags, name, pkgID, type, owner);
+    public BConstantSymbol(int flags, Name name, PackageID pkgID, BType finiteType, BType valueType, BSymbol owner) {
+        super(CONSTANT, flags, name, pkgID, finiteType, owner);
+        this.valueType = valueType;
     }
 
     @Override
