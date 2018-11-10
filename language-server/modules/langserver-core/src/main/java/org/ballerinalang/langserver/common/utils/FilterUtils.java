@@ -8,7 +8,6 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -66,8 +65,7 @@ public class FilterUtils {
             // Handling action invocations ep -> ...
             resultList.addAll(getEndpointActions((BEndpointVarSymbol) variable.getScopeEntry().symbol));
         } else if (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
-                || delimiter.equals(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
-                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext) {
+                || delimiter.equals(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)) {
             // Handling worker-interactions eg. msg -> ... || msg <- ...
             List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
             filteredList.removeIf(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol);
