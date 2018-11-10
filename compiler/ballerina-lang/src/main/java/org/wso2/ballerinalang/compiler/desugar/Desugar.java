@@ -1988,13 +1988,12 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
         // Wait for any
-        if (awaitExpr.expr.getKind() == NodeKind.BINARY_EXPR) {
-            List<BLangExpression> exprList = collectAllBinaryExprs((BLangBinaryExpr) awaitExpr.expr,
-                                                                   new ArrayList<>());
+        if (awaitExpr.getExpression().getKind() == NodeKind.BINARY_EXPR) {
+            awaitExpr.exprList = collectAllBinaryExprs((BLangBinaryExpr) awaitExpr.getExpression(), new ArrayList<>());
         } else { // Wait for one
-            awaitExpr.expr = rewriteExpr(awaitExpr.expr);
-            result = awaitExpr;
+            awaitExpr.exprList = Collections.singletonList(rewriteExpr(awaitExpr.getExpression()));
         }
+        result = awaitExpr;
     }
 
     private List<BLangExpression> collectAllBinaryExprs(BLangBinaryExpr binaryExpr, List<BLangExpression> exprs) {
@@ -2007,6 +2006,7 @@ public class Desugar extends BLangNodeVisitor {
         if (expr.getKind() == NodeKind.BINARY_EXPR) {
             collectAllBinaryExprs((BLangBinaryExpr) expr, exprs);
         } else {
+            expr = rewriteExpr(expr);
             exprs.add(expr);
         }
     }
