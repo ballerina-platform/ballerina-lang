@@ -192,11 +192,7 @@ public class CompletionSubRuleParser {
     }
     
     private static String getCombinedTokenString(LSContext context) {
-        Stack<Token> tokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);
-        StringBuilder tokenString = new StringBuilder();
-        tokens.forEach(token -> tokenString.append(token.getText()).append(" "));
-        
-        return tokenString.toString();
+        return String.join(" ", CommonUtil.getPoppedTokenStrings(context));
     }
     
     // Utility methods
