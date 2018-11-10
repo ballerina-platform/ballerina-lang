@@ -3746,7 +3746,7 @@ public class BLangPackageBuilder {
 
     void handleWait(DiagnosticPos currentPos, Set<Whitespace> ws) {
         BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
-        waitExpr.expr = (BLangExpression) this.exprNodeStack.pop();
+        waitExpr.exprList = Collections.singletonList((BLangExpression) this.exprNodeStack.pop());
         waitExpr.pos = currentPos;
         waitExpr.addWS(ws);
         addExpressionNode(waitExpr);

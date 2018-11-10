@@ -1047,13 +1047,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWaitExpr awaitExpr) {
-        awaitExpr.expr.accept(this);
+    public void visit(BLangWaitExpr waitExpr) {
+        waitExpr.getExpression().accept(this);
     }
 
     @Override
-    public void visit(BLangWaitForAllExpr awaitExpr) {
-        // ToDo
+    public void visit(BLangWaitForAllExpr waitExpr) {
+        TaintedStatus statusForWait = TaintedStatus.UNTAINTED;
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue: waitExpr.keyValuePairs) {
+            BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
+            expr.accept(this);
+            statusForWait = (this.taintedStatus == TaintedStatus.TAINTED) ? TaintedStatus.TAINTED :
+                                                                            TaintedStatus.UNTAINTED;
+        }
+        this.taintedStatus = statusForWait;
     }
 
     @Override
