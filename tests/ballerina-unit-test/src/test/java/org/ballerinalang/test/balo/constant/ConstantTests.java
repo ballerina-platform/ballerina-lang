@@ -183,4 +183,67 @@ public class ConstantTests {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
     }
+
+    @Test
+    public void testBooleanTypeWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanTypeWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testBooleanTypeWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanTypeWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testIntTypeWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntTypeWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
+    }
+
+    @Test
+    public void testIntTypeWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntTypeWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
+    @Test
+    public void testByteTypeWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 240);
+    }
+
+    @Test
+    public void testFloatTypeWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatTypeWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+    }
+
+    @Test
+    public void testFloatTypeWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatTypeWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+    }
+
+    @Test
+    public void testStringTypeWithType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringTypeWithType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
+    }
+
+    @Test
+    public void testStringTypeWithoutType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringTypeWithoutType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
+    }
 }

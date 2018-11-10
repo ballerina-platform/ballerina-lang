@@ -149,3 +149,79 @@ Z z3 = "X";
 const string W = "W";
 
 const string X = "X";
+
+// -----------------------------------------------------------
+
+type BooleanTypeWithType foo:booleanWithType;
+
+function testBooleanTypeWithType() returns BooleanTypeWithType {
+    BooleanTypeWithType t = false;
+    return t;
+}
+
+const booleanWithoutType = true;
+
+type BooleanTypeWithoutType booleanWithoutType;
+
+function testBooleanTypeWithoutType() returns BooleanTypeWithoutType {
+    BooleanTypeWithoutType t = true;
+    return t;
+}
+
+// -----------------------------------------------------------
+
+type IntTypeWithType foo:intWithType;
+
+function testIntTypeWithType() returns IntTypeWithType {
+    IntTypeWithType t = 40;
+    return t;
+}
+
+
+type IntTypeWithoutType foo:intWithoutType;
+
+function testIntTypeWithoutType() returns IntTypeWithoutType {
+    IntTypeWithoutType t = 20;
+    return t;
+}
+
+// -----------------------------------------------------------
+
+type ByteTypeWithType foo:byteWithType;
+
+function testByteTypeWithType() returns ByteTypeWithType {
+    ByteTypeWithType t = 240;
+    return t;
+}
+
+// -----------------------------------------------------------
+
+type FloatTypeWithType foo:floatWithType;
+
+function testFloatTypeWithType() returns FloatTypeWithType {
+    FloatTypeWithType t = 4.0;
+    return t;
+}
+
+type FloatTypeWithoutType foo:floatWithoutType;
+
+function testFloatTypeWithoutType() returns FloatTypeWithoutType {
+    FloatTypeWithoutType t = 2.0;
+    return t;
+}
+
+// -----------------------------------------------------------
+
+type StringTypeWithType foo:stringWithType;
+
+function testStringTypeWithType() returns StringTypeWithType {
+    StringTypeWithType t = "Ballerina is awesome";
+    return t;
+}
+
+type StringTypeWithoutType foo:stringWithoutType;
+
+function testStringTypeWithoutType() returns StringTypeWithoutType {
+    StringTypeWithoutType t = "Ballerina rocks";
+    return t;
+}
