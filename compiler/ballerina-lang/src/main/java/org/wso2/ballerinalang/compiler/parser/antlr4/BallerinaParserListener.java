@@ -388,46 +388,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitWorkerDefinition(BallerinaParser.WorkerDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#globalEndpointDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterGlobalEndpointDefinition(BallerinaParser.GlobalEndpointDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#globalEndpointDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitGlobalEndpointDefinition(BallerinaParser.GlobalEndpointDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#endpointDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#endpointDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#endpointType}.
-	 * @param ctx the parse tree
-	 */
-	void enterEndpointType(BallerinaParser.EndpointTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#endpointType}.
-	 * @param ctx the parse tree
-	 */
-	void exitEndpointType(BallerinaParser.EndpointTypeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#endpointInitlization}.
-	 * @param ctx the parse tree
-	 */
-	void enterEndpointInitlization(BallerinaParser.EndpointInitlizationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#endpointInitlization}.
-	 * @param ctx the parse tree
-	 */
-	void exitEndpointInitlization(BallerinaParser.EndpointInitlizationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#finiteType}.
 	 * @param ctx the parse tree
 	 */

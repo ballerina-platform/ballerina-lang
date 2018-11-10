@@ -27,6 +27,7 @@ PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
+REMOTE      : 'remote' ;
 BIND        : 'bind' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';

@@ -36,7 +36,6 @@ definition
     |   typeDefinition
     |   annotationDefinition
     |   globalVariableDefinition
-    |   globalEndpointDefinition
     ;
 
 serviceDefinition
@@ -49,7 +48,7 @@ serviceEndpointAttachments
     ;
 
 serviceBody
-    :   LEFT_BRACE endpointDeclaration* (variableDefinitionStatement | namespaceDeclarationStatement)* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE (variableDefinitionStatement | namespaceDeclarationStatement)* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
@@ -57,17 +56,16 @@ resourceDefinition
     ;
 
 resourceParameterList
-    :   ENDPOINT Identifier (COMMA parameterList)?
-    |   parameterList
+    :   parameterList
     ;
 
 callableUnitBody
-    :   LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
+    :   LEFT_BRACE (statement* | workerDeclaration+) RIGHT_BRACE
     ;
 
 
 functionDefinition
-    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -145,7 +143,7 @@ objectDefaultableParameter
     ;
 
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
@@ -178,23 +176,6 @@ workerDeclaration
 
 workerDefinition
     :   WORKER Identifier
-    ;
-
-globalEndpointDefinition
-    :   PUBLIC? endpointDeclaration
-    ;
-
-endpointDeclaration
-    :   annotationAttachment* ENDPOINT endpointType Identifier endpointInitlization? SEMICOLON
-    ;
-
-endpointType
-    :   nameReference
-    ;
-
-endpointInitlization
-    :   recordLiteral
-    |   ASSIGN variableReference
     ;
 
 finiteType
