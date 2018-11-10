@@ -60,7 +60,7 @@
         </classes>
     </test>
 
-    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="13">
+    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="17">
         <classes>
             <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>
         </classes>

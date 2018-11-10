@@ -30,8 +30,10 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
+import io.ballerina.plugins.idea.psi.BallerinaFloatingPointLiteral;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaIntegerLiteral;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
@@ -65,6 +67,8 @@ public class BallerinaAnnotator implements Annotator {
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 }
             }
+        } else if (element instanceof BallerinaFloatingPointLiteral || element instanceof BallerinaIntegerLiteral) {
+            annotateNumber(element, holder);
         } else if (element instanceof LeafPsiElement) {
             IElementType elementType = ((LeafPsiElement) element).getElementType();
             if (elementType == BallerinaTypes.AT) {
@@ -306,5 +310,10 @@ public class BallerinaAnnotator implements Annotator {
     private void annotateText(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
         Annotation annotation = holder.createInfoAnnotation(element, null);
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
+    }
+
+    private void annotateNumber(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        Annotation annotation = holder.createInfoAnnotation(element, null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.NUMBER);
     }
 }

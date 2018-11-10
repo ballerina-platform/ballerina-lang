@@ -24,12 +24,14 @@ import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.util.messages.MessageBusConnection;
+import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOperatingSystem;
@@ -37,10 +39,11 @@ import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOpera
 /**
  * Preloading Activity of ballerina plugin.
  */
-public class LanguageServerPreloadingActivity extends PreloadingActivity {
+public class BallerinaPreloadingActivity extends PreloadingActivity {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LanguageServerPreloadingActivity.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaPreloadingActivity.class);
     private static final String launcherScriptPath = "lib/tools/lang-server/launcher";
+    private static final String ballerinaSourcePath = "lib/repo";
 
     /**
      * Preloading of the ballerina plugin.
@@ -58,6 +61,7 @@ public class LanguageServerPreloadingActivity extends PreloadingActivity {
             @Override
             public void projectOpened(@Nullable final Project project) {
                 registerServerDefinition(project);
+                updateBallerinaPathModificationTracker(project, ProjectStatus.OPENED);
             }
         });
 
@@ -65,6 +69,7 @@ public class LanguageServerPreloadingActivity extends PreloadingActivity {
             Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
             if (openProjects.length <= 1) {
                 stopProcesses();
+                updateBallerinaPathModificationTracker(project, ProjectStatus.CLOSED);
             }
             return true;
         });
@@ -72,26 +77,19 @@ public class LanguageServerPreloadingActivity extends PreloadingActivity {
 
     /**
      * Registered language server definition using currently opened ballerina projects.
-     *
-     * @return Returns true if a definition is registered successfully.
      */
-    private static boolean registerServerDefinition() {
+    private static void registerServerDefinition() {
         Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
         for (Project project : openProjects) {
-            if (registerServerDefinition(project)) {
-                return true;
-            }
+            registerServerDefinition(project);
+            updateBallerinaPathModificationTracker(project, ProjectStatus.OPENED);
         }
-        return false;
     }
 
     private static boolean registerServerDefinition(Project project) {
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         String balSdkPath = getBallerinaSdk(project);
-        if (balSdkPath != null) {
-            return doRegister(balSdkPath);
-        }
-        return false;
+        return balSdkPath != null && doRegister(balSdkPath);
     }
 
     private static boolean doRegister(@NotNull String sdkPath) {
@@ -137,6 +135,20 @@ public class LanguageServerPreloadingActivity extends PreloadingActivity {
         }
     }
 
+    private static void updateBallerinaPathModificationTracker(Project project, ProjectStatus status) {
+        String balSdkPath = getBallerinaSdk(project);
+        if (balSdkPath != null) {
+            Path balxPath = Paths.get(balSdkPath, ballerinaSourcePath);
+            if (balxPath.toFile().isDirectory()) {
+                if (status == ProjectStatus.OPENED) {
+                    BallerinaPathModificationTracker.addPath(balxPath.toString());
+                } else if (status == ProjectStatus.CLOSED) {
+                    BallerinaPathModificationTracker.removePath(balxPath.toString());
+                }
+            }
+        }
+    }
+
     @Nullable
     private static String getBallerinaSdk(Project project) {
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
@@ -159,5 +171,9 @@ public class LanguageServerPreloadingActivity extends PreloadingActivity {
         String launcherBatchScript = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
         return (new File(balShellScript).exists() || new File(balBatchScript).exists())
                 && (new File(launcherShellScript).exists() || new File(launcherBatchScript).exists());
+    }
+
+    private enum ProjectStatus {
+        OPENED, CLOSED
     }
 }

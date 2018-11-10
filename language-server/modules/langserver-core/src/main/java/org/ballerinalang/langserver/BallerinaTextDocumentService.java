@@ -93,6 +93,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
@@ -438,20 +440,27 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext formatContext = new LSServiceOperationContext();
                 formatContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
-                String fileContent = documentManager.getFileContent(compilationPath);
-                String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
-                int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
-                int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
-                int totalLines = contentComponents.length;
-
-                Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-                // Source generation for given ast.
+                // Build the given ast.
                 JsonObject ast = TextDocumentFormatUtil.getAST(fileUri, lsCompiler, documentManager, formatContext);
-
                 FormattingSourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+
+                // Format the given ast.
                 FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
                 formattingUtil.accept(ast.getAsJsonObject("model"));
+
+                // Generate source for the ast.
                 textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
+                Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
+                int totalLines = 0;
+                while (matcher.find()) {
+                    totalLines++;
+                }
+
+                int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf("\n"),
+                        textEditContent.lastIndexOf("\r"));
+                int lastCharCol = textEditContent.substring(lastNewLineCharIndex + 1).length();
+
+                Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
                 textEdit = new TextEdit(range, textEditContent);
                 return Collections.singletonList(textEdit);
             } catch (Exception e) {
