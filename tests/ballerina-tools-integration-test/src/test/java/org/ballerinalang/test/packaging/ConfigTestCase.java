@@ -22,6 +22,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -105,5 +106,10 @@ public class ConfigTestCase extends BaseTest {
         balClient.runMain("test", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           tempProjectDirectory.toString());
         clientLeecher.waitForText(2000);
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        PackagingTestUtils.deleteFiles(tempProjectDirectory);
     }
 }
