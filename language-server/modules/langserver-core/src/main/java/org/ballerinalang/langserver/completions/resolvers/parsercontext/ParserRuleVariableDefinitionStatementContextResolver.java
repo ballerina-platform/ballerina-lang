@@ -88,7 +88,8 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
             throws LSCompletionException {
         List<String> consumedTokens = CommonUtil.getPoppedTokenStrings(context);
         String startToken = consumedTokens.get(0);
-        List<String> lastTwoTokens = consumedTokens.subList(consumedTokens.size() - 2, consumedTokens.size());
+        List<String> lastTwoTokens = consumedTokens.size() < 2 ? new ArrayList<>() : 
+                consumedTokens.subList(consumedTokens.size() - 2, consumedTokens.size());
         if (!startToken.equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
                 || !lastTwoTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             return;
