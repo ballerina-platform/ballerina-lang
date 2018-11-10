@@ -273,7 +273,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else if (importPkgNode.orgName.value.equals(enclPackageID.orgName.value)) {
             // means it's in 'import <org-name>/<pkg-name>' style and <org-name> is used to import within same project
             orgName = names.fromIdNode(importPkgNode.orgName);
-            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
+            version = new Name("");
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
