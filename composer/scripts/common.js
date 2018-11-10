@@ -12,6 +12,7 @@ const modulesRoot = resolve(__dirname, './../');
 
 const submodules = [
     "theme",
+    "lang-service",
     "ast-model",
     "api-designer",
     "documentation",
