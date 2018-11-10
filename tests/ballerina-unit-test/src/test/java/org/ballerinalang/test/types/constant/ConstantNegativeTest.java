@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 45);
+        Assert.assertEquals(compileResult.getErrorCount(), 54);
 
         int index = 0;
         int offset = 1;
@@ -100,6 +100,24 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'J'", offset += 5, 10);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'S'", offset += 4, 10);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'T'", offset, 12);
-        BAssertUtil.validateError(compileResult, index, "unknown type 'U'", offset, 14);
+        BAssertUtil.validateError(compileResult, index++, "unknown type 'U'", offset, 14);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
+                offset += 17, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'true', found 'boolean'",
+                offset += 9, 32);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '40', found 'int'",
+                offset += 11, 25);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '20', found 'int'", offset += 9,
+                28);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '240', found 'int'",
+                offset += 11, 26);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
+                offset += 11, 27);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0', found 'float'",
+                offset += 9, 30);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina is awesome', found" +
+                " 'string'", offset += 11, 28);
+        BAssertUtil.validateError(compileResult, index, "incompatible types: expected 'Ballerina rocks', found " +
+                "'string'", offset += 9, 31);
     }
 }
