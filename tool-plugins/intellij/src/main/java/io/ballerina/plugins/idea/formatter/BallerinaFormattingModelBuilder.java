@@ -16,21 +16,29 @@
 
 package io.ballerina.plugins.idea.formatter;
 
+import com.intellij.formatting.Block;
 import com.intellij.formatting.FormattingModel;
 import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.formatting.FormattingModelProvider;
 import com.intellij.formatting.Indent;
+import com.intellij.formatting.Spacing;
 import com.intellij.formatting.SpacingBuilder;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.TokenType;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.formatter.common.AbstractBlock;
+import com.intellij.psi.tree.IElementType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
+import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORTED;
@@ -267,13 +275,52 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
     @NotNull
     @Override
     public FormattingModel createModel(PsiElement element, CodeStyleSettings settings) {
-        BallerinaBlock rootBlock = new BallerinaBlock(
-                element.getNode(), null, Indent.getNoneIndent(), null, settings, createSpaceBuilder(settings),
-                new HashMap<>()
-        );
-        return FormattingModelProvider.createFormattingModelForPsiFile(
-                element.getContainingFile(), rootBlock, settings
-        );
+
+        if(!grammarViolated(element.getNode())) {
+            BallerinaBlock rootBlock = new BallerinaBlock(element.getNode(), null, Indent.getNoneIndent(), null,
+                    settings, createSpaceBuilder(settings), new HashMap<>());
+            return FormattingModelProvider
+                    .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
+        // If the plugin grammar tree is not generated correctly for the file, code reformat should not work
+        } else {
+            AbstractBlock rootBlock = new AbstractBlock(element.getNode(),null,null) {
+                @Nullable
+                @Override
+                public Spacing getSpacing(@Nullable Block child1, @NotNull Block child2) {
+                    return null;
+                }
+
+                @Override
+                public boolean isLeaf() {
+                    return false;
+                }
+
+                @Override
+                protected List<Block> buildChildren() {
+                    return new LinkedList<>();
+                }
+            };
+            return FormattingModelProvider
+                    .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
+        }
+    }
+
+    // Checks whether the PSI tree for the file is properly generated.
+    private static boolean grammarViolated(ASTNode rootNode) {
+        IElementType firstChildType = getFirstChild(rootNode);
+        //Todo: Add more conditions
+        return firstChildType != BallerinaTypes.DEFINITION && firstChildType != BallerinaTypes.IMPORT_DECLARATION
+                && firstChildType!= BallerinaTypes.NAMESPACE_DECLARATION;
+    }
+
+    @NotNull
+    private static IElementType getFirstChild(ASTNode parent) {
+        ASTNode child = parent.getFirstChildNode();
+        while(child.getElementType() == BallerinaTypes.LINE_COMMENT
+                || child.getElementType() == TokenType.WHITE_SPACE) {
+            child = child.getTreeNext();
+        }
+        return child.getElementType();
     }
 
     // Note - In case of multiple matching rules, top rule is the one which will get applied.
