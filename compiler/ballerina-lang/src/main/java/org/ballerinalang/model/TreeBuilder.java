@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -142,7 +141,6 @@ import org.ballerinalang.model.tree.types.TupleTypeNode;
 import org.ballerinalang.model.tree.types.UnionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -525,10 +523,6 @@ public class TreeBuilder {
         return new BLangTypeDefinition();
     }
     
-    public static ActionNode createActionNode() {
-        return new BLangAction();
-    }
-
     public static AssignmentNode createAssignmentNode() {
         return new BLangAssignment();
     }

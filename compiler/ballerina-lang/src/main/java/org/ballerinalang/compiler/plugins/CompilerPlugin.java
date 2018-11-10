@@ -18,7 +18,6 @@
 package org.ballerinalang.compiler.plugins;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.EndpointNode;
@@ -91,14 +90,6 @@ public interface CompilerPlugin {
      * @param annotations  a list of annotations attached to the resource node
      */
     void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations);
-
-    /**
-     * Processes a list of annotations attached to a action node.
-     *
-     * @param actionNode  the action node being annotated
-     * @param annotations a list of annotations attached to the action node
-     */
-    void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Processes a list of annotations attached to a object node.

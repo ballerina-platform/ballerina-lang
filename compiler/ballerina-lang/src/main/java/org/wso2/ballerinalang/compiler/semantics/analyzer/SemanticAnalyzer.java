@@ -70,7 +70,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -984,26 +983,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
         analyzeStmt(lockNode.body, env);
-    }
-
-    public void visit(BLangAction actionNode) {
-        BSymbol actionSymbol = actionNode.symbol;
-
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-
-        if (Symbols.isNative(actionSymbol)) {
-            return;
-        }
-
-        actionNode.requiredParams.forEach(p -> this.analyzeDef(p, actionEnv));
-        actionNode.defaultableParams.forEach(p -> this.analyzeDef(p, actionEnv));
-        if (actionNode.restParam != null) {
-            this.analyzeDef(actionNode.restParam, actionEnv);
-        }
-
-        actionNode.endpoints.forEach(e -> analyzeDef(e, actionEnv));
-        analyzeStmt(actionNode.body, actionEnv);
-        this.processWorkers(actionNode, actionEnv);
     }
 
     public void visit(BLangService serviceNode) {

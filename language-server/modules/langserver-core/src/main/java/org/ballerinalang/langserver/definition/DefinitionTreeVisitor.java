@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -169,24 +168,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
             if (resourceNode.body != null) {
                 this.acceptNode(resourceNode.body);
-            }
-        }
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        if (actionNode.name.getValue()
-                .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (actionNode.requiredParams != null) {
-                actionNode.requiredParams.forEach(this::acceptNode);
-            }
-
-            if (actionNode.body != null) {
-                acceptNode(actionNode.body);
-            }
-
-            if (actionNode.workers != null) {
-                actionNode.workers.forEach(this::acceptNode);
             }
         }
     }

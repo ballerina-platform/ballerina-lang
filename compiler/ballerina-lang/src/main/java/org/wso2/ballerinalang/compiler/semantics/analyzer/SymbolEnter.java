@@ -55,7 +55,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -620,17 +619,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         BLangLiteral literal = (BLangLiteral) variable.expr;
         variable.symbol.defaultValue = literal.value;
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        BInvokableSymbol actionSymbol = Symbols
-                .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
-                        env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        actionSymbol.markdownDocumentation = getMarkdownDocAttachment(actionNode.markdownDocumentationAttachment);
-        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
-        actionNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
     }
 
     @Override

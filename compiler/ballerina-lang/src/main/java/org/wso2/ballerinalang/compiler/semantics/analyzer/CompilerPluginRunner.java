@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -195,12 +194,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         List<BLangAnnotationAttachment> attachmentList = resourceNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(resourceNode, list));
         resourceNode.endpoints.forEach(endpoint -> endpoint.accept(this));
-    }
-
-    public void visit(BLangAction actionNode) {
-        List<BLangAnnotationAttachment> attachmentList = actionNode.getAnnotationAttachments();
-        notifyProcessors(attachmentList, (processor, list) -> processor.process(actionNode, list));
-        actionNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
     public void visit(BLangEndpoint endpointNode) {

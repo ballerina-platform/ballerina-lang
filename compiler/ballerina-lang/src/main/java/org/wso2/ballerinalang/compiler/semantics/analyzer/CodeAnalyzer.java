@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -654,10 +653,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangForever foreverStatement) {
         this.lastStatement = true;
-    }
-
-    public void visit(BLangAction actionNode) {
-        /* not used, covered with functions */
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {

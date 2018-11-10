@@ -188,10 +188,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangAction actionNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangTypeDefinition typeDefinition) {
         throw new AssertionError();
     }

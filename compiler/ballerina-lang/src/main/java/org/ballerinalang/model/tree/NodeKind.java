@@ -22,7 +22,6 @@ package org.ballerinalang.model.tree;
  */
 public enum NodeKind {
 
-    ACTION,
     ANNOTATION,
     ANNOTATION_ATTACHMENT,
     ANNOTATION_ATTRIBUTE,

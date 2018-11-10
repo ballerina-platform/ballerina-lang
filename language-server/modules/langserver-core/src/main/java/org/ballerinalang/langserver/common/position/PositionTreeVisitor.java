@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -383,26 +382,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
         if (whileNode.body != null) {
             this.acceptNode(whileNode.body);
-        }
-    }
-
-    public void visit(BLangAction actionNode) {
-        addTopLevelNodeToContext(actionNode, actionNode.name.getValue(), actionNode.symbol.pkgID,
-                                 actionNode.symbol.kind.name(), actionNode.symbol.kind.name(), actionNode.symbol.owner);
-
-        setPreviousNode(actionNode);
-        this.addToNodeStack(actionNode);
-
-        if (actionNode.requiredParams != null) {
-            actionNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (actionNode.body != null) {
-            acceptNode(actionNode.body);
-        }
-
-        if (actionNode.workers != null) {
-            actionNode.workers.forEach(this::acceptNode);
         }
     }
 

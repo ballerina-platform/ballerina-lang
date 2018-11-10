@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -604,27 +603,6 @@ public class Desugar extends BLangNodeVisitor {
         resourceNode.body = rewrite(resourceNode.body, resourceEnv);
         resourceNode.workers = rewrite(resourceNode.workers, resourceEnv);
         result = resourceNode;
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        addReturnIfNotPresent(actionNode);
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, env);
-        Collections.reverse(actionNode.endpoints); // To preserve endpoint code gen order at action.
-        actionNode.endpoints = rewrite(actionNode.endpoints, actionEnv);
-        actionNode.body = rewrite(actionNode.body, actionEnv);
-        actionNode.workers = rewrite(actionNode.workers, actionEnv);
-
-        // we rewrite it's parameter list to have the receiver variable as the first parameter
-        BInvokableSymbol actionSymbol = actionNode.symbol;
-        List<BVarSymbol> params = actionSymbol.params;
-        BVarSymbol receiverSymbol = actionNode.symbol.receiverSymbol;
-        params.add(0, receiverSymbol);
-        BInvokableType actionType = (BInvokableType) actionSymbol.type;
-        if (receiverSymbol != null) {
-            actionType.paramTypes.add(0, receiverSymbol.type);
-        }
-        result = actionNode;
     }
 
     @Override

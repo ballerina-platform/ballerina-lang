@@ -19,7 +19,6 @@ package io.ballerina.test.compiler.plugins;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -45,15 +44,9 @@ public class XYZCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.ACTION_ANN, actionNode.getName().getValue(), annotations.size());
-    }
-
-    @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.FUNC_ANN, functionNode.getName().getValue(), annotations.size());
     }
-
 
     private void addEvent(TestEvent.Kind kind, String nodeName, int noOfAnnotations) {
         addEvent(new TestEvent(kind, nodeName, noOfAnnotations));

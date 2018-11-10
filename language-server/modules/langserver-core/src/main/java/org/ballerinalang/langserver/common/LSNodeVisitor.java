@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.common;
 
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -198,11 +197,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
         // No implementation
     }
 
