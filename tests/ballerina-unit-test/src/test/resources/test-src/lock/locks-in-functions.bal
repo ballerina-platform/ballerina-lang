@@ -107,26 +107,15 @@ function throwErrorInsideLock() returns (int, string) {
 
 function throwErrorInsideLockInsideTryFinally() returns (int, string) {
     worker w1 {
-        try {
-            lock {
-                runtime:sleep(50);
-                lockWithinLockInt1 = lockWithinLockInt1 + 1;
-                lockWithinLockString1 = "hello";
-                int ddd;
-                match <int>lockWithinLockString1 {
-                    int a => ddd = a;
-                    error err => panic err;
-                }
-            }
-        } catch (error e) {
+        var err = trap errorPanicInsideTryblock();
+        if (err is error) {
             runtime:sleep(10);
             lock {
                 lockWithinLockInt1 = lockWithinLockInt1 + 1;
             }
-        } finally {
-            lock {
-                lockWithinLockInt1 = lockWithinLockInt1 + 1;
-            }
+        }
+        lock {
+            lockWithinLockInt1 = lockWithinLockInt1 + 1;
         }
         return (lockWithinLockInt1, lockWithinLockString1);
     }
@@ -135,6 +124,21 @@ function throwErrorInsideLockInsideTryFinally() returns (int, string) {
         lock {
             lockWithinLockString1 = "worker 2 sets the string value after try catch finally";
             lockWithinLockInt1 = lockWithinLockInt1 + 50;
+        }
+    }
+}
+
+function errorPanicInsideTryblock() {
+    lock {
+        runtime:sleep(50);
+        lockWithinLockInt1 = lockWithinLockInt1 + 1;
+        lockWithinLockString1 = "hello";
+        int ddd;
+        var result = <int>lockWithinLockString1;
+        if (result is int) {
+            ddd = result;
+        } else if (result is error) {
+            panic result;
         }
     }
 }
