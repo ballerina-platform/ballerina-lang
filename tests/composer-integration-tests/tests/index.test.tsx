@@ -8,31 +8,35 @@ import SizingUtil from '@ballerina/diagram/lib/plugins/ballerina/diagram/views/d
 import EditableText from '@ballerina/diagram/lib/plugins/ballerina/diagram/views/default/components/decorators/editable-text';
 import DiagramMenu from '@ballerina/diagram/lib/plugins/ballerina/views/diagram-menu';
 import { create } from 'react-test-renderer';
-import { BallerinaLangClient, startBallerinaLangServer } from '@ballerina/lang-service';
+import { StdioBallerinaLangServer, createStdioLangClient, IBallerinaLangClient } from '@ballerina/lang-service';
 import { BallerinaAST } from '@ballerina/ast-model';
 
-let langClient: BallerinaLangClient;
-
+let langServer: StdioBallerinaLangServer;
+let langClient: IBallerinaLangClient;
 const bbeDir = path.join(balToolsPath, 'examples');
 
 beforeAll((done) => {
-    startBallerinaLangServer(balToolsPath)
-    .then((languageClient) => {
-        if (languageClient) {
-            langClient = languageClient;
-        } else {
-            console.log('Could not start LS properly');
-        }
-        done();
-    }, (reason) => {
-        console.log('Could not start LS properly');
-        console.log(reason);
-        done();
-    });
+    langServer = new StdioBallerinaLangServer(balToolsPath);
+    langServer.start();
+    if (langServer.lsProcess) {
+        createStdioLangClient(langServer.lsProcess, () => {}, () => {})
+            .then((client) => {
+                langClient = client;
+                done();
+            }, (reason) => {
+                console.log('Could not connect to LS properly');
+                console.log(reason);
+                done();
+            });
+    }
 });
 
-test('Lang-server is started properly', () => {
-    expect(langClient.initializedResult.capabilities.experimental.astProvider).toBe(true);
+test('Lang-server is started properly', (done) => {
+    langClient.init()
+        .then((result) => {
+            expect(result.capabilities.experimental.astProvider).toBe(true);
+            done();
+        });
 });
 
 function testDiagramRendering(ast: BallerinaAST,  uri: string) {
@@ -110,6 +114,7 @@ bbeFiles.forEach((file) => {
 
 afterAll(() => {
     if (langClient) {
-        langClient.kill();
+        langClient.close();
+        langServer.shutdown();
     }
 });
