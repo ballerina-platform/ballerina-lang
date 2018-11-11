@@ -3,7 +3,8 @@
         "tslint:latest"
     ],
     "rules": {
-        "interface-name":false
+        "interface-name": false,
+        "no-implicit-dependencies": [true, "dev"]
     },
     "linterOptions": {
         "exclude": [

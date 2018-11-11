@@ -1,13 +1,13 @@
 import { BallerinaAST } from "@ballerina/ast-model";
-// tslint:disable-next-line:no-implicit-dependencies
 import { stripIndent } from "common-tags";
 import * as fs from "fs";
 import bbeASTs from "../resources/bbe-asts.json";
 
 const modelInfo: any = {};
 
-bbeASTs.forEach((bbe: any) => {
-    findModelInfo(bbe.ast);
+bbeASTs.forEach((bbeASTPath: string) => {
+    const { ast } = require(`../resources/bbe-asts/${bbeASTPath}`);
+    findModelInfo(ast);
 });
 
 const interfaces = Object.keys(modelInfo).map((key) => {
