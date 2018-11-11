@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.BXMLType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -159,7 +160,7 @@ public class AnydataSealInbuiltFunctionTest {
                 BStringType.class);
 
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getName(), "int");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
@@ -189,7 +190,7 @@ public class AnydataSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
 
         Assert.assertEquals(mapValue.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue.get("age").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("age").getType().getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
         Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);

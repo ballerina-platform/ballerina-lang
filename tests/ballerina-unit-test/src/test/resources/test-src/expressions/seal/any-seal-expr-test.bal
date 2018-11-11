@@ -20,6 +20,22 @@ type PersonObj object {
     public string month = "february";
 };
 
+type Student record {
+    string name;
+    string status;
+    string batch;
+    string school;
+    !...
+};
+
+type Person record {
+    string name;
+    string status;
+    string batch;
+    string school;
+    !...
+};
+
 
 function sealAnyToJSON() returns json {
 
@@ -102,6 +118,21 @@ function sealAnyToAnydata() returns anydata {
     return anydataValue;
 }
 
+function sealAnytToConstraintJSON() returns json<Person> {
+
+    json<Student> student = { name: "Jon" };
+    student.status = "Single";
+    student.batch = "LK2014";
+    student.school = "Hindu College";
+
+    any anyValue = student;
+    json<Person> jsonValue = anyValue.seal(json<Person>);
+
+    return jsonValue;
+}
+
+//------------------------------- Negative Test cases ------------------------------------------------------------
+
 function sealAnyObjectToAnydata() returns anydata {
 
     any anyValue = new PersonObj();
@@ -109,3 +140,16 @@ function sealAnyObjectToAnydata() returns anydata {
 
     return anydataValue;
 }
+
+function sealAnyInvalidInput() returns json<Person>  {
+
+    stream<Employee> employeeStream;
+    Employee e1 = { name: "Raja", age: 25, salary: 20000 };
+    Employee e2 = { name: "Mohan", age: 45, salary: 10000 };
+
+    any anyValue = employeeStream;
+    json<Person> jsonValue = anyValue.seal(json<Person>);
+
+    return jsonValue;
+}
+

@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.BXMLType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -117,10 +118,10 @@ public class AnySealInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.getType().getClass(), BObjectType.class);
 
-        Assert.assertEquals(mapValue.getMap().get("age").getType().getName(), "int");
+        Assert.assertEquals(mapValue.getMap().get("age").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("age").stringValue(), "10");
 
-        Assert.assertEquals(mapValue.get("year").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("year").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("year").stringValue(), "2014");
 
         Assert.assertEquals(mapValue.get("month").getType().getClass(), BStringType.class);
@@ -178,7 +179,7 @@ public class AnySealInbuiltFunctionTest {
                 BStringType.class);
 
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).stringValue(), "25");
-        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getName(), "int");
+        Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("age")).getType().getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).stringValue(), "single");
         Assert.assertEquals(((BValue) ((BMap) tupleValue2).getMap().get("status")).getType().getClass(),
@@ -204,7 +205,7 @@ public class AnySealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
         Assert.assertEquals(mapValue.getMap().size(), 5);
 
-        Assert.assertEquals(mapValue.get("age").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("age").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("age").stringValue(), "25");
 
         Assert.assertEquals(mapValue.get("batch").getType().getClass(), BStringType.class);
@@ -214,6 +215,24 @@ public class AnySealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("school").stringValue(), "Hindu College");
     }
 
+    @Test
+    public void testSealAnyToConstraintJSON() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "sealAnytToConstraintJSON");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
+
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getName(), "Person");
+        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("batch").toString(), "LK2014");
+        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("batch")).getType().getClass(),
+                BStringType.class);
+
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -221,6 +240,13 @@ public class AnySealInbuiltFunctionTest {
                     "sealed as 'anydata'.*")
     public void testSealAnyObjectToAnydata() {
         BRunUtil.invoke(compileResult, "sealAnyObjectToAnydata");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: incompatible seal operation: 'stream' value cannot be sealed " +
+                    "as 'json<Person>'.*")
+    public void testSealAnyInvalidInput() {
+        BRunUtil.invoke(compileResult, "sealAnyInvalidInput");
     }
 }
 

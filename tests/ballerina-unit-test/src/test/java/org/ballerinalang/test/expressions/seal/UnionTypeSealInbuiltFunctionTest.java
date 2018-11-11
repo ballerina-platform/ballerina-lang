@@ -94,7 +94,7 @@ public class UnionTypeSealInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.getMap().get("age").getType().getName(), "int");
+        Assert.assertEquals(employee0.getMap().get("age").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(employee0.get("age").stringValue(), "10");
 
         Assert.assertEquals(employee0.get("year").getType().getClass(), BAnyType.class);

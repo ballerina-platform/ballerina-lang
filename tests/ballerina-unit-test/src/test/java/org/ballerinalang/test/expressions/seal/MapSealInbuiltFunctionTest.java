@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -64,10 +65,10 @@ public class MapSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.getType().getClass(), BRecordType.class);
         Assert.assertEquals(mapValue.getType().getName(), "IntRecord");
 
-        Assert.assertEquals(mapValue.get("a").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("a").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("a").stringValue(), "1");
 
-        Assert.assertEquals(mapValue.get("b").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("b").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("b").stringValue(), "2");
     }
 
@@ -82,10 +83,10 @@ public class MapSealInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.getType().getClass(), BJSONType.class);
 
-        Assert.assertEquals(mapValue.get("a").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("a").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("a").stringValue(), "1");
 
-        Assert.assertEquals(mapValue.get("b").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("b").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("b").stringValue(), "2");
     }
 
@@ -112,7 +113,7 @@ public class MapSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 2);
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals((((BMapType) mapValue.getType()).getConstrainedType().getName()), "int");
+        Assert.assertEquals((((BMapType) mapValue.getType()).getConstrainedType().getTag()), TypeTags.INT_TAG);
     }
 
     @Test
@@ -141,10 +142,10 @@ public class MapSealInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(mapValue.get("a").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("a").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("a").stringValue(), "1");
 
-        Assert.assertEquals(mapValue.get("b").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("b").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("b").stringValue(), "2");
     }
 
@@ -196,7 +197,7 @@ public class MapSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
 
         Assert.assertEquals(mapValue.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue.get("age").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("age").getType().getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
         Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
@@ -224,7 +225,7 @@ public class MapSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
 
         Assert.assertEquals(mapValue.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue.get("age").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("age").getType().getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
         Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
@@ -252,7 +253,7 @@ public class MapSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
 
         Assert.assertEquals(mapValue.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue.get("age").getType().getName(), "int");
+        Assert.assertEquals(mapValue.get("age").getType().getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
         Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
@@ -465,7 +466,7 @@ public class MapSealInbuiltFunctionTest {
         Assert.assertEquals(mapValue.getMap().size(), 2);
 
         Assert.assertEquals(((BValue) ((BMap) ((BMap) mapValue.getMap().get("a")).getMap().get("aa")).
-                getMap().get("aa")).getType().getName(), "int");
+                getMap().get("aa")).getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(((BValue) ((BMap) ((BMap) mapValue.getMap().get("a")).getMap().get("aa")).
                 getMap().get("aa")).stringValue(), "11");
     }
