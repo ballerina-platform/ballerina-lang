@@ -4,7 +4,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": [
-      "esnext"
+      "esnext",
+      "dom"
     ],
     "target": "es5",
     "strict": true,
@@ -15,7 +16,7 @@
     "stripInternal": true,
     "typeRoots": [
       "./node_modules/@types"
-    ]
+    ],
   },
   "include": [
     "src/**/*"
