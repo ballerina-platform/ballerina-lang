@@ -967,22 +967,30 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        // Handle records: RecordType r = wait {f1, f2} or record {int f1; string f2} = wait {f1, f2}
-        if (expType.tag == TypeTags.RECORD) {
-            checkTypesForRecords(waitForAllExpr);
-        } else if (expType.tag == TypeTags.MAP) { // Map with or without a constraint type (default constraint is any)
-            waitForAllExpr.keyValuePairs.forEach(keyVal -> checkWaitKeyValExpr(keyVal,
-                                                                               ((BMapType) expType).constraint));
-            resultType = expType;
-        } else if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.ANY) { // Change the expected type to map
-            waitForAllExpr.keyValuePairs.forEach(keyVal -> checkWaitKeyValExpr(keyVal, expType));
-            BFutureType futureType = new BFutureType(TypeTags.FUTURE, symTable.anyType, null);
-            resultType = new BMapType(TypeTags.MAP, futureType, symTable.mapType.tsymbol);
-        } else {
-            dlog.error(waitForAllExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
-            resultType = symTable.semanticError;
+        switch (expType.tag) {
+            case TypeTags.RECORD:
+                checkTypesForRecords(waitForAllExpr);
+                break;
+            case TypeTags.MAP:
+                checkTypesForMap(waitForAllExpr.keyValuePairs, ((BMapType) expType).constraint);
+                resultType = expType;
+                break;
+            case TypeTags.NONE:
+            case TypeTags.ANY:
+                checkTypesForMap(waitForAllExpr.keyValuePairs, expType);
+                BFutureType futureType = new BFutureType(TypeTags.FUTURE, symTable.anyType, null);
+                resultType = new BMapType(TypeTags.MAP, futureType, symTable.mapType.tsymbol);
+                break;
+            default:
+                dlog.error(waitForAllExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+                resultType = symTable.semanticError;
+                break;
         }
         waitForAllExpr.type = resultType;
+    }
+
+    private void checkTypesForMap(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyValuePairs, BType expType) {
+        keyValuePairs.forEach(keyVal -> checkWaitKeyValExpr(keyVal, expType));
     }
 
     private void checkTypesForRecords(BLangWaitForAllExpr waitExpr) {
@@ -1087,12 +1095,12 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangWaitExpr waitExpr) {
         expType = new BFutureType(TypeTags.FUTURE, expType, null);
         checkExpr(waitExpr.getExpression(), env, expType);
+        // Handle union types in lhs
         if (resultType.tag == TypeTags.UNION) {
             HashSet<BType> memberTypes = collectMemberTypes((BUnionType) resultType, new HashSet<>());
             resultType = new BUnionType(null, memberTypes, false);
-        } else if (resultType == symTable.semanticError) {
-            resultType = symTable.semanticError;
-        } else {
+        } else if (resultType != symTable.semanticError) {
+            // Handle other types except for semantic errors
             resultType = ((BFutureType) resultType).constraint;
         }
         waitExpr.type = resultType;
