@@ -1986,14 +1986,14 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWaitExpr awaitExpr) {
+    public void visit(BLangWaitExpr waitExpr) {
         // Wait for any
-        if (awaitExpr.getExpression().getKind() == NodeKind.BINARY_EXPR) {
-            awaitExpr.exprList = collectAllBinaryExprs((BLangBinaryExpr) awaitExpr.getExpression(), new ArrayList<>());
+        if (waitExpr.getExpression().getKind() == NodeKind.BINARY_EXPR) {
+            waitExpr.exprList = collectAllBinaryExprs((BLangBinaryExpr) waitExpr.getExpression(), new ArrayList<>());
         } else { // Wait for one
-            awaitExpr.exprList = Collections.singletonList(rewriteExpr(awaitExpr.getExpression()));
+            waitExpr.exprList = Collections.singletonList(rewriteExpr(waitExpr.getExpression()));
         }
-        result = awaitExpr;
+        result = waitExpr;
     }
 
     private List<BLangExpression> collectAllBinaryExprs(BLangBinaryExpr binaryExpr, List<BLangExpression> exprs) {
@@ -2012,8 +2012,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWaitForAllExpr awaitExpr) {
-        // ToDo
+    public void visit(BLangWaitForAllExpr waitExpr) {
+        waitExpr.keyValuePairs.forEach(keyValue -> {
+            if (keyValue.valueExpr != null) {
+                keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
+            } else {
+                keyValue.keyExpr = rewriteExpr(keyValue.keyExpr);
+            }
+        });
+        result = waitExpr;
     }
 
     @Override
