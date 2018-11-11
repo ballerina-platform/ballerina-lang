@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 endpoint grpc:Listener ep100 {
     port:9100
@@ -30,7 +30,9 @@ service HelloWorld100 bind ep100 {
         } else {
             err = caller->send(message);
         }
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 
@@ -38,7 +40,11 @@ service HelloWorld100 bind ep100 {
         io:println("age: " + age);
         int displayAge = age - 2;
         error? err = caller->send(displayAge);
-        io:println(err.message but { () => ("display age : " + displayAge) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("display age : " + displayAge);
+        }
         _ = caller->complete();
     }
 
@@ -46,7 +52,11 @@ service HelloWorld100 bind ep100 {
         io:println("gross salary: " + salary);
         float netSalary = salary * 0.88;
         error? err = caller->send(netSalary);
-        io:println(err.message but { () => ("net salary : " + netSalary) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("net salary : " + netSalary);
+        }
         _ = caller->complete();
     }
 
@@ -54,7 +64,11 @@ service HelloWorld100 bind ep100 {
         io:println("is available: " + available);
         boolean aval = available || true;
         error? err = caller->send(aval);
-        io:println(err.message but { () => ("avaliability : " + aval) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("avaliability : " + aval);
+        }
         _ = caller->complete();
     }
 
@@ -62,14 +76,22 @@ service HelloWorld100 bind ep100 {
         io:println(msg.name + " : " + msg.message);
         Response response = {resp:"Acknowledge " + msg.name};
         error? err = caller->send(response);
-        io:println(err.message but { () => ("msg : " + response.resp) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("msg : " + response.resp);
+        }
         _ = caller->complete();
     }
 
     testNoRequest(endpoint caller) {
         string resp = "service invoked with no request";
         error? err = caller->send(resp);
-        io:println(err.message but { () => ("response : " + resp) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("response : " + resp);
+        }
         _ = caller->complete();
     }
 

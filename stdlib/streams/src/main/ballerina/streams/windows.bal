@@ -45,7 +45,7 @@ public type LengthWindow object {
             if (linkedList.getSize() == size) {
                 match linkedList.removeFirst() {
                     StreamEvent streamEvent => {
-                        outputEvents[lengthof outputEvents] = streamEvent;
+                        outputEvents[outputEvents.length()] = streamEvent;
                     }
 
                     () => {
@@ -58,7 +58,7 @@ public type LengthWindow object {
                 }
             }
 
-            outputEvents[lengthof outputEvents] = event;
+            outputEvents[outputEvents.length()] = event;
             StreamEvent expiredVeresionOfEvent = event.clone();
             expiredVeresionOfEvent.eventType = "EXPIRED";
             linkedList.addLast(expiredVeresionOfEvent);
@@ -176,7 +176,7 @@ public type TimeWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -305,7 +305,7 @@ public type LengthBatchWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -431,7 +431,7 @@ public type TimeBatchWindow object {
                     outputStreamEvents.resetToFront();
                     while (outputStreamEvents.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>outputStreamEvents.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -538,7 +538,7 @@ public type ExternalTimeWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -826,9 +826,9 @@ public type ExternalTimeBatchWindow object {
 
         StreamEvent[] streamEvents = [];
         while (newEventChunk.hasNext()) {
-            streamEvents[lengthof streamEvents] = check <StreamEvent>newEventChunk.next();
+            streamEvents[streamEvents.length()] = check <StreamEvent>newEventChunk.next();
         }
-        if (streamEvents != null) {
+        if (streamEvents.length() != 0) {
             complexEventChunks.addLast(streamEvents);
         }
     }
@@ -895,9 +895,9 @@ public type ExternalTimeBatchWindow object {
 
         StreamEvent[] streamEvents = [];
         while (newEventChunk.hasNext()) {
-            streamEvents[lengthof streamEvents] = check <StreamEvent>newEventChunk.next();
+            streamEvents[streamEvents.length()] = check <StreamEvent>newEventChunk.next();
         }
-        if (streamEvents != null) {
+        if (streamEvents.length() != 0) {
             complexEventChunks.addLast(streamEvents);
         }
 
@@ -1016,7 +1016,7 @@ public type TimeLengthWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -1156,7 +1156,7 @@ public type UniqueLengthWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }
@@ -1271,7 +1271,7 @@ public type DelayWindow object {
                     streamEventChunk.resetToFront();
                     while (streamEventChunk.hasNext()) {
                         StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
+                        events[events.length()] = streamEvent;
                     }
                     nxtProc(events);
                 }

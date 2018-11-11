@@ -21,7 +21,7 @@ service<http:Service> xmlParserService bind { port: 9090 } {
             }
             error err => {
                 res.statusCode = 500;
-                res.setTextPayload(untaint err.message);
+                res.setTextPayload(untaint err.reason());
                 caller->respond(res) but {
                     error e => log:printError("Error sending response", err = e)
                 };

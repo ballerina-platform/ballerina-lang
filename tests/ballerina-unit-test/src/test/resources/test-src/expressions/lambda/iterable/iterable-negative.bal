@@ -5,7 +5,7 @@ function test1(){
     int x = 0;
     x.foreach(function (int i) { count = count + i;});
     string y = "foo";
-    y.map(function (string s) returns (int) { return lengthof s;});
+    y.map(function (string s) returns (int) { return s.length();});
 }
 
 function test2(){
@@ -33,10 +33,10 @@ function test4() {
                            return (s, "value");
                        });
     map m = z.filter(function (string s) returns boolean {
-          return s == null;
+          return s == "";
     });
     any x = z.filter(function (string s) returns boolean {
-         return s == null;
+         return s == "";
      });
 }
 

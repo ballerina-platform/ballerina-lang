@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -98,7 +99,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         try {
             Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode).parent)
-                    .globalVars).stream().filter(var -> ((BLangVariable) var).getName().getValue()
+                    .globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
                     .equals(DESCRIPTOR_MAP)).findFirst();
             if (descriptorMapVar.isPresent()) {
                 String proto = ((BLangRecordLiteral) descriptorMapVar.get().getInitialExpression())

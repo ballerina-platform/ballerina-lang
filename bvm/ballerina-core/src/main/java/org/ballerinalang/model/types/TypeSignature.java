@@ -24,6 +24,7 @@ public class TypeSignature {
     public static final String SIG_INT = "I";
     public static final String SIG_BYTE = "W";
     public static final String SIG_FLOAT = "F";
+    public static final String SIG_DECIMAL = "L";
     public static final String SIG_STRING = "S";
     public static final String SIG_BOOLEAN = "B";
     public static final String SIG_REFTYPE = "R";
@@ -37,6 +38,7 @@ public class TypeSignature {
     public static final String SIG_FUNCTION = "U";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";
+    public static final String SIG_ANYDATA = "K";
     public static final String SIG_TYPEDESC = "Y";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";

@@ -189,15 +189,16 @@ public class OpenRecordTest {
                 "noOfChildren:0, children:[]}, parent:null, mname:\"Bar\", height:5.9, firstName:\"John\"}");
     }
 
-    @Test(description = "Test non-existent any rest field RHS access", expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Test non-existent anydata rest field RHS access",
+          expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*cannot find key 'firstName'.*")
-    public void testAnyRestFieldRHSAccess() {
-        BRunUtil.invoke(compileResult, "testAnyRestFieldRHSAccess");
+    public void testAnydataRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testAnydataRestFieldRHSAccess");
     }
 
-    @Test(description = "Test non-existent any rest field RHS index-based access")
-    public void testAnyRestFieldRHSIndexAccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRestFieldRHSIndexAccess");
+    @Test(description = "Test non-existent anydata rest field RHS index-based access")
+    public void testAnydataRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnydataRestFieldRHSIndexAccess");
         Assert.assertNull(returns[0]);
     }
 
@@ -451,6 +452,35 @@ public class OpenRecordTest {
         Assert.assertEquals(((BFloat) tup.get(0)).floatValue(), 4.5);
         Assert.assertEquals(tup.get(1).stringValue(), "foo");
         Assert.assertEquals(((BMap) tup.get(2)).getType().getName(), "Animal");
+
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test(description = "Test any rest field")
+    public void testAnyRestField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRestField");
+
+        BMap person = (BMap) returns[0];
+        BRefValueArray pets = (BRefValueArray) person.get("pets");
+        Assert.assertEquals(pets.getType().toString(), "Animal[]");
+        Assert.assertEquals(person.stringValue(),
+                "{name:\"Foo\", age:25, pets:[{kind:\"Cat\", name:\"Miaw\"}, {kind:\"Dog\", name:\"Woof\"}]}");
+    }
+
+    @Test(description = "Test non-existent any rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*cannot find key 'anyField'.*")
+    public void testAnyRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testAnyRestFieldRHSAccess");
+    }
+
+    @Test(description = "Test non-existent any rest field RHS index-based access")
+    public void testAnyRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRestFieldRHSIndexAccess");
+        BRefValueArray tup = (BRefValueArray) returns[0];
+
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(tup.getType().toString(), "Animal[]");
+        Assert.assertEquals(tup.stringValue(), "[{kind:\"Cat\", name:\"Miaw\"}, {kind:\"Dog\", name:\"Woof\"}]");
 
         Assert.assertNull(returns[1]);
     }

@@ -129,17 +129,14 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
     boolean httpClientRequired = false;
     string uri = loadBalanceClientConfig.targets[0].url;
     var cbConfig = loadBalanceClientConfig.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.substring(0, lastIndex);
-            }
-            httpClientRequired = false;
+    if (cbConfig is CircuitBreakerConfig) {
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.substring(0, lastIndex);
         }
-        () => {
-            httpClientRequired = true;
-        }
+        httpClientRequired = false;
+    } else {
+        httpClientRequired = true;
     }
 
     foreach target in loadBalanceClientConfig.targets {
@@ -152,17 +149,14 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, epConfig);
         } else {
-            var retryConfigVal = epConfig.retryConfig;
-            match retryConfigVal {
-                RetryConfig retryConfig => {
-                    httpClients[i] = createRetryClient(uri, epConfig);
-                }
-                () => {
-                    if (epConfig.cache.enabled) {
-                        httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
-                    } else {
-                        httpClients[i] = createHttpSecureClient(uri, epConfig);
-                    }
+            var retryConfig = epConfig.retryConfig;
+            if (retryConfig is RetryConfig) {
+                httpClients[i] = createRetryClient(uri, epConfig);
+            } else {
+                if (epConfig.cache.enabled) {
+                    httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
+                } else {
+                    httpClients[i] = createHttpSecureClient(uri, epConfig);
                 }
             }
         }

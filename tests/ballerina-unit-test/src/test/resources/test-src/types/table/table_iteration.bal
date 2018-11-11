@@ -153,7 +153,7 @@ function testFilterTable() returns (int, int, int) {
 
     table<Person> dt = check testDB->select("SELECT * from Person", Person);
     Person[] personBelow35 = dt.filter(isBelow35);
-    int count = lengthof personBelow35;
+    int count = personBelow35.length();
     int id1 = personBelow35[0].id;
     int id2 = personBelow35[1].id;
     testDB.stop();
@@ -173,7 +173,7 @@ function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
     Person[] personBelow35 = dt.filter(function (Person p) returns (boolean) {
             return p.age < 35;
         });
-    int count = lengthof personBelow35;
+    int count = personBelow35.length();
     int id1 = personBelow35[0].id;
     int id2 = personBelow35[1].id;
     testDB.stop();
@@ -411,9 +411,9 @@ function getSalary(Person p) returns (float) {
 }
 
 function isGeraterThan4(Person p) returns (boolean) {
-    return lengthof p.name > 4;
+    return p.name.length() > 4;
 }
 
 function isGeraterThan4String(string s) returns (boolean) {
-    return lengthof s > 4;
+    return s.length() > 4;
 }

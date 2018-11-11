@@ -590,3 +590,53 @@ service<http:Service> testService bind testEP {
         int b = a;
     }
 }
+
+function testDataflowWithPanic() returns string {
+    error e = error("some error");
+    string msg;
+    if (true) {
+        if (true) {
+            msg = "1";
+        } else {
+            panic e;
+        }
+    } else {
+        msg = "n/a";
+    }
+
+    return msg;
+}
+
+function testDataflowWithNestedPanic_1() returns string {
+    error e = error("some error");
+    string msg;
+    if (true) {
+        panic e;
+        if (true) {
+            msg = "1";
+        } else {
+            panic e;
+        }
+    } else {
+        // do nothing
+    }
+
+    return msg;
+}
+
+function testDataflowWithNestedPanic_2() returns string {
+    error e = error("some error");
+    string msg;
+    if (true) {
+        panic e;
+        if (true) {
+            // do nothing
+        } else {
+            panic e;
+        }
+    } else {
+        msg = "1";
+    }
+
+    return msg;
+}

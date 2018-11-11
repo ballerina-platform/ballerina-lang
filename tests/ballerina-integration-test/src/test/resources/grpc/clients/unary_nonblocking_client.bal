@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 import ballerina/runtime;
 
 int total = 0;
@@ -27,7 +27,7 @@ function testUnaryNonBlockingClient() returns int {
     error? result = helloWorldEp->hello("WSO2", HelloWorldMessageListener);
     match result {
         error payloadError => {
-            io:println("Error occured while sending event " + payloadError.message);
+            io:println("Error occured while sending event " + payloadError.reason());
             return total;
         }
         () => {
@@ -60,9 +60,7 @@ service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server error messages
     onError(error err) {
-        if (err != null) {
-            io:println("Error reported from server: " + err.message);
-        }
+        io:println("Error reported from server: " + err.reason());
     }
 
     // Resource registered to receive server completed message.

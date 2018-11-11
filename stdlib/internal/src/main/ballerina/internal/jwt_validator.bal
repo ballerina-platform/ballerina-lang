@@ -71,7 +71,7 @@ public function validate(string jwtToken, JWTValidatorConfig config) returns Jwt
 
 function getJWTComponents(string jwtToken) returns (string[])|error {
     string[] jwtComponents = jwtToken.split("\\.");
-    if (lengthof jwtComponents != 3) {
+    if (jwtComponents.length() != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
         error err = error("Invalid JWT token");
         return err;
@@ -128,7 +128,7 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
         } else if (key == KID) {
             jwtHeader.kid = jwtHeaderJson[key].toString();
         } else {
-            if (lengthof jwtHeaderJson[key] > 0) {
+            if (jwtHeaderJson[key].length() > 0) {
                 customClaims[key] = convertToStringArray(jwtHeaderJson[key]);
             } else {
                 customClaims[key] = jwtHeaderJson[key].toString();
@@ -163,7 +163,7 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             jwtPayload.iat = <int>value but { error => 0 };
         }
         else {
-            if (lengthof jwtPayloadJson[key] > 0) {
+            if (jwtPayloadJson[key].length() > 0) {
                 customClaims[key] = convertToStringArray(jwtPayloadJson[key]);
             } else {
                 customClaims[key] = jwtPayloadJson[key].toString();
@@ -206,7 +206,7 @@ config) returns (boolean|error) {
 }
 
 function validateMandatoryFields(JwtPayload jwtPayload) returns (boolean) {
-    if (jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || lengthof jwtPayload.aud == 0) {
+    if (jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || jwtPayload.aud.length() == 0) {
         return false;
     }
     return true;
@@ -251,9 +251,9 @@ function validateNotBeforeTime(JwtPayload jwtPayload) returns (boolean) {
 
 function convertToStringArray(json jsonData) returns (string[]) {
     string[] outData = [];
-    if (lengthof jsonData > 0) {
+    if (jsonData.length() > 0) {
         int i = 0;
-        while (i < lengthof jsonData) {
+        while (i < jsonData.length()) {
             outData[i] = jsonData[i].toString();
             i = i + 1;
         }

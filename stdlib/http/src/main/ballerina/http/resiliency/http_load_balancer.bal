@@ -297,20 +297,19 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
         }
     }
 
-    while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
+    while (loadBalanceTermination < lb.loadBalanceClientsArray.length()) {
         CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
 
-        match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
-            Response inResponse => return inResponse;
-
-            error httpActionErr => {
-                if (!lb.failover) {
-                    return httpActionErr;
-                } else {
-                    loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
-                    loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = httpActionErr;
-                    loadBalanceTermination = loadBalanceTermination + 1;
-                }
+        var serviceResponse = invokeEndpoint(path, request, requestAction, loadBalanceClient);
+        if (serviceResponse is Response) {
+            return serviceResponse;
+        } else if (serviceResponse is error) {
+            if (lb.failover) {
+                loadBlancerInRequest = createFailoverRequest(loadBlancerInRequest, requestEntity);
+                loadBalanceActionErrorData.httpActionErr[lb.nextIndex] = serviceResponse;
+                loadBalanceTermination = loadBalanceTermination + 1;
+            } else {
+                return serviceResponse;
             }
         }
     }
@@ -327,7 +326,7 @@ public function roundRobin(LoadBalancerActions lb, CallerActions[] loadBalanceCo
     CallerActions httpClient = new;
 
     lock {
-        if (lb.nextIndex == ((lengthof (loadBalanceConfigArray)) - 1)) {
+        if (lb.nextIndex == (((loadBalanceConfigArray.length())) - 1)) {
             httpClient = loadBalanceConfigArray[lb.nextIndex];
             lb.nextIndex = 0;
         } else {
@@ -342,7 +341,7 @@ public function roundRobin(LoadBalancerActions lb, CallerActions[] loadBalanceCo
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
 function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBalanceActionErrorData)
                                                     returns error {
-    int nErrs = lengthof loadBalanceActionErrorData.httpActionErr;
+    int nErrs = loadBalanceActionErrorData.httpActionErr.length();
     loadBalanceActionErrorData.statusCode = INTERNAL_SERVER_ERROR_500;
     loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: "
                                         + loadBalanceActionErrorData.httpActionErr[nErrs - 1].reason();

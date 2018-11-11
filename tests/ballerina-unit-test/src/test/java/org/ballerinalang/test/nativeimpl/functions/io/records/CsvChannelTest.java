@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -93,8 +94,8 @@ public class CsvChannelTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(IOConstants.IO_EOF, error.getMap().get("message").toString());
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -135,8 +136,8 @@ public class CsvChannelTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(IOConstants.IO_EOF, error.getMap().get("message").toString());
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -250,8 +251,8 @@ public class CsvChannelTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(IOConstants.IO_EOF, error.getMap().get("message").toString());
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -292,8 +293,8 @@ public class CsvChannelTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(IOConstants.IO_EOF, error.getMap().get("message").toString());
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];

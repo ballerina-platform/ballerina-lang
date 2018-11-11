@@ -30,7 +30,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -91,7 +91,7 @@ public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
             case RESOURCE_NAME_ON_CREATE:
             case RESOURCE_NAME_ON_DELETE:
             case RESOURCE_NAME_ON_MODIFY:
-                final List<BLangVariable> parameters = resource.getParameters();
+                final List<BLangSimpleVariable> parameters = resource.getParameters();
                 String msg =
                         "Invalid resource signature for " + resource.getName().getValue() + " in service " + serviceName
                                 + ". The parameter should be a file:FileEvent";

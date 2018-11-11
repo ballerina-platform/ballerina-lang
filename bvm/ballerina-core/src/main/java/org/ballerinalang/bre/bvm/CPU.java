@@ -49,6 +49,7 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
@@ -108,6 +109,7 @@ import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -123,12 +125,16 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.PrintStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -211,6 +217,12 @@ public class CPU {
                         cpIndex = operands[0];
                         i = operands[1];
                         sf.doubleRegs[i] = ((FloatCPEntry) ctx.constPool[cpIndex]).getValue();
+                        break;
+                    case InstructionCodes.DCONST:
+                        cpIndex = operands[0];
+                        i = operands[1];
+                        String decimalVal = ((UTF8CPEntry) ctx.constPool[cpIndex]).getValue();
+                        sf.refRegs[i] = new BDecimal(new BigDecimal(decimalVal, MathContext.DECIMAL128));
                         break;
                     case InstructionCodes.SCONST:
                         cpIndex = operands[0];
@@ -330,29 +342,39 @@ public class CPU {
                     case InstructionCodes.IADD:
                     case InstructionCodes.FADD:
                     case InstructionCodes.SADD:
+                    case InstructionCodes.DADD:
                     case InstructionCodes.XMLADD:
                     case InstructionCodes.ISUB:
                     case InstructionCodes.FSUB:
+                    case InstructionCodes.DSUB:
                     case InstructionCodes.IMUL:
                     case InstructionCodes.FMUL:
+                    case InstructionCodes.DMUL:
                     case InstructionCodes.IDIV:
                     case InstructionCodes.FDIV:
+                    case InstructionCodes.DDIV:
                     case InstructionCodes.IMOD:
                     case InstructionCodes.FMOD:
+                    case InstructionCodes.DMOD:
                     case InstructionCodes.INEG:
                     case InstructionCodes.FNEG:
+                    case InstructionCodes.DNEG:
                     case InstructionCodes.BNOT:
                     case InstructionCodes.IEQ:
                     case InstructionCodes.FEQ:
                     case InstructionCodes.SEQ:
                     case InstructionCodes.BEQ:
+                    case InstructionCodes.DEQ:
                     case InstructionCodes.REQ:
+                    case InstructionCodes.REF_EQ:
                     case InstructionCodes.TEQ:
                     case InstructionCodes.INE:
                     case InstructionCodes.FNE:
                     case InstructionCodes.SNE:
                     case InstructionCodes.BNE:
+                    case InstructionCodes.DNE:
                     case InstructionCodes.RNE:
+                    case InstructionCodes.REF_NEQ:
                     case InstructionCodes.TNE:
                     case InstructionCodes.IAND:
                     case InstructionCodes.BIAND:
@@ -386,19 +408,21 @@ public class CPU {
                         break;
                     case InstructionCodes.IGT:
                     case InstructionCodes.FGT:
+                    case InstructionCodes.DGT:
                     case InstructionCodes.IGE:
                     case InstructionCodes.FGE:
+                    case InstructionCodes.DGE:
                     case InstructionCodes.ILT:
                     case InstructionCodes.FLT:
+                    case InstructionCodes.DLT:
                     case InstructionCodes.ILE:
                     case InstructionCodes.FLE:
+                    case InstructionCodes.DLE:
                     case InstructionCodes.REQ_NULL:
                     case InstructionCodes.RNE_NULL:
                     case InstructionCodes.BR_TRUE:
                     case InstructionCodes.BR_FALSE:
                     case InstructionCodes.GOTO:
-                    case InstructionCodes.SEQ_NULL:
-                    case InstructionCodes.SNE_NULL:
                         execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
                         break;
                     case InstructionCodes.INT_RANGE:
@@ -547,6 +571,7 @@ public class CPU {
                     case InstructionCodes.ANY2F:
                     case InstructionCodes.ANY2S:
                     case InstructionCodes.ANY2B:
+                    case InstructionCodes.ANY2D:
                     case InstructionCodes.ARRAY2JSON:
                     case InstructionCodes.JSON2ARRAY:
                     case InstructionCodes.ANY2JSON:
@@ -566,17 +591,25 @@ public class CPU {
                     case InstructionCodes.I2F:
                     case InstructionCodes.I2S:
                     case InstructionCodes.I2B:
+                    case InstructionCodes.I2D:
                     case InstructionCodes.I2BI:
                     case InstructionCodes.BI2I:
                     case InstructionCodes.F2I:
                     case InstructionCodes.F2S:
                     case InstructionCodes.F2B:
+                    case InstructionCodes.F2D:
                     case InstructionCodes.S2I:
                     case InstructionCodes.S2F:
                     case InstructionCodes.S2B:
+                    case InstructionCodes.S2D:
                     case InstructionCodes.B2I:
                     case InstructionCodes.B2F:
                     case InstructionCodes.B2S:
+                    case InstructionCodes.B2D:
+                    case InstructionCodes.D2I:
+                    case InstructionCodes.D2F:
+                    case InstructionCodes.D2S:
+                    case InstructionCodes.D2B:
                     case InstructionCodes.DT2XML:
                     case InstructionCodes.DT2JSON:
                     case InstructionCodes.T2MAP:
@@ -686,6 +719,7 @@ public class CPU {
                         callersRetRegIndex = ctx.retRegIndexes[i];
                         callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
                         break;
+                    case InstructionCodes.DRET:
                     case InstructionCodes.RRET:
                         i = operands[0];
                         j = operands[1];
@@ -1089,6 +1123,11 @@ public class CPU {
                             TypeTags.FLOAT_TAG);
                     break;
                 }
+                case TypeTags.DECIMAL_TAG: {
+                    fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index], BTypes.typeDecimal),
+                            TypeTags.DECIMAL_TAG);
+                    break;
+                }
                 case TypeTags.BOOLEAN_TAG: {
                     fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1),
                                     BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
@@ -1111,6 +1150,9 @@ public class CPU {
         int i;
         int j;
         int k;
+        BigDecimal lhsValue;
+        BigDecimal rhsValue;
+
         switch (opcode) {
             case InstructionCodes.IGT:
                 i = operands[0];
@@ -1123,6 +1165,14 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.doubleRegs[i] > sf.doubleRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.DGT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) > 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.IGE:
@@ -1137,6 +1187,14 @@ public class CPU {
                 k = operands[2];
                 sf.intRegs[k] = sf.doubleRegs[i] >= sf.doubleRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.DGE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) >= 0 ? 1 : 0;
+                break;
 
             case InstructionCodes.ILT:
                 i = operands[0];
@@ -1150,6 +1208,14 @@ public class CPU {
                 k = operands[2];
                 sf.intRegs[k] = sf.doubleRegs[i] < sf.doubleRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.DLT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) < 0 ? 1 : 0;
+                break;
 
             case InstructionCodes.ILE:
                 i = operands[0];
@@ -1162,6 +1228,14 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.doubleRegs[i] <= sf.doubleRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.DLE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) <= 0 ? 1 : 0;
                 break;
 
             case InstructionCodes.REQ_NULL:
@@ -1177,24 +1251,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 if (sf.refRegs[i] != null) {
-                    sf.intRegs[j] = 1;
-                } else {
-                    sf.intRegs[j] = 0;
-                }
-                break;
-            case InstructionCodes.SEQ_NULL:
-                i = operands[0];
-                j = operands[1];
-                if (sf.stringRegs[i] == null) {
-                    sf.intRegs[j] = 1;
-                } else {
-                    sf.intRegs[j] = 0;
-                }
-                break;
-            case InstructionCodes.SNE_NULL:
-                i = operands[0];
-                j = operands[1];
-                if (sf.stringRegs[i] != null) {
                     sf.intRegs[j] = 1;
                 } else {
                     sf.intRegs[j] = 0;
@@ -1243,6 +1299,7 @@ public class CPU {
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
         BMap<String, BRefType> bMap;
+
         switch (opcode) {
             case InstructionCodes.IMOVE:
                 lvIndex = operands[0];
@@ -1425,6 +1482,7 @@ public class CPU {
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
         BMap<String, BRefType> bMap;
+
         switch (opcode) {
             case InstructionCodes.IASTORE:
                 i = operands[0];
@@ -1586,6 +1644,9 @@ public class CPU {
         int i;
         int j;
         int k;
+        BigDecimal lhsValue;
+        BigDecimal rhsValue;
+
         switch (opcode) {
             case InstructionCodes.IADD:
                 i = operands[0];
@@ -1604,6 +1665,14 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
+                break;
+            case InstructionCodes.DADD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(lhsValue.add(rhsValue, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.XMLADD:
                 i = operands[0];
@@ -1627,6 +1696,14 @@ public class CPU {
                 k = operands[2];
                 sf.doubleRegs[k] = sf.doubleRegs[i] - sf.doubleRegs[j];
                 break;
+            case InstructionCodes.DSUB:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(lhsValue.subtract(rhsValue, MathContext.DECIMAL128));
+                break;
             case InstructionCodes.IMUL:
                 i = operands[0];
                 j = operands[1];
@@ -1638,6 +1715,14 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.doubleRegs[k] = sf.doubleRegs[i] * sf.doubleRegs[j];
+                break;
+            case InstructionCodes.DMUL:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.refRegs[k] = new BDecimal(lhsValue.multiply(rhsValue, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.IDIV:
                 i = operands[0];
@@ -1655,13 +1740,21 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                if (sf.doubleRegs[j] == 0) {
+                sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
+                break;
+            case InstructionCodes.DDIV:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
                     ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
                     handleError(ctx);
                     break;
                 }
 
-                sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
+                sf.refRegs[k] = new BDecimal(lhsValue.divide(rhsValue, MathContext.DECIMAL128));
                 break;
             case InstructionCodes.IMOD:
                 i = operands[0];
@@ -1687,6 +1780,20 @@ public class CPU {
 
                 sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
                 break;
+            case InstructionCodes.DMOD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
+                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+                    handleError(ctx);
+                    break;
+                }
+
+                sf.refRegs[k] = new BDecimal(lhsValue.remainder(rhsValue, MathContext.DECIMAL128));
+                break;
             case InstructionCodes.INEG:
                 i = operands[0];
                 j = operands[1];
@@ -1696,6 +1803,12 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.doubleRegs[j] = -sf.doubleRegs[i];
+                break;
+            case InstructionCodes.DNEG:
+                i = operands[0];
+                j = operands[1];
+                BigDecimal value = ((BDecimal) sf.refRegs[i]).decimalValue();
+                sf.refRegs[j] = new BDecimal(value.negate());
                 break;
             case InstructionCodes.BNOT:
                 i = operands[0];
@@ -1726,6 +1839,14 @@ public class CPU {
                 k = operands[2];
                 sf.intRegs[k] = sf.intRegs[i] == sf.intRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.DEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) == 0 ? 1 : 0;
+                break;
             case InstructionCodes.REQ:
                 i = operands[0];
                 j = operands[1];
@@ -1733,8 +1854,14 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                    sf.intRegs[k] = isEqual(sf.refRegs[i], sf.refRegs[j]) ? 1 : 0;
                 }
+                break;
+            case InstructionCodes.REF_EQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.TEQ:
                 i = operands[0];
@@ -1770,6 +1897,14 @@ public class CPU {
                 k = operands[2];
                 sf.intRegs[k] = sf.intRegs[i] != sf.intRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.DNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
+                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
+                sf.intRegs[k] = lhsValue.compareTo(rhsValue) != 0 ? 1 : 0;
+                break;
             case InstructionCodes.RNE:
                 i = operands[0];
                 j = operands[1];
@@ -1777,8 +1912,14 @@ public class CPU {
                 if (sf.refRegs[i] == null) {
                     sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
                 } else {
-                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
+                    sf.intRegs[k] = (!isEqual(sf.refRegs[i], sf.refRegs[j])) ? 1 : 0;
                 }
+                break;
+            case InstructionCodes.REF_NEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.TNE:
                 i = operands[0];
@@ -2033,6 +2174,11 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = ((BBoolean) sf.refRegs[i]).booleanValue() ? 1 : 0;
                 break;
+            case InstructionCodes.ANY2D:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BDecimal(((BValueType) sf.refRegs[i]).decimalValue());
+                break;
             case InstructionCodes.ANY2JSON:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeJSON);
                 break;
@@ -2123,6 +2269,11 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = sf.longRegs[i] != 0 ? 1 : 0;
                 break;
+            case InstructionCodes.I2D:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BDecimal(new BigDecimal(sf.longRegs[i], MathContext.DECIMAL128));
+                break;
             case InstructionCodes.I2BI:
                 i = operands[0];
                 j = operands[1];
@@ -2152,6 +2303,11 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = sf.doubleRegs[i] != 0.0 ? 1 : 0;
                 break;
+            case InstructionCodes.F2D:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BDecimal(new BigDecimal(sf.doubleRegs[i], MathContext.DECIMAL128));
+                break;
             case InstructionCodes.S2I:
                 i = operands[0];
                 j = operands[1];
@@ -2179,6 +2335,17 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
                 break;
+            case InstructionCodes.S2D:
+                i = operands[0];
+                j = operands[1];
+
+                str = sf.stringRegs[i];
+                try {
+                    sf.refRegs[j] = new BDecimal(new BigDecimal(str, MathContext.DECIMAL128));
+                } catch (NumberFormatException e) {
+                    handleTypeConversionError(ctx, sf, j, TypeConstants.STRING_TNAME, TypeConstants.DECIMAL_TNAME);
+                }
+                break;
             case InstructionCodes.B2I:
                 i = operands[0];
                 j = operands[1];
@@ -2193,6 +2360,31 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.stringRegs[j] = sf.intRegs[i] == 1 ? "true" : "false";
+                break;
+            case InstructionCodes.B2D:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = sf.intRegs[i] == 1 ? new BDecimal(BigDecimal.ONE) : new BDecimal(BigDecimal.ZERO);
+                break;
+            case InstructionCodes.D2I:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = ((BDecimal) sf.refRegs[i]).intValue();
+                break;
+            case InstructionCodes.D2F:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = ((BDecimal) sf.refRegs[i]).floatValue();
+                break;
+            case InstructionCodes.D2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = sf.refRegs[i].stringValue();
+                break;
+            case InstructionCodes.D2B:
+                i = operands[0];
+                j = operands[1];
+                sf.intRegs[j] = ((BDecimal) sf.refRegs[i]).decimalValue().compareTo(BigDecimal.ZERO) != 0 ? 1 : 0;
                 break;
             case InstructionCodes.DT2XML:
                 i = operands[0];
@@ -2912,7 +3104,10 @@ public class CPU {
     }
 
     private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
-        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.FLOAT_TAG) {
+        if (rhsType.getTag() == TypeTags.INT_TAG &&
+                (lhsType.getTag() == TypeTags.FLOAT_TAG || lhsType.getTag() == TypeTags.DECIMAL_TAG)) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.DECIMAL_TAG) {
             return true;
         } else if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
             return true;
@@ -2922,6 +3117,7 @@ public class CPU {
             switch (rhsType.getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG:
                 case TypeTags.NULL_TAG:
@@ -2960,6 +3156,10 @@ public class CPU {
 
         if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG && lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
             return checkFunctionCast(rhsType, (BFunctionType) lhsType);
+        }
+
+        if (lhsType.getTag() == TypeTags.ANYDATA_TAG && isAnydata(rhsType)) {
+            return true;
         }
 
         return false;
@@ -3025,6 +3225,40 @@ public class CPU {
             }
         }
         return true;
+    }
+
+    private static boolean isAnydata(BType type) {
+        if (type.getTag() <= TypeTags.ANYDATA_TAG) {
+            return true;
+        }
+
+        switch (type.getTag()) {
+            case TypeTags.MAP_TAG:
+                return isAnydata(((BMapType) type).getConstrainedType());
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes = Arrays.stream(recordType.getFields())
+                                                .map(BField::getFieldType)
+                                                .collect(Collectors.toList());
+                return isAnydata(fieldTypes) && (recordType.sealed || isAnydata(recordType.restFieldType));
+            case TypeTags.UNION_TAG:
+                return isAnydata(((BUnionType) type).getMemberTypes());
+            case TypeTags.TUPLE_TAG:
+                return isAnydata(((BTupleType) type).getTupleTypes());
+            case TypeTags.ARRAY_TAG:
+                return isAnydata(((BArrayType) type).getElementType());
+            case TypeTags.FINITE_TYPE_TAG:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                                                                        .map(BValue::getType)
+                                                                        .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean isAnydata(Collection<BType> types) {
+        return types.stream().allMatch(CPU::isAnydata);
     }
 
     private static BType getElementType(BType type) {
@@ -3332,6 +3566,8 @@ public class CPU {
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return json != null && json.getType().getTag() == targetType.getTag();
+            case TypeTags.DECIMAL_TAG:
+                return json != null && json.getType().getTag() == TypeTags.FLOAT_TAG;
             case TypeTags.ARRAY_TAG:
                 if (json == null || json.getType().getTag() != TypeTags.ARRAY_TAG) {
                     return false;
@@ -3358,6 +3594,7 @@ public class CPU {
                 }
                 return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
+            case TypeTags.ANYDATA_TAG:
                 return true;
             default:
                 return false;
@@ -3485,7 +3722,7 @@ public class CPU {
     private static BMap<String, BValue> convertMapToStruct(WorkerExecutionContext ctx,
                                                            BMap<String, BValue> bMap, BStructureType structType) {
         BMap<String, BValue> bStruct = new BMap<>(structType);
-        StructureTypeInfo structInfo = ctx.callableUnitInfo.getPackageInfo().getStructInfo(structType.getName());
+        StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
 
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             String key = fieldInfo.getName();
@@ -3505,6 +3742,9 @@ public class CPU {
                             continue;
                         case TypeTags.FLOAT_TAG:
                             bStruct.put(key, new BFloat(defaultValAttrInfo.getDefaultValue().getFloatValue()));
+                            continue;
+                        case TypeTags.DECIMAL_TAG:
+                            bStruct.put(key, new BDecimal(defaultValAttrInfo.getDefaultValue().getDecimalValue()));
                             continue;
                         case TypeTags.STRING_TAG:
                             bStruct.put(key, new BString(defaultValAttrInfo.getDefaultValue().getStringValue()));
@@ -3598,7 +3838,9 @@ public class CPU {
         ip--;
         ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip);
         if (match != null) {
-            ctx.ip = match.getIpTarget();
+            ctx.ip = match.ipTarget;
+            ctx.workerLocal.refRegs[match.regIndex] = ctx.getError();
+            ctx.setError(null);
         } else {
             BLangScheduler.workerExcepted(ctx);
             throw new HandleErrorException(
@@ -3635,6 +3877,11 @@ public class CPU {
 
         if (typeTag == TypeTags.XML_TAG) {
             sf.longRegs[j] = ((BXML) entity).length();
+            return;
+        } else if (typeTag == TypeTags.TABLE_TAG) {
+            BTable bTable = (BTable) entity;
+            int tableLength = bTable.length();
+            sf.longRegs[j] = tableLength;
             return;
         } else if (entity instanceof BMap) {
             sf.longRegs[j] = ((BMap) entity).size();
@@ -3819,6 +4066,7 @@ public class CPU {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.BYTE_TAG:
@@ -3844,6 +4092,7 @@ public class CPU {
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
                 return true;
+            case TypeTags.ANYDATA_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
                 return isAssignable(sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -3865,7 +4114,7 @@ public class CPU {
 
     private static boolean checkIsJSONType(BType sourceType, BJSONType targetType,
                                          List<TypePair> unresolvedTypes) {
-        // If the target is an constrained JSON, then value also should be of 
+        // If the target is an constrained JSON, then value also should be of
         // constrained JSON type. And the constraints should satisfy 'is type'
         // relationship.
         if (targetType.getConstrainedType() != null) {
@@ -3885,6 +4134,7 @@ public class CPU {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
                 return true;
@@ -4008,6 +4258,111 @@ public class CPU {
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+    }
+
+    /**
+     * Deep value equality check for anydata.
+     *
+     * @param lhsValue  The value on the left hand side
+     * @param rhsValue  The value on the right hand side
+     * @return True if values are equal, else false.
+     */
+    private static boolean isEqual(BValue lhsValue, BValue rhsValue) {
+        if (lhsValue == rhsValue) {
+            return true;
+        }
+
+        if (null == lhsValue || null == rhsValue) {
+            return false;
+        }
+
+        int lhsValTypeTag = lhsValue.getType().getTag();
+        int rhsValTypeTag = rhsValue.getType().getTag();
+
+        switch (lhsValTypeTag) {
+            case TypeTags.STRING_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+            case TypeTags.BOOLEAN_TAG:
+                return lhsValue.equals(rhsValue);
+            case TypeTags.INT_TAG:
+                if (rhsValTypeTag == TypeTags.BYTE_TAG) {
+                    return ((BInteger) lhsValue).intValue() == (((BByte) rhsValue).intValue());
+                }
+                return lhsValue.equals(rhsValue);
+            case TypeTags.BYTE_TAG:
+                if (rhsValTypeTag == TypeTags.INT_TAG) {
+                    return ((BByte) lhsValue).intValue() == (((BInteger) rhsValue).intValue());
+                }
+                return lhsValue.equals(rhsValue);
+            case TypeTags.XML_TAG:
+                return XMLUtils.isEqual((BXML) lhsValue, (BXML) rhsValue);
+            case TypeTags.TABLE_TAG:
+                // TODO: 10/8/18
+                break;
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                return isMappingType(rhsValTypeTag) && isEqual((BMap) lhsValue, (BMap) rhsValue);
+            case TypeTags.TUPLE_TAG:
+            case TypeTags.ARRAY_TAG:
+                return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue);
+        }
+        return false;
+    }
+
+    private static boolean isListType(int typeTag) {
+        return typeTag == TypeTags.ARRAY_TAG || typeTag == TypeTags.TUPLE_TAG;
+    }
+
+    private static boolean isMappingType(int typeTag) {
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
+    }
+
+    /**
+     * Deep equality check for an array/tuple.
+     *
+     * @param lhsList   The array/tuple on the left hand side
+     * @param rhsList   The array/tuple on the right hand side
+     * @return True if the array/tuple values are equal, else false.
+     */
+    private static boolean isEqual(BNewArray lhsList, BNewArray rhsList) {
+        if (lhsList.size() != rhsList.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsList.size(); i++) {
+            if (!isEqual(lhsList.getBValue(i), rhsList.getBValue(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Deep equality check for a map.
+     *
+     * @param lhsMap    Map on the left hand side
+     * @param rhsMap    Map on the right hand side
+     * @return True if the map values are equal, else false.
+     */
+    private static boolean isEqual(BMap lhsMap, BMap rhsMap) {
+        if (lhsMap.size() != rhsMap.size()) {
+            return false;
+        }
+
+        if (!lhsMap.getMap().keySet().containsAll(rhsMap.getMap().keySet())) {
+            return false;
+        }
+
+        Iterator<Map.Entry<String, BValue>> mapIterator = lhsMap.getMap().entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<String, BValue> lhsMapEntry = mapIterator.next();
+            if (!isEqual(lhsMapEntry.getValue(), rhsMap.get(lhsMapEntry.getKey()))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

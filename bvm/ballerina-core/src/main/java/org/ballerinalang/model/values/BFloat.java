@@ -20,6 +20,9 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * The {@code BFloat} represents a float value in Ballerina.
  *
@@ -46,6 +49,11 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     @Override
     public double floatValue() {
         return this.value;
+    }
+
+    @Override
+    public BigDecimal decimalValue() {
+        return new BigDecimal(stringValue(), MathContext.DECIMAL128);
     }
 
     @Override

@@ -21,19 +21,19 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 /**
  * int a = 5;.
  *
  * @since 0.94
  */
-public class BLangVariableDef extends BLangStatement implements VariableDefinitionNode {
+public class BLangSimpleVariableDef extends BLangStatement implements VariableDefinitionNode {
     
-    public BLangVariable var;
+    public BLangSimpleVariable var;
 
     @Override
-    public BLangVariable getVariable() {
+    public BLangSimpleVariable getVariable() {
         return var;
     }
 
@@ -44,7 +44,7 @@ public class BLangVariableDef extends BLangStatement implements VariableDefiniti
 
     @Override
     public void setVariable(VariableNode var) {
-        this.var = (BLangVariable) var;
+        this.var = (BLangSimpleVariable) var;
     }
 
     @Override
