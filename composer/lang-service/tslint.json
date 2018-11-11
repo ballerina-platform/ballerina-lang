@@ -1,7 +1,6 @@
 {
   "extends": [
-    "tslint:latest",
-    "tslint-config-prettier"
+    "tslint:latest"
   ],
   "rules": {
       "interface-name":false
